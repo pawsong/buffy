@@ -1,0 +1,3 @@
+[submodule "modules/tween.js"]
+	path = modules/tween.js
+	url = git@github.com:project-pasta/tween.js.git

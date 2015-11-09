@@ -1,0 +1,11 @@
+{
+  "name": "@pasta/game-api",
+  "version": "0.0.0",
+  "description": "Client-side API Schema and adapter",
+  "main": "src/index.js",
+  "jsnext:main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "ISC"
+}

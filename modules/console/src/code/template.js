@@ -1,0 +1,2 @@
+importScripts('<%= env %>');
+importScripts('<%= compiled %>');

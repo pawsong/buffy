@@ -1,0 +1,15 @@
+{
+  "name": "@pasta/game-view",
+  "version": "1.0.0",
+  "description": "- Listens to state store event - Handle UI input",
+  "main": "src/index.js",
+  "jsnext:main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "keyboardjs": "^2.2.0"
+  }
+}
