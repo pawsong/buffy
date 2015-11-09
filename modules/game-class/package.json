@@ -1,0 +1,17 @@
+{
+  "name": "@pasta/game-class",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "jsnext:main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "link": "node ../../tools/link",
+    "prepublish": "npm run link"
+  },
+  "link": [
+    "../tween.js"
+  ],
+  "author": "",
+  "license": "ISC"
+}

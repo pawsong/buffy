@@ -43,6 +43,7 @@
     "../config",
     "../game-api",
     "../game-view",
-    "../game-store"
+    "../game-store",
+    "../game-class"
   ]
 }

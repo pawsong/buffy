@@ -28,7 +28,7 @@ import {
 } from '@pasta/game-api';
 
 import ObjectManager from '@pasta/game-store/src/classes/ObjectManager';
-import GameObject from '@pasta/game-store/src/classes/GameObject';
+import { GameObject } from '@pasta/game-class';
 
 const snippet =
 `import player from '@pasta/player';

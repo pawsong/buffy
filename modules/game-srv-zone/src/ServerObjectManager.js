@@ -1,7 +1,7 @@
 import loop from 'frame-loop';
 
 import ObjectManager from '@pasta/game-store/src/classes/ObjectManager';
-import ServerGameObject from '@pasta/game-store/src/classes/ServerGameObject';
+import ServerGameObject from './classes/ServerGameObject';
 
 const manager = new ObjectManager(ServerGameObject);
 

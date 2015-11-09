@@ -1,4 +1,4 @@
-import GameObject from './GameObject';
+import { GameObject } from '@pasta/game-class';
 
 const defaultViewables = {
   id: true,
