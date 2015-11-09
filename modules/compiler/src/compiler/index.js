@@ -12,7 +12,7 @@ const fs = Promise.promisifyAll(require("fs"));
 
 const pkgDir = path.dirname(pkgUp.sync(__dirname));
 
-const coreSrcDir = path.resolve(pkgDir, '..', 'core');
+const coreSrcDir = path.resolve(pkgDir, '..', 'game-core');
 const coreDestDir = path.resolve(pkgDir, `${PASTA_MODULE_DIR}/\@pasta`);
 
 const inputDir = path.resolve(pkgDir, '.in');
