@@ -4,7 +4,7 @@
   "description": "ES6 compiler with native modules",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon ../../node_modules/.bin/nodemon --watch src --watch ../core src/entry.js",
+    "start": "nodemon ../../node_modules/.bin/nodemon --watch src --watch ../game-core src/entry.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "link": "node ../../tools/link",
     "prepublish": "npm run link"

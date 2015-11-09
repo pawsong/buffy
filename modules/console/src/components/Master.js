@@ -135,10 +135,10 @@ class Master extends React.Component {
       });
 
     // Adapter.
-    const adapter = this.adapter = this.createAdapter(socket);
+    const api = this.createAdapter(socket);
 
     const elem = document.getElementById('game');
-    const game = createView(elem, gameManager, adapter);
+    const game = createView(elem, gameManager, api);
 
     /////////////////////////////////////////////////////////////////////////
     // Loop
@@ -163,22 +163,19 @@ class Master extends React.Component {
   onRun() {
 
     (async () => {
+      if (this.worker) {
+        this.worker.terminate();
+      }
+
       const source = this.editor.getValue();
       const result = await request.post('/code/compile')
         .send({ source }).exec();
 
-      console.log(result);
-
-      console.log(this.manager);
-      console.log(this.adapter);
-
-      if (this.worker) {
-        this.worker.terminate();
-      }
       this.worker = new Worker(result.url);
       this.worker.addEventListener('message', ({ data }) => {
         const { id, apiName, payload, type } = data;
 
+        // TODO: Validation
         //const api = apis[apiName];
         //if (!api) {
         //  return worker.postMessage({ id, error: 'Invalid api' });
@@ -190,7 +187,7 @@ class Master extends React.Component {
         this.worker.postMessage({ type: 'response', id, result });
       });
 
-      console.log('dump!!!!');
+      // Make a fake socket message with in memory data.
       this.worker.postMessage({
         type: 'socket',
         body: {
@@ -198,49 +195,6 @@ class Master extends React.Component {
           payload: this.manager.dump(),
         },
       });
-
-      return;
-
-      const workerUrl = `${config.consoleWebpackWorkerUrl}/${this.workerPath}`;
-      const code = await new Promise((resolve, reject) => {
-        request.get(workerUrl).end((err, res) => err ? reject(err) : resolve(res.text));
-      });
-      this._worker = new Worker('/worker');
-
-      return;
-
-      const worker = this._worker = new Worker(workerUrl);
-
-      const onReady = (msg) => {
-        console.log(msg);
-        this.worker.removeEventListener(onReady);
-
-        // Test, used in all examples:
-        this.worker.addEventListener('message', ({ data }) => {
-          const { id, apiName, payload, type } = data;
-
-          console.log(apiName);
-          console.log(payload);
-          const api = apis[apiName];
-          if (!api) {
-            return worker.postMessage({ id, error: 'Invalid api' });
-          }
-          this._socket.emit(apiName, payload);
-
-          // Wait response or not
-          const result = {};
-          worker.postMessage({ id, result });
-        });
-
-        worker.postMessage({
-          id: 'good',
-          scriptUrl: URL.createObjectURL(blob),
-        });
-      }
-      worker.addEventListener('message', onReady);
-
-      // Compile code
-      // Run compiled code on a new worker
     })().catch(err => {
       console.error(err.stack);
     });

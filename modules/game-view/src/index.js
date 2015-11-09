@@ -2,7 +2,7 @@ import EventEmitter from 'eventemitter3';
 
 const Promise = require('bluebird');
 
-export default (htmlElement, manager, adapter) => {
+export default (htmlElement, manager, api) => {
   const windowWidth = htmlElement.offsetWidth;
   const windowHeight = htmlElement.offsetHeight;
 
@@ -150,7 +150,7 @@ export default (htmlElement, manager, adapter) => {
               .floor()
               .addScalar(1);
 
-              adapter.move('', position.x, position.z);
+              api.move('', position.x, position.z);
   }, false);
 
   let cubes = {};

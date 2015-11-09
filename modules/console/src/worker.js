@@ -67,7 +67,7 @@ self.addEventListener('message', ({ data }) => {
  */
 self.$pasta = {};
 
-self.$pasta.adapter = createAdapter({
+self.$pasta.api = createAdapter({
   [Protocol.IO]: (apiName, payload) => {
     return request(apiName, payload);
   },
