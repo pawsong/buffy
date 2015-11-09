@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node tools/run.js",
-    "link": "node ../../tools/link"
+    "link": "node ../../tools/link",
+    "prepublish": "npm run link"
   },
   "author": "",
   "license": "ISC",

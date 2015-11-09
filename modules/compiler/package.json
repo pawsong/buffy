@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon ../../node_modules/.bin/nodemon --watch src --watch ../core src/entry.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "link": "node ../../tools/link"
+    "link": "node ../../tools/link",
+    "prepublish": "npm run link"
   },
   "license": "ISC",
   "dependencies": {
