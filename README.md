@@ -9,6 +9,17 @@ pasta is a platform where users can write and visualize code.
 - Native modules
 - 3D renderer
 
+## Prerequisite
+
+### GraphicsMagick or ImageMagick
+
+```bash
+brew install imagemagick
+brew install graphicsmagick
+```
+
+### MongoDB
+
 ## Local Setup
 
 ```bash
