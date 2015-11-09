@@ -24,20 +24,17 @@ brew install graphicsmagick
 
 ```bash
 # Project root
-$ git submodule init
-$ git submodule update
 $ npm install
-
-# In subdirectories under `modules` directory
-$ npm install
-$ npm run link
 
 # `modules/compiler`
+$ npm install
 $ npm start
 
 # `modules/game-srv-zone`
+$ npm install
 $ npm start
 
 # `modules/console`
+$ npm install
 $ npm start
 ```
