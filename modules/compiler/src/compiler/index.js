@@ -4,10 +4,19 @@ import MemoryFileSystem from 'memory-fs';
 import find from 'findit';
 import path from 'path';
 import shortid from 'shortid';
+import pkgUp from 'pkg-up';
+
+const PASTA_MODULE_DIR = 'pasta_modules';
 
 const fs = Promise.promisifyAll(require("fs"));
 
-var rootDir = __dirname + '/../../../../';
+const pkgDir = path.dirname(pkgUp.sync(__dirname));
+
+const coreSrcDir = path.resolve(pkgDir, '..', 'core');
+const coreDestDir = path.resolve(pkgDir, `${PASTA_MODULE_DIR}/\@pasta`);
+
+const inputDir = path.resolve(pkgDir, '.in');
+const outputDir = path.resolve(pkgDir, '.out');
 
 function findModuleFiles(root, done) {
   let err = null;
@@ -35,19 +44,17 @@ function findModuleFiles(root, done) {
   });
 }
 
-function syncFileSystem(fileSystem, dirname) {
-  const absDir = path.resolve(rootDir, dirname);
-
-  return findModuleFiles(absDir).then(files => {
+function syncFileSystem(fileSystem, src, dest) {
+  return findModuleFiles(src).then(files => {
 
     // Copy files from local fs to memory fs
     return Promise.map(files, function(file) {
-      const absPath = path.join(absDir, file);
+      const absPath = path.join(src, file);
 
       return fs.readFileAsync(absPath).then(data => {
-        //const destFile = path.join('/', dirname, file);
-        const destFile = path.join('/pasta_modules/\@pasta', file);
+        const destFile = path.resolve(dest, file);
         const dir = path.dirname(destFile);
+
         fileSystem.mkdirpSync(dir);
         fileSystem.writeFileSync(destFile, data);
       });
@@ -59,60 +66,53 @@ const ifs = new MemoryFileSystem();
 
 function init() {
   // Setup source directory
-  ifs.mkdirpSync('/src');
-
-  return syncFileSystem(ifs, 'modules/core');
+  ifs.mkdirpSync(inputDir);
+  ifs.mkdirpSync(outputDir);
+  return syncFileSystem(ifs, coreSrcDir, coreDestDir);
 }
 
 function compile(source) {
   const id = shortid.generate();
 
   const entryFile = `entry.${id}.js`;
-  const entryFilePath = path.resolve('/src', entryFile);
+  const entryFilePath = path.resolve(inputDir, entryFile);
   const bundleFile = `bundle.${id}.js`;
-  const bundleFilePath = path.resolve('/dist', bundleFile);
+  const bundleFilePath = path.resolve(outputDir, bundleFile);
 
   const compiler = webpack({
     entry: entryFilePath,
 
     output: {
-      path: '/dist',
+      path: outputDir,
       filename: bundleFile,
     },
 
     module: {
-      loaders: [
-        {
-          test: /\.js$/,
-          loader: 'babel-loader',
-          exclude: /node_modules/,
-          query: {
-            presets: ['es2015'],
-            plugins: [
-              'syntax-async-functions',
-              'transform-regenerator',
-              'syntax-object-rest-spread',
-              'transform-object-rest-spread',
-            ],
-          },
+      loaders: [{
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/,
+        query: {
+          presets: ['es2015'],
+          plugins: [
+            'syntax-async-functions',
+            'transform-regenerator',
+            'syntax-object-rest-spread',
+            'transform-object-rest-spread',
+          ],
         },
-      ],
+      }],
     },
 
     resolve: {
       modulesDirectories: [
         'node_modules',
         'web_modules',
-        'pasta_modules',
+        PASTA_MODULE_DIR,
       ],
     },
 
-    resolveLoader: {
-      root: path.join(rootDir, 'node_modules')
-    },
-
-    //devtool: 'source-map',
-    devtool: 'inline-source-map',
+    devtool: '#inline-source-map',
   });
 
   compiler.inputFileSystem = ifs;

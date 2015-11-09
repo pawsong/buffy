@@ -2,8 +2,8 @@
   "presets": ["es2015"],
   "plugins": [
     "syntax-async-functions",
-    "syntax-export-extensions",
     "transform-regenerator",
-    "transform-export-extensions"
+    "syntax-object-rest-spread",
+    "transform-object-rest-spread"
   ]
 }

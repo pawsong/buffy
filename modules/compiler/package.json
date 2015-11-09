@@ -17,8 +17,10 @@
     "babel-plugin-syntax-object-rest-spread": "^6.0.14",
     "babel-plugin-transform-object-rest-spread": "^6.0.14",
     "babel-plugin-transform-regenerator": "^6.0.18",
+    "body-parser": "^1.14.1",
     "express": "^4.13.3",
     "findit": "^2.0.0",
+    "pkg-up": "^1.0.0",
     "shortid": "^2.2.4",
     "webpack": "^1.12.3"
   },
