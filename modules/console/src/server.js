@@ -1,4 +1,4 @@
-import 'babel-core/polyfill';
+import 'babel-polyfill';
 import './patch/superagent';
 
 import express from 'express';

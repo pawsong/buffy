@@ -1,4 +1,4 @@
-import 'babel-core/polyfill';
+import 'babel-polyfill';
 import Promise from 'bluebird';
 import EventEmitter from 'eventemitter3';
 
