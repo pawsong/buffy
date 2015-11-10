@@ -20,6 +20,12 @@ brew install graphicsmagick
 
 ### MongoDB
 
+### etc
+
+```bash
+sudo apt-get install g++
+```
+
 ## Local Setup
 
 ```bash
