@@ -13,6 +13,7 @@ if (process.env.NODE_ENV === 'development') {
   config.gameServerUrl =
     `http://localhost:${iConfig.gameServerPort}`;
 
+  config.facebookAppId = '1127122043982378';
 } else {
 
   config.consolePublicPath =
@@ -21,4 +22,5 @@ if (process.env.NODE_ENV === 'development') {
   config.gameServerUrl =
     `http://zone.html5.computer`;
 
+  config.facebookAppId = '1127121857315730';
 }

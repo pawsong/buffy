@@ -55,7 +55,9 @@ function loadStaticAsset(file, webpackServerPort) {
     iConfig.consoleWebpackAppPort
   );
 
-  const compiled = _.template(template);
+  const compiled = _.template(template, {
+    imports: { facebookAppId: config.facebookAppId },
+  });
 
   const app = express();
   app.use('/assets', express.static(__dirname + '/../public'));
