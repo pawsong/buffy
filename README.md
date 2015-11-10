@@ -23,8 +23,13 @@ brew install graphicsmagick
 ### etc
 
 ```bash
-sudo apt-get install g++
+apt-get install g++
 npm install -g nodemon
+npm install -g memory-fs
+npm install cookie
+npm install babel-plugin-transform-regenerator
+npm install eventemitter3
+npm install jsonwebtoken
 ```
 
 ## Local Setup
