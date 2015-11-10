@@ -2,8 +2,10 @@ import 'babel-polyfill';
 import Promise from 'bluebird';
 import EventEmitter from 'eventemitter3';
 
-import ObjectManager from '@pasta/game-store/src/classes/ObjectManager';
-import { GameObject } from '@pasta/game-class';
+import {
+  GameObject,
+  ObjectManager,
+} from '@pasta/game-class';
 
 import {
   Protocol,

@@ -3,11 +3,16 @@
   "version": "0.0.0",
   "description": "ES6 compiler with native modules",
   "main": "app.js",
+  "built:main": "lib/index.js",
   "scripts": {
+    "clean": "../../node_modules/.bin/rimraf lib",
     "start": "nodemon ../../node_modules/.bin/nodemon --watch src --watch ../game-core src/entry.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "link": "node ../../tools/link",
-    "prepublish": "npm run link"
+    "prepublish": "npm run link && npm run build",
+    "build": "npm run clean && npm run build:lib",
+    "build:lib": "../../node_modules/.bin/babel src --out-dir lib",
+    "bundle:node": "node ../../tools/bundle && cp -r ../game-core bundle"
   },
   "license": "ISC",
   "dependencies": {
@@ -17,6 +22,8 @@
     "babel-plugin-syntax-object-rest-spread": "^6.0.14",
     "babel-plugin-transform-object-rest-spread": "^6.0.14",
     "babel-plugin-transform-regenerator": "^6.0.18",
+    "babel-preset-es2015": "^6.1.2",
+    "bluebird": "^3.0.5",
     "body-parser": "^1.14.1",
     "express": "^4.13.3",
     "findit": "^2.0.0",

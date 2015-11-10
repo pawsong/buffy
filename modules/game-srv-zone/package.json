@@ -1,17 +1,23 @@
 {
-  "name": "game-srv-zone",
-  "version": "1.0.0",
+  "name": "@pasta/game-srv-zone",
+  "version": "0.0.0",
   "description": "",
   "main": "index.js",
+  "built:main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "../../node_modules/.bin/rimraf lib",
     "start": "../../node_modules/.bin/nodemon --watch src src/entry.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "link": "node ../../tools/link",
-    "prepublish": "npm run link"
+    "prepublish": "npm run link && npm run build",
+    "build": "npm run clean && npm run build:lib",
+    "build:lib": "../../node_modules/.bin/babel src --out-dir lib",
+    "bundle:node": "node ../../tools/bundle"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.0.5",
     "express": "^4.13.3",
     "frame-loop": "^1.2.1",
     "jsonwebtoken": "^5.4.1",

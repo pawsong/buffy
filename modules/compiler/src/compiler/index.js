@@ -100,6 +100,7 @@ function compile(source) {
             'syntax-object-rest-spread',
             'transform-object-rest-spread',
           ],
+          babelrc: false,
         },
       }],
     },
