@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'development') {
   const iConfig = require('@pasta/config-internal');
 
   config.consolePublicPath =
-    `http://localhost:${iConfig.consoleWebpackWorkerPort}/`;
+    `http://localhost:${iConfig.consoleWebpackAppPort}/`;
 
   config.gameServerUrl =
     `http://localhost:${iConfig.gameServerPort}`;

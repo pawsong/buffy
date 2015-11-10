@@ -35,7 +35,7 @@ const HairdresserProvider = provideHairdresserContext(Provider);
 
 function loadStaticAsset(file, webpackServerPort) {
   return new Promise((resolve, reject) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
       request.get(`http://localhost:${webpackServerPort}/${file}`).end(function(err, res){
         if (err) { return reject(err); }
         resolve(res.text);

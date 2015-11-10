@@ -13,7 +13,7 @@ module.exports = {
   },
 
   output: {
-    path: './build/public',
+    path: '/',
     filename: 'bundle.js',
     publicPath: config.consolePublicPath,
   },
@@ -24,7 +24,7 @@ module.exports = {
 
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html', // Load a custom template
+      template: __dirname + '/../../src/index.html', // Load a custom template
       inject: 'body', // Inject all scripts into the body
       filename: 'index.html',
     }),
