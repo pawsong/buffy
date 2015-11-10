@@ -78,7 +78,7 @@ new Promise((resolve, reject) => {
     exec(
       `aws s3 cp ${dirname}/ s3://${bucket}/ --recursive --exclude "*" ` +
       `--include "${basename}" --acl public-read ` +
-      '--content-encoding "gzip" --cache-control "max-age=604800"', {
+      '--cache-control "max-age=31536000"', {
       env: {
         AWS_ACCESS_KEY_ID: awsAccessKeyId,
         AWS_SECRET_ACCESS_KEY: awsSecretAccessKey,
