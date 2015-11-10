@@ -19,6 +19,6 @@ if (process.env.NODE_ENV === 'development') {
     'https://pasta-prod.s3-ap-northeast-1.amazonaws.com/';
 
   config.gameServerUrl =
-    `http://localhost:8000`;
+    `http://zone.html5.computer`;
 
 }
