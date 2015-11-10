@@ -39,8 +39,7 @@
   "scripts": {
     "prepublish": "git submodule init && git submodule update",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "bundle": "node tools/bundle",
-    "deploy": "node tools/checkRepo && npm run build && node tools/deploy"
+    "deploy": "node tools/checkRepo && node tools/bundle && node tools/deploy"
   },
   "license": "ISC",
   "deployables": [
