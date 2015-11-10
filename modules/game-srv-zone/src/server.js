@@ -8,15 +8,15 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
-import config from '@pasta/config';
+import iConfig from '@pasta/config-internal';
 
 ioHandler(io);
 
 (async () => {
   await new Promise(resolve => {
-    http.listen(config.gameServerPort, err => err ? reject(err) : resolve());
+    http.listen(iConfig.gameServerPort, err => err ? reject(err) : resolve());
   });
-  console.log(`Listening at *:${config.gameServerPort}`);
+  console.log(`Listening at *:${iConfig.gameServerPort}`);
 })().catch(err => {
   console.error(err.stack);
   process.exit(1);

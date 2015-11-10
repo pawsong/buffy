@@ -5,7 +5,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 
 import compiler from './compiler';
-import iConfig from '@pasta/config/internal';
+import iConfig from '@pasta/config-internal';
 
 import routes from './routes';
 

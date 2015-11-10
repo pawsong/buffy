@@ -1,5 +1,13 @@
 const iConfig = module.exports;
 
+iConfig.gameServerPort = 8000;
+
+iConfig.consolePort = 9000;
+
+iConfig.consoleWebpackAppPort = 9001;
+
+iConfig.consoleWebpackWorkerPort = 9002;
+
 iConfig.compilerPort = 9100;
 
 iConfig.compilerUrl =

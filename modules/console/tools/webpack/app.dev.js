@@ -1,7 +1,7 @@
 /* eslint no-var: 0 */
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
-var config = require('@pasta/config');
+var iConfig = require('@pasta/config-internal');
 
 module.exports = {
   entry: './src/app.js',
@@ -15,7 +15,7 @@ module.exports = {
   output: {
     path: __dirname + '/build/public',
     filename: 'bundle.js',
-    publicPath: `http://localhost:${config.consoleWebpackAppPort}/`,
+    publicPath: `http://localhost:${iConfig.consoleWebpackAppPort}/`,
   },
 
   resolve: {

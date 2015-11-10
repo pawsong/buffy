@@ -20,8 +20,8 @@ import routes from './routes';
 
 import rootReducer from './reducers';
 
-import config from '@pasta/config';
-import iConfig from '@pasta/config/internal';
+import config from '@pasta/config-public';
+import iConfig from '@pasta/config-internal';
 
 import { provideHairdresserContext } from './hairdresser';
 
@@ -52,7 +52,7 @@ function loadStaticAsset(file, webpackServerPort) {
 
   const template = await loadStaticAsset(
     'index.html',
-    config.consoleWebpackAppPort
+    iConfig.consoleWebpackAppPort
   );
 
   const compiled = _.template(template);
@@ -132,10 +132,10 @@ function loadStaticAsset(file, webpackServerPort) {
   });
 
   await new Promise((resolve, reject) => {
-    app.listen(config.consolePort, err => err ? reject(err) : resolve());
+    app.listen(iConfig.consolePort, err => err ? reject(err) : resolve());
   });
 
-  console.log(`Listening at *:${config.consolePort}`);
+  console.log(`Listening at *:${iConfig.consolePort}`);
 })().catch(err => {
   console.error(err.stack);
 });

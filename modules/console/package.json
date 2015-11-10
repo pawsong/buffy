@@ -40,7 +40,9 @@
     "superagent": "^1.4.0"
   },
   "link": [
-    "../config",
+    "../config-public",
+    "../config-internal",
+    "../helper-internal",
     "../game-api",
     "../game-view",
     "../game-store",

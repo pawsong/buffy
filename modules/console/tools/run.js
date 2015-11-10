@@ -6,7 +6,7 @@ const webpack = require('webpack');
 const fs = require('fs');
 const nodemon = require('nodemon');
 
-const config = require('@pasta/config');
+const iConfig = require('@pasta/config-internal');
 
 function runWebpackDevServer(configPath, port, plugin) {
   return new Promise((resolve, reject) => {
@@ -26,8 +26,8 @@ function runWebpackDevServer(configPath, port, plugin) {
 }
 
 Promise.all([
-  runWebpackDevServer('./webpack/worker.dev', config.consoleWebpackWorkerPort),
-  runWebpackDevServer('./webpack/app.dev', config.consoleWebpackAppPort, compiler => {
+  runWebpackDevServer('./webpack/worker.dev', iConfig.consoleWebpackWorkerPort),
+  runWebpackDevServer('./webpack/app.dev', iConfig.consoleWebpackAppPort, compiler => {
     // Restart nodemon server when index template file changed.
     let oldTemplate;
     compiler.plugin('done', params => {

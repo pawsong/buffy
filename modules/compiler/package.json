@@ -25,7 +25,7 @@
     "webpack": "^1.12.3"
   },
   "link": [
-    "../config",
-    "../helper"
+    "../config-internal",
+    "../helper-internal"
   ]
 }

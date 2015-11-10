@@ -16,7 +16,7 @@ import {
   SET_USER_DATA,
 } from '../constants/ActionTypes';
 import request from 'superagent';
-import config from '@pasta/config';
+import config from '@pasta/config-public';
 
 import io from 'socket.io-client';
 
@@ -119,7 +119,7 @@ class Master extends React.Component {
     const gameManager = new ObjectManager(GameObject);
 
     // Network layer.
-    const socket = this._socket = io(`http://localhost:${config.gameServerPort}`);
+    const socket = this._socket = io(config.gameServerUrl);
     gameManager.connect(socket);
 
     // Will use another socket.

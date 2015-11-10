@@ -1,4 +1,4 @@
-import wrap from '@pasta/helper/wrap';
+import { wrap } from '@pasta/helper-internal';
 
 import compiler from './compiler';
 

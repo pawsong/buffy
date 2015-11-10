@@ -1,6 +1,6 @@
 /* eslint no-var: 0 */
 const webpack = require('webpack');
-const config = require('@pasta/config');
+const iConfig = require('@pasta/config-internal');
 const ManifestPlugin = require('webpack-manifest-plugin');
 
 module.exports = {
@@ -19,7 +19,7 @@ module.exports = {
   output: {
     path: __dirname + '/build/public',
     filename: 'worker.js',
-    publicPath: `http://localhost:${config.consoleWebpackWorkerPort}/`,
+    publicPath: `http://localhost:${iConfig.consoleWebpackWorkerPort}/`,
   },
 
   resolve: {

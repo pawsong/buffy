@@ -1,6 +1,6 @@
 import cookie from 'cookie';
 import jwt from 'jsonwebtoken';
-import iConfig from '@pasta/config/internal';
+import iConfig from '@pasta/config-internal';
 import TWEEN from '@pasta/tween.js';
 import shortid from 'shortid';
 

@@ -2,8 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import request from 'superagent';
 import Script from '../models/Script';
-import config from '@pasta/config';
-import iConfig from '@pasta/config/internal';
+import config from '@pasta/config-public';
+import iConfig from '@pasta/config-internal';
 import fs from 'fs';
 import _ from 'lodash';
 
@@ -58,7 +58,7 @@ if (process.env.NODE_ENV === 'development') {
   envFile = 'worker.js';
   envFileHandler = (req, res, next) => {
     request
-      .get(`http://localhost:${config.consoleWebpackWorkerPort}/worker.js`)
+      .get(`http://localhost:${iConfig.consoleWebpackWorkerPort}/worker.js`)
       .buffer(true)
       .end((err, resp) => {
         if (err) { return next(err); }

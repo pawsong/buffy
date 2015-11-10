@@ -8,16 +8,11 @@ import shortid from 'shortid';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import s3 from '../s3';
-import config from '@pasta/config';
-import iConfig from '@pasta/config/internal';
+import config from '@pasta/config-public';
+import iConfig from '@pasta/config-internal';
+import { wrap } from '@pasta/helper-internal';
 
 const DOMAIN = config.domain ? '.' + config.domain : '';
-
-function wrap(handler) {
-  return (req, res, next) => {
-    handler(req, res, next).catch(next);
-  };
-}
 
 const api = express();
 
