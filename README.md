@@ -24,6 +24,7 @@ brew install graphicsmagick
 
 ```bash
 sudo apt-get install g++
+npm install -g nodemon
 ```
 
 ## Local Setup
