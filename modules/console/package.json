@@ -5,14 +5,16 @@
   "main": "app.js",
   "built:main": "lib/index.js",
   "scripts": {
-    "clean": "../../node_modules/.bin/rimraf lib",
+    "clean": "../../node_modules/.bin/rimraf lib build",
     "start": "node tools/run.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "link": "node ../../tools/link",
     "prepublish": "npm run link && npm run build",
-    "build": "npm run clean && npm run build:lib",
+    "build": "npm run clean && npm run build:lib && npm run build:app && npm run build:worker",
     "build:lib": "../../node_modules/.bin/babel src --out-dir lib",
-    "bundle:node": "node ../../tools/bundle"
+    "build:app": "../../node_modules/.bin/webpack --config tools/webpack/app.prod.js",
+    "build:worker": "../../node_modules/.bin/webpack --config tools/webpack/worker.prod.js",
+    "bundle": "node ../../tools/bundle"
   },
   "author": "",
   "license": "ISC",
@@ -26,7 +28,7 @@
     "gm": "^1.21.1",
     "hairdresser": "^0.1.6",
     "history": "^1.13.0",
-    "material-ui": "^0.13.1",
+    "material-ui": "0.13.1",
     "mongoose": "^4.2.4",
     "object-assign": "^4.0.1",
     "react": "^0.14.2",

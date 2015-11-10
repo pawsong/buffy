@@ -5,8 +5,7 @@ var webpackConfigDev = require('./worker.dev');
 
 module.exports = _.defaultsDeep({
   output: {
-    path: './build/public',
-    filename: 'worker.js',
-    publicPath: 'http://localhost:${iConfig.consoleWebpackWorkerPort}',
+    path: './build',
+    filename: 'worker.[chunkhash].js',
   },
 }, webpackConfigDev);

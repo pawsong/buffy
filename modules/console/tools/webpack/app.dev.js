@@ -1,7 +1,7 @@
 /* eslint no-var: 0 */
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
-var iConfig = require('@pasta/config-internal');
+var config = require('@pasta/config-public');
 
 module.exports = {
   entry: './src/app.js',
@@ -13,9 +13,9 @@ module.exports = {
   },
 
   output: {
-    path: __dirname + '/build/public',
+    path: './build/public',
     filename: 'bundle.js',
-    publicPath: `http://localhost:${iConfig.consoleWebpackAppPort}/`,
+    publicPath: config.consolePublicPath,
   },
 
   resolve: {
@@ -23,13 +23,8 @@ module.exports = {
   },
 
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
-      }
-    }),
     new HtmlWebpackPlugin({
-      template: __dirname + '/../../src/index.html', // Load a custom template
+      template: './src/index.html', // Load a custom template
       inject: 'body', // Inject all scripts into the body
       filename: 'index.html',
     }),

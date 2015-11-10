@@ -41,7 +41,7 @@ function loadStaticAsset(file, webpackServerPort) {
         resolve(res.text);
       });
     } else {
-      const text = readFileSync(`__dirname/${file}`).toString();
+      const text = fs.readFileSync(__dirname + `/../build/public/${file}`).toString();
       resolve(text);
     }
   });

@@ -66,10 +66,11 @@ if (process.env.NODE_ENV === 'development') {
       });
   };
 } else {
-  // TODO: In production mode, worker file name should be read in local file.
-  envFile = 'worker.js';
+  const manifest = require(__dirname + '/../../build/manifest.json');
+  envFile = manifest['worker.js'];
+  const fileContent = fs.readFileSync(__dirname + `/../../build/${envFile}`).toString();
   envFileHandler = (req, res) => {
-    // Send local file
+    res.send(fileContent);
   };
 }
 

@@ -1,4 +1,3 @@
-/* eslint no-var: 0 */
 const webpack = require('webpack');
 const iConfig = require('@pasta/config-internal');
 const ManifestPlugin = require('webpack-manifest-plugin');
