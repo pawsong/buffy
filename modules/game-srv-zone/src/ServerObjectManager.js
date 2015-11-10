@@ -11,7 +11,7 @@ const engine = loop(dt => {
 engine.run();
 
 engine.on('fps', fps => {
-  console.log('fps=', fps);
+  // console.log('fps=', fps);
 });
 
 export default manager;
