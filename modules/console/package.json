@@ -13,8 +13,7 @@
     "build": "npm run clean && npm run build:lib && npm run build:app && npm run build:worker",
     "build:lib": "../../node_modules/.bin/babel src --out-dir lib",
     "build:app": "../../node_modules/.bin/webpack --config tools/webpack/app.prod.js",
-    "build:worker": "../../node_modules/.bin/webpack --config tools/webpack/worker.prod.js",
-    "bundle": "node ../../tools/bundle"
+    "build:worker": "../../node_modules/.bin/webpack --config tools/webpack/worker.prod.js"
   },
   "author": "",
   "license": "ISC",

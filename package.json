@@ -21,12 +21,14 @@
     "bluebird": "^3.0.5",
     "chai": "^3.4.0",
     "file-loader": "^0.8.4",
+    "fs-extra": "^0.26.2",
+    "git-push": "^0.1.1",
     "html-webpack-plugin": "^1.6.2",
     "lodash": "^3.10.1",
     "mocha": "^2.3.3",
     "nodemon": "^1.8.0",
     "pkg-dir": "^1.0.0",
-    "rimraf": "^2.4.3",
+    "pm2-deploy": "^0.2.1",
     "sinon": "^1.17.2",
     "tar.gz": "^1.0.2",
     "webpack": "^1.12.3",
@@ -36,7 +38,17 @@
   },
   "scripts": {
     "prepublish": "git submodule init && git submodule update",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "node tools/bundle",
+    "deploy": "node tools/checkRepo && npm run build && node tools/deploy"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "deployables": [
+    "game-srv-zone",
+    "console",
+    "compiler"
+  ],
+  "dependencies": {
+    "rimraf": "^2.4.3"
+  }
 }

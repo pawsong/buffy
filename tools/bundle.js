@@ -1,90 +1,72 @@
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 const rimraf = require('rimraf');
 const pkgDir = require('pkg-dir');
 const _ = require('lodash');
 const exec = require('child_process').execSync;
 
-// Untar command
-const untar = path.resolve(__dirname, '../node_modules/.bin/targz');
+const root = pkgDir.sync(__dirname);
+const rootPkg = require(path.resolve(root, 'package.json'));
 
-const pkgDirPath = pkgDir.sync(process.cwd());
-const bundlePath = path.resolve(pkgDirPath, 'bundle');
+// Untar command
+const untar = path.resolve(root, 'node_modules/.bin/targz');
+
+const bundlePath = path.resolve(root, 'bundle');
 
 // Reset
 rimraf.sync(bundlePath);
-fs.mkdirSync(bundlePath);
+fs.mkdirsSync(path.resolve(bundlePath, 'modules'));
 
-// Get link dependencies path and package.json data
-const links = (pkgDirPath => {
-  const ret = {};
+const modules = fs.readdirSync(path.resolve(root, 'modules'));
 
-  function getPkg(p) {
-    return require(path.resolve(p, 'package.json'));
+modules.forEach(module => {
+  console.log(`Import ${module}`);
+
+  const srcPath = path.resolve(root, 'modules', module);
+  const destPath = path.resolve(bundlePath, 'modules', module);
+
+  const pkgFile = path.resolve(srcPath, 'package.json');
+
+  if (!fs.existsSync(pkgFile)) {
+    fs.copySync(srcPath, destPath);
+    return;
   }
 
-  function findLinks(root) {
-    const pkg = ret[root] = getPkg(root);
+  const pkg = require(pkgFile);
 
-    if (!pkg.link) { return; }
-
-    pkg.link.forEach(relpath => {
-      const abspath = path.resolve(root, relpath);
-
-      // Visited
-      if (ret[abspath]) { return; }
-
-      findLinks(abspath);
-    });
-  }
-
-  findLinks(pkgDirPath);
-  return ret;
-})(pkgDirPath);
-
-Object.keys(links).forEach(linkpath => {
   // Import dependencies
-  const pkg = links[linkpath];
-  const dirname = path.relative(
-    path.dirname(linkpath),
-    linkpath
-  );
-
-  console.log(`Import ${dirname}`);
-
   // Pack
-  exec(`npm pack ${linkpath}`, {
+  exec(`npm pack ${srcPath}`, {
     cwd: bundlePath,
   }).toString().trim();
 
   // Untar
   const tarball = `${pkg.name.replace('@', '').replace('/', '-')}-${pkg.version}.tgz`;
-  const tempdir = '.' + dirname;
+  const tempdir = '.' + module;
   exec(`${untar} extract ${tarball} ${tempdir}`, { cwd: bundlePath });
   fs.renameSync(
     path.resolve(bundlePath, tempdir, 'package'),
-    path.resolve(bundlePath, dirname)
+    destPath
   );
   fs.unlinkSync(path.resolve(bundlePath, tarball));
 
   // TODO: Investigation
   // Some node_modules are remaining... npm bug?
-  rimraf.sync(path.resolve(bundlePath, dirname, 'node_modules'));
+  rimraf.sync(path.resolve(destPath, 'node_modules'));
 
   // Override package.json
   const dependencies = {};
-  const sublinks = pkg.link;
-  if (sublinks) {
-    sublinks.forEach(p => {
-      const ap = path.resolve(linkpath, p);
-      const name = links[ap].name;
-      dependencies[name] = p;
+  const links = pkg.link;
+  if (links) {
+    links.forEach(link => {
+      const linkPkg = require(path.resolve(srcPath, link, 'package.json'));
+      dependencies[linkPkg.name] = link;
     });
   }
   const main = pkg['built:main'] || pkg.main;
 
   fs.writeFileSync(
-    path.resolve(bundlePath, dirname, 'package.json'),
+    path.resolve(destPath, 'package.json'),
     JSON.stringify(_.defaultsDeep({
       dependencies,
       main,
@@ -94,3 +76,30 @@ Object.keys(links).forEach(linkpath => {
     }, pkg), null, '  ')
   );
 });
+
+// package.json
+fs.copySync(
+  path.resolve(root, 'package.json'),
+  path.resolve(bundlePath, 'package.json')
+);
+
+// tools
+fs.copySync(
+  path.resolve(root, 'tools'),
+  path.resolve(bundlePath, 'tools')
+);
+
+// processes.json
+const appDecl = {
+  apps: rootPkg.deployables.map(deployable => ({
+    name: deployable,
+    script: `modules/${deployable}/lib/server.js`,
+    env: {
+      NODE_ENV: 'production'
+    },
+  })),
+};
+fs.writeFileSync(
+  path.resolve(bundlePath, 'processes.json'),
+  JSON.stringify(appDecl, null, '  ')
+);

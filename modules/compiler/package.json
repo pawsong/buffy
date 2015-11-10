@@ -11,8 +11,7 @@
     "link": "node ../../tools/link",
     "prepublish": "npm run link && npm run build",
     "build": "npm run clean && npm run build:lib",
-    "build:lib": "../../node_modules/.bin/babel src --out-dir lib",
-    "bundle:node": "node ../../tools/bundle && cp -r ../game-core bundle"
+    "build:lib": "../../node_modules/.bin/babel src --out-dir lib"
   },
   "license": "ISC",
   "dependencies": {
