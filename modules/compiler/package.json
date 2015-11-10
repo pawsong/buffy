@@ -6,7 +6,7 @@
   "built:main": "lib/index.js",
   "scripts": {
     "clean": "../../node_modules/.bin/rimraf lib",
-    "start": "nodemon ../../node_modules/.bin/nodemon --watch src --watch ../game-core src/entry.js",
+    "start": "../../node_modules/.bin/nodemon --watch src --watch ../game-core src/entry.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "link": "node ../../tools/link",
     "prepublish": "npm run link && npm run build",
