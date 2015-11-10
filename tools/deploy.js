@@ -4,6 +4,9 @@ const deploy = require('pm2-deploy');
 const exec = require('child_process').execSync;
 const fs = require('fs');
 
+const root = path.resolve(__dirname, '..');
+const rootPkg = require(path.resolve(root, 'package.json'));
+
 function getEnv (key, defaultVal) {
   const val = process.env[key] || '';
   if (!val && defaultVal === undefined) {
@@ -11,6 +14,10 @@ function getEnv (key, defaultVal) {
   }
   return val || defaultVal;
 }
+
+const bucket = getEnv('PASTA_DEPLOY_S3_BUCKET');
+const awsAccessKeyId = getEnv('PASTA_AWS_ACCESS_KEY_ID');
+const awsSecretAccessKey = getEnv('PASTA_AWS_SECRET_KEY');
 
 const deployConf = {
   user: getEnv('PASTA_DEPLOY_USER'),
@@ -57,6 +64,26 @@ new Promise((resolve, reject) => {
     deploy.deployForEnv({
       target: deployConf
     }, 'target', [], err => err ? reject(err) : resolve());
+  });
+}).then(() => {
+  rootPkg.deployables.forEach(deployable => {
+    const modulePath = path.resolve(root, 'modules', deployable);
+    const pkg = require(path.resolve(modulePath, 'package.json'));
+    if (!pkg.publicAssets) { return; }
+
+    const abspath = path.resolve(modulePath, pkg.publicAssets);
+    const dirname = path.dirname(abspath);
+    const basename = path.basename(abspath);
+
+    exec(
+      `aws s3 cp ${dirname}/ s3://${bucket}/ --recursive --exclude "*" ` +
+      `--include "${basename}" --acl public-read ` +
+      '--content-encoding "gzip" --cache-control "max-age=604800"', {
+      env: {
+        AWS_ACCESS_KEY_ID: awsAccessKeyId,
+        AWS_SECRET_ACCESS_KEY: awsSecretAccessKey,
+      },
+    });
   });
 }).catch(err => {
   console.error(err);

@@ -15,6 +15,7 @@
     "build:app": "../../node_modules/.bin/webpack --config tools/webpack/app.prod.js",
     "build:worker": "../../node_modules/.bin/webpack --config tools/webpack/worker.prod.js"
   },
+  "publicAssets": "build/public/*.js",
   "author": "",
   "license": "ISC",
   "dependencies": {
