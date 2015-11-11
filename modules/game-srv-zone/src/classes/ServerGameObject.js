@@ -26,20 +26,15 @@ ServerGameObject.update = function update(dt, obj) {
 /*
  * Public methods (user can use these)
  */
-ServerGameObject.prototype.dump = function dump() {
+ServerGameObject.prototype.getSerializedObjectsInRange = function getSerializedObjectsInRange() {
   const viewables = [];
   for (let prop in this.viewables) {
     viewables.push(prop);
   }
 
-  //const objs = this.getNearObjects().concat([this]);
-  const objs = this.getNearObjects();
+  const objs = this.getNearObjects().concat([this]);
   return objs.map(obj => {
-    const ret = {};
-    viewables.forEach(prop => {
-      ret[prop] = obj[prop];
-    });
-    return ret;
+    return obj.serialize(viewables);
   });
 }
 

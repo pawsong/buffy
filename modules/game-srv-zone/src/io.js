@@ -31,12 +31,9 @@ export default io => {
 
     const userObject = manager.create({ id: shortid.generate(), ...user });
 
-    console.log(userObject.dump());
-    console.log(manager.getAllObjects());
-
     socket.emit('init', {
       me: { id: userObject.id },
-      objects: userObject.dump(),
+      objects: userObject.getSerializedObjectsInRange(),
     });
 
     socket.on('move', msg => {

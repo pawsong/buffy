@@ -65,10 +65,12 @@ class ObjectManager extends EventEmitter {
   }
 
   init(data) {
-    const { objects } = data;
+    const { me, objects } = data;
 
     // reset
     this.destroyAll();
+
+    this.me = me;
 
     // Initialize store
     objects.forEach(d => {
@@ -122,7 +124,7 @@ class ObjectManager extends EventEmitter {
     return this;
   }
 
-  dump() {
+  serialize() {
     return Object.keys(this._objs).map(key => {
       return this._objs[key].serialize();
     });

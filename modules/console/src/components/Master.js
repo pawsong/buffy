@@ -194,7 +194,10 @@ class Master extends React.Component {
         type: 'socket',
         body: {
           event: 'init',
-          payload: this.manager.dump(),
+          payload: {
+            me: this.manager.me,
+            objects: this.manager.serialize(),
+          }
         },
       });
     })().catch(err => {
