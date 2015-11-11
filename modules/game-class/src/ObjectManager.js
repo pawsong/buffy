@@ -107,6 +107,13 @@ class ObjectManager extends EventEmitter {
 
     listen('move', data => {
       const obj = this.find(data.id);
+      if (!obj) {
+        // TODO: Request missing object data to server.
+        // Out of sync in this case. We may have to reset all data.
+        console.error('Client and server out of sync!');
+        console.error(`Cannot find object ${data.id}`);
+        return;
+      }
       obj.tween.import(data.tween);
     });
 
