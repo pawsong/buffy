@@ -94,6 +94,7 @@ const appDecl = {
   apps: rootPkg.deployables.map(deployable => ({
     name: deployable,
     script: `modules/${deployable}/lib/server.js`,
+    cwd: `modules/${deployable}`,
     env: {
       NODE_ENV: 'production'
     },
