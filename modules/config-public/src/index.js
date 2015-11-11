@@ -2,7 +2,7 @@ const config = module.exports;
 
 config.navbarHeight = 56;
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV !== 'production') {
   // Should be eliminated by dead-code elimination in proudction mode
 
   const iConfig = require('@pasta/config-internal');
