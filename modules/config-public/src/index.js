@@ -23,4 +23,6 @@ if (process.env.NODE_ENV === 'development') {
     `http://zone.html5.computer`;
 
   config.facebookAppId = '1127121857315730';
+
+  config.domain = 'html5.computer';
 }
