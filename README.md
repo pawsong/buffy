@@ -15,7 +15,7 @@ pasta is a platform where users can write and visualize code.
 
 ### node.js
 
-node >=4
+node >=4 (Recommend using [nvm](https://github.com/creationix/nvm))
 
 ### GraphicsMagick or ImageMagick
 
