@@ -26,6 +26,7 @@
     "body-parser": "^1.14.1",
     "express": "^4.13.3",
     "findit": "^2.0.0",
+    "memory-fs": "^0.3.0",
     "pkg-up": "^1.0.0",
     "shortid": "^2.2.4",
     "webpack": "^1.12.3"

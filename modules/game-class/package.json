@@ -16,5 +16,8 @@
     "../tween.js"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "eventemitter3": "^1.1.1"
+  }
 }
