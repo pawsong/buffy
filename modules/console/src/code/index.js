@@ -54,7 +54,7 @@ app.post('/compile', wrap(async (req, res, next) => {
 let envFile;
 let envFileHandler;
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV !== 'production') {
   envFile = 'worker.js';
   envFileHandler = (req, res, next) => {
     request
@@ -70,7 +70,10 @@ if (process.env.NODE_ENV === 'development') {
   envFile = manifest['worker.js'];
   const fileContent = fs.readFileSync(__dirname + `/../../build/${envFile}`).toString();
   envFileHandler = (req, res) => {
-    res.send(fileContent);
+    res
+      .set('Content-Type', 'application/javascript')
+      .set('Cache-Control', 'public, max-age=31536000')
+      .send(fileContent);
   };
 }
 
