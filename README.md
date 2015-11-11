@@ -13,6 +13,10 @@ pasta is a platform where users can write and visualize code.
 
 ## Prerequisite
 
+### node.js
+
+node >=4
+
 ### GraphicsMagick or ImageMagick
 
 ```bash
