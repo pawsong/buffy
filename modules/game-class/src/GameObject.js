@@ -61,8 +61,7 @@ GameObject.update = function update(dt, obj) {
  * Public methods (user can use these)
  */
 GameObject.prototype.getNearObjects = function getNearObjects(distance = Infinity) {
-  //return this.manager.getAllObjects();
-  return [];
+  return this.manager.getAllObjects();
 }
 
 export default GameObject;

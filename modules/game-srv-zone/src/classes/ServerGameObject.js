@@ -31,7 +31,9 @@ ServerGameObject.prototype.dump = function dump() {
   for (let prop in this.viewables) {
     viewables.push(prop);
   }
-  const objs = this.getNearObjects().concat([this]);
+
+  //const objs = this.getNearObjects().concat([this]);
+  const objs = this.getNearObjects();
   return objs.map(obj => {
     const ret = {};
     viewables.forEach(prop => {

@@ -65,11 +65,13 @@ class ObjectManager extends EventEmitter {
   }
 
   init(data) {
+    const { objects } = data;
+
     // reset
     this.destroyAll();
 
     // Initialize store
-    data.forEach(d => {
+    objects.forEach(d => {
       const obj = this.create(d);
     });
   }
