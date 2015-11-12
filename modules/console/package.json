@@ -54,7 +54,6 @@
     "../helper-internal",
     "../game-api",
     "../game-view",
-    "../game-store",
     "../game-class"
   ]
 }

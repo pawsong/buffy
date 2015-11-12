@@ -28,7 +28,6 @@
   },
   "link": [
     "../config-internal",
-    "../game-store",
     "../tween.js",
     "../game-class"
   ]
