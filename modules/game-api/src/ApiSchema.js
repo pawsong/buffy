@@ -32,8 +32,8 @@ export default {
 
     access: Access.PUBLIC,
 
-    serialize: (x, y) => {
-      return { x, y };
+    serialize: (x, y, duration) => {
+      return { x, y, duration };
     },
   }
 }

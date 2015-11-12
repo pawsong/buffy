@@ -3,8 +3,7 @@ import Promise from 'bluebird';
 import EventEmitter from 'eventemitter3';
 
 import {
-  GameObject,
-  ObjectManager,
+  GameStore,
 } from '@pasta/game-class';
 
 import {
@@ -12,28 +11,44 @@ import {
   createAdapter,
 } from '@pasta/game-api';
 
-const genMsgId = (() => {
-  let _msgId = 0;
-  return () => ++_msgId;
+// Fake socket
+const { socket, handleSocket } = (() => {
+  const socket = new EventEmitter();
+  function handleSocket(data) {
+    return socket.emit(data.event, data.payload);
+  }
+
+  const ready = self.__ready;
+  delete self.__ready;
+
+  const waitInit = function () {
+    socket.removeListener('init', waitInit);
+    // Next tick
+    setTimeout(ready, 0);
+  };
+  socket.addListener('init', waitInit);
+
+  return { socket, handleSocket };
 })();
 
-const requests = {};
-function request(apiName, payload) {
-  const id = genMsgId();
-  self.postMessage({ id, apiName, payload, type: 'api' });
-  return new Promise((resolve, reject) => {
-    requests[id] = { resolve, reject };
-  });
-}
+// Handle response
+const { request, handleResponse } = (() => {
+  const genMsgId = (() => {
+    let _msgId = 0;
+    return () => ++_msgId;
+  })();
 
-const socket = new EventEmitter();
-const handlers = {
-  socket: body => {
-    console.log(body);
-    return socket.emit(body.event, body.payload);
-  },
+  const requests = {};
 
-  response: data => {
+  function request(apiName, payload) {
+    const id = genMsgId();
+    self.postMessage({ id, apiName, payload, type: 'api' });
+    return new Promise((resolve, reject) => {
+      requests[id] = { resolve, reject };
+    });
+  }
+
+  function handleResponse(data) {
     const req = requests[data.id];
     if (!req) {
       // TODO: Error handling
@@ -47,11 +62,14 @@ const handlers = {
     }
 
     delete requests[data.id];
-  },
-};
+  }
+  return { request, handleResponse };
+})();
 
-const manager = new ObjectManager(GameObject);
-manager.connect(socket);
+const handlers = {
+  socket: handleSocket,
+  response: handleResponse,
+};
 
 self.addEventListener('message', ({ data }) => {
   const handler = handlers[data.type];
@@ -61,6 +79,9 @@ self.addEventListener('message', ({ data }) => {
   }
   handler(data.body || {});
 });
+
+const store = new GameStore();
+store.connect(socket);
 
 /**
  * pasta global object
@@ -77,8 +98,25 @@ self.$pasta.api = createAdapter({
   },
 });
 
+self.$pasta.store = store;
+
 self.$pasta.log = function (msg) {
   console.log(msg);
 };
 
-self.$pasta.id = '';
+/////////////////////////////////////////////////////////////////////////
+// Loop
+/////////////////////////////////////////////////////////////////////////
+
+var time;
+function update() {
+  setTimeout(update, 10);
+
+  const now = new Date().getTime();
+  const dt = now - (time || now);
+  time = now;
+
+  // Update store
+  store.update(dt);
+}
+update();

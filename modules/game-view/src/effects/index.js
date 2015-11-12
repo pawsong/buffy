@@ -14,7 +14,7 @@ export function createEffectManager(scene) {
   }
 
   function create(type, maxAge, position) {
-    const effect = createExplosion(scene, 2, position);
+    const effect = createExplosion(scene, maxAge, position);
     effects.push(effect);
   }
 

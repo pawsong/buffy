@@ -1,4 +1,4 @@
-function createExplosion(scene, maxAge = 2, position) {
+function createExplosion(scene, maxAge, position) {
   const SPE = require('shader-particle-engine/build/SPE');
 
   const group = new SPE.Group( {

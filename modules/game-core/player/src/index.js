@@ -1,11 +1,12 @@
-const { api, store } = self.$pasta;
+const { id, api, store } = self.$pasta;
 
 export default {
   move: (x, y) => {
-    api.move($pasta.id, x, y);
+    api.move(id, x, y);
   },
 
-  boom: (x, y) => {
-    api.playEffect(x, y);
+  boom: (duration = 2) => {
+    const { position } = store.getPlayer();
+    api.playEffect(position.x, position.y, duration);
   }
 };

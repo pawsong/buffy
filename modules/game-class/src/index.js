@@ -1,7 +1,9 @@
 import GameObject from './GameObject';
-import ObjectManager from './ObjectManager';
+import GameObjectManager from './GameObjectManager';
+import GameStore from './GameStore';
 
 export {
   GameObject,
-  ObjectManager,
+  GameObjectManager,
+  GameStore,
 };

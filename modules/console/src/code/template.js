@@ -1,2 +1,4 @@
+self.__ready = function () {
+  importScripts('<%= compiled %>');
+};
 importScripts('<%= env %>');
-importScripts('<%= compiled %>');

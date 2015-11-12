@@ -4,7 +4,7 @@ import { createEffectManager } from './effects';
 
 const Promise = require('bluebird');
 
-export default (htmlElement, manager, api) => {
+export default (htmlElement, store, api) => {
   const windowWidth = htmlElement.offsetWidth;
   const windowHeight = htmlElement.offsetHeight;
 
@@ -159,9 +159,9 @@ export default (htmlElement, manager, api) => {
   }, false);
 
   let cubes = {};
-  manager.on('create', obj => {
+  store.on('create', obj => {
     if (obj.type === 'effect') {
-      return effectManager.create('fire', 2, obj.position);
+      return effectManager.create('fire', obj.options.duration, obj.position);
     }
 
     var cube = cubes[obj.id] = new THREE.Mesh( geometry, material );
@@ -173,13 +173,13 @@ export default (htmlElement, manager, api) => {
     scene.add( cube );
   });
 
-  manager.on('move', (obj, to, from) => {
+  store.on('move', (obj, to, from) => {
     const cube = cubes[obj.id];
     cube.position.x = 50 * to.x -25;
     cube.position.z = 50 * to.y -25;
   });
 
-  manager.on('destroyAll', () => {
+  store.on('destroyAll', () => {
     Object.keys(cubes).forEach(id => {
       const cube = cubes[id];
       scene.remove(cube);
@@ -189,7 +189,7 @@ export default (htmlElement, manager, api) => {
   });
 
   // Map
-  const objects = manager.getAllObjects();
+  const objects = store.objects.getAllObjects();
   Object.keys(objects).forEach(id => {
     const obj = objects[id];
 

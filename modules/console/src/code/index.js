@@ -35,8 +35,6 @@ app.post('/compile', wrap(async (req, res, next) => {
     return next(err);
   }
 
-  console.log(result);
-
   const owner = req.user ? req.user.id : '';
 
   // Temporarily save in DB

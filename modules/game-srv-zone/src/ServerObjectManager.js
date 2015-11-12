@@ -1,9 +1,9 @@
 import loop from 'frame-loop';
 
-import { ObjectManager } from '@pasta/game-class';
+import { GameObjectManager } from '@pasta/game-class';
 import ServerGameObject from './classes/ServerGameObject';
 
-const manager = new ObjectManager(ServerGameObject);
+const manager = new GameObjectManager(ServerGameObject);
 
 const engine = loop(dt => {
   manager.update(dt);

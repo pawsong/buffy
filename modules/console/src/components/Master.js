@@ -29,6 +29,7 @@ import {
 
 import {
   GameObject,
+  GameStore,
   ObjectManager,
 } from '@pasta/game-class';
 
@@ -41,7 +42,7 @@ tutil.loop(async () => {
   await tutil.sleep(1000);
   await player.move(2, 3);
   await tutil.sleep(1000);
-  await player.boom(2, 3);
+  await player.boom();
   await tutil.sleep(2000);
 });`;
 
@@ -90,6 +91,14 @@ const styles = {
 };
 
 class Master extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.child = {
+      running: false,
+    };
+  }
+
   createAdapter(socket) {
     return createAdapter({
       [Protocol.IO]: (apiName, payload) => {
@@ -109,40 +118,32 @@ class Master extends React.Component {
     });
   }
 
-  // Put codes which do not need to be rendered by server.
-  componentDidMount() {
+  initilizeEditor() {
     const editor = this.editor = ace.edit('editor');
     editor.setTheme('ace/theme/twilight');
     editor.session.setMode('ace/mode/javascript');
     editor.setValue(snippet);
     editor.clearSelection();
+  }
 
-    // Create client game object manager.
-    // This is store.
-    const manager = this.manager = new ObjectManager(GameObject);
-    const gameManager = new ObjectManager(GameObject);
+  // Put codes which do not need to be rendered by server.
+  componentDidMount() {
+    this.initilizeEditor();
 
-    // Network layer.
+    // Initialize socket
     const socket = this._socket = io(config.gameServerUrl);
-    gameManager.connect(socket);
 
-    // Will use another socket.
-    manager
-      .connect(socket)
-      .propagate((event, payload) => {
-        if (this.worker) {
-          this.worker.postMessage({
-            type: 'socket',
-            body: { event, payload },
-          });
-        }
-      });
+    // Initialize store for code
+    const codeStore = this.codeStore = new GameStore();
+    codeStore.connect(socket);
 
-    // Adapter.
+    // Initialize view
+    const viewStore = new GameStore();
+    viewStore.connect(socket);
+
     const api = this.createAdapter(socket);
-
     const elem = document.getElementById('game');
-    const game = createView(elem, gameManager, api);
+    const view = createView(elem, viewStore, api);
 
     /////////////////////////////////////////////////////////////////////////
     // Loop
@@ -156,27 +157,32 @@ class Master extends React.Component {
       const dt = now - (time || now);
       time = now;
 
-      manager.update(dt);
+      // Update store
+      viewStore.update(dt);
+      codeStore.update(dt);
 
-      gameManager.update(dt);
-      game.render(dt);
+      // Update view
+      view.render(dt);
     }
     update();
   }
 
   onRun() {
+    if (this.child.running) {
+      this.child.running = false;
+      this.child.worker.terminate();
+      this.child.cancelPropagate();
+    }
 
     (async () => {
-      if (this.worker) {
-        this.worker.terminate();
-      }
-
       const source = this.editor.getValue();
-      const result = await request.post('/code/compile')
+      const { url } = await request.post('/code/compile')
         .send({ source }).exec();
 
-      this.worker = new Worker(result.url);
-      this.worker.addEventListener('message', ({ data }) => {
+      this.child.running = true;
+      const worker = this.child.worker = new Worker(url);
+
+      worker.addEventListener('message', ({ data }) => {
         const { id, apiName, payload, type } = data;
 
         // TODO: Validation
@@ -188,21 +194,28 @@ class Master extends React.Component {
 
         // Wait response or not
         const result = {};
-        this.worker.postMessage({ type: 'response', id, result });
+        worker.postMessage({ type: 'response', id, result });
       });
 
-      // Make a fake socket message with in memory data.
-      this.worker.postMessage({
+      // Propagate all events for store from socket to worker.
+      this.child.cancelPropagate = this.codeStore.propagate((event, payload) => {
+        worker.postMessage({
+          type: 'socket',
+          body: { event, payload },
+        });
+      });
+
+      // Make a fake socket message with in-memory data.
+      worker.postMessage({
         type: 'socket',
         body: {
           event: 'init',
-          payload: {
-            me: this.manager.me,
-            objects: this.manager.serialize(),
-          }
+          payload: this.codeStore.serialize(),
         },
       });
+
     })().catch(err => {
+      // Unhandled exception.
       console.error(err.stack);
     });
   }
