@@ -41,6 +41,8 @@ tutil.loop(async () => {
   await tutil.sleep(1000);
   await player.move(2, 3);
   await tutil.sleep(1000);
+  await player.boom(2, 3);
+  await tutil.sleep(2000);
 });`;
 
 const styles = {
@@ -157,7 +159,7 @@ class Master extends React.Component {
       manager.update(dt);
 
       gameManager.update(dt);
-      game.render();
+      game.render(dt);
     }
     update();
   }

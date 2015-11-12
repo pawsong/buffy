@@ -1,5 +1,7 @@
 import EventEmitter from 'eventemitter3';
 
+import { createEffectManager } from './effects';
+
 const Promise = require('bluebird');
 
 export default (htmlElement, manager, api) => {
@@ -22,6 +24,8 @@ export default (htmlElement, manager, api) => {
   camera.position.z = 200;
 
   const scene = new THREE.Scene();
+
+  const effectManager = createEffectManager(scene);
 
   // Grid
   var line_material = new THREE.LineBasicMaterial( { color: 0x303030 } ),
@@ -92,7 +96,8 @@ export default (htmlElement, manager, api) => {
 
   camera.lookAt( scene.position );
 
-  function render() {
+  function render(dt = 0) {
+    effectManager.update(dt);
     renderer.render( scene, camera );
   }
 
@@ -154,9 +159,10 @@ export default (htmlElement, manager, api) => {
   }, false);
 
   let cubes = {};
-  manager.on('create', (obj) => {
-    console.log('create');
-    console.log(obj);
+  manager.on('create', obj => {
+    if (obj.type === 'effect') {
+      return effectManager.create('fire', 2, obj.position);
+    }
 
     var cube = cubes[obj.id] = new THREE.Mesh( geometry, material );
 

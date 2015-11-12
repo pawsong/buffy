@@ -49,6 +49,18 @@ export default io => {
       io.emit('move', { id: userObject.id, tween: userObject.tween });
     });
 
+    socket.on('playEffect', msg => {
+      console.log(msg);
+      io.emit('create', {
+        id: shortid.generate(),
+        type: 'effect',
+        position: {
+          x: msg.x,
+          y: msg.y
+        },
+      });
+    });
+
     socket.on('disconnect', function() {
       manager.destroy(userObject.id);
     });

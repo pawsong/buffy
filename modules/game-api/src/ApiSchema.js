@@ -20,4 +20,20 @@ export default {
       return { id: objId, x, y };
     },
   },
+
+  /**
+   * Play effect
+   *
+   * @param x {number} x position
+   * @param y {number} y position
+   */
+  playEffect: {
+    protocol: Protocol.IO,
+
+    access: Access.PUBLIC,
+
+    serialize: (x, y) => {
+      return { x, y };
+    },
+  }
 }

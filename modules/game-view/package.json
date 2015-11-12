@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "eventemitter3": "^1.1.1",
-    "keyboardjs": "^2.2.0"
+    "keyboardjs": "^2.2.0",
+    "shader-particle-engine": "^1.0.2"
   }
 }

@@ -121,6 +121,10 @@ class ObjectManager extends EventEmitter {
       obj.tween.import(data.tween);
     });
 
+    listen('create', data => {
+      this.emit('create', data);
+    });
+
     return this;
   }
 
