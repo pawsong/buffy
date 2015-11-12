@@ -87,7 +87,9 @@ api.post('/login/facebook', wrap(async (req, res) => {
 }));
 
 api.post('/logout', wrap(async (req, res) => {
-  res.clearCookie('tt').send();
+  res.clearCookie('tt', {
+    domain: DOMAIN,
+  }).send();
 }));
 
 export default api;
