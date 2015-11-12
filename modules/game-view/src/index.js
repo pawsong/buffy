@@ -175,8 +175,17 @@ export default (htmlElement, store, api) => {
 
   store.on('move', (obj, to, from) => {
     const cube = cubes[obj.id];
-    cube.position.x = 50 * to.x -25;
-    cube.position.z = 50 * to.y -25;
+
+    // Rotate
+    var pos = new THREE.Vector3();
+    pos.x = 50 * to.x - 25;
+    pos.z = 50 * to.y - 25;
+    pos.y = cube.position.y;
+    cube.lookAt(pos);
+
+    // Move
+    cube.position.x = pos.x;
+    cube.position.z = pos.z;
   });
 
   store.on('destroyAll', () => {
