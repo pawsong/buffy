@@ -111,6 +111,10 @@ function loadStaticAsset(file, webpackServerPort) {
 
       const hairdresser = Hairdresser.create();
 
+      global.navigator = {
+        userAgent: req.headers['user-agent']
+      };
+
       const body = renderToString(
         <HairdresserProvider store={store} hairdresser={hairdresser}>
           <RoutingContext {...renderProps} />
