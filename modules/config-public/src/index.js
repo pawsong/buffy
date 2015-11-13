@@ -1,6 +1,6 @@
 const config = module.exports;
 
-config.navbarHeight = 56;
+config.navbarHeight = 48;
 
 if (process.env.NODE_ENV !== 'production') {
   // Should be eliminated by dead-code elimination in proudction mode

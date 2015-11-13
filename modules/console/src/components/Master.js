@@ -6,6 +6,9 @@ import {
   ToolbarGroup,
   ToolbarTitle,
   RaisedButton,
+  Tabs,
+  Tab,
+  IconButton,
 } from 'material-ui';
 
 import Menu from 'material-ui/lib/menus/menu';
@@ -47,9 +50,17 @@ tutil.loop(async () => {
 });`;
 
 const styles = {
+  tabs: {
+    width: 400,
+    marginLeft: 48,
+  },
   toolbar: {
+    height: config.navbarHeight,
+  },
+  avatarContainer: {
     position: 'absolute',
-    top: 0, right: 0, left: 0,
+    top: -4,
+    right: 5,
   },
   avatar: {
     cursor: 'pointer',
@@ -64,21 +75,24 @@ const styles = {
   },
   leftPane: {
     position: 'absolute',
-    top: 0,
+    top: config.navbarHeight,
     bottom: 0,
     left: 0,
     right: '50%',
   },
   rightPane: {
     position: 'absolute',
-    top: 0,
+    top: config.navbarHeight,
     bottom: 0,
     left: '50%',
     right: 0,
   },
   editor: {
-    height: '100%',
-    width: '100%',
+    position: 'absolute',
+    top: config.navbarHeight,
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   game: {
     margin: 'auto',
@@ -88,6 +102,25 @@ const styles = {
     height: '480px',
     overflow: 'hidden',
   },
+};
+
+class TabTemplate extends React.Component {
+  render() {
+    let styles = {
+      'width': '100%',
+      'height': '100%',
+    };
+
+    if (!this.props.selected) {
+      styles.display = 'none';
+    }
+
+    return (
+      <div style={styles}>
+        {this.props.children}
+      </div>
+    );
+  }
 };
 
 class Master extends React.Component {
@@ -233,27 +266,35 @@ class Master extends React.Component {
   render() {
     const picture = this.props.user ? this.props.user.picture : '';
 
-    return <div>
-      <Toolbar style={styles.toolbar}>
-      <ToolbarGroup key={0} float="left">
-        <ToolbarTitle text="TIAT"/>
-        <RaisedButton label="Run" primary={true} onClick={this.onRun.bind(this)}/>
-      </ToolbarGroup>
-      <ToolbarGroup key={1} float="right">
-        <IconMenu desktop={true} iconButtonElement={
-          <Avatar style={styles.avatar} src={picture}/>
-          }>
-          <MenuItem primaryText="Sign out" onClick={this.onSignOut.bind(this)}/>
-        </IconMenu>
-      </ToolbarGroup>
-    </Toolbar>
-      <div style={styles.content}>
-        <div style={styles.leftPane}>
+    return <div style={{ backgroundColor: '#00bcd4'}}>
+      <IconButton iconClassName="material-icons" style={{position: 'absolute' }}>
+        home
+      </IconButton>
+
+      <Tabs style={styles.tabs} contentContainerStyle={styles.leftPane}
+        tabTemplate={TabTemplate}
+        >
+        <Tab label="Develop">
+          <Toolbar style={styles.toolbar}>
+            <ToolbarGroup key={0} float="left">
+              <RaisedButton label="Run" style={{ marginTop: 6 }} primary={true} onClick={this.onRun.bind(this)}/>
+            </ToolbarGroup>
+          </Toolbar>
           <div id="editor" style={styles.editor}></div>
-        </div>
-        <div style={styles.rightPane}>
-          <div id="game" style={styles.game}></div>
-        </div>
+        </Tab>
+        <Tab label="Design">
+          (Design Panel)
+        </Tab>
+      </Tabs>
+
+      <IconMenu style={styles.avatarContainer} desktop={true} iconButtonElement={
+        <Avatar style={styles.avatar} src={picture}/>
+        }>
+        <MenuItem primaryText="Sign out" onClick={this.onSignOut.bind(this)}/>
+      </IconMenu>
+
+      <div style={styles.rightPane}>
+        <div id="game" style={styles.game}></div>
       </div>
   </div>
   }
