@@ -57,7 +57,7 @@ class Login extends React.Component {
     return (
       <div style={styles.container}>
         <Card style={styles.card}>
-          <CardMedia overlay={<CardTitle title="TIAT"/>}>
+          <CardMedia overlay={<CardTitle title="PROJECT PASTA"/>}>
             <img src="/assets/fox.jpg"/>
           </CardMedia>
           <CardActions style={styles.button}>
