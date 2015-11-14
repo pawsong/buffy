@@ -55,6 +55,7 @@
     "../helper-internal",
     "../game-api",
     "../game-view",
-    "../game-class"
+    "../game-class",
+    "../voxel-editor"
   ]
 }

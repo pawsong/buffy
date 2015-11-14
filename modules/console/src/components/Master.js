@@ -24,6 +24,7 @@ import config from '@pasta/config-public';
 import io from 'socket.io-client';
 
 import createView from '@pasta/game-view';
+import createVoxelEditor from '@pasta/voxel-editor';
 
 import {
   Protocol,
@@ -86,10 +87,18 @@ const styles = {
     bottom: 0,
     left: '50%',
     right: 0,
+    backgroundColor: 'rgb(232,232,232)',
   },
   editor: {
     position: 'absolute',
     top: config.navbarHeight,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  voxelEditor: {
+    position: 'absolute',
+    top: 0,
     bottom: 0,
     left: 0,
     right: 0,
@@ -178,6 +187,12 @@ class Master extends React.Component {
     const elem = document.getElementById('game');
     const view = createView(elem, viewStore, api);
 
+    const voxelEditorElem = document.getElementById('voxelEditor');
+
+    // This is ugly, but works...
+    const voxelEditorContainer = voxelEditorElem.parentElement.parentElement;
+    const voxelEditor = createVoxelEditor(voxelEditorElem, voxelEditorContainer);
+
     /////////////////////////////////////////////////////////////////////////
     // Loop
     /////////////////////////////////////////////////////////////////////////
@@ -196,6 +211,7 @@ class Master extends React.Component {
 
       // Update view
       view.render(dt);
+      voxelEditor.render(dt);
     }
     update();
   }
@@ -272,8 +288,10 @@ class Master extends React.Component {
       </IconButton>
 
       <Tabs style={styles.tabs} contentContainerStyle={styles.leftPane}
-        tabTemplate={TabTemplate}
-        >
+        tabTemplate={TabTemplate}>
+        <Tab label="Design">
+          <div id="voxelEditor" style={styles.voxelEditor}></div>
+        </Tab>
         <Tab label="Develop">
           <Toolbar style={styles.toolbar}>
             <ToolbarGroup key={0} float="left">
@@ -281,9 +299,6 @@ class Master extends React.Component {
             </ToolbarGroup>
           </Toolbar>
           <div id="editor" style={styles.editor}></div>
-        </Tab>
-        <Tab label="Design">
-          (Design Panel)
         </Tab>
       </Tabs>
 
