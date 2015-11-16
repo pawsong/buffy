@@ -7,12 +7,18 @@ import {
 } from 'material-ui';
 
 import * as ColorActions from '../actions/color';
+import * as SpriteActions from '../actions/sprite';
 
 const styles = {
   root: {
     position: 'absolute',
     top: 15,
     right: 15,
+  },
+  sprite: {
+    position: 'absolute',
+    top: 15,
+    left: 15,
   },
   color: {
     width: '36px',
@@ -56,21 +62,19 @@ class Controls extends React.Component {
     const { color } = this.props;
     return <div style={styles.root}>
       <RaisedButton label="Submit" primary={true} onClick={this._submit.bind(this)}/>
-      <div>
-        <div style={styles.swatch} onClick={ this._handleColorPickerOpen.bind(this) }>
-          <div style={{
-            backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
-            ...styles.color
-          }} />
-        </div>
-        <ColorPicker
-          color={ this.props.color }
-          position="left"
-          display={ this.state.displayColorPicker }
-          onChange={ this._handleColorPickerChange.bind(this) }
-          onClose={ this._handleColorPickerClose.bind(this) }
-          type="sketch" />
+      <div style={styles.swatch} onClick={ this._handleColorPickerOpen.bind(this) }>
+        <div style={{
+          backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
+          ...styles.color
+        }} />
       </div>
+      <ColorPicker
+        color={ this.props.color }
+        position="left"
+        display={ this.state.displayColorPicker }
+        onChange={ this._handleColorPickerChange.bind(this) }
+        onClose={ this._handleColorPickerClose.bind(this) }
+        type="sketch" />
     </div>;
   }
 }

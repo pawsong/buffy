@@ -214,7 +214,6 @@ export default (htmlElement, store, api) => {
       object.remove(child);
     });
 
-    console.log(object);
     /*
     // Rotate
     var pos = new THREE.Vector3();
@@ -236,9 +235,9 @@ export default (htmlElement, store, api) => {
       material.color.setStyle(`rgba(${c.r},${c.g},${c.b},${c.a})`);
 
       const mesh = new THREE.Mesh( geometry, material );
-      mesh.position.x += -PIXEL_UNIT + voxel.position.x * MINI_PIXEL_SIZE;
+      mesh.position.z += -PIXEL_UNIT + voxel.position.x * MINI_PIXEL_SIZE;
+      mesh.position.x += -PIXEL_UNIT + voxel.position.y * MINI_PIXEL_SIZE;
       mesh.position.y += -PIXEL_UNIT + voxel.position.z * MINI_PIXEL_SIZE;
-      mesh.position.z -= -PIXEL_UNIT + voxel.position.y * MINI_PIXEL_SIZE;
 
       object.add( mesh );
     });

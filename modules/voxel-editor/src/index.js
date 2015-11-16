@@ -11,6 +11,8 @@ import Controls from './components/Controls';
 
 import * as ActionTypes from './constants/ActionTypes';
 
+import initSpriteEditor from './spriteEditor';
+
 const GRID_SIZE = 16;
 const UNIT_PIXEL = 25;
 const BOX_SIZE = UNIT_PIXEL * 2;
@@ -18,17 +20,17 @@ const PLANE_Y_OFFSET = - BOX_SIZE * 4;
 
 function toScreenPosition(absPos) {
   return {
-    x: absPos.x * BOX_SIZE - (GRID_SIZE - 1) * UNIT_PIXEL,
-    z: GRID_SIZE * BOX_SIZE - absPos.y * BOX_SIZE - (GRID_SIZE + 1) * UNIT_PIXEL,
-    y: absPos.z * BOX_SIZE + UNIT_PIXEL + PLANE_Y_OFFSET,
+    x: absPos.y * BOX_SIZE - UNIT_PIXEL - GRID_SIZE / 2 * BOX_SIZE,
+    z: absPos.x * BOX_SIZE - UNIT_PIXEL - GRID_SIZE / 2 * BOX_SIZE,
+    y: absPos.z * BOX_SIZE - UNIT_PIXEL + PLANE_Y_OFFSET,
   };
 }
 
 function toAbsolutePosition(screenPos) {
   return {
-    x: (screenPos.x + (GRID_SIZE - 1) * UNIT_PIXEL) / BOX_SIZE,
-    y: GRID_SIZE - (screenPos.z + (GRID_SIZE + 1) * UNIT_PIXEL) / BOX_SIZE,
-    z: (screenPos.y - PLANE_Y_OFFSET - UNIT_PIXEL) / BOX_SIZE,
+    x: GRID_SIZE / 2 + (screenPos.z + UNIT_PIXEL) / BOX_SIZE,
+    y: GRID_SIZE / 2 + (screenPos.x + UNIT_PIXEL) / BOX_SIZE,
+    z: (screenPos.y - PLANE_Y_OFFSET + UNIT_PIXEL) / BOX_SIZE,
   };
 }
 
@@ -74,6 +76,50 @@ export default (container, parent, submit /* TODO: Replace with ajax call */) =>
     voxel.overdraw = true
     scene.add( voxel )
     scene.add( voxel.wireMesh )
+  }
+
+  const yAxisGeometry = new THREE.BoxGeometry(GRID_SIZE * BOX_SIZE, BOX_SIZE, BOX_SIZE);
+  const zAxisGeometry = new THREE.BoxGeometry(BOX_SIZE, GRID_SIZE * BOX_SIZE, BOX_SIZE);
+  const xAxisGeometry = new THREE.BoxGeometry(BOX_SIZE, BOX_SIZE, GRID_SIZE * BOX_SIZE);
+  const focusMaterial = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+
+  let focusMesh;
+
+  function clearSpriteFocus() {
+    if (focusMesh) {
+      scene.remove(focusMesh);
+      focusMesh = null;
+    }
+  }
+
+  function addSpriteFocus(focus) {
+    clearSpriteFocus();
+
+    if (focus.x === 0) {
+      focusMesh = new THREE.Mesh(xAxisGeometry, focusMaterial);
+      focusMesh.position.copy(toScreenPosition({
+        x: (GRID_SIZE + 1) / 2,
+        y: focus.y,
+        z: focus.z,
+      }));
+    } else if (focus.y === 0) {
+      focusMesh = new THREE.Mesh(yAxisGeometry, focusMaterial);
+      focusMesh.position.copy(toScreenPosition({
+        x: focus.x,
+        y: (GRID_SIZE + 1) / 2,
+        z: focus.z,
+      }));
+    } else if (focus.z === 0) {
+      focusMesh = new THREE.Mesh(zAxisGeometry, focusMaterial);
+      focusMesh.position.copy(toScreenPosition({
+        x: focus.x,
+        y: focus.y,
+        z: (GRID_SIZE + 1) / 2
+      }));
+    }
+
+    if (!focusMesh) { return; }
+    scene.add(focusMesh);
   }
 
   function v2h(value) {
@@ -316,6 +362,7 @@ export default (container, parent, submit /* TODO: Replace with ajax call */) =>
   }
 
   initUI();
+  initSpriteEditor(container);
 
   observeStore(state => state.voxelOp, op => {
     switch(op.type) {
@@ -325,6 +372,13 @@ export default (container, parent, submit /* TODO: Replace with ajax call */) =>
         addVoxel(screenPos.x, screenPos.y, screenPos.z, color);
         break;
     }
+  });
+
+  observeStore(state => state.spriteFocus, focus => {
+    if (!focus) {
+      return clearSpriteFocus();
+    }
+    addSpriteFocus(focus);
   });
 
   return { render };
