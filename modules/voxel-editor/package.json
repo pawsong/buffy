@@ -15,17 +15,23 @@
   "license": "ISC",
   "dependencies": {
     "eventemitter3": "^1.1.1",
+    "flux": "^2.1.1",
+    "immutable": "^3.7.5",
     "ndarray": "^1.0.18",
-    "ndarray-fill": "^1.0.1"
+    "ndarray-fill": "^1.0.1",
+    "react-color": "^1.2.1"
   },
   "peerDependencies": {
     "material-ui": "^0.13.2",
     "react": "^0.14.2",
-    "react-dom": "^0.14.2"
+    "react-dom": "^0.14.2",
+    "redux": "^3.0.4"
   },
   "devDependencies": {
     "material-ui": "^0.13.2",
     "react": "^0.14.2",
-    "react-dom": "^0.14.2"
+    "react-dom": "^0.14.2",
+    "react-redux": "^4.0.0",
+    "redux": "^3.0.4"
   }
 }

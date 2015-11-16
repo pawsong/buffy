@@ -4,6 +4,15 @@ import { createEffectManager } from './effects';
 
 const Promise = require('bluebird');
 
+const PIXEL_NUM = 16;
+
+const PIXEL_UNIT = 32;
+const BOX_SIZE = PIXEL_UNIT * 2;
+
+const MINI_PIXEL_SIZE = BOX_SIZE / PIXEL_NUM;
+
+const GRID_SIZE = BOX_SIZE * 10;
+
 export default (htmlElement, store, api) => {
   const windowWidth = htmlElement.offsetWidth;
   const windowHeight = htmlElement.offsetHeight;
@@ -17,7 +26,7 @@ export default (htmlElement, store, api) => {
     windowWidth / 2,
     windowHeight / 2,
     windowHeight / - 2,
-    - 500, 1000
+    - GRID_SIZE, 2 * GRID_SIZE
   );
   camera.position.x = 200;
   camera.position.y = 200;
@@ -30,16 +39,16 @@ export default (htmlElement, store, api) => {
   // Grid
   var line_material = new THREE.LineBasicMaterial( { color: 0x303030 } ),
     geometry = new THREE.Geometry(),
-    floor = -75, step = 50;
+    step = BOX_SIZE;
 
-  floor = 0;
+  const floor = 0;
 
   for ( var i = 0; i <= 40; i ++ ) {
-    geometry.vertices.push( new THREE.Vector3( - 500, floor, i * step - 500 ) );
-    geometry.vertices.push( new THREE.Vector3(   500, floor, i * step - 500 ) );
+    geometry.vertices.push( new THREE.Vector3( - GRID_SIZE, floor, i * step - GRID_SIZE ) );
+    geometry.vertices.push( new THREE.Vector3(   GRID_SIZE, floor, i * step - GRID_SIZE ) );
 
-    geometry.vertices.push( new THREE.Vector3( i * step - 500, floor, -500 ) );
-    geometry.vertices.push( new THREE.Vector3( i * step - 500, floor,  500 ) );
+    geometry.vertices.push( new THREE.Vector3( i * step - GRID_SIZE, floor, -GRID_SIZE ) );
+    geometry.vertices.push( new THREE.Vector3( i * step - GRID_SIZE, floor,  GRID_SIZE ) );
   }
 
   var line = new THREE.LineSegments( geometry, line_material );
@@ -50,13 +59,13 @@ export default (htmlElement, store, api) => {
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
 
-  const planeGeo = new THREE.PlaneBufferGeometry( 1000, 1000 );
+  const planeGeo = new THREE.PlaneBufferGeometry( 2 * GRID_SIZE, 2 * GRID_SIZE );
   planeGeo.rotateX( - Math.PI / 2 );
 
   const plane = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { visible: false } ) );
   scene.add( plane );
 
-  const rollOverPlaneGeo = new THREE.PlaneBufferGeometry( 50, 50 );
+  const rollOverPlaneGeo = new THREE.PlaneBufferGeometry( BOX_SIZE, BOX_SIZE );
   rollOverPlaneGeo.rotateX( - Math.PI / 2 );
   const rollOverMaterial = new THREE.MeshBasicMaterial({
     color: 0xff0000, opacity: 0.5, transparent: true
@@ -66,22 +75,22 @@ export default (htmlElement, store, api) => {
 
   // Cubes
 
-  var geometry = new THREE.BoxGeometry( 50, 50, 50 );
+  var geometry = new THREE.BoxGeometry( BOX_SIZE, BOX_SIZE, BOX_SIZE );
   var material = new THREE.MeshLambertMaterial( { color: 0xffffff, shading: THREE.FlatShading, overdraw: 0.5 } );
 
   // Lights
 
-  var ambientLight = new THREE.AmbientLight( Math.random() * 0x10 );
+  var ambientLight = new THREE.AmbientLight( 0x10 );
   scene.add( ambientLight );
 
-  var directionalLight = new THREE.DirectionalLight( Math.random() * 0xffffff );
+  var directionalLight = new THREE.DirectionalLight( 0xffffff );
   directionalLight.position.x = Math.random() - 0.5;
   directionalLight.position.y = Math.random() - 0.5;
   directionalLight.position.z = Math.random() - 0.5;
   directionalLight.position.normalize();
   scene.add( directionalLight );
 
-  var directionalLight = new THREE.DirectionalLight( Math.random() * 0xffffff );
+  var directionalLight = new THREE.DirectionalLight( 0xffffff );
   directionalLight.position.x = Math.random() - 0.5;
   directionalLight.position.y = Math.random() - 0.5;
   directionalLight.position.z = Math.random() - 0.5;
@@ -122,10 +131,10 @@ export default (htmlElement, store, api) => {
 
               rollOverPlane.position.copy( intersect.point ).add( intersect.face.normal );
               rollOverPlane.position
-              .divideScalar( 50 )
+              .divideScalar( BOX_SIZE )
               .floor()
-              .multiplyScalar( 50 )
-              .addScalar( 25 );
+              .multiplyScalar( BOX_SIZE )
+              .addScalar( PIXEL_UNIT );
               rollOverPlane.position.y = 0;
 
               render();
@@ -151,62 +160,100 @@ export default (htmlElement, store, api) => {
 
               position.copy( intersect.point ).add( intersect.face.normal );
               position
-              .divideScalar( 50 )
+              .divideScalar( BOX_SIZE )
               .floor()
               .addScalar(1);
 
               api.move('', position.x, position.z);
   }, false);
 
-  let cubes = {};
+  let objects = {};
   store.on('create', obj => {
     if (obj.type === 'effect') {
       return effectManager.create('fire', obj.options.duration, obj.position);
     }
 
-    var cube = cubes[obj.id] = new THREE.Mesh( geometry, material );
+    var object = objects[obj.id] = new THREE.Group();
+    const cube = new THREE.Mesh( geometry, material );
+    object.add(cube);
 
-    cube.position.x = 50 * obj.position.x -25;
-    cube.position.z = 50 * obj.position.y -25;
-    cube.position.y = 25;
+    object.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
+    object.position.z = BOX_SIZE * obj.position.y -PIXEL_UNIT;
+    object.position.y = PIXEL_UNIT;
 
-    scene.add( cube );
+    scene.add( object );
   });
 
   store.on('move', (obj, to, from) => {
-    const cube = cubes[obj.id];
+    const object = objects[obj.id];
 
     // Rotate
     var pos = new THREE.Vector3();
-    pos.x = 50 * to.x - 25;
-    pos.z = 50 * to.y - 25;
-    pos.y = cube.position.y;
-    cube.lookAt(pos);
+    pos.x = BOX_SIZE * to.x - PIXEL_UNIT;
+    pos.z = BOX_SIZE * to.y - PIXEL_UNIT;
+    pos.y = object.position.y;
+    object.lookAt(pos);
 
     // Move
-    cube.position.x = pos.x;
-    cube.position.z = pos.z;
+    object.position.x = pos.x;
+    object.position.z = pos.z;
   });
 
   store.on('destroyAll', () => {
-    Object.keys(cubes).forEach(id => {
-      const cube = cubes[id];
+    Object.keys(objects).forEach(id => {
+      const cube = objects[id];
       scene.remove(cube);
     });
     render();
-    cubes = {};
+    objects = {};
+  });
+
+  store.on('voxels', ({ id, voxels }) => {
+    const object = objects[id];
+    object.children.forEach(child => {
+      object.remove(child);
+    });
+
+    console.log(object);
+    /*
+    // Rotate
+    var pos = new THREE.Vector3();
+    pos.x = 50 * to.x - PIXEL_UNIT;
+    pos.z = 50 * to.y - PIXEL_UNIT;
+    pos.y = cube.position.y;
+    cube.lookAt(pos);
+    */
+    const geometry = new THREE.BoxGeometry(
+      MINI_PIXEL_SIZE,
+      MINI_PIXEL_SIZE,
+      MINI_PIXEL_SIZE
+    );
+    voxels.forEach(voxel => {
+      const c = voxel.color;
+
+      const material = new THREE.MeshBasicMaterial();
+      material.color.setHex(voxel.color);
+      material.color.setStyle(`rgba(${c.r},${c.g},${c.b},${c.a})`);
+
+      const mesh = new THREE.Mesh( geometry, material );
+      mesh.position.x += -PIXEL_UNIT + voxel.position.x * MINI_PIXEL_SIZE;
+      mesh.position.y += -PIXEL_UNIT + voxel.position.z * MINI_PIXEL_SIZE;
+      mesh.position.z -= -PIXEL_UNIT + voxel.position.y * MINI_PIXEL_SIZE;
+
+      object.add( mesh );
+    });
   });
 
   // Map
-  const objects = store.objects.getAllObjects();
-  Object.keys(objects).forEach(id => {
-    const obj = objects[id];
+  //const data = store.objects.getAllObjects();
+  //Object.keys(data).forEach(id => {
+  //  const obj = objects[id];
 
-    var cube = cubes[obj.id] = new THREE.Mesh( geometry, material );
-    cube.position.x = 50 * obj.position.x -25;
-    cube.position.z = 50 * obj.position.y -25;
-    cube.position.y = 25;
-  });
+  //  var cube = cubes[obj.id] = new THREE.Mesh( geometry, material );
+  //  cube.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
+  //  cube.position.z = BOX_SIZE * obj.position.y -PIXEL_UNIT;
+  //  cube.position.y = PIXEL_UNIT;
+  //});
 
   /////////////////////////////////////////////////////////////////////////
   // FIN

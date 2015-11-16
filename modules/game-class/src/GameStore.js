@@ -118,4 +118,8 @@ GameStore.handle('move', function (data) {
   object.tween.import(data.tween);
 });
 
+GameStore.handle('voxels', function (data) {
+  this.emit('voxels', data);
+});
+
 export default GameStore;

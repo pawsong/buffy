@@ -49,4 +49,8 @@ export default function (io, socket) {
   socket.on('disconnect', function() {
     objects.destroy(user.id);
   });
+
+  socket.on('voxels', voxels => {
+    socket.emit('voxels', { id: user.id, voxels });
+  });
 };

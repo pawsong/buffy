@@ -1,13 +1,38 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-  RaisedButton,
-} from 'material-ui';
+import { Provider } from 'react-redux';
 
-var ndarray = require('ndarray')
-var ndarrayFill = require('ndarray-fill')
+import store, {
+  actions,
+  observeStore,
+} from './store';
 
-export default (container, parent) => {
+import Controls from './components/controls';
+
+import * as ActionTypes from './constants/ActionTypes';
+
+const GRID_SIZE = 16;
+const UNIT_PIXEL = 25;
+const BOX_SIZE = UNIT_PIXEL * 2;
+const PLANE_Y_OFFSET = - BOX_SIZE * 4;
+
+function toScreenPosition(absPos) {
+  return {
+    x: absPos.x * BOX_SIZE - (GRID_SIZE - 1) * UNIT_PIXEL,
+    z: GRID_SIZE * BOX_SIZE - absPos.y * BOX_SIZE - (GRID_SIZE + 1) * UNIT_PIXEL,
+    y: absPos.z * BOX_SIZE + UNIT_PIXEL + PLANE_Y_OFFSET,
+  };
+}
+
+function toAbsolutePosition(screenPos) {
+  return {
+    x: (screenPos.x + (GRID_SIZE - 1) * UNIT_PIXEL) / BOX_SIZE,
+    y: GRID_SIZE - (screenPos.z + (GRID_SIZE + 1) * UNIT_PIXEL) / BOX_SIZE,
+    z: (screenPos.y - PLANE_Y_OFFSET - UNIT_PIXEL) / BOX_SIZE,
+  };
+}
+
+export default (container, parent, submit /* TODO: Replace with ajax call */) => {
   require('./OrbitControls');
 
   var controls;
@@ -24,7 +49,6 @@ export default (container, parent) => {
   var wireframeCube = new THREE.CubeGeometry(50.5, 50.5 , 50.5)
   var wireframe = true, fill = true
   var wireframeOptions = { color: 0x000000, wireframe: true, wireframeLinewidth: 1, opacity: 0.8 }
-  var wireframeMaterial = new THREE.MeshBasicMaterial(wireframeOptions)
   var colors = ['2ECC71', '3498DB', '34495E', 'E67E22', 'ECF0F1'].map(function(c) { return hex2rgb(c) })
 
   init()
@@ -32,12 +56,12 @@ export default (container, parent) => {
   function addVoxel(x, y, z, c) {
     var cubeMaterial = new CubeMaterial( { vertexColors: THREE.VertexColors, transparent: true } )
     var col = colors[c] || colors[0]
-    cubeMaterial.color.setRGB( col[0], col[1], col[2] )
-    var wireframeMaterial = new THREE.MeshBasicMaterial(wireframeOptions)
-    wireframeMaterial.color.setRGB( col[0]-0.05, col[1]-0.05, col[2]-0.05 )
+    //cubeMaterial.color.setHex(c);
+    cubeMaterial.color.setStyle(`rgba(${c.r},${c.g},${c.b},${c.a})`);
+
     var voxel = new THREE.Mesh( cube, cubeMaterial )
-    //voxel.wireMesh = new THREE.Mesh( wireframeCube, wireframeMaterial )
-    voxel.wireMesh =  new THREE.EdgesHelper( voxel, 0x4DEB90 );
+    //voxel.wireMesh =  new THREE.EdgesHelper( voxel, 0x4DEB90 );
+    voxel.wireMesh =  new THREE.EdgesHelper( voxel, 0x303030 );
     voxel.isVoxel = true
     voxel.position.x = x
     voxel.position.y = y
@@ -84,9 +108,12 @@ export default (container, parent) => {
     container.appendChild(renderer.domElement)
 
     camera = new THREE.PerspectiveCamera( 40, parent.offsetWidth / parent.offsetHeight, 1, 10000 )
-    camera.position.x = radius * Math.sin( theta * Math.PI / 360 ) * Math.cos( phi * Math.PI / 360 )
-    camera.position.y = radius * Math.sin( phi * Math.PI / 360 );
-    camera.position.z = radius * Math.cos( theta * Math.PI / 360 ) * Math.cos( phi * Math.PI / 360 )
+    camera.position.x =
+      radius * Math.cos( theta * Math.PI / 360 ) * Math.cos( phi * Math.PI / 360 )
+    camera.position.z =
+      radius * Math.sin( theta * Math.PI / 360 ) * Math.cos( phi * Math.PI / 360 )
+    camera.position.y =
+      radius * Math.sin( phi * Math.PI / 360 );
     //
 
     controls = new THREE.OrbitControls( camera, renderer.domElement );
@@ -97,16 +124,15 @@ export default (container, parent) => {
     controls.maxDistance = 2000;
 
     // Grid
-    var size = 400, step = 50;
-    var offsetY = -200;
+    var size = GRID_SIZE * UNIT_PIXEL;
 
     var geometry = new THREE.Geometry()
-    for ( let i = -size; i <= size; i += step ) {
-      geometry.vertices.push(new THREE.Vector3(-size, offsetY, i))
-      geometry.vertices.push(new THREE.Vector3( size, offsetY, i))
+    for ( let i = -size; i <= size; i += BOX_SIZE ) {
+      geometry.vertices.push(new THREE.Vector3(-size, PLANE_Y_OFFSET, i))
+      geometry.vertices.push(new THREE.Vector3( size, PLANE_Y_OFFSET, i))
 
-      geometry.vertices.push(new THREE.Vector3(i, offsetY, -size))
-      geometry.vertices.push(new THREE.Vector3(i, offsetY,  size))
+      geometry.vertices.push(new THREE.Vector3(i, PLANE_Y_OFFSET, -size))
+      geometry.vertices.push(new THREE.Vector3(i, PLANE_Y_OFFSET,  size))
     }
 
     var material = new THREE.LineBasicMaterial({
@@ -122,7 +148,7 @@ export default (container, parent) => {
     planeGeometry.rotateX( - Math.PI / 2 );
 
     plane = new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial() )
-    plane.position.y = offsetY;
+    plane.position.y = PLANE_Y_OFFSET;
     //    plane.rotation.x = - Math.PI / 2
     //plane.visible = false
     plane.isPlane = true
@@ -197,15 +223,14 @@ export default (container, parent) => {
       var normal = intersect.face.normal.clone()
       //normal.applyMatrix4( intersect.object.matrixRotationWorld )
       var position = new THREE.Vector3().addVectors( intersect.point, normal )
-      console.log(intersect.object.uuid);
-      console.log(normal);
-      console.log(position);
 
       function updateBrush() {
-        brush.position.x = Math.floor( position.x / 50 ) * 50 + 25
-        brush.position.y = Math.floor( position.y / 50 ) * 50 + 25
-        brush.position.z = Math.floor( position.z / 50 ) * 50 + 25
-        console.log(brush.position);
+        brush.position.x =
+          Math.floor( position.x / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL;
+        brush.position.y =
+          Math.floor( position.y / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL;
+        brush.position.z =
+          Math.floor( position.z / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL;
       }
       return updateBrush();
     }
@@ -249,7 +274,10 @@ export default (container, parent) => {
           scene.remove( intersect.object )
         }
       } else {
-        if (brush.position.y != 2000) addVoxel(brush.position.x, brush.position.y, brush.position.z, color)
+        if (brush.position.y != 2000) {
+          const absPos = toAbsolutePosition(brush.position);
+          actions.addVoxel(absPos, store.getState().color);
+        }
       }
     }
 
@@ -273,28 +301,31 @@ export default (container, parent) => {
     container.appendChild(uiElement);
     uiElement.style.width = '100%';
 
-    const styles = {
-      root: {
-        position: 'absolute',
-        top: 15,
-        right: 15,
-      },
-    };
-
-    function submit() {
+    function onSubmit() {
       // Get token and submit!
-      console.log('submit!');
+      const state = store.getState();
+      submit(state.voxel.toArray());
     }
 
     ReactDOM.render(
-      <div style={styles.root}>
-        <RaisedButton label="Submit" primary={true} onClick={submit}/>
-      </div>,
+      <Provider store={store}>
+        <Controls submit={submit}/>
+      </Provider>,
       uiElement
     );
   }
 
   initUI();
+
+  observeStore(state => state.voxelOp, op => {
+    switch(op.type) {
+      case ActionTypes.ADD_VOXEL:
+        const { position, color } = op.voxel;
+        const screenPos = toScreenPosition(position);
+        addVoxel(screenPos.x, screenPos.y, screenPos.z, color);
+        break;
+    }
+  });
 
   return { render };
 }
