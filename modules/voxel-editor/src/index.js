@@ -7,7 +7,7 @@ import store, {
   observeStore,
 } from './store';
 
-import Controls from './components/controls';
+import Controls from './components/Controls';
 
 import * as ActionTypes from './constants/ActionTypes';
 
