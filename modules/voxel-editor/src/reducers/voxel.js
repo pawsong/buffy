@@ -1,17 +1,15 @@
 import { ADD_VOXEL } from '../constants/ActionTypes';
 import Immutable from 'immutable';
 
-const initialState = Immutable.Map();
+import { vector3ToString } from '@pasta/helper-public';
 
-function positionToKey(pos) {
-  return `${pos.x}_${pos.y}_${pos.z}`;
-}
+const initialState = Immutable.Map();
 
 export function voxel(state = initialState, action) {
   switch (action.type) {
     case ADD_VOXEL:
       const { position, color } = action;
-      return state.set(positionToKey(position), {
+      return state.set(vector3ToString(position), {
         position, color
       });
     default:

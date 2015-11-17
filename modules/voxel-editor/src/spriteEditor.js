@@ -1,3 +1,5 @@
+import { vector3ToString } from '@pasta/helper-public';
+
 import store, {
   actions,
   observeStore,
@@ -42,13 +44,11 @@ export default function initSpriteEditor(container) {
 
     const left = up.clone().cross(front);
 
-    // Mouse event handlers
-    two.renderer.domElement.addEventListener('mousemove', function (e) {
-      var screen = this.getBoundingClientRect();
+    function getFocus(screen, event) {
       const leftScalar =
-        - leftOffset + Math.floor((e.clientX - screen.left) / UNIT) + 1;
+        - leftOffset + Math.floor((event.clientX - screen.left) / UNIT) + 1;
       const topScalar =
-        - topOffset + PIXEL_NUM - Math.floor((e.clientY - screen.top) / UNIT);
+        - topOffset + PIXEL_NUM - Math.floor((event.clientY - screen.top) / UNIT);
 
       if (leftScalar === 0 || topScalar === 0) { return; }
 
@@ -56,7 +56,35 @@ export default function initSpriteEditor(container) {
         .multiplyScalar(leftScalar)
         .add(up.clone().multiplyScalar(topScalar));
 
+      return focus;
+    }
+
+    function requestFillPixel(focus) {
+      const { color } = store.getState();
+      return actions.fillSprite(front, up, focus, color);
+    }
+
+    // Mouse event handlers
+    two.renderer.domElement.addEventListener('mousemove', function (event) {
+      const screen = this.getBoundingClientRect();
+
+      const focus = getFocus(screen, event);
+      if (!focus) { return; }
+
       actions.focusSprite(focus);
+
+      if (event.buttons === 1) {
+        requestFillPixel(focus);
+      }
+    }, false);
+
+    two.renderer.domElement.addEventListener('mousedown', function (event) {
+      const screen = this.getBoundingClientRect();
+
+      const focus = getFocus(screen, event);
+      if (!focus) { return; }
+
+      requestFillPixel(focus);
     }, false);
 
     two.renderer.domElement.addEventListener('mouseleave', function (e) {
@@ -67,20 +95,12 @@ export default function initSpriteEditor(container) {
       actions.focusSprite(null);
     }, false);
 
-    // store event handlers
-    let focusRect = null;
-    observeStore(state => state.spriteFocus, focus => {
-      if (focusRect) {
-        two.remove(focusRect);
-        focusRect = null;
-      }
-
-      if (!focus) {
-        return two.update();
-      }
-
-      const leftDot = left.dot(focus);
-      const topDot = up.dot(focus);
+    /**
+     * @return Rectangle two.js rectangle
+     */
+    function fillPixel(position) {
+      const leftDot = left.dot(position);
+      const topDot = up.dot(position);
 
       let leftPos;
       let topPos;
@@ -103,15 +123,48 @@ export default function initSpriteEditor(container) {
         height = 1;
       }
 
-      focusRect = two.makeRectangle(
+      return two.makeRectangle(
         (leftPos - 0.5) * UNIT + 0.5,
         (PIXEL_NUM - topPos + 0.5) * UNIT + 0.5,
         width * UNIT,
         height * UNIT
       );
+    }
+
+    // store event handlers
+    let focusRect = null;
+    observeStore(state => state.spriteFocus, focus => {
+      if (focusRect) {
+        two.remove(focusRect);
+        focusRect = null;
+      }
+
+      if (!focus) {
+        return two.update();
+      }
+
+      focusRect = fillPixel(focus);
       focusRect.fill = 'rgb(255, 0, 255)';
       focusRect.opacity = 0.75;
 
+      return two.update();
+    });
+
+    const pixels = {};
+    observeStore(state => state.spriteOp, op => {
+      if (op.front !== front || op.up !== up) {
+        return;
+      }
+
+      const pixelId = vector3ToString(op.position);
+
+      let pixel = pixels[pixelId];
+      if (!pixel) {
+        pixel = fillPixel(op.position);
+        pixels[pixelId] = pixel;
+      }
+      const { color } = op;
+      pixel.fill = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
       return two.update();
     });
   }
@@ -163,9 +216,4 @@ export default function initSpriteEditor(container) {
     0, 0,
     UNIT + 2 * OFFSET, UNIT + OFFSET
   );
-
-  /*
-  // Right
-  initCanvas('-y', '+z', UNIT, UNIT);
-  */
 };
