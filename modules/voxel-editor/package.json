@@ -16,18 +16,22 @@
   "dependencies": {
     "eventemitter3": "^1.1.1",
     "flux": "^2.1.1",
+    "get-pixels": "^3.2.3",
     "immutable": "^3.7.5",
     "ndarray": "^1.0.18",
     "ndarray-fill": "^1.0.1",
-    "react-color": "^1.2.1"
+    "react-color": "^1.2.1",
+    "voxelize": "^1.0.0"
   },
   "peerDependencies": {
     "material-ui": "^0.13.2",
     "react": "^0.14.2",
     "react-dom": "^0.14.2",
-    "redux": "^3.0.4"
+    "redux": "^3.0.4",
+    "bluebird": "^3.0.5"
   },
   "devDependencies": {
+    "bluebird": "^3.0.5",
     "material-ui": "^0.13.2",
     "react": "^0.14.2",
     "react-dom": "^0.14.2",

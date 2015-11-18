@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import { vector3ToString } from '@pasta/helper-public';
 
 import store, {
   actions,
@@ -12,11 +13,18 @@ import Controls from './components/Controls';
 import * as ActionTypes from './constants/ActionTypes';
 
 import initSpriteEditor from './spriteEditor';
+import shapeCarve from './shapeCarve';
+import greedyMesh from './greedyMesh';
 
 const GRID_SIZE = 16;
 const UNIT_PIXEL = 25;
 const BOX_SIZE = UNIT_PIXEL * 2;
 const PLANE_Y_OFFSET = - BOX_SIZE * 4;
+const DIMENTIONS = [
+  GRID_SIZE,
+  GRID_SIZE,
+  GRID_SIZE,
+];
 
 function toScreenPosition(absPos) {
   return {
@@ -379,6 +387,57 @@ export default (container, parent, submit /* TODO: Replace with ajax call */) =>
       return clearSpriteFocus();
     }
     addSpriteFocus(focus);
+  });
+
+  let surfacemesh;
+  observeStore(state => state.spriteOp, op => {
+    const { volume, dims } = shapeCarve(DIMENTIONS, store.getState().sprite, 0, [
+      false, false, false, false, false, false,
+    ]);
+
+    const { vertices, faces } = greedyMesh(volume, dims);
+    if (vertices.length === 0) { return; }
+
+    // IMPORT START
+    if(surfacemesh) {
+      scene.remove( surfacemesh );
+    }
+
+    const geometry  = new THREE.Geometry();
+
+    geometry.vertices.length = 0;
+    geometry.faces.length = 0;
+    for(let i = 0; i < vertices.length; ++i) {
+      var q = vertices[i];
+      geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
+    }
+    for(var i = 0; i < faces.length; ++i) {
+      var q = faces[i];
+      var f = new THREE.Face3(q[0], q[1], q[2]);
+      f.color = new THREE.Color(q[3]);
+      f.vertexColors = [f.color,f.color,f.color];
+      geometry.faces.push(f);
+    }
+
+    geometry.verticesNeedUpdate = true;
+    geometry.elementsNeedUpdate = true;
+
+    // Create surface mesh
+    var material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      vertexColors: THREE.VertexColors,
+      shading: THREE.FlatShading,
+    });
+
+    surfacemesh = new THREE.Mesh( geometry, material );
+    surfacemesh.doubleSided = false;
+    surfacemesh.position.x = BOX_SIZE * -dims[0] / 2.0;
+    surfacemesh.position.y = BOX_SIZE * -dims[1] / 2.0 - PLANE_Y_OFFSET;
+    surfacemesh.position.z = BOX_SIZE * -dims[2] / 2.0;
+
+    scene.add( surfacemesh );
+    // IMPORT END
+    return;
   });
 
   return { render };

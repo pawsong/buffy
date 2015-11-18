@@ -1,4 +1,5 @@
 import { vector3ToString } from '@pasta/helper-public';
+import SpriteCameras from './SpriteCameras';
 
 import store, {
   actions,
@@ -17,7 +18,7 @@ export default function initSpriteEditor(container) {
   container.appendChild(spriteElement);
   spriteElement.style.width = '100%';
 
-  function initCanvas(front, up, topOffset, leftOffset, elemTopOffset, elemLeftOffset) {
+  function initCanvas({ front, up }, topOffset, leftOffset, elemTopOffset, elemLeftOffset) {
     const two = new Two({
       type: Two.Types.canvas,
       width: UNIT * PIXEL_NUM + 1, height: UNIT * PIXEL_NUM + 1,
@@ -70,6 +71,14 @@ export default function initSpriteEditor(container) {
 
       const focus = getFocus(screen, event);
       if (!focus) { return; }
+
+      const curFocus = store.getState().spriteFocus;
+      if (curFocus &&
+          curFocus.x === focus.x &&
+          curFocus.y === focus.y &&
+          curFocus.z === focus.z) {
+        return;
+      }
 
       actions.focusSprite(focus);
 
@@ -171,48 +180,42 @@ export default function initSpriteEditor(container) {
 
   // Front
   initCanvas(
-    new THREE.Vector3(1, 0, 0),
-    new THREE.Vector3(0, 0, 1),
+    SpriteCameras.front,
     0, 0,
     UNIT, UNIT
   );
 
   // Back
   initCanvas(
-    new THREE.Vector3(-1, 0, 0),
-    new THREE.Vector3(0, 0, 1),
+    SpriteCameras.back,
     0, PIXEL_NUM + 1,
     UNIT, UNIT + OFFSET
   );
 
   // Top
   initCanvas(
-    new THREE.Vector3(0, 0, 1),
-    new THREE.Vector3(0, -1, 0),
+    SpriteCameras.top,
     PIXEL_NUM + 1, PIXEL_NUM + 1,
     UNIT + OFFSET, UNIT
   );
 
   // Bottom
   initCanvas(
-    new THREE.Vector3(0, 0, -1),
-    new THREE.Vector3(0, 1, 0),
+    SpriteCameras.bottom,
     0, PIXEL_NUM + 1,
     UNIT + OFFSET, UNIT + OFFSET
   );
 
   // Left
   initCanvas(
-    new THREE.Vector3(0, 1, 0),
-    new THREE.Vector3(0, 0, 1),
+    SpriteCameras.left,
     0, PIXEL_NUM + 1,
     UNIT + 2 * OFFSET, UNIT
   );
 
   // Right
   initCanvas(
-    new THREE.Vector3(0, -1, 0),
-    new THREE.Vector3(0, 0, 1),
+    SpriteCameras.right,
     0, 0,
     UNIT + 2 * OFFSET, UNIT + OFFSET
   );

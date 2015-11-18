@@ -2,14 +2,14 @@ import { vector3ToString } from '@pasta/helper-public';
 import * as ActionTypes from '../constants/ActionTypes';
 import Immutable from 'immutable';
 
+import { getCameraId } from '../SpriteCameras';
+
 const initialSprite = Immutable.Map();
 
 export function sprite(state = initialSprite, action) {
   switch (action.type) {
     case ActionTypes.FILL_SPRITE:
-      const planeId = [action.front, action.up]
-        .map(direction => vector3ToString(direction))
-        .join('/');
+      const planeId = getCameraId(action.front, action.up);
 
       const plane = state.get(planeId) || Immutable.Map();
       const { position, color } = action;
@@ -42,10 +42,6 @@ export function spriteFocus(state = null, action) {
       if (!action.position) { return null; }
 
       const { x, y, z } = action.position;
-      if (state && state.x === x && state.y === y && state.z === z) {
-        return state;
-      }
-
       return { x, y, z };
     default:
       return state;
