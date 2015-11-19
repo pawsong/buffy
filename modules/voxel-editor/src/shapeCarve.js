@@ -1,7 +1,7 @@
 import SpriteCameras, { getCameraId } from './SpriteCameras';
 
 const surfaces = [
-  'left', 'right', 'top', 'bottom', 'front', 'back',
+  'right', 'left', 'bottom', 'top', 'back', 'front',
 ];
 
 const GRID_SIZE = 16;
@@ -17,7 +17,7 @@ export default function shapeCarve(dims, sprites, mask_color, skip) {
 
   const views = [];
   surfaces.forEach((surface, index) => {
-    const { front, up, flip, transform } = SpriteCameras[surface];
+    const { front, up, transform } = SpriteCameras[surface];
     const left = up.clone().cross(front);
 
     // Create view data buffer
@@ -34,12 +34,6 @@ export default function shapeCarve(dims, sprites, mask_color, skip) {
         const position = new THREE.Vector3(
           pixel.position.x, pixel.position.y, pixel.position.z
         );
-
-        if (false && flip) {
-          position.add(flip.clone().multiplyScalar(
-            GRID_SIZE - 2 * flip.dot(pixel.position) + 1
-          ));
-        }
 
         let h = Math.abs(left.dot(position)) - 1;
         let v = Math.abs(up.dot(position)) - 1;

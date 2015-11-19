@@ -120,14 +120,13 @@ class Controls extends React.Component {
                 n1 = i + 1 - px;
                 n2 = GRID_SIZE - j + py;
               } else if (rotate === 2) {
-                //n1 = GRID_SIZE - j + py;
-                n1 = j + 1 - py;
+                n1 = GRID_SIZE - j + py;
                 n2 = GRID_SIZE - i + px;
               } else if (rotate === 3) {
                 n1 = i + 1 - px;
                 n2 = j + 1 - py;
               } else {
-                n1 = i + 1 - px;
+                n1 = GRID_SIZE - i + px;
                 n2 = j + 1 - py;
               }
 
@@ -145,10 +144,12 @@ class Controls extends React.Component {
           }
         }
 
-        parseImage(0, 0, SpriteCameras.left, 2);
-        parseImage(GRID_SIZE, 0, SpriteCameras.right, 2);
-        parseImage(GRID_SIZE, GRID_SIZE, SpriteCameras.top);
-        parseImage(0, GRID_SIZE, SpriteCameras.bottom);
+        parseImage(0, 0, SpriteCameras.right, 2);
+        parseImage(GRID_SIZE, 0, SpriteCameras.left, 2);
+
+        parseImage(0, GRID_SIZE, SpriteCameras.top);
+        parseImage(GRID_SIZE, GRID_SIZE, SpriteCameras.bottom);
+
         parseImage(0, 2 * GRID_SIZE, SpriteCameras.front, 1);
         parseImage(GRID_SIZE, 2 * GRID_SIZE, SpriteCameras.back, 1);
 
