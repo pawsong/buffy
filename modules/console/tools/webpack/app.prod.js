@@ -17,11 +17,13 @@ module.exports = _.defaultsDeep({
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production')
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      compressor: {
-        warnings: false
-      }
-    })
+
+    // Should be enabled when officially released
+    // new webpack.optimize.UglifyJsPlugin({
+    //   compressor: {
+    //     warnings: false
+    //   }
+    // })
   ].concat(webpackConfigDev.plugins),
 
   devtool: 'hidden-source-map',
