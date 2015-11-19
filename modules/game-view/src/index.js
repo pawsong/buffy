@@ -154,7 +154,6 @@ export default (htmlElement, store, api) => {
               }
 
               const intersect = intersects[ 0 ];
-              console.log(intersect);
 
               const position = new THREE.Vector3();
 
@@ -272,13 +271,14 @@ export default (htmlElement, store, api) => {
       shading: THREE.FlatShading,
     });
 
-    surfacemesh = new THREE.Mesh( geometry, material );
-    surfacemesh.doubleSided = false;
-    surfacemesh.position.x = BOX_SIZE * -dims[0] / 2.0;
-    surfacemesh.position.y = BOX_SIZE * -dims[1] / 2.0 - PLANE_Y_OFFSET;
-    surfacemesh.position.z = BOX_SIZE * -dims[2] / 2.0;
+    const mesh = new THREE.Mesh( geometry, material );
+    mesh.doubleSided = false;
+    mesh.position.x = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
+    mesh.position.y = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;// - PLANE_Y_OFFSET;
+    mesh.position.z = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
+    mesh.scale.set(MINI_PIXEL_SIZE, MINI_PIXEL_SIZE, MINI_PIXEL_SIZE);
 
-    scene.add( surfacemesh );
+    object.add( mesh );
   });
 
   // Map

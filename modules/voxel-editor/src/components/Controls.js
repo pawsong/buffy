@@ -62,7 +62,6 @@ class Controls extends React.Component {
 
   _submit() {
     const { submit, voxel, sprite } = this.props;
-    //submit(voxel.toArray());
     const { volume, dims } = shapeCarve(DIMENTIONS, sprite, 0, [
       false, false, false, false, false, false,
     ]);
