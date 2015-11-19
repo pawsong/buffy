@@ -11,8 +11,6 @@ function rgb2hex(r, g, b) {
 }
 
 export default function shapeCarve(dims, sprites, mask_color, skip) {
-  //console.log('ShapeCarve');
-
   const x = new Int32Array(3);
   const volume = new Int32Array(dims[0] * dims[1] * dims[2]);
   const depth = [];
@@ -32,7 +30,6 @@ export default function shapeCarve(dims, sprites, mask_color, skip) {
     const cameraId = getCameraId(front, up);
     const sprite = sprites.get(cameraId);
     if (sprite) {
-      //console.log('sprite');
       sprite.forEach(pixel => {
         const position = new THREE.Vector3(
           pixel.position.x, pixel.position.y, pixel.position.z
@@ -58,15 +55,6 @@ export default function shapeCarve(dims, sprites, mask_color, skip) {
 
     views.push(view);
   });
-
-  views.forEach(function (view, i) {
-    view.forEach(function (item, j) {
-      if (item !== 0) {
-        //        console.log(`i=${i} j=${j} c=${item}`);
-      }
-    });
-  });
-  //console.log('ShapeCarve end');
 
   // Initialize volume
   for(let i = 0; i < volume.length; ++i) {

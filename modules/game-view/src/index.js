@@ -208,7 +208,9 @@ export default (htmlElement, store, api) => {
     objects = {};
   });
 
-  store.on('voxels', ({ id, voxels }) => {
+  store.on('voxels', ({ id, data }) => {
+    const { voxels, vertices, faces } = data;
+
     const object = objects[id];
     object.children.forEach(child => {
       object.remove(child);
@@ -222,7 +224,8 @@ export default (htmlElement, store, api) => {
     pos.y = cube.position.y;
     cube.lookAt(pos);
     */
-    const geometry = new THREE.BoxGeometry(
+    // Voxels!
+    const voxelGeometry = new THREE.BoxGeometry(
       MINI_PIXEL_SIZE,
       MINI_PIXEL_SIZE,
       MINI_PIXEL_SIZE
@@ -234,13 +237,48 @@ export default (htmlElement, store, api) => {
       material.color.setHex(voxel.color);
       material.color.setStyle(`rgba(${c.r},${c.g},${c.b},${c.a})`);
 
-      const mesh = new THREE.Mesh( geometry, material );
+      const mesh = new THREE.Mesh( voxelGeometry, material );
       mesh.position.z += -PIXEL_UNIT + voxel.position.x * MINI_PIXEL_SIZE;
       mesh.position.x += -PIXEL_UNIT + voxel.position.y * MINI_PIXEL_SIZE;
       mesh.position.y += -PIXEL_UNIT + voxel.position.z * MINI_PIXEL_SIZE;
 
       object.add( mesh );
     });
+
+    // Vertices and faces
+    const geometry  = new THREE.Geometry();
+
+    geometry.vertices.length = 0;
+    geometry.faces.length = 0;
+    for(let i = 0; i < vertices.length; ++i) {
+      var q = vertices[i];
+      geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
+    }
+    for(var i = 0; i < faces.length; ++i) {
+      var q = faces[i];
+      var f = new THREE.Face3(q[0], q[1], q[2]);
+      f.color = new THREE.Color(q[3]);
+      f.vertexColors = [f.color,f.color,f.color];
+      geometry.faces.push(f);
+    }
+
+    geometry.verticesNeedUpdate = true;
+    geometry.elementsNeedUpdate = true;
+
+    // Create surface mesh
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      vertexColors: THREE.VertexColors,
+      shading: THREE.FlatShading,
+    });
+
+    surfacemesh = new THREE.Mesh( geometry, material );
+    surfacemesh.doubleSided = false;
+    surfacemesh.position.x = BOX_SIZE * -dims[0] / 2.0;
+    surfacemesh.position.y = BOX_SIZE * -dims[1] / 2.0 - PLANE_Y_OFFSET;
+    surfacemesh.position.z = BOX_SIZE * -dims[2] / 2.0;
+
+    scene.add( surfacemesh );
   });
 
   // Map

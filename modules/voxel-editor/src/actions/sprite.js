@@ -7,3 +7,7 @@ export function focusSprite(position) {
 export function fillSprite(front, up, position, color) {
   return { type: ActionTypes.FILL_SPRITE, front, up, position, color };
 }
+
+export function fillSpriteBatch(actions) {
+  return { type: ActionTypes.FILL_SPRITE_BATCH, actions };
+}

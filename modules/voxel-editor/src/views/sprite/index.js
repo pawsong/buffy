@@ -1,15 +1,19 @@
 import { vector3ToString } from '@pasta/helper-public';
-import SpriteCameras from './SpriteCameras';
+import SpriteCameras, { getCameraId } from '../../SpriteCameras';
 
 import store, {
   actions,
   observeStore,
-} from './store';
+} from '../../store';
 
-import * as ActionTypes from './constants/ActionTypes';
+import * as ActionTypes from '../../constants/ActionTypes';
+
+import {
+  GRID_SIZE
+} from '../../constants/Pixels';
 
 const UNIT = 6;
-const PIXEL_NUM = 16;
+const PIXEL_NUM = GRID_SIZE;
 const OFFSET = (PIXEL_NUM + 1) * UNIT;
 
 export default function initSpriteEditor(container) {
@@ -107,7 +111,7 @@ export default function initSpriteEditor(container) {
     /**
      * @return Rectangle two.js rectangle
      */
-    function fillPixel(position) {
+    function createPixel(position) {
       const leftDot = left.dot(position);
       const topDot = up.dot(position);
 
@@ -152,30 +156,46 @@ export default function initSpriteEditor(container) {
         return two.update();
       }
 
-      focusRect = fillPixel(focus);
+      focusRect = createPixel(focus);
       focusRect.fill = 'rgb(255, 0, 255)';
       focusRect.opacity = 0.75;
 
       return two.update();
     });
 
-    const pixels = {};
-    observeStore(state => state.spriteOp, op => {
-      if (op.front !== front || op.up !== up) {
-        return;
-      }
-
-      const pixelId = vector3ToString(op.position);
+    function fillPixel(position, color) {
+      const pixelId = vector3ToString(position);
 
       let pixel = pixels[pixelId];
       if (!pixel) {
-        pixel = fillPixel(op.position);
+        pixel = createPixel(position);
         pixels[pixelId] = pixel;
       }
-      const { color } = op;
       pixel.fill = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
+      return pixel;
+    }
+
+    const pixels = {};
+    observeStore(state => state.spriteOp, op => {
+      if (op.type === ActionTypes.FILL_SPRITE_BATCH) {
+        const { sprite } = store.getState();
+        const planeId = getCameraId(front, up);
+        const plane = sprite.get(planeId);
+        plane.forEach(data => {
+          const { position, color } = data;
+          fillPixel(position, color);
+        });
+      } else if (op.type === ActionTypes.FILL_SPRITE) {
+        if (op.front !== front || op.up !== up) {
+          return;
+        }
+        const { position, color } = op;
+        fillPixel(position, color);
+      }
       return two.update();
     });
+
+    return two.update();
   }
 
   // Front

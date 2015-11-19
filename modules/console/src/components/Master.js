@@ -191,8 +191,8 @@ class Master extends React.Component {
     // This is ugly, but works...
     const voxelEditorContainer = voxelEditorElem.parentElement.parentElement;
     const createVoxelEditor = require('@pasta/voxel-editor').default;
-    const voxelEditor = createVoxelEditor(voxelEditorElem, voxelEditorContainer, voxels => {
-      socket.emit('voxels', voxels);
+    const voxelEditor = createVoxelEditor(voxelEditorElem, voxelEditorContainer, data => {
+      socket.emit('voxels', data);
     });
 
     /////////////////////////////////////////////////////////////////////////

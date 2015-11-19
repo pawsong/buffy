@@ -50,7 +50,7 @@ export default function (io, socket) {
     objects.destroy(user.id);
   });
 
-  socket.on('voxels', voxels => {
-    socket.emit('voxels', { id: user.id, voxels });
+  socket.on('voxels', data => {
+    socket.emit('voxels', { id: user.id, data });
   });
 };

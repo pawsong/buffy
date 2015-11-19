@@ -84,24 +84,24 @@ export default function greedyMesh(volume, dims) {
 
           var vertex_count = vertices.length;
           vertices.push([
-            BOX_SIZE * x[0],
-            BOX_SIZE * x[1],
-            BOX_SIZE * x[2]
+            x[0],
+            x[1],
+            x[2],
           ]);
           vertices.push([
-            BOX_SIZE * (x[0] + du[0]),
-            BOX_SIZE * (x[1] + du[1]),
-            BOX_SIZE * (x[2] + du[2])
+            x[0] + du[0],
+            x[1] + du[1],
+            x[2] + du[2],
           ]);
           vertices.push([
-            BOX_SIZE * (x[0] + du[0] + dv[0]),
-            BOX_SIZE * (x[1] + du[1] + dv[1]),
-            BOX_SIZE * (x[2] + du[2] + dv[2])
+            x[0] + du[0] + dv[0],
+            x[1] + du[1] + dv[1],
+            x[2] + du[2] + dv[2],
           ]);
           vertices.push([
-            BOX_SIZE * (x[0] + dv[0]),
-            BOX_SIZE * (x[1] + dv[1]),
-            BOX_SIZE * (x[2] + dv[2]),
+            x[0] + dv[0],
+            x[1] + dv[1],
+            x[2] + dv[2],
           ]);
 
           faces.push([vertex_count, vertex_count+1, vertex_count+2, c]);
