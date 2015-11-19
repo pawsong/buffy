@@ -452,6 +452,7 @@ export default (container, parent) => {
     surfacemesh.position.y = BOX_SIZE * -dims[1] / 2.0 - PLANE_Y_OFFSET;
     surfacemesh.position.z = BOX_SIZE * -dims[2] / 2.0;
     surfacemesh.scale.set(BOX_SIZE, BOX_SIZE, BOX_SIZE);
+    surfacemesh.isVoxel = true;
 
     scene.add( surfacemesh );
   });
