@@ -83,6 +83,7 @@ export default (container, parent) => {
   //controls.dampingFactor = 0.25;
   //controls.enableZoom = false;
   controls.maxDistance = 2000;
+  controls.enableKeys = false;
 
   const raycaster = new THREE.Raycaster();
 

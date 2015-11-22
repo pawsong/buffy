@@ -18,6 +18,8 @@ import SpriteCameras from '../SpriteCameras';
 import shapeCarve from '../shapeCarve';
 import greedyMesh from '../greedyMesh';
 
+import MenuBar from './MenuBar';
+
 const GRID_SIZE = 16;
 const UNIT_PIXEL = 25;
 const BOX_SIZE = UNIT_PIXEL * 2;
@@ -159,23 +161,37 @@ class Controls extends React.Component {
 
   render() {
     const { color } = this.props;
-    return <div style={styles.root}>
-      <RaisedButton label="Submit" primary={true} onClick={this._submit.bind(this)}/>
-      <div style={styles.swatch} onClick={ this._handleColorPickerOpen.bind(this) }>
-        <div style={{
-          backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
-          ...styles.color
-        }} />
-    </div>
-    <ColorPicker
-      color={ this.props.color }
-      position="left"
-      display={ this.state.displayColorPicker }
-      onChange={ this._handleColorPickerChange.bind(this) }
-      onClose={ this._handleColorPickerClose.bind(this) }
-      type="sketch" />
-    <RaisedButton label="Load Sprites" primary={true} onClick={this._loadSprites.bind(this)}/>
-  </div>;
+    const menuItem = {
+      marginLeft: 7
+    };
+
+    return <div>
+      <MenuBar rootElement={this.props.rootElement}></MenuBar>
+      <div style={styles.root}>
+        <div>
+          <RaisedButton label="Submit" primary={true} onClick={this._submit.bind(this)}/>
+        </div>
+        <div>
+          <div style={styles.swatch} onClick={ this._handleColorPickerOpen.bind(this) }>
+            <div style={{
+              backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
+              ...styles.color
+            }} />
+          </div>
+        </div>
+        <ColorPicker
+          color={ this.props.color }
+          position="left"
+          display={ this.state.displayColorPicker }
+          onChange={ this._handleColorPickerChange.bind(this) }
+          onClose={ this._handleColorPickerClose.bind(this) }
+          type="sketch" />
+        <div>
+          <RaisedButton label="Load Sprites" primary={true}
+            onClick={this._loadSprites.bind(this)}/>
+        </div>
+      </div>
+    </div>;
   }
 }
 

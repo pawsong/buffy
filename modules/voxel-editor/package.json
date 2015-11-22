@@ -24,18 +24,19 @@
     "voxelize": "^1.0.0"
   },
   "peerDependencies": {
-    "material-ui": "^0.13.2",
-    "react": "^0.14.2",
-    "react-dom": "^0.14.2",
+    "material-ui": "^0.13.3",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
     "redux": "^3.0.4",
     "bluebird": "^3.0.5"
   },
   "devDependencies": {
     "bluebird": "^3.0.5",
-    "material-ui": "^0.13.2",
-    "react": "^0.14.2",
-    "react-dom": "^0.14.2",
+    "material-ui": "^0.13.3",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
     "react-redux": "^4.0.0",
+    "react-tap-event-plugin": "^0.2.1",
     "redux": "^3.0.4"
   },
   "link": [

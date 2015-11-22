@@ -29,7 +29,7 @@ export default function initSpriteEditor(container) {
     }).appendTo(spriteElement);
 
     two.renderer.domElement.style.position = 'absolute';
-    two.renderer.domElement.style.top = `${elemTopOffset}px`;
+    two.renderer.domElement.style.top = `${elemTopOffset + 30}px`;
     two.renderer.domElement.style.left = `${elemLeftOffset}px`;
 
     // Set grid
