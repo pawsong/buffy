@@ -2,6 +2,7 @@
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var config = require('@pasta/config-public');
+const path = require('path');
 
 module.exports = {
   entry: './src/app.js',
@@ -20,6 +21,7 @@ module.exports = {
 
   resolve: {
     extensions: ['', '.js'],
+    fallback: path.join(__dirname, '/../../node_modules'),
   },
 
   plugins: [
