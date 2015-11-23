@@ -90,6 +90,10 @@ const MenuBar = React.createClass({
     }, 0);
   },
 
+  _handleSave() {
+    console.log('save');
+  },
+
   render() {
     return <div>
       <Dialog
@@ -101,17 +105,18 @@ const MenuBar = React.createClass({
       </Dialog>
 
       <MenuBarContent iconMenuStyle={{ display: 'inline-block' }} iconMenuMenuStyle={{
-        top: null, left: 12,
+        top: null, left: 0,
       }} style={{ paddingLeft: 5, backgroundColor: '#FFFFFF' }}>
         <div style={{position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}></div>
 
         {/* File Menu */}
-        <IconMenu iconButtonElement={ <RootIcon>File</RootIcon> }>
+        <IconMenu width={192} iconButtonElement={ <RootIcon>File</RootIcon> }>
           <IconMenu iconButtonElement={
             <MenuItem primaryText="New" rightIcon={<ArrowDropRight />} />
             }>
             <MenuItem primaryText="Object" onTouchTap={this._handleNewObject}/>
           </IconMenu>
+          <MenuItem primaryText="Save" secondaryText="⌘O" onTouchTap={this._handleSave}/>
         </IconMenu>
 
         {/* Window Menu */}

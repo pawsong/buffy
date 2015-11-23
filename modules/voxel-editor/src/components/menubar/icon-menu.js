@@ -167,6 +167,7 @@ const IconMenu = React.createClass({
     let menu = open ? (
       <Menu
         {...other}
+        listStyle={{ display: 'block' }}
         desktop={true}
         animated={false}
         initiallyKeyboardFocused={this.state.menuInitiallyKeyboardFocused}
