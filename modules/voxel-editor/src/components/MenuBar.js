@@ -48,19 +48,23 @@ const MenuBar = React.createClass({
     Object.keys(fullscreenStyle).forEach(prop => oldStyle[prop] = rootElement.style[prop]);
 
     const turnOnFullscreen = () => {
-      fullscreen = true;
-      Object.keys(fullscreenStyle).forEach(
-        prop => rootElement.style[prop] = fullscreenStyle[prop]
-      );
-      window.dispatchEvent(new Event('resize'));
+      setTimeout(() => {
+        fullscreen = true;
+        Object.keys(fullscreenStyle).forEach(
+          prop => rootElement.style[prop] = fullscreenStyle[prop]
+        );
+        window.dispatchEvent(new Event('resize'));
+      }, 0);
     };
 
     const turnOffFullscreen = () => {
-      fullscreen = false;
-      Object.keys(fullscreenStyle).forEach(
-        prop => rootElement.style[prop] = oldStyle[prop]
-      );
-      window.dispatchEvent(new Event('resize'));
+      setTimeout(() => {
+        fullscreen = false;
+        Object.keys(fullscreenStyle).forEach(
+          prop => rootElement.style[prop] = oldStyle[prop]
+        );
+        window.dispatchEvent(new Event('resize'));
+      }, 0);
     };
 
     this._toggleFullscreen = () => !fullscreen ? turnOnFullscreen() : turnOffFullscreen();
