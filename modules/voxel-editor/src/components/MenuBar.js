@@ -99,7 +99,7 @@ const MenuBar = React.createClass({
         onRequestClose={this._hideDialog}>
         {this.state.dialogMessage}
       </Dialog>
-      <MenuBarContent style={{ marginLeft: 5 }}>
+      <MenuBarContent style={{ paddingLeft: 5, backgroundColor: '#FFFFFF' }}>
         <div style={{position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}></div>
         <IconMenu iconButtonElement={ <div style={styles.menu}>File</div> }>
           <MenuItem primaryText="Refresh" onTouchTap={this._showDialog} />
