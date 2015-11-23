@@ -18,7 +18,7 @@ import SpriteCameras from '../SpriteCameras';
 import shapeCarve from '../shapeCarve';
 import greedyMesh from '../greedyMesh';
 
-import MenuBar from './MenuBar';
+import MenuBar from './menubar/MenuBar';
 
 const GRID_SIZE = 16;
 const UNIT_PIXEL = 25;

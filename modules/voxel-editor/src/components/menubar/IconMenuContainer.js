@@ -1,5 +1,7 @@
 import React from 'react';
 
+const StylePropable = require('material-ui/lib/mixins/style-propable');
+
 const IconMenuContainer = {
   getInitialState () {
     return {
@@ -14,11 +16,18 @@ const IconMenuContainer = {
   },
 
   bindChildren() {
+    const styles = {
+      root: { display: 'block' },
+      menu: { top: 0, left: '100%' },
+    };
+
     let childIconMenuIndex = 0;
     return React.Children.map(this.props.children, child => {
       if (child.type.displayName === 'IconMenu') {
         const iconMenuIndex = childIconMenuIndex++;
         return React.cloneElement(child, {
+          style: StylePropable.mergeStyles(styles.root, this.props.iconMenuStyle),
+          menuStyle: StylePropable.mergeStyles(styles.menu, this.props.iconMenuMenuStyle),
           open: () => this.setState({ childIconMenuIndex: iconMenuIndex }),
           close: (callback) => this.closeChildIconMenu(callback),
           closeContainer: () => this.props.close || this.props.close(),
