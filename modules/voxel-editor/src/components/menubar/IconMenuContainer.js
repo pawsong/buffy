@@ -23,7 +23,7 @@ const IconMenuContainer = {
 
     let childIconMenuIndex = 0;
     return React.Children.map(this.props.children, child => {
-      if (child.type.displayName === 'IconMenu') {
+      if (child.type.displayName && child.type.displayName.indexOf('IconMenu') >= 0) {
         const iconMenuIndex = childIconMenuIndex++;
         return React.cloneElement(child, {
           style: StylePropable.mergeStyles(styles.root, this.props.iconMenuStyle),
