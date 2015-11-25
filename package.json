@@ -46,7 +46,8 @@
   "deployables": [
     "game-srv-zone",
     "console",
-    "compiler"
+    "compiler",
+    "api"
   ],
   "dependencies": {
     "rimraf": "^2.4.3"
