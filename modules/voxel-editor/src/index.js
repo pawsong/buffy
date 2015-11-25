@@ -1,3 +1,4 @@
+import 'whatwg-fetch';
 import initVoxelView from './views/voxel';
 import initSpriteView from './views/sprite';
 import initControlView from './views/control';

@@ -1,4 +1,10 @@
 import React from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as ColorActions from '../../actions/color';
+import * as SpriteActions from '../../actions/sprite';
+import * as WorkspaceActions from '../../actions/workspace';
+
 import IconMenuContainer from './IconMenuContainer';
 
 import FileIconMenu from './FileIconMenu';
@@ -23,10 +29,10 @@ const MenuBar = React.createClass({
         <div style={{position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}></div>
 
         {/* File */}
-        <FileIconMenu/>
+        <FileIconMenu voxel={this.props.voxel} sprite={this.props.sprite} actions={this.props.actions} workspace={this.props.workspace}/>
 
         {/* Edit */}
-        <EditIconMenu/>
+        <EditIconMenu actions={this.props.actions} />
 
         {/* Window */}
         <WindowIconMenu rootElement={this.props.rootElement} />
@@ -39,4 +45,15 @@ const MenuBar = React.createClass({
   },
 });
 
-export default MenuBar;
+export default connect(state => ({
+  voxel: state.voxel,
+  color: state.color,
+  sprite: state.sprite,
+  workspace: state.workspace,
+}), dispatch => ({
+  actions: bindActionCreators({
+    ...SpriteActions,
+    ...ColorActions,
+    ...WorkspaceActions,
+  }, dispatch),
+}))(MenuBar);

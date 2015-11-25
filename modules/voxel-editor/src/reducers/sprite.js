@@ -40,6 +40,12 @@ export function sprite(state = initialSprite, action) {
           state.set(planeId, plane);
         });
       });
+    case ActionTypes.LOAD_WORKSPACE:
+      return Immutable.Map().withMutations(state => {
+        Object.keys(action.sprites).forEach(key => {
+          state.set(key, Immutable.Map(action.sprites[key]));
+        });
+      });
     default:
       return state;
   }
@@ -55,9 +61,10 @@ export function spriteOp(state = {}, action) {
         position: action.position,
         color: action.color,
       };
+    case ActionTypes.LOAD_WORKSPACE:
     case ActionTypes.FILL_SPRITE_BATCH:
       return {
-        type: ActionTypes.FILL_SPRITE_BATCH,
+        type: action.type,
       };
     default:
       return state;

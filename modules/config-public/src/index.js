@@ -13,6 +13,9 @@ if (process.env.NODE_ENV !== 'production') {
   config.gameServerUrl =
     `http://localhost:${iConfig.gameServerPort}`;
 
+  config.apiServerUrl =
+    `http://localhost:${iConfig.apiServerPort}`;
+
   config.facebookAppId = '1127122043982378';
 } else {
 
@@ -21,6 +24,9 @@ if (process.env.NODE_ENV !== 'production') {
 
   config.gameServerUrl =
     `http://zone.html5.computer`;
+
+  config.apiServerUrl =
+    `http://api.html5.computer`;
 
   config.facebookAppId = '1127121857315730';
 

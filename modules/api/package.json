@@ -1,0 +1,37 @@
+{
+  "name": "@pasta/api",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "built:main": "lib/index.js",
+  "scripts": {
+    "clean": "../../node_modules/.bin/rimraf lib",
+    "start": "../../node_modules/.bin/nodemon --watch src src/entry.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "link": "node ../../tools/link",
+    "prepublish": "npm run link && npm run build",
+    "build": "npm run clean && npm run build:lib",
+    "build:lib": "../../node_modules/.bin/babel src --out-dir lib"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.0.5",
+    "body-parser": "^1.14.1",
+    "cookie": "^0.2.3",
+    "cookie-parser": "^1.4.0",
+    "cors": "^2.7.1",
+    "express": "^4.13.3",
+    "express-jwt": "^3.3.0",
+    "frame-loop": "^1.2.1",
+    "jsonwebtoken": "^5.4.1",
+    "lodash": "^3.10.1",
+    "mongoose": "^4.2.7",
+    "shortid": "^2.2.4",
+    "socket.io": "^1.3.7"
+  },
+  "link": [
+    "../config-internal",
+    "../helper-internal"
+  ]
+}

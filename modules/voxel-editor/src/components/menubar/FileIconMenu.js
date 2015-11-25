@@ -6,13 +6,45 @@ import IconMenu from './icon-menu';
 import RootIcon from './RootIcon';
 import NotImplDialog from './NotImplDialog';
 import FileBrowserDialog from './FileBrowserDialog';
+import SaveDialog from './SaveDialog';
+import config from '@pasta/config-public';
 
 const FileIconMenu = React.createClass({
   getInitialState() {
     return {
       showNotImplDialog: false,
+      showSaveDialog: false,
       showFileBrowserDialog: false,
     };
+  },
+
+  _onSave() {
+    const { workspace } = this.props;
+    const { name } = workspace;
+    if (!name) {
+      return this.setState({ showSaveDialog: true });
+    }
+    const data = { a: 1 };
+
+    const voxels = this.props.voxel.toJSON();
+    const sprites = this.props.sprite.toJSON();
+
+    fetch(`${config.apiServerUrl}/voxel-workspaces/me/${name}`, {
+      method: 'put',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        data: JSON.stringify({
+          voxels,
+          sprites,
+        }),
+      }),
+    });
+  },
+
+  _onSaveDialogClose(result) {
+    this.setState({ showSaveDialog: false });
+    if (result) { this._onSave(); }
   },
 
   render() {
@@ -29,14 +61,21 @@ const FileIconMenu = React.createClass({
           onTouchTap={() => this.setState({ showFileBrowserDialog: true })}/>
 
         <MenuItem primaryText="Save" secondaryText="⌘S"
-          onTouchTap={() => this.setState({ showNotImplDialog: true })}/>
+          onTouchTap={this._onSave}/>
 
         <MenuItem primaryText="Submit" secondaryText="⌘S"
           onTouchTap={() => this.setState({ showNotImplDialog: true })}/>
       </IconMenu>
+
       <FileBrowserDialog
         open={this.state.showFileBrowserDialog}
+        actions={this.props.actions}
         onRequestClose={() => this.setState({ showFileBrowserDialog: false })}
+      />
+      <SaveDialog
+        open={this.state.showSaveDialog}
+        actions={this.props.actions}
+        onRequestClose={this._onSaveDialogClose}
       />
       <NotImplDialog
         open={this.state.showNotImplDialog}

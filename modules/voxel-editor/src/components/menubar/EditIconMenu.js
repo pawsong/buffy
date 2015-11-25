@@ -111,13 +111,4 @@ const EditIconMenu = React.createClass({
   },
 });
 
-export default connect(state => ({
-  voxel: state.voxel,
-  color: state.color,
-  sprite: state.sprite,
-}), dispatch => ({
-  actions: bindActionCreators({
-    ...SpriteActions,
-    ...ColorActions
-  }, dispatch),
-}))(EditIconMenu);
+export default EditIconMenu;

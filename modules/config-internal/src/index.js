@@ -10,6 +10,8 @@ iConfig.compilerPort = 9100;
 
 iConfig.gameServerPort = 9200;
 
+iConfig.apiServerPort = 9300;
+
 iConfig.compilerUrl =
   process.env.PASTA_COMPILER_URL || `http://localhost:${iConfig.compilerPort}`
 

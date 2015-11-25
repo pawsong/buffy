@@ -193,7 +193,7 @@ export default (container, parent) => {
 
   function getIntersecting() {
     var intersectable = []
-    scene.children.map(function(c) { if (c.isVoxel || c.isPlane) intersectable.push(c); })
+    scene.children.map(function(c) { if (c.isVoxel || c.isPlane || c.isFromSprite) intersectable.push(c); })
     var intersections = raycaster.intersectObjects( intersectable )
     if (intersections.length > 0) {
       var intersect = intersections[ 0 ].object.isBrush ? intersections[ 1 ] : intersections[ 0 ]
@@ -290,6 +290,22 @@ export default (container, parent) => {
         const { position, color } = op.voxel;
         const screenPos = toScreenPosition(position);
         addVoxel(screenPos.x, screenPos.y, screenPos.z, color);
+        break;
+      case ActionTypes.LOAD_WORKSPACE:
+        // Clear voxels
+        scene.children.map(c => {
+          if (c.isVoxel) {
+            scene.remove(c.wireMesh);
+            scene.remove(c);
+          }
+        });
+
+        const voxels = store.getState().voxel;
+        voxels.forEach(voxel => {
+          const { position, color } = voxel;
+          const screenPos = toScreenPosition(position);
+          addVoxel(screenPos.x, screenPos.y, screenPos.z, color);
+        });
         break;
     }
   });
@@ -453,7 +469,7 @@ export default (container, parent) => {
     surfacemesh.position.y = BOX_SIZE * -dims[1] / 2.0 - PLANE_Y_OFFSET;
     surfacemesh.position.z = BOX_SIZE * -dims[2] / 2.0;
     surfacemesh.scale.set(BOX_SIZE, BOX_SIZE, BOX_SIZE);
-    surfacemesh.isVoxel = true;
+    surfacemesh.isFromSprite = true;
 
     scene.add( surfacemesh );
   });

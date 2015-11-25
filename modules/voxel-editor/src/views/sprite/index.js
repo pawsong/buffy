@@ -177,20 +177,24 @@ export default function initSpriteEditor(container) {
 
     const pixels = {};
     observeStore(state => state.spriteOp, op => {
-      if (op.type === ActionTypes.FILL_SPRITE_BATCH) {
-        const { sprite } = store.getState();
-        const planeId = getCameraId(front, up);
-        const plane = sprite.get(planeId);
-        plane.forEach(data => {
-          const { position, color } = data;
+      switch(op.type) {
+        case ActionTypes.LOAD_WORKSPACE:
+        case ActionTypes.FILL_SPRITE_BATCH:
+          const { sprite } = store.getState();
+          const planeId = getCameraId(front, up);
+          const plane = sprite.get(planeId);
+          plane.forEach(data => {
+            const { position, color } = data;
+            fillPixel(position, color);
+          });
+          break;
+        case ActionTypes.FILL_SPRITE:
+          if (op.front !== front || op.up !== up) {
+            return;
+          }
+          const { position, color } = op;
           fillPixel(position, color);
-        });
-      } else if (op.type === ActionTypes.FILL_SPRITE) {
-        if (op.front !== front || op.up !== up) {
-          return;
-        }
-        const { position, color } = op;
-        fillPixel(position, color);
+          break;
       }
       return two.update();
     });
