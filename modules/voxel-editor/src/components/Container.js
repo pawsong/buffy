@@ -150,7 +150,7 @@ const Container = React.createClass({
           position: 'absolute',
           bottom: 10,
         }} iconClassName="material-icons" tooltipPosition="bottom-center"
-        tooltip={this.state.fullscreen ? 'Fullscreen exit' : 'fullscreen'}
+        tooltip={this.state.fullscreen ? 'Fullscreen exit' : 'Fullscreen'}
         >
         {this.state.fullscreen ? 'fullscreen_exit' : 'fullscreen'}
       </IconButton>
