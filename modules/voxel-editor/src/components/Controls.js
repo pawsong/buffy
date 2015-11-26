@@ -6,6 +6,9 @@ import {
   RaisedButton,
 } from 'material-ui';
 
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
+
 import * as ColorActions from '../actions/color';
 import * as SpriteActions from '../actions/sprite';
 
@@ -121,12 +124,15 @@ class Controls extends React.Component {
 }
 
 export default connect(state => ({
-voxel: state.voxel,
-color: state.color,
-sprite: state.sprite,
+  voxel: state.voxel,
+  color: state.color,
+  sprite: state.sprite,
 }), dispatch => ({
   actions: bindActionCreators({
     ...SpriteActions,
-    ...ColorActions
+    ...ColorActions,
   }, dispatch),
-}))(Controls);
+}))(
+//DragDropContext(HTML5Backend)
+(Controls)
+);

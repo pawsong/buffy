@@ -18,9 +18,7 @@ const OFFSET = (PIXEL_NUM + 1) * UNIT;
 
 export default function initSpriteEditor(container) {
 
-  const spriteElement = document.createElement('div');
-  container.appendChild(spriteElement);
-  spriteElement.style.width = '100%';
+  const spriteElement = container;
 
   function initCanvas({ front, up }, topOffset, leftOffset, elemTopOffset, elemLeftOffset) {
     const two = new Two({

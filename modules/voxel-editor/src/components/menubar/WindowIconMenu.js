@@ -5,7 +5,7 @@ import RootIcon from './RootIcon';
 import NotImplDialog from './NotImplDialog';
 
 const WindowIconMenu = React.createClass({
-  componentWillMount() {
+  componentDidMount() {
     const { rootElement } = this.props;
 
     let fullscreen = false;

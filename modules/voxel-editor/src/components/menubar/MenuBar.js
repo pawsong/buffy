@@ -26,7 +26,6 @@ const MenuBar = React.createClass({
       <MenuBarContent iconMenuStyle={{ display: 'inline-block' }} iconMenuMenuStyle={{
         top: null, left: 0,
       }} style={{ paddingLeft: 5, backgroundColor: '#FFFFFF' }}>
-        <div style={{position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}></div>
 
         {/* File */}
         <FileIconMenu voxel={this.props.voxel} sprite={this.props.sprite} actions={this.props.actions} workspace={this.props.workspace}/>

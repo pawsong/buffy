@@ -18,6 +18,7 @@ export default (container, submit) => {
     <Provider store={store}>
       <Controls submit={submit} rootElement={rootEl}/>
     </Provider>,
+    //container
     uiElement
   );
 }

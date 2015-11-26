@@ -284,6 +284,12 @@ export default (container, parent) => {
     renderer.render(scene, camera);
   }
 
+  function animate() {
+    requestAnimationFrame( animate );
+    render();
+  }
+  animate();
+
   observeStore(state => state.voxelOp, op => {
     switch(op.type) {
       case ActionTypes.ADD_VOXEL:
