@@ -1,7 +1,6 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import ColorPicker from 'react-color';
 import {
   RaisedButton,
 } from 'material-ui';
@@ -79,20 +78,7 @@ class Controls extends React.Component {
     });
   }
 
-  _handleColorPickerOpen() {
-    this.setState({ displayColorPicker: !this.state.displayColorPicker });
-  }
-
-  _handleColorPickerClose() {
-    this.setState({ displayColorPicker: false });
-  }
-
-  _handleColorPickerChange(color) {
-    this.props.actions.setColor(color.rgb);
-  }
-
   render() {
-    const { color } = this.props;
     const menuItem = {
       marginLeft: 7
     };
@@ -103,21 +89,6 @@ class Controls extends React.Component {
         <div>
           <RaisedButton label="Submit" primary={true} onClick={this._submit.bind(this)}/>
         </div>
-        <div>
-          <div style={styles.swatch} onClick={ this._handleColorPickerOpen.bind(this) }>
-            <div style={{
-              backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
-              ...styles.color
-            }} />
-          </div>
-        </div>
-        <ColorPicker
-          color={ this.props.color }
-          position="left"
-          display={ this.state.displayColorPicker }
-          onChange={ this._handleColorPickerChange.bind(this) }
-          onClose={ this._handleColorPickerClose.bind(this) }
-          type="sketch" />
       </div>
     </div>;
   }
