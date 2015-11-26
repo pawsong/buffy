@@ -19,14 +19,20 @@ const {
 } = Styles;
 
 import initVoxelView from '../views/voxel';
-import initSpriteView from '../views/sprite';
 
 import Controls from './Controls';
 import store from '../store';
 import Panel from './Panel';
 import SpritePanel from './SpritePanel';
+import ToolsPanel from './ToolsPanel';
 
 import objectAssign from 'object-assign';
+
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+
+import * as ColorActions from '../actions/color';
+import * as SpriteActions from '../actions/sprite';
 
 const styles = {
   voxel: {
@@ -36,7 +42,14 @@ const styles = {
 };
 
 const PANELS = {
-  a: { title: 'Panel A', content: SpritePanel },
+  sprite: {
+    title: 'Sprite',
+    content: props => <SpritePanel/>,
+  },
+  tools: {
+    title: 'Tools',
+    content: props => <ToolsPanel color={props.color} actions={props.actions}/>,
+  },
 };
 
 const Container = React.createClass({
@@ -52,7 +65,6 @@ const Container = React.createClass({
   getChildContext() {
     const CustomRawTheme = _.cloneDeep(LightRawTheme);
     CustomRawTheme.spacing.iconSize = 36;
-
     return { muiTheme: ThemeManager.getMuiTheme(CustomRawTheme) };
   },
 
@@ -108,12 +120,12 @@ const Container = React.createClass({
       .filter(panel => panel.show)
       .sort(panel => panel.order)
       .map(panel => {
-        const Content = panel.content;
+        const Content = panel.content(this.props);
         return <Panel key={panel.id} id={panel.id}
           left={panel.left}
           top={panel.top}
           title={panel.title}
-          order={panel.order}><Content/></Panel>;
+          order={panel.order}>{Content}</Panel>;
       });
 
     const style = this.state.fullscreen ? {
@@ -147,7 +159,7 @@ const Container = React.createClass({
   },
 });
 
-export default DragDropContext(HTML5Backend)(
+const DndContainer = DragDropContext(HTML5Backend)(
   DropTarget('panel', {
     drop(props, monitor, component) {
       const item = monitor.getItem();
@@ -160,3 +172,14 @@ export default DragDropContext(HTML5Backend)(
     connectDropTarget: connect.dropTarget()
   }))(Container)
 );
+
+export default connect(state => ({
+  voxel: state.voxel,
+  color: state.color,
+  sprite: state.sprite,
+}), dispatch => ({
+  actions: bindActionCreators({
+    ...SpriteActions,
+    ...ColorActions,
+  }, dispatch),
+}))(DndContainer);
