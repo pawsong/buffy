@@ -25,6 +25,7 @@ import store from '../store';
 import Panel from './Panel';
 import SpritePanel from './SpritePanel';
 import ToolsPanel from './ToolsPanel';
+import WorkspacePanel from './WorkspacePanel';
 
 import objectAssign from 'object-assign';
 
@@ -42,14 +43,9 @@ const styles = {
 };
 
 const PANELS = {
-  sprite: {
-    title: 'Sprite',
-    content: props => <SpritePanel/>,
-  },
-  tools: {
-    title: 'Tools',
-    content: props => <ToolsPanel color={props.color} actions={props.actions}/>,
-  },
+  sprite: SpritePanel,
+  tools: ToolsPanel,
+  workspace: WorkspacePanel,
 };
 
 const Container = React.createClass({
@@ -69,15 +65,15 @@ const Container = React.createClass({
   },
 
   getInitialState() {
-    const panels = {};
-    Object.keys(PANELS).forEach((id, index) => {
-      const panel = PANELS[id];
-      panels[id] = objectAssign({
+    let index = 0;
+    const panels = _.mapValues(PANELS, (Component, id) => {
+      return {
+        id,
         show: true,
-        top: 100,
-        left: 100,
-        order: index + 1,
-      }, panel, { id });
+        top: 100, left: 100,
+        order: ++index,
+        component: Component,
+      };
     });
 
     return {
@@ -120,12 +116,13 @@ const Container = React.createClass({
       .filter(panel => panel.show)
       .sort(panel => panel.order)
       .map(panel => {
-        const Content = panel.content(this.props);
-        return <Panel key={panel.id} id={panel.id}
-          left={panel.left}
-          top={panel.top}
-          title={panel.title}
-          order={panel.order}>{Content}</Panel>;
+        return React.createElement(panel.component, {
+          key: panel.id,
+          id: panel.id,
+          left: panel.left,
+          top: panel.top,
+          zIndex: panel.order,
+        });
       });
 
     const style = this.state.fullscreen ? {

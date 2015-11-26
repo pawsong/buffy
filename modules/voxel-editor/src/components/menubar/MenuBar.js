@@ -27,17 +27,8 @@ const MenuBar = React.createClass({
         top: null, left: 0,
       }} style={{ paddingLeft: 5, backgroundColor: '#FFFFFF' }}>
 
-        {/* File */}
-        <FileIconMenu voxel={this.props.voxel} sprite={this.props.sprite} actions={this.props.actions} workspace={this.props.workspace}/>
-
         {/* Edit */}
         <EditIconMenu actions={this.props.actions} />
-
-        {/* Window */}
-        <WindowIconMenu rootElement={this.props.rootElement} />
-
-        {/* Help */}
-        <HelpIconMenu/>
 
       </MenuBarContent>
     </div>;

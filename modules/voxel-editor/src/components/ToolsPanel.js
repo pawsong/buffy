@@ -1,17 +1,16 @@
 import React from 'react';
 import ColorPicker from 'react-color';
+import {
+  PanelConstants,
+  PanelStyles,
+  wrapPanel
+} from './Panel';
+
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as ColorActions from '../actions/color';
 
 const styles = {
-  root: {
-    position: 'absolute',
-    top: 15,
-    right: 15,
-  },
-  sprite: {
-    position: 'absolute',
-    top: 15,
-    left: 15,
-  },
   color: {
     width: '36px',
     height: '14px',
@@ -47,16 +46,25 @@ const ToolsPanel = React.createClass({
   },
 
   render() {
-    const { color } = this.props;
+    const {
+      left,
+      top,
+      zIndex,
+      connectDragPreview,
+      connectDragSource,
+      isDragging,
+      color,
+    } = this.props;
 
-    return <div style={{  }}>
-      <div>
-        <div style={styles.swatch} onClick={ this._handleColorPickerOpen }>
-          <div style={{
-            backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
-            ...styles.color
-          }} />
-        </div>
+    const opacity = isDragging ? PanelConstants.DRAGGING_OPACITY : 1;
+
+    return connectDragPreview(<div style={{ ...PanelStyles.root, zIndex, left, top, opacity }}>
+      {connectDragSource(<div style={PanelStyles.handle}>Tools</div>)}
+      <div style={styles.swatch} onClick={ this._handleColorPickerOpen }>
+        <div style={{
+          backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
+          ...styles.color
+        }} />
       </div>
       <ColorPicker
         color={ this.props.color }
@@ -65,8 +73,14 @@ const ToolsPanel = React.createClass({
         onChange={ this._handleColorPickerChange }
         onClose={ this._handleColorPickerClose }
         type="sketch" />
-    </div>;
+    </div>);
   },
 });
 
-export default ToolsPanel;
+export default wrapPanel(connect(state => ({
+  color: state.color,
+}), dispatch => ({
+  actions: bindActionCreators({
+    ...ColorActions
+  }, dispatch),
+}))(ToolsPanel));
