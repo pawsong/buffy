@@ -4,6 +4,19 @@ import update from 'react/lib/update';
 import { Provider } from 'react-redux';
 import { DropTarget, DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
+import _ from 'lodash';
+
+import {
+  IconButton,
+  FontIcon,
+  Styles,
+} from 'material-ui';
+
+const {
+  ThemeManager,
+  LightRawTheme,
+  ThemeDecorator,
+} = Styles;
 
 import initVoxelView from '../views/voxel';
 import initSpriteView from '../views/sprite';
@@ -31,8 +44,16 @@ const Container = React.createClass({
     initVoxelView(element, element);
   },
 
-  _spriteRef(element) {
-    initSpriteView(element);
+  //the key passed through context must be called "muiTheme"
+  childContextTypes : {
+    muiTheme: React.PropTypes.object,
+  },
+
+  getChildContext() {
+    const CustomRawTheme = _.cloneDeep(LightRawTheme);
+    CustomRawTheme.spacing.iconSize = 36;
+
+    return { muiTheme: ThemeManager.getMuiTheme(CustomRawTheme) };
   },
 
   getInitialState() {
@@ -49,6 +70,7 @@ const Container = React.createClass({
 
     return {
       panels,
+      fullscreen: false,
     };
   },
 
@@ -70,6 +92,14 @@ const Container = React.createClass({
     }));
   },
 
+  _handleToggleFullscreen() {
+    if (this.state.fullscreen) {
+      this.setState({ fullscreen: false }, () => window.dispatchEvent(new Event('resize')));
+    } else {
+      this.setState({ fullscreen: true }, () => window.dispatchEvent(new Event('resize')));
+    }
+  },
+
   render() {
     const { connectDropTarget } = this.props;
 
@@ -86,9 +116,32 @@ const Container = React.createClass({
           order={panel.order}><Content/></Panel>;
       });
 
-    return connectDropTarget(<div style={{ width: '100%', height: '100%' }}>
+    const style = this.state.fullscreen ? {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0,
+      zIndex: 1,
+    } : {
+      width: '100%',
+      height: '100%',
+    };
+
+    return connectDropTarget(<div style={style}>
       <div ref={this._voxelRef} style={ styles.voxel }></div>
-      <Controls submit={this.props.submit} rootElement={this.props.element}/>
+      <Controls submit={this.props.submit} />
+      <IconButton
+        onClick={this._handleToggleFullscreen}
+        tooltipStyles={{ left: 5 }}
+        style={{
+          position: 'absolute',
+          bottom: 10,
+        }} iconClassName="material-icons" tooltipPosition="bottom-center"
+        tooltip={this.state.fullscreen ? 'Fullscreen exit' : 'fullscreen'}
+        >
+        {this.state.fullscreen ? 'fullscreen_exit' : 'fullscreen'}
+      </IconButton>
       {panels}
     </div>);
   },
