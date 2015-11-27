@@ -12,6 +12,8 @@ import {
   Styles,
 } from 'material-ui';
 
+import FullscreenButton from './FullscreenButton';
+
 const {
   ThemeManager,
   LightRawTheme,
@@ -35,6 +37,8 @@ import { connect } from 'react-redux';
 import * as ColorActions from '../actions/color';
 import * as SpriteActions from '../actions/sprite';
 
+import storage from 'store';
+
 const styles = {
   voxel: {
     position: 'absolute',
@@ -53,32 +57,25 @@ const Container = React.createClass({
     initVoxelView(element, element);
   },
 
-  //the key passed through context must be called "muiTheme"
-  childContextTypes : {
-    muiTheme: React.PropTypes.object,
-  },
-
-  getChildContext() {
-    const CustomRawTheme = _.cloneDeep(LightRawTheme);
-    CustomRawTheme.spacing.iconSize = 36;
-    return { muiTheme: ThemeManager.getMuiTheme(CustomRawTheme) };
-  },
-
   getInitialState() {
     let index = 0;
     const panels = _.mapValues(PANELS, (Component, id) => {
+      const panel = storage.get(`panels.${id}`) || {};
+
       return {
         id,
         show: true,
-        top: 100, left: 100,
+        top: panel.top || 0,
+        left: panel.left || 0,
         order: ++index,
         component: Component,
       };
     });
 
+    const fullscreen = storage.get('fullscreen');
     return {
       panels,
-      fullscreen: false,
+      fullscreen: fullscreen || false,
     };
   },
 
@@ -95,16 +92,18 @@ const Container = React.createClass({
     });
     values[id] = { $merge: { order: panelKeys.length, left, top } };
 
-    this.setState(update(this.state, {
-      panels: values,
-    }));
+    this.setState(update(this.state, { panels: values }), () => {
+      storage.set(`panels.${id}`, { left, top });
+    });
   },
 
   _handleToggleFullscreen() {
     if (this.state.fullscreen) {
       this.setState({ fullscreen: false }, () => window.dispatchEvent(new Event('resize')));
+      storage.set(`fullscreen`, false);
     } else {
       this.setState({ fullscreen: true }, () => window.dispatchEvent(new Event('resize')));
+      storage.set(`fullscreen`, true);
     }
   },
 
@@ -127,10 +126,7 @@ const Container = React.createClass({
 
     const style = this.state.fullscreen ? {
       position: 'fixed',
-      top: 0,
-      left: 0,
-      bottom: 0,
-      right: 0,
+      top: 0, left: 0, bottom: 0, right: 0,
       zIndex: 1,
     } : {
       width: '100%',
@@ -140,17 +136,13 @@ const Container = React.createClass({
     return connectDropTarget(<div style={style}>
       <div ref={this._voxelRef} style={ styles.voxel }></div>
       <Controls submit={this.props.submit} />
-      <IconButton
+      <FullscreenButton
         onClick={this._handleToggleFullscreen}
-        tooltipStyles={{ left: 5 }}
+        fullscreen={this.state.fullscreen}
         style={{
           position: 'absolute',
           bottom: 10,
-        }} iconClassName="material-icons" tooltipPosition="bottom-center"
-        tooltip={this.state.fullscreen ? 'Fullscreen exit' : 'Fullscreen'}
-        >
-        {this.state.fullscreen ? 'fullscreen_exit' : 'fullscreen'}
-      </IconButton>
+        }}></FullscreenButton>
       {panels}
     </div>);
   },

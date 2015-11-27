@@ -22,6 +22,8 @@ import {
   DIMENSIONS
 } from '../../constants/Pixels';
 
+import * as Tools from '../../constants/Tools';
+
 const PLANE_Y_OFFSET = - BOX_SIZE * 4;
 
 function toScreenPosition(absPos) {
@@ -154,7 +156,11 @@ export default (container, parent) => {
 
   window.addEventListener( 'resize', onWindowResize, false )
 
-  function addVoxel(x, y, z, c) {
+  const voxels = {};
+
+  function addVoxel(position, c) {
+    const screenPos = toScreenPosition(position);
+
     var cubeMaterial = new CubeMaterial( { vertexColors: THREE.VertexColors, transparent: true } )
     var col = colors[c] || colors[0]
     //cubeMaterial.color.setHex(c);
@@ -164,17 +170,27 @@ export default (container, parent) => {
     //voxel.wireMesh =  new THREE.EdgesHelper( voxel, 0x4DEB90 );
     voxel.wireMesh =  new THREE.EdgesHelper( voxel, 0x303030 );
     voxel.isVoxel = true
-    voxel.position.x = x
-    voxel.position.y = y
-    voxel.position.z = z
+    voxel.position.x = screenPos.x
+    voxel.position.y = screenPos.y
+    voxel.position.z = screenPos.z
     voxel.wireMesh.position.copy(voxel.position)
     voxel.wireMesh.visible = wireframe
     voxel.matrixAutoUpdate = false
     voxel.updateMatrix()
-    voxel.name = x + "," + y + "," + z
     voxel.overdraw = true
     scene.add( voxel )
     scene.add( voxel.wireMesh )
+    voxel.absPos = position;
+
+    voxels[vector3ToString(position)] = voxel;
+  }
+
+  function removeVoxel(position) {
+    const voxel = voxels[vector3ToString(position)];
+    if (voxel) {
+      scene.remove(voxel);
+      scene.remove(voxel.wireMesh);
+    }
   }
 
   function hex2rgb(hex) {
@@ -213,19 +229,34 @@ export default (container, parent) => {
     var intersect = getIntersecting()
 
     if ( intersect ) {
-      var normal = intersect.face.normal.clone()
-      //normal.applyMatrix4( intersect.object.matrixRotationWorld )
-      var position = new THREE.Vector3().addVectors( intersect.point, normal )
+      const { tool } = store.getState();
+      switch(tool.type) {
+        case Tools.ADD_VOXEL:
+          {
+            var normal = intersect.face.normal.clone()
+            //normal.applyMatrix4( intersect.object.matrixRotationWorld )
+            var position = new THREE.Vector3().addVectors( intersect.point, normal )
 
-      function updateBrush() {
-        brush.position.x =
-          Math.floor( position.x / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL;
-        brush.position.y =
-          Math.floor( position.y / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL;
-        brush.position.z =
-          Math.floor( position.z / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL;
+            function updateBrush() {
+              brush.position.x =
+                Math.floor( position.x / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL;
+              brush.position.y =
+                Math.floor( position.y / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL;
+              brush.position.z =
+                Math.floor( position.z / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL;
+            }
+            return updateBrush();
+          }
+        case Tools.REMOVE_VOXEL:
+          {
+            if ( intersect.object !== plane ) {
+              objectHovered = intersect.object;
+              objectHovered.material.opacity = 0.5;
+              brush.position.y = 2000;
+            }
+            break;
+          }
       }
-      return updateBrush();
     }
     brush.position.y = 2000
   }
@@ -262,16 +293,23 @@ export default (container, parent) => {
     var intersect = getIntersecting()
 
     if ( intersect ) {
-      if ( isShiftDown ) {
-        if ( intersect.object != plane ) {
-          scene.remove( intersect.object.wireMesh )
-          scene.remove( intersect.object )
-        }
-      } else {
-        if (brush.position.y != 2000) {
-          const absPos = toAbsolutePosition(brush.position);
-          actions.addVoxel(absPos, store.getState().color);
-        }
+      const {
+        color,
+        tool,
+      } = store.getState();
+
+      switch(tool.type) {
+        case Tools.ADD_VOXEL:
+          if (brush.position.y != 2000) {
+            const absPos = toAbsolutePosition(brush.position);
+            actions.addVoxel(absPos, color);
+          }
+          break;
+        case Tools.REMOVE_VOXEL:
+          if ( intersect.object.isVoxel ) {
+            actions.removeVoxel(intersect.object.absPos);
+          }
+          break;
       }
     }
 
@@ -293,10 +331,17 @@ export default (container, parent) => {
   observeStore(state => state.voxelOp, op => {
     switch(op.type) {
       case ActionTypes.ADD_VOXEL:
-        const { position, color } = op.voxel;
-        const screenPos = toScreenPosition(position);
-        addVoxel(screenPos.x, screenPos.y, screenPos.z, color);
-        break;
+        {
+          const { position, color } = op.voxel;
+          addVoxel(position, color);
+          break;
+        }
+      case ActionTypes.REMOVE_VOXEL:
+        {
+          const { position } = op.voxel;
+          removeVoxel(position);
+          break;
+        }
       case ActionTypes.LOAD_WORKSPACE:
         // Clear voxels
         scene.children.map(c => {
@@ -309,8 +354,7 @@ export default (container, parent) => {
         const voxels = store.getState().voxel;
         voxels.forEach(voxel => {
           const { position, color } = voxel;
-          const screenPos = toScreenPosition(position);
-          addVoxel(screenPos.x, screenPos.y, screenPos.z, color);
+          addVoxel(position, color);
         });
         break;
     }
