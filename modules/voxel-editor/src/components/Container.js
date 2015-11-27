@@ -47,7 +47,7 @@ const styles = {
 };
 
 const PANELS = {
-  sprite: SpritePanel,
+  //  sprite: SpritePanel,
   tools: ToolsPanel,
   workspace: WorkspacePanel,
 };
@@ -135,7 +135,6 @@ const Container = React.createClass({
 
     return connectDropTarget(<div style={style}>
       <div ref={this._voxelRef} style={ styles.voxel }></div>
-      <Controls submit={this.props.submit} />
       <FullscreenButton
         onClick={this._handleToggleFullscreen}
         fullscreen={this.state.fullscreen}
