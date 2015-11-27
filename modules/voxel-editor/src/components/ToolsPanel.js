@@ -62,6 +62,10 @@ const ToolsPanel = React.createClass({
     this.props.actions.changeTool(Tools.REMOVE_VOXEL);
   },
 
+  _handleClickColorize() {
+    this.props.actions.changeTool(Tools.COLORIZE);
+  },
+
   render() {
     const {
       left,
@@ -109,10 +113,20 @@ const ToolsPanel = React.createClass({
         tooltipStyles={{...tooltipStyles }}
         iconClassName="material-icons" tooltipPosition="bottom-center"
         tooltip={'Erase'}>crop_portrait</IconButton>
+      <IconButton
+        onClick={this._handleClickColorize}
+        style={{
+          ...iconButtonStyles,
+          backgroundColor: this.props.tool.type === Tools.COLORIZE ?
+            Colors.grey200 : Colors.white,
+        }}
+        tooltipStyles={tooltipStyles}
+        iconClassName="material-icons" tooltipPosition="bottom-center"
+        tooltip={'Colorize'}>colorize</IconButton>
       <div style={styles.swatch} onClick={ this._handleColorPickerOpen }>
         <div style={{
           backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
-          ...styles.color
+          ...styles.color,
         }} />
       </div>
       <ColorPicker

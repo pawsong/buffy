@@ -42,7 +42,32 @@ function toAbsolutePosition(screenPos) {
   };
 }
 
+const COLOR_TOOLTIP_RADIUS = 20;
+
 export default (container, parent) => {
+  const colorTooltip = document.createElement("div");
+  colorTooltip.style.position = 'absolute';
+  colorTooltip.style.display = 'none';
+  colorTooltip.style.width = `${2 * COLOR_TOOLTIP_RADIUS}px`;
+  colorTooltip.style.height = `${2 * COLOR_TOOLTIP_RADIUS}px`;
+  colorTooltip.style['border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
+  colorTooltip.style['-moz-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
+  colorTooltip.style['-webkit-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
+  container.appendChild(colorTooltip);
+
+  function resetColorTooltip() {
+    colorTooltip.style.display = `none`;
+  }
+  function setColorTooltip(x, y, c) {
+    colorTooltip.style.display = `block`;
+    const left = x - COLOR_TOOLTIP_RADIUS;
+    const top = y - 2 * COLOR_TOOLTIP_RADIUS - 30;
+    colorTooltip.style.left = `${left}px`;
+    colorTooltip.style.top = `${top}px`;
+    colorTooltip.style.background = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+  }
+
+  const mouse = new THREE.Vector2(0, 0);
   var isShiftDown = false, isCtrlDown = false, isMouseDown = false, isAltDown = false
   var onMouseDownPosition = new THREE.Vector2(), onMouseDownPhi = 60, onMouseDownTheta = 45
   var radius = 1600, theta = 90, phi = 60
@@ -163,7 +188,6 @@ export default (container, parent) => {
 
     var cubeMaterial = new CubeMaterial( { vertexColors: THREE.VertexColors, transparent: true } )
     var col = colors[c] || colors[0]
-    //cubeMaterial.color.setHex(c);
     cubeMaterial.color.setStyle(`rgba(${c.r},${c.g},${c.b},${c.a})`);
 
     var voxel = new THREE.Mesh( cube, cubeMaterial )
@@ -181,6 +205,7 @@ export default (container, parent) => {
     scene.add( voxel )
     scene.add( voxel.wireMesh )
     voxel.absPos = position;
+    voxel.color = c;
 
     voxels[vector3ToString(position)] = voxel;
   }
@@ -219,6 +244,8 @@ export default (container, parent) => {
 
   let objectHovered;
   function interact() {
+    resetColorTooltip();
+
     if (typeof raycaster === 'undefined') return
 
     if ( objectHovered ) {
@@ -254,7 +281,18 @@ export default (container, parent) => {
               objectHovered.material.opacity = 0.5;
               brush.position.y = 2000;
             }
-            break;
+            return;
+          }
+        case Tools.COLORIZE:
+          {
+            if ( intersect.object !== plane ) {
+              objectHovered = intersect.object;
+              objectHovered.material.opacity = 0.5;
+              brush.position.y = 2000;
+
+              setColorTooltip(mouse.x, mouse.y, intersect.object.color);
+            }
+            return;
           }
       }
     }
@@ -269,6 +307,7 @@ export default (container, parent) => {
               - ( event.offsetY / parent.offsetHeight ) * 2 + 1 );
 
     raycaster.setFromCamera( mouse2D, camera );
+    mouse.set(event.offsetX, event.offsetY);
 
     interact()
   }
@@ -308,6 +347,11 @@ export default (container, parent) => {
         case Tools.REMOVE_VOXEL:
           if ( intersect.object.isVoxel ) {
             actions.removeVoxel(intersect.object.absPos);
+          }
+          break;
+        case Tools.COLORIZE:
+          if ( intersect.object.isVoxel ) {
+            actions.setColor(intersect.object.color);
           }
           break;
       }

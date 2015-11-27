@@ -2,12 +2,14 @@ import { createStore, bindActionCreators } from 'redux';
 import reducers from '../reducers';
 import * as VoxelActions from '../actions/voxel';
 import * as SpriteActions from '../actions/sprite';
+import * as ColorActions from '../actions/color';
 
 const store = createStore(reducers);
 
 export const actions = bindActionCreators({
   ...VoxelActions,
   ...SpriteActions,
+  ...ColorActions,
 }, store.dispatch);
 
 export function observeStore(select, onChange) {
