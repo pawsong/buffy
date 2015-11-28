@@ -10,6 +10,7 @@ import {
   IconButton,
   FontIcon,
   Styles,
+  RaisedButton,
 } from 'material-ui';
 
 import FullscreenButton from './FullscreenButton';
@@ -20,7 +21,7 @@ const {
   ThemeDecorator,
 } = Styles;
 
-import initVoxelView from '../views/voxel';
+import { initCanvas } from '../canvas';
 
 import Controls from './Controls';
 import store from '../store';
@@ -54,7 +55,7 @@ const PANELS = {
 
 const Container = React.createClass({
   _voxelRef(element) {
-    initVoxelView(element, element);
+    initCanvas(element);
   },
 
   getInitialState() {
@@ -107,6 +108,14 @@ const Container = React.createClass({
     }
   },
 
+  _submit() {
+    const { submit, voxel } = this.props;
+
+    submit({
+      voxels: voxel.toArray(),
+    });
+  },
+
   render() {
     const { connectDropTarget } = this.props;
 
@@ -135,6 +144,11 @@ const Container = React.createClass({
 
     return connectDropTarget(<div style={style}>
       <div ref={this._voxelRef} style={ styles.voxel }></div>
+      <div style={{ position: 'absolute', top: 15, right: 15 }}>
+        <div>
+          <RaisedButton label="Submit" primary={true} onClick={this._submit}/>
+        </div>
+      </div>
       <FullscreenButton
         onClick={this._handleToggleFullscreen}
         fullscreen={this.state.fullscreen}
