@@ -45,6 +45,8 @@ class VoxelManager {
   }
 
   add(position, color) {
+    this.remove(position);
+
     var cubeMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,
       transparent: true,
