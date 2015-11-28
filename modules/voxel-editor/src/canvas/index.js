@@ -20,9 +20,10 @@ import { createColorTooltip } from './colorTooltip';
 import VoxelManager from './VoxelManager';
 import Brush from './Brush';
 
+const size = GRID_SIZE * UNIT_PIXEL;
+
 export function initCanvas(container, canvasSize) {
   const scene = new THREE.Scene();
-
   const brush = new Brush(scene);
   const voxels = new VoxelManager(scene, canvasSize || {
     width: GRID_SIZE,
@@ -64,8 +65,6 @@ export function initCanvas(container, canvasSize) {
 
   const raycaster = new THREE.Raycaster();
 
-  const size = GRID_SIZE * UNIT_PIXEL;
-
   // Grid
   {
     const geometry = new THREE.Geometry()
@@ -95,6 +94,22 @@ export function initCanvas(container, canvasSize) {
     scene.add( plane )
     return plane;
   })();
+
+  // Arrows
+  {
+    const origin = new THREE.Vector3( -size, PLANE_Y_OFFSET, -size );
+    const length = size * 2 + 70;
+    const hex = 0x000000;
+    scene.add(new THREE.ArrowHelper(
+      new THREE.Vector3(1, 0, 0), origin, length, hex , 30, 30
+    ));
+    scene.add(new THREE.ArrowHelper(
+      new THREE.Vector3(0, 1, 0), origin, length, hex , 30, 30
+    ));
+    scene.add(new THREE.ArrowHelper(
+      new THREE.Vector3(0, 0, 1), origin, length, hex , 30, 30
+    ));
+  }
 
   function onWindowResize() {
 
