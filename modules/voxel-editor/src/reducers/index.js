@@ -9,9 +9,6 @@ const rootReducer = combineReducers({
   voxel,
   voxelOp,
   color,
-  sprite,
-  spriteOp,
-  spriteFocus,
   workspace,
   tool,
 })

@@ -42,11 +42,8 @@ const WorkspacePanel = React.createClass({
     if (!name) {
       return this.setState({ showSaveDialog: true });
     }
-    const data = { a: 1 };
 
     const voxels = this.props.voxel.toJSON();
-    const sprites = this.props.sprite.toJSON();
-
     fetch(`${config.apiServerUrl}/voxel-workspaces/me/${name}`, {
       method: 'put',
       headers: { 'Content-Type': 'application/json' },
@@ -54,7 +51,6 @@ const WorkspacePanel = React.createClass({
       body: JSON.stringify({
         data: JSON.stringify({
           voxels,
-          sprites,
         }),
       }),
     });
@@ -104,7 +100,6 @@ const WorkspacePanel = React.createClass({
 
 export default wrapPanel(connect(state => ({
   voxel: state.voxel,
-  sprite: state.sprite,
   workspace: state.workspace,
 }), dispatch => ({
   actions: bindActionCreators({

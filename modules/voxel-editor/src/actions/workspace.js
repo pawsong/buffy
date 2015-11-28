@@ -4,6 +4,6 @@ export function setWorkspace(workspace) {
   return { type: SET_WORKSPACE, workspace };
 }
 
-export function loadWorkspace({ voxels, sprites }) {
-  return { type: LOAD_WORKSPACE, voxels, sprites };
+export function loadWorkspace({ voxels }) {
+  return { type: LOAD_WORKSPACE, voxels };
 }

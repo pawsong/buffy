@@ -74,8 +74,12 @@ class VoxelManager {
   }
 
   reset() {
-    for (let voxel in this._voxels) {
+    for (let key in this._voxels) {
+      const voxel = this._voxels[key];
+      this._scene.remove(voxel.mesh);
+      this._scene.remove(voxel.wireMesh);
     }
+    this._voxels = {};
   }
 }
 

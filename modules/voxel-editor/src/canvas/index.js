@@ -112,20 +112,17 @@ export function initCanvas(container, canvasSize) {
   window.addEventListener('resize', onWindowResize, false);
 
   function getIntersecting() {
-    var intersectable = []
-    scene.children.map(function(c) { if (c.voxel || c.isPlane || c.isFromSprite) intersectable.push(c); })
-    var intersections = raycaster.intersectObjects( intersectable )
+    const intersectable = scene.children.filter(child => child.voxel || child.isPlane);
+
+    const intersections = raycaster.intersectObjects(intersectable);
     if (intersections.length > 0) {
-      var intersect = intersections[ 0 ].object.isBrush ? intersections[ 1 ] : intersections[ 0 ]
-      return intersect
+      return intersections[intersections[0].object.isBrush ? 1 : 0];
     }
   }
 
   let objectHovered;
   function interact() {
     colorTooltip.hide();
-
-    if (typeof raycaster === 'undefined') return
 
     if ( objectHovered ) {
       objectHovered.material.opacity = 1
