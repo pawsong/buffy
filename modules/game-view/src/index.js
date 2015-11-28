@@ -208,21 +208,14 @@ export default (htmlElement, store, api) => {
   });
 
   store.on('voxels', ({ id, data }) => {
-    const { voxels, vertices, faces } = data;
-
     const object = objects[id];
-    object.children.forEach(child => {
+    for (let i = object.children.length - 1; i >= 0; --i) {
+      const child = object.children[i];
       object.remove(child);
-    });
+    }
 
-    /*
-    // Rotate
-    var pos = new THREE.Vector3();
-    pos.x = 50 * to.x - PIXEL_UNIT;
-    pos.z = 50 * to.y - PIXEL_UNIT;
-    pos.y = cube.position.y;
-    cube.lookAt(pos);
-    */
+    const { voxels } = data;
+
     // Voxels!
     const voxelGeometry = new THREE.BoxGeometry(
       MINI_PIXEL_SIZE,
@@ -243,42 +236,6 @@ export default (htmlElement, store, api) => {
 
       object.add( mesh );
     });
-
-    // Vertices and faces
-    const geometry  = new THREE.Geometry();
-
-    geometry.vertices.length = 0;
-    geometry.faces.length = 0;
-    for(let i = 0; i < vertices.length; ++i) {
-      var q = vertices[i];
-      geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
-    }
-    for(var i = 0; i < faces.length; ++i) {
-      var q = faces[i];
-      var f = new THREE.Face3(q[0], q[1], q[2]);
-      f.color = new THREE.Color(q[3]);
-      f.vertexColors = [f.color,f.color,f.color];
-      geometry.faces.push(f);
-    }
-
-    geometry.verticesNeedUpdate = true;
-    geometry.elementsNeedUpdate = true;
-
-    // Create surface mesh
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      vertexColors: THREE.VertexColors,
-      shading: THREE.FlatShading,
-    });
-
-    const mesh = new THREE.Mesh( geometry, material );
-    mesh.doubleSided = false;
-    mesh.position.x = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
-    mesh.position.y = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;// - PLANE_Y_OFFSET;
-    mesh.position.z = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
-    mesh.scale.set(MINI_PIXEL_SIZE, MINI_PIXEL_SIZE, MINI_PIXEL_SIZE);
-
-    object.add( mesh );
   });
 
   // Map
