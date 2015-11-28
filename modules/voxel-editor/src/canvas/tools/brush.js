@@ -1,5 +1,6 @@
 import store, {
   actions,
+  observeStore,
 } from '../../store';
 
 import {
@@ -16,7 +17,6 @@ const brushMaterial = new THREE.MeshBasicMaterial({
   opacity: 0.5,
   transparent: true,
 });
-brushMaterial.color.setStyle('#2ECC71');
 
 class Brush {
   constructor(scene) {
@@ -32,27 +32,27 @@ class Brush {
     wireMesh.material.opacity = 0.8;
     scene.add(wireMesh);
 
-    this._mesh = mesh;
-    this._wireMesh = wireMesh;
+    this.mesh = mesh;
+    this.wireMesh = wireMesh;
   }
 
   hide() {
-    this._mesh.visible = false;
-    this._wireMesh.visible = false;
+    this.mesh.visible = false;
+    this.wireMesh.visible = false;
   }
 
   isVisible() {
-    return this._mesh.visible;
+    return this.mesh.visible;
   }
 
   get position() {
-    return this._mesh.position;
+    return this.mesh.position;
   }
 
   move(position) {
-    this._mesh.visible = true;
-    this._wireMesh.visible = true;
-    this._mesh.position.copy(position);
+    this.mesh.visible = true;
+    this.wireMesh.visible = true;
+    this.mesh.position.copy(position);
   }
 }
 
@@ -76,6 +76,10 @@ export default [
   }) => {
     const brush = new Brush(scene);
 
+    observeStore(state => state.color, (color) => {
+      brush.mesh.material.color.setStyle(`rgba(${color.r},${color.g},${color.b},${color.a})`);
+    });
+
     let drawGuideMeshes = [];
     let selectedMeshes = [];
 
@@ -86,7 +90,7 @@ export default [
         opacity: 0,
         transparent: true,
       });
-      material.color.setStyle('#2ECC71');
+      material.color.copy(brush.mesh.material.color);
 
       const mesh = new THREE.Mesh(cube, material);
       mesh.visible = true;
