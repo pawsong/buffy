@@ -58,9 +58,11 @@ class VoxelManager {
     mesh.overdraw = true;
     this._scene.add(mesh);
 
-    const wireMesh =  new THREE.EdgesHelper( mesh, 0x303030 );
-    wireMesh.position.copy(mesh.position);
+    const wireMesh =  new THREE.EdgesHelper( mesh, 0x000000 );
     wireMesh.visible = true;
+    wireMesh.material.transparent = true;
+    wireMesh.material.opacity = 0.6;
+    wireMesh.position.copy(mesh.position);
     this._scene.add(wireMesh);
 
     const voxel = {

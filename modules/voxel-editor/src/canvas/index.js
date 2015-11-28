@@ -34,7 +34,7 @@ export function initCanvas(container, canvasSize) {
   // INITIALIZE
   /////////////////////////////////////////////////////////////
 
-  const renderer = new THREE.WebGLRenderer();
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setClearColor( 0xffffff );
   renderer.setSize( container.offsetWidth, container.offsetHeight )
 

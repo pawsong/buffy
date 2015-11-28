@@ -28,6 +28,8 @@ class Brush {
 
     const wireMesh = new THREE.EdgesHelper(mesh, 0x000000);
     wireMesh.visible = false;
+    wireMesh.material.transparent = true;
+    wireMesh.material.opacity = 0.8;
     scene.add(wireMesh);
 
     this._mesh = mesh;
@@ -95,6 +97,8 @@ export default [
 
       const wireMesh = new THREE.EdgesHelper(mesh, 0x000000);
       wireMesh.visible = false;
+      wireMesh.material.transparent = true;
+      wireMesh.material.opacity = 0.8;
       scene.add(wireMesh);
 
       mesh.wireMesh = wireMesh;
