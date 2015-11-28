@@ -1,4 +1,4 @@
-import { vector3ToString } from '@pasta/helper-public';
+import { vector4ToString } from '@pasta/helper-public';
 
 import store, {
   actions,
@@ -28,50 +28,6 @@ export function initCanvas(container, canvasSize) {
     height: GRID_SIZE,
   });
 
-  // Initialize tools
-  const handlers = [
-    'onEnter',
-    'onInteract',
-    'onMouseUp',
-    'onLeave',
-  ];
-
-  const tools = _.mapValues(toolsFactory, factory => {
-    const factories = factory instanceof Array ? factory : [factory];
-    const instances = factories.map(f => f({
-      container,
-      scene,
-      voxels,
-    }));
-
-    const tool = {};
-    handlers.forEach(handler => {
-      const funcs = instances
-        .filter(inst => inst[handler])
-        .map(inst => inst[handler].bind(inst));
-
-      tool[handler] = (arg) => {
-        funcs.forEach(func => func(arg));
-      };
-    });
-    return tool;
-  });
-
-  let tool;
-  observeStore(state => state.tool, ({ type }) => {
-    if (tool) {
-      tool.onLeave();
-    }
-    tool = tools[type];
-
-    if (tool) {
-      tool.onEnter();
-    } else {
-      console.error(`Invalid tool type: ${type}`);
-    }
-  });
-
-  var onMouseDownPosition = new THREE.Vector2()
   var radius = 1600, theta = 90, phi = 60;
 
   /////////////////////////////////////////////////////////////
@@ -100,7 +56,90 @@ export function initCanvas(container, canvasSize) {
   controls.maxDistance = 2000;
   controls.enableKeys = false;
 
+  let intersectFilter = object => object.voxel || object.isPlane;
+
+  function setIntersectFilter(filter) {
+    const oldFilter = intersectFilter;
+    intersectFilter = filter;
+    return function restore() {
+      intersectFilter = oldFilter;
+    };
+  }
+
+  let tool;
+  function getIntersect() {
+    const intersectable = scene.children.filter(tool.isIntersectable);
+    const intersections = raycaster.intersectObjects(intersectable);
+    return intersections[0];
+  }
+
+  function interact(event) {
+    var intersect = getIntersect();
+
+    tool.onInteract({
+      intersect,
+      event,
+    });
+  }
+
+  function render() {
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
   const raycaster = new THREE.Raycaster();
+
+  // Initialize tools
+  const handlers = [
+    'onEnter',
+    'onInteract',
+    'onMouseDown',
+    'onMouseUp',
+    'onLeave',
+  ];
+
+  const tools = _.mapValues(toolsFactory, factory => {
+    const factories = factory instanceof Array ? factory : [factory];
+    const instances = factories.map(f => f({
+      container,
+      scene,
+      voxels,
+      controls,
+      interact,
+      render,
+    }));
+
+    const tool = {};
+    handlers.forEach(handler => {
+      const funcs = instances
+        .filter(inst => inst[handler])
+        .map(inst => inst[handler].bind(inst));
+
+      tool[handler] = (arg) => {
+        funcs.forEach(func => func(arg));
+      };
+    });
+
+    const isIntersectableIdx = _.findLastIndex(instances, instance => instance.isIntersectable);
+    tool.isIntersectable = isIntersectableIdx >= 0 ?
+      instances[isIntersectableIdx].isIntersectable :
+      object => object.voxel || object.isPlane;
+
+    return tool;
+  });
+
+  observeStore(state => state.tool, ({ type }) => {
+    if (tool) {
+      tool.onLeave();
+    }
+    tool = tools[type];
+
+    if (tool) {
+      tool.onEnter();
+    } else {
+      console.error(`Invalid tool type: ${type}`);
+    }
+  });
 
   // Grid
   {
@@ -163,26 +202,6 @@ export function initCanvas(container, canvasSize) {
   renderer.domElement.addEventListener('mouseup', onDocumentMouseUp, false);
   window.addEventListener('resize', onWindowResize, false);
 
-  function getIntersecting() {
-    const intersectable = scene.children.filter(child => child.voxel || child.isPlane);
-
-    const intersections = raycaster.intersectObjects(intersectable);
-    if (intersections.length > 0) {
-      return intersections[intersections[0].object.isBrush ? 1 : 0];
-    }
-  }
-
-  function interact(event) {
-    var intersect = getIntersecting();
-
-    if (tool) {
-      tool.onInteract({
-        intersect,
-        event,
-      });
-    }
-  }
-
   const mouse2D = new THREE.Vector3( 0, 10000, 0.5 )
   function onDocumentMouseMove(event) {
     event.preventDefault()
@@ -196,32 +215,26 @@ export function initCanvas(container, canvasSize) {
 
   function onDocumentMouseDown(event) {
     event.preventDefault()
-    onMouseDownPosition.x = event.clientX
-    onMouseDownPosition.y = event.clientY
+
+    const intersect = getIntersect()
+
+    tool.onMouseDown({
+      intersect,
+    });
   }
 
   function onDocumentMouseUp(event) {
-    event.preventDefault()
-    onMouseDownPosition.x = event.clientX - onMouseDownPosition.x
-    onMouseDownPosition.y = event.clientY - onMouseDownPosition.y
+    event.preventDefault();
 
-    if ( onMouseDownPosition.length() > 5 ) return
+    var intersect = getIntersect();
 
-    var intersect = getIntersecting()
+    tool.onMouseUp({
+      intersect,
+      event,
+    });
 
-    if (tool) {
-      tool.onMouseUp({
-        intersect,
-      });
-    }
-
-    render()
-    interact(event);
-  }
-
-  function render(dt) {
-    controls.update();
-    renderer.render(scene, camera);
+    //render()
+    //interact(event);
   }
 
   function animate() {
@@ -236,6 +249,14 @@ export function initCanvas(container, canvasSize) {
         {
           const { position, color } = op.voxel;
           voxels.add(position, color);
+          break;
+        }
+      case ActionTypes.ADD_VOXEL_BATCH:
+        {
+          op.voxels.forEach(voxel => {
+            const { position, color } = voxel;
+            voxels.add(position, color);
+          });
           break;
         }
       case ActionTypes.REMOVE_VOXEL:

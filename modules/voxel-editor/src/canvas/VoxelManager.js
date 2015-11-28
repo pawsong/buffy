@@ -32,6 +32,18 @@ class VoxelManager {
     };
   }
 
+  get maxX() {
+    return this._canvasSize.width;
+  }
+
+  get maxY() {
+    return this._canvasSize.depth;
+  }
+
+  get maxZ() {
+    return this._canvasSize.height;
+  }
+
   add(position, color) {
     var cubeMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,

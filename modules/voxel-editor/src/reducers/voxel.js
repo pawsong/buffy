@@ -14,6 +14,18 @@ export function voxel(state = initialState, action) {
           position, color
         });
       }
+    case ActionTypes.ADD_VOXEL_BATCH:
+      {
+        const { voxels } = action;
+        return state.withMutations(map => {
+          voxels.forEach(voxel => {
+            const { position, color } = voxel;
+            map.set(vector3ToString(position), {
+              position, color
+            });
+          });
+        });
+      }
     case ActionTypes.REMOVE_VOXEL:
       {
         const { position } = action;
@@ -31,6 +43,8 @@ export function voxelOp(state = {}, action) {
     case ActionTypes.ADD_VOXEL:
     case ActionTypes.REMOVE_VOXEL:
       return { type: action.type, voxel: action };
+    case ActionTypes.ADD_VOXEL_BATCH:
+      return { type: action.type, voxels: action.voxels };
     case ActionTypes.LOAD_WORKSPACE:
       return { type: action.type };
     default:

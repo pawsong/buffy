@@ -180,6 +180,12 @@ export default (htmlElement, store, api) => {
     object.position.z = BOX_SIZE * obj.position.y -PIXEL_UNIT;
     object.position.y = PIXEL_UNIT;
 
+    object.lookAt(new THREE.Vector3(
+      object.position.x + 1,
+      object.position.y,
+      object.position.z
+    ));
+
     scene.add( object );
   });
 
@@ -230,8 +236,8 @@ export default (htmlElement, store, api) => {
       material.color.setStyle(`rgba(${c.r},${c.g},${c.b},${c.a})`);
 
       const mesh = new THREE.Mesh( voxelGeometry, material );
-      mesh.position.z += -PIXEL_UNIT + voxel.position.x * MINI_PIXEL_SIZE;
-      mesh.position.x += -PIXEL_UNIT + voxel.position.y * MINI_PIXEL_SIZE;
+      mesh.position.x += PIXEL_UNIT - voxel.position.x * MINI_PIXEL_SIZE;
+      mesh.position.z += -PIXEL_UNIT + voxel.position.y * MINI_PIXEL_SIZE;
       mesh.position.y += -PIXEL_UNIT + voxel.position.z * MINI_PIXEL_SIZE;
 
       object.add( mesh );
