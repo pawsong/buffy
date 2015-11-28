@@ -3,7 +3,7 @@ import * as Tools from '../constants/Tools';
 import objectAssign from 'object-assign';
 
 const initialState = {
-  type: Tools.ADD_VOXEL,
+  type: Tools.BRUSH,
 };
 
 export function tool(state = initialState, action) {

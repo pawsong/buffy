@@ -15,25 +15,62 @@ import {
   PLANE_Y_OFFSET,
 } from '../constants/Pixels';
 
-import * as Tools from '../constants/Tools';
-import { createColorTooltip } from './colorTooltip';
 import VoxelManager from './VoxelManager';
-import Brush from './Brush';
+import { toolsFactory } from './tools';
 
 const size = GRID_SIZE * UNIT_PIXEL;
 
 export function initCanvas(container, canvasSize) {
   const scene = new THREE.Scene();
-  const brush = new Brush(scene);
   const voxels = new VoxelManager(scene, canvasSize || {
     width: GRID_SIZE,
     depth: GRID_SIZE,
     height: GRID_SIZE,
   });
 
-  const colorTooltip = createColorTooltip(container);
+  // Initialize tools
+  const handlers = [
+    'onEnter',
+    'onInteract',
+    'onMouseUp',
+    'onLeave',
+  ];
 
-  const mouse = new THREE.Vector2(0, 0);
+  const tools = _.mapValues(toolsFactory, factory => {
+    const factories = factory instanceof Array ? factory : [factory];
+    const instances = factories.map(f => f({
+      container,
+      scene,
+      voxels,
+    }));
+
+    const tool = {};
+    handlers.forEach(handler => {
+      const funcs = instances
+        .filter(inst => inst[handler])
+        .map(inst => inst[handler].bind(inst));
+
+      tool[handler] = (arg) => {
+        funcs.forEach(func => func(arg));
+      };
+    });
+    return tool;
+  });
+
+  let tool;
+  observeStore(state => state.tool, ({ type }) => {
+    if (tool) {
+      tool.onLeave();
+    }
+    tool = tools[type];
+
+    if (tool) {
+      tool.onEnter();
+    } else {
+      console.error(`Invalid tool type: ${type}`);
+    }
+  });
+
   var onMouseDownPosition = new THREE.Vector2()
   var radius = 1600, theta = 90, phi = 60;
 
@@ -117,7 +154,7 @@ export function initCanvas(container, canvasSize) {
     camera.updateProjectionMatrix()
 
     renderer.setSize( container.offsetWidth, container.offsetHeight )
-    interact()
+    interact();
   }
 
   // Add event handlers
@@ -135,76 +172,35 @@ export function initCanvas(container, canvasSize) {
     }
   }
 
-  let objectHovered;
-  function interact() {
-    colorTooltip.hide();
+  function interact(event) {
+    var intersect = getIntersecting();
 
-    if ( objectHovered ) {
-      objectHovered.material.opacity = 1
-      objectHovered = null
+    if (tool) {
+      tool.onInteract({
+        intersect,
+        event,
+      });
     }
-
-    var intersect = getIntersecting()
-
-    if ( intersect ) {
-      const { tool } = store.getState();
-      switch(tool.type) {
-        case Tools.ADD_VOXEL:
-          {
-            var normal = intersect.face.normal;
-            var position = new THREE.Vector3().addVectors( intersect.point, normal )
-
-            brush.move({
-              x: Math.floor( position.x / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-              y: Math.floor( position.y / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-              z: Math.floor( position.z / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-            });
-            return;
-          }
-        case Tools.REMOVE_VOXEL:
-          {
-            if (intersect.object.voxel) {
-              objectHovered = intersect.object;
-              objectHovered.material.opacity = 0.5;
-              brush.hide();
-            }
-            return;
-          }
-        case Tools.COLORIZE:
-          {
-            if ( intersect.object.voxel ) {
-              objectHovered = intersect.object;
-              objectHovered.material.opacity = 0.5;
-              brush.hide();
-              colorTooltip.show(mouse.x, mouse.y, intersect.object.voxel.color);
-            }
-            return;
-          }
-      }
-    }
-    brush.hide();
   }
 
   const mouse2D = new THREE.Vector3( 0, 10000, 0.5 )
-  function onDocumentMouseMove( event ) {
+  function onDocumentMouseMove(event) {
     event.preventDefault()
 
     mouse2D.set( ( event.offsetX / container.offsetWidth ) * 2 - 1,
               - ( event.offsetY / container.offsetHeight ) * 2 + 1 );
 
     raycaster.setFromCamera( mouse2D, camera );
-    mouse.set(event.offsetX, event.offsetY);
-
-    interact()
+    interact(event);
   }
 
-  function onDocumentMouseDown( event ) {
+  function onDocumentMouseDown(event) {
     event.preventDefault()
     onMouseDownPosition.x = event.clientX
     onMouseDownPosition.y = event.clientY
   }
 
-  function onDocumentMouseUp( event ) {
+  function onDocumentMouseUp(event) {
     event.preventDefault()
     onMouseDownPosition.x = event.clientX - onMouseDownPosition.x
     onMouseDownPosition.y = event.clientY - onMouseDownPosition.y
@@ -213,34 +209,14 @@ export function initCanvas(container, canvasSize) {
 
     var intersect = getIntersecting()
 
-    if ( intersect ) {
-      const {
-        color,
-        tool,
-      } = store.getState();
-
-      switch(tool.type) {
-        case Tools.ADD_VOXEL:
-          if (brush.isVisible()) {
-            const absPos = voxels.toAbsPos(brush.position);
-            actions.addVoxel(absPos, color);
-          }
-          break;
-        case Tools.REMOVE_VOXEL:
-          if ( intersect.object.voxel ) {
-            actions.removeVoxel(intersect.object.voxel.position);
-          }
-          break;
-        case Tools.COLORIZE:
-          if ( intersect.object.voxel ) {
-            actions.setColor(intersect.object.voxel.color);
-          }
-          break;
-      }
+    if (tool) {
+      tool.onMouseUp({
+        intersect,
+      });
     }
 
     render()
-    interact()
+    interact(event);
   }
 
   function render(dt) {
@@ -280,4 +256,5 @@ export function initCanvas(container, canvasSize) {
         break;
     }
   });
+
 }

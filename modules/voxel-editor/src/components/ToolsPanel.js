@@ -55,11 +55,11 @@ const ToolsPanel = React.createClass({
   },
 
   _handleClickBrush() {
-    this.props.actions.changeTool(Tools.ADD_VOXEL);
+    this.props.actions.changeTool(Tools.BRUSH);
   },
 
   _handleClickErase() {
-    this.props.actions.changeTool(Tools.REMOVE_VOXEL);
+    this.props.actions.changeTool(Tools.ERASE);
   },
 
   _handleClickColorize() {
@@ -94,7 +94,7 @@ const ToolsPanel = React.createClass({
         onClick={this._handleClickBrush}
         style={{
           ...iconButtonStyles,
-          backgroundColor: this.props.tool.type === Tools.ADD_VOXEL ?
+          backgroundColor: this.props.tool.type === Tools.BRUSH ?
             Colors.grey200 : Colors.white,
         }}
         tooltipStyles={tooltipStyles}
@@ -104,7 +104,7 @@ const ToolsPanel = React.createClass({
         onClick={this._handleClickErase}
         style={{
           ...iconButtonStyles,
-          backgroundColor: this.props.tool.type === Tools.REMOVE_VOXEL ?
+          backgroundColor: this.props.tool.type === Tools.ERASE ?
             Colors.grey200 : Colors.white,
         }}
         iconStyle={{
