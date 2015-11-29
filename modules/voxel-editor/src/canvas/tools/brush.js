@@ -1,3 +1,4 @@
+import THREE from 'three';
 import store, {
   actions,
   observeStore,

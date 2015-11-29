@@ -1,3 +1,5 @@
+import THREE from 'three';
+
 import { vector4ToString } from '@pasta/helper-public';
 
 import store, {

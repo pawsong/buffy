@@ -23,10 +23,8 @@ const {
 
 import { initCanvas } from '../canvas';
 
-import Controls from './Controls';
 import store from '../store';
 import Panel from './Panel';
-import SpritePanel from './SpritePanel';
 import ToolsPanel from './ToolsPanel';
 import WorkspacePanel from './WorkspacePanel';
 
@@ -36,7 +34,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import * as ColorActions from '../actions/color';
-import * as SpriteActions from '../actions/sprite';
 
 import storage from 'store';
 
@@ -48,7 +45,6 @@ const styles = {
 };
 
 const PANELS = {
-  //  sprite: SpritePanel,
   tools: ToolsPanel,
   workspace: WorkspacePanel,
 };
@@ -178,10 +174,8 @@ const DndContainer = DragDropContext(HTML5Backend)(
 export default connect(state => ({
   voxel: state.voxel,
   color: state.color,
-  sprite: state.sprite,
 }), dispatch => ({
   actions: bindActionCreators({
-    ...SpriteActions,
     ...ColorActions,
   }, dispatch),
 }))(DndContainer);

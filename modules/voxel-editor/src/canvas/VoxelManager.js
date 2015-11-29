@@ -1,3 +1,4 @@
+import THREE from 'three';
 import { vector3ToString } from '@pasta/helper-public';
 import {
   GRID_SIZE,

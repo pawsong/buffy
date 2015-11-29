@@ -1,3 +1,4 @@
+import THREE from 'three';
 import EventEmitter from 'eventemitter3';
 
 import { createEffectManager } from './effects';
