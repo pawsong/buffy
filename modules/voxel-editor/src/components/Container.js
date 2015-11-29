@@ -113,7 +113,14 @@ const Container = React.createClass({
   },
 
   render() {
-    const { connectDropTarget } = this.props;
+    const {
+      connectDropTarget,
+      workspace,
+    } = this.props;
+
+    console.log(workspace);
+
+    const workspaceName = workspace.name || '(Untitled)';
 
     const panels = Object.keys(this.state.panels)
       .map(key => this.state.panels[key])
@@ -145,6 +152,9 @@ const Container = React.createClass({
           <RaisedButton label="Submit" primary={true} onClick={this._submit}/>
         </div>
       </div>
+      <div style={{ position: 'absolute', top: 15, left: 15 }}>
+        {workspaceName} workspace
+      </div>
       <FullscreenButton
         onClick={this._handleToggleFullscreen}
         fullscreen={this.state.fullscreen}
@@ -174,6 +184,7 @@ const DndContainer = DragDropContext(HTML5Backend)(
 export default connect(state => ({
   voxel: state.voxel,
   color: state.color,
+  workspace: state.workspace,
 }), dispatch => ({
   actions: bindActionCreators({
     ...ColorActions,
