@@ -12,52 +12,9 @@ import {
   PLANE_Y_OFFSET,
 } from '../../constants/Pixels';
 
+import Voxel from '../Voxel';
+
 const cube = new THREE.CubeGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE);
-const brushMaterial = new THREE.MeshBasicMaterial({
-  vertexColors: THREE.VertexColors,
-  opacity: 0.5,
-  transparent: true,
-});
-
-class Brush {
-  constructor(scene) {
-    const mesh = new THREE.Mesh(cube, brushMaterial);
-    mesh.isBrush = true;
-    mesh.visible = false;
-    mesh.overdraw = false;
-    scene.add(mesh);
-
-    const wireMesh = new THREE.EdgesHelper(mesh, 0x000000);
-    wireMesh.visible = false;
-    wireMesh.material.transparent = true;
-    wireMesh.material.opacity = 0.8;
-    scene.add(wireMesh);
-
-    this.mesh = mesh;
-    this.wireMesh = wireMesh;
-  }
-
-  hide() {
-    this.mesh.visible = false;
-    this.wireMesh.visible = false;
-  }
-
-  isVisible() {
-    return this.mesh.visible;
-  }
-
-  get position() {
-    return this.mesh.position;
-  }
-
-  move(position) {
-    this.mesh.visible = true;
-    this.wireMesh.visible = true;
-    this.mesh.position.copy(position);
-  }
-}
-
-const ARROW_SIZE = 15;
 
 const State = {
   IDLE: 'IDLE',
@@ -75,10 +32,11 @@ export default [
     render,
     setIntersectFilter,
   }) => {
-    const brush = new Brush(scene);
+    const brush = new Voxel(scene);
+    brush.mesh.isBrush = true;
 
     observeStore(state => state.color, (color) => {
-      brush.mesh.material.color.setStyle(`rgba(${color.r},${color.g},${color.b},${color.a})`);
+      brush.mesh.material.color.setStyle(`rgb(${color.r},${color.g},${color.b})`);
     });
 
     let drawGuideMeshes = [];
@@ -131,7 +89,7 @@ export default [
         if (state === State.DRAW) {
           return object.isDrawGuide;
         } else {
-          return object.voxel || object.isPlane;
+          return object.isVoxel || object.isPlane;
         }
       },
 

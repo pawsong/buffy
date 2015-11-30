@@ -1,6 +1,10 @@
 import THREE from 'three';
+import ndarray from 'ndarray';
 
-import { vector4ToString } from '@pasta/helper-public';
+import GreedyMesh from './meshers/greedy';
+import CulledMesh from './meshers/culled';
+
+import { vector3ToString } from '@pasta/helper-public';
 
 import store, {
   actions,
@@ -20,6 +24,11 @@ import {
 import VoxelManager from './VoxelManager';
 import { toolsFactory } from './tools';
 
+import {
+  rgbToHex,
+  voxelMapToArray,
+} from './utils';
+
 const size = GRID_SIZE * UNIT_PIXEL;
 
 export function initCanvas(container, canvasSize) {
@@ -30,7 +39,7 @@ export function initCanvas(container, canvasSize) {
     height: GRID_SIZE,
   });
 
-  var radius = 1600, theta = 90, phi = 60;
+  var radius = 1600, theta = 270, phi = 60;
 
   /////////////////////////////////////////////////////////////
   // INITIALIZE
@@ -57,16 +66,6 @@ export function initCanvas(container, canvasSize) {
   const controls = new THREE.OrbitControls( camera, renderer.domElement );
   controls.maxDistance = 2000;
   controls.enableKeys = false;
-
-  let intersectFilter = object => object.voxel || object.isPlane;
-
-  function setIntersectFilter(filter) {
-    const oldFilter = intersectFilter;
-    intersectFilter = filter;
-    return function restore() {
-      intersectFilter = oldFilter;
-    };
-  }
 
   let tool;
   function getIntersect() {
@@ -125,7 +124,7 @@ export function initCanvas(container, canvasSize) {
     const isIntersectableIdx = _.findLastIndex(instances, instance => instance.isIntersectable);
     tool.isIntersectable = isIntersectableIdx >= 0 ?
       instances[isIntersectableIdx].isIntersectable :
-      object => object.voxel || object.isPlane;
+      object => object.isVoxel || object.isPlane;
 
     return tool;
   });
@@ -175,22 +174,12 @@ export function initCanvas(container, canvasSize) {
 
   // Arrows
   {
-    const origin = new THREE.Vector3( -size, PLANE_Y_OFFSET, -size );
-    const length = size * 2 + 70;
-    const hex = 0x000000;
-    scene.add(new THREE.ArrowHelper(
-      new THREE.Vector3(1, 0, 0), origin, length, hex , 30, 30
-    ));
-    scene.add(new THREE.ArrowHelper(
-      new THREE.Vector3(0, 1, 0), origin, length, hex , 30, 30
-    ));
-    scene.add(new THREE.ArrowHelper(
-      new THREE.Vector3(0, 0, 1), origin, length, hex , 30, 30
-    ));
+    const axisHelper = new THREE.AxisHelper(BOX_SIZE *  (GRID_SIZE+1));
+    axisHelper.position.set(-size, PLANE_Y_OFFSET, -size);
+    scene.add(axisHelper);
   }
 
   function onWindowResize() {
-
     camera.aspect = container.offsetWidth / container.offsetHeight
     camera.updateProjectionMatrix()
 
@@ -235,8 +224,8 @@ export function initCanvas(container, canvasSize) {
       event,
     });
 
-    //render()
-    //interact(event);
+    interact(event);
+    render()
   }
 
   function animate() {
@@ -245,37 +234,92 @@ export function initCanvas(container, canvasSize) {
   }
   animate();
 
+  let surfacemesh;
+  let voxelData;
+
+  function reloadVoxelData() {
+    const { voxel } = store.getState();
+    voxelData = voxelMapToArray(voxel);
+  };
+  reloadVoxelData();
+
+  function updateVoxelMesh() {
+    if (surfacemesh) {
+      // TODO: dispose geometry and material
+      scene.remove(surfacemesh.edges);
+      scene.remove(surfacemesh);
+      surfacemesh = undefined;
+    }
+
+    const mesher = GreedyMesh;
+    //const mesher = CulledMesh;
+    const result = mesher(voxelData.data, voxelData.shape);
+
+    const geometry = new THREE.Geometry();
+
+    geometry.vertices.length = 0;
+    geometry.faces.length = 0;
+    for(var i = 0; i < result.vertices.length; ++i) {
+      var q = result.vertices[i];
+      geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
+    }
+    for(var i = 0; i < result.faces.length; ++i) {
+      const q = result.faces[i];
+      const f = new THREE.Face3(q[0], q[1], q[2]);
+      f.color = new THREE.Color(q[3]);
+      f.vertexColors = [f.color,f.color,f.color];
+      geometry.faces.push(f);
+    }
+
+    geometry.computeFaceNormals()
+
+    geometry.verticesNeedUpdate = true
+    geometry.elementsNeedUpdate = true
+    geometry.normalsNeedUpdate = true
+
+    geometry.computeBoundingBox()
+    geometry.computeBoundingSphere()
+
+    // Create surface mesh
+    var material  = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      vertexColors: THREE.VertexColors,
+      shading: THREE.FlatShading,
+    });
+    surfacemesh = new THREE.Mesh( geometry, material );
+    surfacemesh.isVoxel = true;
+    surfacemesh.doubleSided = false;
+    surfacemesh.position.x = BOX_SIZE * -GRID_SIZE / 2.0;
+    surfacemesh.position.y = BOX_SIZE * -GRID_SIZE / 2.0 - PLANE_Y_OFFSET;
+    surfacemesh.position.z = BOX_SIZE * -GRID_SIZE / 2.0;
+    surfacemesh.scale.set(BOX_SIZE, BOX_SIZE, BOX_SIZE);
+    scene.add(surfacemesh);
+
+    surfacemesh.edges = new THREE.EdgesHelper(surfacemesh, 0x000000);
+    scene.add(surfacemesh.edges);
+  }
+
   observeStore(state => state.voxelOp, op => {
     switch(op.type) {
-      case ActionTypes.ADD_VOXEL:
-        {
-          const { position, color } = op.voxel;
-          voxels.add(position, color);
-          break;
-        }
       case ActionTypes.ADD_VOXEL_BATCH:
         {
           op.voxels.forEach(voxel => {
             const { position, color } = voxel;
-            voxels.add(position, color);
+            voxelData.set(position.z - 1, position.y - 1, position.x - 1, rgbToHex(color));
           });
+          updateVoxelMesh();
           break;
         }
       case ActionTypes.REMOVE_VOXEL:
         {
           const { position } = op.voxel;
-          voxels.remove(position);
+          voxelData.set(position.z - 1, position.y - 1, position.x - 1, 0);
+          updateVoxelMesh();
           break;
         }
       case ActionTypes.LOAD_WORKSPACE:
-        // Clear voxels
-        voxels.reset();
-
-        const data = store.getState().voxel;
-        data.forEach(voxel => {
-          const { position, color } = voxel;
-          voxels.add(position, color);
-        });
+        reloadVoxelData();
+        updateVoxelMesh();
         break;
     }
   });

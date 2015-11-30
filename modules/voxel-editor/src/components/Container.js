@@ -13,6 +13,12 @@ import {
   RaisedButton,
 } from 'material-ui';
 
+import GreedyMesh from '../canvas/meshers/greedy';
+import {
+  rgbToHex,
+  voxelMapToArray,
+} from '../canvas/utils';
+
 import FullscreenButton from './FullscreenButton';
 
 const {
@@ -107,8 +113,12 @@ const Container = React.createClass({
   _submit() {
     const { submit, voxel } = this.props;
 
+    const voxelData = voxelMapToArray(voxel);
+    const result = GreedyMesh(voxelData.data, voxelData.shape);
+
     submit({
-      voxels: voxel.toArray(),
+      vertices: result.vertices,
+      faces: result.faces,
     });
   },
 
@@ -117,8 +127,6 @@ const Container = React.createClass({
       connectDropTarget,
       workspace,
     } = this.props;
-
-    console.log(workspace);
 
     const workspaceName = workspace.name || '(Untitled)';
 

@@ -19,17 +19,17 @@ class VoxelManager {
 
   toAbsPos(screenPos) {
     return {
-      x: this._canvasSize.width / 2 + (screenPos.z + UNIT_PIXEL) / BOX_SIZE,
-      y: this._canvasSize.depth / 2 + (screenPos.x + UNIT_PIXEL) / BOX_SIZE,
-      z: (screenPos.y - PLANE_Y_OFFSET + UNIT_PIXEL) / BOX_SIZE,
+      x: this._canvasSize.width / 2 + (screenPos.x + UNIT_PIXEL) / BOX_SIZE,
+      y: (screenPos.y - PLANE_Y_OFFSET + UNIT_PIXEL) / BOX_SIZE,
+      z: this._canvasSize.depth / 2 + (screenPos.z + UNIT_PIXEL) / BOX_SIZE,
     };
   }
 
   toScreenPos(absPos) {
     return {
-      x: absPos.y * BOX_SIZE - UNIT_PIXEL - this._canvasSize.width / 2 * BOX_SIZE,
-      z: absPos.x * BOX_SIZE - UNIT_PIXEL - this._canvasSize.depth / 2 * BOX_SIZE,
-      y: absPos.z * BOX_SIZE - UNIT_PIXEL + PLANE_Y_OFFSET,
+      x: absPos.x * BOX_SIZE - UNIT_PIXEL - this._canvasSize.width / 2 * BOX_SIZE,
+      y: absPos.y * BOX_SIZE - UNIT_PIXEL + PLANE_Y_OFFSET,
+      z: absPos.z * BOX_SIZE - UNIT_PIXEL - this._canvasSize.depth / 2 * BOX_SIZE,
     };
   }
 

@@ -1,7 +1,7 @@
 import { SET_COLOR } from '../constants/ActionTypes';
 
 const initialState = {
-  r: 46, g: 204, b: 113, a: 1
+  r: 46, g: 204, b: 113,
 };
 
 export function color(state = initialState, action) {

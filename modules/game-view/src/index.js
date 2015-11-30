@@ -221,28 +221,46 @@ export default (htmlElement, store, api) => {
       object.remove(child);
     }
 
-    const { voxels } = data;
+    const result = data;
+    const geometry = new THREE.Geometry();
 
-    // Voxels!
-    const voxelGeometry = new THREE.BoxGeometry(
-      MINI_PIXEL_SIZE,
-      MINI_PIXEL_SIZE,
-      MINI_PIXEL_SIZE
-    );
-    voxels.forEach(voxel => {
-      const c = voxel.color;
+    geometry.vertices.length = 0;
+    geometry.faces.length = 0;
+    for(var i = 0; i < result.vertices.length; ++i) {
+      var q = result.vertices[i];
+      geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
+    }
+    for(var i = 0; i < result.faces.length; ++i) {
+      const q = result.faces[i];
+      const f = new THREE.Face3(q[0], q[1], q[2]);
+      f.color = new THREE.Color(q[3]);
+      f.vertexColors = [f.color,f.color,f.color];
+      geometry.faces.push(f);
+    }
 
-      const material = new THREE.MeshBasicMaterial();
-      material.color.setHex(voxel.color);
-      material.color.setStyle(`rgba(${c.r},${c.g},${c.b},${c.a})`);
+    geometry.computeFaceNormals()
 
-      const mesh = new THREE.Mesh( voxelGeometry, material );
-      mesh.position.x += PIXEL_UNIT - voxel.position.x * MINI_PIXEL_SIZE;
-      mesh.position.z += -PIXEL_UNIT + voxel.position.y * MINI_PIXEL_SIZE;
-      mesh.position.y += -PIXEL_UNIT + voxel.position.z * MINI_PIXEL_SIZE;
+    geometry.verticesNeedUpdate = true
+    geometry.elementsNeedUpdate = true
+    geometry.normalsNeedUpdate = true
 
-      object.add( mesh );
+    geometry.computeBoundingBox()
+    geometry.computeBoundingSphere()
+
+    // Create surface mesh
+    var material  = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      vertexColors: THREE.VertexColors,
+      shading: THREE.FlatShading,
     });
+    const surfacemesh = new THREE.Mesh( geometry, material );
+    surfacemesh.doubleSided = false;
+    surfacemesh.position.x = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
+    surfacemesh.position.y = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;// - PLANE_Y_OFFSET;
+    surfacemesh.position.z = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
+    surfacemesh.scale.set(MINI_PIXEL_SIZE, MINI_PIXEL_SIZE, MINI_PIXEL_SIZE);
+
+    object.add(surfacemesh);
   });
 
   // Map

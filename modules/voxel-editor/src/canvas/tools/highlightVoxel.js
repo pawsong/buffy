@@ -1,31 +1,43 @@
+import Voxel from '../Voxel';
+import THREE from 'three';
+
+import {
+  GRID_SIZE,
+  UNIT_PIXEL,
+  BOX_SIZE,
+  DIMENSIONS,
+  PLANE_Y_OFFSET,
+} from '../../constants/Pixels';
+
+const cube = new THREE.CubeGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE);
+
 export default ({
   container,
   voxels,
+  scene,
 }) => {
-  let objectHovered;
+  const cursor = new Voxel(scene);
+
   return {
     onInteract({
       intersect,
     }) {
-      if (objectHovered) {
-        objectHovered.material.opacity = 1
-        objectHovered = undefined;
-      }
+      cursor.hide();
 
       if (!intersect) { return; }
+      if (!intersect.object.isVoxel) { return; }
 
-      const { voxel } = intersect.object;
-      if (!voxel) { return; }
-
-      objectHovered = intersect.object;
-      objectHovered.material.opacity = 0.5;
+      const normal = intersect.face.normal;
+      const position = new THREE.Vector3().subVectors( intersect.point, normal )
+      cursor.move({
+        x: Math.floor( position.x / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
+        y: Math.floor( position.y / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
+        z: Math.floor( position.z / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
+      });
     },
 
     onLeave() {
-      if (objectHovered) {
-        objectHovered.material.opacity = 1
-        objectHovered = undefined;
-      }
+      cursor.hide();
     },
   };
 };

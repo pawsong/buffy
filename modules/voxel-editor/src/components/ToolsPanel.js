@@ -125,7 +125,7 @@ const ToolsPanel = React.createClass({
         tooltip={'Colorize'}>colorize</IconButton>
       <div style={styles.swatch} onClick={ this._handleColorPickerOpen }>
         <div style={{
-          backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
+          backgroundColor: `rgb(${color.r}, ${color.g}, ${color.b})`,
           ...styles.color,
         }} />
       </div>

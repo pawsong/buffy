@@ -6,9 +6,15 @@ import highlightVoxel from './highlightVoxel';
 
 const COLOR_TOOLTIP_RADIUS = 20;
 
-export default [
-  highlightVoxel,
+function multiplyColor({ r, g, b }) {
+  return {
+    r: 0xff * r,
+    g: 0xff * g,
+    b: 0xff * b,
+  };
+}
 
+export default [
   ({
     container,
     voxels,
@@ -34,7 +40,7 @@ export default [
       const top = y - 2 * COLOR_TOOLTIP_RADIUS - 30;
       colorTooltip.style.left = `${left}px`;
       colorTooltip.style.top = `${top}px`;
-      colorTooltip.style.background = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+      colorTooltip.style.background = `rgb(${c.r},${c.g},${c.b})`;
     }
 
     return {
@@ -44,22 +50,18 @@ export default [
       }) {
         hideTooltip();
         if (!intersect) { return; }
-
-        const { voxel } = intersect.object;
-        if (!voxel) { return; }
-
-        showTooltip(event.offsetX, event.offsetY, voxel.color);
+        if (!intersect.object.isVoxel) { return; }
+        const { face } = intersect;
+        showTooltip(event.offsetX, event.offsetY, multiplyColor(face.color));
       },
 
       onMouseUp({
         intersect,
       }) {
         if (!intersect) { return; }
-
-        const { voxel } = intersect.object;
-        if (!voxel) { return; }
-
-        actions.setColor(voxel.color);
+        if (!intersect.object.isVoxel) { return; }
+        const { face } = intersect;
+        actions.setColor(multiplyColor(face.color));
       },
 
       onLeave() {
