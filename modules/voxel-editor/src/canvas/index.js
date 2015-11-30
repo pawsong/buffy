@@ -251,6 +251,7 @@ export function initCanvas(container, canvasSize) {
       surfacemesh = undefined;
     }
 
+    // TODO: Lazy meshing
     const mesher = GreedyMesh;
     //const mesher = CulledMesh;
     const result = mesher(voxelData.data, voxelData.shape);
