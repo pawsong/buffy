@@ -84,21 +84,10 @@ export default (htmlElement, store, api) => {
   var ambientLight = new THREE.AmbientLight( 0x10 );
   scene.add( ambientLight );
 
-  var directionalLight = new THREE.DirectionalLight( 0xffffff );
-  directionalLight.position.x = Math.random() - 0.5;
-  directionalLight.position.y = Math.random() - 0.5;
-  directionalLight.position.z = Math.random() - 0.5;
-  directionalLight.position.normalize();
-  scene.add( directionalLight );
-
-  var directionalLight = new THREE.DirectionalLight( 0xffffff );
-  directionalLight.position.x = Math.random() - 0.5;
-  directionalLight.position.y = Math.random() - 0.5;
-  directionalLight.position.z = Math.random() - 0.5;
-  directionalLight.position.normalize();
-  scene.add( directionalLight );
-  //
-  //scene.add( new THREE.AmbientLight( 0x444444 ) );
+  const light = new THREE.DirectionalLight( 0xffffff );
+  light.position.set(3, 7, 5);
+  light.position.normalize();
+  scene.add( light );
 
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize( htmlElement.offsetWidth, htmlElement.offsetHeight );
@@ -248,7 +237,7 @@ export default (htmlElement, store, api) => {
     geometry.computeBoundingSphere()
 
     // Create surface mesh
-    var material  = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshLambertMaterial({
       color: 0xffffff,
       vertexColors: THREE.VertexColors,
       shading: THREE.FlatShading,
