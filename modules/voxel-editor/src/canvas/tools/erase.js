@@ -14,13 +14,9 @@ import {
   PLANE_Y_OFFSET,
 } from '../../constants/Pixels';
 
-function toAbsPos(screenPos) {
-  return {
-    x: GRID_SIZE / 2 + (screenPos.z + UNIT_PIXEL) / BOX_SIZE,
-    y: GRID_SIZE / 2 + (screenPos.x + UNIT_PIXEL) / BOX_SIZE,
-    z: (screenPos.y - PLANE_Y_OFFSET + UNIT_PIXEL) / BOX_SIZE,
-  };
-}
+import {
+  toAbsPos,
+} from '../utils';
 
 export default [
   highlightVoxel,

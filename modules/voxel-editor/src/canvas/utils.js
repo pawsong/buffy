@@ -34,3 +34,20 @@ export const voxelMapToArray = (() => {
     });
   };
 })();
+
+export function toAbsPos(screenPos) {
+  return {
+    x: GRID_SIZE / 2 + (screenPos.x + UNIT_PIXEL) / BOX_SIZE,
+    y: (screenPos.y - PLANE_Y_OFFSET + UNIT_PIXEL) / BOX_SIZE,
+    z: GRID_SIZE / 2 + (screenPos.z + UNIT_PIXEL) / BOX_SIZE,
+  };
+}
+
+export function toScreenPos(absPos) {
+  return {
+    x: absPos.x * BOX_SIZE - UNIT_PIXEL - GRID_SIZE.width / 2 * BOX_SIZE,
+    y: absPos.y * BOX_SIZE - UNIT_PIXEL + PLANE_Y_OFFSET,
+    z: absPos.z * BOX_SIZE - UNIT_PIXEL - GRID_SIZE.depth / 2 * BOX_SIZE,
+  };
+}
+
