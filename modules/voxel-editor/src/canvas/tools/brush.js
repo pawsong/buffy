@@ -76,6 +76,7 @@ export default [
         scene.remove(mesh.wireMesh);
       });
       drawGuideMeshes = [];
+      selectedMeshes = [];
     }
 
     let state;
@@ -198,6 +199,11 @@ export default [
         controls.enableRotate = true;
         state = State.IDLE;
 
+        if (selectedMeshes.length === 0) {
+          resetDrawGuideMeshes();
+          return;
+        }
+
         const { color } = store.getState();
         actions.addVoxels(selectedMeshes.map(mesh => ({
           color,
@@ -207,10 +213,8 @@ export default [
         resetDrawGuideMeshes();
 
         // Test interact after voxel is added.
-        setTimeout(() => {
-          interact(event);
-          render();
-        }, 0);
+        interact(event);
+        render();
       },
 
       onLeave() {
