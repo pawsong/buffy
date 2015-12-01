@@ -1,11 +1,125 @@
 import * as ActionTypes from '../constants/ActionTypes';
 import Immutable from 'immutable';
+import _ from 'lodash';
 
 import { vector3ToString } from '@pasta/helper-public';
 
-const initialState = Immutable.Map();
+const MAX_HISTORY_LEN = 20;
 
-export function voxel(state = initialState, action) {
+function voxelUndoable(reducer) {
+  // Call the reducer with empty action to populate the initial state
+  const initialState = {
+    historyIndex: 1,
+    past: [],
+    present: {
+      historyIndex: 1,
+      action: ActionTypes.VOXEL_INIT,
+      data: reducer(undefined, {}),
+    },
+    future: []
+  }
+
+  // Return a reducer that handles undo and redo
+  return function (state = initialState, action) {
+    const { historyIndex, past, present, future } = state
+
+    switch (action.type) {
+      case ActionTypes.VOXEL_UNDO:
+        {
+          const previous = past[past.length - 1]
+          const newPast = past.slice(0, past.length - 1)
+          return {
+            historyIndex,
+            past: newPast,
+            present: previous,
+            future: [ present, ...future ]
+          }
+        }
+      case ActionTypes.VOXEL_UNDO_SEEK:
+        {
+          const index = _.findIndex(past, item => {
+            return item.historyIndex === action.historyIndex;
+          })
+          const previous = past[index];
+          const newPast = past.slice(0, index);
+          const newFuture = [
+            ...past.slice(index + 1),
+            present,
+            ...future,
+          ];
+          return {
+            historyIndex,
+            past: newPast,
+            present: previous,
+            future: newFuture,
+          }
+        }
+      case ActionTypes.VOXEL_REDO:
+        {
+          const next = future[0]
+          const newFuture = future.slice(1)
+          return {
+            historyIndex,
+            past: [ ...past, present ],
+            present: next,
+            future: newFuture
+          }
+        }
+      case ActionTypes.VOXEL_REDO_SEEK:
+        {
+          const index = _.findIndex(future, item => {
+            return item.historyIndex === action.historyIndex;
+          })
+          const next = future[index];
+          const newPast = [
+            ...past,
+            present,
+            ...future.slice(0, index),
+          ];
+          const newFuture = future.slice(index + 1);
+          return {
+            historyIndex,
+            past: newPast,
+            present: next,
+            future: newFuture
+          }
+        }
+      // Load workspace should clear history
+      case ActionTypes.LOAD_WORKSPACE:
+        return {
+          historyIndex: historyIndex + 1,
+          past: [],
+          present: {
+            historyIndex: historyIndex + 1,
+            action: action.type,
+            data: Immutable.Map(action.voxels),
+          },
+          future: [],
+        };
+      default:
+        // Delegate handling the action to the passed reducer
+        const newData = reducer(present.data, action)
+        if (present.data === newData) {
+          return state;
+        }
+
+        const newPast = (past.length < MAX_HISTORY_LEN - 1 ? past :
+                         past.slice(past.length - MAX_HISTORY_LEN + 2)).concat(present);
+        return {
+          historyIndex: historyIndex + 1,
+          past: newPast,
+          present: {
+            historyIndex: historyIndex + 1,
+            action: action.type,
+            data: newData,
+          },
+          future: []
+        }
+    }
+  }
+}
+
+export const voxel = voxelUndoable(function (state = Immutable.Map(), action) {
   switch (action.type) {
     case ActionTypes.ADD_VOXEL:
       {
@@ -31,12 +145,10 @@ export function voxel(state = initialState, action) {
         const { position } = action;
         return state.remove(vector3ToString(position));
       }
-    case ActionTypes.LOAD_WORKSPACE:
-      return Immutable.Map(action.voxels);
     default:
       return state
   }
-}
+});
 
 export function voxelOp(state = {}, action) {
   switch (action.type) {
@@ -45,6 +157,10 @@ export function voxelOp(state = {}, action) {
       return { type: action.type, voxel: action };
     case ActionTypes.ADD_VOXEL_BATCH:
       return { type: action.type, voxels: action.voxels };
+    case ActionTypes.VOXEL_UNDO:
+    case ActionTypes.VOXEL_UNDO_SEEK:
+    case ActionTypes.VOXEL_REDO:
+    case ActionTypes.VOXEL_REDO_SEEK:
     case ActionTypes.LOAD_WORKSPACE:
       return { type: action.type };
     default:

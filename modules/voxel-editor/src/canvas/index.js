@@ -239,7 +239,7 @@ export function initCanvas(container, canvasSize) {
 
   function reloadVoxelData() {
     const { voxel } = store.getState();
-    voxelData = voxelMapToArray(voxel);
+    voxelData = voxelMapToArray(voxel.present.data);
   };
   reloadVoxelData();
 
@@ -318,6 +318,10 @@ export function initCanvas(container, canvasSize) {
           updateVoxelMesh();
           break;
         }
+      case ActionTypes.VOXEL_UNDO:
+      case ActionTypes.VOXEL_UNDO_SEEK:
+      case ActionTypes.VOXEL_REDO:
+      case ActionTypes.VOXEL_REDO_SEEK:
       case ActionTypes.LOAD_WORKSPACE:
         reloadVoxelData();
         updateVoxelMesh();

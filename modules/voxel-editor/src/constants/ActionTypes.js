@@ -1,3 +1,8 @@
+export const VOXEL_INIT = 'VOXEL_INIT';
+export const VOXEL_UNDO = 'VOXEL_UNDO';
+export const VOXEL_UNDO_SEEK = 'VOXEL_UNDO_SEEK';
+export const VOXEL_REDO = 'VOXEL_REDO';
+export const VOXEL_REDO_SEEK = 'VOXEL_REDO_SEEK';
 export const ADD_VOXEL = 'ADD_VOXEL';
 export const ADD_VOXEL_BATCH = 'ADD_VOXEL_BATCH';
 export const REMOVE_VOXEL = 'REMOVE_VOXEL';

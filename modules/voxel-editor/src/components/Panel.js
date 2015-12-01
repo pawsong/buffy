@@ -15,7 +15,7 @@ export const PanelStyles = {
   handle: {
     backgroundColor: 'green',
     width: '100%',
-    height: '1rem',
+    height: 20,
     display: 'block',
     marginRight: '0.75rem',
     cursor: 'move',

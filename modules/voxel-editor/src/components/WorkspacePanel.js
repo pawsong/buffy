@@ -43,7 +43,7 @@ const WorkspacePanel = React.createClass({
       return this.setState({ showSaveDialog: true });
     }
 
-    const voxels = this.props.voxel.toJSON();
+    const voxels = this.props.voxel.present.data.toJSON();
     fetch(`${config.apiServerUrl}/voxel-workspaces/me/${name}`, {
       method: 'put',
       headers: { 'Content-Type': 'application/json' },

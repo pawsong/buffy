@@ -33,6 +33,7 @@ import store from '../store';
 import Panel from './Panel';
 import ToolsPanel from './ToolsPanel';
 import WorkspacePanel from './WorkspacePanel';
+import HistoryPanel from './HistoryPanel';
 
 import objectAssign from 'object-assign';
 
@@ -53,6 +54,7 @@ const styles = {
 const PANELS = {
   tools: ToolsPanel,
   workspace: WorkspacePanel,
+  history: HistoryPanel,
 };
 
 const Container = React.createClass({
@@ -113,7 +115,7 @@ const Container = React.createClass({
   _submit() {
     const { submit, voxel } = this.props;
 
-    const voxelData = voxelMapToArray(voxel);
+    const voxelData = voxelMapToArray(voxel.present.data);
     const result = GreedyMesh(voxelData.data, voxelData.shape);
 
     submit({
