@@ -21,7 +21,6 @@ import {
   PLANE_Y_OFFSET,
 } from '../constants/Pixels';
 
-import VoxelManager from './VoxelManager';
 import { toolsFactory } from './tools';
 
 import {
@@ -33,11 +32,6 @@ const size = GRID_SIZE * UNIT_PIXEL;
 
 export function initCanvas(container, canvasSize) {
   const scene = new THREE.Scene();
-  const voxels = new VoxelManager(scene, canvasSize || {
-    width: GRID_SIZE,
-    depth: GRID_SIZE,
-    height: GRID_SIZE,
-  });
 
   var radius = 1600, theta = 270, phi = 60;
 
@@ -104,7 +98,6 @@ export function initCanvas(container, canvasSize) {
     const instances = factories.map(f => f({
       container,
       scene,
-      voxels,
       controls,
       interact,
       render,

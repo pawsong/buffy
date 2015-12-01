@@ -45,9 +45,9 @@ export function toAbsPos(screenPos) {
 
 export function toScreenPos(absPos) {
   return {
-    x: absPos.x * BOX_SIZE - UNIT_PIXEL - GRID_SIZE.width / 2 * BOX_SIZE,
+    x: absPos.x * BOX_SIZE - UNIT_PIXEL - GRID_SIZE / 2 * BOX_SIZE,
     y: absPos.y * BOX_SIZE - UNIT_PIXEL + PLANE_Y_OFFSET,
-    z: absPos.z * BOX_SIZE - UNIT_PIXEL - GRID_SIZE.depth / 2 * BOX_SIZE,
+    z: absPos.z * BOX_SIZE - UNIT_PIXEL - GRID_SIZE / 2 * BOX_SIZE,
   };
 }
 

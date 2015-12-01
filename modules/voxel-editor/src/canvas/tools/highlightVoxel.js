@@ -13,7 +13,6 @@ const cube = new THREE.CubeGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE);
 
 export default ({
   container,
-  voxels,
   scene,
 }) => {
   const cursor = new Voxel(scene);

@@ -14,6 +14,11 @@ import {
 
 import Voxel from '../Voxel';
 
+import {
+  toAbsPos,
+  toScreenPos,
+} from '../utils';
+
 const cube = new THREE.CubeGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE);
 
 const State = {
@@ -26,7 +31,6 @@ export default [
   ({
     container,
     scene,
-    voxels,
     controls,
     interact,
     render,
@@ -43,7 +47,7 @@ export default [
     let selectedMeshes = [];
 
     function addDrawGuideMesh(absPos, prevMesh) {
-      const position = voxels.toScreenPos(absPos);
+      const position = toScreenPos(absPos);
       const material = new THREE.MeshBasicMaterial({
         vertexColors: THREE.VertexColors,
         opacity: 0,
@@ -106,7 +110,7 @@ export default [
           state = State.DRAW;
           controls.enableRotate = false;
 
-          const absPos = voxels.toAbsPos(brush.position);
+          const absPos = toAbsPos(brush.position);
 
           let prev;
           const center = addDrawGuideMesh(absPos);
@@ -118,7 +122,7 @@ export default [
             }, prev);
           }
           prev = center;
-          for (let i = absPos.x + 1; i <= voxels.maxX; ++i) {
+          for (let i = absPos.x + 1; i <= GRID_SIZE; ++i) {
             prev = addDrawGuideMesh({
               x: i, y: absPos.y, z: absPos.z,
             }, prev);
@@ -131,7 +135,7 @@ export default [
             }, prev);
           }
           prev = center;
-          for (let i = absPos.y + 1; i <= voxels.maxY; ++i) {
+          for (let i = absPos.y + 1; i <= GRID_SIZE; ++i) {
             prev = addDrawGuideMesh({
               x: absPos.x, y: i, z: absPos.z,
             }, prev);
@@ -144,7 +148,7 @@ export default [
             }, prev);
           }
           prev = center;
-          for (let i = absPos.z + 1; i <= voxels.maxZ; ++i) {
+          for (let i = absPos.z + 1; i <= GRID_SIZE; ++i) {
             prev = addDrawGuideMesh({
               x: absPos.x, y: absPos.y, z: i,
             }, prev);
@@ -207,7 +211,7 @@ export default [
         const { color } = store.getState();
         actions.addVoxels(selectedMeshes.map(mesh => ({
           color,
-          position: voxels.toAbsPos(mesh.position),
+          position: toAbsPos(mesh.position),
         })));
 
         resetDrawGuideMeshes();

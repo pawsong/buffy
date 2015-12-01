@@ -17,7 +17,6 @@ function multiplyColor({ r, g, b }) {
 export default [
   ({
     container,
-    voxels,
   }) => {
 
     const colorTooltip = document.createElement("div");
