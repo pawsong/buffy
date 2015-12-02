@@ -27,3 +27,7 @@ export function voxelRedo() {
 export function voxelRedoSeek(historyIndex) {
   return { type: ActionTypes.VOXEL_REDO_SEEK, historyIndex };
 }
+
+export function voxelRotate(axis) {
+  return { type: ActionTypes.VOXEL_ROTATE, axis };
+}

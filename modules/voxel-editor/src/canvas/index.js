@@ -107,6 +107,7 @@ observeStore(state => state.voxelOp, op => {
     case ActionTypes.VOXEL_UNDO_SEEK:
     case ActionTypes.VOXEL_REDO:
     case ActionTypes.VOXEL_REDO_SEEK:
+    case ActionTypes.VOXEL_ROTATE:
     case ActionTypes.LOAD_WORKSPACE:
       reloadVoxelData();
       updateVoxelGeometry();
@@ -355,7 +356,7 @@ export function initPreview(container) {
   /////////////////////////////////////////////////////////////
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setClearColor( 0xffffff );
+  renderer.setClearColor( 0x101010 );
   renderer.setSize(container.offsetWidth, container.offsetHeight);
 
   // Hide ghost bottom margin

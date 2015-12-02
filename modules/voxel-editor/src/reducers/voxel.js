@@ -4,6 +4,10 @@ import _ from 'lodash';
 
 import { vector3ToString } from '@pasta/helper-public';
 
+import {
+  GRID_SIZE,
+} from '../constants/Pixels';
+
 const MAX_HISTORY_LEN = 20;
 
 function voxelUndoable(reducer) {
@@ -119,6 +123,12 @@ function voxelUndoable(reducer) {
   }
 }
 
+const rotates = {
+  x: pos => ({ x: pos.x, y: GRID_SIZE + 1 - pos.z, z: pos.y }),
+  y: pos => ({ x: pos.z, y: pos.y, z: GRID_SIZE + 1 - pos.x }),
+  z: pos => ({ x: GRID_SIZE + 1 - pos.y, y: pos.x, z: pos.z }),
+};
+
 export const voxel = voxelUndoable(function (state = Immutable.Map(), action) {
   switch (action.type) {
     case ActionTypes.ADD_VOXEL:
@@ -145,6 +155,20 @@ export const voxel = voxelUndoable(function (state = Immutable.Map(), action) {
         const { position } = action;
         return state.remove(vector3ToString(position));
       }
+    case ActionTypes.VOXEL_ROTATE:
+      {
+        const { axis } = action;
+        const rotate = rotates[axis] || (pos => pos);
+        return Immutable.Map().withMutations(map => {
+          state.forEach(voxel => {
+            const position = rotate(voxel.position);
+            map.set(vector3ToString(position), {
+              position,
+              color: voxel.color,
+            });
+          });
+        });
+      }
     default:
       return state
   }
@@ -161,6 +185,7 @@ export function voxelOp(state = {}, action) {
     case ActionTypes.VOXEL_UNDO_SEEK:
     case ActionTypes.VOXEL_REDO:
     case ActionTypes.VOXEL_REDO_SEEK:
+    case ActionTypes.VOXEL_ROTATE:
     case ActionTypes.LOAD_WORKSPACE:
       return { type: action.type };
     default:
