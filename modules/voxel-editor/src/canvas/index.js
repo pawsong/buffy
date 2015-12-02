@@ -30,10 +30,160 @@ import {
 
 const size = GRID_SIZE * UNIT_PIXEL;
 
-export function initCanvas(container, canvasSize) {
-  const scene = new THREE.Scene();
+var radius = 1600, theta = 270, phi = 60;
 
-  var radius = 1600, theta = 270, phi = 60;
+// Initialize tools
+const handlers = [
+  'onEnter',
+  'onInteract',
+  'onMouseDown',
+  'onMouseUp',
+  'onLeave',
+];
+
+let voxelData;
+let voxelGeometry;
+let voxelGeometryListeners = [];
+
+function reloadVoxelData() {
+  const { voxel } = store.getState();
+  voxelData = voxelMapToArray(voxel.present.data);
+};
+reloadVoxelData();
+
+function updateVoxelGeometry() {
+  // TODO: Lazy meshing
+  const mesher = GreedyMesh;
+  //const mesher = CulledMesh;
+  const result = mesher(voxelData.data, voxelData.shape);
+
+  const geometry = new THREE.Geometry();
+
+  geometry.vertices.length = 0;
+  geometry.faces.length = 0;
+  for(var i = 0; i < result.vertices.length; ++i) {
+    var q = result.vertices[i];
+    geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
+  }
+  for(var i = 0; i < result.faces.length; ++i) {
+    const q = result.faces[i];
+    const f = new THREE.Face3(q[0], q[1], q[2]);
+    f.color = new THREE.Color(q[3]);
+    f.vertexColors = [f.color,f.color,f.color];
+    geometry.faces.push(f);
+  }
+
+  geometry.computeFaceNormals()
+
+  geometry.verticesNeedUpdate = true
+  geometry.elementsNeedUpdate = true
+  geometry.normalsNeedUpdate = true
+
+  geometry.computeBoundingBox()
+  geometry.computeBoundingSphere()
+
+  voxelGeometryListeners.forEach(listener => listener(geometry));
+}
+
+observeStore(state => state.voxelOp, op => {
+  switch(op.type) {
+    case ActionTypes.ADD_VOXEL_BATCH:
+      {
+        op.voxels.forEach(voxel => {
+          const { position, color } = voxel;
+          voxelData.set(position.z - 1, position.y - 1, position.x - 1, rgbToHex(color));
+        });
+        updateVoxelGeometry();
+        break;
+      }
+    case ActionTypes.REMOVE_VOXEL:
+      {
+        const { position } = op.voxel;
+        voxelData.set(position.z - 1, position.y - 1, position.x - 1, 0);
+        updateVoxelGeometry();
+        break;
+      }
+    case ActionTypes.VOXEL_UNDO:
+    case ActionTypes.VOXEL_UNDO_SEEK:
+    case ActionTypes.VOXEL_REDO:
+    case ActionTypes.VOXEL_REDO_SEEK:
+    case ActionTypes.LOAD_WORKSPACE:
+      reloadVoxelData();
+      updateVoxelGeometry();
+      break;
+  }
+});
+
+let camera;
+export function initCanvas(container, canvasSize) {
+
+  const scene = new THREE.Scene();
+  const raycaster = new THREE.Raycaster();
+
+  // Grid
+  {
+    const geometry = new THREE.Geometry()
+    for ( let i = -size; i <= size; i += BOX_SIZE ) {
+      geometry.vertices.push(new THREE.Vector3(-size, PLANE_Y_OFFSET, i))
+      geometry.vertices.push(new THREE.Vector3( size, PLANE_Y_OFFSET, i))
+
+      geometry.vertices.push(new THREE.Vector3(i, PLANE_Y_OFFSET, -size))
+      geometry.vertices.push(new THREE.Vector3(i, PLANE_Y_OFFSET,  size))
+    }
+
+    const material = new THREE.LineBasicMaterial({
+      color: 0xdddddd, linewidth: 2,
+    });
+    const line = new THREE.LineSegments(geometry, material );
+    scene.add( line )
+  }
+
+  // Plane
+  const plane = (() => {
+    const geometry = new THREE.PlaneGeometry( size * 2, size * 2 );
+    geometry.rotateX( - Math.PI / 2 );
+
+    const plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial() )
+    plane.position.y = PLANE_Y_OFFSET;
+    plane.isPlane = true
+    scene.add( plane )
+    return plane;
+  })();
+
+  // Arrows
+  {
+    const axisHelper = new THREE.AxisHelper(BOX_SIZE *  (GRID_SIZE+1));
+    axisHelper.position.set(-size, PLANE_Y_OFFSET, -size);
+    scene.add(axisHelper);
+  }
+
+  let surfacemesh;
+  voxelGeometryListeners.push((geometry) => {
+    if (surfacemesh) {
+      // TODO: dispose geometry and material
+      scene.remove(surfacemesh.edges);
+      scene.remove(surfacemesh);
+      surfacemesh = undefined;
+    }
+
+    // Create surface mesh
+    var material  = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      vertexColors: THREE.VertexColors,
+      shading: THREE.FlatShading,
+    });
+    surfacemesh = new THREE.Mesh( geometry, material );
+    surfacemesh.isVoxel = true;
+    surfacemesh.doubleSided = false;
+    surfacemesh.position.x = BOX_SIZE * -GRID_SIZE / 2.0;
+    surfacemesh.position.y = BOX_SIZE * -GRID_SIZE / 2.0 - PLANE_Y_OFFSET;
+    surfacemesh.position.z = BOX_SIZE * -GRID_SIZE / 2.0;
+    surfacemesh.scale.set(BOX_SIZE, BOX_SIZE, BOX_SIZE);
+    scene.add(surfacemesh);
+
+    surfacemesh.edges = new THREE.EdgesHelper(surfacemesh, 0x000000);
+    scene.add(surfacemesh.edges);
+  });
 
   /////////////////////////////////////////////////////////////
   // INITIALIZE
@@ -47,7 +197,7 @@ export function initCanvas(container, canvasSize) {
   renderer.domElement.style['vertical-align'] = 'bottom';
   container.appendChild(renderer.domElement)
 
-  const camera = new THREE.PerspectiveCamera(
+  camera = new THREE.PerspectiveCamera(
     40, container.offsetWidth / container.offsetHeight, 1, 10000
   );
   camera.position.x =
@@ -81,17 +231,6 @@ export function initCanvas(container, canvasSize) {
     controls.update();
     renderer.render(scene, camera);
   }
-
-  const raycaster = new THREE.Raycaster();
-
-  // Initialize tools
-  const handlers = [
-    'onEnter',
-    'onInteract',
-    'onMouseDown',
-    'onMouseUp',
-    'onLeave',
-  ];
 
   const tools = _.mapValues(toolsFactory, factory => {
     const factories = factory instanceof Array ? factory : [factory];
@@ -134,43 +273,6 @@ export function initCanvas(container, canvasSize) {
       console.error(`Invalid tool type: ${type}`);
     }
   });
-
-  // Grid
-  {
-    const geometry = new THREE.Geometry()
-    for ( let i = -size; i <= size; i += BOX_SIZE ) {
-      geometry.vertices.push(new THREE.Vector3(-size, PLANE_Y_OFFSET, i))
-      geometry.vertices.push(new THREE.Vector3( size, PLANE_Y_OFFSET, i))
-
-      geometry.vertices.push(new THREE.Vector3(i, PLANE_Y_OFFSET, -size))
-      geometry.vertices.push(new THREE.Vector3(i, PLANE_Y_OFFSET,  size))
-    }
-
-    const material = new THREE.LineBasicMaterial({
-      color: 0xdddddd, linewidth: 2,
-    });
-    const line = new THREE.LineSegments(geometry, material );
-    scene.add( line )
-  }
-
-  // Plane
-  const plane = (() => {
-    const geometry = new THREE.PlaneGeometry( size * 2, size * 2 );
-    geometry.rotateX( - Math.PI / 2 );
-
-    const plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial() )
-    plane.position.y = PLANE_Y_OFFSET;
-    plane.isPlane = true
-    scene.add( plane )
-    return plane;
-  })();
-
-  // Arrows
-  {
-    const axisHelper = new THREE.AxisHelper(BOX_SIZE *  (GRID_SIZE+1));
-    axisHelper.position.set(-size, PLANE_Y_OFFSET, -size);
-    scene.add(axisHelper);
-  }
 
   function onWindowResize() {
     camera.aspect = container.offsetWidth / container.offsetHeight
@@ -227,99 +329,103 @@ export function initCanvas(container, canvasSize) {
   }
   animate();
 
+}
+
+export function initPreview(container) {
+
+  const scene = new THREE.Scene();
+
+  // Arrows
+  {
+    const axisHelper = new THREE.AxisHelper(BOX_SIZE *  (GRID_SIZE+1));
+    scene.add(axisHelper);
+  }
+
+  const previewCamera = new THREE.OrthographicCamera(
+    container.offsetWidth / - 2,
+    container.offsetWidth / 2,
+    container.offsetHeight / 2,
+    container.offsetHeight / - 2,
+    -500, 1000
+  );
+  previewCamera.position.copy(camera.position).multiplyScalar(0.1);
+
+  /////////////////////////////////////////////////////////////
+  // INITIALIZE
+  /////////////////////////////////////////////////////////////
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setClearColor( 0xffffff );
+  renderer.setSize(container.offsetWidth, container.offsetHeight);
+
+  // Hide ghost bottom margin
+  renderer.domElement.style['vertical-align'] = 'bottom';
+  renderer.domElement.style.position = 'relative';
+  container.appendChild(renderer.domElement)
+
+  var ambientLight = new THREE.AmbientLight( 0xaaaaaa );
+  scene.add( ambientLight );
+
+  const light = new THREE.DirectionalLight( 0xffffff );
+  light.position.set(-7, 3, 5);
+  light.position.normalize();
+  scene.add( light );
+
   let surfacemesh;
-  let voxelData;
-
-  function reloadVoxelData() {
-    const { voxel } = store.getState();
-    voxelData = voxelMapToArray(voxel.present.data);
-  };
-  reloadVoxelData();
-
-  function updateVoxelMesh() {
+  voxelGeometryListeners.push((geometry) => {
     if (surfacemesh) {
       // TODO: dispose geometry and material
-      scene.remove(surfacemesh.edges);
       scene.remove(surfacemesh);
       surfacemesh = undefined;
     }
 
-    // TODO: Lazy meshing
-    const mesher = GreedyMesh;
-    //const mesher = CulledMesh;
-    const result = mesher(voxelData.data, voxelData.shape);
-
-    const geometry = new THREE.Geometry();
-
-    geometry.vertices.length = 0;
-    geometry.faces.length = 0;
-    for(var i = 0; i < result.vertices.length; ++i) {
-      var q = result.vertices[i];
-      geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
-    }
-    for(var i = 0; i < result.faces.length; ++i) {
-      const q = result.faces[i];
-      const f = new THREE.Face3(q[0], q[1], q[2]);
-      f.color = new THREE.Color(q[3]);
-      f.vertexColors = [f.color,f.color,f.color];
-      geometry.faces.push(f);
-    }
-
-    geometry.computeFaceNormals()
-
-    geometry.verticesNeedUpdate = true
-    geometry.elementsNeedUpdate = true
-    geometry.normalsNeedUpdate = true
-
-    geometry.computeBoundingBox()
-    geometry.computeBoundingSphere()
-
     // Create surface mesh
-    var material  = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshLambertMaterial({
       color: 0xffffff,
       vertexColors: THREE.VertexColors,
       shading: THREE.FlatShading,
     });
     surfacemesh = new THREE.Mesh( geometry, material );
-    surfacemesh.isVoxel = true;
     surfacemesh.doubleSided = false;
-    surfacemesh.position.x = BOX_SIZE * -GRID_SIZE / 2.0;
-    surfacemesh.position.y = BOX_SIZE * -GRID_SIZE / 2.0 - PLANE_Y_OFFSET;
-    surfacemesh.position.z = BOX_SIZE * -GRID_SIZE / 2.0;
-    surfacemesh.scale.set(BOX_SIZE, BOX_SIZE, BOX_SIZE);
+    //surfacemesh.scale.set(5, 5, 5);
+    surfacemesh.scale.set(
+      BOX_SIZE,
+      BOX_SIZE,
+      BOX_SIZE
+    ).multiplyScalar(0.1);
+    surfacemesh.position.set(
+      -GRID_SIZE * BOX_SIZE / 2,
+      -GRID_SIZE * BOX_SIZE / 2,
+      -GRID_SIZE * BOX_SIZE / 2
+    ).multiplyScalar(0.1);
+    //surfacemesh.scale.set(BOX_SIZE, BOX_SIZE, BOX_SIZE);
     scene.add(surfacemesh);
-
-    surfacemesh.edges = new THREE.EdgesHelper(surfacemesh, 0x000000);
-    scene.add(surfacemesh.edges);
-  }
-
-  observeStore(state => state.voxelOp, op => {
-    switch(op.type) {
-      case ActionTypes.ADD_VOXEL_BATCH:
-        {
-          op.voxels.forEach(voxel => {
-            const { position, color } = voxel;
-            voxelData.set(position.z - 1, position.y - 1, position.x - 1, rgbToHex(color));
-          });
-          updateVoxelMesh();
-          break;
-        }
-      case ActionTypes.REMOVE_VOXEL:
-        {
-          const { position } = op.voxel;
-          voxelData.set(position.z - 1, position.y - 1, position.x - 1, 0);
-          updateVoxelMesh();
-          break;
-        }
-      case ActionTypes.VOXEL_UNDO:
-      case ActionTypes.VOXEL_UNDO_SEEK:
-      case ActionTypes.VOXEL_REDO:
-      case ActionTypes.VOXEL_REDO_SEEK:
-      case ActionTypes.LOAD_WORKSPACE:
-        reloadVoxelData();
-        updateVoxelMesh();
-        break;
-    }
   });
 
+  previewCamera.lookAt(scene.position);
+
+  function render() {
+    previewCamera.position.copy(camera.position).multiplyScalar(0.2);
+    previewCamera.lookAt(scene.position);
+    renderer.render(scene, previewCamera);
+  }
+
+  function onWindowResize() {
+    previewCamera.left = container.offsetWidth / - 2;
+    previewCamera.right = container.offsetWidth / 2;
+    previewCamera.top = container.offsetHeight / 2;
+    previewCamera.bottom = container.offsetHeight / - 2;
+    previewCamera.updateProjectionMatrix();
+
+    renderer.setSize(container.offsetWidth, container.offsetHeight);
+  }
+
+  // Add event handlers
+  window.addEventListener('resize', onWindowResize, false);
+
+  function animate() {
+    requestAnimationFrame( animate );
+    render();
+  }
+  animate();
 }

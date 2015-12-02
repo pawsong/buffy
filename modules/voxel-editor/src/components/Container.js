@@ -34,6 +34,7 @@ import Panel from './Panel';
 import ToolsPanel from './ToolsPanel';
 import WorkspacePanel from './WorkspacePanel';
 import HistoryPanel from './HistoryPanel';
+import PreviewPanel from './PreviewPanel';
 
 import objectAssign from 'object-assign';
 
@@ -55,6 +56,7 @@ const PANELS = {
   tools: ToolsPanel,
   workspace: WorkspacePanel,
   history: HistoryPanel,
+  preview: PreviewPanel,
 };
 
 const Container = React.createClass({

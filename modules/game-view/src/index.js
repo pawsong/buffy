@@ -22,6 +22,12 @@ export default (htmlElement, store, api) => {
   // Init
   /////////////////////////////////////////////////////////////////////////
 
+  /*
+  const camera = new THREE.PerspectiveCamera(
+    40, windowWidth / windowHeight, 1, 10000
+  );
+  */
+
   const camera = new THREE.OrthographicCamera(
     windowWidth / - 2,
     windowWidth / 2,
