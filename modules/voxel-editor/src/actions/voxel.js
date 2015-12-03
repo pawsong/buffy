@@ -12,6 +12,10 @@ export function removeVoxel(position) {
   return { type: ActionTypes.REMOVE_VOXEL, position };
 }
 
+export function removeVoxels(voxels) {
+  return { type: ActionTypes.REMOVE_VOXEL_BATCH, voxels };
+}
+
 export function voxelUndo() {
   return { type: ActionTypes.VOXEL_UNDO };
 }

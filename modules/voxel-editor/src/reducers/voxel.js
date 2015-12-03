@@ -155,6 +155,16 @@ export const voxel = voxelUndoable(function (state = Immutable.Map(), action) {
         const { position } = action;
         return state.remove(vector3ToString(position));
       }
+    case ActionTypes.REMOVE_VOXEL_BATCH:
+      {
+        const { voxels } = action;
+        return state.withMutations(map => {
+          voxels.forEach(voxel => {
+            const { position } = voxel;
+            map.remove(vector3ToString(position));
+          });
+        });
+      }
     case ActionTypes.VOXEL_ROTATE:
       {
         const { axis } = action;
@@ -180,6 +190,7 @@ export function voxelOp(state = {}, action) {
     case ActionTypes.REMOVE_VOXEL:
       return { type: action.type, voxel: action };
     case ActionTypes.ADD_VOXEL_BATCH:
+    case ActionTypes.REMOVE_VOXEL_BATCH:
       return { type: action.type, voxels: action.voxels };
     case ActionTypes.VOXEL_UNDO:
     case ActionTypes.VOXEL_UNDO_SEEK:

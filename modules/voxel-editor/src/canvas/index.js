@@ -103,6 +103,15 @@ observeStore(state => state.voxelOp, op => {
         updateVoxelGeometry();
         break;
       }
+    case ActionTypes.REMOVE_VOXEL_BATCH:
+      {
+        op.voxels.forEach(voxel => {
+          const { position } = voxel;
+          voxelData.set(position.z - 1, position.y - 1, position.x - 1, 0);
+        });
+        updateVoxelGeometry();
+        break;
+      }
     case ActionTypes.VOXEL_UNDO:
     case ActionTypes.VOXEL_UNDO_SEEK:
     case ActionTypes.VOXEL_REDO:
