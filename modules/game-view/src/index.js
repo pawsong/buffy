@@ -213,15 +213,24 @@ export default (htmlElement, store, api) => {
   planeGeometry.rotateX( - Math.PI / 2 );
   planeGeometry.translate( PIXEL_UNIT, 0, PIXEL_UNIT );
 
+  const planes = {};
+
   store.on('terrain', terrain => {
     const { loc, color } = terrain;
 
-    const material = new THREE.MeshBasicMaterial({ color: color, side: THREE.FrontSide });
-    const plane = new THREE.Mesh(planeGeometry, material);
-    plane.position.x = loc.x * BOX_SIZE;
-    plane.position.z = loc.y * BOX_SIZE;
+    const key = `${loc.x}_${loc.y}`;
 
-    scene.add(plane);
+    let plane = planes[key];
+    if (!plane) {
+      const material = new THREE.MeshBasicMaterial({
+        side: THREE.FrontSide,
+      });
+      plane = planes[key] = new THREE.Mesh(planeGeometry, material);
+      plane.position.x = loc.x * BOX_SIZE;
+      plane.position.z = loc.y * BOX_SIZE;
+      scene.add(plane);
+    }
+    plane.material.color.setHex(color);
   });
 
   store.on('voxels', ({ id, data }) => {
