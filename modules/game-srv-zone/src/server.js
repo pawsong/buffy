@@ -1,6 +1,7 @@
 // Run patch in entry point
 import Promise from 'bluebird';
 import cors from 'cors';
+import mongoose from 'mongoose';
 global.Promise = Promise;
 
 import ioHandler from './io';
@@ -16,6 +17,8 @@ app.use(cors());
 ioHandler(io);
 
 (async () => {
+  mongoose.connect(iConfig.mongoUri);
+
   await new Promise(resolve => {
     http.listen(iConfig.gameServerPort, err => err ? reject(err) : resolve());
   });

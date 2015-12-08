@@ -35,5 +35,22 @@ export default {
     serialize: (x, y, duration) => {
       return { x, y, duration };
     },
-  }
+  },
+
+  /**
+   * Play effect
+   *
+   * @param x {number} x position
+   * @param y {number} y position
+   */
+  setTerrain: {
+    protocol: Protocol.IO,
+
+    access: Access.PUBLIC,
+
+    serialize: (x, y, color) => {
+      return { x, y, color };
+    },
+  },
+
 }

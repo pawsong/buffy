@@ -97,6 +97,10 @@ GameStore.handle('init', function (data) {
     this.watchObject(object);
     this.emit('create', object);
   });
+
+  data.terrains.forEach(terrain => {
+    this.emit('terrain', terrain);
+  });
 });
 
 GameStore.handle('create', function (data) {
@@ -116,6 +120,10 @@ GameStore.handle('move', function (data) {
     return;
   }
   object.tween.import(data.tween);
+});
+
+GameStore.handle('terrain', function(data) {
+  this.emit('terrain', data.terrain);
 });
 
 GameStore.handle('voxels', function (data) {

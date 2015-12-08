@@ -1,14 +1,19 @@
 import shortid from 'shortid';
 import objects from './ServerObjectManager';
+import Terrain from './models/Terrain';
 
 const SPEED = 0.005;
 
 export default function (io, socket) {
   const user = objects.create({ id: shortid.generate(), ...socket.user });
 
-  socket.emit('init', {
-    me: { id: user.id },
-    objects: user.getSerializedObjectsInRange(),
+  // TODO Get terrain info from memory
+  Terrain.find({}, (err, terrains) => {
+    socket.emit('init', {
+      me: { id: user.id },
+      objects: user.getSerializedObjectsInRange(),
+      terrains,
+    });
   });
 
   // Emit move event to manager.
@@ -52,5 +57,18 @@ export default function (io, socket) {
 
   socket.on('voxels', data => {
     socket.emit('voxels', { id: user.id, data });
+  });
+
+  socket.on('setTerrain', async (msg) => {
+    const { x, y, color } = msg;
+
+    // TODO: Check permission
+    const terrain = await Terrain.findOneAndUpdate({
+      loc: { x, y },
+    }, {
+      color,
+    }, { new: true, upsert: true }).exec();
+
+    io.emit('terrain', { terrain });
   });
 };

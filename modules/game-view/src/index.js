@@ -209,6 +209,21 @@ export default (htmlElement, store, api) => {
     objects = {};
   });
 
+  const planeGeometry = new THREE.PlaneGeometry(BOX_SIZE, BOX_SIZE);
+  planeGeometry.rotateX( - Math.PI / 2 );
+  planeGeometry.translate( PIXEL_UNIT, 0, PIXEL_UNIT );
+
+  store.on('terrain', terrain => {
+    const { loc, color } = terrain;
+
+    const material = new THREE.MeshBasicMaterial({ color: color, side: THREE.FrontSide });
+    const plane = new THREE.Mesh(planeGeometry, material);
+    plane.position.x = loc.x * BOX_SIZE;
+    plane.position.z = loc.y * BOX_SIZE;
+
+    scene.add(plane);
+  });
+
   store.on('voxels', ({ id, data }) => {
     const object = objects[id];
     for (let i = object.children.length - 1; i >= 0; --i) {
