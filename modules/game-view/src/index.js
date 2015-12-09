@@ -198,6 +198,8 @@ export default (htmlElement, store, api) => {
     // Move
     object.position.x = pos.x;
     object.position.z = pos.z;
+
+    camera.position.copy(object.position);
   });
 
   store.on('destroyAll', () => {
