@@ -5,24 +5,25 @@ import TWEEN from '@pasta/tween.js';
 import {
   User,
 } from '@pasta/mongodb';
+import Promise from 'bluebird';
 
 import routes from './routes';
+
+const jwtVerify = Promise.promisify(jwt.verify);
 
 export default io => {
   io.use(function (socket, next) {
     const cookies = cookie.parse(socket.request.headers.cookie);
     const token = cookies.tt;
 
-    (async () => {
-      const decoded = await new Promise((resolve, reject) => {
-        jwt.verify(token, iConfig.jwtSecret, (err, user) => err ? reject(err) : resolve(user));
-      });
-
-      // TODO: Load object from db.
+    jwtVerify(token, iConfig.jwtSecret).then(decoded => {
+      return User.findById(decoded.id).exec();
+    }).then(user => {
       socket.user = {
-        position: { x: 0, y: 0 },
+        id: user.id,
+        position: { x: user.loc.pos.x || 0, y: user.loc.pos.y || 0 },
       };
-    })().then(next).catch(next);
+    }).then(next).catch(next);
   });
 
   io.on('connection', function(socket) {

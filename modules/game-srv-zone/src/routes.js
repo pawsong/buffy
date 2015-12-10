@@ -1,6 +1,7 @@
 import shortid from 'shortid';
 import objects from './ServerObjectManager';
 import {
+  User,
   Terrain,
 } from '@pasta/mongodb';
 
@@ -9,6 +10,12 @@ import * as map from './map';
 const SPEED = 0.005;
 
 export default function (io, socket) {
+  // TODO: Comprehensive session management needed.
+  const alreadyConnected = !!objects.find(socket.user.id);
+  if (alreadyConnected) {
+    return socket.disconnect();
+  }
+
   const user = objects.create({ id: shortid.generate(), ...socket.user });
 
   // TODO Get terrain info from memory
@@ -44,6 +51,13 @@ export default function (io, socket) {
 
   socket.on('disconnect', function() {
     objects.destroy(user.id);
+
+    User.findByIdAndUpdate(user.id, {
+      'loc.pos.x': Math.round(user.position.x),
+      'loc.pos.y': Math.round(user.position.y),
+    }).exec().catch(err => {
+      console.error(err);
+    });
   });
 
   socket.on('voxels', data => {

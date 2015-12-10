@@ -142,7 +142,7 @@ export default (htmlElement, store, api) => {
   }, false);
 
   let objects = {};
-  store.on('create', obj => {
+  store.on('create', function (obj) {
     if (obj.type === 'effect') {
       return effectManager.create('fire', obj.options.duration, obj.position);
     }
@@ -164,7 +164,12 @@ export default (htmlElement, store, api) => {
     scene.add( object );
   });
 
-  store.on('move', (obj, to, from) => {
+  store.on('init', function () {
+    const object = objects[this.me.id];
+    camera.position.copy(object.position);
+  });
+
+  store.on('move', function (obj, to, from) {
     const object = objects[obj.id];
 
     // Rotate
@@ -178,7 +183,9 @@ export default (htmlElement, store, api) => {
     object.position.x = pos.x;
     object.position.z = pos.z;
 
-    camera.position.copy(object.position);
+    if (obj.id === this.me.id) {
+      camera.position.copy(object.position);
+    }
   });
 
   store.on('destroyAll', () => {

@@ -9,6 +9,10 @@ const secrets = [
 const UserSchema = new Schema({
   fb_id: { type: String, sparse: true, unique: true },
   picture: { type: String },
+  loc: {
+    map: { type: Schema.ObjectId },
+    pos: { x: Number, y: Number, },
+  },
 });
 
 // Duplicate the ID field.

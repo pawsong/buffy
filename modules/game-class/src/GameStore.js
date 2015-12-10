@@ -101,6 +101,8 @@ GameStore.handle('init', function (data) {
   data.terrains.forEach(terrain => {
     this.emit('terrain', terrain);
   });
+
+  this.emit('init');
 });
 
 GameStore.handle('create', function (data) {
