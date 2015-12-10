@@ -2,7 +2,10 @@ import React from 'react';
 import { History } from 'react-router';
 import { connect } from 'react-redux';
 import facebook from '../libs/facebook';
-import { loginWithFacebook } from '../libs/auth';
+import {
+  loginWithFacebook,
+  loginAnonymously,
+} from '../libs/auth';
 import {
   SET_USER_DATA,
 } from '../constants/ActionTypes';
@@ -53,6 +56,16 @@ class Login extends React.Component {
     });
   }
 
+  handleAnonymouseLogin() {
+    loginAnonymously().then(result => {
+      this.props.setUser(result);
+      const { location, history } = this.props;
+      history.replaceState(null, location.query.n || '/', {});
+    }).catch(err => {
+      console.error(err);
+    });
+  }
+
   render() {
     return (
       <div style={styles.container}>
@@ -61,7 +74,10 @@ class Login extends React.Component {
             <img src="/assets/fox.jpg"/>
           </CardMedia>
           <CardActions style={styles.button}>
-            <FlatButton label="Login with facebook" onClick={this.handleClick.bind(this)}/>
+            <FlatButton label="Login Anonymously"
+              onClick={this.handleAnonymouseLogin.bind(this)}/>
+            <FlatButton label="Login with facebook"
+              onClick={this.handleClick.bind(this)}/>
           </CardActions>
         </Card>
       </div>

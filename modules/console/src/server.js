@@ -79,7 +79,18 @@ function loadStaticAsset(file, webpackServerPort) {
     try {
       const store = createStore(rootReducer);
 
-      const user = !req.user ? null : await User.findById(req.user.id);
+      let user;
+      if (!req.user) {
+        user = null;
+      } else if (req.user.anonymous) {
+        user = {
+          id: req.user.id,
+          profile: '',
+        };
+      } else {
+        user = await User.findById(req.user.id);
+      }
+
       store.dispatch({ type: 'SET_USER_DATA', user })
 
       const { redirectLocation, renderProps } = await new Promise((resolve, reject) => {

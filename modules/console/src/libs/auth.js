@@ -9,3 +9,12 @@ export function loginWithFacebook(token) {
       console.log(err);
     });
 }
+
+export function loginAnonymously(token) {
+  return request
+    .post('/api/login/anonymous')
+    .exec()
+    .catch(err => {
+      console.log(err);
+    });
+}

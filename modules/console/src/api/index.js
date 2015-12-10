@@ -17,6 +17,23 @@ const DOMAIN = config.domain ? '.' + config.domain : '';
 const api = express();
 
 api.use(bodyParser.json());
+api.post('/login/anonymous', wrap(async (req, res) => {
+  const token = jwt.sign({
+    id: new User()._id, // Fake ID generator
+    anonymous: true,
+  }, iConfig.jwtSecret);
+
+  res.cookie('tt' /* tiat token */, token, {
+    domain: DOMAIN,
+    httpOnly: true,
+    maxAge: 2592000000, // 1 Month
+  });
+
+  res.send({
+    picture: '',
+  });
+}));
+
 api.post('/login/facebook', wrap(async (req, res) => {
   const { token: fbToken } = req.body || {};
 
