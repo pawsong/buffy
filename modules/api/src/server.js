@@ -5,7 +5,7 @@ global.Promise = Promise;
 
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-import mongoose from 'mongoose';
+import { mongoose } from '@pasta/mongodb';
 import jwt from 'express-jwt';
 
 import routes from './routes';

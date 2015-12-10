@@ -1,4 +1,7 @@
+import THREE from 'three';
+
 function createExplosion(scene, maxAge, position) {
+  window.THREE = THREE; // SPE requires this
   const SPE = require('shader-particle-engine/build/SPE');
 
   const group = new SPE.Group( {

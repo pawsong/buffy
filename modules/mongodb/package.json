@@ -1,0 +1,19 @@
+{
+  "name": "@pasta/mongodb",
+  "version": "0.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "built:main": "lib/index.js",
+  "scripts": {
+    "clean": "../../node_modules/.bin/rimraf lib",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "link": "node ../../tools/link",
+    "prepublish": "npm run link && npm run build",
+    "build": "npm run clean && npm run build:lib",
+    "build:lib": "../../node_modules/.bin/babel src --out-dir lib"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^4.3.0"
+  }
+}

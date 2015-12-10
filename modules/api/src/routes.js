@@ -1,5 +1,5 @@
 import { wrap } from '@pasta/helper-internal';
-import VoxelWorkspace from './models/VoxelWorkspace';
+import { VoxelWorkspace } from '@pasta/mongodb';
 
 export default app => {
   app.get('/', (req, res) => {

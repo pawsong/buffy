@@ -6,7 +6,7 @@ import gm from 'gm';
 import r from 'request';
 import shortid from 'shortid';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import { User } from '@pasta/mongodb';
 import s3 from '../s3';
 import config from '@pasta/config-public';
 import iConfig from '@pasta/config-internal';

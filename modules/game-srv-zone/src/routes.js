@@ -1,6 +1,8 @@
 import shortid from 'shortid';
 import objects from './ServerObjectManager';
-import Terrain from './models/Terrain';
+import {
+  Terrain,
+} from '@pasta/mongodb';
 
 import * as map from './map';
 

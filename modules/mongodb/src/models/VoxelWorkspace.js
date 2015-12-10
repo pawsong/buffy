@@ -21,4 +21,4 @@ const VoxelWorkspaceSchema = new Schema({
   modifiedAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('VoxelWorkspace', VoxelWorkspaceSchema);
+module.exports = mongoose.model('VoxelWorkspace', VoxelWorkspaceSchema);

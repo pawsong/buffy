@@ -7,4 +7,4 @@ const ScriptSchema = new Schema({
   createdAt: { type: Date, default: Date.now, expires: 60 * 5 },
 });
 
-export default mongoose.model('Script', ScriptSchema);
+module.exports = mongoose.model('Script', ScriptSchema);

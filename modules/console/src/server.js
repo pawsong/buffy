@@ -28,8 +28,10 @@ import { provideHairdresserContext } from './hairdresser';
 import api from './api';
 import code from './code';
 
-import mongoose from 'mongoose';
-import User from './models/User';
+import {
+  mongoose,
+  User,
+} from '@pasta/mongodb';
 
 const HairdresserProvider = provideHairdresserContext(Provider);
 

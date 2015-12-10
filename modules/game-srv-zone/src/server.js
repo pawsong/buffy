@@ -1,7 +1,7 @@
 // Run patch in entry point
 import Promise from 'bluebird';
 import cors from 'cors';
-import mongoose from 'mongoose';
+import { mongoose } from '@pasta/mongodb';
 global.Promise = Promise;
 
 import ioHandler from './io';

@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import request from 'superagent';
-import Script from '../models/Script';
+import { Script } from '@pasta/mongodb';
 import config from '@pasta/config-public';
 import iConfig from '@pasta/config-internal';
 import fs from 'fs';

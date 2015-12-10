@@ -5,4 +5,4 @@ const TerrainSchema = new Schema({
   color: Number,
 });
 
-export default mongoose.model('Terrain', TerrainSchema);
+module.exports = mongoose.model('Terrain', TerrainSchema);
