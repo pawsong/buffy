@@ -2,29 +2,18 @@ import shortid from 'shortid';
 import objects from './ServerObjectManager';
 import Terrain from './models/Terrain';
 
+import * as map from './map';
+
 const SPEED = 0.005;
 
 export default function (io, socket) {
   const user = objects.create({ id: shortid.generate(), ...socket.user });
 
   // TODO Get terrain info from memory
-  Terrain.find({}, (err, terrains) => {
-    socket.emit('init', {
-      me: { id: user.id },
-      objects: user.getSerializedObjectsInRange(),
-      terrains,
-    });
-  });
-
-  // Emit move event to manager.
-  user.tween.onStart(() => {
-  });
-
-  user.tween.onUpdate((value, newPos) => {
-    console.log(value);
-  });
-
-  user.tween.onStop(() => {
+  socket.emit('init', {
+    me: { id: user.id },
+    objects: user.getSerializedObjectsInRange(),
+    terrains: Object.keys(map.terrains).map(key => map.terrains[key]),
   });
 
   socket.on('move', msg => {
@@ -69,6 +58,7 @@ export default function (io, socket) {
       color,
     }, { new: true, upsert: true }).exec();
 
+    map.setTerrain(terrain);
     io.emit('terrain', { terrain });
   });
 };

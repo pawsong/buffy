@@ -43,26 +43,6 @@ export default (htmlElement, store, api) => {
 
   const effectManager = createEffectManager(scene);
 
-  // Grid
-  var line_material = new THREE.LineBasicMaterial( { color: 0x303030 } ),
-    geometry = new THREE.Geometry(),
-    step = BOX_SIZE;
-
-  const floor = 0;
-
-  for ( var i = 0; i <= 40; i ++ ) {
-    geometry.vertices.push( new THREE.Vector3( - GRID_SIZE, floor, i * step - GRID_SIZE ) );
-    geometry.vertices.push( new THREE.Vector3(   GRID_SIZE, floor, i * step - GRID_SIZE ) );
-
-    geometry.vertices.push( new THREE.Vector3( i * step - GRID_SIZE, floor, -GRID_SIZE ) );
-    geometry.vertices.push( new THREE.Vector3( i * step - GRID_SIZE, floor,  GRID_SIZE ) );
-  }
-
-  var line = new THREE.LineSegments( geometry, line_material );
-  scene.add( line );
-
-  // Tiles
-
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
 
@@ -81,7 +61,6 @@ export default (htmlElement, store, api) => {
   scene.add( rollOverPlane );
 
   // Cubes
-
   var geometry = new THREE.BoxGeometry( BOX_SIZE, BOX_SIZE, BOX_SIZE );
   var material = new THREE.MeshLambertMaterial( { color: 0xffffff, shading: THREE.FlatShading, overdraw: 0.5 } );
 
@@ -118,7 +97,7 @@ export default (htmlElement, store, api) => {
 
               raycaster.setFromCamera( mouse, camera );
 
-              const intersects = raycaster.intersectObjects([ plane ]);
+              const intersects = raycaster.intersectObjects(planeList);
               if (intersects.length === 0) {
                 return;
               }
@@ -144,7 +123,7 @@ export default (htmlElement, store, api) => {
 
               raycaster.setFromCamera( mouse, camera );
 
-              const intersects = raycaster.intersectObjects([ plane ]);
+              const intersects = raycaster.intersectObjects(planeList);
               if (intersects.length === 0) {
                 return;
               }
@@ -155,9 +134,9 @@ export default (htmlElement, store, api) => {
 
               position.copy( intersect.point ).add( intersect.face.normal );
               position
-              .divideScalar( BOX_SIZE )
-              .floor()
-              .addScalar(1);
+                .divideScalar( BOX_SIZE )
+                .floor()
+                .addScalar(1);
 
               api.move('', position.x, position.z);
   }, false);
@@ -216,6 +195,7 @@ export default (htmlElement, store, api) => {
   planeGeometry.translate( PIXEL_UNIT, 0, PIXEL_UNIT );
 
   const planes = {};
+  const planeList = [];
 
   store.on('terrain', terrain => {
     const { loc, color } = terrain;
@@ -228,8 +208,9 @@ export default (htmlElement, store, api) => {
         side: THREE.FrontSide,
       });
       plane = planes[key] = new THREE.Mesh(planeGeometry, material);
-      plane.position.x = loc.x * BOX_SIZE;
-      plane.position.z = loc.y * BOX_SIZE;
+      planeList.push(plane);
+      plane.position.x = (loc.x - 1) * BOX_SIZE;
+      plane.position.z = (loc.y - 1) * BOX_SIZE;
       scene.add(plane);
     }
     plane.material.color.setHex(color);
