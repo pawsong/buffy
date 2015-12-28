@@ -23,8 +23,6 @@ import config from '@pasta/config-public';
 
 import io from 'socket.io-client';
 
-import createView from '@pasta/game-view';
-
 import {
   Protocol,
   createAdapter,
@@ -184,7 +182,9 @@ class Master extends React.Component {
 
     const api = this.createAdapter(socket);
     const elem = document.getElementById('game');
-    const view = createView(elem, viewStore, api);
+
+    const { initGameView } = require('@pasta/game-view');
+    const view = initGameView(elem, viewStore, api);
 
     const voxelEditorElem = document.getElementById('voxelEditor');
 
@@ -212,7 +212,7 @@ class Master extends React.Component {
       codeStore.update(dt);
 
       // Update view
-      view.render(dt);
+      //view.render(dt);
       //voxelEditor.render(dt);
     }
     update();
