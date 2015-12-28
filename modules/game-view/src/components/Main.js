@@ -14,6 +14,8 @@ const MINI_PIXEL_SIZE = BOX_SIZE / PIXEL_NUM;
 const GRID_SIZE = BOX_SIZE * 10;
 
 function initMainView(htmlElement, store, api) {
+  const container = htmlElement;
+
   const windowWidth = htmlElement.offsetWidth;
   const windowHeight = htmlElement.offsetHeight;
 
@@ -137,6 +139,18 @@ function initMainView(htmlElement, store, api) {
 
               api.move('', position.x, position.z);
   }, false);
+  window.addEventListener('resize', onWindowResize, false);
+
+  function onWindowResize() {
+    camera.left = container.offsetWidth / - 2;
+    camera.right = container.offsetWidth / 2;
+    camera.top = container.offsetHeight / 2;
+    camera.bottom = container.offsetHeight / - 2;
+    camera.updateProjectionMatrix()
+
+    renderer.setSize( container.offsetWidth, container.offsetHeight )
+  }
+
 
   let objects = {};
   store.on('create', function (obj) {
