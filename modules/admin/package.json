@@ -1,0 +1,20 @@
+{
+  "name": "@pasta/admin",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prepublish": "../../node_modules/.bin/tsd install",
+    "start": "node tools/run",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "link": "node ../../tools/link"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.3"
+  },
+  "link": [
+    "../config-internal"
+  ]
+}
