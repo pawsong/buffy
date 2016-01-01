@@ -4,17 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prepublish": "../../node_modules/.bin/tsd install",
+    "prepublish": "npm run install:link && npm run install:tsd && npm run build",
+    "clean": "../../node_modules/.bin/rimraf lib build",
     "start": "node tools/run",
+    "build": "npm run clean && npm run build:lib && npm run build:app",
+    "build:lib": "tsc",
+    "build:app": "../../node_modules/.bin/webpack --config tools/webpack/app.prod.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "link": "node ../../tools/link"
+    "install:tsd": "../../node_modules/.bin/tsd install",
+    "install:link": "node ../../tools/link"
   },
+  "publicAssets": "build/public/*.js",
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "request": "^2.67.0"
   },
   "link": [
-    "../config-internal"
+    "../config-internal",
+    "../config-public"
   ]
 }

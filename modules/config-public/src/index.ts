@@ -31,7 +31,7 @@ if (process.env.NODE_ENV !== 'production') {
     'https://pasta-prod.s3-ap-northeast-1.amazonaws.com/';
 
   _adminPublicPath =
-    'https://pasta-admin.s3-ap-northeast-1.amazonaws.com/';
+    'https://pasta-prod.s3-ap-northeast-1.amazonaws.com/';
 
   _gameServerUrl =
     `http://zone.html5.computer`;

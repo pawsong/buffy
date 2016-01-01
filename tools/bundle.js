@@ -72,7 +72,7 @@ modules.forEach(module => {
       main,
 
       // Do not link and build
-      scripts: { link: ' ', build: ' ' },
+      scripts: { prepublish: ' ' },
     }, pkg), null, '  ')
   );
 });
@@ -87,6 +87,12 @@ fs.copySync(
 fs.copySync(
   path.resolve(root, 'tools'),
   path.resolve(bundlePath, 'tools')
+);
+
+// _book
+fs.copySync(
+  path.resolve(root, '_book'),
+  path.resolve(bundlePath, '_book')
 );
 
 // processes.json

@@ -36,6 +36,11 @@ export const apiServerPort: number = 9300;
 export const adminServerPort: number = 9400;
 
 /**
+ * Port of console webpack dev server for app
+ */
+export const adminWebpackAppPort: number = 9401;
+
+/**
  * Compiler server url
  */
 export const compilerUrl: string =
