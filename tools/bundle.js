@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs-extra');
-const rimraf = require('rimraf');
+const del = require('del');
 const pkgDir = require('pkg-dir');
 const _ = require('lodash');
 const exec = require('child_process').execSync;
@@ -14,7 +14,11 @@ const untar = path.resolve(root, 'node_modules/.bin/targz');
 const bundlePath = path.resolve(root, 'bundle');
 
 // Reset
-rimraf.sync(bundlePath);
+del.sync([
+  `${bundlePath}/**`,
+  `!${bundlePath}`,
+  `!${bundlePath}/.git`,
+]);
 fs.mkdirsSync(path.resolve(bundlePath, 'modules'));
 
 const modules = fs.readdirSync(path.resolve(root, 'modules'));
@@ -52,7 +56,7 @@ modules.forEach(module => {
 
   // TODO: Investigation
   // Some node_modules are remaining... npm bug?
-  rimraf.sync(path.resolve(destPath, 'node_modules'));
+  del.sync(path.resolve(destPath, 'node_modules'));
 
   // Override package.json
   const dependencies = {};
