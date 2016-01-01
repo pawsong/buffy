@@ -1,11 +1,13 @@
 import * as express from 'express';
-import * as iConfig from '@pasta/config-internal';
+import {
+  adminServerPort,
+} from '@pasta/config-internal';
 
 import routes from './routes';
 
 const app = express();
 routes(app);
 
-app.listen(iConfig.adminServerPort, function () {
-  console.log(`Listening at ${iConfig.adminServerPort}`);
+app.listen(adminServerPort, function () {
+  console.log(`Listening at ${adminServerPort}`);
 });
