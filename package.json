@@ -10,7 +10,8 @@
     "docs:clean": "rimraf _book",
     "docs:prepare": "gitbook install",
     "docs:build": "npm run docs:prepare && gitbook build -g rackt/redux",
-    "docs:watch": "npm run docs:prepare && gitbook serve"
+    "docs:watch": "npm run docs:prepare && gitbook serve",
+    "start": "node tools/autoCompile"
   },
   "directories": {
     "example": "examples",
@@ -30,6 +31,7 @@
     "babel-preset-react": "^6.3.13",
     "bluebird": "^3.0.6",
     "chai": "^3.4.0",
+    "cli-color": "^1.1.0",
     "file-loader": "^0.8.4",
     "fs-extra": "^0.26.2",
     "git-push": "^0.1.1",
@@ -41,7 +43,9 @@
     "pkg-dir": "^1.0.0",
     "pm2-deploy": "^0.2.1",
     "sinon": "^1.17.2",
+    "sprintf-js": "^1.0.3",
     "tar.gz": "^1.0.2",
+    "ts-loader": "^0.7.2",
     "tsd": "^0.6.5",
     "typescript": "^1.7.5",
     "webpack": "^1.12.9",
