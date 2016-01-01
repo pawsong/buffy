@@ -1,6 +1,7 @@
-import EventEmitter from 'eventemitter3';
-
 class GameObjectManager {
+  private _objs: any;
+  private _class: any;
+  
   constructor(objClass) {
 
     // TODO: should we use indexed object?

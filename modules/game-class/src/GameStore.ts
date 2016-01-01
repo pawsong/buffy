@@ -1,8 +1,23 @@
-import EventEmitter from 'eventemitter3';
+//import * as EventEmitter from 'eventemitter3';
 import GameObjectManager from './GameObjectManager';
 import GameObject from './GameObject';
+import EventEmitter = require('eventemitter3');
+
+export interface RouteHandler {
+  (data: any): void;
+}
 
 class GameStore extends EventEmitter {
+  static Routes: { [index: string]: RouteHandler } = {};
+  
+  static handle(event: string, handler: RouteHandler) {
+    GameStore.Routes[event] = handler;
+  };
+  
+  objects: GameObjectManager;
+  me: GameObject;
+  _emitter: any;
+  
   constructor(objClass) {
     // EventEmitter takes no init argument.
     super();
@@ -37,8 +52,8 @@ class GameStore extends EventEmitter {
     }
     this._emitter = emitter;
 
-    Object.keys(this.Routes).forEach(event => {
-      emitter.on(event, this.Routes[event].bind(this));
+    Object.keys(GameStore.Routes).forEach(event => {
+      emitter.on(event, GameStore.Routes[event].bind(this));
     });
     return this;
   }
@@ -48,7 +63,7 @@ class GameStore extends EventEmitter {
       throw new Error('Not connected');
     }
 
-    const events = Object.keys(this.Routes);
+    const events = Object.keys(GameStore.Routes);
 
     const listeners = {};
     events.forEach(event => {
@@ -64,26 +79,21 @@ class GameStore extends EventEmitter {
       });
     };
   }
+  
+  watchObject(object) {
+    object.tween.onStart(() => {
+      this.emit('start', object);
+    });
+
+    object.tween.onUpdate((value, newPos) => {
+      this.emit('move', object, newPos, object.position);
+    });
+
+    object.tween.onStop(() => {
+      this.emit('stop', object);
+    });
+  };
 }
-
-GameStore.prototype.watchObject = function (object) {
-  object.tween.onStart(() => {
-    this.emit('start', object);
-  });
-
-  object.tween.onUpdate((value, newPos) => {
-    this.emit('move', object, newPos, object.position);
-  });
-
-  object.tween.onStop(() => {
-    this.emit('stop', object);
-  });
-};
-
-GameStore.prototype.Routes = {};
-GameStore.handle = function (event, handler) {
-  GameStore.prototype.Routes[event] = handler;
-};
 
 /*
  * Socket event handlers

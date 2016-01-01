@@ -7,6 +7,7 @@ const clc = require('cli-color');
 const packages = {
   'config-internal': 11,
   'config-public': 12,
+  'game-class': 120,
 };
 
 const maxPkgNameLen =
