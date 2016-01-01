@@ -37,6 +37,7 @@
     "fs-extra": "^0.26.2",
     "git-push": "^0.1.1",
     "gitbook-cli": "^1.0.1",
+    "gitignore-parser": "0.0.2",
     "html-webpack-plugin": "^1.6.2",
     "lodash": "^3.10.1",
     "mocha": "^2.3.3",

@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 const del = require('del');
 const pkgDir = require('pkg-dir');
 const _ = require('lodash');
+const parser = require('gitignore-parser');
 const exec = require('child_process').execSync;
 
 const root = pkgDir.sync(__dirname);
@@ -21,7 +22,8 @@ del.sync([
 ]);
 fs.mkdirsSync(path.resolve(bundlePath, 'modules'));
 
-const modules = fs.readdirSync(path.resolve(root, 'modules'));
+const gitignore = parser.compile(fs.readFileSync(__dirname + '/../.gitignore', 'utf8'));
+const modules = fs.readdirSync(path.resolve(root, 'modules')).filter(gitignore.accepts);
 
 modules.forEach(module => {
   console.log(`Import ${module}`);
