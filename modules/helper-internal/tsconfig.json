@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "lib",
+    "declaration": true
+  },
+  "exclude": [
+    "node_modules",
+    "lib",
+    ".vscode"
+  ]
+}
