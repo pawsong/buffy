@@ -1,3 +1,5 @@
+'use strict';
+
 import { wrap } from '@pasta/helper-internal';
 import { VoxelWorkspace } from '@pasta/mongodb';
 
@@ -19,7 +21,7 @@ export default app => {
 
   app.get('/voxel-workspaces/:owner/:name', wrap(async (req, res) => {
     const owner = req.params.owner === 'me' ? req.user.id : req.params.owner;
-    const { name } = req.params;
+    const name = req.params.name;
 
     const workspace = await VoxelWorkspace.findOne({
       owner,
