@@ -1,6 +1,6 @@
 // Run patch in entry point
-import Promise from 'bluebird';
-import cors from 'cors';
+import * as Promise from 'bluebird';
+import * as cors from 'cors';
 import { mongoose } from '@pasta/mongodb';
 global.Promise = Promise;
 
@@ -12,7 +12,7 @@ const io = require('socket.io')(http);
 
 import { initMap } from './map';
 
-import iConfig from '@pasta/config-internal';
+import * as iConfig from '@pasta/config-internal';
 
 app.use(cors());
 

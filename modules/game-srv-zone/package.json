@@ -5,13 +5,13 @@
   "main": "index.js",
   "built:main": "lib/index.js",
   "scripts": {
-    "clean": "../../node_modules/.bin/rimraf lib",
-    "start": "../../node_modules/.bin/nodemon --watch src src/entry.js",
+    "prepublish": "npm run install:link && npm run install:tsd && npm run build",
+    "start": "node scripts/run",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "link": "node ../../tools/link",
-    "prepublish": "npm run link && npm run build",
-    "build": "npm run clean && npm run build:lib",
-    "build:lib": "../../node_modules/.bin/babel src --out-dir lib"
+    "clean": "../../node_modules/.bin/rimraf lib",
+    "build": "npm run clean && ../../node_modules/.bin/tsc",
+    "install:tsd": "../../node_modules/.bin/tsd install",
+    "install:link": "node ../../tools/link"
   },
   "author": "",
   "license": "ISC",

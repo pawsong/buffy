@@ -8,20 +8,18 @@ import {
   Terrain,
 } from '@pasta/mongodb';
 
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 export let terrains = {};
 
 export function setTerrain(terrain) {
-  const { x, y } = terrain.loc;
-  terrains[`${x}_${y}`] = terrain;
+  terrains[`${terrain.loc.x}_${terrain.loc.y}`] = terrain;
 }
 
 export const initMap = async () => {
   const result = await Terrain.find({});
 
   result.forEach(terrain => {
-    const { x, y } = terrain.loc;
     setTerrain(terrain);
   });
 }

@@ -1,4 +1,4 @@
-import shortid from 'shortid';
+import * as shortid from 'shortid';
 import objects from './ServerObjectManager';
 import {
   User,
@@ -9,14 +9,16 @@ import * as map from './map';
 
 const SPEED = 0.005;
 
-export default function (io, socket) {
+export default (io, socket) => {
   // TODO: Comprehensive session management needed.
   const alreadyConnected = !!objects.find(socket.user.id);
   if (alreadyConnected) {
     return socket.disconnect();
   }
 
-  const user = objects.create({ id: shortid.generate(), ...socket.user });
+  const user = objects.create(Object.assign({
+    id: shortid.generate(),
+  }, socket.user));
 
   // TODO Get terrain info from memory
   socket.emit('init', {
@@ -65,13 +67,11 @@ export default function (io, socket) {
   });
 
   socket.on('setTerrain', async (msg) => {
-    const { x, y, color } = msg;
-
     // TODO: Check permission
     const terrain = await Terrain.findOneAndUpdate({
-      loc: { x, y },
+      loc: { x: msg.x, y: msg.y },
     }, {
-      color,
+      color: msg.color,
     }, { new: true, upsert: true }).exec();
 
     map.setTerrain(terrain);

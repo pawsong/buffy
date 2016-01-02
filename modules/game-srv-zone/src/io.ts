@@ -1,11 +1,11 @@
-import cookie from 'cookie';
-import jwt from 'jsonwebtoken';
-import iConfig from '@pasta/config-internal';
-import TWEEN from '@pasta/tween.js';
+import * as cookie from 'cookie';
+import * as jwt from 'jsonwebtoken';
+import * as iConfig from '@pasta/config-internal';
+import * as TWEEN from '@pasta/tween.js';
 import {
   User,
 } from '@pasta/mongodb';
-import Promise from 'bluebird';
+import * as Promise from 'bluebird';
 
 import routes from './routes';
 
@@ -14,9 +14,9 @@ const jwtVerify = Promise.promisify(jwt.verify);
 export default io => {
   io.use(function (socket, next) {
     const cookies = cookie.parse(socket.request.headers.cookie);
-    const token = cookies.tt;
+    const token = cookies['tt'];
 
-    jwtVerify(token, iConfig.jwtSecret).then(decoded => {
+    jwtVerify(token, iConfig.jwtSecret).then((decoded: { id: string }) => {
       return User.findById(decoded.id).exec();
     }).then(user => {
       socket.user = {
