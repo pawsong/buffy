@@ -2,12 +2,15 @@
   "name": "@pasta/helper-public",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
-  "jsnext:main": "src/index.js",
-  "scripts": {
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {    
+    "prepublish": "npm run install:link && npm run install:tsd && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "link": "node ../../tools/link",
-    "prepublish": "npm run link"
+    "install:link": "node ../../tools/link",
+    "install:tsd": "../../node_modules/.bin/tsd install",
+    "clean": "../../node_modules/.bin/rimraf lib",
+    "build": "npm run clean && ../../node_modules/.bin/tsc"
   },
   "author": "",
   "license": "ISC"

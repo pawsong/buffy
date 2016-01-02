@@ -8,6 +8,7 @@ const packages = {
   'config-internal': 11,
   'config-public': 12,
   'game-class': 120,
+  'helper-public': 202,
 };
 
 const maxPkgNameLen =
