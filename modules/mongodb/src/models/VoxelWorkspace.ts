@@ -1,8 +1,9 @@
-import mongoose, { Schema } from 'mongoose';
+import * as mongoose from 'mongoose';
+const { Schema } = mongoose;
 
 // TODO: Store data in aws s3
 const VoxelWorkspaceSchema = new Schema({
-  owner: { type: Schema.ObjectId, ref: 'User' },
+  owner: { type: Schema.Types.ObjectId, ref: 'User' },
   name: { type: String },
 
   // data: {

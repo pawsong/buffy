@@ -11,6 +11,7 @@ const packages = {
   'game-api': 159,
   'helper-public': 202,
   'helper-internal': 163,
+  'mongodb': 231,
 };
 
 const maxPkgNameLen =
