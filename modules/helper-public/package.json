@@ -4,7 +4,7 @@
   "description": "",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
-  "scripts": {    
+  "scripts": {
     "prepublish": "npm run install:link && npm run install:tsd && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "install:link": "node ../../tools/link",
