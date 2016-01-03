@@ -12,6 +12,7 @@ const packages = {
   'helper-public': 202,
   'helper-internal': 163,
   'mongodb': 231,
+  'voxel-editor': 25,
 };
 
 const maxPkgNameLen =

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "outDir": "lib",
+    "declaration": true,
+    "jsx": "react"
+  },
+  "exclude": [
+    "node_modules",
+    "lib",
+    ".vscode"
+  ]
+}

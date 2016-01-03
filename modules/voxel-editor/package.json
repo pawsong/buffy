@@ -2,15 +2,15 @@
   "name": "@pasta/voxel-editor",
   "version": "1.0.0",
   "description": "Voxel Editor",
-  "main": "src/index.js",
-  "built:main": "lib/index.js",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "scripts": {
-    "clean": "../../node_modules/.bin/rimraf lib",
+    "prepublish": "npm run install:link && npm run install:tsd && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "link": "node ../../tools/link",
-    "prepublish": "npm run link && npm run build",
-    "build": "npm run clean && npm run build:lib",
-    "build:lib": "../../node_modules/.bin/babel src --out-dir lib"
+    "install:link": "node ../../tools/link",
+    "install:tsd": "../../node_modules/.bin/tsd install",
+    "clean": "../../node_modules/.bin/rimraf lib",
+    "build": "npm run clean && ../../node_modules/.bin/tsc"
   },
   "license": "ISC",
   "dependencies": {
@@ -21,6 +21,7 @@
     "ndarray": "^1.0.18",
     "ndarray-fill": "^1.0.1",
     "object-assign": "^4.0.1",
+    "react-addons-update": "^0.14.5",
     "react-color": "^1.2.1",
     "react-dnd": "^2.0.2",
     "react-dnd-html5-backend": "^2.0.0",
@@ -37,6 +38,7 @@
     "bluebird": "^3.0.5"
   },
   "link": [
-    "../helper-public"
+    "../helper-public",
+    "../config-public"
   ]
 }
