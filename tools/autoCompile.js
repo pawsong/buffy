@@ -1,6 +1,9 @@
+const Childminder = require('childminder').Childminder;
 const spawn = require('child_process').spawn;
 const sprintf = require("sprintf-js").sprintf;
 const clc = require('cli-color');
+
+const cm = new Childminder();
 
 // Value is xTerm color code.
 // Refer to: https://github.com/medikoo/cli-color
@@ -19,21 +22,11 @@ const maxPkgNameLen =
   Math.max.apply(Math, Object.keys(packages).map(pkg => pkg.length)) + '[ ]'.length;
 
 function compileAndWatch(pkg) {
-  const color = clc.xterm(packages[pkg]);
-
-  function print(data) {
-    const msg = data.toString().trim();
-    if (!msg) { return; }
-    process.stdout.write(color(sprintf(`%-${maxPkgNameLen}s`, `[${pkg}]`)));
-    console.log(msg);
-  }
-
-  const child = spawn(__dirname + '/../node_modules/.bin/tsc', ['--watch'], {
+  cm.create(__dirname + '/../node_modules/.bin/tsc', ['--watch'], {
     cwd: __dirname + `/../modules/${pkg}`,
+    prefix: pkg,
+    prefixColor: packages[pkg],
   });
-
-  child.stdout.on('data', print);
-  child.stderr.on('data', print);
 }
 
 Object.keys(packages).forEach(compileAndWatch);
