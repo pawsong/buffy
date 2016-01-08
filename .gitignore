@@ -5,3 +5,4 @@ bundle
 _book
 .DS_Store
 .idea
+.test
