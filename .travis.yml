@@ -1,7 +1,19 @@
+os:
+  - linux
+sudo: false
 language: node_js
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
 node_js:
   - "4"
   - "5"
-sudo: false
+install:
+  - export CXX=g++-4.8
+  - $CXX --version
+  - npm install
 script:
   - echo Build Success
