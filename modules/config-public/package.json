@@ -8,10 +8,9 @@
     "prepublish": "npm run link && npm run build",
     "link": "node ../../tools/link",
     "clean": "../../node_modules/.bin/rimraf lib",
-    "build": "npm run clean && ../../node_modules/.bin/tsc",
-    "build:watch": "npm run clean && ../../node_modules/.bin/tsc --watch",
+    "build": "npm run clean && ../../node_modules/.bin/gulp build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:watch": "../../node_modules/.bin/tsc --watch"
+    "test:watch": "../../node_modules/.bin/gulp test:watch"
   },
   "author": "",
   "license": "ISC",
