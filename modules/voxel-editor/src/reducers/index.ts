@@ -5,11 +5,11 @@ import { workspace } from './workspace'
 import { tool } from './tool'
 
 const rootReducer = combineReducers({
-  voxel,
-  voxelOp,
-  color,
-  workspace,
-  tool,
+  voxel: voxel,
+  voxelOp: voxelOp,
+  color: color,
+  workspace: workspace,
+  tool: tool,
 })
 
 export default rootReducer

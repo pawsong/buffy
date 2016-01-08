@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es5",
-    "outDir": "lib",
+    "moduleResolution": "node",
+    "target": "es6",
+    "outDir": ".tsc_out",
     "declaration": true,
-    "jsx": "react"
+    "sourceMap": true
   },
   "exclude": [
-    "node_modules",
     "lib",
-    ".vscode"
+    "node_modules",
+    ".tsc_out"
   ]
 }
