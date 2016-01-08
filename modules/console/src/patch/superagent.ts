@@ -1,5 +1,5 @@
-import Promise from 'bluebird';
-import superagent from 'superagent';
+import * as Promise from 'bluebird';
+import * as superagent from 'superagent';
 
 superagent.Request.prototype.exec = function () {
   const req = this;

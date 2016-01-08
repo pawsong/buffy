@@ -1,0 +1,14 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "rules": {
+    "func-names": 0,
+    "id-length": 0
+  },
+  "extends": [
+    "airbnb/base"
+  ]
+}

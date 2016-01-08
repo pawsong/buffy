@@ -1,15 +1,15 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import request from 'superagent';
-import zlib from 'zlib';
-import gm from 'gm';
-import r from 'request';
-import shortid from 'shortid';
-import jwt from 'jsonwebtoken';
+import * as express from 'express';
+import * as bodyParser from 'body-parser';
+import * as request from 'superagent';
+import * as zlib from 'zlib';
+import * as gm from 'gm';
+import * as r from 'request';
+import * as shortid from 'shortid';
+import * as jwt from 'jsonwebtoken';
 import { User } from '@pasta/mongodb';
 import s3 from '../s3';
-import config from '@pasta/config-public';
-import iConfig from '@pasta/config-internal';
+import * as config from '@pasta/config-public';
+import * as iConfig from '@pasta/config-internal';
 import { wrap } from '@pasta/helper-internal';
 
 const DOMAIN = config.domain ? '.' + config.domain : '';
@@ -35,7 +35,7 @@ api.post('/login/anonymous', wrap(async (req, res) => {
 }));
 
 api.post('/login/facebook', wrap(async (req, res) => {
-  const { token: fbToken } = req.body || {};
+  const fbToken = (req.body || {}).token;
 
   // Request data with token.
   let profile;
@@ -59,20 +59,20 @@ api.post('/login/facebook', wrap(async (req, res) => {
 
   if (!user) {
     const pictureUrl = profile.picture.data.url;
-    const { headers } = await new Promise((resolve, reject) => {
+    const { headers } = await new Promise<{ headers: any }>((resolve, reject) => {
       r.head(pictureUrl, (err, res) => err ? reject(err) : resolve(res));
     });
 
     const stdout = await new Promise((resolve, reject) => {
-      gm(r(pictureUrl))
-        .resize('128', '128')
+      gm(r(pictureUrl) as any)
+        .resize(128, 128)
         .stream((err, stdout, stderr) => {
           if (err) { return reject(err); }
           resolve(stdout);
         });
     });
 
-    const data = await new Promise((resolve, reject) => {
+    const data = await new Promise<{ Location: any }>((resolve, reject) => {
       s3.upload({
         Bucket: iConfig.s3Bucket,
         Key: `profiles/${profile.id}/${shortid.generate()}`,

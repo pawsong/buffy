@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import {
   Avatar,
@@ -11,17 +11,19 @@ import {
   IconButton,
 } from 'material-ui';
 
-import Menu from 'material-ui/lib/menus/menu';
-import MenuItem from 'material-ui/lib/menus/menu-item';
-import IconMenu from 'material-ui/lib/menus/icon-menu';
+import * as MaterialUI from 'material-ui';
+
+const Menu: typeof __MaterialUI.Menus.Menu = require('material-ui/lib/menus/menu');
+const MenuItem: typeof __MaterialUI.Menus.MenuItem = require('material-ui/lib/menus/menu-item');
+const IconMenu: typeof __MaterialUI.Menus.IconMenu = require('material-ui/lib/menus/icon-menu');
 
 import {
   SET_USER_DATA,
 } from '../constants/ActionTypes';
-import request from 'superagent';
-import config from '@pasta/config-public';
+import * as request from 'superagent';
+import * as config from '@pasta/config-public';
 
-import io from 'socket.io-client';
+import * as io from 'socket.io-client';
 
 import {
   Protocol,
@@ -31,7 +33,6 @@ import {
 import {
   GameObject,
   GameStore,
-  ObjectManager,
 } from '@pasta/game-class';
 
 const snippet =
@@ -110,9 +111,17 @@ const styles = {
   },
 };
 
-class TabTemplate extends React.Component {
+interface TabTemplateProps extends React.Props<TabTemplate> {
+  selected: boolean;
+}
+
+class TabTemplate extends React.Component<TabTemplateProps, {}> {
   render() {
-    let styles = {
+    let styles: {
+      width: string;
+      height: string;
+      display?: string;
+    } = {
       'width': '100%',
       'height': '100%',
     };
@@ -129,7 +138,18 @@ class TabTemplate extends React.Component {
   }
 };
 
-class Master extends React.Component {
+interface MasterProps extends React.Props<Master> {
+  user: any;
+  setUser: any;
+  history: any;
+}
+
+class Master extends React.Component<MasterProps, {}> {
+  child: any;
+  editor: AceAjax.Editor;
+  _socket: SocketIOClient.Socket;
+  codeStore: GameStore;
+
   constructor(props) {
     super(props);
 
@@ -170,7 +190,7 @@ class Master extends React.Component {
     this.initilizeEditor();
 
     // Initialize socket
-    const socket = this._socket = io(config.gameServerUrl);
+    const socket = this._socket = io.connect(config.gameServerUrl);
 
     // Initialize store for code
     const codeStore = this.codeStore = new GameStore();

@@ -1,5 +1,5 @@
-import React from 'react';
-import objectAssign from 'object-assign';
+import * as React from 'react';
+const objectAssign: any = require('object-assign');
 
 /**
  * The Hairdresser mixin provides a convenient way for
@@ -21,11 +21,19 @@ export const Hairdresser = {
   }
 }
 
-export function provideHairdresserContext(Component) {
+interface IHairdresserProvider {
+  (): void;
+  propTypes: any;
+  childContextTypes: any;
+}
+
+export function provideHairdresserContext(Component): any {
+  
   // Extend existing component.
-  function HairdresserProvider() {
-    Component.apply(this, arguments);
-  }
+  const HairdresserProvider: IHairdresserProvider = function() {
+    Component.apply(this, arguments);  
+  } as IHairdresserProvider;
+
   HairdresserProvider.prototype = Object.create(Component.prototype);
   HairdresserProvider.prototype.constructor = HairdresserProvider;
 
@@ -51,7 +59,14 @@ export function provideHairdresserContext(Component) {
   return HairdresserProvider;
 }
 
-export class HdTitle extends React.Component {
+export interface HdTitleProps extends React.Props<HdTitle> {
+}
+
+export class HdTitle extends React.Component<HdTitleProps, {}> {
+  static contextTypes: any;
+  override: any;
+  context: any;
+  
   componentWillMount() {
     this.override = this.context.hairdresser.override().title(() => {
       return String(this.props.children || '');
@@ -75,8 +90,8 @@ HdTitle.contextTypes = {
   hairdresser: React.PropTypes.object.isRequired,
 };
 
-function createEtcClass(displayName, tagName) {
-  return React.createClass({
+function createEtcClass<T, S>(displayName, tagName) {
+  return React.createClass<T, S>({
     displayName,
 
     propTypes: {
@@ -109,5 +124,10 @@ function createEtcClass(displayName, tagName) {
   });
 }
 
-export const HdMeta = createEtcClass('HdMeta', 'meta');
-export const HdLink = createEtcClass('HdLink', 'link');
+interface HdElementProps extends React.Props<{}> {
+  selector: any;
+  attrs: any;
+}
+
+export const HdMeta = createEtcClass<HdElementProps, {}>('HdMeta', 'meta');
+export const HdLink = createEtcClass<HdElementProps, {}>('HdLink', 'link');

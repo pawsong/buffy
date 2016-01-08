@@ -1,6 +1,8 @@
 import 'babel-polyfill';
-import Promise from 'bluebird';
-import EventEmitter from 'eventemitter3';
+import './patch/es.worker';
+
+import * as Promise from 'bluebird';
+const EventEmitter: EventEmitter3.EventEmitter3Static = require('eventemitter3');
 
 import {
   GameStore,
@@ -42,7 +44,7 @@ const { request, handleResponse } = (() => {
 
   function request(apiName, payload) {
     const id = genMsgId();
-    self.postMessage({ id, apiName, payload, type: 'api' });
+    (self as any).postMessage({ id, apiName, payload, type: 'api' });
     return new Promise((resolve, reject) => {
       requests[id] = { resolve, reject };
     });
@@ -88,7 +90,7 @@ store.connect(socket);
  *
  * consumed by core modules
  */
-self.$pasta = {};
+self.$pasta = {} as PastaContext;
 
 self.$pasta.api = createAdapter({
   [Protocol.IO]: (apiName, payload) => {

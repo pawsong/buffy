@@ -1,15 +1,16 @@
 /* eslint no-var: 0 */
-var webpack = require('webpack');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var config = require('@pasta/config-public');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const config = require('@pasta/config-public');
 const path = require('path');
 
 module.exports = {
-  entry: './src/app.js',
+  entry: './src/app.tsx',
 
   module: {
     loaders: [
       { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
+      { test: /\.ts(x?)$/, loader: 'babel-loader!ts-loader' },
     ],
   },
 
@@ -20,7 +21,7 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['', '.js'],
+    extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
     fallback: path.join(__dirname, '/../../node_modules'),
   },
 

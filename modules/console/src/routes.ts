@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import { Router, Route, Link, IndexRoute } from 'react-router'
 
 import App from './components/App';
@@ -26,7 +26,7 @@ export default store => {
     component: App,
     childRoutes: [{
       path: '/login',
-      onEnter: redirect(isAuthenticated, true, '/'),
+      onEnter: redirect(isAuthenticated, true, '/', undefined),
       component: Login,
     }, {
       path: '/',

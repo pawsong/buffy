@@ -1,4 +1,5 @@
 import 'babel-polyfill';
+import './patch/es.browser';
 
 //Needed for onTouchTap
 //Can go away when react 1.0 release
@@ -8,13 +9,13 @@ require('react-tap-event-plugin')();
 
 import './patch/superagent';
 
-import React from 'react'
+import * as React from 'react'
 import { render } from 'react-dom'
 import { createHistory, useQueries } from 'history';
 import { Router } from 'react-router'
 import { Provider } from 'react-redux';
 import routes from './routes';
-import Hairdresser from 'hairdresser';
+import * as Hairdresser from 'hairdresser';
 import { provideHairdresserContext } from './hairdresser';
 import { createStore } from 'redux';
 import rootReducer from './reducers';

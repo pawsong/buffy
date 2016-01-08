@@ -5,15 +5,16 @@
   "main": "app.js",
   "built:main": "lib/index.js",
   "scripts": {
-    "clean": "../../node_modules/.bin/rimraf lib build",
-    "start": "node tools/run.js",
+    "prepublish": "npm run install:link && npm run install:tsd && npm run build",
+    "start": "node tools/run",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "link": "node ../../tools/link",
-    "prepublish": "npm run link && npm run build",
+    "clean": "../../node_modules/.bin/rimraf lib build",
     "build": "npm run clean && npm run build:lib && npm run build:app && npm run build:worker",
-    "build:lib": "../../node_modules/.bin/babel src --out-dir lib",
+    "build:lib": "../../node_modules/.bin/tsc",
     "build:app": "../../node_modules/.bin/webpack --config tools/webpack/app.prod.js",
-    "build:worker": "../../node_modules/.bin/webpack --config tools/webpack/worker.prod.js"
+    "build:worker": "../../node_modules/.bin/webpack --config tools/webpack/worker.prod.js",
+    "install:tsd": "../../node_modules/.bin/tsd install",
+    "install:link": "node ../../tools/link"
   },
   "publicAssets": "build/public/*.js",
   "author": "",

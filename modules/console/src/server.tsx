@@ -1,15 +1,17 @@
 import 'babel-polyfill';
+import './patch/es.node';
+
 import './patch/superagent';
 
-import express from 'express';
-import fs from 'fs';
-import _ from 'lodash';
-import request from 'superagent';
-import Promise from 'bluebird';
-import React from 'react';
-import Hairdresser from 'hairdresser';
-import jwt from 'express-jwt';
-import cookieParser from 'cookie-parser';
+import * as express from 'express';
+import * as fs from 'fs';
+import * as _ from 'lodash';
+import * as request from 'superagent';
+import * as Promise from 'bluebird';
+import * as React from 'react';
+import * as Hairdresser from 'hairdresser';
+import * as jwt from 'express-jwt';
+import * as cookieParser from 'cookie-parser';
 
 import { renderToString } from 'react-dom/server'
 import { match, RoutingContext } from 'react-router'
@@ -20,8 +22,8 @@ import routes from './routes';
 
 import rootReducer from './reducers';
 
-import config from '@pasta/config-public';
-import iConfig from '@pasta/config-internal';
+import * as config from '@pasta/config-public';
+import * as iConfig from '@pasta/config-internal';
 
 import { provideHairdresserContext } from './hairdresser';
 
@@ -36,7 +38,7 @@ import {
 const HairdresserProvider = provideHairdresserContext(Provider);
 
 function loadStaticAsset(file, webpackServerPort) {
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     if (process.env.NODE_ENV !== 'production') {
       request.get(`http://localhost:${webpackServerPort}/${file}`).end(function(err, res){
         if (err) { return reject(err); }
@@ -95,17 +97,24 @@ function loadStaticAsset(file, webpackServerPort) {
 
       store.dispatch({ type: 'SET_USER_DATA', user })
 
-      const { redirectLocation, renderProps } = await new Promise((resolve, reject) => {
+      // function match(args: MatchArgs, cb: (error: any, nextLocation: H.Location, nextState: MatchState) => void): void
+
+      const matchRet = await new Promise<{
+        redirectLocation: any;
+        renderProps: any;
+      }>((resolve, reject) => {
         // Note that req.url here should be the full URL path from
         // the original request, including the query string.
         match({
           routes: routes(store),
-          location: req.url
+          location: req.url as any,
         }, (err, redirectLocation, renderProps) => {
           if (err) { return reject(err); }
           resolve({ redirectLocation, renderProps });
         });
       });
+      const redirectLocation = matchRet.redirectLocation;
+      const renderProps = matchRet.renderProps;
 
       if (redirectLocation) {
         return res.redirect(302, redirectLocation.pathname + redirectLocation.search)
@@ -120,7 +129,6 @@ function loadStaticAsset(file, webpackServerPort) {
         .map(component => component.fetchData());
 
       await Promise.all(requests);
-
 
       const hairdresser = Hairdresser.create();
 
@@ -146,7 +154,7 @@ function loadStaticAsset(file, webpackServerPort) {
       res.send(result);
     } catch(err) {
       console.error(err.stack);
-      res.status(500).send();
+      res.send(500);
     }
   });
 

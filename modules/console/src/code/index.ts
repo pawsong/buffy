@@ -1,11 +1,11 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import request from 'superagent';
+import * as express from 'express';
+import * as bodyParser from 'body-parser';
+import * as request from 'superagent';
 import { Script } from '@pasta/mongodb';
-import config from '@pasta/config-public';
-import iConfig from '@pasta/config-internal';
-import fs from 'fs';
-import _ from 'lodash';
+import * as config from '@pasta/config-public';
+import * as iConfig from '@pasta/config-internal';
+import * as fs from 'fs';
+import * as _ from 'lodash';
 
 const compilerUrl = `${iConfig.compilerUrl}/compile`;
 

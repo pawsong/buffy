@@ -1,4 +1,4 @@
-import request from 'superagent';
+import * as request from 'superagent';
 
 export function loginWithFacebook(token) {
   return request
@@ -10,7 +10,7 @@ export function loginWithFacebook(token) {
     });
 }
 
-export function loginAnonymously(token) {
+export function loginAnonymously() {
   return request
     .post('/api/login/anonymous')
     .exec()

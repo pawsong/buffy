@@ -1,8 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import { HdTitle, HdMeta, HdLink } from '../hairdresser';
 import { Styles } from 'material-ui';
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 const {
   ThemeManager,
@@ -14,7 +14,10 @@ const TITLE = 'TIAT Console Page';
 
 const CustomRawTheme = _.cloneDeep(LightRawTheme);
 
-class App extends React.Component {
+interface AppProps extends React.Props<App> {}
+
+class App extends React.Component<AppProps, {}> {
+  static childContextTypes: any;
 
   getChildContext() {
     return {

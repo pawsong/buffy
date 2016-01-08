@@ -18,7 +18,7 @@ class GameStore extends EventEmitter {
   me: GameObject;
   _emitter: any;
   
-  constructor(objClass) {
+  constructor() {
     // EventEmitter takes no init argument.
     super();
     this.objects = new GameObjectManager(GameObject);

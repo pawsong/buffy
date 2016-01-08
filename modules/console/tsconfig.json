@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "es6",
+    "moduleResolution": "node",
+    "target": "es6",
+    "outDir": "lib",
+    "jsx": "react",
+    "sourceMap": true
+  },
+  "exclude": [
+    "node_modules",
+    "lib",
+    ".vscode"
+  ]
+}

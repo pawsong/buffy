@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { History } from 'react-router';
 import { connect } from 'react-redux';
 import facebook from '../libs/facebook';
@@ -39,7 +39,13 @@ const styles = {
   },
 }
 
-class Login extends React.Component {
+interface LoginProps extends React.Props<Login> {
+  setUser: (user: any) => {};
+  location: any;
+  history: any;
+}
+
+class Login extends React.Component<LoginProps, {}> {
   handleClick() {
     facebook.retrieveToken().then(result => {
       if (!result) {

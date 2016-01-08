@@ -4,7 +4,7 @@ const ManifestPlugin = require('webpack-manifest-plugin');
 
 module.exports = {
   entry: {
-    worker: './src/worker.js',
+    worker: './src/worker.ts',
   },
 
   target: 'webworker',
@@ -12,6 +12,7 @@ module.exports = {
   module: {
     loaders: [
       { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
+      { test: /\.ts(x?)$/, loader: 'babel-loader!ts-loader' },
     ],
   },
 
@@ -22,7 +23,7 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['', '.js'],
+    extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
   },
 
   plugins: [

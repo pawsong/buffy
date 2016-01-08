@@ -42,12 +42,11 @@ Promise.all([
 ]).then(() => {
   // Run server
   nodemon({
-    // babel-node does not work well with nodemon,
-    // so use wrapper with babel-core/register.
-    cwd: __dirname,
-    script: '../src/entry.js',
+    exec: `(gulp build || exit 1) && node`,
+    script: `${__dirname}/../lib/server.js`,
+    ext: 'ts tsx',
     watch: [
-      '../src/**/*.js',
+      '../src/**/*.ts',
     ],
   }).on('log', function (data) {
     if (!data.type || data.type === 'detail') { return; }
