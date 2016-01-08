@@ -1,6 +1,6 @@
 'use strict';
 
-import { wrap } from '@pasta/helper-internal';
+import wrap from '@pasta/helper-internal/lib/wrap';
 import { VoxelWorkspace } from '@pasta/mongodb';
 
 export default app => {
