@@ -10,7 +10,8 @@
     "install:link": "node ../../tools/link",
     "install:tsd": "../../node_modules/.bin/tsd install",
     "clean": "../../node_modules/.bin/rimraf lib",
-    "build": "npm run clean && ../../node_modules/.bin/tsc"
+    "build": "npm run clean && ../../node_modules/.bin/tsc",
+    "test:watch": "../../node_modules/.bin/tsc --watch"
   },
   "link": [
     "../tween.js"

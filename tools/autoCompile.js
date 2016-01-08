@@ -22,7 +22,7 @@ const maxPkgNameLen =
   Math.max.apply(Math, Object.keys(packages).map(pkg => pkg.length)) + '[ ]'.length;
 
 function compileAndWatch(pkg) {
-  cm.create(__dirname + '/../node_modules/.bin/tsc', ['--watch'], {
+  cm.create('npm', ['run', 'test:watch'], {
     cwd: __dirname + `/../modules/${pkg}`,
     prefix: pkg,
     prefixColor: packages[pkg],

@@ -7,6 +7,7 @@
   "scripts": {
     "prepublish": "npm run install:link && npm run install:tsd && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "test:watch": "../../node_modules/.bin/tsc --watch",
     "install:link": "node ../../tools/link",
     "install:tsd": "../../node_modules/.bin/tsd install",
     "clean": "../../node_modules/.bin/rimraf lib",
