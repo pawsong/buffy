@@ -1,4 +1,5 @@
 // Run patch in entry point
+import 'babel-polyfill';
 import * as Promise from 'bluebird';
 import * as cors from 'cors';
 global.Promise = Promise;

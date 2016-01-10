@@ -6,7 +6,7 @@
   "built:main": "lib/index.js",
   "scripts": {
     "prepublish": "npm run install:link && npm run install:tsd && npm run build",
-    "start": "node scripts/run",
+    "start": "gulp serve:watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "../../node_modules/.bin/rimraf lib",
     "build": "npm run clean && ../../node_modules/.bin/tsc",
@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babel-polyfill": "^6.3.14",
     "bluebird": "^3.0.5",
     "body-parser": "^1.14.1",
     "cookie": "^0.2.3",
