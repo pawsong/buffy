@@ -14,7 +14,7 @@ import routes from './routes';
 const app = require('express')();
 const http = require('http').Server(app);
 
-import * as iConfig from '@pasta/config-internal';
+import * as iconf from '@pasta/config-internal';
 
 app.use(cookieParser());
 app.use(bodyParser.json({
@@ -26,7 +26,7 @@ app.use(cors({
 }));
 
 app.use(jwt({
-  secret: iConfig.jwtSecret,
+  secret: iconf.jwtSecret,
   credentialsRequired: false,
   getToken: req => req.cookies.tt,
 }));
@@ -34,12 +34,12 @@ app.use(jwt({
 routes(app);
 
 (async () => {
-  mongodb.mongoose.connect(iConfig.mongoUri);
+  mongodb.mongoose.connect(iconf.mongoUri);
 
   await new Promise((resolve, reject) => {
-    http.listen(iConfig.apiServerPort, err => err ? reject(err) : resolve());
+    http.listen(iconf.apiServerPort, err => err ? reject(err) : resolve());
   });
-  console.log(`Listening at *:${iConfig.apiServerPort}`);
+  console.log(`Listening at *:${iconf.apiServerPort}`);
 })().catch(err => {
   console.error(err.stack);
   process.exit(1);
