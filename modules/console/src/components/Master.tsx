@@ -48,13 +48,15 @@ tutil.loop(async () => {
   await tutil.sleep(2000);
 });`;
 
+const navbarHeight = 48;
+
 const styles = {
   tabs: {
     width: 400,
     marginLeft: 48,
   },
   toolbar: {
-    height: config.navbarHeight,
+    height: navbarHeight,
   },
   avatarContainer: {
     position: 'absolute',
@@ -67,21 +69,21 @@ const styles = {
   },
   content: {
     position: 'absolute',
-    top: config.navbarHeight,
+    top: navbarHeight,
     right: 0,
     bottom: 0,
     left: 0,
   },
   leftPane: {
     position: 'absolute',
-    top: config.navbarHeight,
+    top: navbarHeight,
     bottom: 0,
     left: 0,
     right: '50%',
   },
   rightPane: {
     position: 'absolute',
-    top: config.navbarHeight,
+    top: navbarHeight,
     bottom: 0,
     left: '50%',
     right: 0,
@@ -89,7 +91,7 @@ const styles = {
   },
   editor: {
     position: 'absolute',
-    top: config.navbarHeight,
+    top: navbarHeight,
     bottom: 0,
     left: 0,
     right: 0,
