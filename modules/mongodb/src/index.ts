@@ -1,7 +1,5 @@
-export const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
+import * as mongoose from 'mongoose';
 
-export const User = require('./models/User');
-export const Terrain = require('./models/Terrain');
-export const Script = require('./models/Script');
-export const VoxelWorkspace = require('./models/VoxelWorkspace');
+export default {
+  mongoose: mongoose,
+};

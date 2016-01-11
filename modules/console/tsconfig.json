@@ -3,14 +3,14 @@
     "module": "es6",
     "moduleResolution": "node",
     "target": "es6",
-    "outDir": "lib",
+    "outDir": ".tsc_out",
     "jsx": "react",
     "sourceMap": true
   },
   "exclude": [
-    "node_modules",
-    "lib",
     "build",
-    ".vscode"
+    "lib",
+    "node_modules",
+    ".tsc_out"
   ]
 }

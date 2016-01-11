@@ -7,6 +7,18 @@ const secrets = [
   '__v',
 ];
 
+export interface UserDocument extends mongoose.Document {
+  fb_id: string;
+  picture: string;
+  loc: {
+    map: mongoose.Types.ObjectId;
+    pos: {
+      x: number;
+      y: number;
+    }
+  }
+}
+
 const UserSchema = new Schema({
   fb_id: { type: String, sparse: true, unique: true },
   picture: { type: String },
@@ -30,4 +42,4 @@ UserSchema.set('toJSON', {
   },
 });
 
-module.exports = mongoose.model('User', UserSchema);
+export default mongoose.model<UserDocument>('User', UserSchema);

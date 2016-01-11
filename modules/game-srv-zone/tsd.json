@@ -12,7 +12,7 @@
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
     "node/node.d.ts": {
-      "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
+      "commit": "627b6c158b73494c803f36fc2fe00ad75faa8fde"
     },
     "cookie/cookie.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
@@ -35,8 +35,11 @@
     "cors/cors.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
-    "eventemitter3/eventemitter3.d.ts": {
-      "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
+    "mongoose/mongoose.d.ts": {
+      "commit": "627b6c158b73494c803f36fc2fe00ad75faa8fde"
+    },
+    "fbemitter/fbemitter.d.ts": {
+      "commit": "627b6c158b73494c803f36fc2fe00ad75faa8fde"
     }
   }
 }

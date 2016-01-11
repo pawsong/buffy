@@ -6,7 +6,7 @@ global.Promise = Promise;
 
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
-import { mongoose } from '@pasta/mongodb';
+import mongodb from '@pasta/mongodb';
 import * as jwt from 'express-jwt';
 
 import routes from './routes';
@@ -34,7 +34,7 @@ app.use(jwt({
 routes(app);
 
 (async () => {
-  mongoose.connect(iConfig.mongoUri);
+  mongodb.mongoose.connect(iConfig.mongoUri);
 
   await new Promise((resolve, reject) => {
     http.listen(iConfig.apiServerPort, err => err ? reject(err) : resolve());

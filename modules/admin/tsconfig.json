@@ -1,10 +1,16 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "outDir": "lib"
+    "module": "es6",
+    "moduleResolution": "node",
+    "target": "es6",
+    "outDir": ".tsc_out",
+    "jsx": "react",
+    "sourceMap": true
   },
   "exclude": [
+    "build",
+    "lib",
     "node_modules",
-    ".vscode"
+    ".tsc_out"
   ]
 }

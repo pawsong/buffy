@@ -30,15 +30,13 @@ import { provideHairdresserContext } from './hairdresser';
 import api from './api';
 import code from './code';
 
-import {
-  mongoose,
-  User,
-} from '@pasta/mongodb';
+import mongodb from '@pasta/mongodb';
+import User from '@pasta/mongodb/lib/models/User';
 
 const HairdresserProvider = provideHairdresserContext(Provider);
 
 (async () => {
-  mongoose.connect(iConfig.mongoUri);
+  mongodb.mongoose.connect(iConfig.mongoUri);
 
   const tmplDirName = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
   const tmplPath = `${__dirname}/../build/${tmplDirName}`;

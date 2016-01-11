@@ -6,7 +6,7 @@ import * as gm from 'gm';
 import * as r from 'request';
 import * as shortid from 'shortid';
 import * as jwt from 'jsonwebtoken';
-import { User } from '@pasta/mongodb';
+import User from '@pasta/mongodb/lib/models/User';
 import s3 from '../s3';
 import conf from '@pasta/config-public';
 import * as iConfig from '@pasta/config-internal';
@@ -55,7 +55,7 @@ api.post('/login/facebook', wrap(async (req, res) => {
 
   let user = await User.findOne({
     'fb_id': profile.id,
-  });
+  }).exec();
 
   if (!user) {
     const pictureUrl = profile.picture.data.url;

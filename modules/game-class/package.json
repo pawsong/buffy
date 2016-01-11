@@ -22,6 +22,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "eventemitter3": "^1.1.1"
+    "fbemitter": "^2.0.1"
   }
 }

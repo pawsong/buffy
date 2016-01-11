@@ -1,5 +1,8 @@
+declare const require;
+
 import { createStore, bindActionCreators } from 'redux';
-import objectAssign = require('object-assign');
+const objectAssign: any = require('object-assign');
+
 import reducers from '../reducers';
 import * as VoxelActions from '../actions/voxel';
 import * as SpriteActions from '../actions/sprite';

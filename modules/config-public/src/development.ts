@@ -1,18 +1,18 @@
 import { PastaConfig } from './index';
 
-const iConfig = require('@pasta/config-internal');
+const iconf = require('@pasta/config-internal');
 
 const config: PastaConfig = {
-  consolePublicPath: `http://localhost:${iConfig.consoleWebpackAppPort}/`, 
-  
-  adminPublicPath: `http://localhost:${iConfig.adminWebpackAppPort}/`,
-  
-  gameServerUrl: `http://localhost:${iConfig.gameServerPort}`,
-  
-  apiServerUrl: `http://localhost:${iConfig.apiServerPort}`,
-  
+  consolePublicPath: `http://localhost:${iconf.consoleWebpackAppPort}/`,
+
+  adminPublicPath: `http://localhost:${iconf.adminWebpackAppPort}/`,
+
+  gameServerUrl: `http://localhost:${iconf.gameServerPort}`,
+
+  apiServerUrl: `http://localhost:${iconf.apiServerPort}`,
+
   facebookAppId: '1127122043982378',
-  
+
   domain: '',
 };
 

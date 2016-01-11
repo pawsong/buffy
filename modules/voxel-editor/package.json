@@ -18,7 +18,7 @@
   },
   "license": "ISC",
   "dependencies": {
-    "eventemitter3": "^1.1.1",
+    "fbemitter": "^2.0.1",
     "flux": "^2.1.1",
     "get-pixels": "^3.2.3",
     "immutable": "^3.7.5",

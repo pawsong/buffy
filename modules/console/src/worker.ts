@@ -2,11 +2,9 @@ import 'babel-polyfill';
 import './patch/es.worker';
 
 import * as Promise from 'bluebird';
-const EventEmitter: EventEmitter3.EventEmitter3Static = require('eventemitter3');
+import { EventEmitter } from 'fbemitter';
 
-import {
-  GameStore,
-} from '@pasta/game-class';
+import GameStore from '@pasta/game-class/lib/GameStore';
 
 import {
   Protocol,
@@ -23,12 +21,10 @@ const { socket, handleSocket } = (() => {
   const ready = self.__ready;
   delete self.__ready;
 
-  const waitInit = function () {
-    socket.removeListener('init', waitInit);
-    // Next tick
-    setTimeout(ready, 0);
-  };
-  socket.addListener('init', waitInit);
+  const token = socket.addListener('init', function () {
+    token.remove();
+    setTimeout(ready, 0);  
+  });
 
   return { socket, handleSocket };
 })();

@@ -2,7 +2,7 @@
 import 'babel-polyfill';
 import * as Promise from 'bluebird';
 import * as cors from 'cors';
-import { mongoose } from '@pasta/mongodb';
+import mongodb from '@pasta/mongodb';
 global.Promise = Promise;
 
 import ioHandler from './io';
@@ -20,7 +20,7 @@ app.use(cors());
 ioHandler(io);
 
 (async () => {
-  mongoose.connect(iConfig.mongoUri);
+  mongodb.mongoose.connect(iConfig.mongoUri);
   await initMap();
 
   http.listen(iConfig.gameServerPort);

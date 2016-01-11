@@ -1,4 +1,4 @@
-import EventEmitter = require('eventemitter3');
+import { EventEmitter, EventSubscription } from 'fbemitter';
 import * as _ from 'lodash';
 
 export class State {
@@ -39,6 +39,10 @@ export class Fsm extends EventEmitter {
     this._states = _.mapValues(states, (value, key) => {
       return new State(this, key, _.defaults(value, defaultState));
     });
+  }
+  
+  on(eventType: string, callback: Function): EventSubscription {
+    return this.addListener(eventType, callback, this);
   }
 
   transition(state, args) {

@@ -1,9 +1,7 @@
 import * as shortid from 'shortid';
 import objects from './ServerObjectManager';
-import {
-  User,
-  Terrain,
-} from '@pasta/mongodb';
+import User from '@pasta/mongodb/lib/models/User';
+import Terrain from '@pasta/mongodb/lib/models/Terrain';
 
 import * as map from './map';
 
@@ -51,15 +49,16 @@ export default (io, socket) => {
     });
   });
 
-  socket.on('disconnect', function() {
+  socket.on('disconnect', async function() {
     objects.destroy(user.id);
-
-    User.findByIdAndUpdate(user.id, {
-      'loc.pos.x': Math.round(user.position.x),
-      'loc.pos.y': Math.round(user.position.y),
-    }).exec().catch(err => {
+    try {
+      await User.findByIdAndUpdate(user.id, {
+        'loc.pos.x': Math.round(user.position.x),
+        'loc.pos.y': Math.round(user.position.y),
+      }).exec();
+    } catch(err) {
       console.error(err);
-    });
+    }
   });
 
   socket.on('voxels', data => {

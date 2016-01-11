@@ -1,7 +1,6 @@
-//import * as EventEmitter from 'eventemitter3';
 import GameObjectManager from './GameObjectManager';
 import GameObject from './GameObject';
-import EventEmitter = require('eventemitter3');
+import { EventEmitter, EventSubscription } from 'fbemitter';
 
 export interface RouteHandler {
   (data: any): void;
@@ -9,19 +8,23 @@ export interface RouteHandler {
 
 class GameStore extends EventEmitter {
   static Routes: { [index: string]: RouteHandler } = {};
-  
+
   static handle(event: string, handler: RouteHandler) {
     GameStore.Routes[event] = handler;
   };
-  
+
   objects: GameObjectManager;
   me: GameObject;
   _emitter: any;
-  
+
   constructor() {
     // EventEmitter takes no init argument.
     super();
     this.objects = new GameObjectManager(GameObject);
+  }
+  
+  on(eventType: string, callback: Function): EventSubscription {
+    return this.addListener(eventType, callback, this);
   }
 
   serialize() {
@@ -79,7 +82,7 @@ class GameStore extends EventEmitter {
       });
     };
   }
-  
+
   watchObject(object) {
     object.tween.onStart(() => {
       this.emit('start', object);

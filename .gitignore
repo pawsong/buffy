@@ -6,3 +6,4 @@ _book
 .DS_Store
 .idea
 .test
+.tsc_out

@@ -1,6 +1,14 @@
 import * as mongoose from 'mongoose';
 const { Schema } = mongoose;
 
+export interface VoxelWorkspaceDocument extends mongoose.Document {
+  owner: mongoose.Types.ObjectId;
+  name: string;
+  data: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
 // TODO: Store data in aws s3
 const VoxelWorkspaceSchema = new Schema({
   owner: { type: Schema.Types.ObjectId, ref: 'User' },
@@ -22,4 +30,4 @@ const VoxelWorkspaceSchema = new Schema({
   modifiedAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('VoxelWorkspace', VoxelWorkspaceSchema);
+export default mongoose.model<VoxelWorkspaceDocument>('VoxelWorkspace', VoxelWorkspaceSchema);

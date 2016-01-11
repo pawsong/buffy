@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as request from 'superagent';
-import { Script } from '@pasta/mongodb';
+import Script from '@pasta/mongodb/lib/models/Script';
 import * as iConfig from '@pasta/config-internal';
 import * as fs from 'fs';
 import * as _ from 'lodash';
@@ -37,11 +37,12 @@ app.post('/compile', wrap(async (req, res, next) => {
   const owner = req.user ? req.user.id : '';
 
   // Temporarily save in DB
-  const script = await new Script({
+  const script = new Script({
     owner,
     bundle: result.bundle,
     sourceMap: result.sourceMap,
-  }).save();
+  });
+  await script.save();
 
   res.send({
     url: `/code/worker/${script._id}`,
@@ -83,7 +84,7 @@ app.get('/worker/:id', wrap(async (req, res) => {
 
 app.get('/compiled/:id', wrap(async (req, res) => {
   const { id } = req.params;
-  const script = await Script.findById(id);
+  const script = await Script.findById(id).exec();
   if (!script) {
     return res.status(404).send();
   }

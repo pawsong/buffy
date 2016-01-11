@@ -30,10 +30,8 @@ import {
   createAdapter,
 } from '@pasta/game-api';
 
-import {
-  GameObject,
-  GameStore,
-} from '@pasta/game-class';
+import GameObject from '@pasta/game-class/lib/GameObject';
+import GameStore from '@pasta/game-class/lib/GameStore';
 
 const snippet =
 `import player from '@pasta/player';
@@ -192,7 +190,7 @@ class Master extends React.Component<MasterProps, {}> {
     this.initilizeEditor();
 
     // Initialize socket
-    const socket = this._socket = io.connect(conf.gameServerUrl);
+    const socket = this._socket = io(conf.gameServerUrl);
 
     // Initialize store for code
     const codeStore = this.codeStore = new GameStore();
