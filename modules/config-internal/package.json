@@ -4,12 +4,15 @@
   "description": "",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "config": {
+    "bin": "../../node_modules/.bin"
+  },
   "scripts": {
     "prepublish": "npm run build",
-    "clean": "../../node_modules/.bin/rimraf lib",
-    "build": "npm run clean && ../../node_modules/.bin/gulp build",
+    "clean": "$npm_package_config_bin/rimraf lib",
+    "build": "npm run clean && $npm_package_config_bin/gulp build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:watch": "../../node_modules/.bin/gulp test:watch"
+    "test:watch": "$npm_package_config_bin/gulp test:watch"
   },
   "author": "",
   "license": "ISC"
