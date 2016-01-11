@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import * as express from 'express';
 import * as request from 'request';
 import * as fs from 'fs';
@@ -17,21 +18,18 @@ const app = express();
 // });
 
 app.use('/handbook', express.static(__dirname + '/../../../_book'));
-app.get('*', (req, res) => {
-  res.redirect('/handbook');
-});
 
-// if (process.env.NODE_ENV === 'development') {
-//   app.get('*', (req, res) => {
-//     request(`http://localhost:${adminWebpackAppPort}`).pipe(res)
-//   });
-// } else {
-//   // TODO: Read local index.html file
-//   //fs.readFileSync(__dirname + '/index.html
-//   app.get('*', (req, res) => {
-//     res.send({});
-//   });
-// }
+const tmplDirName = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
+const tmplPath = `${__dirname}/../build/${tmplDirName}`;
+
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/public', express.static(`${tmplPath}/public`));
+}
+
+const template = fs.readFileSync(`${tmplPath}/index.html`).toString();
+app.get('*', (req, res) => {
+  res.send(template);
+});
 
 app.listen(adminServerPort, function () {
   console.log(`Listening at ${adminServerPort}`);

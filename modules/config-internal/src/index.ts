@@ -41,6 +41,11 @@ export const adminServerPort: number = 9400;
 export const adminWebpackAppPort: number = 9401;
 
 /**
+ * Admin server frontend browser-sync port
+ */
+export const adminServerDevPort: number = 9402;
+
+/**
  * Compiler server url
  */
 export const compilerUrl: string =
