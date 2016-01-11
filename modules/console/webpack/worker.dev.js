@@ -1,13 +1,12 @@
 const webpack = require('webpack');
-const iConfig = require('@pasta/config-internal');
 const ManifestPlugin = require('webpack-manifest-plugin');
 
 module.exports = {
+  target: 'webworker',
+
   entry: {
     worker: './src/worker.ts',
   },
-
-  target: 'webworker',
 
   module: {
     loaders: [
@@ -17,9 +16,8 @@ module.exports = {
   },
 
   output: {
-    path: __dirname + '/build/public',
+    path: `${__dirname}/../build/dev/public`,
     filename: 'worker.js',
-    publicPath: `http://localhost:${iConfig.consoleWebpackWorkerPort}/`,
   },
 
   resolve: {

@@ -2,7 +2,6 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as request from 'superagent';
 import { Script } from '@pasta/mongodb';
-import * as config from '@pasta/config-public';
 import * as iConfig from '@pasta/config-internal';
 import * as fs from 'fs';
 import * as _ from 'lodash';
@@ -50,32 +49,23 @@ app.post('/compile', wrap(async (req, res, next) => {
 }));
 
 let envFile;
-let envFileHandler;
+let fileContent;
 
 if (process.env.NODE_ENV !== 'production') {
   envFile = 'worker.js';
-  envFileHandler = (req, res, next) => {
-    request
-      .get(`http://localhost:${iConfig.consoleWebpackWorkerPort}/worker.js`)
-      .buffer(true)
-      .end((err, resp) => {
-        if (err) { return next(err); }
-        res.set('Content-Type', 'application/javascript').send(resp.text);
-      });
-  };
+  fileContent = fs.readFileSync(`${__dirname}/../../build/dev/public/${envFile}`).toString();
 } else {
-  const manifest = require(__dirname + '/../../build/manifest.json');
+  const manifest = require(`${__dirname}/../../build/prod/manifest.json`);
   envFile = manifest['worker.js'];
-  const fileContent = fs.readFileSync(__dirname + `/../../build/${envFile}`).toString();
-  envFileHandler = (req, res) => {
-    res
-      .set('Content-Type', 'application/javascript')
-      .set('Cache-Control', 'public, max-age=31536000')
-      .send(fileContent);
-  };
+  fileContent = fs.readFileSync(`${__dirname}/../../build/prod/public/${envFile}`).toString();
 }
 
-app.get(`/env/${envFile}`, envFileHandler);
+app.get(`/env/${envFile}`, (req, res) => {
+  res
+    .set('Content-Type', 'application/javascript')
+    .set('Cache-Control', 'public, max-age=31536000')
+    .send(fileContent);
+});
 
 const template = fs.readFileSync(__dirname + '/template.js').toString();
 const compiledTmpl = _.template(template, {

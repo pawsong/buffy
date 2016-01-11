@@ -28,7 +28,6 @@ module.exports = function (options) {
   cache.set('srcTsProject', function () {
     return ts.createProject('tsconfig.json', {
       typescript,
-      declaration: true,
     });
   });
 

@@ -21,7 +21,7 @@ import {
   SET_USER_DATA,
 } from '../constants/ActionTypes';
 import * as request from 'superagent';
-import * as config from '@pasta/config-public';
+import conf from '@pasta/config-public';
 
 import * as io from 'socket.io-client';
 
@@ -192,7 +192,7 @@ class Master extends React.Component<MasterProps, {}> {
     this.initilizeEditor();
 
     // Initialize socket
-    const socket = this._socket = io.connect(config.gameServerUrl);
+    const socket = this._socket = io.connect(conf.gameServerUrl);
 
     // Initialize store for code
     const codeStore = this.codeStore = new GameStore();

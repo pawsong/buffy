@@ -22,7 +22,7 @@ import routes from './routes';
 
 import rootReducer from './reducers';
 
-import * as config from '@pasta/config-public';
+import conf from '@pasta/config-public';
 import * as iConfig from '@pasta/config-internal';
 
 import { provideHairdresserContext } from './hairdresser';
@@ -37,33 +37,21 @@ import {
 
 const HairdresserProvider = provideHairdresserContext(Provider);
 
-function loadStaticAsset(file, webpackServerPort) {
-  return new Promise<string>((resolve, reject) => {
-    if (process.env.NODE_ENV !== 'production') {
-      request.get(`http://localhost:${webpackServerPort}/${file}`).end(function(err, res){
-        if (err) { return reject(err); }
-        resolve(res.text);
-      });
-    } else {
-      const text = fs.readFileSync(__dirname + `/../build/public/${file}`).toString();
-      resolve(text);
-    }
-  });
-}
-
 (async () => {
   mongoose.connect(iConfig.mongoUri);
 
-  const template = await loadStaticAsset(
-    'index.html',
-    iConfig.consoleWebpackAppPort
-  );
+  const tmplDirName = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
+  const tmplPath = `${__dirname}/../build/${tmplDirName}`;
+  const template = fs.readFileSync(`${tmplPath}/index.html`).toString();
 
   const compiled = _.template(template, {
-    imports: { facebookAppId: config.facebookAppId },
+    imports: { facebookAppId: conf.facebookAppId },
   });
 
   const app = express();
+  if (process.env.NODE_ENV !== 'production') {
+    app.use('/public', express.static(`${tmplPath}/public`));
+  }
   app.use('/assets', express.static(__dirname + '/../public'));
   app.use('/api', api);
 

@@ -8,11 +8,11 @@ import * as shortid from 'shortid';
 import * as jwt from 'jsonwebtoken';
 import { User } from '@pasta/mongodb';
 import s3 from '../s3';
-import * as config from '@pasta/config-public';
+import conf from '@pasta/config-public';
 import * as iConfig from '@pasta/config-internal';
 import { wrap } from '@pasta/helper-internal';
 
-const DOMAIN = config.domain ? '.' + config.domain : '';
+const DOMAIN = conf.domain ? '.' + conf.domain : '';
 
 const api = express();
 

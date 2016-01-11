@@ -8,12 +8,7 @@ export const consolePort: number = 9000;
 /**
  * Port of console webpack dev server for app
  */
-export const consoleWebpackAppPort: number = 9001;
-
-/**
- * Port of console webpack dev server for worker
- */
-export const consoleWebpackWorkerPort: number = 9002;
+export const consoleDevPort: number = 9001;
 
 /**
  * Compiler server port

@@ -1,8 +1,5 @@
-/* eslint no-var: 0 */
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const config = require('@pasta/config-public/lib/development').default;
-const path = require('path');
 
 module.exports = {
   entry: './src/app.ts',
@@ -22,7 +19,7 @@ module.exports = {
 
   resolve: {
     extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
-    fallback: path.join(__dirname, '/../node_modules'),
+    fallback: `${__dirname}/../node_modules`,
   },
 
   plugins: [
