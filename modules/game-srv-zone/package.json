@@ -2,20 +2,25 @@
   "name": "@pasta/game-srv-zone",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
-  "built:main": "lib/index.js",
+  "main": "lib/server.js",
+  "config": {
+    "bin": "../../node_modules/.bin"
+  },
   "scripts": {
     "prepublish": "npm run install:link && npm run install:tsd && npm run build",
-    "start": "node scripts/run",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "../../node_modules/.bin/rimraf lib",
-    "build": "npm run clean && ../../node_modules/.bin/tsc",
-    "install:tsd": "../../node_modules/.bin/tsd install",
-    "install:link": "node ../../tools/link"
+    "install:link": "node ../../tools/link",
+    "install:tsd": "$npm_package_config_bin/tsd install",
+    "clean": "$npm_package_config_bin/rimraf lib",
+    "build": "npm run clean && $npm_package_config_bin/gulp build",
+    "test": "$npm_package_config_bin/gulp test",
+    "test:watch": "$npm_package_config_bin/gulp test:watch",
+    "serve": "$npm_package_config_bin/gulp serve:watch",
+    "start": "node $npm_package_main"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babel-polyfill": "^6.3.14",
     "bluebird": "^3.0.5",
     "cookie": "^0.2.3",
     "cors": "^2.7.1",

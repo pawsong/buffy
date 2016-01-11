@@ -2,8 +2,7 @@
   "name": "@pasta/api",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
-  "built:main": "lib/index.js",
+  "main": "lib/server.js",
   "config": {
     "bin": "../../node_modules/.bin"
   },
@@ -16,7 +15,7 @@
     "test": "$npm_package_config_bin/gulp test",
     "test:watch": "$npm_package_config_bin/gulp test:watch",
     "serve": "$npm_package_config_bin/gulp serve:watch",
-    "start": "node lib/server"
+    "start": "node $npm_package_main"
   },
   "author": "",
   "license": "ISC",
