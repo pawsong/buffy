@@ -7,6 +7,10 @@
   "config": {
     "bin": "../../node_modules/.bin"
   },
+  "files": [
+    "lib",
+    "src"
+  ],
   "scripts": {
     "prepublish": "npm run install:link && npm run build",
     "install:link": "node ../../tools/link",
