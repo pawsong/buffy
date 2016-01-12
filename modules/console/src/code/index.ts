@@ -57,7 +57,7 @@ if (process.env.NODE_ENV !== 'production') {
     res.send(fileContent);
   });
 } else {
-  const manifest = require(`raw!${__dirname}/../../build/prod/client/public/manifest.json`);
+  const manifest = require(`${__dirname}/../../build/prod/client/public/manifest.json`);
   envFile = manifest['worker.js'];
   const fileContent = fs.readFileSync(`${__dirname}/client/public/${envFile}`).toString();
   app.get(`/env/${envFile}`, (req, res) => {
