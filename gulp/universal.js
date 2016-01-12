@@ -26,10 +26,10 @@ function handleCompileError(done) {
     }
     const jsonStats = stats.toJson();
     if(jsonStats.errors.length > 0) {
-      return done(new Error(jsonStats.errors));
+      return done(new Error(jsonStats.errors.join('\n')));
     }
     if(jsonStats.warnings.length > 0) {
-      return done(new Error(jsonStats.warnings));
+      return done(new Error(jsonStats.warnings.join('\n')));
     }
     done();
   }
@@ -62,9 +62,7 @@ module.exports = function (options) {
 
   function compile(compiler) {
     return new Promise((resolve, reject) => {
-      compiler.run((error, stats) => {
-        handleCompileError(err => err ? reject(err) : resolve())(error, stats);
-      });
+      compiler.run(handleCompileError(err => err ? reject(err) : resolve()));
     });
   }
 
@@ -137,47 +135,45 @@ module.exports = function (options) {
   });
 
   // Serve: Serve built application
+  gulp.task('build:client:dev:watch', function () {
+    const compilerClientDev = cache.get('compilerClientDev');
+    return Promise.all(Object.keys(compilerClientDev).map(key => {
+      const compiler = compilerClientDev[key];
+      return new Promise((resolve, reject) => {
+        let hasDone = false;
+        compiler.watch({}, handleCompileError(err => {
+          if (!hasDone) {
+            hasDone = true;
+            return err ? reject(err) : resolve();
+          }
+          if (err) { return console.error(err); }
+          if (!browserSync.active) { return; }
+          browserSync.reload();
+        }));
+      });
+    }));
+  });
+
   gulp.task('build:server:dev:watch', ['build:client:dev:watch'], function (done) {
+    const compiler = cache.get('compilerServerDev');
+    const serverProc = cache.get('serverProc');
+
     let hasDone = false;
     function callback (err) {
+      if (err) { console.error(err); }
       if (hasDone) { return; }
       hasDone = true;
       done(err);
     }
-    cache.get('compilerServerDev').watch({}, (error, stats) => {
-      handleCompileError(function (err) {
-        if (err) { return callback(err); }
 
-        const serverProc = cache.get('serverProc');
-        return serverProc.startOrRestart().then(() => {
-          return tcpPortUsed.waitUntilUsed(opts.port, 100, 5000);
-        }).then(() => {
-          if (!browserSync.active) { return; }
-          browserSync.reload();
-        }).then(callback).catch(callback);
-      })(error, stats);
-    });
-  });
-
-  gulp.task('build:client:dev:watch', function () {
-    const compilerClientDev = cache.get('compilerClientDev');
-    return Promise.all(Object.keys(compilerClientDev).map(key => {
-      return new Promise((resolve, reject) => {
-        let hasDone = false;
-        function callback (err) {
-          if (hasDone) { return; }
-          hasDone = true;
-          err ? reject(err) : resolve();
-        }
-        const compiler = compilerClientDev[key];
-        compiler.watch({}, (error, stats) => {
-          handleCompileError(err => {
-            callback(err);
-            if (err || !browserSync.active) { return; }
-            browserSync.reload();
-          })(error, stats);
-        });
-      });
+    compiler.watch({}, handleCompileError(function (err) {
+      if (err) { return callback(err); }
+      return serverProc.startOrRestart().then(() => {
+        return tcpPortUsed.waitUntilUsed(opts.port, 100, 5000);
+      }).then(() => {
+        if (!browserSync.active) { return; }
+        browserSync.reload();
+      }).then(callback).catch(callback);
     }));
   });
 
