@@ -1,10 +1,10 @@
-import Promise from 'bluebird';
-import webpack from 'webpack';
-import MemoryFileSystem from 'memory-fs';
-import find from 'findit';
-import path from 'path';
-import shortid from 'shortid';
-import pkgUp from 'pkg-up';
+import * as Promise from 'bluebird';
+import * as webpack from 'webpack';
+import * as MemoryFileSystem from 'memory-fs';
+import * as find from 'findit';
+import * as path from 'path';
+import * as shortid from 'shortid';
+import * as pkgUp from 'pkg-up';
 
 const PASTA_MODULE_DIR = 'pasta_modules';
 
@@ -18,11 +18,11 @@ const coreDestDir = path.resolve(pkgDir, `${PASTA_MODULE_DIR}/\@pasta`);
 const inputDir = path.resolve(pkgDir, '.in');
 const outputDir = path.resolve(pkgDir, '.out');
 
-function findModuleFiles(root, done) {
+function findModuleFiles(root): Promise<any[]> {
   let err = null;
   const files = [];
 
-  return new Promise((resolve, reject) => {
+  return new Promise<any[]>((resolve, reject) => {
     const finder = find(root);
 
     finder.on('file', function (file, stat) {
@@ -44,7 +44,7 @@ function findModuleFiles(root, done) {
   });
 }
 
-function syncFileSystem(fileSystem, src, dest) {
+function syncFileSystem(fileSystem, src, dest): Promise<{}> {
   return findModuleFiles(src).then(files => {
 
     // Copy files from local fs to memory fs
@@ -80,13 +80,12 @@ function compile(source) {
   const bundleFilePath = path.resolve(outputDir, bundleFile);
 
   const compiler = webpack({
+    target: 'webworker',
     entry: entryFilePath,
-
     output: {
       path: outputDir,
       filename: bundleFile,
     },
-
     module: {
       loaders: [{
         test: /\.js$/,
@@ -102,6 +101,9 @@ function compile(source) {
           ],
           babelrc: false,
         },
+      }, { 
+        test: /\.ts(x?)$/, 
+        loader: 'ts-loader',
       }],
     },
 

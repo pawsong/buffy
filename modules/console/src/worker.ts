@@ -2,7 +2,7 @@ import 'babel-polyfill';
 import './patch/es.worker';
 
 import * as Promise from 'bluebird';
-import { EventEmitter } from 'fbemitter';
+import { EventEmitter, EventSubscription } from 'fbemitter';
 
 import GameStore from '@pasta/game-class/lib/GameStore';
 
@@ -11,9 +11,15 @@ import {
   createAdapter,
 } from '@pasta/game-api';
 
+class Emitter extends EventEmitter {
+  on(eventType: string, callback: Function): EventSubscription {
+    return this.addListener(eventType, callback, this);
+  }
+}
+
 // Fake socket
 const { socket, handleSocket } = (() => {
-  const socket = new EventEmitter();
+  const socket = new Emitter();
   function handleSocket(data) {
     return socket.emit(data.event, data.payload);
   }
@@ -23,7 +29,7 @@ const { socket, handleSocket } = (() => {
 
   const token = socket.addListener('init', function () {
     token.remove();
-    setTimeout(ready, 0);  
+    setTimeout(ready, 0);
   });
 
   return { socket, handleSocket };

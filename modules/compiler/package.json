@@ -3,15 +3,23 @@
   "version": "0.0.0",
   "description": "ES6 compiler with native modules",
   "main": "lib/server.js",
-  "scripts": {
-    "clean": "../../node_modules/.bin/rimraf lib",
-    "start": "../../node_modules/.bin/nodemon --watch src --watch ../game-core src/entry.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "link": "node ../../tools/link",
-    "prepublish": "npm run link && npm run build",
-    "build": "npm run clean && npm run build:lib",
-    "build:lib": "../../node_modules/.bin/babel src --out-dir lib"
+  "config": {
+    "bin": "../../node_modules/.bin"
   },
+  "scripts": {
+    "prepublish": "npm run install:link && npm run install:tsd && npm run build",
+    "install:link": "node ../../tools/link",
+    "install:tsd": "$npm_package_config_bin/tsd install",
+    "clean": "$npm_package_config_bin/rimraf lib",
+    "build": "npm run clean && $npm_package_config_bin/gulp build",
+    "test": "$npm_package_config_bin/gulp test",
+    "test:watch": "$npm_package_config_bin/gulp test:watch",
+    "serve": "$npm_package_config_bin/gulp serve:watch",
+    "start": "node $npm_package_main"
+  },
+  "files": [
+    "lib"
+  ],
   "license": "ISC",
   "dependencies": {
     "babel-core": "^6.1.2",
@@ -20,6 +28,7 @@
     "babel-plugin-syntax-object-rest-spread": "^6.0.14",
     "babel-plugin-transform-object-rest-spread": "^6.0.14",
     "babel-plugin-transform-regenerator": "^6.0.18",
+    "babel-polyfill": "^6.3.14",
     "babel-preset-es2015": "^6.1.2",
     "bluebird": "^3.0.5",
     "body-parser": "^1.14.1",
@@ -28,6 +37,7 @@
     "memory-fs": "^0.3.0",
     "pkg-up": "^1.0.0",
     "shortid": "^2.2.4",
+    "ts-loader": "^0.7.2",
     "webpack": "^1.12.3"
   },
   "link": [

@@ -1,9 +1,0 @@
-{
-  "presets": ["es2015-node5"],
-  "plugins": [
-    "syntax-async-functions",
-    "transform-async-to-generator",
-    "syntax-object-rest-spread",
-    "transform-object-rest-spread"
-  ]
-}

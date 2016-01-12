@@ -50,22 +50,23 @@ app.post('/compile', wrap(async (req, res, next) => {
 }));
 
 let envFile;
-let fileContent;
 if (process.env.NODE_ENV !== 'production') {
   envFile = 'worker.js';
-  fileContent = fs.readFileSync(`${__dirname}/client/public/${envFile}`).toString();
+  const fileContent = fs.readFileSync(`${__dirname}/client/public/${envFile}`).toString();
+  app.get(`/env/${envFile}`, (req, res) => {
+    res.send(fileContent);
+  });
 } else {
   const manifest = require(`raw!${__dirname}/../../build/prod/client/public/manifest.json`);
   envFile = manifest['worker.js'];
-  fileContent = fs.readFileSync(`${__dirname}/client/public/${envFile}`).toString();
+  const fileContent = fs.readFileSync(`${__dirname}/client/public/${envFile}`).toString();
+  app.get(`/env/${envFile}`, (req, res) => {
+    res
+      .set('Content-Type', 'application/javascript')
+      .set('Cache-Control', 'public, max-age=31536000')
+      .send(fileContent);
+  });
 }
-
-app.get(`/env/${envFile}`, (req, res) => {
-  res
-    .set('Content-Type', 'application/javascript')
-    .set('Cache-Control', 'public, max-age=31536000')
-    .send(fileContent);
-});
 
 const template = require('raw!./template.js');
 // fs.readFileSync(__dirname + '/template.js').toString();
