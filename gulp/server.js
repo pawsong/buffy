@@ -50,7 +50,7 @@ gulp.task('lint', ['lint:js', 'lint:ts']);
 gulp.task('build', function () {
   let compileError = null;
 
-  const tsResult = gulp.src([
+  return gulp.src([
     'typings/tsd.d.ts',
     'src/**/*.ts',
   ]).pipe(sourcemaps.init())

@@ -78,7 +78,7 @@ module.exports = function (options) {
   gulp.task('build:server', function () {
     let compileError = null;
 
-    const tsResult = gulp.src([
+    return gulp.src([
       'typings/tsd.d.ts',
       'src/**/*.ts',
     ]).pipe(sourcemaps.init())
