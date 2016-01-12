@@ -55,6 +55,7 @@
     "nodemon": "^1.8.0",
     "pkg-dir": "^1.0.0",
     "pm2-deploy": "^0.2.1",
+    "raw-loader": "^0.5.1",
     "run-sequence": "^1.1.5",
     "sinon": "^1.17.2",
     "source-map-support": "^0.4.0",

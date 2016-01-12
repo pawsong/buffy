@@ -18,14 +18,11 @@ const app = express();
 //   return res.redirect('/auth/login');
 // });
 
-app.use('/handbook', express.static(__dirname + '/../../../_book'));
+app.use('/handbook', express.static(`${__dirname}/../../../../_book`));
 
-let template;
+const template = fs.readFileSync(`${__dirname}/client/index.html`).toString();
 if (process.env.NODE_ENV !== 'production') {
-  template = fs.readFileSync(`${__dirname}/app/dev/index.html`).toString();
-  app.use('/public', express.static(`${__dirname}/app/dev/public`));
-} else {
-  template = fs.readFileSync(`${__dirname}/app/prod/index.html`).toString();
+  app.use('/public', express.static(`${__dirname}/client/public`));
 }
 
 app.get('*', (req, res) => {

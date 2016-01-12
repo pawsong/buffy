@@ -5,7 +5,7 @@ module.exports = {
   target: 'node',
   entry: './src/server.ts',
   output: {
-    path: `${__dirname}/../build`,
+    path: `${__dirname}/../build/dev`,
     filename: 'server.js',
     libraryTarget: 'commonjs2',
   },
@@ -24,7 +24,14 @@ module.exports = {
       request.match(/^[@a-z][a-z\/\.\-0-9]*$/i);
       cb(null, Boolean(isExternal));
   },
-  plugins: [],
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('development'),
+    }),
+    new webpack.BannerPlugin('require("source-map-support").install();', {
+      raw: true, entryOnly: false
+    }),
+  ],
   node: {
     __dirname: false,
   },

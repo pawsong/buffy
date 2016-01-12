@@ -105,7 +105,7 @@ fs.copySync(
 const appDecl = {
   apps: rootPkg.deployables.map(deployable => ({
     name: deployable,
-    script: `modules/${deployable}/lib/server.js`,
+    script: require(`./modules/${deployable}/package.json`).main,
     cwd: `modules/${deployable}`,
     env: {
       NODE_ENV: 'production'

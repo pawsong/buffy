@@ -4,7 +4,7 @@ const conf = require('@pasta/config-public/lib/production').default;
 
 module.exports = Object.assign({}, require('./app.dev'), {
   output: {
-    path: './build/prod/public',
+    path: `${__dirname}/../build/prod/client/public`,
     filename: 'bundle.[chunkhash].js',
     publicPath: conf.adminPublicPath,
   },

@@ -38,9 +38,7 @@ const HairdresserProvider = provideHairdresserContext(Provider);
 (async () => {
   mongodb.mongoose.connect(iConfig.mongoUri);
 
-  const tmplDirName = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
-  const tmplPath = `${__dirname}/../build/${tmplDirName}`;
-  const template = fs.readFileSync(`${tmplPath}/index.html`).toString();
+  const template = fs.readFileSync(`${__dirname}/client/index.html`).toString();
 
   const compiled = _.template(template, {
     imports: { facebookAppId: conf.facebookAppId },
@@ -48,9 +46,9 @@ const HairdresserProvider = provideHairdresserContext(Provider);
 
   const app = express();
   if (process.env.NODE_ENV !== 'production') {
-    app.use('/public', express.static(`${tmplPath}/public`));
+    app.use('/public', express.static(`${__dirname}/client/public`));
   }
-  app.use('/assets', express.static(__dirname + '/../public'));
+  app.use('/assets', express.static(`${__dirname}/../../public`));
   app.use('/api', api);
 
   app.use(cookieParser());

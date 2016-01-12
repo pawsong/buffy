@@ -51,14 +51,13 @@ app.post('/compile', wrap(async (req, res, next) => {
 
 let envFile;
 let fileContent;
-
 if (process.env.NODE_ENV !== 'production') {
   envFile = 'worker.js';
-  fileContent = fs.readFileSync(`${__dirname}/../../build/dev/public/${envFile}`).toString();
+  fileContent = fs.readFileSync(`${__dirname}/client/public/${envFile}`).toString();
 } else {
-  const manifest = require(`${__dirname}/../../build/prod/manifest.json`);
+  const manifest = require(`${__dirname}/../../build/prod/client/public/manifest.json`);
   envFile = manifest['worker.js'];
-  fileContent = fs.readFileSync(`${__dirname}/../../build/prod/public/${envFile}`).toString();
+  fileContent = fs.readFileSync(`${__dirname}/client/public/${envFile}`).toString();
 }
 
 app.get(`/env/${envFile}`, (req, res) => {
@@ -68,7 +67,8 @@ app.get(`/env/${envFile}`, (req, res) => {
     .send(fileContent);
 });
 
-const template = fs.readFileSync(__dirname + '/template.js').toString();
+const template = require('raw!./template.js');
+// fs.readFileSync(__dirname + '/template.js').toString();
 const compiledTmpl = _.template(template, {
   imports: { env: `/code/env/${envFile}` },
 });

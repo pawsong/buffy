@@ -51,9 +51,14 @@ module.exports = function (options) {
   /**
    * webpack compilers
    */
-  cache.set('compilerServer', () => webpack(wpConf.server));
-  cache.set('compilerAppDev', () => _.mapValues(wpConf.dev, config => webpack(config)));
-  cache.set('compilerAppProd', () => _.mapValues(wpConf.prod, config => webpack(config)));
+  cache.set('compilerServerDev', () => webpack(wpConf.server.dev));
+  cache.set('compilerServerProd', () => webpack(wpConf.server.prod));
+  cache.set('compilerClientDev', () => {
+    return _.mapValues(wpConf.client.dev, config => webpack(config));
+  });
+  cache.set('compilerClientProd', () => {
+    return _.mapValues(wpConf.client.prod, config => webpack(config));
+  });
 
   function compile(compiler) {
     return new Promise((resolve, reject) => {
@@ -62,14 +67,6 @@ module.exports = function (options) {
       });
     });
   }
-
-  /**
-   * Child server process
-   */
-  cache.set('serverProc', function () {
-    const cm = new Childminder();
-    return cm.create('node', [ 'build/server' ], { lazy: true });
-  });
 
   gulp.task('help', taskListing);
 
@@ -84,8 +81,8 @@ module.exports = function (options) {
 
   gulp.task('lint:ts', function () {
     return gulp.src([
-      'src/**/*.ts',
-      'test/**/*.ts',
+      'src/**/*.{ts,tsx}',
+      'test/**/*.{ts,tsx}',
     ]).pipe(tslint())
       .pipe(tslint.report('verbose'));
   });
@@ -93,27 +90,31 @@ module.exports = function (options) {
   gulp.task('lint', ['lint:js', 'lint:ts']);
 
   // Build
-  gulp.task('build:server', function (done) {
-    cache.get('compilerServer').run(handleCompileError(done));
+  gulp.task('build:server:dev', ['build:client:dev'], function (done) {
+    cache.get('compilerServerDev').run(handleCompileError(done));
+  });
+
+  gulp.task('build:server:prod', ['build:client:prod'], function (done) {
+    cache.get('compilerServerProd').run(handleCompileError(done));
   });
 
   gulp.task('build:client:dev', function () {
-    const compilerAppDev = cache.get('compilerAppDev');
+    const compilerClientDev = cache.get('compilerClientDev');
     return Promise.all(
-      Object.keys(compilerAppDev).map(key => compile(compilerAppDev[key]))
+      Object.keys(compilerClientDev).map(key => compile(compilerClientDev[key]))
     );
   });
 
   gulp.task('build:client:prod', function () {
-    const compilerAppProd = cache.get('compilerAppProd');
+    const compilerClientProd = cache.get('compilerClientProd');
     return Promise.all(
-      Object.keys(compilerAppProd).map(key => compile(compilerAppProd[key]))
+      Object.keys(compilerClientProd).map(key => compile(compilerClientProd[key]))
     );
   });
 
-  gulp.task('build:dev', ['build:server', 'build:client:dev']);
+  gulp.task('build:dev', ['build:server:dev']);
 
-  gulp.task('build:prod', ['build:server', 'build:client:prod']);
+  gulp.task('build:prod', ['build:server:prod']);
 
   // Test
   gulp.task('test', function () {
@@ -124,15 +125,26 @@ module.exports = function (options) {
     console.log('test:watch not yet implemented');
   });
 
+  /**
+   * Child server process
+   */
+  cache.set('serverProc', function () {
+    const cm = new Childminder();
+    return cm.create('node', [ opts.main ], {
+      prefix: opts.prefix,
+      lazy: true,
+    });
+  });
+
   // Serve: Serve built application
-  gulp.task('build:server:watch', function (done) {
+  gulp.task('build:server:dev:watch', ['build:client:dev:watch'], function (done) {
     let hasDone = false;
     function callback (err) {
       if (hasDone) { return; }
       hasDone = true;
       done(err);
     }
-    cache.get('compilerServer').watch({}, (error, stats) => {
+    cache.get('compilerServerDev').watch({}, (error, stats) => {
       handleCompileError(function (err) {
         if (err) { return callback(err); }
 
@@ -140,29 +152,39 @@ module.exports = function (options) {
         return serverProc.startOrRestart().then(() => {
           return tcpPortUsed.waitUntilUsed(opts.port, 100, 5000);
         }).then(() => {
-          if (browserSync.active) {
-            return browserSync.reload();
-          }
-
-          browserSync.init({
-            port: opts.devPort,
-            proxy: `http://localhost:${opts.port}`,
-          }, callback);
-        }).catch(callback);
+          if (!browserSync.active) { return; }
+          browserSync.reload();
+        }).then(callback).catch(callback);
       })(error, stats);
     });
   });
 
   gulp.task('build:client:dev:watch', function () {
-    const compilerAppDev = cache.get('compilerAppDev');
-    Object.keys(compilerAppDev).forEach(key => {
-      const compiler = compilerAppDev[key];
-      compiler.watch({}, (err, stats) => {
-        if (!browserSync.active) { return; }
-        browserSync.reload();
+    const compilerClientDev = cache.get('compilerClientDev');
+    return Promise.all(Object.keys(compilerClientDev).map(key => {
+      return new Promise((resolve, reject) => {
+        let hasDone = false;
+        function callback (err) {
+          if (hasDone) { return; }
+          hasDone = true;
+          err ? reject(err) : resolve();
+        }
+        const compiler = compilerClientDev[key];
+        compiler.watch({}, (error, stats) => {
+          handleCompileError(err => {
+            callback(err);
+            if (err || !browserSync.active) { return; }
+            browserSync.reload();
+          })(error, stats);
+        });
       });
-    });
+    }));
   });
 
-  gulp.task('serve:dev', ['build:server:watch', 'build:client:dev:watch']);
+  gulp.task('serve:dev:watch', ['build:server:dev:watch'], done => {
+    browserSync.init({
+      port: opts.devPort,
+      proxy: `http://localhost:${opts.port}`,
+    }, done);
+  });
 };
