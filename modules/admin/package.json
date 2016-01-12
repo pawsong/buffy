@@ -20,7 +20,7 @@
   "files": [
     "build"
   ],
-  "publicAssets": "build/prod/public/*.js",
+  "publicAssets": "build/prod/client/public/**",
   "author": "",
   "license": "ISC",
   "dependencies": {
