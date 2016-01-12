@@ -2,7 +2,7 @@
   "name": "@pasta/admin",
   "version": "0.0.0",
   "description": "",
-  "main": "lib/server.js",
+  "main": "build/server.js",
   "config": {
     "bin": "../../node_modules/.bin"
   },

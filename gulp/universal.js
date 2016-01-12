@@ -18,6 +18,22 @@ const browserSync = require('browser-sync').create();
 const Childminder = require('childminder').Childminder;
 const cache = require('./cache')();
 
+function handleCompileError(done) {
+  return function (err, stats) {
+    if(err) {
+      return done(err);
+    }
+    const jsonStats = stats.toJson();
+    if(jsonStats.errors.length > 0) {
+      return done(new Error(jsonStats.errors));
+    }
+    if(jsonStats.warnings.length > 0) {
+      return done(new Error(jsonStats.warnings));
+    }
+    done();
+  }
+}
+
 module.exports = function (options) {
   const opts = options || {};
   const wpConf = opts.webpackConfig || {};
@@ -32,25 +48,18 @@ module.exports = function (options) {
   });
 
   /**
-   * webpack compiler for development
+   * webpack compilers
    */
-  cache.set('compilerDev', function () {
-    return webpack(wpConf.dev);
-  });
-
-  /**
-   * webpack compiler for production
-   */
-  cache.set('compilerProd', function () {
-    return webpack(wpConf.prod);
-  });
+  cache.set('compilerAppDev', () => webpack(wpConf.appDev));
+  cache.set('compilerAppProd', () => webpack(wpConf.appProd));
+  cache.set('compilerServer', () => webpack(wpConf.server));
 
   /**
    * Child server process
    */
   cache.set('serverProc', function () {
     const cm = new Childminder();
-    return cm.create('node', [ 'lib/server' ], { lazy: true });
+    return cm.create('node', [ 'build/server' ], { lazy: true });
   });
 
   gulp.task('help', taskListing);
@@ -75,36 +84,16 @@ module.exports = function (options) {
   gulp.task('lint', ['lint:js', 'lint:ts']);
 
   // Build
-  gulp.task('build:server', function () {
-    let compileError = null;
-
-    return gulp.src([
-      'typings/tsd.d.ts',
-      'src/**/*.ts',
-    ]).pipe(sourcemaps.init())
-      .pipe(ts(cache.get('srcTsProject'), undefined, ts.reporter.longReporter()))
-      .on('error', err => compileError = err)
-      .pipe(babel())
-      .pipe(sourcemaps.write())
-      .pipe(gulp.dest('lib'))
-      .on('end', function () {
-        // Make gulp-typescript stop on compile error.
-        if (compileError) {
-          this.emit('error', new gutil.PluginError('gulp-typescript', compileError.message));
-        }
-      });
+  gulp.task('build:server', function (done) {
+    cache.get('compilerServer').run(handleCompileError(done));
   });
 
   gulp.task('build:client:dev', function (done) {
-    cache.get('compilerDev').run((err, stats) => {
-      done(err);
-    });
+    cache.get('compilerAppDev').run(handleCompileError(done));
   });
 
   gulp.task('build:client:prod', function (done) {
-    cache.get('compilerProd').run((err, stats) => {
-      done(err);
-    });
+    cache.get('compilerAppProd').run(handleCompileError(done));
   });
 
   gulp.task('build:dev', ['build:server', 'build:client:dev']);
@@ -121,27 +110,40 @@ module.exports = function (options) {
   });
 
   // Serve: Serve built application
-  gulp.task('serve:dev', ['build:dev'], function () {
-    const serverProc = cache.get('serverProc');
-    return serverProc.startOrRestart().then(() => {
-      return tcpPortUsed.waitUntilUsed(opts.port, 100, 5000);
-    }).then(() => {
+  gulp.task('build:server:watch', function (done) {
+    let hasDone = false;
+    function callback (err) {
+      if (hasDone) { return; }
+      hasDone = true;
+      done(err);
+    }
+    cache.get('compilerServer').watch({}, (error, stats) => {
+      handleCompileError(function (err) {
+        if (err) { return callback(err); }
+
+        const serverProc = cache.get('serverProc');
+        return serverProc.startOrRestart().then(() => {
+          return tcpPortUsed.waitUntilUsed(opts.port, 100, 5000);
+        }).then(() => {
+          if (browserSync.active) {
+            return browserSync.reload();
+          }
+
+          browserSync.init({
+            port: opts.devPort,
+            proxy: `http://localhost:${opts.port}`,
+          }, callback);
+        }).catch(callback);
+      })(error, stats);
+    });
+  });
+
+  gulp.task('build:client:dev:watch', function () {
+    cache.get('compilerAppDev').watch({}, (err, stats) => {
       if (!browserSync.active) { return; }
       browserSync.reload();
     });
   });
 
-  gulp.task('serve:dev:watch', ['serve:dev'], function () {
-    gulp.watch([
-      'gulpfile.js',
-      'tslint.json',
-      'typings/tsd.d.ts',
-      'src/**/*.ts',
-    ], ['serve:dev']);
-
-    browserSync.init({
-      port: opts.devPort,
-      proxy: `http://localhost:${opts.port}`,
-    });
-  });
+  gulp.task('serve:dev', ['build:server:watch', 'build:client:dev:watch']);
 };

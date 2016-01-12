@@ -2,9 +2,9 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const conf = require('@pasta/config-public/lib/production');
 
-module.exports = Object.assign({}, require('./dev'), {
+module.exports = Object.assign({}, require('./app.dev'), {
   output: {
-    path: './build/prod/public',
+    path: './build/app/prod/public',
     filename: 'bundle.[chunkhash].js',
     publicPath: conf.adminPublicPath,
   },

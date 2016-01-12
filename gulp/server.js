@@ -49,20 +49,25 @@ gulp.task('lint', ['lint:js', 'lint:ts']);
 // Build
 gulp.task('build', function () {
   let compileError = null;
+  function handleError(err) {
+    compileError = err;
+    this.emit('end');
+  }
 
   return gulp.src([
     'typings/tsd.d.ts',
     'src/**/*.ts',
   ]).pipe(sourcemaps.init())
     .pipe(ts(srcTsProject, undefined, ts.reporter.longReporter()))
-    .on('error', err => compileError = err)
+    .on('error', handleError)
     .pipe(babel())
+    .on('error', handleError)
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('lib'))
     .on('end', function () {
       // Make gulp-typescript stop on compile error.
       if (compileError) {
-        this.emit('error', new gutil.PluginError('gulp-typescript', compileError.message));
+        this.emit('error', compileError);
       }
     });
 });

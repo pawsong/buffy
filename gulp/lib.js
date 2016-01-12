@@ -65,7 +65,8 @@ gulp.task('build', function () {
 
     // js files
     tsResult.js
-      .pipe(babel()).on('error', handleError)
+      .pipe(babel())
+      .on('error', handleError)
       .pipe(sourcemaps.write())
       .pipe(gulp.dest('lib')),
   ]).on('end', function () {
@@ -89,6 +90,7 @@ gulp.task('build:test', ['build'], function () {
     .pipe(ts(testTsProject, undefined, ts.reporter.longReporter()))
     .on('error', handleError)
     .pipe(babel())
+    .on('error', handleError)
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('.test'))
     .on('end', function () {

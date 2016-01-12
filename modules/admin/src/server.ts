@@ -1,3 +1,4 @@
+import './patch/es.node';
 import 'babel-polyfill';
 import * as express from 'express';
 import * as request from 'request';
@@ -19,14 +20,14 @@ const app = express();
 
 app.use('/handbook', express.static(__dirname + '/../../../_book'));
 
-const tmplDirName = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
-const tmplPath = `${__dirname}/../build/${tmplDirName}`;
-
+let template;
 if (process.env.NODE_ENV !== 'production') {
-  app.use('/public', express.static(`${tmplPath}/public`));
+  template = fs.readFileSync(`${__dirname}/app/dev/index.html`).toString();
+  app.use('/public', express.static(`${__dirname}/app/dev/public`));
+} else {
+  template = fs.readFileSync(`${__dirname}/app/prod/index.html`).toString();
 }
 
-const template = fs.readFileSync(`${tmplPath}/index.html`).toString();
 app.get('*', (req, res) => {
   res.send(template);
 });
