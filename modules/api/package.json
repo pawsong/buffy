@@ -17,6 +17,9 @@
     "serve": "$npm_package_config_bin/gulp serve:watch",
     "start": "node $npm_package_main"
   },
+  "files": [
+    "lib"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {

@@ -16,6 +16,9 @@
     "test": "$npm_package_config_bin/gulp test",
     "test:watch": "$npm_package_config_bin/gulp test:watch"
   },
+  "files": [
+    "lib"
+  ],
   "license": "ISC",
   "dependencies": {
     "fbemitter": "^2.0.1",

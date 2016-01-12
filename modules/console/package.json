@@ -17,6 +17,10 @@
     "serve": "$npm_package_config_bin/gulp serve:dev:watch",
     "start": "node $npm_package_main"
   },
+  "files": [
+    "build",
+    "public"
+  ],
   "publicAssets": "build/prod/public/*.js",
   "author": "",
   "license": "ISC",
