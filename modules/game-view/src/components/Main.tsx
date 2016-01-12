@@ -1,11 +1,9 @@
-import React from 'react';
+import * as React from 'react';
 
-import THREE from 'three';
-import EventEmitter from 'eventemitter3';
-
+import * as THREE from 'three';
 import { createEffectManager } from '../effects';
 
-const Promise = require('bluebird');
+import * as Promise from 'bluebird';
 
 const PIXEL_NUM = 16;
 const PIXEL_UNIT = 32;
@@ -61,7 +59,7 @@ function initMainView(htmlElement, store, api) {
 
   // Cubes
   var geometry = new THREE.BoxGeometry( BOX_SIZE, BOX_SIZE, BOX_SIZE );
-  var material = new THREE.MeshLambertMaterial( { color: 0xffffff, shading: THREE.FlatShading, overdraw: 0.5 } );
+  var material = new THREE.MeshLambertMaterial( { color: 0xffffff, overdraw: 0.5 } );
 
   // Lights
 
@@ -271,10 +269,9 @@ function initMainView(htmlElement, store, api) {
     var material = new THREE.MeshLambertMaterial({
       color: 0xffffff,
       vertexColors: THREE.VertexColors,
-      shading: THREE.FlatShading,
     });
     const surfacemesh = new THREE.Mesh( geometry, material );
-    surfacemesh.doubleSided = false;
+    // surfacemesh.doubleSided = false;
     surfacemesh.position.x = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
     surfacemesh.position.y = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;// - PLANE_Y_OFFSET;
     surfacemesh.position.z = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
@@ -316,14 +313,19 @@ const style = {
   height: '100%',
 };
 
-const Main = React.createClass({
+export interface MainProps extends React.Props<Main> {
+  gameStore;
+  api;
+}
+
+export class Main extends React.Component<MainProps, {}> {
   _init(element) {
     initMainView(element, this.props.gameStore, this.props.api);
-  },
+  }
 
   render() {
-    return <div ref={this._init} style={style}></div>;
-  },
-});
+    return <div ref={this._init.bind(this)} style={style}></div>;
+  }
+};
 
 export default Main;

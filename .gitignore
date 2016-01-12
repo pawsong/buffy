@@ -2,6 +2,7 @@ node_modules
 *.swp
 npm-debug.log
 bundle
+typings
 _book
 .DS_Store
 .idea

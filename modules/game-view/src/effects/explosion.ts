@@ -1,9 +1,9 @@
-import THREE from 'three';
+import * as THREE from 'three';
+window.THREE = THREE; // SPE requires this
+
+import * as SPE from 'shader-particle-engine/build/SPE';
 
 function createExplosion(scene, maxAge, position) {
-  window.THREE = THREE; // SPE requires this
-  const SPE = require('shader-particle-engine/build/SPE');
-
   const group = new SPE.Group( {
     texture: {
       value: THREE.ImageUtils.loadTexture( './assets/sprite-explosion2.png' ),

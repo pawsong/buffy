@@ -1,0 +1,27 @@
+{
+  "version": "v4",
+  "repo": "borisyankov/DefinitelyTyped",
+  "ref": "master",
+  "path": "typings",
+  "bundle": "typings/tsd.d.ts",
+  "installed": {
+    "react/react.d.ts": {
+      "commit": "faa49cc68025118355b677b936892435b9be7247"
+    },
+    "react/react-dom.d.ts": {
+      "commit": "faa49cc68025118355b677b936892435b9be7247"
+    },
+    "react-redux/react-redux.d.ts": {
+      "commit": "faa49cc68025118355b677b936892435b9be7247"
+    },
+    "redux/redux.d.ts": {
+      "commit": "faa49cc68025118355b677b936892435b9be7247"
+    },
+    "threejs/three.d.ts": {
+      "commit": "faa49cc68025118355b677b936892435b9be7247"
+    },
+    "bluebird/bluebird.d.ts": {
+      "commit": "faa49cc68025118355b677b936892435b9be7247"
+    }
+  }
+}

@@ -2,16 +2,23 @@
   "name": "@pasta/game-view",
   "version": "1.0.0",
   "description": "- Listens to state store event - Handle UI input",
-  "main": "src/index.js",
-  "built:main": "lib/index.js",
-  "scripts": {
-    "clean": "../../node_modules/.bin/rimraf lib",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "link": "node ../../tools/link",
-    "prepublish": "npm run link && npm run build",
-    "build": "npm run clean && npm run build:lib",
-    "build:lib": "../../node_modules/.bin/babel src --out-dir lib"
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "config": {
+    "bin": "../../node_modules/.bin"
   },
+  "scripts": {
+    "prepublish": "npm run install:link && npm run build",
+    "install:link": "node ../../tools/link",
+    "install:tsd": "$npm_package_config_bin/tsd install",
+    "clean": "$npm_package_config_bin/rimraf lib",
+    "build": "npm run clean && $npm_package_config_bin/gulp build",
+    "test": "$npm_package_config_bin/gulp test",
+    "test:watch": "$npm_package_config_bin/gulp test:watch"
+  },
+  "files": [
+    "lib"
+  ],
   "license": "ISC",
   "dependencies": {
     "eventemitter3": "^1.1.1",
