@@ -41,7 +41,8 @@ modules.forEach(module => {
   });
 });
 
-toposort(graph).forEach(module => {
+const sorted = toposort(graph);
+sorted.concat(_.difference(modules, sorted)).forEach(module => {
   console.log(`Import ${module}`);
 
   const srcPath = path.resolve(root, 'modules', module);
