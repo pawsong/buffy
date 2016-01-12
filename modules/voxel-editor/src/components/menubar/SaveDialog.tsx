@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Dialog = require('material-ui/lib/dialog');
 import TextField = require('material-ui/lib/text-field');
-import * as config from '@pasta/config-public';
+import config from '@pasta/config-public';
 
 export interface SaveDialogProps extends React.Props<SaveDialog> {
   open: boolean;

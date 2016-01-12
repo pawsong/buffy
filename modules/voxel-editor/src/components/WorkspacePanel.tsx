@@ -19,7 +19,7 @@ import * as WorkspaceActions from '../actions/workspace';
 
 import * as ReactDnd from 'react-dnd';
 
-import * as config from '@pasta/config-public';
+import config from '@pasta/config-public';
 
 import objectAssign = require('object-assign');
 

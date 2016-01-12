@@ -10,7 +10,7 @@ require('../../gulp/universal')({
   webpackConfig: {
     server: {
       dev: require('./webpack/server.dev'),
-      pord: require('./webpack/server.prod'),
+      prod: require('./webpack/server.prod'),
     },
     client: {
       dev: {

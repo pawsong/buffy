@@ -2,8 +2,7 @@
   "name": "@pasta/compiler",
   "version": "0.0.0",
   "description": "ES6 compiler with native modules",
-  "main": "app.js",
-  "built:main": "lib/index.js",
+  "main": "lib/server.js",
   "scripts": {
     "clean": "../../node_modules/.bin/rimraf lib",
     "start": "../../node_modules/.bin/nodemon --watch src --watch ../game-core src/entry.js",

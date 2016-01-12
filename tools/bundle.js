@@ -5,6 +5,7 @@ const pkgDir = require('pkg-dir');
 const _ = require('lodash');
 const parser = require('gitignore-parser');
 const exec = require('child_process').execSync;
+const toposort = require('toposort');
 
 const root = pkgDir.sync(__dirname);
 const rootPkg = require(path.resolve(root, 'package.json'));
@@ -25,7 +26,22 @@ fs.mkdirsSync(path.resolve(bundlePath, 'modules'));
 const gitignore = parser.compile(fs.readFileSync(__dirname + '/../.gitignore', 'utf8'));
 const modules = fs.readdirSync(path.resolve(root, 'modules')).filter(gitignore.accepts);
 
+// Topological sort with link dependency
+const graph = [];
 modules.forEach(module => {
+  const srcPath = path.resolve(root, 'modules', module);
+  const pkgFile = path.resolve(srcPath, 'package.json');
+  if (!fs.existsSync(pkgFile)) { return; }
+
+  const pkg = require(pkgFile);
+  if (!pkg.link) { return; }
+
+  pkg.link.forEach(link => {
+    graph.push([path.basename(link), module]);
+  });
+});
+
+toposort(graph).forEach(module => {
   console.log(`Import ${module}`);
 
   const srcPath = path.resolve(root, 'modules', module);
@@ -105,7 +121,7 @@ fs.copySync(
 const appDecl = {
   apps: rootPkg.deployables.map(deployable => ({
     name: deployable,
-    script: require(`./modules/${deployable}/package.json`).main,
+    script: require(`../modules/${deployable}/package.json`).main,
     cwd: `modules/${deployable}`,
     env: {
       NODE_ENV: 'production'

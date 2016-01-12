@@ -2,7 +2,7 @@ import * as React from 'react';
 import Dialog = require('material-ui/lib/dialog');
 import * as Promise from 'bluebird';
 
-import * as config from '@pasta/config-public';
+import config from '@pasta/config-public';
 
 import Table = require('material-ui/lib/table/table');
 import TableBody = require('material-ui/lib/table/table-body');
