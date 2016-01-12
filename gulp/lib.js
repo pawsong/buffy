@@ -36,8 +36,8 @@ gulp.task('lint:js', function () {
 
 gulp.task('lint:ts', function () {
   return gulp.src([
-    'src/**/*.ts',
-    'test/**/*.ts',
+    'src/**/*.{ts,tsx}',
+    'test/**/*.{ts,tsx}',
   ]).pipe(tslint())
     .pipe(tslint.report('verbose'));
 });
@@ -53,7 +53,7 @@ gulp.task('build', function () {
 
   const tsResult = gulp.src([
     'typings/tsd.d.ts',
-    'src/**/*.ts',
+    'src/**/*.{ts,tsx}',
   ]).pipe(sourcemaps.init())
     .pipe(ts(srcTsProject, undefined, ts.reporter.longReporter()))
     .on('error', handleError);
@@ -85,7 +85,7 @@ gulp.task('build:test', ['build'], function () {
 
   return gulp.src([
     'typings/tsd.d.ts',
-    'test/**/*.ts',
+    'test/**/*.{ts,tsx}',
   ]).pipe(sourcemaps.init())
     .pipe(ts(testTsProject, undefined, ts.reporter.longReporter()))
     .on('error', handleError)
@@ -121,7 +121,7 @@ gulp.task('test:watch', function () {
     'gulpfile.js',
     'tslint.json',
     'typings/tsd.d.ts',
-    'src/**/*.ts',
-    'test/**/*.ts',
+    'src/**/*.{ts,tsx}',
+    'test/**/*.{ts,tsx}',
   ], ['test']);
 });
