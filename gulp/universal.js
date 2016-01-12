@@ -2,6 +2,7 @@
 
 require('babel-polyfill');
 
+const _ = require('lodash');
 const gulp = require('gulp');
 const gutil = require('gulp-util');
 const taskListing = require('gulp-task-listing');
@@ -50,9 +51,17 @@ module.exports = function (options) {
   /**
    * webpack compilers
    */
-  cache.set('compilerAppDev', () => webpack(wpConf.appDev));
-  cache.set('compilerAppProd', () => webpack(wpConf.appProd));
   cache.set('compilerServer', () => webpack(wpConf.server));
+  cache.set('compilerAppDev', () => _.mapValues(wpConf.dev, config => webpack(config)));
+  cache.set('compilerAppProd', () => _.mapValues(wpConf.prod, config => webpack(config)));
+
+  function compile(compiler) {
+    return new Promise((resolve, reject) => {
+      compiler.run((error, stats) => {
+        handleCompileError(err => err ? reject(err) : resolve())(error, stats);
+      });
+    });
+  }
 
   /**
    * Child server process
@@ -88,12 +97,18 @@ module.exports = function (options) {
     cache.get('compilerServer').run(handleCompileError(done));
   });
 
-  gulp.task('build:client:dev', function (done) {
-    cache.get('compilerAppDev').run(handleCompileError(done));
+  gulp.task('build:client:dev', function () {
+    const compilerAppDev = cache.get('compilerAppDev');
+    return Promise.all(
+      Object.keys(compilerAppDev).map(key => compile(compilerAppDev[key]))
+    );
   });
 
-  gulp.task('build:client:prod', function (done) {
-    cache.get('compilerAppProd').run(handleCompileError(done));
+  gulp.task('build:client:prod', function () {
+    const compilerAppProd = cache.get('compilerAppProd');
+    return Promise.all(
+      Object.keys(compilerAppProd).map(key => compile(compilerAppProd[key]))
+    );
   });
 
   gulp.task('build:dev', ['build:server', 'build:client:dev']);
@@ -139,9 +154,13 @@ module.exports = function (options) {
   });
 
   gulp.task('build:client:dev:watch', function () {
-    cache.get('compilerAppDev').watch({}, (err, stats) => {
-      if (!browserSync.active) { return; }
-      browserSync.reload();
+    const compilerAppDev = cache.get('compilerAppDev');
+    Object.keys(compilerAppDev).forEach(key => {
+      const compiler = compilerAppDev[key];
+      compiler.watch({}, (err, stats) => {
+        if (!browserSync.active) { return; }
+        browserSync.reload();
+      });
     });
   });
 

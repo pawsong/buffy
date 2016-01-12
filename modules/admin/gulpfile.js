@@ -5,7 +5,11 @@ require('../../gulp/universal')({
   devPort: iconfig.adminServerDevPort,
   webpackConfig: {
     server: require('./webpack/server'),
-    appDev: require('./webpack/app.dev'),
-    appProd: require('./webpack/app.prod'),
+    dev: {
+      app: require('./webpack/app.dev'),
+    },
+    prod: {
+      app: require('./webpack/app.prod'),
+    }
   },
 });
