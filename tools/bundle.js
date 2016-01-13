@@ -34,9 +34,9 @@ modules.forEach(module => {
   if (!fs.existsSync(pkgFile)) { return; }
 
   const pkg = require(pkgFile);
-  if (!pkg.link) { return; }
+  if (!pkg.links) { return; }
 
-  pkg.link.forEach(link => {
+  pkg.links.forEach(link => {
     graph.push([path.basename(link), module]);
   });
 });
@@ -79,7 +79,7 @@ sorted.concat(_.difference(modules, sorted)).forEach(module => {
 
   // Override package.json
   const dependencies = {};
-  const links = pkg.link;
+  const links = pkg.links;
   if (links) {
     links.forEach(link => {
       const linkPkg = require(path.resolve(srcPath, link, 'package.json'));

@@ -34,7 +34,7 @@
     "request": "^2.67.0",
     "source-map-support": "^0.4.0"
   },
-  "link": [
+  "links": [
     "../config-internal",
     "../config-public"
   ]

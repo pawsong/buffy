@@ -18,7 +18,7 @@
     "install:tsd": "$npm_package_config_bin/tsd install",
     "clean": "$npm_package_config_bin/rimraf lib",
     "build": "npm run clean && $npm_package_config_bin/gulp build",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "$npm_package_config_bin/gulp test",
     "test:watch": "$npm_package_config_bin/gulp test:watch"
   },
   "files": [
@@ -26,7 +26,7 @@
   ],
   "author": "",
   "license": "UNLICENSED",
-  "link": [
+  "links": [
     "../config-internal"
   ]
 }
