@@ -1,5 +1,10 @@
 {
   "name": "@pasta/compiler",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pawsong/pasta.git"
+  },
   "version": "0.0.0",
   "description": "ES6 compiler with native modules",
   "main": "lib/server.js",
@@ -20,7 +25,7 @@
   "files": [
     "lib"
   ],
-  "license": "ISC",
+  "license": "UNLICENSED",
   "dependencies": {
     "babel-core": "^6.1.2",
     "babel-loader": "^6.0.1",

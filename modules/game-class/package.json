@@ -1,5 +1,10 @@
 {
   "name": "@pasta/game-class",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pawsong/pasta.git"
+  },
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -23,7 +28,7 @@
     "../tween.js"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "dependencies": {
     "fbemitter": "^2.0.1"
   }

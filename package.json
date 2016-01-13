@@ -1,10 +1,15 @@
 {
   "name": "@pasta/pasta",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pawsong/pasta.git"
+  },
   "version": "0.0.0",
   "description": "A platform where users can write and visualize code",
   "main": "index.js",
   "scripts": {
-    "prepublish": "git submodule init && git submodule update",
+    "prepublish": "git submodule init && git submodule update && npm run docs:build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "node tools/checkRepo && npm run docs:build && node tools/bundle && node tools/deploy",
     "docs:clean": "rimraf _book",
@@ -73,7 +78,7 @@
     "webpack-manifest-plugin": "^0.5.0",
     "write-file-webpack-plugin": "^1.0.0"
   },
-  "license": "ISC",
+  "license": "UNLICENSED",
   "deployables": [
     "game-srv-zone",
     "console",

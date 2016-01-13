@@ -1,5 +1,10 @@
 {
   "name": "@pasta/mongodb",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pawsong/pasta.git"
+  },
   "version": "0.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -19,7 +24,7 @@
   "files": [
     "lib"
   ],
-  "license": "ISC",
+  "license": "UNLICENSED",
   "dependencies": {
     "bluebird": "^3.0.6",
     "mongoose": "^4.3.0"

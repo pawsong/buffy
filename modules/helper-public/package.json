@@ -1,5 +1,10 @@
 {
   "name": "@pasta/helper-public",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pawsong/pasta.git"
+  },
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -20,5 +25,5 @@
     "lib"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "UNLICENSED"
 }

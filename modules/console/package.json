@@ -1,5 +1,10 @@
 {
   "name": "@pasta/console",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pawsong/pasta.git"
+  },
   "version": "0.0.0",
   "description": "",
   "main": "build/prod/server.js",
@@ -23,7 +28,7 @@
   ],
   "publicAssets": "build/prod/client/public/**",
   "author": "",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "dependencies": {
     "aws-sdk": "^2.2.15",
     "babel-polyfill": "^6.0.16",

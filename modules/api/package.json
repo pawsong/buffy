@@ -1,5 +1,10 @@
 {
   "name": "@pasta/api",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pawsong/pasta.git"
+  },
   "version": "0.0.0",
   "description": "",
   "main": "lib/server.js",
@@ -21,7 +26,7 @@
     "lib"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "dependencies": {
     "babel-polyfill": "^6.3.14",
     "bluebird": "^3.0.5",
