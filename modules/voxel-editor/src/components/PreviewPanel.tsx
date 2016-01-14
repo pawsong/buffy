@@ -23,8 +23,6 @@ import { connect } from 'react-redux';
 import * as WorkspaceActions from '../actions/workspace';
 import * as VoxelActions from '../actions/voxel';
 
-import * as config from '@pasta/config-public';
-
 import { initPreview } from '../canvas';
 
 interface RotateButtonProps extends React.Props<RotateButton> {
