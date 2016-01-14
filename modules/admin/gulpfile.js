@@ -1,4 +1,4 @@
-const iconfig = require('@pasta/config-internal');
+const iconfig = require('@pasta/config');
 
 require('../../gulp/universal')({
   prefix: 'admin',

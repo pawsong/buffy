@@ -75,3 +75,8 @@ export const awsSecretKey: string = process.env.PASTA_AWS_SECRET_KEY;
  * jwt secret for authentication
  */
 export const jwtSecret: string = process.env.PASTA_JWT_SECRET;
+
+/**
+* public path for admin server assets
+*/
+export const adminPublicPath: string = 'https://dut3rr7qk867n.cloudfront.net';

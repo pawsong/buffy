@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const conf = require('@pasta/config-public/lib/production');
+const conf = require('@pasta/config');
 
 module.exports = Object.assign({}, require('./app.dev'), {
   output: {

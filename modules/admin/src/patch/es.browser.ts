@@ -4,7 +4,6 @@
 
 require('bluebird').__esModule = true;
 require('socket.io-client').__esModule = true;
-require('@pasta/config-public').__esModule = true;
 require('@pasta/game-class').__esModule = true;
 require('@pasta/game-class/lib/GameObject').__esModule = true;
 require('@pasta/game-class/lib/GameStore').__esModule = true;
