@@ -18,6 +18,7 @@ function getEnv (key, defaultVal) {
 const bucket = getEnv('PASTA_DEPLOY_S3_BUCKET');
 const awsAccessKeyId = getEnv('PASTA_AWS_ACCESS_KEY_ID');
 const awsSecretAccessKey = getEnv('PASTA_AWS_SECRET_KEY');
+const awsS3Region = getEnv('PASTA_AWS_S3_REGION');
 
 const deployConf = {
   user: getEnv('PASTA_DEPLOY_USER'),
@@ -77,6 +78,7 @@ new Promise((resolve, reject) => {
 
     exec(
       `aws s3 cp ${dirname}/ s3://${bucket}/ --recursive --exclude "*" ` +
+      `--region ${awsS3Region} ` +
       `--include "${basename}" --acl public-read ` +
       '--cache-control "max-age=31536000"', {
       env: {
