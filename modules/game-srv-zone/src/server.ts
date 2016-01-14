@@ -13,7 +13,7 @@ const io = require('socket.io')(http);
 
 import { initMap } from './map';
 
-import * as iConfig from '@pasta/config-internal';
+import * as iConfig from '@pasta/config';
 
 app.use(cors());
 

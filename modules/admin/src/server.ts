@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import {
   adminServerPort,
   adminWebpackAppPort,
-} from '@pasta/config-internal';
+} from '@pasta/config';
 
 import auth from './auth';
 

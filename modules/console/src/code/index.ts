@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as request from 'superagent';
 import Script from '@pasta/mongodb/lib/models/Script';
-import * as iConfig from '@pasta/config-internal';
+import * as iConfig from '@pasta/config';
 import * as fs from 'fs';
 import * as _ from 'lodash';
 

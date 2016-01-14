@@ -1,6 +1,6 @@
 import { PastaConfig } from './index';
 
-const iconf = require('@pasta/config-internal');
+const iconf = require('@pasta/config');
 
 const config: PastaConfig = {
   consolePublicPath: `http://localhost:${iconf.consoleWebpackAppPort}/`,

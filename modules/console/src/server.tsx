@@ -23,7 +23,7 @@ import routes from './routes';
 import rootReducer from './reducers';
 
 import conf from '@pasta/config-public';
-import * as iConfig from '@pasta/config-internal';
+import * as iConfig from '@pasta/config';
 
 import { provideHairdresserContext } from './hairdresser';
 

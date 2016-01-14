@@ -8,7 +8,7 @@ const cm = new Childminder();
 // Value is xTerm color code.
 // Refer to: https://github.com/medikoo/cli-color
 const packages = {
-  'config-internal': 11,
+  'config': 11,
   'config-public': 12,
   'game-class': 120,
   'game-api': 159,

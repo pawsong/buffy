@@ -65,7 +65,7 @@
   },
   "links": [
     "../config-public",
-    "../config-internal",
+    "../config",
     "../helper",
     "../game-api",
     "../game-view",

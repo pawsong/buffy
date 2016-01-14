@@ -1,4 +1,4 @@
-import * as iconf from '@pasta/config-internal';
+import * as iconf from '@pasta/config';
 import * as AWS from 'aws-sdk';
 
 export default new AWS.S3({

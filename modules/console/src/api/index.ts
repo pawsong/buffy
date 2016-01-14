@@ -9,7 +9,7 @@ import * as jwt from 'jsonwebtoken';
 import User from '@pasta/mongodb/lib/models/User';
 import s3 from '../s3';
 import conf from '@pasta/config-public';
-import * as iConfig from '@pasta/config-internal';
+import * as iConfig from '@pasta/config';
 import wrap from '@pasta/helper/lib/wrap';
 
 const DOMAIN = conf.domain ? '.' + conf.domain : '';

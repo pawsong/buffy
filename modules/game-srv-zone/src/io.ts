@@ -1,6 +1,6 @@
 import * as cookie from 'cookie';
 import * as jwt from 'jsonwebtoken';
-import * as iConfig from '@pasta/config-internal';
+import * as iConfig from '@pasta/config';
 import * as TWEEN from '@pasta/tween.js';
 import User from '@pasta/mongodb/lib/models/User';
 import * as Promise from 'bluebird';
