@@ -5,6 +5,7 @@
 require('bluebird').__esModule = true;
 require('express').__esModule = true;
 require('request').__esModule = true;
+require('gm').__esModule = true;
 require('cookie-parser').__esModule = true;
 require('express-jwt').__esModule = true;
 require('@pasta/config-public').__esModule = true;
