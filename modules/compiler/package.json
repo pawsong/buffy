@@ -46,7 +46,7 @@
     "webpack": "^1.12.3"
   },
   "links": [
-    "../config-internal",
+    "../config",
     "../helper"
   ]
 }

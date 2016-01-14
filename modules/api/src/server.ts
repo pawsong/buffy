@@ -14,7 +14,7 @@ import routes from './routes';
 const app = require('express')();
 const http = require('http').Server(app);
 
-import * as iconf from '@pasta/config-internal';
+import * as iconf from '@pasta/config';
 
 app.use(cookieParser());
 app.use(bodyParser.json({

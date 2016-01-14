@@ -1,6 +1,6 @@
 'use strict'; // eslint-disable-line
 
-const iconf = require('@pasta/config-internal');
+const iconf = require('@pasta/config');
 
 require('../../gulp/universal')({
   prefix: 'console',

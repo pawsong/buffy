@@ -4,7 +4,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 
 import compiler from './compiler';
-import * as iconf from '@pasta/config-internal';
+import * as iconf from '@pasta/config';
 
 import routes from './routes';
 
