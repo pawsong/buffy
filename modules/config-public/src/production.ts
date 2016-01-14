@@ -7,7 +7,7 @@ const config: PastaConfig = {
 
   gameServerUrl: `http://zone.project-pasta.io`,
 
-  apiServerUrl: `http://zone.project-pasta.io`,
+  apiServerUrl: `http://api.project-pasta.io`,
 
   facebookAppId: '1127121857315730',
 
