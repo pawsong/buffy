@@ -57,6 +57,11 @@ export const mongoUri: string = process.env.PASTA_MONGO_URI;
 export const s3Bucket: string = process.env.PASTA_S3_BUCKET;
 
 /**
+ * aws s3 bucket region
+ */
+export const awsS3Region: string = process.env.PASTA_AWS_S3_REGION;
+
+/**
  * aws access key id
  */
 export const awsAccessKeyId: string = process.env.PASTA_AWS_ACCESS_KEY_ID;
