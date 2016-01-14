@@ -1,17 +1,17 @@
 import { PastaConfig } from './index';
 
 const config: PastaConfig = {
-  consolePublicPath: 'https://pasta-prod.s3-ap-northeast-1.amazonaws.com/', 
-  
-  adminPublicPath: 'https://pasta-prod.s3-ap-northeast-1.amazonaws.com/',
-  
-  gameServerUrl: `http://zone.html5.computer`,
-  
-  apiServerUrl: `http://zone.html5.computer`,
-  
+  consolePublicPath: 'https://dut3rr7qk867n.cloudfront.net',
+
+  adminPublicPath: 'https://dut3rr7qk867n.cloudfront.net',
+
+  gameServerUrl: `http://zone.project-pasta.io`,
+
+  apiServerUrl: `http://zone.project-pasta.io`,
+
   facebookAppId: '1127121857315730',
-  
-  domain: 'html5.computer',
+
+  domain: 'project-pasta.io',
 };
 
 export default config;
