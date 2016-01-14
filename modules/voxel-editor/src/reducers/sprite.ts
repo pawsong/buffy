@@ -1,4 +1,4 @@
-import { vector3ToString } from '@pasta/helper-public';
+import vector3ToString from '@pasta/helper/lib/vector3ToString';
 import * as ActionTypes from '../constants/ActionTypes';
 import * as Immutable from 'immutable';
 

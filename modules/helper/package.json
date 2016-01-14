@@ -1,11 +1,11 @@
 {
-  "name": "@pasta/helper-public",
+  "name": "@pasta/helper",
   "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/pawsong/pasta.git"
   },
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -24,6 +24,5 @@
   "files": [
     "lib"
   ],
-  "author": "",
   "license": "UNLICENSED"
 }

@@ -4,7 +4,7 @@ import * as ndarray from 'ndarray';
 import GreedyMesh from './meshers/greedy';
 import CulledMesh from './meshers/culled';
 
-import { vector3ToString } from '@pasta/helper-public';
+import vector3ToString from '@pasta/helper/lib/vector3ToString';
 
 import store, {
   actions,

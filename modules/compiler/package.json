@@ -47,6 +47,6 @@
   },
   "links": [
     "../config-internal",
-    "../helper-internal"
+    "../helper"
   ]
 }

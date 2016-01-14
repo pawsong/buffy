@@ -9,7 +9,7 @@ import store, {
 
 import highlightVoxel from './highlightVoxel';
 
-import { vector3ToString } from '@pasta/helper-public';
+import vector3ToString from '@pasta/helper/lib/vector3ToString';
 
 import {
   GRID_SIZE,

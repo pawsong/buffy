@@ -1,4 +1,4 @@
-import { vector3ToString } from '@pasta/helper-public';
+import vector3ToString from '@pasta/helper/lib/vector3ToString';
 
 /*
  * {

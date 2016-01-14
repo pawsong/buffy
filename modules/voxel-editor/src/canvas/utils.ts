@@ -1,4 +1,4 @@
-import { vector3ToString } from '@pasta/helper-public';
+import vector3ToString from '@pasta/helper/lib/vector3ToString';
 import * as ndarray from 'ndarray';
 
 import {
@@ -50,4 +50,3 @@ export function toScreenPos(absPos) {
     z: absPos.z * BOX_SIZE - UNIT_PIXEL - GRID_SIZE / 2 * BOX_SIZE,
   };
 }
-

@@ -50,7 +50,7 @@
     "bluebird": "^3.0.5"
   },
   "links": [
-    "../helper-public",
+    "../helper",
     "../config-public"
   ]
 }

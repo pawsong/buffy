@@ -12,8 +12,7 @@ const packages = {
   'config-public': 12,
   'game-class': 120,
   'game-api': 159,
-  'helper-public': 202,
-  'helper-internal': 163,
+  'helper': 202,
   'mongodb': 231,
   'voxel-editor': 25,
 };

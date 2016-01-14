@@ -2,7 +2,7 @@ import * as ActionTypes from '../constants/ActionTypes';
 import * as Immutable from 'immutable';
 import * as _ from 'lodash';
 
-import { vector3ToString } from '@pasta/helper-public';
+import vector3ToString from '@pasta/helper/lib/vector3ToString';
 
 import {
   GRID_SIZE,
