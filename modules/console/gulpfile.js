@@ -1,5 +1,12 @@
 'use strict'; // eslint-disable-line
 
+// Fix TypeScript - Babel interop rule conflict problem.
+// Remove this as soon as this issue is resolved:
+// https://github.com/TypeStrong/ts-loader/issues/111
+require('babel-helpers/lib/helpers').interopRequireDefault =
+require('babel-helpers/lib/helpers').interopRequireWildcard =
+  require('babel-template')('(function (obj) { return obj; })');
+
 const iconf = require('@pasta/config');
 
 require('../../gulp/universal')({

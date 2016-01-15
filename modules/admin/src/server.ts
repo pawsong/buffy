@@ -1,4 +1,3 @@
-import './patch/es.node';
 import 'babel-polyfill';
 import * as express from 'express';
 import * as request from 'request';

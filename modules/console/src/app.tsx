@@ -1,5 +1,4 @@
 import 'babel-polyfill';
-import './patch/es.browser';
 
 //Needed for onTouchTap
 //Can go away when react 1.0 release

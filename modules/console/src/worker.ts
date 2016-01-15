@@ -1,5 +1,4 @@
 import 'babel-polyfill';
-import './patch/es.worker';
 
 import * as Promise from 'bluebird';
 import { EventEmitter, EventSubscription } from 'fbemitter';

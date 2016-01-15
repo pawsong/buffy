@@ -1,6 +1,4 @@
 import 'babel-polyfill';
-import './patch/es.node';
-
 import './patch/superagent';
 
 import * as express from 'express';
