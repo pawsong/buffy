@@ -9,12 +9,11 @@ const cm = new Childminder();
 // Refer to: https://github.com/medikoo/cli-color
 const packages = {
   'config': 11,
-  'config-public': 12,
   'game-class': 120,
   'game-api': 159,
   'helper': 202,
   'mongodb': 231,
-  'addon-voxel-editor': 25,
+  'addon-voxel-editor': 12,
 };
 
 const maxPkgNameLen =

@@ -2,8 +2,6 @@ import * as React from 'react';
 import Dialog = require('material-ui/lib/dialog');
 import * as Promise from 'bluebird';
 
-import config from '@pasta/config-public';
-
 import Table = require('material-ui/lib/table/table');
 import TableBody = require('material-ui/lib/table/table-body');
 import TableFooter = require('material-ui/lib/table/table-footer');
@@ -67,7 +65,7 @@ export class FileBrowserDialog extends React.Component<FileBrowserDialogProps, {
       }
 
       this._load(
-        fetch(`${config.apiServerUrl}/voxel-workspaces/me`, {
+        fetch(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me`, {
           credentials: 'include',
         }).then(checkStatus).then(parseJSON)
       ).then(response => {
@@ -80,7 +78,7 @@ export class FileBrowserDialog extends React.Component<FileBrowserDialogProps, {
 
   _onDialogSubmit() {
     const workspace = this.state.workspaces[this.state.selectedRow];
-    fetch(`${config.apiServerUrl}/voxel-workspaces/me/${workspace.name}`, {
+    fetch(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me/${workspace.name}`, {
       credentials: 'include',
     }).then(response => {
       return response.json();

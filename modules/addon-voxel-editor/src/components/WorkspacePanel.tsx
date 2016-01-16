@@ -19,8 +19,6 @@ import * as WorkspaceActions from '../actions/workspace';
 
 import * as ReactDnd from 'react-dnd';
 
-import config from '@pasta/config-public';
-
 import objectAssign = require('object-assign');
 
 interface WorkspacePanelProps extends React.Props<WorkspacePanel> {
@@ -65,7 +63,7 @@ class WorkspacePanel extends React.Component<WorkspacePanelProps, {
     }
 
     const voxels = this.props.voxel.present.data.toJSON();
-    fetch(`${config.apiServerUrl}/voxel-workspaces/me/${name}`, {
+    fetch(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me/${name}`, {
       method: 'put',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -93,7 +91,7 @@ class WorkspacePanel extends React.Component<WorkspacePanelProps, {
     } = this.props;
 
     const opacity = isDragging ? PanelConstants.DRAGGING_OPACITY : 1;
-    
+
     const previewStyle = objectAssign({
       zIndex, left, top, opacity,
     }, PanelStyles.root);
@@ -127,7 +125,7 @@ export default wrapPanel(connect(state => ({
   voxel: state.voxel,
   workspace: state.workspace,
 }), dispatch => ({
-  actions: bindActionCreators(objectAssign({}, 
+  actions: bindActionCreators(objectAssign({},
     WorkspaceActions
   ), dispatch),
 }))(WorkspacePanel));

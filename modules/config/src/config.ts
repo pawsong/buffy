@@ -10,6 +10,8 @@ export const consolePort: number = 9000;
  */
 export const consoleDevPort: number = 9001;
 
+export const consolePublicPath: string = 'https://dut3rr7qk867n.cloudfront.net';
+
 /**
  * Compiler server port
  */
@@ -30,6 +32,8 @@ export const gameServerUrl = 'http://zone.project-pasta.io';
  */
 export const apiServerPort: number = 9300;
 
+export const apiServerUrl = `http://api.project-pasta.io`;
+
 /**
  * Admin server port
  */
@@ -44,6 +48,11 @@ export const adminWebpackAppPort: number = 9401;
  * Admin server frontend browser-sync port
  */
 export const adminServerDevPort: number = 9402;
+
+/**
+* public path for admin server assets
+*/
+export const adminPublicPath: string = 'https://dut3rr7qk867n.cloudfront.net';
 
 /**
  * Compiler server url
@@ -80,11 +89,6 @@ export const awsSecretKey: string = process.env.PASTA_AWS_SECRET_KEY;
  * jwt secret for authentication
  */
 export const jwtSecret: string = process.env.PASTA_JWT_SECRET;
-
-/**
-* public path for admin server assets
-*/
-export const adminPublicPath: string = 'https://dut3rr7qk867n.cloudfront.net';
 
 export const domain = 'project-pasta.io';
 

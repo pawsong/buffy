@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Dialog = require('material-ui/lib/dialog');
 import TextField = require('material-ui/lib/text-field');
-import config from '@pasta/config-public';
 import FlatButton = require('material-ui/lib/flat-button');
 
 export interface SaveDialogProps extends React.Props<SaveDialog> {
@@ -24,7 +23,7 @@ export class SaveDialog extends React.Component<SaveDialogProps, {
 
   _onDialogSubmit() {
     const { name } = this.state;
-    fetch(`${config.apiServerUrl}/voxel-workspaces/me/${name}`, {
+    fetch(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me/${name}`, {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

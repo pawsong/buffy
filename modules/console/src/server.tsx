@@ -28,6 +28,8 @@ import code from './code';
 import mongodb from '@pasta/mongodb';
 import User from '@pasta/mongodb/lib/models/User';
 
+Promise.config({ warnings: false });
+
 const HairdresserProvider = provideHairdresserContext(Provider);
 
 (async () => {

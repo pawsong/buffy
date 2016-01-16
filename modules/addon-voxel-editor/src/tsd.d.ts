@@ -1,5 +1,7 @@
 /// <reference path="../node_modules/immutable/dist/immutable.d.ts" />
 
+declare const CONFIG_API_SERVER_URL: string;
+
 declare module THREE {
   export function OrbitControls(object: any, domElement: any): void;
 }
@@ -14,14 +16,14 @@ declare module 'ndarray' {
       stride: any;
       offset: any;
       set(...args): any;
-    }   
+    }
   }
-  
+
   export = ndarray;
 }
 
 declare module 'store' {
-  module store { 
+  module store {
     export function set(key: string, value: any): any;
     export function get(key: string): any;
     export function remove(key: string): void;

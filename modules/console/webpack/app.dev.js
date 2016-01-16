@@ -6,6 +6,12 @@ const conf = require('@pasta/config');
 const defines = {
   'process.env.NODE_ENV': 'development',
   'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
+
+  // These configs are referred by addon-voxel-editor.
+  // When addon-voxel-editor is compiled by webpack itself,
+  // this will be moved to addon-voxel-editor's webpack config file.
+  // TODO: Remove
+  'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
 };
 
 module.exports = {
@@ -13,7 +19,6 @@ module.exports = {
 
   module: {
     loaders: [
-      { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
       { test: /\.json$/, loader: 'json-loader' },
       { test: /\.ts(x?)$/, loader: 'babel-loader!ts-loader' },
     ],

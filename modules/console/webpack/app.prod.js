@@ -6,13 +6,19 @@ const conf = require('@pasta/config');
 const defines = {
   'process.env.NODE_ENV': 'production',
   'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
+
+  // These configs are referred by addon-voxel-editor.
+  // When addon-voxel-editor is compiled by webpack itself,
+  // this will be moved to addon-voxel-editor's webpack config file.
+  // TODO: Remove
+  'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerUrl}`,
 };
 
 module.exports = Object.assign({}, require('./app.dev'), {
   output: {
     path: `${__dirname}/../build/prod/client/public`,
     filename: 'bundle.[chunkhash].js',
-    publicPath: conf.adminPublicPath,
+    publicPath: conf.consolePublicPath,
   },
 
   plugins: [
