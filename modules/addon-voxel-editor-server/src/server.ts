@@ -14,7 +14,7 @@ import routes from './routes';
 const app = require('express')();
 const http = require('http').Server(app);
 
-import * as iconf from '@pasta/config';
+import * as conf from '@pasta/config';
 
 app.use(cookieParser());
 app.use(bodyParser.json({
@@ -26,7 +26,7 @@ app.use(cors({
 }));
 
 app.use(jwt({
-  secret: iconf.jwtSecret,
+  secret: conf.jwtSecret,
   credentialsRequired: false,
   getToken: req => req.cookies.tt,
 }));
@@ -34,12 +34,12 @@ app.use(jwt({
 routes(app);
 
 (async () => {
-  mongodb.mongoose.connect(iconf.mongoUri);
+  mongodb.mongoose.connect(conf.mongoUri);
 
   await new Promise((resolve, reject) => {
-    http.listen(iconf.apiServerPort, err => err ? reject(err) : resolve());
+    http.listen(conf.addonVoxelEditorServerPort, err => err ? reject(err) : resolve());
   });
-  console.log(`Listening at *:${iconf.apiServerPort}`);
+  console.log(`Listening at *:${conf.addonVoxelEditorServerPort}`);
 })().catch(err => {
   console.error(err.stack);
   process.exit(1);

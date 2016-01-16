@@ -7,12 +7,12 @@ require('babel-helpers/lib/helpers').interopRequireDefault =
 require('babel-helpers/lib/helpers').interopRequireWildcard =
   require('babel-template')('(function (obj) { return obj; })');
 
-const iconf = require('@pasta/config');
+const conf = require('@pasta/config');
 
 require('../../gulp/universal')({
   prefix: 'console',
-  port: iconf.consolePort,
-  devPort: iconf.consoleDevPort,
+  port: conf.consolePort,
+  devPort: conf.consoleDevPort,
   main: 'build/dev/server',
   webpackConfig: {
     server: {

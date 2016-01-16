@@ -18,7 +18,7 @@ import routes from './routes';
 
 import rootReducer from './reducers';
 
-import * as iConfig from '@pasta/config';
+import * as conf from '@pasta/config';
 
 import { provideHairdresserContext } from './hairdresser';
 
@@ -33,7 +33,7 @@ Promise.config({ warnings: false });
 const HairdresserProvider = provideHairdresserContext(Provider);
 
 (async () => {
-  mongodb.mongoose.connect(iConfig.mongoUri);
+  mongodb.mongoose.connect(conf.mongoUri);
 
   const template = fs.readFileSync(`${__dirname}/client/index.html`).toString();
 
@@ -51,7 +51,7 @@ const HairdresserProvider = provideHairdresserContext(Provider);
   app.use(cookieParser());
 
   app.use(jwt({
-    secret: iConfig.jwtSecret,
+    secret: conf.jwtSecret,
     credentialsRequired: false,
     getToken: req => req.cookies.tt,
   })),
@@ -140,10 +140,10 @@ const HairdresserProvider = provideHairdresserContext(Provider);
   });
 
   await new Promise((resolve, reject) => {
-    app.listen(iConfig.consolePort, err => err ? reject(err) : resolve());
+    app.listen(conf.consolePort, err => err ? reject(err) : resolve());
   });
 
-  console.log(`Listening at *:${iConfig.consolePort}`);
+  console.log(`Listening at *:${conf.consolePort}`);
 })().catch(err => {
   console.error(err.stack);
 });

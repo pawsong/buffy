@@ -4,7 +4,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 
 import compiler from './compiler';
-import * as iconf from '@pasta/config';
+import * as conf from '@pasta/config';
 
 import routes from './routes';
 
@@ -17,10 +17,10 @@ import routes from './routes';
   routes(app);
 
   await new Promise((resolve, reject) => {
-    app.listen(iconf.compilerPort, err => err ? reject(err) : resolve());
+    app.listen(conf.compilerPort, err => err ? reject(err) : resolve());
   });
 
-  console.log(`Listening at *:${iconf.compilerPort}`);
+  console.log(`Listening at *:${conf.compilerPort}`);
 })().catch(err => {
   console.error(err.stack);
   process.exit(1);

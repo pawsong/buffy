@@ -13,18 +13,18 @@ const io = require('socket.io')(http);
 
 import { initMap } from './map';
 
-import * as iConfig from '@pasta/config';
+import * as conf from '@pasta/config';
 
 app.use(cors());
 
 ioHandler(io);
 
 (async () => {
-  mongodb.mongoose.connect(iConfig.mongoUri);
+  mongodb.mongoose.connect(conf.mongoUri);
   await initMap();
 
-  http.listen(iConfig.gameServerPort);
-  console.log(`Listening at *:${iConfig.gameServerPort}`);
+  http.listen(conf.gameServerPort);
+  console.log(`Listening at *:${conf.gameServerPort}`);
 })().catch(err => {
   console.error(err.stack);
   process.exit(1);
