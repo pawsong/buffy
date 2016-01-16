@@ -1,4 +1,5 @@
 /// <reference path="../node_modules/immutable/dist/immutable.d.ts" />
+/// <reference path="../node_modules/axios/axios.d.ts" />
 
 declare const CONFIG_API_SERVER_URL: string;
 

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Dialog = require('material-ui/lib/dialog');
 import * as Promise from 'bluebird';
+import * as axios from 'axios';
 
 import Table = require('material-ui/lib/table/table');
 import TableBody = require('material-ui/lib/table/table-body');
@@ -50,24 +51,10 @@ export class FileBrowserDialog extends React.Component<FileBrowserDialogProps, {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.open === false && nextProps.open === true) {
-      function checkStatus(response) {
-        if (response.status >= 200 && response.status < 300) {
-          return response
-        } else {
-          var error = new Error(response.statusText) as ResponseError;
-          error.response = response
-          throw error
-        }
-      }
-
-      function parseJSON(response) {
-        return response.json()
-      }
-
       this._load(
-        fetch(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me`, {
-          credentials: 'include',
-        }).then(checkStatus).then(parseJSON)
+        axios.get(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me`, {
+          withCredentials: true,
+        }).then(res => res.data)
       ).then(response => {
         this.setState({ workspaces: response });
       }).catch(error => {
@@ -78,15 +65,13 @@ export class FileBrowserDialog extends React.Component<FileBrowserDialogProps, {
 
   _onDialogSubmit() {
     const workspace = this.state.workspaces[this.state.selectedRow];
-    fetch(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me/${workspace.name}`, {
-      credentials: 'include',
-    }).then(response => {
-      return response.json();
-    }).then(response => {
+    axios.get(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me/${workspace.name}`, {
+      withCredentials: true,
+    }).then(res => {
       this.props.actions.setWorkspace({
-        name: response.name,
+        name: res.data.name,
       });
-      const data = JSON.parse(response.data);
+      const data = JSON.parse(res.data.data);
       this.props.actions.loadWorkspace(data);
       this.props.onRequestClose();
     });

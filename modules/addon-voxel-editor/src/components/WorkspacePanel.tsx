@@ -7,6 +7,8 @@ import NotImplDialog from './menubar/NotImplDialog';
 import FileBrowserDialog from './menubar/FileBrowserDialog';
 import SaveDialog from './menubar/SaveDialog';
 
+import * as axios from 'axios';
+
 import {
   PanelConstants,
   PanelStyles,
@@ -63,16 +65,9 @@ class WorkspacePanel extends React.Component<WorkspacePanelProps, {
     }
 
     const voxels = this.props.voxel.present.data.toJSON();
-    fetch(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me/${name}`, {
-      method: 'put',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({
-        data: JSON.stringify({
-          voxels,
-        }),
-      }),
-    });
+    axios.put(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me/${name}`, {
+      data: JSON.stringify({ voxels }),
+    }, { withCredentials: true });
   };
 
   _onSaveDialogClose(result) {

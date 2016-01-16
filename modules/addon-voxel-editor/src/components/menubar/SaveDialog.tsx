@@ -2,6 +2,7 @@ import * as React from 'react';
 import Dialog = require('material-ui/lib/dialog');
 import TextField = require('material-ui/lib/text-field');
 import FlatButton = require('material-ui/lib/flat-button');
+import * as axios from 'axios';
 
 export interface SaveDialogProps extends React.Props<SaveDialog> {
   open: boolean;
@@ -23,15 +24,10 @@ export class SaveDialog extends React.Component<SaveDialogProps, {
 
   _onDialogSubmit() {
     const { name } = this.state;
-    fetch(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me/${name}`, {
-      method: 'post',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ name }),
-    }).then(response => {
-      return response.json();
-    }).then(response => {
-      this.props.actions.setWorkspace(response);
+    axios.post(`${CONFIG_API_SERVER_URL}/voxel-workspaces/me/${name}`, {
+      name,
+    }, { withCredentials: true }).then(res => {
+      this.props.actions.setWorkspace(res.data);
       this.props.onRequestClose(true);
     });
   };
