@@ -80,10 +80,10 @@
   },
   "license": "UNLICENSED",
   "deployables": [
+    "addon-voxel-editor-server",
     "game-srv-zone",
     "console",
     "compiler",
-    "api",
     "admin"
   ],
   "dependencies": {

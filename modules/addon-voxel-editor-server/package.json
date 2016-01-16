@@ -1,5 +1,5 @@
 {
-  "name": "@pasta/api",
+  "name": "@pasta/addon-voxel-editor-server",
   "private": true,
   "repository": {
     "type": "git",
