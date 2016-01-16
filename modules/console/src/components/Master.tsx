@@ -210,7 +210,7 @@ class Master extends React.Component<MasterProps, {}> {
 
     // This is ugly, but works...
     const voxelEditorContainer = voxelEditorElem.parentElement.parentElement;
-    const createVoxelEditor = require('@pasta/voxel-editor').default;
+    const createVoxelEditor = require('@pasta/addon-voxel-editor').default;
     const voxelEditor = createVoxelEditor(voxelEditorElem, data => {
       socket.emit('voxels', data);
     });
