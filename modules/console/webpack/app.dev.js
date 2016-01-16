@@ -11,7 +11,7 @@ const defines = {
   // When addon-voxel-editor is compiled by webpack itself,
   // this will be moved to addon-voxel-editor's webpack config file.
   // TODO: Remove
-  'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
+  'CONFIG_API_SERVER_URL': `http://localhost:${conf.addonVoxelEditorServerPort}`,
 };
 
 module.exports = {

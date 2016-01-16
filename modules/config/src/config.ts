@@ -30,9 +30,9 @@ export const gameServerUrl = 'http://zone.project-pasta.io';
 /**
  * API server port
  */
-export const apiServerPort: number = 9300;
+export const addonVoxelEditorServerPort: number = 9300;
 
-export const apiServerUrl = `http://api.project-pasta.io`;
+export const addonVoxelEditorServerUrl = `http://api.project-pasta.io`;
 
 /**
  * Admin server port
