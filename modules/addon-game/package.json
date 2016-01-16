@@ -1,5 +1,5 @@
 {
-  "name": "@pasta/game-view",
+  "name": "@pasta/addon-game",
   "private": true,
   "repository": {
     "type": "git",

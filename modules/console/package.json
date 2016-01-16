@@ -67,8 +67,8 @@
     "../config",
     "../helper",
     "../game-api",
-    "../game-view",
     "../game-class",
+    "../addon-game",
     "../addon-voxel-editor",
     "../mongodb"
   ]

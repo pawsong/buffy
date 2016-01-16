@@ -202,7 +202,7 @@ class Master extends React.Component<MasterProps, {}> {
     const api = this.createAdapter(socket);
     const elem = document.getElementById('game');
 
-    const { initGameView } = require('@pasta/game-view');
+    const { initGameView } = require('@pasta/addon-game');
     const view = initGameView(elem, viewStore, api);
 
     const voxelEditorElem = document.getElementById('voxelEditor');
