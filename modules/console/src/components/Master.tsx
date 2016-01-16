@@ -176,18 +176,8 @@ class Master extends React.Component<MasterProps, {}> {
     });
   }
 
-  initilizeEditor() {
-    const editor = this.editor = ace.edit('editor');
-    editor.setTheme('ace/theme/twilight');
-    editor.session.setMode('ace/mode/javascript');
-    editor.setValue(snippet);
-    editor.clearSelection();
-  }
-
   // Put codes which do not need to be rendered by server.
   componentDidMount() {
-    this.initilizeEditor();
-
     // Initialize socket
     const socket = this._socket = io(CONFIG_GAME_SERVER_URL);
 
@@ -204,15 +194,6 @@ class Master extends React.Component<MasterProps, {}> {
 
     const { initGameView } = require('@pasta/addon-game');
     const view = initGameView(elem, viewStore, api);
-
-    const voxelEditorElem = document.getElementById('voxelEditor');
-
-    // This is ugly, but works...
-    const voxelEditorContainer = voxelEditorElem.parentElement.parentElement;
-    const createVoxelEditor = require('@pasta/addon-voxel-editor').default;
-    const voxelEditor = createVoxelEditor(voxelEditorElem, data => {
-      socket.emit('voxels', data);
-    });
 
     /////////////////////////////////////////////////////////////////////////
     // Loop
@@ -297,6 +278,22 @@ class Master extends React.Component<MasterProps, {}> {
     });
   }
 
+  _loadCodeEditor(element) {
+    const editor = this.editor = ace.edit(element);
+    editor.setTheme('ace/theme/twilight');
+    editor.session.setMode('ace/mode/javascript');
+    editor.setValue(snippet);
+    editor.clearSelection();
+  }
+
+  _loadVoxelEditor(element) {
+    // This is ugly, but works...
+    const createVoxelEditor = require('@pasta/addon-voxel-editor').default;
+    const voxelEditor = createVoxelEditor(element, data => {
+      this._socket.emit('voxels', data);
+    });
+  }
+
   render() {
     const picture = this.props.user ? this.props.user.picture : '';
 
@@ -308,7 +305,7 @@ class Master extends React.Component<MasterProps, {}> {
       <Tabs style={styles.tabs} contentContainerStyle={styles.leftPane}
         tabTemplate={TabTemplate}>
         <Tab label="Design">
-          <div id="voxelEditor" style={styles.voxelEditor}></div>
+          <div ref={this._loadVoxelEditor.bind(this)} style={styles.voxelEditor}></div>
         </Tab>
         <Tab label="Develop">
           <Toolbar style={styles.toolbar}>
@@ -316,7 +313,7 @@ class Master extends React.Component<MasterProps, {}> {
               <RaisedButton label="Run" style={{ marginTop: 6 }} primary={true} onClick={this.onRun.bind(this)}/>
             </ToolbarGroup>
           </Toolbar>
-          <div id="editor" style={styles.editor}></div>
+          <div ref={this._loadCodeEditor.bind(this)} id="editor" style={styles.editor}></div>
         </Tab>
       </Tabs>
 
