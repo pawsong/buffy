@@ -12,6 +12,8 @@ import TableHeaderColumn = require('material-ui/lib/table/table-header-column');
 import TableRow = require('material-ui/lib/table/table-row');
 import TableRowColumn = require('material-ui/lib/table/table-row-column');
 
+import FlatButton = require('material-ui/lib/flat-button');
+
 interface ResponseError extends Error {
   response: any;
 }
@@ -47,7 +49,7 @@ export class FileBrowserDialog extends React.Component<FileBrowserDialogProps, {
     });
     return Promise.using(promise, lockPromise, result => result);
   };
-  
+
   componentWillReceiveProps(nextProps) {
     if (this.props.open === false && nextProps.open === true) {
       function checkStatus(response) {
@@ -99,8 +101,14 @@ export class FileBrowserDialog extends React.Component<FileBrowserDialogProps, {
 
   render() {
     const actions = [
-      { text: 'Cancel' },
-      { text: 'Open', onTouchTap: this._onDialogSubmit.bind(this), ref: 'open' },
+      <FlatButton
+        label="Cancel"
+        secondary={true}
+        onTouchTap={this.props.onRequestClose} />,
+      <FlatButton
+        label="Open"
+        primary={true}
+        onTouchTap={this._onDialogSubmit.bind(this)} />,
     ];
 
     const workspaces = this.state.workspaces.map((workspace, index) => {
@@ -115,7 +123,6 @@ export class FileBrowserDialog extends React.Component<FileBrowserDialogProps, {
       onRequestClose={this.props.onRequestClose}
       title="Open File"
       actions={actions}
-      actionFocus="open"
       >
       {this.state.error && this.state.error.message}
       <Table style={{display: workspaces.length === 0 ? 'none' : null }} selectable={true} onRowSelection={this._onRowSelection.bind(this)}>

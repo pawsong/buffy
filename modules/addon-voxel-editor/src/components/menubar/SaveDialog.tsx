@@ -2,6 +2,7 @@ import * as React from 'react';
 import Dialog = require('material-ui/lib/dialog');
 import TextField = require('material-ui/lib/text-field');
 import config from '@pasta/config-public';
+import FlatButton = require('material-ui/lib/flat-button');
 
 export interface SaveDialogProps extends React.Props<SaveDialog> {
   open: boolean;
@@ -37,14 +38,19 @@ export class SaveDialog extends React.Component<SaveDialogProps, {
   };
 
   render() {
+    const actions = [
+      <FlatButton
+        label="Cancel"
+        onTouchTap={() => { this.props.onRequestClose(false); }} />,
+      <FlatButton
+        label="Submit"
+        onTouchTap={this._onDialogSubmit.bind(this)} />,
+    ];
     return <Dialog
       open={this.props.open}
       title="Set name of your workspace"
-      actions={[
-        { text: 'Cancel', onTouchTap: this.props.onRequestClose.bind(this) },
-        { text: 'Submit', onTouchTap: this._onDialogSubmit.bind(this), ref: 'submit' },
-      ]}
-      actionFocus="submit">
+      actions={actions}
+      >
       <TextField hintText="Hint Text" onChange={this._onTextChange.bind(this)}/>
     </Dialog>
   };

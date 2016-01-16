@@ -14,7 +14,7 @@ const packages = {
   'game-api': 159,
   'helper': 202,
   'mongodb': 231,
-  'voxel-editor': 25,
+  'addon-voxel-editor': 25,
 };
 
 const maxPkgNameLen =
