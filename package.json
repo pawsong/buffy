@@ -81,7 +81,7 @@
   "license": "UNLICENSED",
   "deployables": [
     "addon-voxel-editor-server",
-    "game-srv-zone",
+    "zone-server",
     "console",
     "compiler",
     "admin"

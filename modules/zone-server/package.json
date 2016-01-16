@@ -1,5 +1,5 @@
 {
-  "name": "@pasta/game-srv-zone",
+  "name": "@pasta/zone-server",
   "private": true,
   "repository": {
     "type": "git",
