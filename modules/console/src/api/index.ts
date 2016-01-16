@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import * as request from 'superagent';
+import * as axios from 'axios';
 import * as zlib from 'zlib';
 import * as gm from 'gm';
 import * as r from 'request';
@@ -40,12 +40,13 @@ api.post('/login/facebook', wrap(async (req, res) => {
   // Request data with token.
   let profile;
   try {
-    profile = await request
-      .get('https://graph.facebook.com/me')
-      .query({ fields: 'id,name,picture' })
-      .set('Accept', 'application/json')
-      .set('Authorization', `OAuth ${fbToken}`)
-      .exec();
+    profile = await axios.get('https://graph.facebook.com/me', {
+      params: { fields: 'id,name,picture' },
+      headers: {
+        Accept: 'application/json',
+        Authorization: `OAuth ${fbToken}`
+      },
+    }).then(res => res.data);
   } catch(err) {
     if (err.status !== 401) {
       throw err;

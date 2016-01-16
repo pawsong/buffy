@@ -1,10 +1,8 @@
 import 'babel-polyfill';
-import './patch/superagent';
 
 import * as express from 'express';
 import * as fs from 'fs';
 import * as _ from 'lodash';
-import * as request from 'superagent';
 import * as Promise from 'bluebird';
 import * as React from 'react';
 import * as Hairdresser from 'hairdresser';

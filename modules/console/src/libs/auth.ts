@@ -1,20 +1,9 @@
-import * as request from 'superagent';
+import * as axios from 'axios';
 
 export function loginWithFacebook(token) {
-  return request
-    .post('/api/login/facebook')
-    .send({ token })
-    .exec()
-    .catch(err => {
-      console.log(err);
-    });
+  return axios.post('/api/login/facebook', { token }).then(res => res.data);
 }
 
 export function loginAnonymously() {
-  return request
-    .post('/api/login/anonymous')
-    .exec()
-    .catch(err => {
-      console.log(err);
-    });
+  return axios.post('/api/login/anonymous', {}).then(res => res.data);
 }

@@ -20,7 +20,7 @@ const IconMenu: typeof __MaterialUI.Menus.IconMenu = require('material-ui/lib/me
 import {
   SET_USER_DATA,
 } from '../constants/ActionTypes';
-import * as request from 'superagent';
+import * as axios from 'axios';
 import conf from '@pasta/config-public';
 
 import * as io from 'socket.io-client';
@@ -247,8 +247,8 @@ class Master extends React.Component<MasterProps, {}> {
 
     (async () => {
       const source = this.editor.getValue();
-      const { url } = await request.post('/code/compile')
-        .send({ source }).exec();
+      const res = await axios.post('/code/compile', { source });
+      const { url } = res.data;
 
       this.child.running = true;
       const worker = this.child.worker = new Worker(url);
@@ -292,10 +292,7 @@ class Master extends React.Component<MasterProps, {}> {
   }
 
   onSignOut() {
-    request
-    .post('/api/logout')
-    .exec()
-    .then(() => {
+    axios.post('/api/logout', {}).then(() => {
       this.props.setUser(null);
       this.props.history.pushState(null, '/login', {});
     });

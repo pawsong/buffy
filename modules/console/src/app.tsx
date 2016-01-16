@@ -6,8 +6,6 @@ import 'babel-polyfill';
 //https://github.com/zilverline/react-tap-event-plugin
 require('react-tap-event-plugin')();
 
-import './patch/superagent';
-
 import * as React from 'react'
 import { render } from 'react-dom'
 import { createHistory, useQueries } from 'history';

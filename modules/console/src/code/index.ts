@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import * as request from 'superagent';
+import * as axios from 'axios';
 import Script from '@pasta/mongodb/lib/models/Script';
 import * as iConfig from '@pasta/config';
 import * as fs from 'fs';
@@ -24,23 +24,22 @@ app.post('/compile', wrap(async (req, res, next) => {
 
   let result;
   try {
-    result = await request
-      .post(compilerUrl)
-      .send({ source })
-      .exec();
+    result = await axios.post(compilerUrl, { source });
   } catch(err) {
     // Compile failed...
     console.log(err);
     return next(err);
   }
 
+  const { bundle, sourceMap } = result.data;
+
   const owner = req.user ? req.user.id : '';
 
   // Temporarily save in DB
   const script = new Script({
     owner,
-    bundle: result.bundle,
-    sourceMap: result.sourceMap,
+    bundle,
+    sourceMap,
   });
   await script.save();
 

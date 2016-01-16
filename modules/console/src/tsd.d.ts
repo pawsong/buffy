@@ -1,3 +1,5 @@
+/// <reference path="../node_modules/axios/axios.d.ts"/>
+
 interface PastaContext {
   api: any;
   store: any;
@@ -20,12 +22,6 @@ declare module 'hairdresser' {
   const Hairdresser: any;
   module Hairdresser {}
   export = Hairdresser;
-}
-
-declare module 'superagent' {
-  const Superagent: any;
-  module Superagent {}
-  export = Superagent;
 }
 
 declare namespace __MaterialUI {
