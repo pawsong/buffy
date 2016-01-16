@@ -18,7 +18,6 @@ import routes from './routes';
 
 import rootReducer from './reducers';
 
-import conf from '@pasta/config-public';
 import * as iConfig from '@pasta/config';
 
 import { provideHairdresserContext } from './hairdresser';
@@ -37,7 +36,7 @@ const HairdresserProvider = provideHairdresserContext(Provider);
   const template = fs.readFileSync(`${__dirname}/client/index.html`).toString();
 
   const compiled = _.template(template, {
-    imports: { facebookAppId: conf.facebookAppId },
+    imports: { facebookAppId: CONFIG_FACEBOOK_APP_ID },
   });
 
   const app = express();

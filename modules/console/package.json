@@ -64,7 +64,6 @@
     "source-map-support": "^0.4.0"
   },
   "links": [
-    "../config-public",
     "../config",
     "../helper",
     "../game-api",

@@ -1,5 +1,9 @@
 /// <reference path="../node_modules/axios/axios.d.ts"/>
 
+declare const CONFIG_DOMAIN: string;
+declare const CONFIG_GAME_SERVER_URL: string;
+declare const CONFIG_FACEBOOK_APP_ID: string;
+
 interface PastaContext {
   api: any;
   store: any;

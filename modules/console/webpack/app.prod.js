@@ -1,6 +1,12 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const conf = require('@pasta/config-public/lib/production').default;
+const _ = require('lodash');
+const conf = require('@pasta/config');
+
+const defines = {
+  'process.env.NODE_ENV': 'production',
+  'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
+};
 
 module.exports = Object.assign({}, require('./app.dev'), {
   output: {
@@ -12,9 +18,7 @@ module.exports = Object.assign({}, require('./app.dev'), {
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
 
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production')
-    }),
+    new webpack.DefinePlugin(_.mapValues(defines, val => JSON.stringify(val))),
 
     // Should be enabled when officially released
     new webpack.optimize.UglifyJsPlugin({

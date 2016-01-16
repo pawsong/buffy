@@ -8,11 +8,10 @@ import * as shortid from 'shortid';
 import * as jwt from 'jsonwebtoken';
 import User from '@pasta/mongodb/lib/models/User';
 import s3 from '../s3';
-import conf from '@pasta/config-public';
-import * as iConfig from '@pasta/config';
+import * as conf from '@pasta/config';
 import wrap from '@pasta/helper/lib/wrap';
 
-const DOMAIN = conf.domain ? '.' + conf.domain : '';
+const DOMAIN = CONFIG_DOMAIN;
 
 const api = express();
 
@@ -21,7 +20,7 @@ api.post('/login/anonymous', wrap(async (req, res) => {
   const token = jwt.sign({
     id: new User()._id, // Fake ID generator
     anonymous: true,
-  }, iConfig.jwtSecret);
+  }, conf.jwtSecret);
 
   res.cookie('tt' /* tiat token */, token, {
     domain: DOMAIN,
@@ -75,7 +74,7 @@ api.post('/login/facebook', wrap(async (req, res) => {
 
     const data = await new Promise<{ Location: any }>((resolve, reject) => {
       s3.upload({
-        Bucket: iConfig.s3Bucket,
+        Bucket: conf.s3Bucket,
         Key: `profiles/${profile.id}/${shortid.generate()}`,
         Body: stdout, //resp.body,
         ACL: 'public-read',
@@ -93,7 +92,7 @@ api.post('/login/facebook', wrap(async (req, res) => {
 
   const token = jwt.sign({
     id: user._id,
-  }, iConfig.jwtSecret);
+  }, conf.jwtSecret);
 
   res.cookie('tt' /* tiat token */, token, {
     domain: DOMAIN,

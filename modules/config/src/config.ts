@@ -21,6 +21,11 @@ export const compilerPort: number = 9100;
 export const gameServerPort: number = 9200;
 
 /**
+ * Game zone server public url
+ */
+export const gameServerUrl = 'http://zone.project-pasta.io';
+
+/**
  * API server port
  */
 export const apiServerPort: number = 9300;
@@ -80,3 +85,9 @@ export const jwtSecret: string = process.env.PASTA_JWT_SECRET;
 * public path for admin server assets
 */
 export const adminPublicPath: string = 'https://dut3rr7qk867n.cloudfront.net';
+
+export const domain = 'project-pasta.io';
+
+export const facebookAppIdDev: string = '1127122043982378';
+
+export const facebookAppIdProd: string = '1127121857315730';

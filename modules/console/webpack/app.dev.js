@@ -1,5 +1,12 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const _ = require('lodash');
+const conf = require('@pasta/config');
+
+const defines = {
+  'process.env.NODE_ENV': 'development',
+  'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
+};
 
 module.exports = {
   entry: './src/app.tsx',
@@ -24,9 +31,7 @@ module.exports = {
   },
 
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development'),
-    }),
+    new webpack.DefinePlugin(_.mapValues(defines, val => JSON.stringify(val))),
     new HtmlWebpackPlugin({
       template: `${__dirname}/../src/index.html`, // Load a custom template
       inject: 'body', // Inject all scripts into the body

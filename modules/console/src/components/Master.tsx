@@ -21,7 +21,6 @@ import {
   SET_USER_DATA,
 } from '../constants/ActionTypes';
 import * as axios from 'axios';
-import conf from '@pasta/config-public';
 
 import * as io from 'socket.io-client';
 
@@ -190,7 +189,7 @@ class Master extends React.Component<MasterProps, {}> {
     this.initilizeEditor();
 
     // Initialize socket
-    const socket = this._socket = io(conf.gameServerUrl);
+    const socket = this._socket = io(CONFIG_GAME_SERVER_URL);
 
     // Initialize store for code
     const codeStore = this.codeStore = new GameStore();
