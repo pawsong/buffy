@@ -1,5 +1,13 @@
 declare const process;
 
+(isNode => {
+  if (isNode) { return; }
+  throw new Error('Config must be used by node process');
+})(
+  typeof process === 'object' &&
+  Object.prototype.toString.call(process) === '[object process]'
+);
+
 /**
  * Console server port
  */
