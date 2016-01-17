@@ -12,7 +12,6 @@ const packages = {
   'game-class': 120,
   'game-api': 159,
   'helper': 202,
-  'mongodb': 231,
   'addon-game': 25,
   'addon-voxel-editor': 12,
 };
