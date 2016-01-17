@@ -74,9 +74,9 @@ class Container extends React.Component<_ContainerProps, {
   canvas: any;
 
   _voxelRef(element) {
-    if (element) {
-      this.canvas = initCanvas(element);
-    }
+    if (!element) { return; }
+    if (this.canvas) { return; }
+    this.canvas = initCanvas(element);
   };
 
   constructor(props) {

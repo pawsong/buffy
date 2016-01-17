@@ -64,9 +64,9 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
   canvas: any;
 
   _canvasRef(element) {
-    if (element) {
-      this.canvas = initPreview(element);
-    }
+    if (!element) { return; }
+    if (this.canvas) { return; }
+    this.canvas = initPreview(element);
   };
 
   _handleClickRotate(axis) {
