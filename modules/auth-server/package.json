@@ -7,7 +7,7 @@
   },
   "version": "0.0.0",
   "description": "",
-  "main": "build/dev/server.js",
+  "main": "lib/server.js",
   "config": {
     "bin": "../../node_modules/.bin"
   },
