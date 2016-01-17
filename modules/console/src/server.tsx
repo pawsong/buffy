@@ -22,12 +22,10 @@ import * as conf from '@pasta/config';
 
 import { provideHairdresserContext } from './hairdresser';
 
-import api from './api';
 import code from './code';
 
 import * as mongoose from 'mongoose';
 import * as axios from 'axios';
-import User from './models/User';
 
 Promise.config({ warnings: false });
 
@@ -47,7 +45,6 @@ const HairdresserProvider = provideHairdresserContext(Provider);
     app.use('/public', express.static(`${__dirname}/client/public`));
   }
   app.use('/assets', express.static(`${__dirname}/../../public`));
-  app.use('/api', api);
 
   app.use(cookieParser());
 
