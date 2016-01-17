@@ -7,6 +7,7 @@ const defines = {
   'CONFIG_DOMAIN': conf.domain,
   'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
   'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdProd,
+  'CONFIG_AUTH_SERVER_URL': conf.authServerUrl,
 };
 
 module.exports = Object.assign({}, require('./server.dev'), {

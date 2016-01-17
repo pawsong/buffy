@@ -61,13 +61,21 @@ interface PreviewPanelProps extends React.Props<PreviewPanel> {
 }
 
 class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
+  canvas: any;
+
   _canvasRef(element) {
-    initPreview(element);
+    if (element) {
+      this.canvas = initPreview(element);
+    }
   };
 
   _handleClickRotate(axis) {
     this.props.actions.voxelRotate(axis);
   };
+
+  componentWillUnmount() {
+    this.canvas.destroy();
+  }
 
   render() {
     const {
@@ -84,7 +92,7 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
     return <div>
       {connectDragPreview(<div style={objectAssign({ zIndex, left, top, opacity }, PanelStyles.root)}>
         {connectDragSource(<div style={PanelStyles.handle}>Preview</div>)}
-        <div style={{ width: 150, height: 150 }} ref={this._canvasRef}></div>
+        <div style={{ width: 150, height: 150 }} ref={this._canvasRef.bind(this)}></div>
         <div>
           <RotateButton onClick={this._handleClickRotate.bind(this, 'x')}>X</RotateButton>
           <RotateButton onClick={this._handleClickRotate.bind(this, 'y')}>Y</RotateButton>

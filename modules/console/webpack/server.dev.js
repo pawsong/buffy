@@ -8,6 +8,7 @@ const defines = {
   'CONFIG_DOMAIN': '',
   'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
   'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdDev,
+  'CONFIG_AUTH_SERVER_URL': `http://localhost:${conf.authServerPort}`,
 };
 
 module.exports = {

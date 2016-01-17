@@ -57,6 +57,10 @@ export const adminWebpackAppPort: number = 9401;
  */
 export const adminServerDevPort: number = 9402;
 
+export const authServerPort = 9500;
+
+export const authServerUrl = 'http://auth.project-pasta.io';
+
 /**
 * public path for admin server assets
 */
@@ -98,7 +102,7 @@ export const awsSecretKey: string = process.env.PASTA_AWS_SECRET_KEY;
  */
 export const jwtSecret: string = process.env.PASTA_JWT_SECRET;
 
-export const domain = 'project-pasta.io';
+export const domain = process.env.PASTA_DOMAIN;
 
 export const facebookAppIdDev: string = '1127122043982378';
 

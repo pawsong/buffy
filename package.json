@@ -82,6 +82,7 @@
   "deployables": [
     "addon-voxel-editor-server",
     "zone-server",
+    "auth-server",
     "console",
     "compiler",
     "admin"

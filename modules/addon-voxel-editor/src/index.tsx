@@ -16,4 +16,10 @@ export default function init(container, submit) {
     </Provider>,
     container
   );
+
+  return {
+    destroy() {
+      return ReactDOM.unmountComponentAtNode(container);
+    },
+  };
 }

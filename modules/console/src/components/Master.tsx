@@ -148,6 +148,7 @@ class Master extends React.Component<MasterProps, {}> {
   editor: AceAjax.Editor;
   _socket: SocketIOClient.Socket;
   codeStore: GameStore;
+  addons: any[] = [];
 
   constructor(props) {
     super(props);
@@ -272,13 +273,17 @@ class Master extends React.Component<MasterProps, {}> {
   }
 
   onSignOut() {
-    axios.post('/api/logout', {}).then(() => {
+    axios.post(`${CONFIG_AUTH_SERVER_URL}/logout`, {}, {
+      withCredentials: true,
+    }).then(() => {
+      this.addons.forEach(addon => addon.destroy());
       this.props.setUser(null);
       this.props.history.pushState(null, '/login', {});
     });
   }
 
   _loadCodeEditor(element) {
+    if (!element) { return; }
     const editor = this.editor = ace.edit(element);
     editor.setTheme('ace/theme/twilight');
     editor.session.setMode('ace/mode/javascript');
@@ -287,11 +292,12 @@ class Master extends React.Component<MasterProps, {}> {
   }
 
   _loadVoxelEditor(element) {
-    // This is ugly, but works...
+    if (!element) { return; }
     const createVoxelEditor = require('@pasta/addon-voxel-editor').default;
-    const voxelEditor = createVoxelEditor(element, data => {
+    const addon = createVoxelEditor(element, data => {
       this._socket.emit('voxels', data);
     });
+    this.addons.push(addon);
   }
 
   render() {
@@ -326,7 +332,7 @@ class Master extends React.Component<MasterProps, {}> {
       <div style={styles.rightPane}>
         <div id="game" style={styles.game}></div>
       </div>
-  </div>
+    </div>;
   }
 }
 

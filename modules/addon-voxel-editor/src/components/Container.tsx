@@ -71,13 +71,17 @@ class Container extends React.Component<_ContainerProps, {
   panels?: any;
   fullscreen?: boolean;
 }> {
+  canvas: any;
+
   _voxelRef(element) {
-    initCanvas(element);
+    if (element) {
+      this.canvas = initCanvas(element);
+    }
   };
-  
+
   constructor(props) {
     super(props);
-        
+
     let index = 0;
     const panels = _.mapValues(PANELS, (Component, id) => {
       const panel = storage.get(`panels.${id}`) || {};
@@ -139,6 +143,10 @@ class Container extends React.Component<_ContainerProps, {
     });
   };
 
+  componentWillUnmount() {
+    this.canvas.destroy();
+  }
+
   render() {
     const {
       connectDropTarget,
@@ -171,7 +179,7 @@ class Container extends React.Component<_ContainerProps, {
     };
 
     return connectDropTarget(<div style={style}>
-      <div ref={this._voxelRef} style={ styles.voxel }></div>
+      <div ref={this._voxelRef.bind(this)} style={ styles.voxel }></div>
       <div style={{ position: 'absolute', top: 15, right: 15 }}>
         <div>
           <RaisedButton label="Submit" primary={true} onClick={this._submit.bind(this)}/>
@@ -195,8 +203,8 @@ class Container extends React.Component<_ContainerProps, {
 export const DndContainer = DragDropContext<ContainerProps>(HTML5Backend)(
   DropTarget('panel', {
     drop(props, monitor, component: Container) {
-      const item = monitor.getItem() as { 
-        left: number; top: number; id: string; 
+      const item = monitor.getItem() as {
+        left: number; top: number; id: string;
       };
       const delta = monitor.getDifferenceFromInitialOffset();
       const left = Math.round(item.left + delta.x);

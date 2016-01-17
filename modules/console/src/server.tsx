@@ -26,6 +26,7 @@ import api from './api';
 import code from './code';
 
 import * as mongoose from 'mongoose';
+import * as axios from 'axios';
 import User from './models/User';
 
 Promise.config({ warnings: false });
@@ -73,7 +74,11 @@ const HairdresserProvider = provideHairdresserContext(Provider);
           profile: '',
         };
       } else {
-        user = await User.findById(req.user.id);
+        user = await axios.get(`${CONFIG_AUTH_SERVER_URL}/users/${req.user.id}`, {
+          headers: {
+            Authorization: `Bearer ${req.cookies.tt}`,
+          },
+        }).then(res => res.data);
       }
 
       store.dispatch({ type: 'SET_USER_DATA', user })
@@ -135,7 +140,7 @@ const HairdresserProvider = provideHairdresserContext(Provider);
       res.send(result);
     } catch(err) {
       console.error(err.stack);
-      res.send(500);
+      res.sendStatus(500);
     }
   });
 

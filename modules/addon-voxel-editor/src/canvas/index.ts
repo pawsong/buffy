@@ -130,7 +130,6 @@ interface PlaneMesh extends THREE.Mesh {
 
 let camera;
 export function initCanvas(container) {
-
   const scene = new THREE.Scene();
   const raycaster = new THREE.Raycaster();
 
@@ -277,7 +276,7 @@ export function initCanvas(container) {
     return tool;
   });
 
-  observeStore(state => state.tool, ({ type }) => {
+  const unsubscribe = observeStore(state => state.tool, ({ type }) => {
     if (tool) {
       tool.onLeave();
     }
@@ -340,12 +339,23 @@ export function initCanvas(container) {
     render()
   }
 
+  let frameId;
   function animate() {
-    requestAnimationFrame( animate );
+    frameId = requestAnimationFrame( animate );
     render();
   }
   animate();
 
+  return {
+    destroy() {
+      unsubscribe();
+      renderer.domElement.removeEventListener('mousemove', onDocumentMouseMove, false);
+      renderer.domElement.removeEventListener('mousedown', onDocumentMouseDown, false);
+      renderer.domElement.removeEventListener('mouseup', onDocumentMouseUp, false);
+      window.removeEventListener('resize', onWindowResize, false);
+      cancelAnimationFrame(frameId);
+    },
+  };
 }
 
 export function initPreview(container) {
@@ -439,9 +449,17 @@ export function initPreview(container) {
   // Add event handlers
   window.addEventListener('resize', onWindowResize, false);
 
+  let frameId;
   function animate() {
-    requestAnimationFrame( animate );
+    frameId = requestAnimationFrame( animate );
     render();
   }
   animate();
+
+  return {
+    destroy() {
+      window.removeEventListener('resize', onWindowResize, false);
+      cancelAnimationFrame(frameId);
+    },
+  };
 }
