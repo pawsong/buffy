@@ -3,9 +3,10 @@ import 'babel-polyfill';
 import * as Promise from 'bluebird';
 import * as cors from 'cors';
 import * as mongoose from 'mongoose';
-global.Promise = Promise;
-
 import ioHandler from './io';
+
+// Surpress annoying warnings
+Promise.config({ warnings: false });
 
 const app = require('express')();
 const http = require('http').Server(app);

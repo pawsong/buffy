@@ -10,22 +10,11 @@ const secrets = [
 export interface UserDocument extends mongoose.Document {
   fb_id: string;
   picture: string;
-  loc: {
-    map: mongoose.Types.ObjectId;
-    pos: {
-      x: number;
-      y: number;
-    }
-  }
 }
 
 const UserSchema = new Schema({
   fb_id: { type: String, sparse: true, unique: true },
   picture: { type: String },
-  loc: {
-    map: { type: Schema.Types.ObjectId },
-    pos: { x: Number, y: Number, },
-  },
 });
 
 // Duplicate the ID field.

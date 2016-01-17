@@ -44,7 +44,6 @@
   "links": [
     "../config",
     "../tween.js",
-    "../game-class",
-    "../mongodb"
+    "../game-class"
   ]
 }
