@@ -4,7 +4,7 @@ const OFFSET_Y = -50;
 const WIDTH = 100;
 const HEIGHT = 100;
 
-import Terrain from '@pasta/mongodb/lib/models/Terrain';
+import Terrain from './models/Terrain';
 
 import * as _ from 'lodash';
 

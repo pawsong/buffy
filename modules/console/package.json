@@ -45,8 +45,10 @@
     "history": "^1.13.0",
     "inline-style-prefixer": "^0.5.0",
     "jsonwebtoken": "^5.4.1",
+    "kerberos": "0.0.17",
     "lodash": "^3.10.1",
     "material-ui": "^0.14.2",
+    "mongoose": "^4.3.6",
     "object-assign": "^4.0.1",
     "react": "^0.14.3",
     "react-addons-create-fragment": "^0.14.3",
@@ -69,7 +71,6 @@
     "../game-api",
     "../game-class",
     "../addon-game",
-    "../addon-voxel-editor",
-    "../mongodb"
+    "../addon-voxel-editor"
   ]
 }

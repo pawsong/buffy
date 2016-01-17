@@ -6,7 +6,7 @@ import * as gm from 'gm';
 import * as r from 'request';
 import * as shortid from 'shortid';
 import * as jwt from 'jsonwebtoken';
-import User from '@pasta/mongodb/lib/models/User';
+import User from '../models/User';
 import s3 from '../s3';
 import * as conf from '@pasta/config';
 import wrap from '@pasta/helper/lib/wrap';

@@ -25,15 +25,15 @@ import { provideHairdresserContext } from './hairdresser';
 import api from './api';
 import code from './code';
 
-import mongodb from '@pasta/mongodb';
-import User from '@pasta/mongodb/lib/models/User';
+import * as mongoose from 'mongoose';
+import User from './models/User';
 
 Promise.config({ warnings: false });
 
 const HairdresserProvider = provideHairdresserContext(Provider);
 
 (async () => {
-  mongodb.mongoose.connect(conf.mongoUri);
+  mongoose.connect(conf.mongoUri);
 
   const template = fs.readFileSync(`${__dirname}/client/index.html`).toString();
 

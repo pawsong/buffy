@@ -6,7 +6,7 @@ global.Promise = Promise;
 
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
-import mongodb from '@pasta/mongodb';
+import * as mongoose from 'mongoose';
 import * as jwt from 'express-jwt';
 
 import routes from './routes';
@@ -34,7 +34,7 @@ app.use(jwt({
 routes(app);
 
 (async () => {
-  mongodb.mongoose.connect(conf.mongoUri);
+  mongoose.connect(conf.mongoUri);
 
   await new Promise((resolve, reject) => {
     http.listen(conf.addonVoxelEditorServerPort, err => err ? reject(err) : resolve());

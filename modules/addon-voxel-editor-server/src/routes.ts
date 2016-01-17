@@ -1,7 +1,7 @@
 'use strict';
 
 import wrap from '@pasta/helper/lib/wrap';
-import VoxelWorkspace from '@pasta/mongodb/lib/models/VoxelWorkspace';
+import VoxelWorkspace from './models/VoxelWorkspace';
 
 export default app => {
   app.get('/', (req, res) => {
