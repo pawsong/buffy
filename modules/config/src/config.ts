@@ -42,6 +42,10 @@ export const addonVoxelEditorServerPort: number = 9300;
 
 export const addonVoxelEditorServerUrl = `http://api.project-pasta.io`;
 
+export const addonCodeEditorServerPort: number = 9600;
+
+export const addonCodeEditorServerUrl = `http://code.project-pasta.io`;
+
 /**
  * Admin server port
  */

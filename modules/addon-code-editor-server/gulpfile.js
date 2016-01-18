@@ -10,9 +10,9 @@ require('babel-helpers/lib/helpers').interopRequireWildcard =
 const conf = require('@pasta/config');
 
 require('../../gulp/universal')({
-  prefix: 'console',
-  port: conf.consolePort,
-  devPort: conf.consoleDevPort,
+  prefix: 'addon-code-editor-server',
+  port: conf.addonCodeEditorServerPort,
+  useBrowserSync: false,
   main: 'build/dev/server',
   webpackConfig: {
     server: {
@@ -21,10 +21,10 @@ require('../../gulp/universal')({
     },
     client: {
       dev: {
-        app: require('./webpack/app.dev'),
+        worker: require('./webpack/worker.dev'),
       },
       prod: {
-        app: require('./webpack/app.prod'),
+        worker: require('./webpack/worker.prod'),
       },
     },
   },

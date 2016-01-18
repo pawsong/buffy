@@ -36,7 +36,9 @@ function handleCompileError(done) {
 }
 
 module.exports = function (options) {
-  const opts = options || {};
+  const opts = Object.assign({
+    useBrowserSync: true,
+  }, options);
   const wpConf = opts.webpackConfig || {};
 
   /**
@@ -178,6 +180,7 @@ module.exports = function (options) {
   });
 
   gulp.task('serve:dev:watch', ['build:server:dev:watch'], done => {
+    if (!opts.useBrowserSync) { return; }
     browserSync.init({
       port: opts.devPort,
       proxy: `http://localhost:${opts.port}`,

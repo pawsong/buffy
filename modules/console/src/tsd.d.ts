@@ -33,6 +33,12 @@ declare module 'hairdresser' {
   export = Hairdresser;
 }
 
+declare module 'http-proxy' {
+  const m: any;
+  module m {}
+  export = m;
+}
+
 declare namespace __MaterialUI {
    import React = __React;
    namespace Menus {

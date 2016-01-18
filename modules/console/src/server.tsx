@@ -22,7 +22,7 @@ import * as conf from '@pasta/config';
 
 import { provideHairdresserContext } from './hairdresser';
 
-import code from './code';
+import addonProxy from './addonProxy';
 
 import * as mongoose from 'mongoose';
 import * as axios from 'axios';
@@ -41,6 +41,8 @@ const HairdresserProvider = provideHairdresserContext(Provider);
   });
 
   const app = express();
+  app.use('/addons', addonProxy);
+
   if (process.env.NODE_ENV !== 'production') {
     app.use('/public', express.static(`${__dirname}/client/public`));
   }
@@ -53,8 +55,6 @@ const HairdresserProvider = provideHairdresserContext(Provider);
     credentialsRequired: false,
     getToken: req => req.cookies.tt,
   })),
-
-  app.use('/code', code);
 
   //// Register server-side rendering middleware
   //// -----------------------------------------------------------------------------

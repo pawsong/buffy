@@ -16,7 +16,7 @@ module.exports = {
   },
 
   output: {
-    path: `${__dirname}/../build/dev/client/public`,
+    path: `${__dirname}/../build/dev`,
     filename: 'worker.js',
   },
 

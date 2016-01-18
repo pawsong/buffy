@@ -228,7 +228,7 @@ class Master extends React.Component<MasterProps, {}> {
 
     (async () => {
       const source = this.editor.getValue();
-      const res = await axios.post('/code/compile', { source });
+      const res = await axios.post('/addons/code-editor/compile', { source });
       const { url } = res.data;
 
       this.child.running = true;
