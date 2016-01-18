@@ -7,7 +7,7 @@
   },
   "version": "0.0.0",
   "description": "",
-  "main": "build/prod/server.js",
+  "start": "build/prod/server.js",
   "config": {
     "bin": "../../node_modules/.bin"
   },
@@ -20,7 +20,7 @@
     "test": "$npm_package_config_bin/gulp test",
     "test:watch": "$npm_package_config_bin/gulp test:watch",
     "serve": "$npm_package_config_bin/gulp serve:dev:watch",
-    "start": "node $npm_package_main"
+    "start": "node $npm_package_start"
   },
   "files": [
     "build",
