@@ -23,7 +23,8 @@
     "start": "node $npm_package_main"
   },
   "files": [
-    "lib"
+    "lib",
+    "build"
   ],
   "author": "",
   "license": "UNLICENSED",
