@@ -32,28 +32,12 @@ import {
 import GameObject from '@pasta/game-class/lib/GameObject';
 import GameStore from '@pasta/game-class/lib/GameStore';
 
-const snippet =
-`import player from '@pasta/player';
-import tutil from '@pasta/util';
-
-tutil.loop(async () => {
-  await player.move(1, 1);
-  await tutil.sleep(1000);
-  await player.move(2, 3);
-  await tutil.sleep(1000);
-  await player.boom();
-  await tutil.sleep(2000);
-});`;
-
 const navbarHeight = 48;
 
 const styles = {
   tabs: {
     width: 400,
     marginLeft: 48,
-  },
-  toolbar: {
-    height: navbarHeight,
   },
   avatarContainer: {
     position: 'absolute',
@@ -141,6 +125,7 @@ class Master extends React.Component<MasterProps, {}> {
   _socket: SocketIOClient.Socket;
   codeStore: GameStore;
   addons: any[] = [];
+  frameId;
 
   createAdapter(socket) {
     return createAdapter({
@@ -170,32 +155,32 @@ class Master extends React.Component<MasterProps, {}> {
     const codeStore = this.codeStore = new GameStore();
     codeStore.connect(socket);
 
-    // Code editor
+    const api = this.createAdapter(socket);
+
+    // addon-code-editor
     this.addons.push(require('@pasta/addon-code-editor').default(
       this.refs['addonCodeEditor'], socket, codeStore
     ));
 
-    // Voxel editor
+    // addon-voxel-editor
     this.addons.push(require('@pasta/addon-voxel-editor').default(
       this.refs['addonVoxelEditor'], data => {
         this._socket.emit('voxels', data);
       }
     ));
 
-    // Initialize view
-    const api = this.createAdapter(socket);
-    const elem = document.getElementById('game');
-
-    const { initGameView } = require('@pasta/addon-game');
-    const view = initGameView(elem, codeStore, api);
+    // addon-game
+    this.addons.push(require('@pasta/addon-game').default(
+      this.refs['addonGame'], codeStore, api
+    ));
 
     /////////////////////////////////////////////////////////////////////////
     // Loop
     /////////////////////////////////////////////////////////////////////////
 
     var time;
-    function update() {
-      requestAnimationFrame(update);
+    const update = () => {
+      this.frameId = requestAnimationFrame(update);
 
       const now = new Date().getTime();
       const dt = now - (time || now);
@@ -208,6 +193,7 @@ class Master extends React.Component<MasterProps, {}> {
   }
 
   componentWillUnmount() {
+    cancelAnimationFrame(this.frameId);
     this.addons.forEach(addon => addon.destroy());
     this._socket.disconnect();
   }
@@ -246,7 +232,7 @@ class Master extends React.Component<MasterProps, {}> {
       </IconMenu>
 
       <div style={styles.rightPane}>
-        <div id="game" style={styles.game}></div>
+        <div ref="addonGame" style={styles.game}></div>
       </div>
     </div>;
   }

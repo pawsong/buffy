@@ -86,7 +86,7 @@ function initMainView(htmlElement, store, api) {
   // Add event listeners
   /////////////////////////////////////////////////////////////////////////
 
-  htmlElement.addEventListener('mousemove', event => {
+  function onMouseMove(event) {
     event.preventDefault();
 
     mouse.set( ( event.offsetX / windowWidth ) * 2 - 1,
@@ -110,9 +110,9 @@ function initMainView(htmlElement, store, api) {
               rollOverPlane.position.y = 0;
 
               render();
-  }, false);
+  }
 
-  htmlElement.addEventListener('mousedown', event => {
+  function onMouseDown(event) {
     event.preventDefault();
 
     mouse.set( ( event.offsetX / windowWidth ) * 2 - 1,
@@ -136,7 +136,10 @@ function initMainView(htmlElement, store, api) {
                 .addScalar(1);
 
               api.move('', position.x, position.z);
-  }, false);
+  }
+
+  htmlElement.addEventListener('mousemove', onMouseMove, false);
+  htmlElement.addEventListener('mousedown', onMouseDown, false);
   window.addEventListener('resize', onWindowResize, false);
 
   function onWindowResize() {
@@ -149,9 +152,11 @@ function initMainView(htmlElement, store, api) {
     renderer.setSize( container.offsetWidth, container.offsetHeight )
   }
 
+  let tokens = [];
+  let token;
 
   let objects = {};
-  store.on('create', function (obj) {
+  token = store.on('create', function (obj) {
     if (obj.type === 'effect') {
       return effectManager.create('fire', obj.options.duration, obj.position);
     }
@@ -172,13 +177,15 @@ function initMainView(htmlElement, store, api) {
 
     scene.add( object );
   });
+  tokens.push(token);
 
-  store.on('init', function () {
+  token = store.on('init', function () {
     const object = objects[this.me.id];
     camera.position.copy(object.position);
   });
+  tokens.push(token);
 
-  store.on('move', function (obj, to, from) {
+  token = store.on('move', function (obj, to, from) {
     const object = objects[obj.id];
 
     // Rotate
@@ -196,8 +203,9 @@ function initMainView(htmlElement, store, api) {
       camera.position.copy(object.position);
     }
   });
+  tokens.push(token);
 
-  store.on('destroyAll', () => {
+  token = store.on('destroyAll', () => {
     Object.keys(objects).forEach(id => {
       const cube = objects[id];
       scene.remove(cube);
@@ -205,6 +213,7 @@ function initMainView(htmlElement, store, api) {
     render();
     objects = {};
   });
+  tokens.push(token);
 
   const planeGeometry = new THREE.PlaneGeometry(BOX_SIZE, BOX_SIZE);
   planeGeometry.rotateX( - Math.PI / 2 );
@@ -213,7 +222,7 @@ function initMainView(htmlElement, store, api) {
   const planes = {};
   const planeList = [];
 
-  store.on('terrain', terrain => {
+  token = store.on('terrain', terrain => {
     const { loc, color } = terrain;
 
     const key = `${loc.x}_${loc.y}`;
@@ -231,8 +240,9 @@ function initMainView(htmlElement, store, api) {
     }
     plane.material.color.setHex(color);
   });
+  tokens.push(token);
 
-  store.on('voxels', ({ id, data }) => {
+  token = store.on('voxels', ({ id, data }) => {
     const object = objects[id];
     for (let i = object.children.length - 1; i >= 0; --i) {
       const child = object.children[i];
@@ -279,6 +289,7 @@ function initMainView(htmlElement, store, api) {
 
     object.add(surfacemesh);
   });
+  tokens.push(token);
 
   // Map
   //const data = store.objects.getAllObjects();
@@ -296,8 +307,9 @@ function initMainView(htmlElement, store, api) {
   /////////////////////////////////////////////////////////////////////////
 
   let time;
+  let frameId;
   function update() {
-    requestAnimationFrame(update);
+    frameId = requestAnimationFrame(update);
 
     const now = new Date().getTime();
     const dt = now - (time || now);
@@ -306,6 +318,16 @@ function initMainView(htmlElement, store, api) {
     render(dt);
   }
   update();
+
+  return {
+    destroy() {
+      htmlElement.removeEventListener('mousemove', onMouseMove, false);
+      htmlElement.removeEventListener('mousedown', onMouseDown, false);
+      window.removeEventListener('resize', onWindowResize, false);
+      tokens.forEach(token => token.remove());
+      cancelAnimationFrame(frameId);
+    },
+  };
 }
 
 const style = {
@@ -319,12 +341,18 @@ export interface MainProps extends React.Props<Main> {
 }
 
 export class Main extends React.Component<MainProps, {}> {
-  _init(element) {
-    initMainView(element, this.props.gameStore, this.props.api);
+  canvas;
+
+  componentDidMount() {
+    this.canvas = initMainView(this.refs['canvas'], this.props.gameStore, this.props.api);
+  }
+
+  componentWillUnmount() {
+    this.canvas.destroy();
   }
 
   render() {
-    return <div ref={this._init.bind(this)} style={style}></div>;
+    return <div ref="canvas" style={style}></div>;
   }
 };
 
