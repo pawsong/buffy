@@ -73,12 +73,6 @@ class Container extends React.Component<_ContainerProps, {
 }> {
   canvas: any;
 
-  _voxelRef(element) {
-    if (!element) { return; }
-    if (this.canvas) { return; }
-    this.canvas = initCanvas(element);
-  };
-
   constructor(props) {
     super(props);
 
@@ -143,6 +137,10 @@ class Container extends React.Component<_ContainerProps, {
     });
   };
 
+  componentDidMount() {
+    this.canvas = initCanvas(this.refs['canvas']);
+  }
+
   componentWillUnmount() {
     this.canvas.destroy();
   }
@@ -179,7 +177,7 @@ class Container extends React.Component<_ContainerProps, {
     };
 
     return connectDropTarget(<div style={style}>
-      <div ref={this._voxelRef.bind(this)} style={ styles.voxel }></div>
+      <div ref="canvas" style={ styles.voxel }></div>
       <div style={{ position: 'absolute', top: 15, right: 15 }}>
         <div>
           <RaisedButton label="Submit" primary={true} onClick={this._submit.bind(this)}/>

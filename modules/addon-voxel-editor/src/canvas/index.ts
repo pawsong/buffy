@@ -375,7 +375,7 @@ export function initPreview(container) {
     container.offsetHeight / - 2,
     -500, 1000
   );
-  previewCamera.position.copy(camera.position).multiplyScalar(0.1);
+  // previewCamera.position.copy(camera.position).multiplyScalar(0.1);
 
   /////////////////////////////////////////////////////////////
   // INITIALIZE
@@ -431,6 +431,7 @@ export function initPreview(container) {
   previewCamera.lookAt(scene.position);
 
   function render() {
+    if (!camera) { return; }
     previewCamera.position.copy(camera.position).multiplyScalar(0.2);
     previewCamera.lookAt(scene.position);
     renderer.render(scene, previewCamera);
