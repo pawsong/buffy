@@ -14,6 +14,7 @@ const packages = {
   'helper': 202,
   'addon-game': 25,
   'addon-voxel-editor': 12,
+  'addon-code-editor': 231,
 };
 
 const maxPkgNameLen =

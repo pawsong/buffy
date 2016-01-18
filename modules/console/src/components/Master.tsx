@@ -86,14 +86,7 @@ const styles = {
     right: 0,
     backgroundColor: 'rgb(232,232,232)',
   },
-  editor: {
-    position: 'absolute',
-    top: navbarHeight,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  voxelEditor: {
+  addon: {
     position: 'absolute',
     top: 0,
     bottom: 0,
@@ -144,19 +137,10 @@ interface MasterProps extends React.Props<Master> {
 }
 
 class Master extends React.Component<MasterProps, {}> {
-  child: any;
   editor: AceAjax.Editor;
   _socket: SocketIOClient.Socket;
   codeStore: GameStore;
   addons: any[] = [];
-
-  constructor(props) {
-    super(props);
-
-    this.child = {
-      running: false,
-    };
-  }
 
   createAdapter(socket) {
     return createAdapter({
@@ -182,34 +166,28 @@ class Master extends React.Component<MasterProps, {}> {
     // Initialize socket
     const socket = this._socket = io(CONFIG_GAME_SERVER_URL);
 
-    // Code editor
-    const editor = this.editor =
-      ace.edit(this.refs['addonCodeEditor'] as HTMLElement);
-    editor.setTheme('ace/theme/twilight');
-    editor.session.setMode('ace/mode/javascript');
-    editor.setValue(snippet);
-    editor.clearSelection();
-
-    // Voxel editor
-    const createVoxelEditor = require('@pasta/addon-voxel-editor').default;
-    const addon = createVoxelEditor(this.refs['addonVoxelEditor'], data => {
-      this._socket.emit('voxels', data);
-    });
-    this.addons.push(addon);
-
     // Initialize store for code
     const codeStore = this.codeStore = new GameStore();
     codeStore.connect(socket);
 
-    // Initialize view
-    const viewStore = new GameStore();
-    viewStore.connect(socket);
+    // Code editor
+    this.addons.push(require('@pasta/addon-code-editor').default(
+      this.refs['addonCodeEditor'], socket, codeStore
+    ));
 
+    // Voxel editor
+    this.addons.push(require('@pasta/addon-voxel-editor').default(
+      this.refs['addonVoxelEditor'], data => {
+        this._socket.emit('voxels', data);
+      }
+    ));
+
+    // Initialize view
     const api = this.createAdapter(socket);
     const elem = document.getElementById('game');
 
     const { initGameView } = require('@pasta/addon-game');
-    const view = initGameView(elem, viewStore, api);
+    const view = initGameView(elem, codeStore, api);
 
     /////////////////////////////////////////////////////////////////////////
     // Loop
@@ -224,12 +202,7 @@ class Master extends React.Component<MasterProps, {}> {
       time = now;
 
       // Update store
-      viewStore.update(dt);
       codeStore.update(dt);
-
-      // Update view
-      //view.render(dt);
-      //voxelEditor.render(dt);
     }
     update();
   }
@@ -237,59 +210,6 @@ class Master extends React.Component<MasterProps, {}> {
   componentWillUnmount() {
     this.addons.forEach(addon => addon.destroy());
     this._socket.disconnect();
-  }
-
-  onRun() {
-    if (this.child.running) {
-      this.child.running = false;
-      this.child.worker.terminate();
-      this.child.cancelPropagate();
-    }
-
-    (async () => {
-      const source = this.editor.getValue();
-      const res = await axios.post('/addons/code-editor/compile', { source });
-      const { url } = res.data;
-
-      this.child.running = true;
-      const worker = this.child.worker = new Worker(url);
-
-      worker.addEventListener('message', ({ data }) => {
-        const { id, apiName, payload, type } = data;
-
-        // TODO: Validation
-        //const api = apis[apiName];
-        //if (!api) {
-        //  return worker.postMessage({ id, error: 'Invalid api' });
-        //}
-        this._socket.emit(apiName, payload);
-
-        // Wait response or not
-        const result = {};
-        worker.postMessage({ type: 'response', id, result });
-      });
-
-      // Propagate all events for store from socket to worker.
-      this.child.cancelPropagate = this.codeStore.propagate((event, payload) => {
-        worker.postMessage({
-          type: 'socket',
-          body: { event, payload },
-        });
-      });
-
-      // Make a fake socket message with in-memory data.
-      worker.postMessage({
-        type: 'socket',
-        body: {
-          event: 'init',
-          payload: this.codeStore.serialize(),
-        },
-      });
-
-    })().catch(err => {
-      // Unhandled exception.
-      console.error(err.stack);
-    });
   }
 
   onSignOut() {
@@ -312,15 +232,10 @@ class Master extends React.Component<MasterProps, {}> {
       <Tabs style={styles.tabs} contentContainerStyle={styles.leftPane}
         tabTemplate={TabTemplate}>
         <Tab label="Design">
-          <div ref="addonVoxelEditor" style={styles.voxelEditor}></div>
+          <div ref="addonVoxelEditor" style={styles.addon}></div>
         </Tab>
         <Tab label="Develop">
-          <Toolbar style={styles.toolbar}>
-            <ToolbarGroup key={0} float="left">
-              <RaisedButton label="Run" style={{ marginTop: 6 }} primary={true} onClick={this.onRun.bind(this)}/>
-            </ToolbarGroup>
-          </Toolbar>
-          <div ref="addonCodeEditor" style={styles.editor}></div>
+          <div ref="addonCodeEditor" style={styles.addon}></div>
         </Tab>
       </Tabs>
 

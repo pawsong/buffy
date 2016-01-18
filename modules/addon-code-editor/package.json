@@ -1,0 +1,38 @@
+{
+  "name": "@pasta/addon-code-editor",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pawsong/pasta.git"
+  },
+  "version": "1.0.0",
+  "description": "Code editor",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "config": {
+    "bin": "../../node_modules/.bin"
+  },
+  "scripts": {
+    "prepublish": "npm run install:link && npm run install:tsd && npm run build",
+    "install:link": "node ../../tools/link",
+    "install:tsd": "$npm_package_config_bin/tsd install",
+    "clean": "$npm_package_config_bin/rimraf lib",
+    "build": "npm run clean && $npm_package_config_bin/gulp build",
+    "test": "$npm_package_config_bin/gulp test",
+    "test:watch": "$npm_package_config_bin/gulp test:watch"
+  },
+  "files": [
+    "lib"
+  ],
+  "license": "UNLICENSED",
+  "links": [],
+  "dependencies": {
+    "axios": "^0.8.1"
+  },
+  "peerDependencies": {
+    "material-ui": "^0.14.2",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
+    "bluebird": "^3.0.5"
+  }
+}
