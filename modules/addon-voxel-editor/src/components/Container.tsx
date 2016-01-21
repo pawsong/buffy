@@ -6,6 +6,7 @@ import { DropTarget, DragDropContext } from 'react-dnd';
 import * as HTML5Backend from 'react-dnd-html5-backend';
 import * as _ from 'lodash';
 import objectAssign = require('object-assign');
+import StateLayer from '@pasta/addon/lib/StateLayer';
 
 import {
   IconButton,
@@ -58,7 +59,7 @@ const PANELS = {
 };
 
 export interface ContainerProps extends React.Props<React.ClassicComponentClass<ContainerProps>> {
-   submit: (data: any) => void;
+   stateLayer: StateLayer,
 }
 
 interface _ContainerProps extends ContainerProps {
@@ -126,12 +127,12 @@ class Container extends React.Component<_ContainerProps, {
   };
 
   _submit() {
-    const { submit, voxel } = this.props;
+    const { stateLayer, voxel } = this.props;
 
     const voxelData = voxelMapToArray(voxel.present.data);
     const result = GreedyMesh(voxelData.data, voxelData.shape);
 
-    submit({
+    stateLayer.rpc.voxels({
       vertices: result.vertices,
       faces: result.faces,
     });

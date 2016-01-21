@@ -72,7 +72,7 @@
     "../addon-voxel-editor",
     "../config",
     "../helper",
-    "../game-api",
-    "../game-class"
+    "../game-class",
+    "../addon"
   ]
 }

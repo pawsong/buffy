@@ -5,15 +5,18 @@ interface PromiseConstructor {
 }
 
 interface PastaContext {
-  api: any;
-  store: any;
+  stateLayer: any;
   log: (msg: any) => void;
 }
 
-interface Window {
-  __ready: () => void;
+interface WorkerGlobalScope extends EventTarget {
+  postMessage: any;
+  importScripts: any;
   $pasta: PastaContext;
-  __INITIAL_STATE__: {};
+}
+
+interface Event {
+  data: any;
 }
 
 declare const BUILD_DIR: string;

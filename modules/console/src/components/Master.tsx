@@ -2,14 +2,12 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {
   Avatar,
-  Toolbar,
-  ToolbarGroup,
-  ToolbarTitle,
-  RaisedButton,
   Tabs,
   Tab,
   IconButton,
 } from 'material-ui';
+
+import StateLayer from '@pasta/addon/lib/StateLayer';
 
 import * as MaterialUI from 'material-ui';
 
@@ -23,14 +21,6 @@ import {
 import * as axios from 'axios';
 
 import * as io from 'socket.io-client';
-
-import {
-  Protocol,
-  createAdapter,
-} from '@pasta/game-api';
-
-import GameObject from '@pasta/game-class/lib/GameObject';
-import GameStore from '@pasta/game-class/lib/GameStore';
 
 const navbarHeight = 48;
 
@@ -121,81 +111,57 @@ interface MasterProps extends React.Props<Master> {
 }
 
 class Master extends React.Component<MasterProps, {}> {
-  editor: AceAjax.Editor;
-  _socket: SocketIOClient.Socket;
-  codeStore: GameStore;
+  socket: SocketIOClient.Socket;
+  stateLayer: StateLayer;
   addons: any[] = [];
-  frameId;
-
-  createAdapter(socket) {
-    return createAdapter({
-      [Protocol.IO]: (apiName, payload) => {
-        return new Promise((resolve, reject) => {
-          socket.emit(apiName, payload, msg => {
-            if (msg.error) {
-              reject(msg.error);
-            } else {
-              resolve(msg.body);
-            }
-          });
-        });
-      },
-      [Protocol.HTTP]: (apiName, payload) => {
-        // TODO: Implement
-      },
-    });
-  }
 
   // Put codes which do not need to be rendered by server.
   componentDidMount() {
-    // Initialize socket
-    const socket = this._socket = io(CONFIG_GAME_SERVER_URL);
+    this.socket = io(CONFIG_GAME_SERVER_URL);
 
-    // Initialize store for code
-    const codeStore = this.codeStore = new GameStore();
-    codeStore.connect(socket);
+    this.stateLayer = new StateLayer({
+      emit: (event, params, cb) => {
+        this.socket.emit(event, params, cb);
+      },
+      listen: (event, handler) => {
+        this.socket.addEventListener(event, handler);
+        return () => this.socket.removeEventListener(event, handler);
+      },
+      update: (callback) => {
+        let frameId = requestAnimationFrame(update);
+        let then = Date.now();
+        function update() {
+          const now = Date.now();
+          callback(now - then);
+          then = now;
+          frameId = requestAnimationFrame(update);
+        }
+        return () => cancelAnimationFrame(frameId);
+      },
+    });
 
-    const api = this.createAdapter(socket);
+    // Bind addons
 
     // addon-code-editor
     this.addons.push(require('@pasta/addon-code-editor').default(
-      this.refs['addonCodeEditor'], socket, codeStore
+      this.refs['addonCodeEditor'], this.stateLayer
     ));
 
     // addon-voxel-editor
     this.addons.push(require('@pasta/addon-voxel-editor').default(
-      this.refs['addonVoxelEditor'], data => {
-        this._socket.emit('voxels', data);
-      }
+      this.refs['addonVoxelEditor'], this.stateLayer
     ));
 
     // addon-game
     this.addons.push(require('@pasta/addon-game').default(
-      this.refs['addonGame'], codeStore, api
+      this.refs['addonGame'], this.stateLayer
     ));
-
-    /////////////////////////////////////////////////////////////////////////
-    // Loop
-    /////////////////////////////////////////////////////////////////////////
-
-    var time;
-    const update = () => {
-      this.frameId = requestAnimationFrame(update);
-
-      const now = new Date().getTime();
-      const dt = now - (time || now);
-      time = now;
-
-      // Update store
-      codeStore.update(dt);
-    }
-    update();
   }
 
   componentWillUnmount() {
-    cancelAnimationFrame(this.frameId);
     this.addons.forEach(addon => addon.destroy());
-    this._socket.disconnect();
+    this.stateLayer.destroy();
+    this.socket.disconnect();
   }
 
   onSignOut() {

@@ -4,12 +4,12 @@
     "moduleResolution": "node",
     "target": "es6",
     "outDir": ".tsc_out",
+    "declaration": true,
     "sourceMap": true
   },
-  "files": [
-    "src/worker/worker.ts",
-    "src/server/server.ts",
-    "src/tsd.d.ts",
-    "typings/tsd.d.ts"
+  "exclude": [
+    "lib",
+    "node_modules",
+    ".tsc_out"
   ]
 }

@@ -1,12 +1,12 @@
 {
-  "name": "@pasta/game-api",
+  "name": "@pasta/addon",
   "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/pawsong/pasta.git"
   },
   "version": "0.0.0",
-  "description": "Client-side API Schema and adapter",
+  "description": "",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "config": {
@@ -24,5 +24,12 @@
   "files": [
     "lib"
   ],
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "links": [
+    "../interface",
+    "../game-class"
+  ],
+  "dependencies": {
+    "fbemitter": "^2.0.1"
+  }
 }

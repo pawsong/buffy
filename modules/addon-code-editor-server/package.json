@@ -53,6 +53,6 @@
     "../config",
     "../helper",
     "../game-class",
-    "../game-api"
+    "../addon"
   ]
 }

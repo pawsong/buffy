@@ -38,28 +38,13 @@ export default app => {
     await script.save();
 
     res.send({
-      url: `${proxyRoot}/worker/${script._id}`,
+      url: `${proxyRoot}/compiled/${script._id}`,
     });
   }));
 
-  const envFile = 'worker.js';
-  app.get(`/env/${envFile}`, (req, res) => {
-    res.sendFile(`${__dirname}/${envFile}`);
+  app.get('/worker.js', (req, res) => {
+    res.sendFile(`${__dirname}/worker.js`);
   });
-
-  const template = require('raw!./template.js');
-  const compiledTmpl = _.template(template, {
-    imports: { env: `${proxyRoot}/env/${envFile}` },
-  });
-
-  app.get('/worker/:id', wrap(async (req, res) => {
-    const { id } = req.params;
-
-    res.set('Content-Type', 'application/javascript')
-      .send(compiledTmpl({
-        compiled: `${proxyRoot}/compiled/${id}`,
-      }));
-  }));
 
   app.get('/compiled/:id', wrap(async (req, res) => {
     const { id } = req.params;

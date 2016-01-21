@@ -5,7 +5,7 @@ module.exports = {
   target: 'webworker',
 
   entry: {
-    worker: './src/worker.ts',
+    worker: './src/worker/worker.ts',
   },
 
   module: {
@@ -27,4 +27,6 @@ module.exports = {
   plugins: [
     new ManifestPlugin(),
   ],
+
+  devtool: 'cheap-module-eval-source-map',
 }

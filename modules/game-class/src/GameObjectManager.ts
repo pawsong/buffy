@@ -1,7 +1,7 @@
 class GameObjectManager {
   private _objs: any;
   private _class: any;
-  
+
   constructor(objClass) {
 
     // TODO: should we use indexed object?
@@ -17,6 +17,7 @@ class GameObjectManager {
   }
 
   deserialize(objects) {
+    console.log(objects);
     this.destroyAll();
     objects.forEach(d => this.create(d));
   }

@@ -1,6 +1,7 @@
 import * as React from 'react';
-
 import * as THREE from 'three';
+import StateLayer from '@pasta/addon/lib/StateLayer';
+
 import { createEffectManager } from '../effects';
 
 import * as Promise from 'bluebird';
@@ -11,7 +12,7 @@ const BOX_SIZE = PIXEL_UNIT * 2;
 const MINI_PIXEL_SIZE = BOX_SIZE / PIXEL_NUM;
 const GRID_SIZE = BOX_SIZE * 10;
 
-function initMainView(htmlElement, store, api) {
+function initMainView(htmlElement, stateLayer: StateLayer) {
   const container = htmlElement;
 
   const windowWidth = htmlElement.offsetWidth;
@@ -135,7 +136,11 @@ function initMainView(htmlElement, store, api) {
                 .floor()
                 .addScalar(1);
 
-              api.move('', position.x, position.z);
+              stateLayer.rpc.move({
+                id: stateLayer.store.me.id,
+                x: position.x,
+                y: position.y,
+              });
   }
 
   htmlElement.addEventListener('mousemove', onMouseMove, false);
@@ -156,7 +161,7 @@ function initMainView(htmlElement, store, api) {
   let token;
 
   let objects = {};
-  token = store.on('create', function (obj) {
+  token = stateLayer.store.on('create', function (obj) {
     if (obj.type === 'effect') {
       return effectManager.create('fire', obj.options.duration, obj.position);
     }
@@ -179,13 +184,13 @@ function initMainView(htmlElement, store, api) {
   });
   tokens.push(token);
 
-  token = store.on('init', function () {
+  token = stateLayer.store.on('init', function () {
     const object = objects[this.me.id];
     camera.position.copy(object.position);
   });
   tokens.push(token);
 
-  token = store.on('move', function (obj, to, from) {
+  token = stateLayer.store.on('move', function (obj, to, from) {
     const object = objects[obj.id];
 
     // Rotate
@@ -205,7 +210,7 @@ function initMainView(htmlElement, store, api) {
   });
   tokens.push(token);
 
-  token = store.on('destroyAll', () => {
+  token = stateLayer.store.on('destroyAll', () => {
     Object.keys(objects).forEach(id => {
       const cube = objects[id];
       scene.remove(cube);
@@ -222,7 +227,7 @@ function initMainView(htmlElement, store, api) {
   const planes = {};
   const planeList = [];
 
-  token = store.on('terrain', terrain => {
+  token = stateLayer.store.on('terrain', terrain => {
     const { loc, color } = terrain;
 
     const key = `${loc.x}_${loc.y}`;
@@ -242,7 +247,7 @@ function initMainView(htmlElement, store, api) {
   });
   tokens.push(token);
 
-  token = store.on('voxels', ({ id, data }) => {
+  token = stateLayer.store.on('voxels', ({ id, data }) => {
     const object = objects[id];
     for (let i = object.children.length - 1; i >= 0; --i) {
       const child = object.children[i];
@@ -336,15 +341,14 @@ const style = {
 };
 
 export interface MainProps extends React.Props<Main> {
-  gameStore;
-  api;
+  stateLayer: StateLayer;
 }
 
 export class Main extends React.Component<MainProps, {}> {
   canvas;
 
   componentDidMount() {
-    this.canvas = initMainView(this.refs['canvas'], this.props.gameStore, this.props.api);
+    this.canvas = initMainView(this.refs['canvas'], this.props.stateLayer);
   }
 
   componentWillUnmount() {

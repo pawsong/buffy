@@ -10,11 +10,12 @@ const cm = new Childminder();
 const packages = {
   'config': 11,
   'game-class': 120,
-  'game-api': 159,
   'helper': 202,
+  'addon': 222,
   'addon-game': 25,
   'addon-voxel-editor': 12,
   'addon-code-editor': 231,
+  'interface': 211,
 };
 
 const maxPkgNameLen =

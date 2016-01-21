@@ -1,4 +1,5 @@
 import * as shortid from 'shortid';
+import { CZ, ZC } from '@pasta/interface';
 import objects from './ServerObjectManager';
 import GameUser from './models/GameUser';
 import Terrain from './models/Terrain';
@@ -8,6 +9,19 @@ import * as map from './map';
 const SPEED = 0.005;
 
 export default (io, socket) => {
+  
+  const listen: CZ.Listen = (method, handler) => {
+    socket.on(method, handler);
+  };
+  
+  const emit: ZC.Emit = (event, params) => {
+    socket.emit(event, params);
+  };
+  
+  const broadcast: ZC.Broadcast = (event, params) => {
+    io.emit(event, params);
+  };
+  
   // TODO: Comprehensive session management needed.
   const alreadyConnected = !!objects.find(socket.user.id);
   if (alreadyConnected) {
@@ -19,36 +33,55 @@ export default (io, socket) => {
   }, socket.user));
 
   // TODO Get terrain info from memory
-  socket.emit('init', {
+  emit('init', {
     me: { id: user.id },
     objects: user.getSerializedObjectsInRange(),
     terrains: Object.keys(map.terrains).map(key => map.terrains[key]),
   });
-
-  socket.on('move', msg => {
-    const dx = user.position.x - msg.x;
-    const dy = user.position.y - msg.y;
+  
+  listen('move', params => {
+    const dx = user.position.x - params.x;
+    const dy = user.position.y - params.y;
     const dist = Math.sqrt(dx * dx + dy * dy)
 
     user.tween
-      .to({ x: msg.x, y: msg.y }, dist / SPEED) // TODO: Calculate speed
+      .to({ x: params.x, y: params.y }, dist / SPEED) // TODO: Calculate speed
       .start(0);
 
-    io.emit('move', { id: user.id, tween: user.tween });
+    broadcast('move', { id: user.id, tween: user.tween });
+    
+    return Promise.resolve();
   });
-
-  socket.on('playEffect', msg => {
-    io.emit('create', {
+  
+  listen('playEffect', (params) => {
+    emit('create', {
       id: shortid.generate(),
       type: 'effect',
       position: {
-        x: msg.x,
-        y: msg.y,
+        x: params.x,
+        y: params.y,
       },
-      duration: msg.duration,
+      duration: params.duration,
     });
   });
 
+  listen('setTerrain', async (params) => {
+    // TODO: Check permission
+    const terrain = await Terrain.findOneAndUpdate({
+      loc: { x: params.x, y: params.y },
+    }, {
+      color: params.color,
+    }, { new: true, upsert: true }).exec();
+
+    map.setTerrain(terrain);
+    
+    broadcast('terrain', { terrain });
+  });
+  
+  listen('voxels', params => {
+    broadcast('voxels', {id: user.id, data: params });
+  });
+  
   socket.on('disconnect', async function() {
     objects.destroy(user.id);
     try {
@@ -59,21 +92,5 @@ export default (io, socket) => {
     } catch(err) {
       console.error(err);
     }
-  });
-
-  socket.on('voxels', data => {
-    socket.emit('voxels', { id: user.id, data });
-  });
-
-  socket.on('setTerrain', async (msg) => {
-    // TODO: Check permission
-    const terrain = await Terrain.findOneAndUpdate({
-      loc: { x: msg.x, y: msg.y },
-    }, {
-      color: msg.color,
-    }, { new: true, upsert: true }).exec();
-
-    map.setTerrain(terrain);
-    io.emit('terrain', { terrain });
   });
 };

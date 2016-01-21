@@ -7,12 +7,12 @@ import store from './store';
 // OrbitControls patch
 import './OrbitControls';
 
-// TODO: submit can be performed by ajax call
-export default function init(container, submit) {
+import Addon from '@pasta/addon/lib/Addon';
 
+const addon: Addon = function (container, stateLayer) {
   ReactDOM.render(
     <Provider store={store}>
-      <Container submit={submit}/>
+      <Container stateLayer={stateLayer}/>
     </Provider>,
     container
   );
@@ -23,3 +23,5 @@ export default function init(container, submit) {
     },
   };
 }
+
+export default addon;

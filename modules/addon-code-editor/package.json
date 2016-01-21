@@ -25,14 +25,17 @@
     "lib"
   ],
   "license": "UNLICENSED",
-  "links": [],
   "dependencies": {
-    "axios": "^0.8.1"
+    "axios": "^0.8.1",
+    "fbemitter": "^2.0.1"
   },
   "peerDependencies": {
     "material-ui": "^0.14.2",
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
     "bluebird": "^3.0.5"
-  }
+  },
+  "links": [
+    "../addon"
+  ]
 }

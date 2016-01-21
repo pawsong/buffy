@@ -1,12 +1,12 @@
 {
-  "name": "@pasta/addon-game",
+  "name": "@pasta/interface",
   "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/pawsong/pasta.git"
   },
   "version": "1.0.0",
-  "description": "- Listens to state store event - Handle UI input",
+  "description": "",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "config": {
@@ -24,22 +24,12 @@
   "files": [
     "lib"
   ],
+  "links": [
+    "../tween.js"
+  ],
+  "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "eventemitter3": "^1.1.1",
-    "fbemitter": "^2.0.1",
-    "keyboardjs": "^2.2.0",
-    "shader-particle-engine": "^1.0.2",
-    "three": "^0.73.0"
-  },
-  "peerDependencies": {
-    "material-ui": "^0.14.2",
-    "react": "^0.14.3",
-    "react-dom": "^0.14.3",
-    "redux": "^3.0.4",
-    "bluebird": "^3.1.1"
-  },
-  "links": [
-    "../addon"
-  ]
+    "fbemitter": "^2.0.1"
+  }
 }

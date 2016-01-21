@@ -3,11 +3,12 @@ import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import Container from './components/Container';
 import store from './store';
+import Addon from '@pasta/addon/lib/Addon';
 
-export default function initGameView(container, gameStore, api) {
+const addon: Addon = function (container, stateLayer) {
   ReactDOM.render(
     <Provider store={store}>
-      <Container gameStore={gameStore} api={api}/>
+      <Container stateLayer={stateLayer}/>
     </Provider>,
     container
   );
@@ -18,3 +19,5 @@ export default function initGameView(container, gameStore, api) {
     },
   };
 }
+
+export default addon;

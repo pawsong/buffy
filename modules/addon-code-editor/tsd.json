@@ -16,6 +16,9 @@
     },
     "ace/ace.d.ts": {
       "commit": "70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e"
+    },
+    "fbemitter/fbemitter.d.ts": {
+      "commit": "3a666d1bff92e944488c25599ec56a4937c17c4e"
     }
   }
 }

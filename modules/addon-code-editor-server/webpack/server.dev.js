@@ -10,7 +10,7 @@ const defines = {
 
 module.exports = {
   target: 'node',
-  entry: './src/server.ts',
+  entry: './src/server/server.ts',
   output: {
     path: defines.BUILD_DIR,
     filename: 'server.js',

@@ -11,8 +11,8 @@ const addonCodeEditorServerUrl =
   process.env.PASTA_ADDON_CODE_EDITOR_SERVER_URL ||
   `http://localhost:${conf.addonCodeEditorServerPort}`;
 
-app.use('/code-editor', (req, res) => {
-  proxy.web(req, res, { target: addonCodeEditorServerUrl });
+app.use('/code-editor', (req, res, next) => {
+  proxy.web(req, res, { target: addonCodeEditorServerUrl }, next);
 });
 
 export default app;
