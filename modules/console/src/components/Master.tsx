@@ -11,9 +11,9 @@ import StateLayer from '@pasta/addon/lib/StateLayer';
 
 import * as MaterialUI from 'material-ui';
 
-const Menu: typeof __MaterialUI.Menus.Menu = require('material-ui/lib/menus/menu');
-const MenuItem: typeof __MaterialUI.Menus.MenuItem = require('material-ui/lib/menus/menu-item');
-const IconMenu: typeof __MaterialUI.Menus.IconMenu = require('material-ui/lib/menus/icon-menu');
+import Menu = require('material-ui/lib/menus/menu');
+import MenuItem = require('material-ui/lib/menus/menu-item');
+import IconMenu = require('material-ui/lib/menus/icon-menu');
 
 import {
   SET_USER_DATA,
