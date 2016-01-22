@@ -42,6 +42,7 @@
     "memory-fs": "^0.3.0",
     "pkg-up": "^1.0.0",
     "shortid": "^2.2.4",
+    "source-map-support": "^0.4.0",
     "ts-loader": "^0.8.0",
     "webpack": "^1.12.3"
   },

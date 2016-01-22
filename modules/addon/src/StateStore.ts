@@ -1,4 +1,4 @@
-import * as ZC from '@pasta/interface/lib/ZC';
+import * as ZC from '@pasta/interface/lib/zc';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import GameObject from '@pasta/game-class/lib/GameObject';
 import GameObjectManager from '@pasta/game-class/lib/GameObjectManager';

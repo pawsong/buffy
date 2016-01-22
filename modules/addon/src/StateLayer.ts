@@ -1,4 +1,4 @@
-import * as CZ from '@pasta/interface/lib/CZ';
+import * as CZ from '@pasta/interface/lib/cz';
 import { RpcResponse } from '@pasta/interface/lib/base';
 
 import StateStore from './StateStore';
