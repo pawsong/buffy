@@ -15,7 +15,7 @@
     "prepublish": "npm run install:link && npm run install:tsd && npm run build",
     "install:link": "node ../../tools/link",
     "install:tsd": "$npm_package_config_bin/tsd install",
-    "clean": "$npm_package_config_bin/rimraf build/prod",
+    "clean": "$npm_package_config_bin/rimraf build",
     "build": "npm run clean && $npm_package_config_bin/gulp build:prod",
     "test": "$npm_package_config_bin/gulp test",
     "test:watch": "$npm_package_config_bin/gulp test:watch",
