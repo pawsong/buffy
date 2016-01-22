@@ -296,16 +296,27 @@ function initMainView(htmlElement, stateLayer: StateLayer) {
   });
   tokens.push(token);
 
-  // Map
-  //const data = store.objects.getAllObjects();
-  //Object.keys(data).forEach(id => {
-  //  const obj = objects[id];
+    // Map
+  const data = stateLayer.store.objects.getAllObjects();
+  Object.keys(data).forEach(id => {
+    const obj = data[id];
 
-  //  var cube = cubes[obj.id] = new THREE.Mesh( geometry, material );
-  //  cube.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
-  //  cube.position.z = BOX_SIZE * obj.position.y -PIXEL_UNIT;
-  //  cube.position.y = PIXEL_UNIT;
-  //});
+    const object = objects[obj.id] = new THREE.Group();
+    const cube = new THREE.Mesh( geometry, material );
+    object.add(cube);
+
+    object.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
+    object.position.z = BOX_SIZE * obj.position.y -PIXEL_UNIT;
+    object.position.y = PIXEL_UNIT;
+
+    object.lookAt(new THREE.Vector3(
+      object.position.x + 1,
+      object.position.y,
+      object.position.z
+    ));
+
+    scene.add( object );
+  });
 
   /////////////////////////////////////////////////////////////////////////
   // FIN
