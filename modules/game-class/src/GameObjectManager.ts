@@ -17,7 +17,6 @@ class GameObjectManager {
   }
 
   deserialize(objects) {
-    console.log(objects);
     this.destroyAll();
     objects.forEach(d => this.create(d));
   }

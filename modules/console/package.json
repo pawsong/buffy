@@ -68,9 +68,6 @@
     "source-map-support": "^0.4.0"
   },
   "links": [
-    "../addon-game",
-    "../addon-code-editor",
-    "../addon-voxel-editor",
     "../config",
     "../helper",
     "../game-class",

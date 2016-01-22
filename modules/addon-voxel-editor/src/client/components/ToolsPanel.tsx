@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as ColorPicker from 'react-color';
+import ColorPicker from 'react-color';
 import {
   IconButton,
   FontIcon,
@@ -60,7 +60,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, {
       displayColorPicker: false,
     };
   }
-  
+
   _handleColorPickerOpen() {
     this.setState({ displayColorPicker: !this.state.displayColorPicker });
   };
@@ -106,16 +106,15 @@ class ToolsPanel extends React.Component<ToolsPanelProps, {
       top: 24,
       zIndex: 1,
     };
-    
+
     const previewStyle = objectAssign({ zIndex, left, top, opacity }, PanelStyles.root);
-    
+
     const self = this;
     function getIconButtonStyle(tool: any) {
       return objectAssign({
         backgroundColor: self.props.tool.type === tool ? Colors.grey200 : Colors.white,
       }, iconButtonStyles);
     }
-    
     return connectDragPreview(<div style={previewStyle}>
       {connectDragSource(<div style={PanelStyles.handle}>Tools</div>)}
       <IconButton

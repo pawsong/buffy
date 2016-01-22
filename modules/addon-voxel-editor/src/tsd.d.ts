@@ -48,7 +48,7 @@ declare module 'react-dnd-html5-backend' {
 declare module 'react-color' {
   const ColorPicker: any;
   module ColorPicker {}
-  export = ColorPicker;
+  export default ColorPicker;
 }
 
 declare interface PromiseConstructor {

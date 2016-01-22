@@ -149,6 +149,7 @@ module.exports = function (options) {
             return err ? reject(err) : resolve();
           }
           if (err) { return console.error(err); }
+          console.log('build done');
           if (!browserSync.active) { return; }
           browserSync.reload();
         }));
