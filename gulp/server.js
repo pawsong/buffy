@@ -15,124 +15,132 @@ const typescript = require('typescript');
 const es = require('event-stream');
 const runSequence = require('run-sequence');
 const Childminder = require('childminder').Childminder;
+const notifier = require('node-notifier');
+const path = require('path');
 
-const srcTsProject = ts.createProject('tsconfig.json', {
-  typescript,
-  declaration: true,
-});
+module.exports = function (options) {
+  const opts = Object.assign({}, options);
+  const cwd = process.cwd();
 
-const testTsProject = ts.createProject('tsconfig.json', {
-  typescript,
-});
+  const srcTsProject = ts.createProject('tsconfig.json', {
+    typescript,
+    declaration: true,
+  });
 
-gulp.task('help', taskListing);
+  const testTsProject = ts.createProject('tsconfig.json', {
+    typescript,
+  });
 
-// Lint
-gulp.task('lint:js', function () {
-  return gulp.src([
-    'gulpfile.js',
-  ]).pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError());
-});
+  gulp.task('help', taskListing);
 
-gulp.task('lint:ts', function () {
-  return gulp.src([
-    'src/**/*.ts',
-    'test/**/*.ts',
-  ]).pipe(tslint())
-    .pipe(tslint.report('verbose'));
-});
+  // Lint
+  gulp.task('lint:js', function () {
+    return gulp.src([
+      'gulpfile.js',
+    ]).pipe(eslint())
+      .pipe(eslint.format())
+      .pipe(eslint.failAfterError());
+  });
 
-gulp.task('lint', ['lint:js', 'lint:ts']);
+  gulp.task('lint:ts', function () {
+    return gulp.src([
+      'src/**/*.ts',
+      'test/**/*.ts',
+    ]).pipe(tslint())
+      .pipe(tslint.report('verbose'));
+  });
 
-// Build
-gulp.task('build', function () {
-  let compileError = null;
-  function handleError(err) {
-    compileError = err;
-    this.emit('end');
-  }
+  gulp.task('lint', ['lint:js', 'lint:ts']);
 
-  return gulp.src([
-    'typings/tsd.d.ts',
-    'src/**/*.ts',
-  ]).pipe(sourcemaps.init())
-    .pipe(ts(srcTsProject, undefined, ts.reporter.longReporter()))
-    .on('error', handleError)
-    .pipe(babel())
-    .on('error', handleError)
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest('lib'))
-    .on('end', function () {
-      // Make gulp-typescript stop on compile error.
-      if (compileError) {
-        this.emit('error', compileError);
-      }
-    });
-});
+  // Build
+  gulp.task('build', function () {
+    let compileError = null;
+    function handleError(err) {
+      compileError = err;
+      this.emit('end');
+    }
 
-// Test: Build test codes and run suites.
-gulp.task('build:test', ['build'], function () {
-  let compileError = null;
+    return gulp.src([
+      'typings/tsd.d.ts',
+      'src/**/*.ts',
+    ]).pipe(sourcemaps.init())
+      .pipe(ts(srcTsProject, undefined, ts.reporter.longReporter()))
+      .on('error', handleError)
+      .pipe(babel())
+      .on('error', handleError)
+      .pipe(sourcemaps.write())
+      .pipe(gulp.dest('lib'))
+      .on('end', function () {
+        // Make gulp-typescript stop on compile error.
+        if (compileError) {
+          this.emit('error', compileError);
+        }
+      });
+  });
 
-  return gulp.src([
-    'typings/tsd.d.ts',
-    'test/**/*.ts',
-  ]).pipe(sourcemaps.init())
-    .pipe(ts(testTsProject, undefined, ts.reporter.longReporter()))
-    .on('error', err => compileError = err)
-    .pipe(babel())
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest('.test'))
-    .on('end', function () {
-      // Make gulp-typescript stop on compile error.
-      if (compileError) {
-        this.emit('error', new gutil.PluginError('gulp-typescript', compileError.message));
-      }
-    });
-});
+  // Test: Build test codes and run suites.
+  gulp.task('build:test', ['build'], function () {
+    let compileError = null;
 
-gulp.task('test', function () {
-  return gulp.src([
-    '.test/**/*.js',
-  ]).pipe(mocha({
-    timeout: 60 * 1000,
-    reporter: 'spec',
-    require: ['source-map-support/register'],
-  }));
-});
+    return gulp.src([
+      'typings/tsd.d.ts',
+      'test/**/*.ts',
+    ]).pipe(sourcemaps.init())
+      .pipe(ts(testTsProject, undefined, ts.reporter.longReporter()))
+      .on('error', err => compileError = err)
+      .pipe(babel())
+      .pipe(sourcemaps.write())
+      .pipe(gulp.dest('.test'))
+      .on('end', function () {
+        // Make gulp-typescript stop on compile error.
+        if (compileError) {
+          this.emit('error', new gutil.PluginError('gulp-typescript', compileError.message));
+        }
+      });
+  });
 
-gulp.task('test:rebuild', function (done) {
-  runSequence('build:test', 'test', done);
-});
+  gulp.task('test', function () {
+    return gulp.src([
+      '.test/**/*.js',
+    ]).pipe(mocha({
+      timeout: 60 * 1000,
+      reporter: 'spec',
+      require: ['source-map-support/register'],
+    }));
+  });
 
-gulp.task('test:watch', function () {
-  runSequence('test');
-  gulp.watch([
-    'gulpfile.js',
-    'tslint.json',
-    'typings/tsd.d.ts',
-    'src/**/*.ts',
-    'test/**/*.ts',
-  ], ['test:rebuild']);
-});
+  gulp.task('test:rebuild', function (done) {
+    runSequence('build:test', 'test', done);
+  });
 
-// Serve: Serve built application
-const cm = new Childminder();
-const child = cm.create('node', [ 'lib/server' ], { lazy: true });
+  gulp.task('test:watch', function () {
+    runSequence('test');
+    gulp.watch([
+      'gulpfile.js',
+      'tslint.json',
+      'typings/tsd.d.ts',
+      'src/**/*.ts',
+      'test/**/*.ts',
+    ], ['test:rebuild']);
+  });
 
-gulp.task('serve', ['build'], function () {
-  return child.startOrRestart();
-});
+  // Serve: Serve built application
+  const cm = new Childminder();
+  const child = cm.create('node', [ 'lib/server' ], { lazy: true });
 
-gulp.task('serve:watch', function () {
-  runSequence('serve');
-  gulp.watch([
-    'gulpfile.js',
-    'tslint.json',
-    'typings/tsd.d.ts',
-    'src/**/*.ts',
-    'test/**/*.ts',
-  ], ['serve']);
-});
+  gulp.task('serve', ['build'], function () {
+    return child.startOrRestart();
+  });
+
+  gulp.task('serve:watch', function () {
+    runSequence('serve');
+    gulp.watch([
+      'gulpfile.js',
+      'tslint.json',
+      'typings/tsd.d.ts',
+      'src/**/*.ts',
+      'test/**/*.ts',
+    ], ['serve']);
+  });
+
+};

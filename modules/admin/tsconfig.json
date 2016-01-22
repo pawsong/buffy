@@ -7,10 +7,10 @@
     "jsx": "react",
     "sourceMap": true
   },
-  "exclude": [
-    "build",
-    "lib",
-    "node_modules",
-    ".tsc_out"
+  "files": [
+    "src/app.ts",
+    "src/server.ts",
+    "src/tsd.d.ts",
+    "typings/tsd.d.ts"
   ]
 }

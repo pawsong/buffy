@@ -16,7 +16,7 @@
     "docs:prepare": "gitbook install",
     "docs:build": "npm run docs:prepare && gitbook build",
     "docs:watch": "npm run docs:prepare && gitbook serve",
-    "start": "node tools/autoCompile"
+    "start": "pm2 startOrRestart processes.json"
   },
   "directories": {
     "example": "examples",
@@ -58,6 +58,7 @@
     "json-loader": "^0.5.4",
     "lodash": "^3.10.1",
     "mocha": "^2.3.3",
+    "node-notifier": "^4.4.0",
     "nodemon": "^1.8.0",
     "pkg-dir": "^1.0.0",
     "pm2-deploy": "^0.2.1",
