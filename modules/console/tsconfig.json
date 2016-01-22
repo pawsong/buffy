@@ -4,13 +4,13 @@
     "moduleResolution": "node",
     "target": "es6",
     "outDir": ".tsc_out",
-    "jsx": "react",
-    "sourceMap": true
+    "sourceMap": true,
+    "jsx": "react"
   },
-  "exclude": [
-    "build",
-    "lib",
-    "node_modules",
-    ".tsc_out"
+  "files": [
+    "src/app.tsx",
+    "src/server.tsx",
+    "src/tsd.d.ts",
+    "typings/tsd.d.ts"
   ]
 }

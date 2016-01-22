@@ -4,8 +4,8 @@
     "moduleResolution": "node",
     "target": "es6",
     "outDir": ".tsc_out",
-    "jsx": "react",
-    "sourceMap": true
+    "sourceMap": true,
+    "jsx": "react"
   },
   "files": [
     "src/app.ts",
