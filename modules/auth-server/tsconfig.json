@@ -6,9 +6,9 @@
     "outDir": ".tsc_out",
     "sourceMap": true
   },
-  "exclude": [
-    "lib",
-    "node_modules",
-    ".tsc_out"
+  "files": [
+    "src/server.ts",
+    "src/tsd.d.ts",
+    "typings/tsd.d.ts"
   ]
 }

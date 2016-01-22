@@ -27,12 +27,12 @@
   }, {
     "name": "auth-server",
     "script": "node_modules/.bin/gulp",
-    "args": ["serve:watch"],
+    "args": ["serve:dev:watch"],
     "cwd": "modules/auth-server"
   }, {
     "name": "compiler",
     "script": "node_modules/.bin/gulp",
-    "args": ["serve:watch"],
+    "args": ["serve:dev:watch"],
     "cwd": "modules/compiler"
   }, {
     "name": "config",
@@ -62,7 +62,7 @@
   }, {
     "name": "zone-server",
     "script": "node_modules/.bin/gulp",
-    "args": ["serve:watch"],
+    "args": ["serve:dev:watch"],
     "cwd": "modules/zone-server"
   }]
 }

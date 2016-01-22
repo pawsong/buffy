@@ -101,8 +101,8 @@ function compile(source) {
           ],
           babelrc: false,
         },
-      }, { 
-        test: /\.ts(x?)$/, 
+      }, {
+        test: /\.ts(x?)$/,
         loader: 'ts-loader',
       }],
     },
