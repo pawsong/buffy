@@ -24,7 +24,9 @@ ioHandler(io);
   mongoose.connect(conf.mongoUri);
   await initMap();
 
-  http.listen(conf.gameServerPort);
+  await new Promise((resolve, reject) => {
+    http.listen(conf.gameServerPort, err => err ? reject(err) : resolve());
+  });
   console.log(`Listening at *:${conf.gameServerPort}`);
 })().catch(err => {
   console.error(err.stack);

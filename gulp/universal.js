@@ -40,16 +40,12 @@ module.exports = function (options) {
   const opts = Object.assign({
     useBrowserSync: true,
   }, options);
-  const wpConf = opts.webpackConfig || {};
-
-  /**
-   * Typescript compiler for src code
-   */
-  cache.set('srcTsProject', function () {
-    return ts.createProject('tsconfig.json', {
-      typescript,
-    });
-  });
+  const wpConf = Object.assign({
+    client: {
+      dev: {},
+      prod: {},
+    },
+  }, opts.webpackConfig);
 
   /**
    * webpack compilers
