@@ -2,18 +2,10 @@ import * as axios from 'axios';
 import { EventEmitter } from 'fbemitter';
 import StateLayer from '@pasta/addon/lib/StateLayer';
 
-const MsgToWorkerType = {
-  INIT: 'INIT',
-  EVENT: 'EVENT',
-  ACK: 'ACK',
-  START: 'START',
-};
-
-const MsgFromWorkerType = {
-  CONNECT: 'CONNECT',
-  INIT: 'INIT',
-  RPC: 'RPC',
-};
+import {
+  MsgToWorkerType,
+  MsgFromWorkerType,
+} from '../constants';
 
 function once(target: EventTarget, type: string, fn: (data: any) => any) {
   const _handler = (msg: MessageEvent) => {
