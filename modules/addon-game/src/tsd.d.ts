@@ -7,3 +7,5 @@ declare module 'shader-particle-engine/build/SPE' {
 interface Window {
   THREE;
 }
+
+declare const NPM_PACKAGE_NAME: string;

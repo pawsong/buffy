@@ -58,3 +58,5 @@ declare interface PromiseConstructor {
 declare interface Promise<T> extends PromiseLike<T>, Promise.Inspection<T> {
   disposer: any;
 }
+
+declare const NPM_PACKAGE_NAME: string;

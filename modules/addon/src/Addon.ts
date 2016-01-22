@@ -1,7 +1,16 @@
 import StateLayer from './StateLayer';
 
+export interface UninstallAddon {
+  (): void;
+}
+
+export interface InstallAddon {
+  (element: HTMLElement, stateLayer: StateLayer): UninstallAddon;
+}
+
 interface Addon {
-  (element: HTMLElement, stateLayer: StateLayer): void;
+  name: string,
+  install: InstallAddon;
 }
 
 export default Addon;

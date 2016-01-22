@@ -109,7 +109,7 @@ class UserProcess {
 
   wait<T>(promise: Promise<T>): Promise<T> {
     if (this.terminated) {
-      return Promise.resolve(null);
+      return Promise.resolve<T>(null);
     }
     return new Promise<T>((resolve, reject) => {
       const token = this.emitter.once('terminate', () => {

@@ -1,4 +1,5 @@
-import Addon from '@pasta/addon/lib/Addon';
+require('react-tap-event-plugin')();
+import * as addon from '@pasta/addon';
 import StateLayer from '@pasta/addon/lib/StateLayer';
 import UserProcess from './UserProcess';
 import { EventEmitter } from 'fbemitter';
@@ -84,19 +85,13 @@ class Container extends React.Component<ContainerProps, {}> {
   }
 }
 
-// TODO: submit can be performed by ajax call
-const addon: Addon = function (container, stateLayer) {
-
-  ReactDOM.render(
-    <Container stateLayer={stateLayer}/>,
-    container
-  );
-
-  return {
-    destroy() {
-      return ReactDOM.unmountComponentAtNode(container);
-    },
-  };
-}
-
-export default addon;
+addon.register({
+  name: NPM_PACKAGE_NAME,
+  install: function (container, stateLayer) {
+    ReactDOM.render(
+      <Container stateLayer={stateLayer}/>,
+      container
+    );
+    return () => ReactDOM.unmountComponentAtNode(container);
+  }
+});

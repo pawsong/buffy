@@ -1,3 +1,4 @@
 /lib
 /typings
-/.tsc_out
+/bundle
+/build

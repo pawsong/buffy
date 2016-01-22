@@ -5,10 +5,9 @@
     "type": "git",
     "url": "https://github.com/pawsong/pasta.git"
   },
-  "version": "1.0.0",
-  "description": "Code editor",
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "version": "0.0.0",
+  "description": "",
+  "start": "build/prod/server.js",
   "config": {
     "bin": "../../node_modules/.bin"
   },
@@ -16,26 +15,47 @@
     "prepublish": "npm run install:link && npm run install:tsd && npm run build",
     "install:link": "node ../../tools/link",
     "install:tsd": "$npm_package_config_bin/tsd install",
-    "clean": "$npm_package_config_bin/rimraf lib",
-    "build": "npm run clean && $npm_package_config_bin/gulp build",
+    "clean": "$npm_package_config_bin/rimraf lib build",
+    "build": "npm run clean && $npm_package_config_bin/gulp build:prod",
     "test": "$npm_package_config_bin/gulp test",
-    "test:watch": "$npm_package_config_bin/gulp test:watch"
+    "test:watch": "$npm_package_config_bin/gulp test:watch",
+    "serve": "$npm_package_config_bin/gulp serve:dev:watch",
+    "start": "node $npm_package_start"
   },
   "files": [
-    "lib"
+    "build"
   ],
+  "author": "",
   "license": "UNLICENSED",
   "dependencies": {
     "axios": "^0.8.1",
-    "fbemitter": "^2.0.1"
-  },
-  "peerDependencies": {
+    "babel-polyfill": "^6.3.14",
+    "bluebird": "^3.0.5",
+    "body-parser": "^1.14.1",
+    "cookie": "^0.2.3",
+    "cookie-parser": "^1.4.0",
+    "cors": "^2.7.1",
+    "express": "^4.13.3",
+    "express-jwt": "^3.3.0",
+    "fbemitter": "^2.0.1",
+    "frame-loop": "^1.2.1",
+    "http-proxy": "^1.12.0",
+    "jsonwebtoken": "^5.4.1",
+    "kerberos": "0.0.17",
+    "lodash": "^3.10.1",
     "material-ui": "^0.14.2",
-    "react": "^0.14.3",
-    "react-dom": "^0.14.3",
-    "bluebird": "^3.0.5"
+    "mongoose": "^4.3.6",
+    "react": "^0.14.6",
+    "react-dom": "^0.14.6",
+    "react-tap-event-plugin": "^0.2.1",
+    "shortid": "^2.2.4",
+    "socket.io": "^1.3.7",
+    "source-map-support": "^0.4.0"
   },
   "links": [
+    "../config",
+    "../helper",
+    "../game-class",
     "../addon"
   ]
 }

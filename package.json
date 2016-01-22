@@ -80,8 +80,9 @@
   },
   "license": "UNLICENSED",
   "deployables": [
-    "addon-code-editor-server",
-    "addon-voxel-editor-server",
+    "addon-code-editor",
+    "addon-voxel-editor",
+    "addon-game",
     "zone-server",
     "auth-server",
     "console",

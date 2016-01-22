@@ -15,4 +15,22 @@ app.use('/code-editor', (req, res, next) => {
   proxy.web(req, res, { target: addonCodeEditorServerUrl }, next);
 });
 
+// Voxel editor server
+const addonVoxelEditorServerUrl =
+  process.env.PASTA_ADDON_VOXEL_EDITOR_SERVER_URL ||
+  `http://localhost:${conf.addonVoxelEditorServerPort}`;
+
+app.use('/voxel-editor', (req, res, next) => {
+  proxy.web(req, res, { target: addonVoxelEditorServerUrl }, next);
+});
+
+// Game server
+const addonGameServerUrl =
+  process.env.PASTA_ADDON_GAME_SERVER_URL ||
+  `http://localhost:${conf.addonGameServerPort}`;
+
+app.use('/game', (req, res, next) => {
+  proxy.web(req, res, { target: addonGameServerUrl }, next);
+});
+
 export default app;

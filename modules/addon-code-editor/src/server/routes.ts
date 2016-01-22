@@ -11,6 +11,10 @@ import * as conf from '@pasta/config';
 const proxyRoot = '/addons/code-editor';
 
 export default app => {
+  app.get('/', (req, res) => {
+    res.sendFile(`${__dirname}/client.js`);
+  });
+
   // Some browsers does not allow to create Web Worker from cross origin code.
   // To go around that problem.
   app.post('/compile', wrap(async (req, res, next) => {

@@ -7,9 +7,9 @@ import {
   IconButton,
 } from 'material-ui';
 
+import * as addon from '@pasta/addon';
+import Addon from '@pasta/addon/lib/Addon';
 import StateLayer from '@pasta/addon/lib/StateLayer';
-
-import * as MaterialUI from 'material-ui';
 
 import Menu = require('material-ui/lib/menus/menu');
 import MenuItem = require('material-ui/lib/menus/menu-item');
@@ -113,10 +113,13 @@ interface MasterProps extends React.Props<Master> {
 class Master extends React.Component<MasterProps, {}> {
   socket: SocketIOClient.Socket;
   stateLayer: StateLayer;
-  addons: any[] = [];
+  uninstalls: any[] = [];
+  mounted = false;
 
   // Put codes which do not need to be rendered by server.
   componentDidMount() {
+    this.mounted = true;
+
     this.socket = io(CONFIG_GAME_SERVER_URL);
 
     this.stateLayer = new StateLayer({
@@ -143,23 +146,44 @@ class Master extends React.Component<MasterProps, {}> {
     // Bind addons
 
     // addon-code-editor
-    this.addons.push(require('@pasta/addon-code-editor').default(
-      this.refs['addonCodeEditor'], this.stateLayer
-    ));
+    this.loadAddon('/addons/code-editor', '@pasta/addon-code-editor').then(inst => {
+      const uninstall = inst.install(
+        this.refs['addonCodeEditor'] as HTMLElement,
+        this.stateLayer);
+      this.uninstalls.push(uninstall);
+    });
 
-    // addon-voxel-editor
-    this.addons.push(require('@pasta/addon-voxel-editor').default(
-      this.refs['addonVoxelEditor'], this.stateLayer
-    ));
+    // // addon-voxel-editor
+    this.loadAddon('/addons/voxel-editor', '@pasta/addon-voxel-editor').then(inst => {
+      const uninstall = inst.install(
+        this.refs['addonVoxelEditor'] as HTMLElement,
+        this.stateLayer);
+      this.uninstalls.push(uninstall);
+    });
 
-    // addon-game
-    this.addons.push(require('@pasta/addon-game').default(
-      this.refs['addonGame'], this.stateLayer
-    ));
+    // // addon-game
+    this.loadAddon('/addons/game', '@pasta/addon-game').then(inst => {
+      const uninstall = inst.install(
+        this.refs['addonGame'] as HTMLElement,
+        this.stateLayer);
+      this.uninstalls.push(uninstall);
+    });
+  }
+
+  loadAddon(url, name) {
+    const $script = require('scriptjs');
+    return new Promise<Addon>((resolve, reject) => {
+      $script(url, () => {
+        if (!this.mounted) { return; } // Cancel
+        const inst = addon.load(name);
+        return resolve(inst);
+      });
+    });
   }
 
   componentWillUnmount() {
-    this.addons.forEach(addon => addon.destroy());
+    this.mounted = false;
+    this.uninstalls.forEach(uninstall => uninstall());
     this.stateLayer.destroy();
     this.socket.disconnect();
   }

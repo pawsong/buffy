@@ -5,7 +5,7 @@ import VoxelWorkspace from './models/VoxelWorkspace';
 
 export default app => {
   app.get('/', (req, res) => {
-    res.send({ message: 'hello!' });
+    res.sendFile(`${__dirname}/client.js`);
   });
 
   app.get ('/voxel-workspaces/:owner', wrap(async (req, res) => {

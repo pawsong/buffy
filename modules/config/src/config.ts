@@ -46,6 +46,8 @@ export const addonCodeEditorServerPort: number = 9600;
 
 export const addonCodeEditorServerUrl = `http://code.project-pasta.io`;
 
+export const addonGameServerPort = 9700;
+
 /**
  * Admin server port
  */
