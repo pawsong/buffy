@@ -141,6 +141,7 @@ module.exports = function (options) {
       return new Promise(resolve => {
         compiler.watch({}, handleCompileError(err => {
           if (err) {
+            console.error(err);
             return notifier.notify({
               title: `[${opts.prefix}] Build ${key} failed`,
               message: err.message,
@@ -161,7 +162,7 @@ module.exports = function (options) {
     }));
   });
 
-  gulp.task('build:server:dev:watch', function (done) {
+  gulp.task('build:server:dev:watch', ['build:client:dev:watch'], function (done) {
     const compiler = cache.get('compilerServerDev');
     const serverProc = cache.get('serverProc');
 
@@ -169,6 +170,7 @@ module.exports = function (options) {
     compiler.watch({}, handleCompileError(function (err) {
       // Resolve on first sucessful build
       if (err) {
+        console.error(err);
         return notifier.notify({
           title: `[${opts.prefix}] Build server failed`,
           message: err.message,
@@ -186,6 +188,7 @@ module.exports = function (options) {
         if (!hasDone) { hasDone = true; done(); }
         if (browserSync.active) { browserSync.reload(); }
       }).catch(err => {
+        console.error(err);
         notifier.notify({
           title: `[${opts.prefix}] Start server failed`,
           message: err.message,
@@ -194,10 +197,7 @@ module.exports = function (options) {
     }));
   });
 
-  gulp.task('serve:dev:watch', [
-    'build:client:dev:watch',
-    'build:server:dev:watch',
-  ], done => {
+  gulp.task('serve:dev:watch', ['build:server:dev:watch'], done => {
     if (!opts.useBrowserSync) {
       notifier.notify({
         title: `[${opts.prefix}] Start server succeeded`,
