@@ -25,6 +25,11 @@
     "args": ["serve:dev:watch"],
     "cwd": "modules/admin"
   }, {
+    "name": "area-server",
+    "script": "node_modules/.bin/gulp",
+    "args": ["serve:dev:watch"],
+    "cwd": "modules/area-server"
+  }, {
     "name": "auth-server",
     "script": "node_modules/.bin/gulp",
     "args": ["serve:dev:watch"],
@@ -59,10 +64,5 @@
     "script": "node_modules/.bin/gulp",
     "args": ["build:watch"],
     "cwd": "modules/interface"
-  }, {
-    "name": "zone-server",
-    "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev:watch"],
-    "cwd": "modules/zone-server"
   }]
 }

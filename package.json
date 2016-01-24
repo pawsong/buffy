@@ -84,7 +84,7 @@
     "addon-code-editor",
     "addon-voxel-editor",
     "addon-game",
-    "zone-server",
+    "area-server",
     "auth-server",
     "console",
     "compiler",
