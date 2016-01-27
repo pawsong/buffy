@@ -76,6 +76,8 @@ function compile(source) {
 
   const entryFile = `entry.${id}.js`;
   const entryFilePath = path.resolve(inputDir, entryFile);
+  const srcFile = `src.${id}.js`;
+  const srcFilePath = path.resolve(inputDir, srcFile);
   const bundleFile = `bundle.${id}.js`;
   const bundleFilePath = path.resolve(outputDir, bundleFile);
 
@@ -126,8 +128,13 @@ function compile(source) {
   return new Promise((resolve, reject) => {
     // TODO: Make sure there is no remaining file.
 
+    const entryFileContent = [
+      `import './${srcFile}';`,
+    ].join('\n');
+
     // Write code
-    ifs.writeFileSync(entryFilePath, source);
+    ifs.writeFileSync(entryFilePath, entryFileContent);
+    ifs.writeFileSync(srcFilePath, source);
 
     compiler.run((err, stats) => {
       // Cleanup input file system
