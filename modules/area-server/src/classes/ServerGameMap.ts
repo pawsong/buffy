@@ -3,7 +3,6 @@ import GameMap from '@pasta/game-class/lib/GameMap';
 import { SerializedGameMap } from '@pasta/game-class/lib/GameMap';
 import * as ZC from '@pasta/interface/lib/zc';
 import GameUser from './GameUser';
-import Terrain from './Terrain';
 
 function Broadcast(users) {
   this.users = users;
