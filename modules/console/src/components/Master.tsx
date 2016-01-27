@@ -122,51 +122,53 @@ class Master extends React.Component<MasterProps, {}> {
 
     this.socket = io(CONFIG_GAME_SERVER_URL);
 
-    this.stateLayer = new StateLayer({
-      emit: (event, params, cb) => {
-        this.socket.emit(event, params, cb);
-      },
-      listen: (event, handler) => {
-        this.socket.addEventListener(event, handler);
-        return () => this.socket.removeEventListener(event, handler);
-      },
-      update: (callback) => {
-        let frameId = requestAnimationFrame(update);
-        let then = Date.now();
-        function update() {
-          const now = Date.now();
-          callback(now - then);
-          then = now;
-          frameId = requestAnimationFrame(update);
-        }
-        return () => cancelAnimationFrame(frameId);
-      },
-    });
+    this.socket.once('init', params => {
+      this.stateLayer = new StateLayer({
+        emit: (event, params, cb) => {
+          this.socket.emit(event, params, cb);
+        },
+        listen: (event, handler) => {
+          this.socket.addEventListener(event, handler);
+          return () => this.socket.removeEventListener(event, handler);
+        },
+        update: (callback) => {
+          let frameId = requestAnimationFrame(update);
+          let then = Date.now();
+          function update() {
+            const now = Date.now();
+            callback(now - then);
+            then = now;
+            frameId = requestAnimationFrame(update);
+          }
+          return () => cancelAnimationFrame(frameId);
+        },
+      }, params);
 
-    // Bind addons
+      // Bind addons
 
-    // addon-code-editor
-    this.loadAddon('/addons/code-editor', '@pasta/addon-code-editor').then(inst => {
-      const uninstall = inst.install(
-        this.refs['addonCodeEditor'] as HTMLElement,
-        this.stateLayer);
-      this.uninstalls.push(uninstall);
-    });
+      // addon-code-editor
+      this.loadAddon('/addons/code-editor', '@pasta/addon-code-editor').then(inst => {
+        const uninstall = inst.install(
+          this.refs['addonCodeEditor'] as HTMLElement,
+          this.stateLayer);
+        this.uninstalls.push(uninstall);
+      });
 
-    // // addon-voxel-editor
-    this.loadAddon('/addons/voxel-editor', '@pasta/addon-voxel-editor').then(inst => {
-      const uninstall = inst.install(
-        this.refs['addonVoxelEditor'] as HTMLElement,
-        this.stateLayer);
-      this.uninstalls.push(uninstall);
-    });
+      // // addon-voxel-editor
+      this.loadAddon('/addons/voxel-editor', '@pasta/addon-voxel-editor').then(inst => {
+        const uninstall = inst.install(
+          this.refs['addonVoxelEditor'] as HTMLElement,
+          this.stateLayer);
+        this.uninstalls.push(uninstall);
+      });
 
-    // // addon-game
-    this.loadAddon('/addons/game', '@pasta/addon-game').then(inst => {
-      const uninstall = inst.install(
-        this.refs['addonGame'] as HTMLElement,
-        this.stateLayer);
-      this.uninstalls.push(uninstall);
+      // // addon-game
+      this.loadAddon('/addons/game', '@pasta/addon-game').then(inst => {
+        const uninstall = inst.install(
+          this.refs['addonGame'] as HTMLElement,
+          this.stateLayer);
+        this.uninstalls.push(uninstall);
+      });
     });
   }
 

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as THREE from 'three';
 import StateLayer from '@pasta/addon/lib/StateLayer';
+import { StoreEvents, StoreListen } from '@pasta/addon/lib/store/Events';
 
 import { createEffectManager } from '../effects';
 
@@ -12,21 +13,24 @@ const BOX_SIZE = PIXEL_UNIT * 2;
 const MINI_PIXEL_SIZE = BOX_SIZE / PIXEL_NUM;
 const GRID_SIZE = BOX_SIZE * 10;
 
-function initMainView(htmlElement, stateLayer: StateLayer) {
-  const container = htmlElement;
+function Listen(store, tokens) {
+  this.store = store;
+  this.tokens = tokens;
+}
 
-  const windowWidth = htmlElement.offsetWidth;
-  const windowHeight = htmlElement.offsetHeight;
+StoreEvents.forEach(event => {
+  Listen.prototype[event] = function (fn) {
+    const token = this.store.on(event, fn);
+    this.tokens.push(token);
+  };
+});
 
-  /////////////////////////////////////////////////////////////////////////
-  // Init
-  /////////////////////////////////////////////////////////////////////////
-
+function initMainView(container, stateLayer: StateLayer) {
   const camera = new THREE.OrthographicCamera(
-    windowWidth / - 2,
-    windowWidth / 2,
-    windowHeight / 2,
-    windowHeight / - 2,
+    container.offsetWidth / - 2,
+    container.offsetWidth / 2,
+    container.offsetHeight / 2,
+    container.offsetHeight / - 2,
     - GRID_SIZE, 2 * GRID_SIZE
   );
   camera.position.x = 200;
@@ -43,7 +47,9 @@ function initMainView(htmlElement, stateLayer: StateLayer) {
   const planeGeo = new THREE.PlaneBufferGeometry( 2 * GRID_SIZE, 2 * GRID_SIZE );
   planeGeo.rotateX( - Math.PI / 2 );
 
-  const plane = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { visible: false } ) );
+  const plane = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial({
+    visible: false,
+  }));
   scene.add( plane );
 
   const rollOverPlaneGeo = new THREE.PlaneBufferGeometry( BOX_SIZE, BOX_SIZE );
@@ -60,7 +66,10 @@ function initMainView(htmlElement, stateLayer: StateLayer) {
 
   // Cubes
   var geometry = new THREE.BoxGeometry( BOX_SIZE, BOX_SIZE, BOX_SIZE );
-  var material = new THREE.MeshLambertMaterial( { color: 0xffffff, overdraw: 0.5 } );
+  var material = new THREE.MeshLambertMaterial({
+    color: 0xffffff,
+    overdraw: 0.5,
+  });
 
   // Lights
 
@@ -73,16 +82,31 @@ function initMainView(htmlElement, stateLayer: StateLayer) {
   scene.add( light );
 
   const renderer = new THREE.WebGLRenderer();
-  renderer.setSize( htmlElement.offsetWidth, htmlElement.offsetHeight );
-  htmlElement.appendChild( renderer.domElement );
+  renderer.setSize(container.offsetWidth, container.offsetHeight);
+  container.appendChild(renderer.domElement);
 
-  camera.lookAt( scene.position );
+  camera.lookAt(scene.position);
 
   function render(dt = 0) {
     effectManager.update(dt);
-    renderer.render( scene, camera );
+    renderer.render(scene, camera);
   }
 
+  const terrains: THREE.Object3D[] = [];
+  let terrainsIndexed: {
+    [index: string]: THREE.Object3D;
+  } = {};
+
+  function addTerrain(x: number, z: number, terrain: THREE.Object3D) {
+    const key = `${x}_${z}`;
+    terrains.push(terrain);
+    terrainsIndexed[key] = terrain;
+  }
+
+  function existsTerrain(x: number, z: number) {
+    const key = `${x}_${z}`;
+    return !!terrainsIndexed[key];
+  }
   /////////////////////////////////////////////////////////////////////////
   // Add event listeners
   /////////////////////////////////////////////////////////////////////////
@@ -90,61 +114,48 @@ function initMainView(htmlElement, stateLayer: StateLayer) {
   function onMouseMove(event) {
     event.preventDefault();
 
-    mouse.set( ( event.offsetX / windowWidth ) * 2 - 1,
-              - ( event.offsetY / windowHeight ) * 2 + 1 );
+    mouse.set(
+      (event.offsetX / container.offsetWidth) * 2 - 1,
+      -(event.offsetY / container.offsetHeight) * 2 + 1
+    );
 
-              raycaster.setFromCamera( mouse, camera );
+    raycaster.setFromCamera(mouse, camera);
 
-              const intersects = raycaster.intersectObjects(planeList);
-              if (intersects.length === 0) {
-                return;
-              }
+    const intersects = raycaster.intersectObjects(terrains);
+    if (intersects.length === 0) { return; }
 
-              const intersect = intersects[ 0 ];
+    const intersect = intersects[0];
 
-              rollOverPlane.position.copy( intersect.point ).add( intersect.face.normal );
-              rollOverPlane.position
-              .divideScalar( BOX_SIZE )
-              .floor()
-              .multiplyScalar( BOX_SIZE )
-              .addScalar( PIXEL_UNIT );
-              rollOverPlane.position.y = 0;
+    rollOverPlane.position.copy(intersect.point).add(intersect.face.normal);
+    rollOverPlane.position
+      .divideScalar(BOX_SIZE)
+      .floor()
+      .multiplyScalar(BOX_SIZE)
+      .addScalar(PIXEL_UNIT);
 
-              render();
+    rollOverPlane.position.y = 0;
+
+    render();
   }
 
   function onMouseDown(event) {
     event.preventDefault();
 
-    mouse.set( ( event.offsetX / windowWidth ) * 2 - 1,
-              - ( event.offsetY / windowHeight ) * 2 + 1 );
+    const position = new THREE.Vector3();
+    position.copy(rollOverPlane.position)
+      .divideScalar(BOX_SIZE)
+      .floor()
+      .addScalar(1);
 
-              raycaster.setFromCamera( mouse, camera );
-
-              const intersects = raycaster.intersectObjects(planeList);
-              if (intersects.length === 0) {
-                return;
-              }
-
-              const intersect = intersects[ 0 ];
-
-              const position = new THREE.Vector3();
-
-              position.copy( intersect.point ).add( intersect.face.normal );
-              position
-                .divideScalar( BOX_SIZE )
-                .floor()
-                .addScalar(1);
-
-              stateLayer.rpc.move({
-                id: stateLayer.store.me.id,
-                x: position.x,
-                y: position.y,
-              });
+    stateLayer.rpc.move({
+      id: stateLayer.store.myId,
+      x: position.x,
+      z: position.z,
+    });
   }
 
-  htmlElement.addEventListener('mousemove', onMouseMove, false);
-  htmlElement.addEventListener('mousedown', onMouseDown, false);
+  container.addEventListener('mousemove', onMouseMove, false);
+  container.addEventListener('mousedown', onMouseDown, false);
   window.addEventListener('resize', onWindowResize, false);
 
   function onWindowResize() {
@@ -157,114 +168,44 @@ function initMainView(htmlElement, stateLayer: StateLayer) {
     renderer.setSize( container.offsetWidth, container.offsetHeight )
   }
 
-  let tokens = [];
-  let token;
+  let objects: {
+    [index: string]: THREE.Object3D;
+  } = {};
 
-  let objects = {};
-  token = stateLayer.store.on('create', function (obj) {
-    if (obj.type === 'effect') {
-      return effectManager.create('fire', obj.options.duration, obj.position);
-    }
+  const terrainGeometry = new THREE.PlaneGeometry(BOX_SIZE, BOX_SIZE);
+  terrainGeometry.rotateX( - Math.PI / 2 );
+  terrainGeometry.translate( PIXEL_UNIT, 0, PIXEL_UNIT );
 
-    var object = objects[obj.id] = new THREE.Group();
-    const cube = new THREE.Mesh( geometry, material );
-    object.add(cube);
+  function reset() {
+    // Clear terrains
+    terrains.forEach(terrain => scene.remove(terrain));
+    terrains.length = 0;
+    terrainsIndexed = {};
 
-    object.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
-    object.position.z = BOX_SIZE * obj.position.y -PIXEL_UNIT;
-    object.position.y = PIXEL_UNIT;
-
-    object.lookAt(new THREE.Vector3(
-      object.position.x + 1,
-      object.position.y,
-      object.position.z
-    ));
-
-    scene.add( object );
-  });
-  tokens.push(token);
-
-  token = stateLayer.store.on('init', function () {
-    const object = objects[this.me.id];
-    camera.position.copy(object.position);
-  });
-  tokens.push(token);
-
-  token = stateLayer.store.on('move', function (obj, to, from) {
-    const object = objects[obj.id];
-
-    // Rotate
-    var pos = new THREE.Vector3();
-    pos.x = BOX_SIZE * to.x - PIXEL_UNIT;
-    pos.z = BOX_SIZE * to.y - PIXEL_UNIT;
-    pos.y = object.position.y;
-    object.lookAt(pos);
-
-    // Move
-    object.position.x = pos.x;
-    object.position.z = pos.z;
-
-    if (obj.id === this.me.id) {
-      camera.position.copy(object.position);
-    }
-  });
-  tokens.push(token);
-
-  token = stateLayer.store.on('destroyAll', () => {
+    // Clear objects
     Object.keys(objects).forEach(id => {
-      const cube = objects[id];
-      scene.remove(cube);
+      const object = objects[id];
+      scene.remove(object);
     });
-    render();
     objects = {};
-  });
-  tokens.push(token);
+  }
 
-  const planeGeometry = new THREE.PlaneGeometry(BOX_SIZE, BOX_SIZE);
-  planeGeometry.rotateX( - Math.PI / 2 );
-  planeGeometry.translate( PIXEL_UNIT, 0, PIXEL_UNIT );
-
-  const planes = {};
-  const planeList = [];
-
-  token = stateLayer.store.on('terrain', terrain => {
-    const { loc, color } = terrain;
-
-    const key = `${loc.x}_${loc.y}`;
-
-    let plane = planes[key];
-    if (!plane) {
-      const material = new THREE.MeshBasicMaterial({
-        side: THREE.FrontSide,
-      });
-      plane = planes[key] = new THREE.Mesh(planeGeometry, material);
-      planeList.push(plane);
-      plane.position.x = (loc.x - 1) * BOX_SIZE;
-      plane.position.z = (loc.y - 1) * BOX_SIZE;
-      scene.add(plane);
-    }
-    plane.material.color.setHex(color);
-  });
-  tokens.push(token);
-
-  token = stateLayer.store.on('voxels', ({ id, data }) => {
-    const object = objects[id];
+  function changeObjectMesh(object: THREE.Object3D, mesh) {
     for (let i = object.children.length - 1; i >= 0; --i) {
       const child = object.children[i];
       object.remove(child);
     }
 
-    const result = data;
     const geometry = new THREE.Geometry();
 
     geometry.vertices.length = 0;
     geometry.faces.length = 0;
-    for(var i = 0; i < result.vertices.length; ++i) {
-      var q = result.vertices[i];
+    for(var i = 0; i < mesh.vertices.length; ++i) {
+      var q = mesh.vertices[i];
       geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
     }
-    for(var i = 0; i < result.faces.length; ++i) {
-      const q = result.faces[i];
+    for(var i = 0; i < mesh.faces.length; ++i) {
+      const q = mesh.faces[i];
       const f = new THREE.Face3(q[0], q[1], q[2]);
       f.color = new THREE.Color(q[3]);
       f.vertexColors = [f.color,f.color,f.color];
@@ -288,57 +229,153 @@ function initMainView(htmlElement, stateLayer: StateLayer) {
     const surfacemesh = new THREE.Mesh( geometry, material );
     // surfacemesh.doubleSided = false;
     surfacemesh.position.x = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
-    surfacemesh.position.y = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;// - PLANE_Y_OFFSET;
+    surfacemesh.position.y = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
     surfacemesh.position.z = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
     surfacemesh.scale.set(MINI_PIXEL_SIZE, MINI_PIXEL_SIZE, MINI_PIXEL_SIZE);
 
     object.add(surfacemesh);
+  }
+
+  function resyncToStore() {
+    reset();
+
+    // Terrains
+    stateLayer.store.map.terrains.forEach(terrain => {
+      const material = new THREE.MeshBasicMaterial({
+        side: THREE.FrontSide,
+        color: terrain.color,
+      });
+      const terrainMesh = new THREE.Mesh(terrainGeometry, material);
+      terrainMesh.position.x = (terrain.position.x - 1) * BOX_SIZE;
+      terrainMesh.position.z = (terrain.position.z - 1) * BOX_SIZE;
+      scene.add(terrainMesh);
+
+      addTerrain(terrain.position.x, terrain.position.z, terrainMesh);
+    });
+
+    for (let i = 1; i <= stateLayer.store.map.width; ++i) {
+      for (let j = 1; j <= stateLayer.store.map.depth; ++j) {
+        if (existsTerrain(i, j)) { continue; }
+
+        const material = new THREE.MeshBasicMaterial({
+          side: THREE.FrontSide,
+          color: 0xffffff,
+        });
+        const terrainMesh = new THREE.Mesh(terrainGeometry, material);
+        terrainMesh.position.x = (i - 1) * BOX_SIZE;
+        terrainMesh.position.z = (j - 1) * BOX_SIZE;
+        scene.add(terrainMesh);
+
+        addTerrain(i, j, terrainMesh);
+      }
+    }
+
+    // Objects
+    stateLayer.store.map.objects.forEach(obj => {
+      const object = objects[obj.id] = new THREE.Group();
+      const cube = new THREE.Mesh( geometry, material );
+      object.add(cube);
+
+      object.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
+      object.position.z = BOX_SIZE * obj.position.z -PIXEL_UNIT;
+      object.position.y = PIXEL_UNIT;
+
+      object.lookAt(new THREE.Vector3(
+        object.position.x /* + 1*/,
+        object.position.y,
+        object.position.z
+      ));
+
+      if (obj.mesh) {
+        changeObjectMesh(object, obj.mesh);
+      }
+
+      scene.add(object);
+
+      if (obj.id === stateLayer.store.myId) {
+        camera.position.copy(object.position);
+      }
+    });
+  }
+
+  // Sync view to store data
+  resyncToStore();
+
+  const tokens = [];
+  const listen: StoreListen = new Listen(stateLayer.store, tokens);
+
+  listen.resync(() => resyncToStore());
+
+  listen.move(function (params) {
+    const object = objects[params.object.id];
+
+    // Rotate
+    var pos = new THREE.Vector3();
+    pos.x = BOX_SIZE * params.to.x - PIXEL_UNIT;
+    pos.z = BOX_SIZE * params.to.z - PIXEL_UNIT;
+    pos.y = object.position.y;
+    object.lookAt(pos);
+
+    // Move
+    object.position.x = pos.x;
+    object.position.z = pos.z;
+
+    if (params.object.id === stateLayer.store.myId) {
+      camera.position.copy(object.position);
+    }
   });
-  tokens.push(token);
 
-    // Map
-  const data = stateLayer.store.objects.getAllObjects();
-  Object.keys(data).forEach(id => {
-    const obj = data[id];
-
-    const object = objects[obj.id] = new THREE.Group();
-    const cube = new THREE.Mesh( geometry, material );
-    object.add(cube);
-
-    object.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
-    object.position.z = BOX_SIZE * obj.position.y -PIXEL_UNIT;
-    object.position.y = PIXEL_UNIT;
-
-    object.lookAt(new THREE.Vector3(
-      object.position.x + 1,
-      object.position.y,
-      object.position.z
-    ));
-
-    scene.add( object );
+  listen.meshUpdated(params => {
+    const object = objects[params.id];
+    if (!object) {
+      console.error(`Cannot find object with id ${params.id}`);
+      return;
+    }
+    changeObjectMesh(object, params);
   });
+
+  listen.playEffect(params => {
+    effectManager.create('fire', params.duration, {
+      x: params.x,
+      z: params.z,
+    });
+  });
+
+  // subscribeStore('create', function (obj) {
+  //   var object = objects[obj.id] = new THREE.Group();
+  //   const cube = new THREE.Mesh( geometry, material );
+  //   object.add(cube);
+
+  //   object.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
+  //   object.position.z = BOX_SIZE * obj.position.y -PIXEL_UNIT;
+  //   object.position.y = PIXEL_UNIT;
+
+  //   object.lookAt(new THREE.Vector3(
+  //     object.position.x + 1,
+  //     object.position.y,
+  //     object.position.z
+  //   ));
+
+  //   scene.add( object );
+  // });
 
   /////////////////////////////////////////////////////////////////////////
   // FIN
   /////////////////////////////////////////////////////////////////////////
 
-  let time;
-  let frameId;
+  let then = Date.now();
+  let frameId = requestAnimationFrame(update);
   function update() {
     frameId = requestAnimationFrame(update);
-
-    const now = new Date().getTime();
-    const dt = now - (time || now);
-    time = now;
-
-    render(dt);
+    const now = Date.now();
+    render(now - then);
+    then = now;
   }
-  update();
 
   return {
     destroy() {
-      htmlElement.removeEventListener('mousemove', onMouseMove, false);
-      htmlElement.removeEventListener('mousedown', onMouseDown, false);
+      container.removeEventListener('mousemove', onMouseMove, false);
+      container.removeEventListener('mousedown', onMouseDown, false);
       window.removeEventListener('resize', onWindowResize, false);
       tokens.forEach(token => token.remove());
       cancelAnimationFrame(frameId);

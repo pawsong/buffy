@@ -1,4 +1,7 @@
+import { SerializedGameMap } from '@pasta/game-class/lib/GameMap';
+import { SerializedTerrain } from '@pasta/game-class/lib/Terrain';
 import { RpcParams, RpcResponse } from './base';
+import * as CZ from './cz';
 
 /*
  * Packet types:
@@ -7,60 +10,72 @@ import { RpcParams, RpcResponse } from './base';
  *   - Type 3: Server sends back result to client. Returns Promise<Result>
  */
 
-export interface Emit {
-  (e: 'init', params: InitParams): void;
+export const SendEvents = [
+  'init',
+];
 
-  (e: string, params: RpcParams): any;
+export interface Send {
+  init(params: InitParams): void;
 }
 
-export interface Broadcast {
-  (e: 'move', params: MoveParams): void;
-  (e: 'create', params: CreateParams): void;
-  (e: 'terrain', params: TerrainParams): void;
-  (e: 'voxels', params: VoxelsParams): void;
+export const BroadcastEvents = [
+  'move',
+  'create',
+  'playEffect',
+  'terrainUpdated',
+  'meshUpdated',
+];
 
-  (e: string, params: RpcParams): any;
+export interface Broadcast {
+  move(params: MoveParams): void;
+  create(params: CreateParams): void;
+  playEffect(params: PlayEffectParams): void;
+  terrainUpdated(params: TerrainUpdatedParams): void;
+  meshUpdated(params: MeshUpdatedParams): void;
 }
 
 export interface Listen<T> {
-  (e: 'init', fn: (store: T, params: InitParams) => void): void;
-  (e: 'move', fn: (store: T, params: MoveParams) => void): void;
-  (e: 'create', fn: (store: T, params: CreateParams) => void): void;
-  (e: 'terrain', fn: (store: T, params: TerrainParams) => void): void;
-  (e: 'voxels', fn: (store: T, params: VoxelsParams) => void): void;
-  
-  (e: string, fn: (store: T, params: RpcParams) => any): void;
+  init(fn: (store: T, params: InitParams) => any): void;
+  move(fn: (store: T, params: MoveParams) => any): void;
+  create(fn: (store: T, params: CreateParams) => any): void;
+  playEffect(fn: (store: T, params: PlayEffectParams) => any): void;
+  terrainUpdated(fn: (store: T, params: TerrainUpdatedParams) => any): void;
+  meshUpdated(fn: (store: T, params: MeshUpdatedParams) => any): void;
 }
 
 // Events
 export interface InitParams extends RpcParams {
-  me: any;
-  objects: any;
-  terrains: any;
+  myId: string;
+  map: SerializedGameMap;
 }
 
-export interface MoveParams extends RpcParams { 
+export interface MoveParams extends RpcParams {
   id;
   tween;
 }
 
-export interface CreateParams extends RpcParams { 
+export interface CreateParams extends RpcParams {
   id: string;
   type: string;
   position: {
     x: number;
-    y: number;
+    z: number;
   },
   duration: number;
 }
 
-export interface TerrainParams extends RpcParams {
-  terrain;
+export interface PlayEffectParams extends CZ.PlayEffectParams {
+
 }
 
-export interface VoxelsParams extends RpcParams {
+export interface TerrainUpdatedParams extends RpcParams {
+  terrain: SerializedTerrain;
+}
+
+export interface MeshUpdatedParams extends RpcParams {
   id: string;
-  data;
+  vertices: any[];
+  faces: any[];
 }
 
 // Responses

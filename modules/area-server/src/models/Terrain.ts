@@ -2,16 +2,23 @@ import * as mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 export interface TerrainDocument extends mongoose.Document {
+  map: mongoose.Types.ObjectId;
   loc: {
     x: number;
-    y: number;
+    z: number;
   }
   color: number;
 }
 
 const TerrainSchema = new Schema({
-  loc: { x: Number, y: Number },
+  map: { type: Schema.Types.ObjectId, ref: 'GameMap' },
+  loc: {
+    x: Number,
+    z: Number,
+  },
   color: Number,
 });
+
+// TODO: Add unique index using map + loc data.
 
 export default mongoose.model<TerrainDocument>('Terrain', TerrainSchema);

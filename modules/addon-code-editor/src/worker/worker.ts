@@ -71,37 +71,36 @@ class FakeSocket {
 
 const socket = new FakeSocket();
 
-// Create StateLayer instance from fake socket
-const stateLayer = new StateLayer({
-  emit: (event, params, cb) => {
-    socket.emit(event, params, cb);
-  },
-  listen: (event, handler) => {
-    const token = socket.addListener(event, handler);
-    return () => token.remove();
-  },
-  update: (cb) => {
-    let timeoutId = setTimeout(update, 10);
-    let then = Date.now();
-    function update() {
-      const now = Date.now();
-      cb(now - then);
-      then = now;
-      timeoutId = setTimeout(update, 10);
-    }
-    return () => clearTimeout(timeoutId);
-  },
-});
-
 self.postMessage({ type: MsgFromWorkerType.CONNECT });
 
 (async () => {
-  await new Promise(resolve => {
+  const initParams = await new Promise<any>(resolve => {
     once(self, MsgToWorkerType.INIT, data => {
-      socket.emitter.emit('init', data.params);
-      resolve();
+      resolve(data.params);
     });
   });
+
+  // Create StateLayer instance from fake socket
+  const stateLayer = new StateLayer({
+    emit: (event, params, cb) => {
+      socket.emit(event, params, cb);
+    },
+    listen: (event, handler) => {
+      const token = socket.addListener(event, handler);
+      return () => token.remove();
+    },
+    update: (cb) => {
+      let timeoutId = setTimeout(update, 10);
+      let then = Date.now();
+      function update() {
+        const now = Date.now();
+        cb(now - then);
+        then = now;
+        timeoutId = setTimeout(update, 10);
+      }
+      return () => clearTimeout(timeoutId);
+    },
+  }, initParams);
 
   self.postMessage({ type: MsgFromWorkerType.INIT });
 

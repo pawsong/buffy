@@ -155,11 +155,11 @@ function createExplosion(scene, maxAge, position) {
   scene.remove(shockwaveGroup.mesh);
 
   group.mesh.position.x = 50 * position.x -25;
-  group.mesh.position.z = 50 * position.y -25;
+  group.mesh.position.z = 50 * position.z -25;
   group.mesh.position.y = 70;
 
   shockwaveGroup.mesh.position.x = 50 * position.x -25;
-  shockwaveGroup.mesh.position.z = 50 * position.y -25;
+  shockwaveGroup.mesh.position.z = 50 * position.z -25;
   shockwaveGroup.mesh.position.y = 70;
 
   let age = 0;

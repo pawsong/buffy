@@ -132,7 +132,8 @@ class Container extends React.Component<_ContainerProps, {
     const voxelData = voxelMapToArray(voxel.present.data);
     const result = GreedyMesh(voxelData.data, voxelData.shape);
 
-    stateLayer.rpc.voxels({
+    stateLayer.rpc.changeMesh({
+      id: stateLayer.store.myId,
       vertices: result.vertices,
       faces: result.faces,
     });

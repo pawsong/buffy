@@ -4,7 +4,7 @@ const conf = require('@pasta/config');
 
 require('../../gulp/universal')({
   prefix: 'addon-game',
-  port: conf.addonCodeEditorServerPort,
+  port: conf.addonGameServerPort,
   useBrowserSync: false,
   main: 'build/dev/server',
   webpackConfig: {

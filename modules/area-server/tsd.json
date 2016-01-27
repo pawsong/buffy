@@ -12,13 +12,13 @@
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
     "node/node.d.ts": {
-      "commit": "70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e"
+      "commit": "7b3d5a6ea5acda4a81f71309f1cc62354e63b681"
     },
     "cookie/cookie.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
     "lodash/lodash.d.ts": {
-      "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
+      "commit": "7fffbd3e040a93c244777e3be04cd6223ac69301"
     },
     "shortid/shortid.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
@@ -40,6 +40,9 @@
     },
     "fbemitter/fbemitter.d.ts": {
       "commit": "627b6c158b73494c803f36fc2fe00ad75faa8fde"
+    },
+    "socket.io/socket.io.d.ts": {
+      "commit": "7b3d5a6ea5acda4a81f71309f1cc62354e63b681"
     }
   }
 }

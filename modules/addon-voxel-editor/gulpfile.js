@@ -4,7 +4,7 @@ const conf = require('@pasta/config');
 
 require('../../gulp/universal')({
   prefix: 'addon-voxel-editor',
-  port: conf.addonCodeEditorServerPort,
+  port: conf.addonVoxelEditorServerPort,
   useBrowserSync: false,
   main: 'build/dev/server',
   webpackConfig: {

@@ -1,11 +1,11 @@
 const { id, stateLayer } = self.$pasta;
 
 export default {
-  move: (x, y) => {
+  move: (x, z) => {
     stateLayer.rpc.move({
-      id: '',
-      x,
-      y,
+      id: stateLayer.store.myId,
+      x: x,
+      z: z,
      });
   },
 
@@ -13,7 +13,7 @@ export default {
     const { position } = stateLayer.store.getPlayer();
     stateLayer.rpc.playEffect({
       x: position.x,
-      y: position.y,
+      z: position.z,
       duration,
     });
   }

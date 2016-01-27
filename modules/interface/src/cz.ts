@@ -8,46 +8,45 @@ import { RpcParams, RpcResponse } from './base';
 export const Methods = {
   playEffect: { response: false },
   move: { response: true },
-  setTerrain: { response: true },
-  voxels: { response: false },
+  updateTerrain: { response: true },
+  updateMesh: { response: true },
 };
 
 export interface Rpc {
   playEffect(params: PlayEffectParams): void;
   move(params: MoveParams): Promise<void>;
-  setTerrain(params: SetTerrainParams): Promise<void>;
-  voxels(params: VoxelsParams): void;
+  updateTerrain(params: UpdateTerrainParams): Promise<void>;
+  updateMesh(params: UpdateMeshParams): void;
 }
 
 export interface Listen {
-  (method: 'playEffect', fn: (params: PlayEffectParams) => void): void;
-  (method: 'move', fn: (params: MoveParams) => Promise<void>): void;
-  (method: 'setTerrain', fn: (params: SetTerrainParams) => Promise<void>): void;
-  (method: 'voxels', fn: (params: VoxelsParams) => void): void;
-
-
-  (e: string, fn: (body: RpcParams) => any): void;
+  playEffect(fn: (params: PlayEffectParams) => void): void;
+  move(fn: (params: MoveParams) => Promise<void>): void;
+  updateTerrain(fn: (params: UpdateTerrainParams) => Promise<void>): void;
+  updateMesh(fn: (params: UpdateMeshParams) => Promise<void>): void;
 }
 
 // Events
 export interface PlayEffectParams extends RpcParams {
   x: number;
-  y: number;
+  z: number;
   duration: number;
 }
 
 export interface MoveParams extends RpcParams {
   id: string;
   x: number;
-  y: number;
+  z: number;
 }
 
-export interface SetTerrainParams extends RpcParams {
+export interface UpdateTerrainParams extends RpcParams {
   x: number;
-  y: number;
+  z: number;
   color: number;
 }
 
-export interface VoxelsParams extends RpcParams {
-
+export interface UpdateMeshParams extends RpcParams {
+  id: string;
+  vertices: any[];
+  faces: any[];
 }

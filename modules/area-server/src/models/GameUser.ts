@@ -1,42 +1,30 @@
 import * as mongoose from 'mongoose';
 const { Schema } = mongoose;
 
-const secrets = [
-  '_id',
-  '__v',
-];
-
 export interface GameUserDocument extends mongoose.Document {
-  user: string;
+  owner: string;
+  home: mongoose.Types.ObjectId;
   loc: {
     map: mongoose.Types.ObjectId;
     pos: {
       x: number;
-      y: number;
+      z: number;
     }
   }
+  mesh: mongoose.Types.ObjectId;
 }
 
 const GameUserSchema = new Schema({
-  user: { type: String, sparse: true, unique: true },
+  owner: { type: String, sparse: true, unique: true },
+  home: { type: Schema.Types.ObjectId, ref: 'GameMap' },
   loc: {
-    map: { type: Schema.Types.ObjectId },
-    pos: { x: Number, y: Number, },
+    map: { type: Schema.Types.ObjectId, ref: 'GameMap' },
+    pos: {
+      x: Number,
+      z: Number,
+    },
   },
-});
-
-// Duplicate the ID field.
-GameUserSchema.virtual('id').get(function(){
-  return this._id.toHexString();
-});
-
-GameUserSchema.set('toJSON', {
-  virtuals: true,
-  transform: function (doc, ret) {
-    secrets.forEach(secret => {
-      delete ret[secret];
-    });
-  },
+  mesh: { type: Schema.Types.ObjectId, ref: 'Mesh' },
 });
 
 export default mongoose.model<GameUserDocument>('GameUser', GameUserSchema);

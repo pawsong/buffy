@@ -1,58 +1,168 @@
 import * as shortid from 'shortid';
 import { CZ, ZC } from '@pasta/interface';
-import objects from './ServerObjectManager';
-import GameUser from './models/GameUser';
+import GameMap from '@pasta/game-class/lib/GameMap';
+import GameUser from './classes/GameUser';
+import GameMapModel from './models/GameMap';
+import GameUserModel from './models/GameUser';
+import MeshModel from './models/Mesh';
 import Terrain from './models/Terrain';
-
-import * as map from './map';
+import * as Sessions from './Sessions';
 
 const SPEED = 0.005;
 
-export default (io, socket) => {
-  
-  const listen: CZ.Listen = (method, handler) => {
-    socket.on(method, handler);
-  };
-  
-  const emit: ZC.Emit = (event, params) => {
-    socket.emit(event, params);
-  };
-  
-  const broadcast: ZC.Broadcast = (event, params) => {
-    io.emit(event, params);
-  };
-  
-  // TODO: Comprehensive session management needed.
-  const alreadyConnected = !!objects.find(socket.user.id);
-  if (alreadyConnected) {
-    return socket.disconnect();
+function Listen(socket) {
+  this.socket = socket;
+}
+
+Object.keys(CZ.Methods).forEach(method => {
+  const opts = CZ.Methods[method];
+  if (opts.response) {
+    Listen.prototype[method] = function (handler) {
+      this.socket.on(method, (params, fn) => {
+        const promise = handler(params);
+        if (!promise || !promise.then) {
+          console.error(
+            `handler must return Promise object to send back response`
+          );
+          return fn({
+            error: new Error('500'),
+          });
+        }
+
+        // TODO: make RPC
+        promise.then(result => fn({
+          result,
+        })).catch(error => {
+          console.error(error);
+          fn({
+            error: new Error('failed'),
+          });
+        });
+      });
+    };
+  } else {
+    Listen.prototype[method] = function (handler) {
+      this.socket.on(method, handler);
+    };
   }
+})
 
-  const user = objects.create(Object.assign({
-    id: shortid.generate(),
-  }, socket.user));
+export default (socket: SocketIO.Socket) => {
+  const me: GameUser = socket['user'];
+  socket['user'] = undefined;
 
-  // TODO Get terrain info from memory
-  emit('init', {
-    me: { id: user.id },
-    objects: user.getSerializedObjectsInRange(),
-    terrains: Object.keys(map.terrains).map(key => map.terrains[key]),
+  const listen: CZ.Listen = new Listen(socket);
+
+  me.send.init({
+    myId: me.id,
+    map: me.map.serialize(),
   });
-  
-  listen('move', params => {
-    const dx = user.position.x - params.x;
-    const dy = user.position.y - params.y;
-    const dist = Math.sqrt(dx * dx + dy * dy)
 
-    user.tween
-      .to({ x: params.x, y: params.y }, dist / SPEED) // TODO: Calculate speed
+  listen.move(params => {
+    // TODO: Validate params.
+    // TODO: Check permission.
+
+    if (typeof params.id !== 'string') {
+      console.warn('params.id must be string');
+      return Promise.resolve();
+    }
+
+    if (typeof params.x !== 'number') {
+      console.warn('params.x must be number');
+      return Promise.resolve();
+    }
+
+    if (typeof params.z !== 'number') {
+      console.warn('params.z must be number');
+      return Promise.resolve();
+    }
+
+    const dx = me.position.x - params.x;
+    const dz = me.position.z - params.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+
+    me.tween
+      .to({ x: params.x, z: params.z }, dist / SPEED) // TODO: Calculate speed
       .start(0);
 
-    broadcast('move', { id: user.id, tween: user.tween });
-    
+    me.map.broadcast.move({
+      id: params.id,
+      tween: me.tween.serialize(),
+    });
+
     return Promise.resolve();
   });
-  
+
+  listen.updateMesh(async (params) => {
+    // TODO: Validate params.
+    // TODO: Check permission.
+
+    const mesh = await MeshModel.create({
+      vertices: params.vertices,
+      faces: params.faces,
+    });
+
+    await GameUserModel.findByIdAndUpdate(me.id, {
+      mesh: mesh.id,
+    }).exec();
+
+    // TODO: Save values to DB.
+    me.map.broadcast.meshUpdated({
+      id: params.id,
+      vertices: params.vertices,
+      faces: params.faces,
+    });
+  });
+
+  listen.updateTerrain(async (params) => {
+    // TODO: Validate params.
+    // TODO: Check permission.
+
+    const terrainDoc = await Terrain.findOneAndUpdate({
+      map: me.map.id,
+      loc: { x: params.x, z: params.z },
+    }, {
+      color: params.color,
+    }, { new: true, upsert: true }).exec();
+
+    const terrain = me.map.updateTerrain({
+      id: terrainDoc.id,
+      position: terrainDoc.loc,
+      color: terrainDoc.color,
+    });
+
+    me.map.broadcast.terrainUpdated({
+      terrain: terrain.serialize(),
+    });
+  });
+
+  listen.playEffect(params => {
+    // TODO: Validate params.
+    // TODO: Check permission.
+
+    me.map.broadcast.playEffect({
+      x: params.x,
+      z: params.z,
+      duration: params.duration,
+    });
+  });
+
+  socket.on('disconnect', async function() {
+    Sessions.logout(me.id);
+    me.map.removeUser(me);
+    try {
+      await GameUserModel.findByIdAndUpdate(me.id, {
+        'loc.pos.x': Math.round(me.position.x),
+        'loc.pos.z': Math.round(me.position.z),
+      }).exec();
+    } catch(err) {
+      console.error(err);
+    }
+  });
+
+
+  /*
+
   listen('playEffect', (params) => {
     emit('create', {
       id: shortid.generate(),
@@ -74,23 +184,8 @@ export default (io, socket) => {
     }, { new: true, upsert: true }).exec();
 
     map.setTerrain(terrain);
-    
+
     broadcast('terrain', { terrain });
   });
-  
-  listen('voxels', params => {
-    broadcast('voxels', {id: user.id, data: params });
-  });
-  
-  socket.on('disconnect', async function() {
-    objects.destroy(user.id);
-    try {
-      await GameUser.findOneAndUpdate({ user: user.id }, {
-        'loc.pos.x': Math.round(user.position.x),
-        'loc.pos.y': Math.round(user.position.y),
-      }).exec();
-    } catch(err) {
-      console.error(err);
-    }
-  });
+  */
 };

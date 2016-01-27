@@ -1,4 +1,4 @@
-import * as CZ from '@pasta/interface/lib/cz';
+import { CZ, ZC } from '@pasta/interface';
 import { RpcResponse } from '@pasta/interface/lib/base';
 
 import StateStore from './StateStore';
@@ -24,7 +24,7 @@ class StateLayer {
 
   private _destroyFuncs: DestroyFunc[];
 
-  constructor(options: StateLayerOptions) {
+  constructor(options: StateLayerOptions, params: ZC.InitParams) {
     this.options = options;
 
     // Create Rpc Instance
@@ -47,7 +47,7 @@ class StateLayer {
     });
 
     // Create Store Instance
-    this.store = new StateStore();
+    this.store = new StateStore(params);
     this._destroyFuncs = Object.keys(StateStore.Routes).map(event => {
       return options.listen(event, (params) => {
         StateStore.Routes[event](this.store, params);

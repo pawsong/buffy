@@ -24,12 +24,12 @@
   "files": [
     "lib"
   ],
-  "links": [
-    "../tween.js"
-  ],
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
     "fbemitter": "^2.0.1"
-  }
+  },
+  "links": [
+    "../tween.js"
+  ]
 }
