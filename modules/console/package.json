@@ -24,7 +24,7 @@
     "start": "node $npm_package_start"
   },
   "files": [
-    "build",
+    "build/prod",
     "public"
   ],
   "publicAssets": "build/prod/client/public/**",
