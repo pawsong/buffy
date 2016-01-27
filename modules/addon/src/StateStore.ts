@@ -2,7 +2,6 @@ import * as ZC from '@pasta/interface/lib/zc';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import GameObject from '@pasta/game-class/lib/GameObject';
 import GameMap from '@pasta/game-class/lib/GameMap';
-import GameObjectManager from '@pasta/game-class/lib/GameObjectManager';
 import { StoreEvents, StoreEmit } from './store/Events';
 
 function Emit(emitter) {
