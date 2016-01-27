@@ -2,7 +2,7 @@ import * as ZC from '@pasta/interface/lib/zc';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import GameObject from '@pasta/game-class/lib/GameObject';
 import GameMap from '@pasta/game-class/lib/GameMap';
-import { StoreEvents, StoreEmit } from './store/Events';
+import { StoreEvents, StoreEmit, StoreListen } from './store/Events';
 
 function Emit(emitter) {
   this.emitter = emitter;
@@ -11,6 +11,16 @@ function Emit(emitter) {
 StoreEvents.forEach(event => {
   Emit.prototype[event] = function (params) {
     return this.emitter.emit(event, params);
+  };
+});
+
+function Subscribe(emitter: EventEmitter) {
+  this.emitter = emitter;
+}
+
+StoreEvents.forEach(event => {
+  Subscribe.prototype[event] = function (fn) {
+    return this.emitter.addListener(event, fn);
   };
 });
 
@@ -34,10 +44,12 @@ class StateStore {
   emit: StoreEmit;
   myId: string;
   map: GameMap;
+  subscribe: StoreListen;
 
   constructor(data: ZC.InitParams) {
     this.emitter = new EventEmitter();
     this.emit = new Emit(this.emitter);
+    this.subscribe = new Subscribe(this.emitter);
 
     this.deserialize(data);
   }

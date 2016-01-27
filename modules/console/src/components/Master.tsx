@@ -154,7 +154,7 @@ class Master extends React.Component<MasterProps, {}> {
         this.uninstalls.push(uninstall);
       });
 
-      // // addon-voxel-editor
+      // addon-voxel-editor
       this.loadAddon('/addons/voxel-editor', '@pasta/addon-voxel-editor').then(inst => {
         const uninstall = inst.install(
           this.refs['addonVoxelEditor'] as HTMLElement,
@@ -162,7 +162,7 @@ class Master extends React.Component<MasterProps, {}> {
         this.uninstalls.push(uninstall);
       });
 
-      // // addon-game
+      // addon-game
       this.loadAddon('/addons/game', '@pasta/addon-game').then(inst => {
         const uninstall = inst.install(
           this.refs['addonGame'] as HTMLElement,

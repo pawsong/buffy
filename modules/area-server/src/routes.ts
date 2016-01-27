@@ -58,23 +58,23 @@ export default (socket: SocketIO.Socket) => {
     map: me.map.serialize(),
   });
 
-  listen.move(params => {
+  listen.move(async (params) => {
     // TODO: Validate params.
     // TODO: Check permission.
 
     if (typeof params.id !== 'string') {
       console.warn('params.id must be string');
-      return Promise.resolve();
+      return;
     }
 
     if (typeof params.x !== 'number') {
       console.warn('params.x must be number');
-      return Promise.resolve();
+      return;
     }
 
     if (typeof params.z !== 'number') {
       console.warn('params.z must be number');
-      return Promise.resolve();
+      return;
     }
 
     const dx = me.position.x - params.x;
@@ -89,8 +89,6 @@ export default (socket: SocketIO.Socket) => {
       id: params.id,
       tween: me.tween.serialize(),
     });
-
-    return Promise.resolve();
   });
 
   listen.updateMesh(async (params) => {
@@ -147,7 +145,7 @@ export default (socket: SocketIO.Socket) => {
     });
   });
 
-  socket.on('disconnect', async function() {
+  socket.on('disconnect', async () => {
     Sessions.logout(me.id);
     me.map.removeUser(me);
     try {
@@ -159,7 +157,6 @@ export default (socket: SocketIO.Socket) => {
       console.error(err);
     }
   });
-
 
   /*
 
@@ -187,5 +184,6 @@ export default (socket: SocketIO.Socket) => {
 
     broadcast('terrain', { terrain });
   });
+
   */
 };

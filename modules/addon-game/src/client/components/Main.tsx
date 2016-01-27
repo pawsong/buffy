@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as THREE from 'three';
 import StateLayer from '@pasta/addon/lib/StateLayer';
 import { StoreEvents, StoreListen } from '@pasta/addon/lib/store/Events';
+import { EventSubscription } from 'fbemitter';
 
 import { createEffectManager } from '../effects';
 
@@ -12,18 +13,6 @@ const PIXEL_UNIT = 32;
 const BOX_SIZE = PIXEL_UNIT * 2;
 const MINI_PIXEL_SIZE = BOX_SIZE / PIXEL_NUM;
 const GRID_SIZE = BOX_SIZE * 10;
-
-function Listen(store, tokens) {
-  this.store = store;
-  this.tokens = tokens;
-}
-
-StoreEvents.forEach(event => {
-  Listen.prototype[event] = function (fn) {
-    const token = this.store.on(event, fn);
-    this.tokens.push(token);
-  };
-});
 
 function initMainView(container, stateLayer: StateLayer) {
   const camera = new THREE.OrthographicCamera(
@@ -301,12 +290,19 @@ function initMainView(container, stateLayer: StateLayer) {
   // Sync view to store data
   resyncToStore();
 
-  const tokens = [];
-  const listen: StoreListen = new Listen(stateLayer.store, tokens);
+  const tokens: EventSubscription[] = [];
+  const subscribe: StoreListen = {} as StoreListen;
+  StoreEvents.forEach(method => {
+    subscribe[method] = function (handler) {
+      const token = stateLayer.store.subscribe[method](handler);
+      tokens.push(token);
+      return token;
+    };
+  });
 
-  listen.resync(() => resyncToStore());
+  subscribe.resync(() => resyncToStore());
 
-  listen.move(function (params) {
+  subscribe.move(function (params) {
     const object = objects[params.object.id];
 
     // Rotate
@@ -325,7 +321,7 @@ function initMainView(container, stateLayer: StateLayer) {
     }
   });
 
-  listen.meshUpdated(params => {
+  subscribe.meshUpdated(params => {
     const object = objects[params.id];
     if (!object) {
       console.error(`Cannot find object with id ${params.id}`);
@@ -334,7 +330,7 @@ function initMainView(container, stateLayer: StateLayer) {
     changeObjectMesh(object, params);
   });
 
-  listen.playEffect(params => {
+  subscribe.playEffect(params => {
     effectManager.create('fire', params.duration, {
       x: params.x,
       z: params.z,
@@ -383,12 +379,8 @@ function initMainView(container, stateLayer: StateLayer) {
   };
 }
 
-const style = {
-  width: '100%',
-  height: '100%',
-};
-
 export interface MainProps extends React.Props<Main> {
+  style: Object;
   stateLayer: StateLayer;
 }
 
@@ -404,7 +396,7 @@ export class Main extends React.Component<MainProps, {}> {
   }
 
   render() {
-    return <div ref="canvas" style={style}></div>;
+    return <div style={this.props.style} ref="canvas"></div>;
   }
 };
 

@@ -1,5 +1,6 @@
 import GameObject from '@pasta/game-class/lib/GameObject';
 import { Position } from '@pasta/game-class/lib/GameObject';
+import { EventSubscription } from 'fbemitter';
 import * as ZC from '@pasta/interface/lib/zc';
 
 export const StoreEvents = [
@@ -17,10 +18,10 @@ export interface StoreEmit {
 }
 
 export interface StoreListen {
-  resync(fn: () => any): void;
-  move(fn: (params: MoveParams) => any): void;
-  playEffect(fn: (params: PlayEffectParams) => any): void;
-  meshUpdated(fn: (params: MeshUpdatedParams) => any): void;
+  resync(fn: () => any): EventSubscription;
+  move(fn: (params: MoveParams) => any): EventSubscription;
+  playEffect(fn: (params: PlayEffectParams) => any): EventSubscription;
+  meshUpdated(fn: (params: MeshUpdatedParams) => any): EventSubscription;
 }
 
 export interface StoreEventParams { }
