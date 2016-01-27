@@ -1,4 +1,4 @@
-const $pasta = self.$pasta;
+const $pasta = self['$pasta'];
 
 function sleep(ms) {
   return new Promise(resolve => {

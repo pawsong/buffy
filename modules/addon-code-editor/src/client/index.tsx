@@ -34,16 +34,15 @@ const styles = {
 };
 
 const snippet =
-`import player from '@pasta/player';
-import tutil from '@pasta/util';
+`import { player, util } from '@pasta/core';
 
-tutil.loop(async () => {
+util.loop(async () => {
   await player.move(1, 1);
-  await tutil.sleep(1000);
+  await util.sleep(1000);
   await player.move(2, 3);
-  await tutil.sleep(1000);
+  await util.sleep(1000);
   await player.boom();
-  await tutil.sleep(2000);
+  await util.sleep(2000);
 });`;
 
 interface ContainerProps extends React.Props<Container> {

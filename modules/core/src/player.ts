@@ -1,4 +1,4 @@
-const { id, stateLayer } = self.$pasta;
+const { stateLayer } = self['$pasta'];
 
 export default {
   move: (x, z) => {

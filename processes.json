@@ -50,6 +50,11 @@
     "args": ["serve:dev:watch"],
     "cwd": "modules/console"
   }, {
+    "name": "core",
+    "script": "node_modules/.bin/gulp",
+    "args": ["build:watch"],
+    "cwd": "modules/core"
+  }, {
     "name": "game-class",
     "script": "node_modules/.bin/gulp",
     "args": ["build:watch"],
