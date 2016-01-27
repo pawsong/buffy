@@ -1,4 +1,4 @@
-const $pasta = self['$pasta'];
+import ctx from './context';
 
 function sleep(ms) {
   return new Promise(resolve => {
@@ -10,7 +10,7 @@ function loop(handler) {
   return handler().then(() => {
     return loop(handler);
   }).catch(err => {
-    $pasta.log(err.stack);
+    ctx.log(err.stack);
   });
 }
 

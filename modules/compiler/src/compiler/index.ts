@@ -129,7 +129,10 @@ function compile(source) {
     // TODO: Make sure there is no remaining file.
 
     const entryFileContent = [
-      `import './${srcFile}';`,
+      `const cxt = require('@pasta/core/lib/context').default;`,
+      `Object.keys(self.$ctx).forEach(key => cxt[key] = self.$ctx[key]);`,
+      `delete self.$ctx;`,
+      `require('./${srcFile}');`,
     ].join('\n');
 
     // Write code

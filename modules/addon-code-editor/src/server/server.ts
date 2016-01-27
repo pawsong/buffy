@@ -10,7 +10,7 @@ import * as jwt from 'express-jwt';
 import * as conf from '@pasta/config';
 import routes from './routes'
 
-Promise.config({ warnings: false });;
+Promise.config({ warnings: false });
 
 const app = require('express')();
 

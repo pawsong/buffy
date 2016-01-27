@@ -2,6 +2,7 @@ import 'babel-polyfill';
 
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/addon/lib/StateLayer';
+import Context from '@pasta/addon/lib/Context';
 import {
   MsgToWorkerType,
   MsgFromWorkerType,
@@ -104,13 +105,13 @@ self.postMessage({ type: MsgFromWorkerType.CONNECT });
 
   self.postMessage({ type: MsgFromWorkerType.INIT });
 
-  // pasta global object
-  // consumed by core modules
-  self.$pasta = {} as PastaContext;
-  self.$pasta.stateLayer = stateLayer;
-  self.$pasta.log = function (msg) {
-    console.log(msg);
+  // Context
+  // Consumed by core modules
+  const context: Context = {
+    stateLayer,
+    log: msg => console.log(msg),
   };
+  self.$ctx = context;
 
   const url = await new Promise<string>(resolve => {
     once(self, MsgToWorkerType.START, ({ url }) => resolve(url));

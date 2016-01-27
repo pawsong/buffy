@@ -1,17 +1,17 @@
-const { stateLayer } = self['$pasta'];
+import ctx from './context';
 
 export default {
   move: (x, z) => {
-    stateLayer.rpc.move({
-      id: stateLayer.store.myId,
+    ctx.stateLayer.rpc.move({
+      id: ctx.stateLayer.store.myId,
       x: x,
       z: z,
      });
   },
 
   boom: (duration = 2) => {
-    const { position } = stateLayer.store.getPlayer();
-    stateLayer.rpc.playEffect({
+    const { position } = ctx.stateLayer.store.getPlayer();
+    ctx.stateLayer.rpc.playEffect({
       x: position.x,
       z: position.z,
       duration,

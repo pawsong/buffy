@@ -29,5 +29,7 @@
   "dependencies": {
     "fbemitter": "^2.0.1"
   },
-  "links": []
+  "links": [
+    "../addon"
+  ]
 }
