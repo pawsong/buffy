@@ -1,6 +1,7 @@
 import * as shortid from 'shortid';
 import { CZ, ZC } from '@pasta/interface';
 import GameMap from '@pasta/game-class/lib/GameMap';
+import Mesh from '@pasta/game-class/lib/Mesh';
 import GameUser from './classes/GameUser';
 import GameMapModel from './models/GameMap';
 import GameUserModel from './models/GameUser';
@@ -95,20 +96,39 @@ export default (socket: SocketIO.Socket) => {
     // TODO: Validate params.
     // TODO: Check permission.
 
-    const mesh = await MeshModel.create({
-      vertices: params.vertices,
-      faces: params.faces,
-    });
+    // Upsert
+    if (me.mesh) {
+      await MeshModel.findByIdAndUpdate(me.mesh.id, {
+        vertices: params.vertices,
+        faces: params.faces,
+      }).exec();
 
-    await GameUserModel.findByIdAndUpdate(me.id, {
-      mesh: mesh.id,
-    }).exec();
+      me.mesh.deserialize({
+        id: me.mesh.id,
+        vertices: params.vertices,
+        faces: params.faces,
+      });
+    } else {
+      const meshDoc = await MeshModel.create({
+        vertices: params.vertices,
+        faces: params.faces,
+      });
+
+      await GameUserModel.findByIdAndUpdate(me.id, {
+        mesh: meshDoc.id,
+      }).exec();
+
+      me.mesh = new Mesh({
+        id: meshDoc.id,
+        vertices: params.vertices,
+        faces: params.faces,
+      });
+    }
 
     // TODO: Save values to DB.
     me.map.broadcast.meshUpdated({
-      id: params.id,
-      vertices: params.vertices,
-      faces: params.faces,
+      id: me.id,
+      mesh: me.mesh.serialize(),
     });
   });
 

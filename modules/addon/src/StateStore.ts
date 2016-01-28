@@ -2,6 +2,7 @@ import * as ZC from '@pasta/interface/lib/zc';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import GameObject from '@pasta/game-class/lib/GameObject';
 import GameMap from '@pasta/game-class/lib/GameMap';
+import Mesh from '@pasta/game-class/lib/Mesh';
 import { StoreEvents, StoreEmit, StoreListen } from './store/Events';
 
 function Emit(emitter) {
@@ -139,11 +140,14 @@ StateStore.on.meshUpdated((store, params) => {
     console.error(`Cannot find object ${params.id}`);
     return;
   }
-  object.mesh = {
-    vertices: params.vertices,
-    faces: params.faces,
-  };
-  store.emit.meshUpdated(params);
+
+  if (object.mesh) {
+    object.mesh.deserialize(params.mesh);
+  } else {
+    object.mesh = new Mesh(params.mesh);
+  }
+
+  store.emit.meshUpdated({ object });
 });
 
 StateStore.on.playEffect((store, params) => {

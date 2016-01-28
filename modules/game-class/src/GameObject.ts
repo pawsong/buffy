@@ -1,19 +1,16 @@
 import * as TWEEN from '@pasta/tween.js';
+import Mesh from './Mesh';
+import { SerializedMesh } from './Mesh';
 
 export interface Position {
   x: number;
   z: number;
 }
 
-export interface Mesh {
-  vertices: any[];
-  faces: any[];
-}
-
 export interface SerializedGameObject {
   id: string;
   position: Position;
-  mesh: Mesh;
+  mesh: SerializedMesh;
   tween?: Object;
 }
 
@@ -34,7 +31,7 @@ class GameObject {
       this.tween.deserialize(data.tween);
     }
     if (data.mesh) {
-      this.mesh = data.mesh;
+      this.mesh = new Mesh(data.mesh);
     }
   }
 
@@ -45,7 +42,7 @@ class GameObject {
         x: this.position.x,
         z: this.position.z,
       },
-      mesh: this.mesh || null,
+      mesh: this.mesh ? this.mesh.serialize() : null,
       tween: this.tween.serialize(),
     };
   }

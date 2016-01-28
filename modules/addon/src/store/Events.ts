@@ -37,7 +37,5 @@ export interface PlayEffectParams extends ZC.PlayEffectParams {
 }
 
 export interface MeshUpdatedParams extends StoreEventParams {
-  id: string;
-  vertices: any[];
-  faces: any[];
+  object: GameObject;
 }

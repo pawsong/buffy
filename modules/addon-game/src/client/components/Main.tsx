@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as THREE from 'three';
+import Mesh from '@pasta/game-class/lib/Mesh';
 import StateLayer from '@pasta/addon/lib/StateLayer';
 import { StoreEvents, StoreListen } from '@pasta/addon/lib/store/Events';
 import { EventSubscription } from 'fbemitter';
@@ -179,7 +180,7 @@ function initMainView(container, stateLayer: StateLayer) {
     objects = {};
   }
 
-  function changeObjectMesh(object: THREE.Object3D, mesh) {
+  function changeObjectMesh(object: THREE.Object3D, mesh: Mesh) {
     for (let i = object.children.length - 1; i >= 0; --i) {
       const child = object.children[i];
       object.remove(child);
@@ -322,12 +323,12 @@ function initMainView(container, stateLayer: StateLayer) {
   });
 
   subscribe.meshUpdated(params => {
-    const object = objects[params.id];
+    const object = objects[params.object.id];
     if (!object) {
-      console.error(`Cannot find object with id ${params.id}`);
+      console.error(`Cannot find object with id ${params.object.id}`);
       return;
     }
-    changeObjectMesh(object, params);
+    changeObjectMesh(object, params.object.mesh);
   });
 
   subscribe.playEffect(params => {

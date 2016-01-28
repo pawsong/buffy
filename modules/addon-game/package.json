@@ -48,6 +48,7 @@
   "links": [
     "../addon",
     "../config",
-    "../core"
+    "../core",
+    "../game-class"
   ]
 }

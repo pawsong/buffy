@@ -100,6 +100,7 @@ export default (io: SocketIO.Server) => {
           z: userDoc.loc.pos.z,
         },
         mesh: mesh ? {
+          id: mesh.id,
           vertices: mesh.vertices,
           faces: mesh.faces,
         } : null,
