@@ -1,5 +1,5 @@
 require('react-tap-event-plugin')();
-import * as addon from '@pasta/addon';
+import { InstallAddon } from '@pasta/addon/lib/Addon';
 import StateLayer from '@pasta/addon/lib/StateLayer';
 import UserProcess from './UserProcess';
 import { EventEmitter } from 'fbemitter';
@@ -84,13 +84,12 @@ class Container extends React.Component<ContainerProps, {}> {
   }
 }
 
-addon.register({
-  name: NPM_PACKAGE_NAME,
-  install: function (container, stateLayer) {
-    ReactDOM.render(
-      <Container stateLayer={stateLayer}/>,
-      container
-    );
-    return () => ReactDOM.unmountComponentAtNode(container);
-  }
-});
+const install: InstallAddon = (container, stateLayer) => {
+  ReactDOM.render(
+    <Container stateLayer={stateLayer}/>,
+    container
+  );
+  return () => ReactDOM.unmountComponentAtNode(container);
+};
+
+export default install;

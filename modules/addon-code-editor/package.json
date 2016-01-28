@@ -54,6 +54,7 @@
     "../config",
     "../helper",
     "../game-class",
-    "../addon"
+    "../addon",
+    "../core"
   ]
 }

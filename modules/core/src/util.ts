@@ -1,4 +1,5 @@
-import ctx from './context';
+import Ctx from './Context';
+const { log } = Ctx;
 
 function sleep(ms) {
   return new Promise(resolve => {
@@ -10,7 +11,7 @@ function loop(handler) {
   return handler().then(() => {
     return loop(handler);
   }).catch(err => {
-    ctx.log(err.stack);
+    log(err.stack);
   });
 }
 

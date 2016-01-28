@@ -13,7 +13,7 @@ module.exports = {
   target: 'web',
 
   entry: {
-    worker: './src/client/index.tsx',
+    worker: './src/client/index.ts',
   },
 
   module: {

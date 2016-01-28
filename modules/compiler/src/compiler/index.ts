@@ -129,7 +129,7 @@ function compile(source) {
     // TODO: Make sure there is no remaining file.
 
     const entryFileContent = [
-      `const cxt = require('@pasta/core/lib/context').default;`,
+      `const cxt = require('@pasta/core/lib/Context').default;`,
       `Object.keys(self.$ctx).forEach(key => cxt[key] = self.$ctx[key]);`,
       `delete self.$ctx;`,
       `require('./${srcFile}');`,
@@ -147,6 +147,7 @@ function compile(source) {
 
       const errors = stats.compilation.errors;
       if (errors && errors.length > 0) {
+        errors.forEach(err => console.error(err));
         return reject(errors);
       }
 
