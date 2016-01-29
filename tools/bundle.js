@@ -96,7 +96,7 @@ sorted.concat(_.difference(modules, sorted)).forEach(module => {
 
       // Do not link and build
       scripts: {
-        prepublish: (pkg.scripts && pkg.scripts['prepublish:prod']) || ' ',
+        prepublish: ' ',
       },
     }, pkg), null, '  ')
   );

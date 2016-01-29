@@ -14,7 +14,6 @@
   },
   "scripts": {
     "prepublish": "npm run install:link && npm run install:tsd && npm run build",
-    "prepublish:prod": "npm run link:jspm",
     "install:link": "node ../../tools/link",
     "install:tsd": "$npm_package_config_bin/tsd install",
     "link:jspm": "$npm_package_config_bin/jspm link npm:$npm_package_name -y",

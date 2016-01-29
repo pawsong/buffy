@@ -57,6 +57,7 @@
     "gulp-typescript": "^2.10.0",
     "html-webpack-plugin": "^1.6.2",
     "json-loader": "^0.5.4",
+    "jspm": "^0.16.25",
     "lodash": "^3.10.1",
     "mocha": "^2.3.3",
     "node-notifier": "^4.4.0",
@@ -93,7 +94,6 @@
     "admin"
   ],
   "dependencies": {
-    "jspm": "^0.16.25",
     "rimraf": "^2.4.3",
     "script-loader": "^0.6.1"
   }
