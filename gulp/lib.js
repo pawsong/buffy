@@ -50,7 +50,7 @@ module.exports = function (options) {
 
   gulp.task('lint', ['lint:js', 'lint:ts']);
 
-  function build(useNotify) {
+  function build(watch) {
     return function () {
       let compileError = null;
       function handleError(err) {
@@ -78,7 +78,15 @@ module.exports = function (options) {
           .on('error', handleError)
           .pipe(gulp.dest('lib')),
       ]).on('end', function () {
-        if (useNotify) {
+        if (compileError) {
+          this.emit('error', compileError);
+        } else {
+          if (options.onBuildComplete) {
+            options.onBuildComplete();
+          }
+        }
+
+        if (watch) {
           if (compileError) {
             notifier.notify({
               title: `[${opts.prefix}] Build failed`,
@@ -91,24 +99,20 @@ module.exports = function (options) {
             });
           }
         }
-
-        if (compileError) {
-          this.emit('error', compileError);
-        }
       });
     };
   }
 
   gulp.task('build', build(false));
 
-  gulp.task('build:notify', build(true));
+  gulp.task('build:watch:run', build(true));
 
   gulp.task('build:watch', function () {
-    runSequence('build:notify');
+    runSequence('build:watch:run');
     gulp.watch([
       'typings/tsd.d.ts',
       'src/**/*.{ts,tsx}',
-    ], ['build:notify']).on('change', function(e) {
+    ], ['build::watch:run']).on('change', function(e) {
       const file = path.relative(cwd, e.path);
       notifier.notify({
         title: `[${opts.prefix}] File changed`,

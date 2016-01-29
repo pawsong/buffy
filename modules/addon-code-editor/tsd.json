@@ -55,6 +55,9 @@
     },
     "ace/ace.d.ts": {
       "commit": "2cad4a3cff770c37b40496188c246b1a60e87e2d"
+    },
+    "systemjs/systemjs.d.ts": {
+      "commit": "86dbea8fc37d9473fee465da4f0a21bea4f8cbd9"
     }
   }
 }

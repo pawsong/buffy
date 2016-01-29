@@ -8,6 +8,9 @@ import {
   MsgFromWorkerType,
 } from '../constants';
 
+require('script!../../jspm_packages/system.src');
+require('../../config');
+
 function once(target: EventTarget, type: string, fn: (data: any) => any) {
   const _handler = (msg: MessageEvent) => {
     if (msg.data.type !== type) { return; }
@@ -105,18 +108,20 @@ self.postMessage({ type: MsgFromWorkerType.CONNECT });
 
   self.postMessage({ type: MsgFromWorkerType.INIT });
 
-  // Context
-  // Consumed by core modules
+  // Load entry script.
+  const url = await new Promise<string>(resolve => {
+    once(self, MsgToWorkerType.START, ({ url }) => resolve(url));
+  });
+
+  // Context consumed by core modules
   const context: Context = {
     stateLayer,
     log: msg => console.log(msg),
   };
-  self.$ctx = context;
 
-  const url = await new Promise<string>(resolve => {
-    once(self, MsgToWorkerType.START, ({ url }) => resolve(url));
-  });
-  self.importScripts(url);
-})().catch(error => {
-  console.error(error);
-});
+  // Fill context object.
+  const { default: Ctx } = await System.import('@pasta/core/lib/Context');
+  Object.keys(context).forEach(key => Ctx[key] = context[key]);
+
+  await System.import(`${url}!ts`);
+})().catch(err => console.error(err));

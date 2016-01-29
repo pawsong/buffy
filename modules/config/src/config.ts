@@ -21,11 +21,6 @@ export const consoleDevPort: number = 9001;
 export const consolePublicPath: string = 'https://dut3rr7qk867n.cloudfront.net';
 
 /**
- * Compiler server port
- */
-export const compilerPort: number = 9100;
-
-/**
  * Game zone server port
  */
 export const gameServerPort: number = 9200;
@@ -71,12 +66,6 @@ export const authServerUrl = 'http://auth.project-pasta.io';
 * public path for admin server assets
 */
 export const adminPublicPath: string = 'https://dut3rr7qk867n.cloudfront.net';
-
-/**
- * Compiler server url
- */
-export const compilerUrl: string =
-  process.env.PASTA_COMPILER_URL || `http://localhost:${compilerPort}`
 
 /**
  * mongodb server url

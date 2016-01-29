@@ -93,6 +93,8 @@
     "admin"
   ],
   "dependencies": {
-    "rimraf": "^2.4.3"
+    "jspm": "^0.16.25",
+    "rimraf": "^2.4.3",
+    "script-loader": "^0.6.1"
   }
 }
