@@ -35,11 +35,6 @@
     "args": ["serve:dev:watch"],
     "cwd": "modules/auth-server"
   }, {
-    "name": "compiler",
-    "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev:watch"],
-    "cwd": "modules/compiler"
-  }, {
     "name": "config",
     "script": "node_modules/.bin/gulp",
     "args": ["build:watch"],
