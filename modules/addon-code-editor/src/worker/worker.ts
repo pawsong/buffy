@@ -1,8 +1,8 @@
 import 'babel-polyfill';
 
 import { EventEmitter, EventSubscription } from 'fbemitter';
-import StateLayer from '@pasta/addon/lib/StateLayer';
-import Context from '@pasta/addon/lib/Context';
+import StateLayer from '@pasta/core/lib/StateLayer';
+import { ContextInterface } from '@pasta/core/lib/Context';
 import {
   MsgToWorkerType,
   MsgFromWorkerType,
@@ -113,15 +113,15 @@ self.postMessage({ type: MsgFromWorkerType.CONNECT });
     once(self, MsgToWorkerType.START, ({ url }) => resolve(url));
   });
 
+  // Fill context object.
+  const { default: Context } = await System.import('@pasta/core/lib/Context');
+
   // Context consumed by core modules
-  const context: Context = {
+  const _Context: ContextInterface = {
     stateLayer,
     log: msg => console.log(msg),
   };
-
-  // Fill context object.
-  const { default: Ctx } = await System.import('@pasta/core/lib/Context');
-  Object.keys(context).forEach(key => Ctx[key] = context[key]);
+  Object.keys(_Context).forEach(key => Context[key] = _Context[key]);
 
   await System.import(`${url}!ts`);
 })().catch(err => console.error(err));

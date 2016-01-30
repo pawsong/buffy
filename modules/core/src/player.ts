@@ -1,5 +1,5 @@
-import Ctx from './Context';
-const { stateLayer } = Ctx;
+import Context from './Context';
+const { stateLayer } = Context;
 
 export default {
   move: (x, z) => {

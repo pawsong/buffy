@@ -1,6 +1,7 @@
-import Addon from '@pasta/addon/lib/Addon';
-import { InstallAddon } from '@pasta/addon/lib/Addon';
-import Ctx from '@pasta/core/lib/Context';
+import Addon from '@pasta/core/lib/Addon';
+import { InstallAddon } from '@pasta/core/lib/Addon';
+import Context from '@pasta/core/lib/Context';
+import { ContextInterface } from '@pasta/core/lib/Context';
 
 /*
  * DO NOT LOAD ANY OTHER MODULES HERE
@@ -11,8 +12,11 @@ import Ctx from '@pasta/core/lib/Context';
 Addon.register({
   name: NPM_PACKAGE_NAME,
   install: (container, stateLayer) => {
-    Ctx.stateLayer = stateLayer as any;
-    Ctx.log = (msg) => console.log(msg);
+    const _Context: ContextInterface = {
+      stateLayer,
+      log: msg => console.log(msg),
+    };
+    Object.keys(_Context).forEach(key => Context[key] = _Context[key]);
 
     const install: InstallAddon = require('./install').default;
     return install(container, stateLayer);

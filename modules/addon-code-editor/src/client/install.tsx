@@ -1,6 +1,6 @@
 require('react-tap-event-plugin')();
-import { InstallAddon } from '@pasta/addon/lib/Addon';
-import StateLayer from '@pasta/addon/lib/StateLayer';
+import { InstallAddon } from '@pasta/core/lib/Addon';
+import StateLayer from '@pasta/core/lib/StateLayer';
 import UserProcess from './UserProcess';
 import { EventEmitter } from 'fbemitter';
 

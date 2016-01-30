@@ -1,6 +1,6 @@
 import * as axios from 'axios';
 import { EventEmitter } from 'fbemitter';
-import StateLayer from '@pasta/addon/lib/StateLayer';
+import StateLayer from '@pasta/core/lib/StateLayer';
 
 import {
   MsgToWorkerType,

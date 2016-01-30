@@ -6,7 +6,7 @@ import { DropTarget, DragDropContext } from 'react-dnd';
 import * as HTML5Backend from 'react-dnd-html5-backend';
 import * as _ from 'lodash';
 import objectAssign = require('object-assign');
-import StateLayer from '@pasta/addon/lib/StateLayer';
+import StateLayer from '@pasta/core/lib/StateLayer';
 
 import {
   IconButton,

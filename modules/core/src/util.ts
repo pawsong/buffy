@@ -1,5 +1,5 @@
-import Ctx from './Context';
-const { log } = Ctx;
+import Context from './Context';
+const { log } = Context;
 
 function sleep(ms) {
   return new Promise(resolve => {

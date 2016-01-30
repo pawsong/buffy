@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Main from './Main';
-import StateLayer from '@pasta/addon/lib/StateLayer';
+import StateLayer from '@pasta/core/lib/StateLayer';
 import { EventSubscription } from 'fbemitter';
 
 const styles = {

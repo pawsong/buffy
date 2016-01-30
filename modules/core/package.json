@@ -25,9 +25,13 @@
   "files": [
     "lib"
   ],
+  "links": [
+    "../interface",
+    "../game-class"
+  ],
   "author": "",
   "license": "UNLICENSED",
-  "links": [
-    "../addon"
-  ]
+  "dependencies": {
+    "fbemitter": "^2.0.1"
+  }
 }

@@ -7,8 +7,8 @@ import {
   IconButton,
 } from 'material-ui';
 
-import Addon from '@pasta/addon/lib/Addon';
-import StateLayer from '@pasta/addon/lib/StateLayer';
+import Addon from '@pasta/core/lib/Addon';
+import StateLayer from '@pasta/core/lib/StateLayer';
 
 import Menu = require('material-ui/lib/menus/menu');
 import MenuItem = require('material-ui/lib/menus/menu-item');

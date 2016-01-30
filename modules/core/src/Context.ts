@@ -3,6 +3,12 @@
  * before any other core modules are loaded.
  */
 
-import Context from '@pasta/addon/lib/Context';
-const Ctx: Context = {} as Context;
-export default Ctx;
+import StateLayer from './StateLayer';
+
+export interface ContextInterface {
+  stateLayer: StateLayer;
+  log: Function;
+}
+
+const Context: ContextInterface = {} as ContextInterface;
+export default Context;

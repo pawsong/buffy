@@ -2,14 +2,12 @@ require('react-tap-event-plugin')();
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { InstallAddon } from '@pasta/addon/lib/Addon';
+import { InstallAddon } from '@pasta/core/lib/Addon';
 import Container from './components/Container';
 import store from './store';
 
 // OrbitControls patch
 import './OrbitControls';
-
-import * as addon from '@pasta/addon';
 
 const install: InstallAddon = (container, stateLayer) => {
   ReactDOM.render(

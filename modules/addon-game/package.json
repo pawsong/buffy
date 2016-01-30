@@ -46,7 +46,6 @@
     "three": "^0.73.2"
   },
   "links": [
-    "../addon",
     "../config",
     "../core",
     "../game-class"

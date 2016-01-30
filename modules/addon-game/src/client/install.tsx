@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import Container from './components/Container';
 import store from './store';
-import { InstallAddon } from '@pasta/addon/lib/Addon';
+import { InstallAddon } from '@pasta/core/lib/Addon';
 
 const install: InstallAddon = (container, stateLayer) => {
   ReactDOM.render(

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as THREE from 'three';
 import Mesh from '@pasta/game-class/lib/Mesh';
-import StateLayer from '@pasta/addon/lib/StateLayer';
-import { StoreEvents, StoreListen } from '@pasta/addon/lib/store/Events';
+import StateLayer from '@pasta/core/lib/StateLayer';
+import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { EventSubscription } from 'fbemitter';
 
 import { createEffectManager } from '../effects';

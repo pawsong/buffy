@@ -72,6 +72,6 @@
     "../config",
     "../helper",
     "../game-class",
-    "../addon"
+    "../core"
   ]
 }
