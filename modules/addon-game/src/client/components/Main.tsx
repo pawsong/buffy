@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as THREE from 'three';
-import Mesh from '@pasta/game-class/lib/Mesh';
+import Mesh from '@pasta/core/lib/classes/Mesh';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { EventSubscription } from 'fbemitter';

@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
-import GameMap from '@pasta/game-class/lib/GameMap';
-import { SerializedGameMap } from '@pasta/game-class/lib/GameMap';
+import GameMap from '@pasta/core/lib/classes/GameMap';
+import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import { ZC } from '@pasta/core/lib/packet';
 import GameUser from './GameUser';
 

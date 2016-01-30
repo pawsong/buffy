@@ -71,7 +71,6 @@
   "links": [
     "../config",
     "../helper",
-    "../game-class",
     "../core"
   ]
 }

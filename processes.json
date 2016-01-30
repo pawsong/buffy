@@ -45,11 +45,6 @@
     "args": ["build:watch"],
     "cwd": "modules/core"
   }, {
-    "name": "game-class",
-    "script": "node_modules/.bin/gulp",
-    "args": ["build:watch"],
-    "cwd": "modules/game-class"
-  }, {
     "name": "helper",
     "script": "node_modules/.bin/gulp",
     "args": ["build:watch"],

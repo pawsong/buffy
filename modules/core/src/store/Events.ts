@@ -1,5 +1,5 @@
-import GameObject from '@pasta/game-class/lib/GameObject';
-import { Position } from '@pasta/game-class/lib/GameObject';
+import GameObject from '../classes/GameObject';
+import { Position } from '../classes/GameObject';
 import { EventSubscription } from 'fbemitter';
 import * as ZC from '../packet/ZC';
 

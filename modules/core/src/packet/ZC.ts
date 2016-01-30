@@ -1,6 +1,6 @@
-import { SerializedGameMap } from '@pasta/game-class/lib/GameMap';
-import { SerializedTerrain } from '@pasta/game-class/lib/Terrain';
-import { SerializedMesh } from '@pasta/game-class/lib/Mesh';
+import { SerializedGameMap } from '../classes/GameMap';
+import { SerializedTerrain } from '../classes/Terrain';
+import { SerializedMesh } from '../classes/Mesh';
 import { RpcParams, RpcResponse } from './base';
 import * as CZ from './CZ';
 

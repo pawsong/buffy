@@ -1,7 +1,7 @@
 import { EventEmitter, EventSubscription } from 'fbemitter';
-import GameObject from '@pasta/game-class/lib/GameObject';
-import GameMap from '@pasta/game-class/lib/GameMap';
-import Mesh from '@pasta/game-class/lib/Mesh';
+import GameObject from './classes/GameObject';
+import GameMap from './classes/GameMap';
+import Mesh from './classes/Mesh';
 import { StoreEvents, StoreEmit, StoreListen } from './store/Events';
 import * as ZC from './packet/ZC';
 

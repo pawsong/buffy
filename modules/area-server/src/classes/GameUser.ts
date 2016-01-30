@@ -1,5 +1,5 @@
-import GameObject from '@pasta/game-class/lib/GameObject';
-import { SerializedGameObject } from '@pasta/game-class/lib/GameObject';
+import GameObject from '@pasta/core/lib/classes/GameObject';
+import { SerializedGameObject } from '@pasta/core/lib/classes/GameObject';
 import { ZC } from '@pasta/core/lib/packet';
 import ServerGameMap from './ServerGameMap';
 
