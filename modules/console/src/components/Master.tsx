@@ -7,7 +7,6 @@ import {
   IconButton,
 } from 'material-ui';
 
-import * as addon from '@pasta/addon';
 import Addon from '@pasta/addon/lib/Addon';
 import StateLayer from '@pasta/addon/lib/StateLayer';
 
@@ -123,6 +122,9 @@ class Master extends React.Component<MasterProps, {}> {
     this.socket = io(CONFIG_GAME_SERVER_URL);
 
     this.socket.once('init', params => {
+      // Cancel
+      if (!this.mounted) { return; }
+
       this.stateLayer = new StateLayer({
         emit: (event, params, cb) => {
           this.socket.emit(event, params, cb);
@@ -145,41 +147,36 @@ class Master extends React.Component<MasterProps, {}> {
       }, params);
 
       // Bind addons
-
-      // addon-code-editor
-      this.loadAddon('/addons/code-editor', '@pasta/addon-code-editor').then(inst => {
-        const uninstall = inst.install(
-          this.refs['addonCodeEditor'] as HTMLElement,
-          this.stateLayer);
-        this.uninstalls.push(uninstall);
+      const addons: Addon[] = [];
+      Object.defineProperty(window, '__ADDON_REGISTER__', {
+        enumerable: false,
+        configurable: false,
+        writable: false,
+        value: (addon: Addon) => {
+          addons.push(addon);
+        },
       });
 
-      // addon-voxel-editor
-      this.loadAddon('/addons/voxel-editor', '@pasta/addon-voxel-editor').then(inst => {
-        const uninstall = inst.install(
-          this.refs['addonVoxelEditor'] as HTMLElement,
-          this.stateLayer);
-        this.uninstalls.push(uninstall);
-      });
+      const loadAddon = (url: string, element: HTMLElement) => {
+        axios.get(url).then(res => {
+          // Cancel
+          if (!this.mounted) { return; }
 
-      // addon-game
-      this.loadAddon('/addons/game', '@pasta/addon-game').then(inst => {
-        const uninstall = inst.install(
-          this.refs['addonGame'] as HTMLElement,
-          this.stateLayer);
-        this.uninstalls.push(uninstall);
-      });
-    });
-  }
+          // Eval
+          const source = res.data;
+          addons.length = 0;
+          new Function(source).call(null);
 
-  loadAddon(url, name) {
-    const $script = require('scriptjs');
-    return new Promise<Addon>((resolve, reject) => {
-      $script(url, () => {
-        if (!this.mounted) { return; } // Cancel
-        const inst = addon.load(name);
-        return resolve(inst);
-      });
+          // Load
+          const addon = addons[0];
+          const uninstall = addon.install(element, this.stateLayer);
+          this.uninstalls.push(uninstall);
+        });
+      }
+
+      loadAddon('/addons/code-editor', this.refs['addonCodeEditor'] as HTMLElement);
+      loadAddon('/addons/voxel-editor', this.refs['addonVoxelEditor'] as HTMLElement);
+      loadAddon('/addons/game', this.refs['addonGame'] as HTMLElement);
     });
   }
 

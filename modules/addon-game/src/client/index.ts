@@ -1,4 +1,4 @@
-import * as addon from '@pasta/addon';
+import Addon from '@pasta/addon/lib/Addon';
 import { InstallAddon } from '@pasta/addon/lib/Addon';
 import Ctx from '@pasta/core/lib/Context';
 
@@ -8,7 +8,7 @@ import Ctx from '@pasta/core/lib/Context';
  * Modules must be loaded after @pasta/core Context is ready.
  */
 
-addon.register({
+Addon.register({
   name: NPM_PACKAGE_NAME,
   install: (container, stateLayer) => {
     Ctx.stateLayer = stateLayer as any;

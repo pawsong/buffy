@@ -8,8 +8,12 @@ export interface InstallAddon {
   (element: HTMLElement, stateLayer: StateLayer): UninstallAddon;
 }
 
-interface Addon {
-  name: string,
+declare const __ADDON_REGISTER__;
+class Addon {
+  static register(addon: Addon) {
+    __ADDON_REGISTER__(addon);
+  }
+  name: string;
   install: InstallAddon;
 }
 
