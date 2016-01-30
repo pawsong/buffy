@@ -36,5 +36,5 @@ module.exports = {
     new webpack.DefinePlugin(_.mapValues(defines, val => JSON.stringify(val))),
   ],
 
-  devtool: 'source-map',
+  devtool: 'cheap-module-eval-source-map',
 }

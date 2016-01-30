@@ -25,4 +25,6 @@ module.exports = Object.assign({}, require('./client.dev'), {
       }
     }),
   ],
+
+  devtool: false,
 });
