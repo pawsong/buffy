@@ -15,9 +15,9 @@ import * as Sessions from './Sessions';
 import * as TWEEN from '@pasta/tween.js';
 
 async function findOrCreateUser(userId: string) {
-  const userDoc = await GameUserModel.findOne({ user: userId }).exec();
+  const userDoc = await GameUserModel.findOne({ owner: userId }).exec();
   if (userDoc) { return userDoc; }
-  return await GameUserModel.create({ user: userId });
+  return await GameUserModel.create({ owner: userId });
 }
 
 export default (io: SocketIO.Server) => {
