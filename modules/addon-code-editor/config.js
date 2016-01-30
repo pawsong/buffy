@@ -43,6 +43,7 @@ System.config({
     },
     "npm:@pasta/core@1.0.0": {
       "child_process": "github:jspm/nodelibs-child_process@0.1.0",
+      "fbemitter": "npm:fbemitter@2.0.1",
       "systemjs-json": "github:systemjs/plugin-json@0.1.0"
     },
     "npm:assert@1.3.0": {
@@ -56,6 +57,13 @@ System.config({
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
       "systemjs-json": "github:systemjs/plugin-json@0.1.0"
+    },
+    "npm:fbemitter@2.0.1": {
+      "fbjs": "npm:fbjs@0.6.1",
+      "process": "github:jspm/nodelibs-process@0.1.2"
+    },
+    "npm:fbjs@0.6.1": {
+      "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:inherits@2.0.1": {
       "util": "github:jspm/nodelibs-util@0.1.0"
