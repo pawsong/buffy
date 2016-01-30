@@ -1,6 +1,6 @@
 import GameObject from '@pasta/game-class/lib/GameObject';
 import { SerializedGameObject } from '@pasta/game-class/lib/GameObject';
-import { ZC } from '@pasta/interface';
+import { ZC } from '@pasta/core/lib/packet';
 import ServerGameMap from './ServerGameMap';
 
 function Send(socket) {

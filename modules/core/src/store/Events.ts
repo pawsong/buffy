@@ -1,7 +1,7 @@
 import GameObject from '@pasta/game-class/lib/GameObject';
 import { Position } from '@pasta/game-class/lib/GameObject';
 import { EventSubscription } from 'fbemitter';
-import * as ZC from '@pasta/interface/lib/zc';
+import * as ZC from '../packet/ZC';
 
 export const StoreEvents = [
   'resync',

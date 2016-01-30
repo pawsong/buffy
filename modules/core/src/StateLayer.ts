@@ -1,5 +1,5 @@
-import { CZ, ZC } from '@pasta/interface';
-import { RpcResponse } from '@pasta/interface/lib/base';
+import { CZ, ZC } from './packet';
+import { RpcResponse } from './packet/base';
 
 import StateStore from './StateStore';
 

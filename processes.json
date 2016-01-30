@@ -54,10 +54,5 @@
     "script": "node_modules/.bin/gulp",
     "args": ["build:watch"],
     "cwd": "modules/helper"
-  }, {
-    "name": "interface",
-    "script": "node_modules/.bin/gulp",
-    "args": ["build:watch"],
-    "cwd": "modules/interface"
   }]
 }

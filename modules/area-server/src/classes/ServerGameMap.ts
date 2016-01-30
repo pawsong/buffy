@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import GameMap from '@pasta/game-class/lib/GameMap';
 import { SerializedGameMap } from '@pasta/game-class/lib/GameMap';
-import * as ZC from '@pasta/interface/lib/zc';
+import { ZC } from '@pasta/core/lib/packet';
 import GameUser from './GameUser';
 
 function Broadcast(users) {

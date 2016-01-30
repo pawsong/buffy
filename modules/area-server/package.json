@@ -47,6 +47,6 @@
     "../config",
     "../tween.js",
     "../game-class",
-    "../interface"
+    "../core"
   ]
 }

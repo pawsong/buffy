@@ -2,7 +2,7 @@ import { SerializedGameMap } from '@pasta/game-class/lib/GameMap';
 import { SerializedTerrain } from '@pasta/game-class/lib/Terrain';
 import { SerializedMesh } from '@pasta/game-class/lib/Mesh';
 import { RpcParams, RpcResponse } from './base';
-import * as CZ from './cz';
+import * as CZ from './CZ';
 
 /*
  * Packet types:

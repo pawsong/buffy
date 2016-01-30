@@ -1,5 +1,5 @@
 import * as shortid from 'shortid';
-import { CZ, ZC } from '@pasta/interface';
+import { CZ, ZC } from '@pasta/core/lib/packet';
 import GameMap from '@pasta/game-class/lib/GameMap';
 import Mesh from '@pasta/game-class/lib/Mesh';
 import GameUser from './classes/GameUser';

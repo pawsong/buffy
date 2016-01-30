@@ -26,7 +26,6 @@
     "lib"
   ],
   "links": [
-    "../interface",
     "../game-class"
   ],
   "author": "",

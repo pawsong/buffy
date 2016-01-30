@@ -1,9 +1,9 @@
-import * as ZC from '@pasta/interface/lib/zc';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import GameObject from '@pasta/game-class/lib/GameObject';
 import GameMap from '@pasta/game-class/lib/GameMap';
 import Mesh from '@pasta/game-class/lib/Mesh';
 import { StoreEvents, StoreEmit, StoreListen } from './store/Events';
+import * as ZC from './packet/ZC';
 
 function Emit(emitter) {
   this.emitter = emitter;
