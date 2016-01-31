@@ -309,27 +309,25 @@ ROOT_PKG.deployables.forEach(module => {
       url: getEnv('PASTA_DEPLOY_REPO'),
     };
 
-    // Initialize a new Git repository inside the `/bundle` folder
-    // if it doesn't exist yet
     const repo = await Repo.open(appPath, { init: true });
     await repo.setRemote(remote.name, remote.url);
 
-    if (undefined === await runGitCommand(['rev-parse', '--verify', module], err => {
-      return err.stderr[0] !== 'fatal: Needed a single revision';
-    })) {
-      await runGitCommand(['checkout', '-b', module]);
-    }
-
-    const branch = (await runGitCommand(['rev-parse', '--abbrev-ref', 'HEAD'])).stdout[0];
-    if (branch !== 'admin') {
-      await runGitCommand(['checkout', module]);
-    }
+    // Clean up
+    await runGitCommand(['reset', '--hard']);
+    await runGitCommand(['clean', '-f', '-d']);
 
     // Fetch the remote repository if it exists
     if ((await repo.hasRef(remote.url, module))) {
-      await repo.fetch(remote.name);
-      await repo.reset(`${remote.name}/${module}`, { hard: true });
-      await repo.clean({ force: true });
+      await runGitCommand(['fetch', 'origin', module]);
+      await runGitCommand(['checkout', module]);
+    } else {
+      if (undefined === await runGitCommand(['rev-parse', '--verify', module], err => {
+        return err.stderr[0] !== 'fatal: Needed a single revision';
+      })) {
+        await runGitCommand(['checkout', '-b', module]);
+      } else {
+        await runGitCommand(['checkout', module]);
+      }
     }
 
     await new Promise((resolve, reject) => {
@@ -339,7 +337,7 @@ ROOT_PKG.deployables.forEach(module => {
     // Push the contents of the build folder to the remote server via Git
     await runGitCommand(['add', '--all', '.']);
     await runGitCommand(['commit', '-m', `'Update (rev: ${REV})'`], err => {
-      return err.stdout.indexOf('nothing to commit, working directory clean') === -1;
+      return err.stdout.filter(line => line.indexOf('nothing to commit') !== -1).length === 0;
     });
     await runGitCommand(['push', '-u', remote.name, module]);
   });
@@ -416,4 +414,9 @@ ROOT_PKG.deployables.forEach(module => {
       done
     );
   });
+});
+
+gulp.task('deploy:all', function (done) {
+  const tasks = ROOT_PKG.deployables.map(module => `deploy:${module}`);
+  runSequence.apply(null, tasks.concat([done]));
 });
