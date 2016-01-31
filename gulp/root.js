@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const del = require('del');
 const parser = require('gitignore-parser');
-const spawn = require('child_process').spawn;
+const childProcess = require('child_process');
 const toposort = require('toposort');
 const ncp = require('ncp');
 const os = require('os');
@@ -14,6 +14,8 @@ const defaultsDeep = require('lodash.defaultsdeep');
 const difference = require('lodash.difference');
 const runSequence = require('run-sequence');
 const Promise = require('bluebird');
+const Repo = require('git-repository');
+const deploy = require('pm2-deploy');
 
 Promise.config({ warnings: false });
 
@@ -35,13 +37,30 @@ async function cp(source, dest) {
   });
 }
 
-async function run(command, args, options) {
+async function spawn(command, args, options) {
   await new Promise((resolve, reject) => {
-    spawn(command,  args || [], Object.assign({
+    childProcess.spawn(command,  args || [], Object.assign({
       stdio: 'inherit',
     }, options))
       .on('error', err => reject(err))
       .on('close', code => code === 0 ? resolve() : reject(new Error(`exit code = ${code}`)));
+  });
+}
+
+async function exec(command, options) {
+  function toStrArray(data) {
+    return data.split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+  }
+  return await new Promise((resolve, reject) => {
+    childProcess.exec(command, options || {}, (err, stdout, stderr) => {
+      if (err) { return reject(err); }
+      resolve({
+        stdout: toStrArray(stdout),
+        stderr: toStrArray(stderr),
+      });
+    });
   });
 }
 
@@ -61,7 +80,41 @@ async function writeJson(file, json) {
   });
 }
 
+function getEnv (key, defaultVal) {
+  const val = process.env[key] || '';
+  if (!val && defaultVal === undefined) {
+    throw new Error(`missing env: $${key}`);
+  }
+  return val || defaultVal;
+}
+
 gulp.task('default', taskListing);
+
+gulp.task('checkrepo', async function () {
+  const tag = 'checkrepo';
+
+  const { stdout: status } = await exec('git status --porcelain');
+  if (status.length > 0) {
+    throw new gutil.PluginError(tag, 'Need to commit changes');
+  }
+
+  const localRev = (await exec('git rev-parse @')).stdout[0];
+  const remoteRev = (await exec('git rev-parse @{u}')).stdout[0];
+  if (localRev !== remoteRev) {
+    gutil.log('Local git repo is out of sync!');
+
+    const baseRev = (await exec('git merge-base @ @{u}')).stdout[0];
+    if (baseRev === localRev) {
+      throw new gutil.PluginError(tag, 'Nedd to run `git pull`');
+    } else if (baseRev === remoteRev) {
+      throw new gutil.PluginError(tag, 'Nedd to run `git push`');
+    } else {
+      throw new gutil.PluginError(tag,
+        `Invalid revs (local=${localRev}, remote=${remoteRev}, base=${baseRev}`
+      );
+    }
+  }
+});
 
 gulp.task('bundle:clean', async function () {
   await del([
@@ -98,7 +151,7 @@ MODULES.forEach(module => {
       }, pkg))),
 
       // Run `npm install`.
-      run('npm', ['install'], { cwd: srcPath }),
+      spawn('npm', ['install'], { cwd: srcPath }),
     ]);
 
     // Copy `files` field entries recursively.
@@ -149,7 +202,7 @@ gulp.task('bundle:tools', async function () {
 gulp.task('bundle:book', async function () {
   await Promise.all([
     mkdirp(BUNDLE_PATH),
-    run('npm', ['run', 'docs:build'], { cwd: ROOT }),
+    spawn('npm', ['run', 'docs:build'], { cwd: ROOT }),
   ]);
   await ncp(`${ROOT}/_book`, `${BUNDLE_PATH}/_book`);
 });
@@ -177,4 +230,107 @@ gulp.task('bundle', function (done) {
     'bundle:book',
     'bundle:appdecl',
   ], done);
+});
+
+gulp.task('deploy:bundle', async function () {
+  const remote = {
+    name: 'origin',
+    url: getEnv('PASTA_DEPLOY_REPO'),
+  };
+
+  // Initialize a new Git repository inside the `/bundle` folder
+  // if it doesn't exist yet
+  const repo = await Repo.open(BUNDLE_PATH, { init: true });
+  await repo.setRemote(remote.name, remote.url);
+
+  // Fetch the remote repository if it exists
+  if ((await repo.hasRef(remote.url, 'master'))) {
+    await repo.fetch(remote.name);
+    await repo.reset(`${remote.name}/master`, { hard: true });
+    await repo.clean({ force: true });
+  }
+
+  await new Promise((resolve, reject) => {
+    runSequence('bundle', err => err ? reject(err) : resolve());
+  });
+
+  // Push the contents of the build folder to the remote server via Git
+  await repo.add('--all .');
+  await repo.commit('Update');
+  await repo.push(remote.name, 'master');
+});
+
+gulp.task('deploy:server', async function () {
+  const deployConf = {
+    user: getEnv('PASTA_DEPLOY_USER'),
+    host: getEnv('PASTA_DEPLOY_HOST'),
+    port: getEnv('PASTA_DEPLOY_PORT', 22),
+    ref: 'origin/master',
+    repo: getEnv('PASTA_DEPLOY_REPO'),
+    path: '~/pasta',
+    'post-deploy' : 'npm install --production && node tools/reinstall && ' +
+      'pm2 startOrRestart processes.json',
+  };
+
+  // Ensure app directory on server is set up
+  gutil.log('Ensure all remote servers are set up...');
+
+  const checkSetupCmd = `ssh -o "StrictHostKeyChecking no" \
+  -p ${deployConf.port} ${deployConf.user}@${deployConf.host} \
+  "[ -d ${deployConf.path}/current ] || echo setup"`;
+
+  const needToSetup = (await exec(checkSetupCmd)).stdout.join('').indexOf('setup') !== -1;
+
+  if (needToSetup) {
+    gutil.log(`Set up app on remote location: \
+    ${deployConf.user}@${deployConf.host}:${deployConf.path}`);
+
+    await new Promise((resolve, reject) => {
+      deploy.deployForEnv({
+        target: deployConf
+      }, 'target', ['setup'], err => err ? reject(err) : resolve());
+    });
+  }
+
+  gutil.log('Deploy app to remote servers...');
+  await new Promise((resolve, reject) => {
+    deploy.deployForEnv({
+      target: deployConf
+    }, 'target', [], err => err ? reject(err) : resolve());
+  });
+});
+
+gulp.task('deploy:cdn', async function () {
+  const bucket = getEnv('PASTA_DEPLOY_S3_BUCKET');
+  const awsAccessKeyId = getEnv('PASTA_AWS_ACCESS_KEY_ID');
+  const awsSecretAccessKey = getEnv('PASTA_AWS_SECRET_KEY');
+  const awsS3Region = getEnv('PASTA_AWS_S3_REGION');
+
+  const rootPkg = require(`${ROOT}/package.json`);
+
+  await Promise.mapSeries(rootPkg.deployables, deployable => {
+    const modulePath = `${ROOT}/modules/${deployable}`;
+    const pkg = require(`${modulePath}/package.json`);
+    if (!pkg.publicAssets) { return; }
+
+    gutil.log(`Upload ${deployable} assets...`);
+
+    const abspath = path.resolve(modulePath, pkg.publicAssets);
+    const dirname = path.dirname(abspath);
+    const basename = path.basename(abspath);
+
+    return exec(`aws s3 cp ${dirname}/ s3://${bucket}/ --recursive --exclude "*" ` +
+      `--region ${awsS3Region} ` +
+      `--include "${basename}" --acl public-read ` +
+      '--cache-control "max-age=31536000"', {
+      env: {
+        AWS_ACCESS_KEY_ID: awsAccessKeyId,
+        AWS_SECRET_ACCESS_KEY: awsSecretAccessKey,
+      },
+    });
+  });
+});
+
+gulp.task('deploy', ['checkrepo'], function (done) {
+  runSequence('deploy:bundle', 'deploy:server', 'deploy:cdn', done);
 });

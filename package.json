@@ -11,7 +11,7 @@
   "scripts": {
     "prepublish": "git submodule init && git submodule update && npm run docs:build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "node tools/checkRepo && npm stop && gulp bundle && node tools/deploy",
+    "deploy": "npm stop && gulp deploy",
     "docs:clean": "rimraf _book",
     "docs:prepare": "gitbook install",
     "docs:build": "npm run docs:prepare && gitbook build",
@@ -48,6 +48,7 @@
     "file-loader": "^0.8.4",
     "fs-extra": "^0.26.2",
     "git-push": "^0.1.1",
+    "git-repository": "^0.1.1",
     "gitbook-cli": "^1.0.1",
     "gitignore-parser": "0.0.2",
     "gulp": "^3.9.0",
