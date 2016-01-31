@@ -1,0 +1,8 @@
+node_modules
+*.swp
+npm-debug.log
+.DS_Store
+.idea
+.test
+.tsc_out
+.seal

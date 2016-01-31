@@ -170,7 +170,7 @@ MODULES.forEach(module => {
   gulp.task(`bundle:module:${module}`, ['checkrepo'], async function () {
     const srcPath = `${ROOT}/modules/${module}`;
     const destPath = `${BUNDLE_PATH}/modules/${module}`;
-    const sealPath = `${destPath}/seal.json`;
+    const sealPath = `${destPath}/.seal`;
 
     // Check if existing bundle is from latest rev.
     if (await isSealed(sealPath)) {
@@ -242,7 +242,7 @@ function resolveDependencies(module, discovered, sorted) {
 ROOT_PKG.deployables.forEach(module => {
   gulp.task(`bundle:app:${module}`, async function() {
     const destPath = `${BUNDLE_PATH}/apps/${module}`;
-    const sealPath = `${destPath}/seal.json`;
+    const sealPath = `${destPath}/.seal`;
 
     // Check if existing bundle is from latest rev
     if (await isSealed(sealPath)) {
@@ -284,6 +284,7 @@ ROOT_PKG.deployables.forEach(module => {
 
     await cp(`${ROOT}/package.json`, `${destPath}/package.json`);
     await cp(`${ROOT}/tools`, `${destPath}/tools`);
+    await cp(`${ROOT}/.gitignore_bundle`, `${destPath}/.gitignore`);
 
     await seal(sealPath);
   });
