@@ -1,4 +1,5 @@
 const gulp = require('gulp');
+const gutil = require('gulp-util');
 const taskListing = require('gulp-task-listing');
 const path = require('path');
 const fs = require('fs');
@@ -43,6 +44,22 @@ function run(command, args, options) {
   });
 }
 
+function exists(file) {
+  return new Promise(resolve => {
+    fs.access(file, err => err ? resolve(false) : resolve(true));
+  });
+}
+
+function writeJson(file, json) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(
+      file,
+      JSON.stringify(json, null, '  '),
+      err => err ? reject(err) : resolve()
+    );
+  });
+}
+
 gulp.task('default', taskListing);
 
 gulp.task('bundle:clean', function () {
@@ -64,22 +81,20 @@ MODULES.forEach(module => {
       throw new Error('package.json must include `files` field');
     }
 
+    const dependencies = {};
+    if (pkg.links) {
+      pkg.links.forEach(link => {
+        const linkPkg = require(`${srcPath}/${link}/package.json`);
+        dependencies[linkPkg.name] = link;
+      });
+    }
+
     return Promise.all([
       // Make and copy modified package.json.
-      mkdirp(destPath).then(() => new Promise((resolve, reject) => {
-        const dependencies = {};
-        if (pkg.links) {
-          pkg.links.forEach(link => {
-            const linkPkg = require(`${srcPath}/${link}/package.json`);
-            dependencies[linkPkg.name] = link;
-          });
-        }
-
-        fs.writeFile(`${destPath}/package.json`, JSON.stringify(defaultsDeep({
-          dependencies,
-          scripts: { prepublish: ' ' },
-        }, pkg), null, '  '), err => err ? reject(err) : resolve());
-      })),
+      mkdirp(destPath).then(() => writeJson(`${destPath}/package.json`, defaultsDeep({
+        dependencies,
+        scripts: { prepublish: ' ' },
+      }, pkg))),
 
       // Run `npm install`.
       run('npm', ['install'], { cwd: srcPath }),
@@ -93,9 +108,11 @@ MODULES.forEach(module => {
           resolve(stats.isDirectory());
         });
       });
-    })).then(dirs => {
+    }))
+    .then(dirs => {
       return Promise.map(dirs, dir => mkdirp(`${destPath}/${dir}`));
-    }).then(() => Promise.mapSeries(pkg.files, entry => {
+    })
+    .then(() => Promise.mapSeries(pkg.files, entry => {
       return cp(`${srcPath}/${entry}`, `${destPath}/${entry}`);
     }));
   });
@@ -141,17 +158,15 @@ gulp.task('bundle:book', function () {
 
 gulp.task('bundle:appdecl', function () {
   const pkg = require('./package.json');
-  return mkdirp(BUNDLE_PATH).then(() => new Promise((resolve, reject) => {
-    fs.writeFile(`${BUNDLE_PATH}/processes.json`, JSON.stringify({
-      apps: pkg.deployables.map(deployable => ({
-        name: deployable,
-        script: require(`./modules/${deployable}/package.json`).start,
-        cwd: `modules/${deployable}`,
-        env: {
-          NODE_ENV: 'production',
-        },
-      })),
-    }, null, '  '), err => err ? reject(err) : resolve());
+  return mkdirp(BUNDLE_PATH).then(() => writeJson(`${BUNDLE_PATH}/processes.json`, {
+    apps: pkg.deployables.map(deployable => ({
+      name: deployable,
+      script: require(`./modules/${deployable}/package.json`).start,
+      cwd: `modules/${deployable}`,
+      env: {
+        NODE_ENV: 'production',
+      },
+    })),
   }));
 });
 

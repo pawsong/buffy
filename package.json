@@ -55,6 +55,7 @@
     "gulp-task-listing": "^1.0.1",
     "gulp-tslint": "^4.2.2",
     "gulp-typescript": "^2.10.0",
+    "gulp-util": "^3.0.7",
     "html-webpack-plugin": "^1.6.2",
     "json-loader": "^0.5.4",
     "jspm": "^0.16.25",
