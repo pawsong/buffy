@@ -420,3 +420,13 @@ gulp.task('deploy:all', function (done) {
   const tasks = ROOT_PKG.deployables.map(module => `deploy:${module}`);
   runSequence.apply(null, tasks.concat([done]));
 });
+
+gulp.task('deploy', function () {
+  console.log();
+  console.log(gutil.colors.bold('Possible deploy commands:'));
+  console.log();
+  ['all'].concat(ROOT_PKG.deployables).forEach(module => {
+    console.log(gutil.colors.bold(`  - gulp deploy:${module}`));
+  });
+  console.log();
+});
