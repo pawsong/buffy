@@ -17,7 +17,7 @@ const app = express();
 //   return res.redirect('/auth/login');
 // });
 
-app.use('/handbook', express.static(`${__dirname}/../../../../_book`));
+app.use('/handbook', express.static(`${__dirname}/../../_book`));
 
 const template = fs.readFileSync(`${__dirname}/client/index.html`).toString();
 if (process.env.NODE_ENV !== 'production') {
