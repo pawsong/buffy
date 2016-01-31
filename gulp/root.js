@@ -22,6 +22,8 @@ Promise.config({ warnings: false });
 const ROOT = path.resolve(__dirname, '..');
 const BUNDLE_PATH = `${ROOT}/bundle`;
 
+const REV = childProcess.execSync('git rev-parse @').toString().trim();
+
 const gitignore = parser.compile(fs.readFileSync(`${ROOT}/.gitignore`, 'utf8'));
 const MODULES = fs.readdirSync(`${ROOT}/modules`).filter(gitignore.accepts);
 
@@ -70,6 +72,16 @@ async function exists(file) {
   });
 }
 
+async function readJson(file) {
+  const content = await new Promise((resolve, reject) => {
+    fs.readFile(
+      file,
+      (err, content) => err ? reject(err) : resolve(content)
+    );
+  });
+  return JSON.parse(content);
+}
+
 async function writeJson(file, json) {
   await new Promise((resolve, reject) => {
     fs.writeFile(
@@ -98,19 +110,18 @@ gulp.task('checkrepo', async function () {
     throw new gutil.PluginError(tag, 'Need to commit changes');
   }
 
-  const localRev = (await exec('git rev-parse @')).stdout[0];
   const remoteRev = (await exec('git rev-parse @{u}')).stdout[0];
-  if (localRev !== remoteRev) {
+  if (remoteRev !== REV) {
     gutil.log('Local git repo is out of sync!');
 
     const baseRev = (await exec('git merge-base @ @{u}')).stdout[0];
-    if (baseRev === localRev) {
+    if (baseRev === REV) {
       throw new gutil.PluginError(tag, 'Nedd to run `git pull`');
     } else if (baseRev === remoteRev) {
       throw new gutil.PluginError(tag, 'Nedd to run `git push`');
     } else {
       throw new gutil.PluginError(tag,
-        `Invalid revs (local=${localRev}, remote=${remoteRev}, base=${baseRev}`
+        `Invalid revs (local=${REV}, remote=${remoteRev}, base=${baseRev}`
       );
     }
   }
@@ -118,16 +129,32 @@ gulp.task('checkrepo', async function () {
 
 gulp.task('bundle:clean', async function () {
   await del([
-    `${BUNDLE_PATH}/**`,
-    `!${BUNDLE_PATH}`,
-    `!${BUNDLE_PATH}/.git`,
-  ]);
+    `${BUNDLE_PATH}/*`,
+    `!${BUNDLE_PATH}/.git/**`,
+    `!${BUNDLE_PATH}/_book/**`,
+    `!${BUNDLE_PATH}/modules`,
+    `${BUNDLE_PATH}/modules/*`,
+  ].concat(MODULES.map(module => `!${BUNDLE_PATH}/modules/${module}/**`)), {
+    dot: true,
+  });
 });
 
 MODULES.forEach(module => {
   gulp.task(`bundle:pack:${module}`, async function () {
     const srcPath = `${ROOT}/modules/${module}`;
     const destPath = `${BUNDLE_PATH}/modules/${module}`;
+    const sealPath = `${destPath}/seal.json`;
+
+    // Check if existing bundle is from latest rev.
+    if (await exists(sealPath)) {
+      const seal = await readJson(sealPath);
+      if (seal.rev === REV) {
+        gutil.log('Latest version is available. Skip.');
+        return;
+      }
+    }
+
+    await del(destPath);
 
     const pkg = require(`${srcPath}/package.json`);
 
@@ -169,6 +196,8 @@ MODULES.forEach(module => {
     await Promise.mapSeries(pkg.files, entry => {
       return cp(`${srcPath}/${entry}`, `${destPath}/${entry}`);
     });
+
+    await writeJson(sealPath, { rev: REV });
   });
 });
 
@@ -191,20 +220,34 @@ gulp.task('bundle:pack', function (done) {
 
 gulp.task('bundle:packagejson', async function () {
   await mkdirp(BUNDLE_PATH);
-  await ncp(`${ROOT}/package.json`, `${BUNDLE_PATH}/package.json`);
+  await cp(`${ROOT}/package.json`, `${BUNDLE_PATH}/package.json`);
 });
 
 gulp.task('bundle:tools', async function () {
   await mkdirp(BUNDLE_PATH);
-  await ncp(`${ROOT}/tools`, `${BUNDLE_PATH}/tools`);
+  await cp(`${ROOT}/tools`, `${BUNDLE_PATH}/tools`);
 });
 
 gulp.task('bundle:book', async function () {
+  const destPath = `${BUNDLE_PATH}/_book`;
+  const sealPath = `${destPath}/seal.json`;
+
+  // Check if existing bundle is from latest rev.
+  if (await exists(sealPath)) {
+    const seal = await readJson(sealPath);
+    if (seal.rev === REV) {
+      gutil.log('Latest version is available. Skip.');
+      return;
+    }
+  }
+
   await Promise.all([
     mkdirp(BUNDLE_PATH),
     spawn('npm', ['run', 'docs:build'], { cwd: ROOT }),
   ]);
-  await ncp(`${ROOT}/_book`, `${BUNDLE_PATH}/_book`);
+  await cp(`${ROOT}/_book`, destPath);
+
+  await writeJson(sealPath, { rev: REV });
 });
 
 gulp.task('bundle:appdecl', async function () {
