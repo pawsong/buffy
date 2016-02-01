@@ -6,15 +6,7 @@ import {
   MsgToWorkerType,
   MsgFromWorkerType,
 } from '../constants';
-
-function once(target: EventTarget, type: string, fn: (data: any) => any) {
-  const _handler = (msg: MessageEvent) => {
-    if (msg.data.type !== type) { return; }
-    fn(msg.data);
-    target.removeEventListener('message', _handler);
-  };
-  target.addEventListener('message', _handler);
-}
+import { once } from '../util';
 
 class UserProcess {
   terminated = false;
@@ -82,11 +74,11 @@ class UserProcess {
       } else {
         method(data.params).then(result => this.worker.postMessage({
           type: MsgToWorkerType.ACK,
-          result,
+          packet: { result },
           id: data.id,
         })).catch(error => this.worker.postMessage({
           type: MsgToWorkerType.ACK,
-          error,
+          packet: { error },
           id: data.id,
         }));
       }

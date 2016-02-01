@@ -19,6 +19,9 @@ module.exports = {
   entry: './src/app.tsx',
 
   module: {
+    preLoaders: [
+      { test: /\.js$/, loader: 'source-map-loader' },
+    ],
     loaders: [
       { test: /\.json$/, loader: 'json-loader' },
       { test: /\.ts(x?)$/, loader: 'babel-loader!ts-loader' },

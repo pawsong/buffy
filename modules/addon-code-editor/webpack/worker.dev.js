@@ -4,11 +4,12 @@ const ManifestPlugin = require('webpack-manifest-plugin');
 module.exports = {
   target: 'webworker',
 
-  entry: {
-    worker: './src/worker/worker.ts',
-  },
+  entry: './src/worker/worker.ts',
 
   module: {
+    preLoaders: [
+      { test: /\.js$/, loader: 'source-map-loader' },
+    ],
     loaders: [
       { test: /\.json$/, loader: 'json-loader' },
       { test: /\.ts(x?)$/, loader: 'babel-loader!ts-loader' },
@@ -28,5 +29,5 @@ module.exports = {
     new ManifestPlugin(),
   ],
 
-  devtool: 'cheap-module-eval-source-map',
+  devtool: 'inline-source-map',
 }

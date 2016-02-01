@@ -7,18 +7,10 @@ import {
   MsgToWorkerType,
   MsgFromWorkerType,
 } from '../constants';
+import { once } from '../util';
 
 require('script!../../jspm_packages/system.src');
 require('../../config');
-
-function once(target: EventTarget, type: string, fn: (data: any) => any) {
-  const _handler = (msg: MessageEvent) => {
-    if (msg.data.type !== type) { return; }
-    fn(msg.data);
-    target.removeEventListener('message', _handler);
-  };
-  target.addEventListener('message', _handler);
-}
 
 declare const self: WorkerGlobalScope;
 
@@ -38,13 +30,21 @@ class FakeSocket {
     this.emitter = new EventEmitter();
 
     self.addEventListener('message', (ev) => {
-      if (ev.data.ack === true) {
-        const ack = this.acks[ev.data.id];
-        if (ack) {
-          ack(ev.data.packet);
-        }
-      } else {
-        this.emitter.emit(ev.data.type, ev.data.params);
+      switch (ev.data.type) {
+        case MsgToWorkerType.EVENT:
+          this.emitter.emit(ev.data.method, ev.data.params);
+          return;
+        case MsgToWorkerType.ACK:
+          const ack = this.acks[ev.data.id];
+          if (ack) {
+            ack(ev.data.packet);
+          }
+          return;
+        case MsgToWorkerType.START:
+          return;
+        default:
+          console.log(`Invalid message type: ${ev.data.type}`);
+          return;
       }
     });
   }
@@ -73,8 +73,6 @@ class FakeSocket {
   }
 }
 
-const socket = new FakeSocket();
-
 self.postMessage({ type: MsgFromWorkerType.CONNECT });
 
 (async () => {
@@ -83,6 +81,8 @@ self.postMessage({ type: MsgFromWorkerType.CONNECT });
       resolve(data.params);
     });
   });
+
+  const socket = new FakeSocket();
 
   // Create StateLayer instance from fake socket
   const stateLayer = new StateLayer({

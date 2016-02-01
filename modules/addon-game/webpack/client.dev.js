@@ -10,11 +10,12 @@ const defines = {
 module.exports = {
   target: 'web',
 
-  entry: {
-    worker: './src/client/index.ts',
-  },
+  entry: './src/client/index.ts',
 
   module: {
+    preLoaders: [
+      { test: /\.js$/, loader: 'source-map-loader' },
+    ],
     loaders: [
       { test: /\.json$/, loader: 'json-loader' },
       { test: /\.ts(x?)$/, loader: 'babel-loader!ts-loader' },
