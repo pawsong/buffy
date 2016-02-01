@@ -78,6 +78,16 @@ const styles = {
     height: '100%',
     overflow: 'hidden',
   },
+  overlay: {
+    position: 'absolute',
+    top: 0, left: 0, bottom: 0, right: 0,
+  },
+  overlayInner: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
 };
 
 interface TabTemplateProps extends React.Props<TabTemplate> {
@@ -107,17 +117,26 @@ class TabTemplate extends React.Component<TabTemplateProps, {}> {
   }
 };
 
+interface PromiseToken {
+  cancel: () => any,
+}
+
+enum AddonStatus { Loading, Loaded, Error };
+
 interface MasterProps extends React.Props<Master> {
   user: any;
   logout: any;
   history: any;
 }
 
-interface PromiseToken {
-  cancel: () => any,
+interface MasterStates {
+  disconnected?: boolean;
+  addonCodeEditor?: AddonStatus;
+  addonVoxelEditor?: AddonStatus;
+  addonGame?: AddonStatus;
 }
 
-class Master extends React.Component<MasterProps, {}> {
+class Master extends React.Component<MasterProps, MasterStates> {
   static contextTypes = {
     router: React.PropTypes.object.isRequired
   }
@@ -126,8 +145,24 @@ class Master extends React.Component<MasterProps, {}> {
   stateLayer: StateLayer;
   uninstalls: any[] = [];
   promiseTokens: PromiseToken[] = [];
+
+  Addons = [
+    'addonVoxelEditor',
+    'addonCodeEditor',
+    'addonGame',
+  ];
+
+  constructor(props, context) {
+    super(props, context);
+    this.state.disconnected = false;
+    this.Addons.forEach(addonName => this.state[addonName] = AddonStatus.Loading);
+  }
+
   state = {
     disconnected: false,
+    addonCodeEditor: AddonStatus.Loading,
+    addonVoxelEditor: AddonStatus.Loading,
+    addonGame: AddonStatus.Loading,
   };
 
   exec<T>(promise: Promise<T>): Promise<T> {
@@ -138,7 +173,10 @@ class Master extends React.Component<MasterProps, {}> {
       promise.then(result => {
         if (cancelled) { return; }
         resolve(result);
-      }).catch(reject);
+      }).catch(err => {
+        if (cancelled) { return; }
+        reject(err);
+      });
     });
   }
 
@@ -175,18 +213,23 @@ class Master extends React.Component<MasterProps, {}> {
     }, params);
 
     // Bind addons
-    const loadAddon = (url: string, element: HTMLElement) => {
+    const loadAddon = (url: string, addonName: string) => {
+      const element = this.refs[addonName] as HTMLElement;
       return this.exec(axios.get(url) as Promise<any>).then(res => {
         new Function(res.data).call(null);
         const addon = AddonLoader.popAddon();
         const uninstall = addon.install(element, this.stateLayer);
         this.uninstalls.push(uninstall);
+        this.setState({ [addonName]: AddonStatus.Loaded });
+      }).catch(err => {
+        this.setState({ [addonName]: AddonStatus.Error });
+        console.error(err);
       });
     };
 
-    loadAddon('/addons/code-editor', this.refs['addonCodeEditor'] as HTMLElement);
-    loadAddon('/addons/voxel-editor', this.refs['addonVoxelEditor'] as HTMLElement);
-    loadAddon('/addons/game', this.refs['addonGame'] as HTMLElement);
+    loadAddon('/addons/code-editor', 'addonCodeEditor');
+    loadAddon('/addons/voxel-editor', 'addonVoxelEditor');
+    loadAddon('/addons/game', 'addonGame');
   }
 
   // Put codes which do not need to be rendered by server.
@@ -217,8 +260,30 @@ class Master extends React.Component<MasterProps, {}> {
     });
   }
 
+  getAddonStatusOverlayGen = {
+    [AddonStatus.Loading]: () => <div style={styles.overlay}>
+      <div style={styles.overlayInner}>
+        <div>Loading...</div>
+        <div>We are working hard!</div>
+      </div>
+    </div>,
+    [AddonStatus.Error]: () => <div style={styles.overlay}>
+      <div style={styles.overlayInner}>
+        <div>Something went wrong</div>
+        <div>So Sad...</div>
+      </div>
+    </div>,
+    [AddonStatus.Loaded]: () => null,
+  };
+
   render() {
     const picture = this.props.user && this.props.user.picture || '';
+
+    const addonOverlays = {};
+    this.Addons.forEach(addonName => {
+      addonOverlays[addonName] = this.getAddonStatusOverlayGen[this.state[addonName]]();
+    });
+
     return <div style={{ backgroundColor: '#00bcd4'}}>
       <IconButton iconClassName="material-icons" style={{position: 'absolute' }}>
         home
@@ -228,9 +293,11 @@ class Master extends React.Component<MasterProps, {}> {
         tabTemplate={TabTemplate}>
         <Tab label="Design">
           <div ref="addonVoxelEditor" style={styles.addon}></div>
+          {addonOverlays['addonVoxelEditor']}
         </Tab>
         <Tab label="Develop">
           <div ref="addonCodeEditor" style={styles.addon}></div>
+          {addonOverlays['addonCodeEditor']}
         </Tab>
       </Tabs>
 
@@ -242,6 +309,7 @@ class Master extends React.Component<MasterProps, {}> {
 
       <div style={styles.rightPane}>
         <div ref="addonGame" style={styles.game}></div>
+        {addonOverlays['addonGame']}
       </div>
 
       <Dialog
