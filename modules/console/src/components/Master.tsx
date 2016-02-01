@@ -16,6 +16,9 @@ import Menu = require('material-ui/lib/menus/menu');
 import MenuItem = require('material-ui/lib/menus/menu-item');
 import IconMenu = require('material-ui/lib/menus/icon-menu');
 
+import Dialog = require('material-ui/lib/dialog');
+import FlatButton = require('material-ui/lib/flat-button');
+
 import {
   SET_USER_DATA,
 } from '../constants/ActionTypes';
@@ -119,8 +122,10 @@ class Master extends React.Component<MasterProps, {}> {
   socket: SocketIOClient.Socket;
   stateLayer: StateLayer;
   uninstalls: any[] = [];
-  mounted = false;
   promiseTokens: PromiseToken[] = [];
+  state = {
+    disconnected: false,
+  };
 
   exec<T>(promise: Promise<T>): Promise<T> {
     let cancelled = false;
@@ -136,6 +141,10 @@ class Master extends React.Component<MasterProps, {}> {
 
   async _componentDidMount() {
     this.socket = io(CONFIG_GAME_SERVER_URL);
+
+    this.exec(new Promise(resolve => {
+      this.socket.once('disconnect', () => resolve());
+    })).then(() => this.setState({ disconnected: true }));
 
     const params = await this.exec(new Promise<InitParams>(resolve => {
       this.socket.once('init', params => resolve(params));
@@ -194,9 +203,7 @@ class Master extends React.Component<MasterProps, {}> {
 
   // Put codes which do not need to be rendered by server.
   componentDidMount() {
-    this._componentDidMount().catch(err => {
-      console.error(err);
-    });
+    this._componentDidMount().catch(err => console.error(err));
   }
 
   componentWillUnmount() {
@@ -220,7 +227,6 @@ class Master extends React.Component<MasterProps, {}> {
 
   render() {
     const picture = this.props.user ? this.props.user.picture : '';
-
     return <div style={{ backgroundColor: '#00bcd4'}}>
       <IconButton iconClassName="material-icons" style={{position: 'absolute' }}>
         home
@@ -245,6 +251,18 @@ class Master extends React.Component<MasterProps, {}> {
       <div style={styles.rightPane}>
         <div ref="addonGame" style={styles.game}></div>
       </div>
+
+      <Dialog
+        title="Disconnected"
+        actions={[<FlatButton
+          label="Reload"
+          primary={true}
+          onTouchTap={() => location.reload()}
+        />]}
+        modal={true}
+        open={this.state.disconnected}>
+        Disconnected from server. Reload browser to connect again.
+      </Dialog>
     </div>;
   }
 }
