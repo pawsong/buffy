@@ -6,9 +6,7 @@ import {
   loginWithFacebook,
   loginAnonymously,
 } from '../libs/auth';
-import {
-  SET_USER_DATA,
-} from '../constants/ActionTypes';
+import * as ActionTypes from '../constants/ActionTypes';
 import {
   Card,
   CardHeader,
@@ -40,36 +38,25 @@ const styles = {
 }
 
 interface LoginProps extends React.Props<Login> {
-  setUser: (user: any) => {};
+  login: (user: any) => {};
   location: any;
-  history: any;
+  router: any;
 }
 
 class Login extends React.Component<LoginProps, {}> {
-  handleClick() {
-    facebook.retrieveToken().then(result => {
-      if (!result) {
-        console.log('failed...');
-        return;
-      }
-      return loginWithFacebook(result.token);
-    }).then(result => {
-      this.props.setUser(result);
-      const { location, history } = this.props;
-      history.replaceState(null, location.query.n || '/', {});
-    }).catch(err => {
-      console.error(err);
-    });
+  static contextTypes = {
+    router: React.PropTypes.object.isRequired
   }
 
-  handleAnonymouseLogin() {
-    loginAnonymously().then(result => {
-      this.props.setUser(result);
-      const { location, history } = this.props;
-      history.replaceState(null, location.query.n || '/', {});
-    }).catch(err => {
-      console.error(err);
-    });
+  handleClick() {
+    Promise.resolve()
+    .then(() => facebook.retrieveToken())
+    .then(result => loginWithFacebook(result.token))
+    .then(result => {
+      this.props.login(result);
+      this.context['router'].replace({ pathname: '/' });
+    })
+    .catch(err => console.error(err));
   }
 
   render() {
@@ -80,8 +67,6 @@ class Login extends React.Component<LoginProps, {}> {
             <img src="/assets/fox.jpg"/>
           </CardMedia>
           <CardActions style={styles.button}>
-            <FlatButton label="Login Anonymously"
-              onClick={this.handleAnonymouseLogin.bind(this)}/>
             <FlatButton label="Login with facebook"
               onClick={this.handleClick.bind(this)}/>
           </CardActions>
@@ -94,6 +79,6 @@ class Login extends React.Component<LoginProps, {}> {
 export default connect(
   null,
   dispatch => ({
-    setUser: user => dispatch({ type: SET_USER_DATA, user }),
+    login: user => dispatch({ type: ActionTypes.AUTH_LOGIN_SUCCEED, user }),
   })
 )(Login);

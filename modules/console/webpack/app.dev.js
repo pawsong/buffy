@@ -16,7 +16,13 @@ const defines = {
 };
 
 module.exports = {
-  entry: './src/app.tsx',
+  entry: './src/client/app.tsx',
+
+  output: {
+    path: './build/dev/client/public',
+    filename: 'bundle.js',
+    publicPath: '/public',
+  },
 
   module: {
     preLoaders: [
@@ -28,23 +34,16 @@ module.exports = {
     ],
   },
 
-  output: {
-    path: `${__dirname}/../build/dev/client/public`,
-    filename: 'bundle.js',
-    publicPath: '/public',
-  },
-
   resolve: {
     extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
-    fallback: `${__dirname}/../node_modules`,
   },
 
   plugins: [
     new webpack.DefinePlugin(_.mapValues(defines, val => JSON.stringify(val))),
     new HtmlWebpackPlugin({
-      template: `${__dirname}/../src/index.html`, // Load a custom template
+      template: './src/index.html', // Load a custom template
       inject: 'body', // Inject all scripts into the body
-      filename: '../index.html',
+      filename: '../../index.html',
     }),
   ],
 

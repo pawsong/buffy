@@ -17,27 +17,24 @@ const defines = {
 
 module.exports = Object.assign({}, require('./app.dev'), {
   output: {
-    path: `${__dirname}/../build/prod/client/public`,
+    path: './build/prod/client/public',
     filename: 'bundle.[chunkhash].js',
     publicPath: conf.consolePublicPath,
   },
 
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
-
     new webpack.DefinePlugin(_.mapValues(defines, val => JSON.stringify(val))),
 
     // Should be enabled when officially released
     new webpack.optimize.UglifyJsPlugin({
-      compressor: {
-        warnings: false
-      }
+      compressor: { warnings: false },
     }),
 
     new HtmlWebpackPlugin({
-      template: __dirname + '/../src/index.html', // Load a custom template
+      template: './src/index.html', // Load a custom template
       inject: 'body', // Inject all scripts into the body
-      filename: '../index.html',
+      filename: '../../index.html',
     }),
   ],
 

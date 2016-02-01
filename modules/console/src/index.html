@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>
-    <%= head %>
     <style>html, body { margin: 0; padding: 0; }</style>
     <link href="/assets/styles.css" rel="stylesheet">
   </head>
@@ -14,7 +13,7 @@
     <!--[if lt IE 8]>
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
-    <div id="content"><%= body %></div>
+    <div id="content"></div>
     <script>
       window.fbAsyncInit = function() {
         FB.init({
@@ -35,8 +34,5 @@
 
     <script src="/assets/two.min.js"></script>
     <script src="/assets/ace.js"></script>
-    <script>
-      window.__INITIAL_STATE__ = <%= initialState %>;
-    </script>
   </body>
 </html>

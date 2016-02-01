@@ -7,21 +7,20 @@ import {
   IconButton,
 } from 'material-ui';
 
+import * as AddonLoader from '../AddonLoader';
 import Addon from '@pasta/core/lib/Addon';
 import StateLayer from '@pasta/core/lib/StateLayer';
 
 import { InitParams } from '@pasta/core/lib/packet/ZC';
 
 import Menu = require('material-ui/lib/menus/menu');
-import MenuItem = require('material-ui/lib/menus/menu-item');
+const MenuItem = require('material-ui/lib/menus/menu-item');
 import IconMenu = require('material-ui/lib/menus/icon-menu');
 
 import Dialog = require('material-ui/lib/dialog');
 import FlatButton = require('material-ui/lib/flat-button');
 
-import {
-  SET_USER_DATA,
-} from '../constants/ActionTypes';
+import * as ActionTypes from '../constants/ActionTypes';
 import * as axios from 'axios';
 
 import * as io from 'socket.io-client';
@@ -110,7 +109,7 @@ class TabTemplate extends React.Component<TabTemplateProps, {}> {
 
 interface MasterProps extends React.Props<Master> {
   user: any;
-  setUser: any;
+  logout: any;
   history: any;
 }
 
@@ -119,6 +118,10 @@ interface PromiseToken {
 }
 
 class Master extends React.Component<MasterProps, {}> {
+  static contextTypes = {
+    router: React.PropTypes.object.isRequired
+  }
+
   socket: SocketIOClient.Socket;
   stateLayer: StateLayer;
   uninstalls: any[] = [];
@@ -172,25 +175,10 @@ class Master extends React.Component<MasterProps, {}> {
     }, params);
 
     // Bind addons
-    let _addon: Addon = null;
-
-    function popAddon(): Addon {
-      const addon = _addon;
-      _addon = null;
-      return addon;
-    }
-
-    Object.defineProperty(window, '__ADDON_REGISTER__', {
-      enumerable: false,
-      configurable: false,
-      writable: false,
-      value: (addon: Addon) => { _addon = addon; },
-    });
-
     const loadAddon = (url: string, element: HTMLElement) => {
       return this.exec(axios.get(url) as Promise<any>).then(res => {
         new Function(res.data).call(null);
-        const addon = popAddon();
+        const addon = AddonLoader.popAddon();
         const uninstall = addon.install(element, this.stateLayer);
         this.uninstalls.push(uninstall);
       });
@@ -211,22 +199,26 @@ class Master extends React.Component<MasterProps, {}> {
     this.promiseTokens = [];
 
     this.uninstalls.forEach(uninstall => uninstall());
-    this.stateLayer.destroy();
-    this.socket.removeAllListeners();
-    this.socket.disconnect();
+    if (this.stateLayer) {
+      this.stateLayer.destroy();
+    }
+    if (this.socket) {
+      this.socket.removeAllListeners();
+      this.socket.disconnect();
+    }
   }
 
   onSignOut() {
     axios.post(`${CONFIG_AUTH_SERVER_URL}/logout`, {}, {
       withCredentials: true,
     }).then(() => {
-      this.props.setUser(null);
-      this.props.history.pushState(null, '/login', {});
+      this.props.logout();
+      this.context['router'].replace({ pathname: '/login' });
     });
   }
 
   render() {
-    const picture = this.props.user ? this.props.user.picture : '';
+    const picture = this.props.user && this.props.user.picture || '';
     return <div style={{ backgroundColor: '#00bcd4'}}>
       <IconButton iconClassName="material-icons" style={{position: 'absolute' }}>
         home
@@ -245,7 +237,7 @@ class Master extends React.Component<MasterProps, {}> {
       <IconMenu style={styles.avatarContainer} desktop={true} iconButtonElement={
         <Avatar style={styles.avatar} src={picture}/>
         }>
-        <MenuItem primaryText="Sign out" onClick={this.onSignOut.bind(this)}/>
+        <MenuItem primaryText="Sign out" onTouchTap={this.onSignOut.bind(this)}/>
       </IconMenu>
 
       <div style={styles.rightPane}>
@@ -269,9 +261,9 @@ class Master extends React.Component<MasterProps, {}> {
 
 export default connect(
   state => ({
-    user: state.user
+    user: state.auth.user
   }),
   dispatch => ({
-    setUser: user => dispatch({ type: SET_USER_DATA, user }),
+    logout: () => dispatch({ type: ActionTypes.AUTH_LOGOUT }),
   })
 )(Master);

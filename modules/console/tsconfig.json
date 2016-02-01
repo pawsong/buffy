@@ -8,8 +8,8 @@
     "jsx": "react"
   },
   "files": [
-    "src/app.tsx",
-    "src/server.tsx",
+    "src/client/app.tsx",
+    "src/server/server.ts",
     "src/tsd.d.ts",
     "typings/tsd.d.ts"
   ]

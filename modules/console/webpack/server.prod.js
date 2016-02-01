@@ -16,6 +16,7 @@ module.exports = Object.assign({}, require('./server.dev'), {
     filename: 'server.js',
     libraryTarget: 'commonjs2',
   },
+
   plugins: [
     new webpack.DefinePlugin(_.mapValues(defines, val => JSON.stringify(val))),
     new webpack.BannerPlugin('require("source-map-support").install();', {
