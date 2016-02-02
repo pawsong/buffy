@@ -20,6 +20,7 @@ import IconMenu = require('material-ui/lib/menus/icon-menu');
 import Dialog = require('material-ui/lib/dialog');
 import FlatButton = require('material-ui/lib/flat-button');
 
+import * as StorageKeys from '../constants/StorageKeys';
 import * as ActionTypes from '../constants/ActionTypes';
 import * as axios from 'axios';
 
@@ -141,6 +142,7 @@ class Master extends React.Component<MasterProps, MasterStates> {
     router: React.PropTypes.object.isRequired
   }
 
+  initialTabIndex: number;
   socket: SocketIOClient.Socket;
   stateLayer: StateLayer;
   uninstalls: any[] = [];
@@ -156,6 +158,8 @@ class Master extends React.Component<MasterProps, MasterStates> {
     super(props, context);
     this.state.disconnected = false;
     this.Addons.forEach(addonName => this.state[addonName] = AddonStatus.Loading);
+    this.initialTabIndex =
+      parseInt(localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB), 10) || 0;
   }
 
   state = {
@@ -276,6 +280,10 @@ class Master extends React.Component<MasterProps, MasterStates> {
     [AddonStatus.Loaded]: () => null,
   };
 
+  onTabChange(value) {
+    localStorage.setItem(StorageKeys.MASTER_INITIAL_TAB, value);
+  }
+
   render() {
     const picture = this.props.user && this.props.user.picture || '';
 
@@ -290,12 +298,13 @@ class Master extends React.Component<MasterProps, MasterStates> {
       </IconButton>
 
       <Tabs style={styles.tabs} contentContainerStyle={styles.leftPane}
-        tabTemplate={TabTemplate}>
-        <Tab label="Design">
+        tabTemplate={TabTemplate}
+        initialSelectedIndex={this.initialTabIndex} onChange={this.onTabChange.bind(this)}>
+        <Tab label="Design" value="0">
           <div ref="addonVoxelEditor" style={styles.addon}></div>
           {addonOverlays['addonVoxelEditor']}
         </Tab>
-        <Tab label="Develop">
+        <Tab label="Develop" value="1">
           <div ref="addonCodeEditor" style={styles.addon}></div>
           {addonOverlays['addonCodeEditor']}
         </Tab>
