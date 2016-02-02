@@ -9,3 +9,4 @@ _book
 .idea
 .test
 .tsc_out
+.vscode
