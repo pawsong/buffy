@@ -49,7 +49,9 @@
   },
   "devDependencies": {
     "fbemitter": "^2.0.1",
+    "jquery.terminal": "^0.9.3",
     "material-ui": "^0.14.2",
+    "radium": "^0.16.5",
     "react": "^0.14.6",
     "react-dom": "^0.14.6",
     "react-tap-event-plugin": "^0.2.1"

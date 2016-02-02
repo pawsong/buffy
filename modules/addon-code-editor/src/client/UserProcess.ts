@@ -20,6 +20,10 @@ class UserProcess {
     });
   }
 
+  addListener(type: string, listener: Function) {
+    return this.emitter.addListener(type, listener);
+  }
+
   async initialize(source: string, stateLayer: StateLayer) {
     const res = await this.wait(
       axios.post('/addons/code-editor/compile', { source }) as Promise<axios.Response>
@@ -58,6 +62,14 @@ class UserProcess {
 
     this.worker.addEventListener('message', (ev) => {
       const { data } = ev;
+      if (data.type === MsgFromWorkerType.CONSOLE) {
+        this.emitter.emit('log', {
+          level: data.level,
+          message: data.message,
+        });
+        return;
+      }
+
       if (data.type !== MsgFromWorkerType.RPC) {
         // TODO: Log
         return;
@@ -112,6 +124,7 @@ class UserProcess {
   terminate() {
     this.terminated = true;
     this.emitter.emit('terminate');
+    this.emitter.removeAllListeners();
 
     if (this.worker) {
       this.worker.terminate();

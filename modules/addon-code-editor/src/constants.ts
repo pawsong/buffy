@@ -9,4 +9,5 @@ export const MsgFromWorkerType = {
   CONNECT: 'CONNECT',
   INIT: 'INIT',
   RPC: 'RPC',
+  CONSOLE: 'CONSOLE',
 };

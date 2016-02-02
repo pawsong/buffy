@@ -14,6 +14,19 @@ interface Event {
   data: any;
 }
 
+
+declare module 'radium' {
+  const m: any;
+  module m {}
+  export = m;
+}
+
+declare module 'jquery.terminal' {
+  const m: any;
+  module m {}
+  export = m;
+}
+
 declare const CONFIG_API_SERVER_URL: string;
 declare const NPM_PACKAGE_NAME: string;
 declare const BUILD_DIR: string;

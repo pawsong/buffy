@@ -108,6 +108,19 @@ self.postMessage({ type: MsgFromWorkerType.CONNECT });
 
   self.postMessage({ type: MsgFromWorkerType.INIT });
 
+  // Monkey patch console to emit log message to parent
+  ['log', 'warn', 'error'].forEach(method => {
+    const oldMethod = console[method];
+    console[method] = function(message) {
+      oldMethod.apply(console, arguments);
+      self.postMessage({
+        type: MsgFromWorkerType.CONSOLE,
+        level: method,
+        message: typeof message === 'object' ? JSON.stringify(message) : message,
+      });
+    }
+  });
+
   // Load entry script.
   const url = await new Promise<string>(resolve => {
     once(self, MsgToWorkerType.START, ({ url }) => resolve(url));
