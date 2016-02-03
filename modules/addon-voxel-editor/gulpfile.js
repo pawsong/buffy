@@ -2,7 +2,7 @@
 
 const conf = require('@pasta/config');
 
-require('../../gulp/universal')({
+require('../../gulp/app')({
   prefix: 'addon-voxel-editor',
   port: conf.addonVoxelEditorServerPort,
   useBrowserSync: false,

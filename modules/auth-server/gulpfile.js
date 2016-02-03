@@ -1,7 +1,7 @@
 const conf = require('@pasta/config');
 const pkg = require('./package.json');
 
-require('../../gulp/universal')({
+require('../../gulp/app')({
   prefix: pkg.name.split('/')[1],
   port: conf.authServerPort,
   useBrowserSync: false,

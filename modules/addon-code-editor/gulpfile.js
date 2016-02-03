@@ -2,7 +2,7 @@
 
 const conf = require('@pasta/config');
 
-require('../../gulp/universal')({
+require('../../gulp/app')({
   prefix: 'addon-code-editor',
   port: conf.addonCodeEditorServerPort,
   useBrowserSync: false,
