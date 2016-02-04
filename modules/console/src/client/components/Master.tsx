@@ -1,32 +1,27 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import {
-  Avatar,
-  Tabs,
-  Tab,
-  IconButton,
-} from 'material-ui';
-
-import * as AddonLoader from '../AddonLoader';
-import Addon from '@pasta/core/lib/Addon';
-import StateLayer from '@pasta/core/lib/StateLayer';
-
-import { InitParams } from '@pasta/core/lib/packet/ZC';
 
 import Menu = require('material-ui/lib/menus/menu');
 const MenuItem = require('material-ui/lib/menus/menu-item');
 import IconMenu = require('material-ui/lib/menus/icon-menu');
-
-import Dialog = require('material-ui/lib/dialog');
 import FlatButton = require('material-ui/lib/flat-button');
+import Avatar = require('material-ui/lib/avatar');
+import Tabs = require('material-ui/lib/tabs/tabs');
+import Tab = require('material-ui/lib/tabs/tab');
+import IconButton = require('material-ui/lib/icon-button');
+import Dialog = require('material-ui/lib/dialog');
 
+import * as axios from 'axios';
+import * as $script from 'scriptjs';
+import * as io from 'socket.io-client';
+
+import Addon from '@pasta/core/lib/Addon';
+import StateLayer from '@pasta/core/lib/StateLayer';
+import { InitParams } from '@pasta/core/lib/packet/ZC';
+
+import * as AddonLoader from '../AddonLoader';
 import * as StorageKeys from '../constants/StorageKeys';
 import * as ActionTypes from '../constants/ActionTypes';
-import * as axios from 'axios';
-
-import * as $script from 'scriptjs';
-
-import * as io from 'socket.io-client';
 
 const navbarHeight = 48;
 

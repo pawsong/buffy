@@ -7,16 +7,15 @@ import {
   loginAnonymously,
 } from '../libs/auth';
 import * as ActionTypes from '../constants/ActionTypes';
-import {
-  Card,
-  CardHeader,
-  Avatar,
-  CardMedia,
-  CardTitle,
-  CardActions,
-  FlatButton,
-  CardText,
-} from 'material-ui';
+
+import Avatar = require('material-ui/lib/avatar');
+import Card = require('material-ui/lib/card/card');
+import CardHeader = require('material-ui/lib/card/card-header');
+import CardMedia = require('material-ui/lib/card/card-media');
+import CardTitle = require('material-ui/lib/card/card-title');
+import CardActions = require('material-ui/lib/card/card-actions');
+import CardText = require('material-ui/lib/card/card-text');
+import FlatButton = require('material-ui/lib/flat-button');
 
 const styles = {
   container: {

@@ -1,17 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Styles } from 'material-ui';
-import * as _ from 'lodash';
 
-const {
-  ThemeManager,
-  LightRawTheme,
-  ThemeDecorator,
-} = Styles;
+const cloneDeep = require('lodash.clonedeep');
+const ThemeManager = require('material-ui/lib/styles/theme-manager');
+const LightRawTheme = require('material-ui/lib/styles/raw-themes/light-raw-theme');
 
 const TITLE = 'TIAT Console Page';
 
-const CustomRawTheme = _.cloneDeep(LightRawTheme);
+const CustomRawTheme = cloneDeep(LightRawTheme);
 
 interface RootProps extends React.Props<Root> {}
 
