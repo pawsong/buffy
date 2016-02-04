@@ -123,6 +123,7 @@ export default app => {
     getToken: req => req.cookies.tt,
   }), wrap(async (req, res) => {
     const user = await User.findById(req.user.id).exec();
+    return res.send(user);
   }));
 
   app.post('/me', ejwt({
