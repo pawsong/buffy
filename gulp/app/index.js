@@ -13,6 +13,7 @@ const Childminder = require('childminder').Childminder;
 const notifier = require('node-notifier');
 const superb = require('superb');
 const webpackServer = require('./webpackServer');
+const open = require('open');
 
 const wcTemplate = {
   client: {
@@ -164,20 +165,17 @@ module.exports = function (options) {
     });
 
     await child.startOrRestart();
-    gutil.log('Everything is ready now!');
-  });
+    await tcpPortUsed.waitUntilUsed(options.port, 100, 60 * 1000);
 
-  gulp.task('serve:dev:watch', ['build:server:dev:watch'], done => {
-    if (!opts.useBrowserSync) {
-      notifier.notify({
-        title: `[${opts.prefix}] Start server succeeded`,
-        message: `Now server is running on ${opts.port}`,
-      });
-      return done();
+    gutil.log('Everything is ready now!');
+
+    notifier.notify({
+      title: `[${options.name}] Server is ready`,
+      message: `Now server is running on ${options.port}`,
+    });
+
+    if (options.open) {
+      open(`http://localhost:${options.port}`);
     }
-    browserSync.init({
-      port: opts.devPort,
-      proxy: `http://localhost:${opts.port}`,
-    }, done);
   });
 };

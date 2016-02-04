@@ -9,7 +9,6 @@ require('../../gulp/app')({
   name: pkg.name.split('/')[1],
   main: './build/dev/server.js',
   port: conf.addonGameServerPort,
-  useBrowserSync: false,
   webpack: {
     client: [{
       name: 'client',

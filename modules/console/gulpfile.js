@@ -11,7 +11,7 @@ require('../../gulp/app')({
   name: pkg.name.split('/')[1],
   main: './build/dev/server.js',
   port: conf.consolePort,
-  useBrowserSync: false,
+  open: true,
   webpack: {
     client: [{
       name: 'client',
