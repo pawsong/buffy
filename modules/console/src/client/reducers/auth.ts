@@ -1,4 +1,5 @@
 import * as ActionTypes from '../constants/ActionTypes';
+import objectAssign = require('object-assign');
 
 interface AUTH_STATE {
   triedToLogin: boolean;
@@ -22,6 +23,11 @@ export default function auth(state = initialState, action): AUTH_STATE {
       return {
         triedToLogin: true,
         user: null,
+      };
+    case ActionTypes.UPDATE_USER_INFO:
+      return {
+        triedToLogin: state.triedToLogin,
+        user: objectAssign({}, state.user, action.update),
       };
     default:
       return state;

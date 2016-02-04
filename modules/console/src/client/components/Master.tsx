@@ -23,12 +23,20 @@ import * as AddonLoader from '../AddonLoader';
 import * as StorageKeys from '../constants/StorageKeys';
 import * as ActionTypes from '../constants/ActionTypes';
 
+import UserInfoDialog from './dialogs/UserInfoDialog';
+
 const navbarHeight = 48;
 
 const styles = {
   tabs: {
     width: 400,
     marginLeft: 48,
+  },
+  nameContainer: {
+    position: 'absolute',
+    color: 'white',
+    top: 17,
+    right: 58,
   },
   avatarContainer: {
     position: 'absolute',
@@ -281,7 +289,9 @@ class Master extends React.Component<MasterProps, MasterStates> {
   }
 
   render() {
-    const picture = this.props.user && this.props.user.picture || '';
+    const user = this.props.user || {};
+    const username = user.name || '';
+    const picture = user.picture || '';
 
     const addonOverlays = {};
     this.Addons.forEach(addonName => {
@@ -306,6 +316,8 @@ class Master extends React.Component<MasterProps, MasterStates> {
         </Tab>
       </Tabs>
 
+      <div style={styles.nameContainer}>{username}</div>
+
       <IconMenu style={styles.avatarContainer} desktop={true} iconButtonElement={
         <Avatar style={styles.avatar} src={picture}/>
         }>
@@ -328,6 +340,7 @@ class Master extends React.Component<MasterProps, MasterStates> {
         open={this.state.disconnected}>
         Disconnected from server. Reload browser to connect again.
       </Dialog>
+      <UserInfoDialog/>
     </div>;
   }
 }

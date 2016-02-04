@@ -15,6 +15,7 @@ export interface UserDocument extends mongoose.Document {
 
 const UserSchema = new Schema({
   fb: { type: String, sparse: true, unique: true },
+  name: { type: String },
   picture: { type: String },
 });
 

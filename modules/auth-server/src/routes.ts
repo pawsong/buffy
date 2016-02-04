@@ -123,6 +123,13 @@ export default app => {
     getToken: req => req.cookies.tt,
   }), wrap(async (req, res) => {
     const user = await User.findById(req.user.id).exec();
+  }));
+
+  app.post('/me', ejwt({
+    secret: conf.jwtSecret,
+    getToken: req => req.cookies.tt,
+  }), wrap(async (req, res) => {
+    const user = await User.findByIdAndUpdate(req.user.id, req.body).exec();
     return res.send(user);
   }));
 };
