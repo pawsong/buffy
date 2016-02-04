@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "fbemitter": "^2.0.1",
+    "http-proxy": "^1.13.1",
     "jquery.terminal": "^0.9.3",
     "material-ui": "^0.14.2",
     "radium": "^0.16.5",

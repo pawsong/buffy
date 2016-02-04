@@ -39,7 +39,6 @@ export default [
     scene,
     controls,
     interact,
-    render,
     setIntersectFilter,
   }) => {
     const brush = new Voxel(scene);
@@ -224,7 +223,6 @@ export default [
 
         // Test interact after voxel is added.
         interact(event);
-        render();
       },
 
       onLeave() {

@@ -38,7 +38,6 @@ export default [
     scene,
     container,
     interact,
-    render,
     controls,
   }) => {
     const cursor = new Voxel(scene);

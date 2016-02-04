@@ -252,7 +252,6 @@ export function initCanvas(container) {
       scene,
       controls,
       interact,
-      render,
     }));
 
     const tool: any = {};

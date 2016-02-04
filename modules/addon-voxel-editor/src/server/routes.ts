@@ -2,11 +2,18 @@
 
 import wrap from '@pasta/helper/lib/wrap';
 import VoxelWorkspace from './models/VoxelWorkspace';
+import * as conf from '@pasta/config';
 
 export default app => {
-  app.get('/', (req, res) => {
-    res.sendFile(`${__dirname}/client.js`);
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    app.get('/', (req, res) => {
+      res.redirect(`http://localhost:${conf.addonVoxelEditorClientPort}/client.js`);
+    });
+  } else {
+    app.get('/', (req, res) => {
+      res.sendFile(`${__dirname}/client.js`);
+    });
+  }
 
   app.get ('/voxel-workspaces/:owner', wrap(async (req, res) => {
     let owner = req.params.owner === 'me' ? req.user.id : req.params.owner;

@@ -14,3 +14,10 @@ declare module 'http-proxy' {
   module m {}
   export = m;
 }
+
+declare module 'scriptjs' {
+  const m: any;
+  module m {}
+  export = m;
+}
+

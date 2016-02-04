@@ -2,32 +2,32 @@
   "apps": [{
     "name": "addon-code-editor",
     "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev:watch"],
+    "args": ["serve:dev"],
     "cwd": "modules/addon-code-editor"
   }, {
     "name": "addon-game",
     "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev:watch"],
+    "args": ["serve:dev"],
     "cwd": "modules/addon-game"
   }, {
     "name": "addon-voxel-editor",
     "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev:watch"],
+    "args": ["serve:dev"],
     "cwd": "modules/addon-voxel-editor"
   }, {
     "name": "admin",
     "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev:watch"],
+    "args": ["serve:dev"],
     "cwd": "modules/admin"
   }, {
     "name": "area-server",
     "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev:watch"],
+    "args": ["serve:dev"],
     "cwd": "modules/area-server"
   }, {
     "name": "auth-server",
     "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev:watch"],
+    "args": ["serve:dev"],
     "cwd": "modules/auth-server"
   }, {
     "name": "config",
@@ -37,7 +37,7 @@
   }, {
     "name": "console",
     "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev:watch"],
+    "args": ["serve:dev"],
     "cwd": "modules/console"
   }, {
     "name": "core",

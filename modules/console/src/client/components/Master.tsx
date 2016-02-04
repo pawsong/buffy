@@ -24,6 +24,8 @@ import * as StorageKeys from '../constants/StorageKeys';
 import * as ActionTypes from '../constants/ActionTypes';
 import * as axios from 'axios';
 
+import * as $script from 'scriptjs';
+
 import * as io from 'socket.io-client';
 
 const navbarHeight = 48;
@@ -149,9 +151,9 @@ class Master extends React.Component<MasterProps, MasterStates> {
   promiseTokens: PromiseToken[] = [];
 
   Addons = [
-    'addonVoxelEditor',
-    'addonCodeEditor',
-    'addonGame',
+    'addon-voxel-editor',
+    'addon-code-editor',
+    'addon-game',
   ];
 
   constructor(props, context) {
@@ -217,23 +219,22 @@ class Master extends React.Component<MasterProps, MasterStates> {
     }, params);
 
     // Bind addons
-    const loadAddon = (url: string, addonName: string) => {
-      const element = this.refs[addonName] as HTMLElement;
-      return this.exec(axios.get(url) as Promise<any>).then(res => {
-        new Function(res.data).call(null);
-        const addon = AddonLoader.popAddon();
+    const loadAddon = async (url: string, addonName: string) => {
+      try {
+        const addon = await AddonLoader.load(url, `@pasta/${addonName}`);
+        const element = this.refs[addonName] as HTMLElement;
         const uninstall = addon.install(element, this.stateLayer);
         this.uninstalls.push(uninstall);
         this.setState({ [addonName]: AddonStatus.Loaded });
-      }).catch(err => {
+      } catch(err) {
         this.setState({ [addonName]: AddonStatus.Error });
         console.error(err);
-      });
+      }
     };
 
-    loadAddon('/addons/code-editor', 'addonCodeEditor');
-    loadAddon('/addons/voxel-editor', 'addonVoxelEditor');
-    loadAddon('/addons/game', 'addonGame');
+    loadAddon('/addons/code-editor', 'addon-code-editor');
+    loadAddon('/addons/voxel-editor', 'addon-voxel-editor');
+    loadAddon('/addons/game', 'addon-game');
   }
 
   // Put codes which do not need to be rendered by server.
@@ -301,12 +302,12 @@ class Master extends React.Component<MasterProps, MasterStates> {
         tabTemplate={TabTemplate}
         initialSelectedIndex={this.initialTabIndex} onChange={this.onTabChange.bind(this)}>
         <Tab label="Design" value="0">
-          <div ref="addonVoxelEditor" style={styles.addon}></div>
-          {addonOverlays['addonVoxelEditor']}
+          <div ref="addon-voxel-editor" style={styles.addon}></div>
+          {addonOverlays['addon-voxel-editor']}
         </Tab>
         <Tab label="Develop" value="1">
-          <div ref="addonCodeEditor" style={styles.addon}></div>
-          {addonOverlays['addonCodeEditor']}
+          <div ref="addon-code-editor" style={styles.addon}></div>
+          {addonOverlays['addon-code-editor']}
         </Tab>
       </Tabs>
 
@@ -317,8 +318,8 @@ class Master extends React.Component<MasterProps, MasterStates> {
       </IconMenu>
 
       <div style={styles.rightPane}>
-        <div ref="addonGame" style={styles.game}></div>
-        {addonOverlays['addonGame']}
+        <div ref="addon-game" style={styles.game}></div>
+        {addonOverlays['addon-game']}
       </div>
 
       <Dialog

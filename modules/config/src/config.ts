@@ -18,7 +18,11 @@ export const consolePort: number = 9000;
  */
 export const consoleDevPort: number = 9001;
 
+export const consoleClientPort: number = 9002;
+
 export const consolePublicPath: string = 'https://dut3rr7qk867n.cloudfront.net';
+
+export const addonConsoleClientPort = 9002;
 
 /**
  * Game zone server port
@@ -37,16 +41,26 @@ export const addonVoxelEditorServerPort: number = 9300;
 
 export const addonVoxelEditorServerUrl = `http://api.project-pasta.io`;
 
+export const addonVoxelEditorClientPort: number = 9301;
+
 export const addonCodeEditorServerPort: number = 9600;
 
 export const addonCodeEditorServerUrl = `http://code.project-pasta.io`;
 
+export const addonCodeEditorClientPort: number = 9601;
+
+export const addonCodeEditorWorkerPort: number = 9602;
+
 export const addonGameServerPort = 9700;
+
+export const addonGameClientPort: number = 9701;
 
 /**
  * Admin server port
  */
 export const adminServerPort: number = 9400;
+
+export const devServerPort = 9401;
 
 /**
  * Port of console webpack dev server for app

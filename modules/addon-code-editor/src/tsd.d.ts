@@ -27,6 +27,12 @@ declare module 'jquery.terminal' {
   export = m;
 }
 
+declare module 'http-proxy' {
+  const m: any;
+  module m {}
+  export = m;
+}
+
 declare const CONFIG_API_SERVER_URL: string;
 declare const NPM_PACKAGE_NAME: string;
 declare const BUILD_DIR: string;

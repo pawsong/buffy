@@ -8,20 +8,28 @@ Promise.config({ warnings: false });
 
 import * as conf from '@pasta/config';
 
+import * as cheerio from 'cheerio';
+
 import addonProxy from './addonProxy';
 
 import modRewrite = require('connect-modrewrite');
 
-const template = fs.readFileSync(`${__dirname}/index.html`, 'utf8');
+const template = (() => {
+  if (process.env.NODE_ENV !== 'production') {
+    const html = require('raw!../index.html');
+    const $ = cheerio.load(html);
+    $('body').append(`<script src="http://localhost:${conf.consoleClientPort}/bundle.js"></script>`);
+    return $.html();
+  } else {
+    return fs.readFileSync(`${__dirname}/index.html`, 'utf8');
+  }
+})();
 const compiled = _.template(template);
 const indexHtml = compiled({ facebookAppId: CONFIG_FACEBOOK_APP_ID });
 
 const app = express();
 app.use('/addons', addonProxy);
 
-if (process.env.NODE_ENV !== 'production') {
-  app.use('/public', express.static(`${__dirname}/client/public`));
-}
 app.use('/assets', express.static(`${__dirname}/../../public`));
 
 app.use(modRewrite(['^[^\\.]*$ /index.html [L]']));

@@ -1,19 +1,13 @@
 const webpack = require('webpack');
 const fs = require('fs');
 const _ = require('lodash');
-const conf = require('@pasta/config');
 
-const defines = {
-  'process.env.NODE_ENV': 'development',
-  'BUILD_DIR': `${__dirname}/../build/dev`,
-};
-
-module.exports = {
+module.exports = options => ({
   target: 'node',
-  entry: './src/server.ts',
+  entry: options.entry,
   output: {
-    path: defines.BUILD_DIR,
-    filename: 'server.js',
+    path: options.output.path,
+    filename: options.output.filename,
     libraryTarget: 'commonjs2',
   },
   module: {
@@ -24,7 +18,6 @@ module.exports = {
   },
   resolve: {
     extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
-    fallback: `${__dirname}/../node_modules`,
   },
   externals: function filter(context, request, cb) {
     const isExternal =
@@ -32,13 +25,19 @@ module.exports = {
       cb(null, Boolean(isExternal));
   },
   plugins: [
-    new webpack.DefinePlugin(_.mapValues(defines, val => JSON.stringify(val))),
+    new webpack.DefinePlugin(_.mapValues(Object.assign({
+      'process.env.NODE_ENV': 'development',
+      __DEV__: true,
+    }, options.defines || {}), val => JSON.stringify(val))),
+
     new webpack.BannerPlugin('require("source-map-support").install();', {
-      raw: true, entryOnly: false
+      raw: true, entryOnly: false,
     }),
+
+    ...(options.plugins || []),
   ],
   node: {
     __dirname: false,
   },
   devtool: 'source-map',
-};
+});

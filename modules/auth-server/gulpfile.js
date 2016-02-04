@@ -1,15 +1,42 @@
+require('babel-polyfill');
+require('babel-register');
+
 const conf = require('@pasta/config');
 const pkg = require('./package.json');
 
 require('../../gulp/app')({
-  prefix: pkg.name.split('/')[1],
+  root: __dirname,
+  name: pkg.name.split('/')[1],
+  main: './build/dev/server.js',
   port: conf.authServerPort,
   useBrowserSync: false,
-  main: 'build/dev/server',
-  webpackConfig: {
-    server: {
-      dev: require('./webpack/server.dev'),
-      prod: require('./webpack/server.prod'),
-    },
+  webpack: {
+    server: [{
+      name: 'server',
+      entry: './src/server.ts',
+      defines: {
+        'NPM_PACKAGE_NAME': pkg.name,
+      },
+      env: {
+        development: {
+          defines: {
+            'BUILD_DIR': `${__dirname}/../build/dev`,
+          },
+          output: {
+            path: `${__dirname}/build/dev`,
+            filename: 'server.js',
+          },
+        },
+        production: {
+          defines: {
+            'BUILD_DIR': `${__dirname}/../build/prod`,
+          },
+          output: {
+            path: `${__dirname}/build/prod`,
+            filename: 'server.js',
+          },
+        },
+      },
+    }],
   },
 });

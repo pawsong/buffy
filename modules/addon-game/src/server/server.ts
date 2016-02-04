@@ -4,9 +4,15 @@ import * as conf from '@pasta/config';
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.sendFile(`${__dirname}/client.js`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/', (req, res) => {
+    res.redirect(`http://localhost:${conf.addonGameClientPort}/client.js`);
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.sendFile(`${__dirname}/client.js`);
+  });
+}
 
 (async () => {
   await new Promise((resolve, reject) => {
