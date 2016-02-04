@@ -45,7 +45,7 @@ require('../../gulp/app')({
           output: {
             path: `${__dirname}/build/prod/client/public`,
             filename: 'bundle.[chunkhash].js',
-            publicPath: conf.consolePublicPath,
+            publicPath: `${conf.consolePublicPath}/`,
           },
         },
       },
