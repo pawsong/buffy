@@ -53,8 +53,6 @@ module.exports = options => ({
 
     new webpack.HotModuleReplacementPlugin(),
 
-    new webpack.NoErrorsPlugin(),
-
     ...(options.plugins || []),
   ],
 

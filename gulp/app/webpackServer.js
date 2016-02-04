@@ -9,7 +9,7 @@ module.exports = (compiler, port) => {
 
   app.use(require('webpack-dev-middleware')(compiler, {
     noInfo: true,
-    publicPath: '/',
+    publicPath: compiler.options.output.publicPath,
   }));
 
   app.use(require('webpack-hot-middleware')(compiler));
