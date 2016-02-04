@@ -1,10 +1,11 @@
 import { EventEmitter, EventSubscription } from 'fbemitter';
-import * as _ from 'lodash';
+const mapValues = require('lodash.mapvalues');
+const defaults = require('lodash.defaults');
 
 export class State {
   _fsm: Fsm;
   _name: string;
-  
+
   constructor(fsm, name, options) {
     this._fsm = fsm;
     this._name = name;
@@ -29,18 +30,18 @@ export class Fsm extends EventEmitter {
   current: State;
   _initialState: string;
   _states: { [index: string]: State };
-  
+
   constructor(initialState, states, defaultState = {}) {
     super();
 
     this._initialState = initialState;
 
     // Instantiate states
-    this._states = _.mapValues(states, (value, key) => {
-      return new State(this, key, _.defaults(value, defaultState));
+    this._states = mapValues(states, (value, key) => {
+      return new State(this, key, defaults(value, defaultState));
     });
   }
-  
+
   on(eventType: string, callback: Function): EventSubscription {
     return this.addListener(eventType, callback, this);
   }

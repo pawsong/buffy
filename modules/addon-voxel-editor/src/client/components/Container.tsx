@@ -1,19 +1,18 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import update = require('react-addons-update');
-import { Provider } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { Provider, connect } from 'react-redux';
 import { DropTarget, DragDropContext } from 'react-dnd';
 import * as HTML5Backend from 'react-dnd-html5-backend';
-import * as _ from 'lodash';
+const mapValues = require('lodash.mapvalues');
 import objectAssign = require('object-assign');
+
 import StateLayer from '@pasta/core/lib/StateLayer';
 
-import {
-  IconButton,
-  FontIcon,
-  Styles,
-  RaisedButton,
-} from 'material-ui';
+const ThemeManager = require('material-ui/lib/styles/theme-manager');
+const LightRawTheme = require('material-ui/lib/styles/raw-themes/light-raw-theme');
+import RaisedButton = require('material-ui/lib/raised-button');
 
 import GreedyMesh from '../canvas/meshers/greedy';
 import {
@@ -23,12 +22,6 @@ import {
 
 import FullscreenButton from './FullscreenButton';
 
-const {
-  ThemeManager,
-  LightRawTheme,
-  ThemeDecorator,
-} = Styles;
-
 import { initCanvas } from '../canvas';
 
 import store from '../store';
@@ -36,9 +29,6 @@ import ToolsPanel from './ToolsPanel';
 import WorkspacePanel from './WorkspacePanel';
 import HistoryPanel from './HistoryPanel';
 import PreviewPanel from './PreviewPanel';
-
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 
 import * as ColorActions from '../actions/color';
 
@@ -78,7 +68,7 @@ class Container extends React.Component<_ContainerProps, {
     super(props);
 
     let index = 0;
-    const panels = _.mapValues(PANELS, (Component, id) => {
+    const panels = mapValues(PANELS, (Component, id) => {
       const panel = storage.get(`panels.${id}`) || {};
 
       return {

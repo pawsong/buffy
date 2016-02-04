@@ -1,7 +1,7 @@
-import vector3ToString from '@pasta/helper/lib/vector3ToString';
-import * as ActionTypes from '../constants/ActionTypes';
 import * as Immutable from 'immutable';
+import vector3ToString from '@pasta/helper/lib/vector3ToString';
 
+import * as ActionTypes from '../constants/ActionTypes';
 import { getCameraId } from '../SpriteCameras';
 
 const initialSprite = Immutable.Map<string, any>();

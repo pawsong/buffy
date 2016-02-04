@@ -1,16 +1,11 @@
 import * as React from 'react';
-import {
-  FlatButton,
-  RaisedButton,
-  IconButton,
-  FontIcon,
-} from 'material-ui';
-
-import objectAssign = require('object-assign');
-
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import FlatButton = require('material-ui/lib/flat-button');
+import FontIcon = require('material-ui/lib/font-icon');
 import * as Colors from 'material-ui/lib/styles/colors';
-
 import * as ReactDnd from 'react-dnd';
+import objectAssign = require('object-assign');
 
 import {
   PanelConstants,
@@ -18,8 +13,6 @@ import {
   wrapPanel
 } from './Panel';
 
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import * as WorkspaceActions from '../actions/workspace';
 import * as VoxelActions from '../actions/voxel';
 

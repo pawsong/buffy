@@ -1,9 +1,8 @@
 import * as React from 'react';
-import {
-  Toolbar,
-  ToolbarGroup,
-  RaisedButton,
-} from 'material-ui';
+
+import Toolbar = require('material-ui/lib/toolbar/toolbar');
+import ToolbarGroup = require('material-ui/lib/toolbar/toolbar-group');
+import RaisedButton = require('material-ui/lib/raised-button');
 
 import * as jQuery from 'jquery';
 window['jQuery'] = jQuery;

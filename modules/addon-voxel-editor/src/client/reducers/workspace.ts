@@ -1,6 +1,5 @@
-declare const require;
+const objectAssign = require('object-assign');
 import { SET_WORKSPACE } from '../constants/ActionTypes';
-const objectAssign: any = require('object-assign');
 
 const initialState = {};
 

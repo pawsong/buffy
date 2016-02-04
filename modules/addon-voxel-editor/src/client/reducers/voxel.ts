@@ -1,8 +1,8 @@
-import * as ActionTypes from '../constants/ActionTypes';
 import * as Immutable from 'immutable';
-import * as _ from 'lodash';
-
+const findIndex = require('lodash.findindex');
 import vector3ToString from '@pasta/helper/lib/vector3ToString';
+
+import * as ActionTypes from '../constants/ActionTypes';
 
 import {
   GRID_SIZE,
@@ -41,7 +41,7 @@ function voxelUndoable(reducer) {
         }
       case ActionTypes.VOXEL_UNDO_SEEK:
         {
-          const index = _.findIndex(past, item => {
+          const index = findIndex(past, item => {
             return item.historyIndex === action.historyIndex;
           })
           const previous = past[index];
@@ -71,7 +71,7 @@ function voxelUndoable(reducer) {
         }
       case ActionTypes.VOXEL_REDO_SEEK:
         {
-          const index = _.findIndex(future, item => {
+          const index = findIndex(future, item => {
             return item.historyIndex === action.historyIndex;
           })
           const next = future[index];

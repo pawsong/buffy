@@ -1,26 +1,22 @@
 import * as React from 'react';
-import ColorPicker from 'react-color';
-import {
-  IconButton,
-  FontIcon,
-} from 'material-ui';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import IconButton = require('material-ui/lib/icon-button');
+import * as Colors from 'material-ui/lib/styles/colors';
+import * as ReactDnd from 'react-dnd';
+import objectAssign = require('object-assign');
+const {
+  default: ColorPicker
+} = require('react-color/lib/components/SketchPicker');
+import * as ColorActions from '../actions/color';
+import * as ToolActions from '../actions/tool';
+import * as Tools from '../constants/Tools';
+
 import {
   PanelConstants,
   PanelStyles,
   wrapPanel
 } from './Panel';
-
-import * as Colors from 'material-ui/lib/styles/colors';
-
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import * as ColorActions from '../actions/color';
-import * as ToolActions from '../actions/tool';
-import * as Tools from '../constants/Tools';
-
-import * as ReactDnd from 'react-dnd';
-
-import objectAssign = require('object-assign');
 
 const styles = {
   color: {
@@ -148,8 +144,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, {
         position="right"
         display={ this.state.displayColorPicker }
         onChange={ this._handleColorPickerChange.bind(this) }
-        onClose={ this._handleColorPickerClose.bind(this) }
-        type="sketch" />
+        onClose={ this._handleColorPickerClose.bind(this) }/>
     </div>);
   };
 };

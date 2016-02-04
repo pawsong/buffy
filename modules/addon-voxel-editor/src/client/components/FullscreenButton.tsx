@@ -1,16 +1,9 @@
 import * as React from 'react';
-import {
-  IconButton,
-  Styles,
-} from 'material-ui';
+import IconButton = require('material-ui/lib/icon-button');
+const ThemeManager = require('material-ui/lib/styles/theme-manager');
+const LightRawTheme = require('material-ui/lib/styles/raw-themes/light-raw-theme');
 
-const {
-  ThemeManager,
-  LightRawTheme,
-  ThemeDecorator,
-} = Styles;
-
-class FullscreenButton extends React.Component<{ 
+class FullscreenButton extends React.Component<{
   onClick();
   style: {};
   fullscreen: boolean;
@@ -18,13 +11,13 @@ class FullscreenButton extends React.Component<{
   static childContextTypes = {
     muiTheme: React.PropTypes.object,
   };
-  
+
   getChildContext() {
     const CustomRawTheme = _.cloneDeep(LightRawTheme);
     CustomRawTheme.spacing.iconSize = 36;
     return { muiTheme: ThemeManager.getMuiTheme(CustomRawTheme) };
   };
-  
+
   render() {
     return <IconButton
       onClick={this.props.onClick}

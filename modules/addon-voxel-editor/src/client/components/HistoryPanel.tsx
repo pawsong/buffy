@@ -1,14 +1,12 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
-import {
-  RaisedButton,
-} from 'material-ui';
-import objectAssign = require('object-assign');
-
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as ReactDnd from 'react-dnd';
+import RaisedButton = require('material-ui/lib/raised-button');
 import List = require('material-ui/lib/lists/list');
 import ListItem = require('material-ui/lib/lists/list-item');
-
-import * as ReactDnd from 'react-dnd';
+import objectAssign = require('object-assign');
 
 import {
   PanelConstants,
@@ -16,8 +14,6 @@ import {
   wrapPanel
 } from './Panel';
 
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import * as VoxelActions from '../actions/voxel';
 
 interface HistoryPanelProps extends React.Props<HistoryPanel> {
@@ -81,7 +77,7 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
         {state.action}
       </div>;
     }));
-    
+
     const previewStyle = objectAssign({ zIndex, left, top, opacity, display: 'table', height: 200 }, PanelStyles.root);
 
     return <div>
@@ -98,7 +94,7 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
 export default connect(state => ({
   voxel: state.voxel,
 }), dispatch => ({
-  actions: bindActionCreators(objectAssign({}, 
+  actions: bindActionCreators(objectAssign({},
     VoxelActions
   ), dispatch),
 }))(wrapPanel(HistoryPanel));

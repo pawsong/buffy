@@ -1,13 +1,14 @@
 import * as React from 'react';
-import {
-  RaisedButton,
-} from 'material-ui';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import RaisedButton = require('material-ui/lib/raised-button');
+import * as ReactDnd from 'react-dnd';
+import objectAssign = require('object-assign');
+import * as axios from 'axios';
 
 import NotImplDialog from './menubar/NotImplDialog';
 import FileBrowserDialog from './menubar/FileBrowserDialog';
 import SaveDialog from './menubar/SaveDialog';
-
-import * as axios from 'axios';
 
 import {
   PanelConstants,
@@ -15,13 +16,8 @@ import {
   wrapPanel
 } from './Panel';
 
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import * as WorkspaceActions from '../actions/workspace';
 
-import * as ReactDnd from 'react-dnd';
-
-import objectAssign = require('object-assign');
 
 interface WorkspacePanelProps extends React.Props<WorkspacePanel> {
   workspace: any;

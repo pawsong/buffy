@@ -1,8 +1,7 @@
-declare const require;
+const objectAssign = require('object-assign');
 
 import * as ActionTypes from '../constants/ActionTypes';
 import * as Tools from '../constants/Tools';
-const objectAssign: any = require('object-assign');
 
 const initialState = {
   type: Tools.BRUSH,

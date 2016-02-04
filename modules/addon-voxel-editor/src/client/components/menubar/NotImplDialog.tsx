@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Dialog = require('material-ui/lib/dialog');
-import * as MaterialUI from 'material-ui';
 import FlatButton = require('material-ui/lib/flat-button');
 
 export interface SaveDialogProps extends React.Props<NotImplDialog> {
