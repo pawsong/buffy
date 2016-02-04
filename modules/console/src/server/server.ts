@@ -14,7 +14,7 @@ import addonProxy from './addonProxy';
 
 import modRewrite = require('connect-modrewrite');
 
-const template = (() => {
+const indexHtml = (() => {
   if (process.env.NODE_ENV !== 'production') {
     const html = require('raw!../index.html');
     const $ = cheerio.load(html);
@@ -24,8 +24,6 @@ const template = (() => {
     return fs.readFileSync(`${__dirname}/index.html`, 'utf8');
   }
 })();
-const compiled = _.template(template);
-const indexHtml = compiled({ facebookAppId: CONFIG_FACEBOOK_APP_ID });
 
 const app = express();
 app.use('/addons', addonProxy);

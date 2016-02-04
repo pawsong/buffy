@@ -41,7 +41,6 @@ export default store => {
       component: Login,
     }, {
       path: '/',
-      // onEnter: redirectToLogin,
       onEnter: (next, replace, cb) => {
         tryLogin().then(result => result || replace({
           pathname: '/login',

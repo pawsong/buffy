@@ -28,13 +28,8 @@ require('../../gulp/app')({
         development: {
           defines: {
             'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
-
-            // These configs are referred by addon-voxel-editor.
-            // When addon-voxel-editor is compiled by webpack itself,
-            // this will be moved to addon-voxel-editor's webpack config file.
-            // TODO: Remove
-            'CONFIG_API_SERVER_URL': `http://localhost:${conf.addonVoxelEditorServerPort}`,
             'CONFIG_AUTH_SERVER_URL': `http://localhost:${conf.authServerPort}`,
+            'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdDev,
           },
           output: {
             path: `${__dirname}/build/dev/client/public`,
@@ -42,6 +37,11 @@ require('../../gulp/app')({
           },
         },
         production: {
+          defines: {
+            'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
+            'CONFIG_AUTH_SERVER_URL': conf.authServerUrl,
+            'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdProd,
+          },
           output: {
             path: `${__dirname}/build/prod/client/public`,
             filename: 'bundle.[chunkhash].js',
@@ -57,9 +57,6 @@ require('../../gulp/app')({
         development: {
           defines: {
             'CONFIG_DOMAIN': '',
-            'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
-            'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdDev,
-            'CONFIG_AUTH_SERVER_URL': `http://localhost:${conf.authServerPort}`,
           },
           output: {
             path: `${__dirname}/build/dev`,
@@ -68,11 +65,7 @@ require('../../gulp/app')({
         },
         production: {
           defines: {
-            'process.env.NODE_ENV': 'production',
             'CONFIG_DOMAIN': conf.domain,
-            'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
-            'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdProd,
-            'CONFIG_AUTH_SERVER_URL': conf.authServerUrl,
           },
           output: {
             path: `${__dirname}/build/prod`,

@@ -1,4 +1,5 @@
 import 'babel-polyfill';
+import './vendor';
 
 require('react-tap-event-plugin')();
 
