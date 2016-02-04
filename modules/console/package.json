@@ -49,7 +49,7 @@
     "inline-style-prefixer": "^0.5.0",
     "jsonwebtoken": "^5.4.1",
     "kerberos": "0.0.17",
-    "lodash": "^3.10.1",
+    "lodash": "^4.2.1",
     "material-ui": "^0.14.3",
     "mongoose": "^4.3.6",
     "object-assign": "^4.0.1",
@@ -75,6 +75,9 @@
     "../core"
   ],
   "devDependencies": {
-    "lodash.clonedeep": "^4.0.4"
+    "babel-preset-react-hmre": "^1.1.0",
+    "eventsource-polyfill": "^0.9.6",
+    "lodash.clonedeep": "^4.0.4",
+    "webpack-hot-middleware": "^2.6.4"
   }
 }

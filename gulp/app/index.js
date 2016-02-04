@@ -102,6 +102,8 @@ module.exports = function (options) {
         await new Promise((resolve, reject) => {
           webpack(config).run((err, stats) => {
             const error = err || getCompileError(stats.toJson());
+            console.log(stats.toString());
+            // TODO: Ensure modue paths are under root to prevent redundent module load.
             error ? reject(error) : resolve();
           });
         });
@@ -155,7 +157,6 @@ module.exports = function (options) {
 
   gulp.task('serve:dev', ['serve:dev:client', 'serve:dev:server'], async function () {
     const main = path.resolve(options.root, options.main);
-    console.log(main);
     const cm = new Childminder();
     const child = cm.create('node', [main], { lazy: true });
 
