@@ -2,18 +2,19 @@ import * as mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const secrets = [
-  'fb_id',
+  'fb',
   '_id',
   '__v',
 ];
 
 export interface UserDocument extends mongoose.Document {
-  fb_id: string;
+  fb: string; // Facebook ID
+  name: string;
   picture: string;
 }
 
 const UserSchema = new Schema({
-  fb_id: { type: String, sparse: true, unique: true },
+  fb: { type: String, sparse: true, unique: true },
   picture: { type: String },
 });
 

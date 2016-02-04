@@ -53,7 +53,7 @@ export default app => {
     }
 
     let user = await User.findOne({
-      'fb_id': profile.id,
+      fb: profile.id,
     }).exec();
 
     if (!user) {
@@ -83,7 +83,7 @@ export default app => {
       });
 
       user = new User({
-        fb_id: profile.id,
+        fb: profile.id,
         picture: data.Location,
       });
       await user.save();
