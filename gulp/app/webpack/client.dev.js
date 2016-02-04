@@ -2,6 +2,21 @@ const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
 const _ = require('lodash');
 
+const babelOptions = JSON.stringify({
+  presets: [
+    'es2015',
+    'react',
+    'react-hmre',
+  ],
+  plugins: [
+    'syntax-async-functions',
+    'transform-regenerator',
+    'syntax-object-rest-spread',
+    'transform-object-rest-spread',
+  ],
+  babelrc: false,
+});
+
 module.exports = options => ({
   target: options.target || 'web',
 
@@ -18,7 +33,7 @@ module.exports = options => ({
     loaders: [
       { test: /\.css$/, loader: 'style-loader!css-loader!postcss-loader' },
       { test: /\.json$/, loader: 'json-loader' },
-      { test: /\.ts(x?)$/, loader: 'babel-loader!ts-loader' },
+      { test: /\.ts(x?)$/, loader: `babel-loader?${babelOptions}!ts-loader` },
     ],
   },
 

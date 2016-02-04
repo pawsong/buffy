@@ -17,6 +17,19 @@ const runSequence = require('run-sequence');
 const notifier = require('node-notifier');
 const path = require('path');
 
+const babelOptions = {
+  presets: [
+    'es2015',
+  ],
+  plugins: [
+    'syntax-async-functions',
+    'transform-regenerator',
+    'syntax-object-rest-spread',
+    'transform-object-rest-spread',
+  ],
+  babelrc: false,
+};
+
 module.exports = function (options) {
   const opts = Object.assign({}, options);
   const cwd = process.cwd();
@@ -72,7 +85,7 @@ module.exports = function (options) {
 
         // js files
         tsResult.js
-          .pipe(babel())
+          .pipe(babel(babelOptions))
           .on('error', handleError)
           .pipe(sourcemaps.write())
           .on('error', handleError)
@@ -134,7 +147,7 @@ module.exports = function (options) {
     ]).pipe(sourcemaps.init())
       .pipe(ts(testTsProject, undefined, ts.reporter.longReporter()))
       .on('error', handleError)
-      .pipe(babel())
+      .pipe(babel(babelOptions))
       .on('error', handleError)
       .pipe(sourcemaps.write())
       .pipe(gulp.dest('.test'))
