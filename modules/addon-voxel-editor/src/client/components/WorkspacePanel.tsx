@@ -6,9 +6,10 @@ import * as ReactDnd from 'react-dnd';
 import objectAssign = require('object-assign');
 import * as axios from 'axios';
 
-import NotImplDialog from './menubar/NotImplDialog';
-import FileBrowserDialog from './menubar/FileBrowserDialog';
-import SaveDialog from './menubar/SaveDialog';
+import NotImplDialog from './dialogs/NotImplDialog';
+import FileBrowserDialog from './dialogs/FileBrowserDialog';
+import SaveDialog from './dialogs/SaveDialog';
+
 
 import {
   PanelConstants,
