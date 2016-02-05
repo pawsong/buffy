@@ -6,7 +6,7 @@ const cwd = process.cwd();
 
 const pkg = require(`${cwd}/package.json`);
 if (!pkg.links) {
-  return;
+  process.exit(0);
 }
 
 pkg.links.forEach(linkPath => {
