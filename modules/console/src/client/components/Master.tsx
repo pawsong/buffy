@@ -288,6 +288,11 @@ class Master extends React.Component<MasterProps, MasterStates> {
     localStorage.setItem(StorageKeys.MASTER_INITIAL_TAB, value);
   }
 
+  // Rerender three.js scene
+  forceUpdate() {
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 0);
+  }
+
   render() {
     const user = this.props.user || {};
     const username = user.name || '';
@@ -306,7 +311,7 @@ class Master extends React.Component<MasterProps, MasterStates> {
       <Tabs style={styles.tabs} contentContainerStyle={styles.leftPane}
         tabTemplate={TabTemplate}
         initialSelectedIndex={this.initialTabIndex} onChange={this.onTabChange.bind(this)}>
-        <Tab label="Design" value="0">
+        <Tab label="Design" value="0" onActive={this.forceUpdate}>
           <div ref="addon-voxel-editor" style={styles.addon}></div>
           {addonOverlays['addon-voxel-editor']}
         </Tab>

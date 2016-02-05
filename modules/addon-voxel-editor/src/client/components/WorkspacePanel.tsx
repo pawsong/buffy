@@ -19,7 +19,6 @@ import {
 
 import * as WorkspaceActions from '../actions/workspace';
 
-
 interface WorkspacePanelProps extends React.Props<WorkspacePanel> {
   workspace: any;
   voxel: any;
