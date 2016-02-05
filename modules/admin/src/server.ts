@@ -19,7 +19,7 @@ const app = express();
 
 app.use('/handbook', express.static(`${__dirname}/../../_book`));
 
-const template = fs.readFileSync(`${__dirname}/client/index.html`).toString();
+const template = fs.readFileSync(`${__dirname}/index.html`).toString();
 if (process.env.NODE_ENV !== 'production') {
   app.use('/public', express.static(`${__dirname}/client/public`));
 }
