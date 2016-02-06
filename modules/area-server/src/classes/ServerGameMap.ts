@@ -27,15 +27,19 @@ class ServerGameMap extends GameMap {
 
   addUser(user: GameUser) {
     this.addObject(user);
+
     this.users.push(user);
+    this.broadcast.objectAdded({ object: user.serialize() });
   }
 
   removeUser(user: GameUser) {
+    this.removeObject(user);
+
+    this.broadcast.objectRemoved({ id: user.id });
     const idx = _.findIndex(this.users, { id: user.id });
     if (idx !== -1) {
       this.users.splice(idx, 1);
     }
-    this.removeObject(user);
   }
 }
 

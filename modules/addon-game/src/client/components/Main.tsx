@@ -338,6 +338,40 @@ function initMainView(container, stateLayer: StateLayer) {
     });
   });
 
+  subscribe.objectAdded(params => {
+    const { object: obj } = params;
+
+    const object = objects[obj.id] = new THREE.Group();
+    const cube = new THREE.Mesh( geometry, material );
+    object.add(cube);
+
+    object.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
+    object.position.z = BOX_SIZE * obj.position.z -PIXEL_UNIT;
+    object.position.y = PIXEL_UNIT;
+
+    object.lookAt(new THREE.Vector3(
+      object.position.x /* + 1*/,
+      object.position.y,
+      object.position.z
+    ));
+
+    if (obj.mesh) {
+      changeObjectMesh(object, obj.mesh);
+    }
+
+    scene.add(object);
+
+    if (obj.id === stateLayer.store.myId) {
+      camera.position.copy(object.position);
+    }
+  });
+
+  subscribe.objectRemoved(params => {
+    // Clear objects
+    const object = objects[params.id];
+    scene.remove(object);
+  });
+
   // subscribeStore('create', function (obj) {
   //   var object = objects[obj.id] = new THREE.Group();
   //   const cube = new THREE.Mesh( geometry, material );

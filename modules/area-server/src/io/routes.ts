@@ -95,18 +95,19 @@ export default (socket: SocketIO.Socket) => {
 
   listen.moveMap(async (params) => {
     const map = await GameMapManager.findOrCreate(params.id);
-    me.map.removeUser(me);
-    map.addUser(me);
-    me.map = map;
 
-    // TODO: Move user to map's gate position
-    me.position.x = 1;
-    me.position.z = 1;
+    me.map.removeUser(me);
 
     me.send.init({
       myId: me.id,
-      map: me.map.serialize(),
+      map: map.serialize(),
     });
+
+    // TODO: Move user to map's gate position
+    me.map = map;
+    me.position.x = 1;
+    me.position.z = 1;
+    map.addUser(me);
   });
 
   listen.updateMesh(async (params) => {

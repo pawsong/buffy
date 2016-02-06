@@ -85,7 +85,7 @@ class StateStore {
     return this.map.findObject(this.myId);
   }
 
-  private watchObject(object: GameObject) {
+  watchObject(object: GameObject) {
     object.tween.onStart(() => {
       // this.emit('start', object);
     });
@@ -103,7 +103,7 @@ class StateStore {
     });
   };
 
-  private unwatchObject(object: GameObject) {
+  unwatchObject(object: GameObject) {
     object.tween.onStart(null);
     object.tween.onUpdate(null);
     object.tween.onStop(null);
@@ -154,9 +154,16 @@ StateStore.on.playEffect((store, params) => {
   store.emit.playEffect(params);
 });
 
-// StateStore.on('create', (store, params) => {
-//   const object = store.objects.create(params);
+StateStore.on.objectAdded((store, params) => {
+  const obj = new GameObject(params.object);
+  store.map.objects.push(obj);
+  store.watchObject(obj);
+  store.emit.objectAdded({ object: obj });
+});
 
-//   store.watchObject(object);
-//   store.emit('create', object);
-// });
+StateStore.on.objectRemoved((store, params) => {
+  const obj = store.map.findObject(params.id);
+  store.unwatchObject(obj);
+  store.map.removeObject(obj);
+  store.emit.objectRemoved({ id: params.id });
+});

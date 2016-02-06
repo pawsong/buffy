@@ -1,5 +1,5 @@
 'use strict';
-
+import * as _ from 'lodash';
 import GameMapModel from './models/GameMap';
 import TerrainModel from './models/Terrain';
 import ServerGameMap from './classes/ServerGameMap';
@@ -11,7 +11,7 @@ export function add(map: ServerGameMap) {
 }
 
 export function find(mapId: string): ServerGameMap {
-  return gameMaps[mapId];
+  return _.find(gameMaps, { id: mapId });
 }
 
 export async function findOrCreate(mapId: string): Promise<ServerGameMap> {
@@ -27,6 +27,8 @@ export async function findOrCreate(mapId: string): Promise<ServerGameMap> {
   }
 
   const terrains = await TerrainModel.find({ map: mapDoc._id }).exec();
+  map = find(mapId);
+  if (map) { return map; }
 
   map = new ServerGameMap({
     id: mapDoc.id,

@@ -1,4 +1,5 @@
 import { SerializedGameMap } from '../classes/GameMap';
+import { SerializedGameObject } from '../classes/GameObject';
 import { SerializedTerrain } from '../classes/Terrain';
 import { SerializedMesh } from '../classes/Mesh';
 import { RpcParams, RpcResponse } from './base';
@@ -22,6 +23,8 @@ export interface Send {
 export const BroadcastEvents = [
   'move',
   'create',
+  'objectAdded',
+  'objectRemoved',
   'playEffect',
   'terrainUpdated',
   'meshUpdated',
@@ -30,6 +33,8 @@ export const BroadcastEvents = [
 export interface Broadcast {
   move(params: MoveParams): void;
   create(params: CreateParams): void;
+  objectAdded(params: ObjectAddedParams): void;
+  objectRemoved(params: ObjectRemovedParams): void;
   playEffect(params: PlayEffectParams): void;
   terrainUpdated(params: TerrainUpdatedParams): void;
   meshUpdated(params: MeshUpdatedParams): void;
@@ -39,6 +44,8 @@ export interface Listen<T> {
   init(fn: (store: T, params: InitParams) => any): void;
   move(fn: (store: T, params: MoveParams) => any): void;
   create(fn: (store: T, params: CreateParams) => any): void;
+  objectAdded(fn: (store: T, params: ObjectAddedParams) => any): void;
+  objectRemoved(fn: (store: T, params: ObjectRemovedParams) => any): void;
   playEffect(fn: (store: T, params: PlayEffectParams) => any): void;
   terrainUpdated(fn: (store: T, params: TerrainUpdatedParams) => any): void;
   meshUpdated(fn: (store: T, params: MeshUpdatedParams) => any): void;
@@ -63,6 +70,14 @@ export interface CreateParams extends RpcParams {
     z: number;
   },
   duration: number;
+}
+
+export interface ObjectAddedParams extends RpcParams {
+  object: SerializedGameObject;
+}
+
+export interface ObjectRemovedParams extends RpcParams {
+  id: string;
 }
 
 export interface PlayEffectParams extends CZ.PlayEffectParams {
