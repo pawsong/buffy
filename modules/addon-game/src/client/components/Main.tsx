@@ -7,6 +7,9 @@ import { EventSubscription } from 'fbemitter';
 
 import { createEffectManager } from '../effects';
 
+import ObjectManager from '../ObjectManager';
+import { SmartObject } from '../ObjectManager';
+
 import * as Promise from 'bluebird';
 
 const PIXEL_NUM = 16;
@@ -29,6 +32,7 @@ function initMainView(container, stateLayer: StateLayer) {
 
   const scene = new THREE.Scene();
 
+  const objectManager = new ObjectManager(scene);
   const effectManager = createEffectManager(scene);
 
   const raycaster = new THREE.Raycaster();
@@ -82,12 +86,12 @@ function initMainView(container, stateLayer: StateLayer) {
     renderer.render(scene, camera);
   }
 
-  const terrains: THREE.Object3D[] = [];
+  const terrains: THREE.Mesh[] = [];
   let terrainsIndexed: {
     [index: string]: THREE.Object3D;
   } = {};
 
-  function addTerrain(x: number, z: number, terrain: THREE.Object3D) {
+  function addTerrain(x: number, z: number, terrain: THREE.Mesh) {
     const key = `${x}_${z}`;
     terrains.push(terrain);
     terrainsIndexed[key] = terrain;
@@ -158,33 +162,25 @@ function initMainView(container, stateLayer: StateLayer) {
     renderer.setSize( container.offsetWidth, container.offsetHeight )
   }
 
-  let objects: {
-    [index: string]: THREE.Object3D;
-  } = {};
-
   const terrainGeometry = new THREE.PlaneGeometry(BOX_SIZE, BOX_SIZE);
   terrainGeometry.rotateX( - Math.PI / 2 );
   terrainGeometry.translate( PIXEL_UNIT, 0, PIXEL_UNIT );
 
   function reset() {
     // Clear terrains
-    terrains.forEach(terrain => scene.remove(terrain));
+    terrains.forEach(terrain => {
+      scene.remove(terrain);
+      terrain.material.dispose();
+    });
     terrains.length = 0;
     terrainsIndexed = {};
 
     // Clear objects
-    Object.keys(objects).forEach(id => {
-      const object = objects[id];
-      scene.remove(object);
-    });
-    objects = {};
+    objectManager.removeAll();
   }
 
-  function changeObjectMesh(object: THREE.Object3D, mesh: Mesh) {
-    for (let i = object.children.length - 1; i >= 0; --i) {
-      const child = object.children[i];
-      object.remove(child);
-    }
+  function changeObjectMesh(object: SmartObject, mesh: Mesh) {
+    object.reset();
 
     const geometry = new THREE.Geometry();
 
@@ -223,7 +219,7 @@ function initMainView(container, stateLayer: StateLayer) {
     surfacemesh.position.z = MINI_PIXEL_SIZE * -PIXEL_NUM / 2.0;
     surfacemesh.scale.set(MINI_PIXEL_SIZE, MINI_PIXEL_SIZE, MINI_PIXEL_SIZE);
 
-    object.add(surfacemesh);
+    object.add(surfacemesh, { geometry, material });
   }
 
   function resyncToStore() {
@@ -262,28 +258,27 @@ function initMainView(container, stateLayer: StateLayer) {
 
     // Objects
     stateLayer.store.map.objects.forEach(obj => {
-      const object = objects[obj.id] = new THREE.Group();
-      const cube = new THREE.Mesh( geometry, material );
-      object.add(cube);
+      const object = objectManager.create(obj.id);
+      object.add(new THREE.Mesh( geometry, material ));
 
-      object.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
-      object.position.z = BOX_SIZE * obj.position.z -PIXEL_UNIT;
-      object.position.y = PIXEL_UNIT;
+      const { group } = object;
 
-      object.lookAt(new THREE.Vector3(
-        object.position.x /* + 1*/,
-        object.position.y,
-        object.position.z
+      group.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
+      group.position.z = BOX_SIZE * obj.position.z -PIXEL_UNIT;
+      group.position.y = PIXEL_UNIT;
+
+      group.lookAt(new THREE.Vector3(
+        group.position.x /* + 1*/,
+        group.position.y,
+        group.position.z
       ));
 
       if (obj.mesh) {
         changeObjectMesh(object, obj.mesh);
       }
 
-      scene.add(object);
-
       if (obj.id === stateLayer.store.myId) {
-        camera.position.copy(object.position);
+        camera.position.copy(group.position);
       }
     });
   }
@@ -304,30 +299,26 @@ function initMainView(container, stateLayer: StateLayer) {
   subscribe.resync(() => resyncToStore());
 
   subscribe.move(function (params) {
-    const object = objects[params.object.id];
+    const { group } = objectManager.find(params.object.id);
 
     // Rotate
     var pos = new THREE.Vector3();
     pos.x = BOX_SIZE * params.to.x - PIXEL_UNIT;
     pos.z = BOX_SIZE * params.to.z - PIXEL_UNIT;
-    pos.y = object.position.y;
-    object.lookAt(pos);
+    pos.y = group.position.y;
+    group.lookAt(pos);
 
     // Move
-    object.position.x = pos.x;
-    object.position.z = pos.z;
+    group.position.x = pos.x;
+    group.position.z = pos.z;
 
     if (params.object.id === stateLayer.store.myId) {
-      camera.position.copy(object.position);
+      camera.position.copy(group.position);
     }
   });
 
   subscribe.meshUpdated(params => {
-    const object = objects[params.object.id];
-    if (!object) {
-      console.error(`Cannot find object with id ${params.object.id}`);
-      return;
-    }
+    const object = objectManager.find(params.object.id);
     changeObjectMesh(object, params.object.mesh);
   });
 
@@ -340,55 +331,33 @@ function initMainView(container, stateLayer: StateLayer) {
 
   subscribe.objectAdded(params => {
     const { object: obj } = params;
+    const object = objectManager.create(obj.id);
+    object.add(new THREE.Mesh( geometry, material ));
 
-    const object = objects[obj.id] = new THREE.Group();
-    const cube = new THREE.Mesh( geometry, material );
-    object.add(cube);
+    const { group } = object;
 
-    object.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
-    object.position.z = BOX_SIZE * obj.position.z -PIXEL_UNIT;
-    object.position.y = PIXEL_UNIT;
+    group.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
+    group.position.z = BOX_SIZE * obj.position.z -PIXEL_UNIT;
+    group.position.y = PIXEL_UNIT;
 
-    object.lookAt(new THREE.Vector3(
-      object.position.x /* + 1*/,
-      object.position.y,
-      object.position.z
+    group.lookAt(new THREE.Vector3(
+      group.position.x /* + 1*/,
+      group.position.y,
+      group.position.z
     ));
 
     if (obj.mesh) {
       changeObjectMesh(object, obj.mesh);
     }
 
-    scene.add(object);
-
     if (obj.id === stateLayer.store.myId) {
-      camera.position.copy(object.position);
+      camera.position.copy(group.position);
     }
   });
 
   subscribe.objectRemoved(params => {
-    // Clear objects
-    const object = objects[params.id];
-    scene.remove(object);
+    objectManager.remove(params.id);
   });
-
-  // subscribeStore('create', function (obj) {
-  //   var object = objects[obj.id] = new THREE.Group();
-  //   const cube = new THREE.Mesh( geometry, material );
-  //   object.add(cube);
-
-  //   object.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
-  //   object.position.z = BOX_SIZE * obj.position.y -PIXEL_UNIT;
-  //   object.position.y = PIXEL_UNIT;
-
-  //   object.lookAt(new THREE.Vector3(
-  //     object.position.x + 1,
-  //     object.position.y,
-  //     object.position.z
-  //   ));
-
-  //   scene.add( object );
-  // });
 
   /////////////////////////////////////////////////////////////////////////
   // FIN
