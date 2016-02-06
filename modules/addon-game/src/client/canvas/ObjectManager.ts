@@ -1,4 +1,9 @@
 import * as THREE from 'three';
+import Mesh from '@pasta/core/lib/classes/Mesh';
+import {
+  MINI_PIXEL_SIZE,
+  PIXEL_NUM,
+} from '../Constants';
 
 interface Resources {
   geometry?: THREE.Geometry;
@@ -38,6 +43,49 @@ export class SmartObject {
 
     this.geometries = [];
     this.materials = [];
+  }
+
+  changeMesh(mesh: Mesh) {
+    this.reset();
+
+    const geometry = new THREE.Geometry();
+
+    geometry.vertices.length = 0;
+    geometry.faces.length = 0;
+    for(var i = 0; i < mesh.vertices.length; ++i) {
+      var q = mesh.vertices[i];
+      geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
+    }
+    for(var i = 0; i < mesh.faces.length; ++i) {
+      const q = mesh.faces[i];
+      const f = new THREE.Face3(q[0], q[1], q[2]);
+      f.color = new THREE.Color(q[3]);
+      f.vertexColors = [f.color,f.color,f.color];
+      geometry.faces.push(f);
+    }
+
+    geometry.computeFaceNormals()
+
+    geometry.verticesNeedUpdate = true;
+    geometry.elementsNeedUpdate = true;
+    geometry.normalsNeedUpdate = true;
+
+    geometry.computeBoundingBox();
+    geometry.computeBoundingSphere();
+
+    // Create surface mesh
+    var material = new THREE.MeshLambertMaterial({
+      color: 0xffffff,
+      vertexColors: THREE.VertexColors,
+    });
+    const surfacemesh = new THREE.Mesh( geometry, material );
+    // surfacemesh.doubleSided = false;
+    surfacemesh.position.x = MINI_PIXEL_SIZE * - PIXEL_NUM / 2.0;
+    surfacemesh.position.y = MINI_PIXEL_SIZE * - PIXEL_NUM / 2.0;
+    surfacemesh.position.z = MINI_PIXEL_SIZE * - PIXEL_NUM / 2.0;
+    surfacemesh.scale.set(MINI_PIXEL_SIZE, MINI_PIXEL_SIZE, MINI_PIXEL_SIZE);
+
+    this.add(surfacemesh, { geometry, material });
   }
 
   dispose() {
