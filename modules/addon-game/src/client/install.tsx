@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import Container from './components/Container';
 import store from './store';
 import { InstallAddon } from '@pasta/core/lib/Addon';
-import StateLayerProvider from '@pasta/helper/lib/reactStateLayer/Provider';
+import StateLayerProvider from '@pasta/components/lib/stateLayer/Provider';
 
 const install: InstallAddon = (container, stateLayer) => {
   ReactDOM.render(

@@ -1,12 +1,12 @@
 {
-  "name": "@pasta/helper",
+  "name": "@pasta/components",
   "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/pawsong/pasta.git"
   },
   "version": "0.0.0",
-  "description": "",
+  "description": "React components for pasta project",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "config": {
@@ -24,5 +24,14 @@
   "files": [
     "lib"
   ],
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "peerDependencies": {
+    "react": "^0.14.7"
+  },
+  "links": [
+    "../core"
+  ],
+  "dependencies": {
+    "hoist-non-react-statics": "^1.0.5"
+  }
 }

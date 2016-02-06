@@ -49,5 +49,10 @@
     "script": "node_modules/.bin/gulp",
     "args": ["build:watch"],
     "cwd": "modules/helper"
+  }, {
+    "name": "components",
+    "script": "node_modules/.bin/gulp",
+    "args": ["build:watch"],
+    "cwd": "modules/components"
   }]
 }

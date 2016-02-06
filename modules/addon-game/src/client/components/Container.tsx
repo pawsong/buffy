@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
-import connectStateLayer from '@pasta/helper/lib/ReactStateLayer/connect';
+import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 
 import Main from './Main';
 import ContactsButton from './ContactsButton';

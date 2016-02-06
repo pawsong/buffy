@@ -41,8 +41,8 @@
     "fbemitter": "^2.0.1",
     "lodash": "^4.0.0",
     "material-ui": "^0.14.2",
-    "react": "^0.14.6",
-    "react-dom": "^0.14.6",
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7",
     "react-redux": "^4.0.6",
     "react-tap-event-plugin": "^0.2.1",
     "redux": "^3.0.5",
@@ -53,6 +53,6 @@
   "links": [
     "../config",
     "../core",
-    "../helper"
+    "../components"
   ]
 }

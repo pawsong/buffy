@@ -4,7 +4,7 @@ import { EventSubscription } from 'fbemitter';
 import Mesh from '@pasta/core/lib/classes/Mesh';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
-import connectStateLayer from '@pasta/helper/lib/ReactStateLayer/connect';
+import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 
 import { createEffectManager } from '../effects';
 

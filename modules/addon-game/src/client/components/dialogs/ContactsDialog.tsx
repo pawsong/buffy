@@ -11,7 +11,7 @@ import TableHeaderColumn = require('material-ui/lib/table/table-header-column');
 import TableRow = require('material-ui/lib/table/table-row');
 import TableRowColumn = require('material-ui/lib/table/table-row-column');
 const { connect, PromiseState } = require('react-refetch');
-import connectStateLayer from '@pasta/helper/lib/ReactStateLayer/connect';
+import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 import StateLayer from '@pasta/core/lib/StateLayer';
 
 const style = {
