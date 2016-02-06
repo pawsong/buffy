@@ -107,7 +107,7 @@ module.exports = function (options) {
             error ? reject(error) : resolve();
           });
         });
-        gutil.log(`'${name}' complication succeeded`);
+        gutil.log(`'${name}' compilation succeeded`);
       }));
     };
   }
