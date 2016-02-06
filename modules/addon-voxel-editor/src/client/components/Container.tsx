@@ -61,11 +61,7 @@ interface ContainerStates {
   fullscreen?: boolean;
 }
 
-@connectStateLayer()
 class Container extends React.Component<ContainerProps, ContainerStates> {
-  // TypeScript jsx parser omits adding displayName when using decorator
-  static displayName = 'Container';
-
   canvas: any;
 
   constructor(props) {
@@ -218,4 +214,4 @@ export default connect(state => ({
   actions: bindActionCreators(objectAssign({},
     ColorActions
   ), dispatch),
-}))(DndContainer);
+}))(connectStateLayer()(DndContainer));
