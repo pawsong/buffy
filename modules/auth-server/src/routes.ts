@@ -5,6 +5,7 @@ import * as shortid from 'shortid';
 import * as request from 'request';
 import * as Promise from 'bluebird';
 import * as axios from 'axios';
+import * as auth from 'basic-auth';
 import wrap from '@pasta/helper/lib/wrap';
 import User from './models/User';
 import s3 from './s3';
@@ -13,6 +14,28 @@ import * as ejwt from 'express-jwt';
 import * as conf from '@pasta/config';
 
 const DOMAIN = conf.domain || '';
+
+function getToken(req) {
+  if (req.cookies && req.cookies.tt) {
+    return req.cookies.tt;
+  }
+
+  if (req.headers && req.headers.authorization) {
+    const parts = req.headers.authorization.split(' ');
+    if (parts.length !== 2) {
+      throw new Error('Format is Authorization: Bearer [token]');
+    }
+
+    const scheme = parts[0];
+    const credentials = parts[1];
+
+    if (!/^Bearer$/i.test(scheme)) {
+      throw new Error('Format is Authorization: Bearer [token]');
+    }
+    return credentials;
+  }
+  return '';
+}
 
 export default app => {
   app.post('/login/anonymous', wrap(async (req, res) => {
@@ -132,5 +155,13 @@ export default app => {
   }), wrap(async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user.id, req.body).exec();
     return res.send(user);
+  }));
+
+  app.get('/friends', ejwt({
+    secret: conf.jwtSecret,
+    getToken: getToken,
+  }), wrap(async (req, res) => {
+    const users = await User.find({}).exec();
+    return res.send(users);
   }));
 };

@@ -9,19 +9,19 @@
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
     "express/express.d.ts": {
-      "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
+      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
     },
     "cors/cors.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
     "mime/mime.d.ts": {
-      "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
+      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
     },
     "node/node.d.ts": {
-      "commit": "70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e"
+      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
     },
     "serve-static/serve-static.d.ts": {
-      "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
+      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
     },
     "cookie-parser/cookie-parser.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
@@ -55,6 +55,9 @@
     },
     "aws-sdk/aws-sdk.d.ts": {
       "commit": "70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e"
+    },
+    "basic-auth/basic-auth.d.ts": {
+      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
     }
   }
 }

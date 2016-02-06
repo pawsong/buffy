@@ -75,7 +75,7 @@ class ContactDialog extends React.Component<ContectDialogProps, ContactDialogSta
 
         const tableBody = friends.map((friend, index) => {
           return <TableRow key={friend._id} selected={index === this.state.selectedRow}>
-            <TableRowColumn>{friend.user}</TableRowColumn>
+            <TableRowColumn>{friend.name}</TableRowColumn>
             <TableRowColumn>{friend.home && friend.home.name}</TableRowColumn>
           </TableRow>;
         });
@@ -83,7 +83,7 @@ class ContactDialog extends React.Component<ContectDialogProps, ContactDialogSta
         return <Table selectable={true} onRowSelection={this.onSelectRow.bind(this)}>
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
             <TableRow>
-              <TableHeaderColumn tooltip="Friend's ID">ID</TableHeaderColumn>
+              <TableHeaderColumn tooltip="Friend's name">Name</TableHeaderColumn>
               <TableHeaderColumn tooltip="Friend's home">Home</TableHeaderColumn>
             </TableRow>
           </TableHeader>
