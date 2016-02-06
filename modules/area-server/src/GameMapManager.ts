@@ -1,5 +1,7 @@
 'use strict';
 
+import GameMapModel from './models/GameMap';
+import TerrainModel from './models/Terrain';
 import ServerGameMap from './classes/ServerGameMap';
 
 const gameMaps: ServerGameMap[] = [];
@@ -10,6 +12,40 @@ export function add(map: ServerGameMap) {
 
 export function find(mapId: string): ServerGameMap {
   return gameMaps[mapId];
+}
+
+export async function findOrCreate(mapId: string): Promise<ServerGameMap> {
+  let map = find(mapId);
+  if (map) { return map; }
+
+  // TODO: Request coordinator to choose free area server and
+  // new spawn map instance.
+  const mapDoc = await GameMapModel.findById(mapId).exec();
+  if (!mapDoc) {
+    // Error. Cannot find map
+    throw new Error(`Cannot find map ${mapId}`);
+  }
+
+  const terrains = await TerrainModel.find({ map: mapDoc._id }).exec();
+
+  map = new ServerGameMap({
+    id: mapDoc.id,
+    name: mapDoc.name,
+    width: mapDoc.width,
+    depth: mapDoc.depth,
+    terrains: terrains.map(terrain => ({
+      id: terrain.id,
+      position: {
+        x: terrain.loc.x,
+        z: terrain.loc.z,
+      },
+      color: terrain.color,
+    })),
+    objects: [], // TODO: Load objects
+  });
+
+  add(map);
+  return map;
 }
 
 // Update loop

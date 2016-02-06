@@ -1,17 +1,18 @@
 import * as cookie from 'cookie';
 import * as jwt from 'jsonwebtoken';
 import * as Promise from 'bluebird';
+import * as mongoose from 'mongoose';
 import * as conf from '@pasta/config';
-import ServerGameMap from './classes/ServerGameMap';
-import GameUser from './classes/GameUser';
-import GameMapModel from './models/GameMap';
-import GameUserModel from './models/GameUser';
-import TerrainModel from './models/Terrain';
-import MeshModel from './models/Mesh';
-import { MeshDocument } from './models/Mesh';
-import * as GameMapManager from './GameMapManager';
+import ServerGameMap from '../classes/ServerGameMap';
+import GameUser from '../classes/GameUser';
+import GameMapModel from '../models/GameMap';
+import GameUserModel from '../models/GameUser';
+import TerrainModel from '../models/Terrain';
+import MeshModel from '../models/Mesh';
+import { MeshDocument } from '../models/Mesh';
+import * as GameMapManager from '../GameMapManager';
 import routes from './routes';
-import * as Sessions from './Sessions';
+import * as Sessions from '../Sessions';
 import * as TWEEN from '@pasta/tween.js';
 
 async function findOrCreateUser(userId: string) {
@@ -56,37 +57,8 @@ export default (io: SocketIO.Server) => {
         await userDoc.save();
       }
 
-      const mapId = userDoc.loc.map.toHexString();
-      let map = GameMapManager.find(mapId);
-      if (!map) {
-        // TODO: Request coordinator to choose free area server and
-        // new spawn map instance.
-        const mapDoc = await GameMapModel.findById(mapId).exec();
-        if (!mapDoc) {
-          // Error. Cannot find map
-          throw new Error(`Cannot find map ${mapId}`);
-        }
-
-        const terrains = await TerrainModel.find({ map: mapDoc._id }).exec();
-
-        map = new ServerGameMap({
-          id: mapDoc.id,
-          name: mapDoc.name,
-          width: mapDoc.width,
-          depth: mapDoc.depth,
-          terrains: terrains.map(terrain => ({
-            id: terrain.id,
-            position: {
-              x: terrain.loc.x,
-              z: terrain.loc.z,
-            },
-            color: terrain.color,
-          })),
-          objects: [], // TODO: Load objects
-        });
-
-        GameMapManager.add(map);
-      }
+      const mapId = (userDoc.loc.map as mongoose.Types.ObjectId).toHexString();
+      const map = await GameMapManager.findOrCreate(mapId);
 
       let mesh: MeshDocument;
       if (userDoc.mesh) {

@@ -1,11 +1,14 @@
 import * as mongoose from 'mongoose';
 const { Schema } = mongoose;
 
+import { GameMapDocument } from './GameMap';
+
+
 export interface GameUserDocument extends mongoose.Document {
   owner: string;
   home: mongoose.Types.ObjectId;
   loc: {
-    map: mongoose.Types.ObjectId;
+    map: mongoose.Types.ObjectId | GameMapDocument;
     pos: {
       x: number;
       z: number;

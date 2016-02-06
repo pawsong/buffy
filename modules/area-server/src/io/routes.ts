@@ -2,12 +2,13 @@ import * as shortid from 'shortid';
 import { CZ, ZC } from '@pasta/core/lib/packet';
 import GameMap from '@pasta/core/lib/classes/GameMap';
 import Mesh from '@pasta/core/lib/classes/Mesh';
-import GameUser from './classes/GameUser';
-import GameMapModel from './models/GameMap';
-import GameUserModel from './models/GameUser';
-import MeshModel from './models/Mesh';
-import Terrain from './models/Terrain';
-import * as Sessions from './Sessions';
+import GameUser from '../classes/GameUser';
+import GameMapModel from '../models/GameMap';
+import GameUserModel from '../models/GameUser';
+import MeshModel from '../models/Mesh';
+import Terrain from '../models/Terrain';
+import * as Sessions from '../Sessions';
+import * as GameMapManager from '../GameMapManager';
 
 const SPEED = 0.005;
 
@@ -89,6 +90,22 @@ export default (socket: SocketIO.Socket) => {
     me.map.broadcast.move({
       id: params.id,
       tween: me.tween.serialize(),
+    });
+  });
+
+  listen.moveMap(async (params) => {
+    const map = await GameMapManager.findOrCreate(params.id);
+    me.map.removeUser(me);
+    map.addUser(me);
+    me.map = map;
+
+    // TODO: Move user to map's gate position
+    me.position.x = 1;
+    me.position.z = 1;
+
+    me.send.init({
+      myId: me.id,
+      map: me.map.serialize(),
     });
   });
 

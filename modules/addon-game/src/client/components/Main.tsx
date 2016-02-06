@@ -385,7 +385,7 @@ export interface MainProps extends React.Props<Main> {
   stateLayer: StateLayer;
 }
 
-export class Main extends React.Component<MainProps, {}> {
+class Main extends React.Component<MainProps, {}> {
   canvas;
 
   componentDidMount() {

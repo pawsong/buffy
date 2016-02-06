@@ -6,7 +6,7 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "react/react.d.ts": {
-      "commit": "faa49cc68025118355b677b936892435b9be7247"
+      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
     },
     "react/react-dom.d.ts": {
       "commit": "faa49cc68025118355b677b936892435b9be7247"
@@ -37,6 +37,9 @@
     },
     "mime/mime.d.ts": {
       "commit": "4a8a2ed5c35be37a5f1a199a391be21548c81c09"
+    },
+    "material-ui/material-ui.d.ts": {
+      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
     }
   }
 }

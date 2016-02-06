@@ -5,7 +5,8 @@
     "target": "es6",
     "outDir": ".tsc_out",
     "sourceMap": true,
-    "jsx": "react"
+    "jsx": "react",
+    "experimentalDecorators": true
   },
   "files": [
     "src/client/index.ts",

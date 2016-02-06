@@ -24,5 +24,14 @@
   "files": [
     "lib"
   ],
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "peerDependencies": {
+    "react": "^0.14.7"
+  },
+  "links": [
+    "../core"
+  ],
+  "dependencies": {
+    "hoist-non-react-statics": "^1.0.5"
+  }
 }

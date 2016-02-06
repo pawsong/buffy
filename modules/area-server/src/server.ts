@@ -3,6 +3,7 @@ import 'babel-polyfill';
 import * as Promise from 'bluebird';
 import * as cors from 'cors';
 import * as mongoose from 'mongoose';
+import httpHandler from './http';
 import ioHandler from './io';
 import * as socketIo from 'socket.io';
 import * as express from 'express';
@@ -18,8 +19,7 @@ const io = socketIo(http);
 
 import * as conf from '@pasta/config';
 
-app.use(cors());
-
+httpHandler(app);
 ioHandler(io);
 
 (async () => {

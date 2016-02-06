@@ -16,6 +16,7 @@ require('../../gulp/app')({
       entry: './src/client/index.ts',
       defines: {
         'NPM_PACKAGE_NAME': pkg.name,
+        'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
       },
       env: {
         development: {
@@ -37,6 +38,7 @@ require('../../gulp/app')({
       entry: './src/server/server.ts',
       defines: {
         'NPM_PACKAGE_NAME': pkg.name,
+        'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
       },
       env: {
         development: {

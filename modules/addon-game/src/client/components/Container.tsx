@@ -1,7 +1,9 @@
 import * as React from 'react';
-import Main from './Main';
-import StateLayer from '@pasta/core/lib/StateLayer';
 import { EventSubscription } from 'fbemitter';
+import StateLayer from '@pasta/core/lib/StateLayer';
+
+import Main from './Main';
+import ContactsButton from './ContactsButton';
 
 const styles = {
   main: {
@@ -23,7 +25,7 @@ export interface ContainerProps extends React.Props<Container> {
   stateLayer: StateLayer;
 }
 
-export class Container extends React.Component<ContainerProps, {
+class Container extends React.Component<ContainerProps, {
   mapName: string;
 }> {
 
@@ -48,6 +50,7 @@ export class Container extends React.Component<ContainerProps, {
     return <div>
       <Main style={styles.main} stateLayer={this.props.stateLayer}/>
       <div style={styles.info}>Map: {this.state.mapName}</div>
+      <ContactsButton/>
     </div>;
   }
 }

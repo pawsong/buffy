@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
 const _ = require('lodash');
+const path = require('path');
 
 const babelOptions = JSON.stringify({
   presets: [
@@ -42,6 +43,7 @@ module.exports = options => ({
 
   resolve: {
     extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
+    fallback: path.join(process.cwd(), 'node_modules'),
   },
 
   plugins: [
