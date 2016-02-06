@@ -33,7 +33,7 @@ interface ContactDialogState {
 
 @connectStateLayer()
 class ContactDialog extends React.Component<ContectDialogProps, ContactDialogState> {
-  // TypeScript decorator parser looks omit this static property...
+  // TypeScript jsx parser omits adding displayName when using decorator
   static displayName = 'ContactDialog';
 
   state = {

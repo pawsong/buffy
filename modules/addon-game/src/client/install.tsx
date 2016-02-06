@@ -11,7 +11,7 @@ const install: InstallAddon = (container, stateLayer) => {
   ReactDOM.render(
     <StateLayerProvider stateLayer={stateLayer}>
       <Provider store={store}>
-        <Container stateLayer={stateLayer}/>
+        <Container/>
       </Provider>
     </StateLayerProvider>,
     container

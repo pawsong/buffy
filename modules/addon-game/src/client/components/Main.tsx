@@ -1,9 +1,10 @@
 import * as React from 'react';
 import * as THREE from 'three';
+import { EventSubscription } from 'fbemitter';
 import Mesh from '@pasta/core/lib/classes/Mesh';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
-import { EventSubscription } from 'fbemitter';
+import connectStateLayer from '@pasta/helper/lib/ReactStateLayer/connect';
 
 import { createEffectManager } from '../effects';
 
@@ -383,12 +384,16 @@ function initMainView(container, stateLayer: StateLayer) {
   };
 }
 
-export interface MainProps extends React.Props<Main> {
+interface MainProps extends React.Props<Main> {
   style: Object;
-  stateLayer: StateLayer;
+  stateLayer?: StateLayer;
 }
 
+@connectStateLayer()
 class Main extends React.Component<MainProps, {}> {
+  // TypeScript jsx parser omits adding displayName when using decorator
+  static displayName = 'Main';
+
   canvas;
 
   componentDidMount() {

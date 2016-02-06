@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
+import connectStateLayer from '@pasta/helper/lib/ReactStateLayer/connect';
 
 import Main from './Main';
 import ContactsButton from './ContactsButton';
@@ -21,13 +22,16 @@ const styles = {
   },
 };
 
-export interface ContainerProps extends React.Props<Container> {
-  stateLayer: StateLayer;
+interface ContainerProps extends React.Props<Container> {
+  stateLayer?: StateLayer;
 }
 
+@connectStateLayer()
 class Container extends React.Component<ContainerProps, {
   mapName: string;
 }> {
+  // TypeScript jsx parser omits adding displayName when using decorator
+  static displayName = 'Container';
 
   state = {
     mapName: '',
@@ -48,7 +52,7 @@ class Container extends React.Component<ContainerProps, {
 
   render() {
     return <div>
-      <Main style={styles.main} stateLayer={this.props.stateLayer}/>
+      <Main style={styles.main}/>
       <div style={styles.info}>Map: {this.state.mapName}</div>
       <ContactsButton/>
     </div>;
