@@ -9,6 +9,7 @@ const mapValues = require('lodash.mapvalues');
 import objectAssign = require('object-assign');
 
 import StateLayer from '@pasta/core/lib/StateLayer';
+import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 
 const ThemeManager = require('material-ui/lib/styles/theme-manager');
 const LightRawTheme = require('material-ui/lib/styles/raw-themes/light-raw-theme');
@@ -48,20 +49,23 @@ const PANELS = {
   preview: PreviewPanel,
 };
 
-export interface ContainerProps extends React.Props<React.ClassicComponentClass<ContainerProps>> {
-   stateLayer: StateLayer,
+interface ContainerProps extends React.Props<React.ClassicComponentClass<ContainerProps>> {
+   stateLayer?: StateLayer;
+   connectDropTarget?: any;
+   workspace?: any;
+   voxel?: any;
 }
 
-interface _ContainerProps extends ContainerProps {
-   connectDropTarget: any;
-   workspace: any;
-   voxel: any;
-}
-
-class Container extends React.Component<_ContainerProps, {
+interface ContainerStates {
   panels?: any;
   fullscreen?: boolean;
-}> {
+}
+
+@connectStateLayer()
+class Container extends React.Component<ContainerProps, ContainerStates> {
+  // TypeScript jsx parser omits adding displayName when using decorator
+  static displayName = 'Container';
+
   canvas: any;
 
   constructor(props) {

@@ -10,6 +10,7 @@ import 'script!jquery.terminal/js/jquery.terminal-0.9.3';
 import 'jquery.terminal/css/jquery.terminal-0.9.3.css';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
+import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 
 import { Layout, LayoutContainer } from './Layout';
 import UserProcess from '../UserProcess';
@@ -61,10 +62,14 @@ util.loop(async () => {
 });`;
 
 interface AppProps extends React.Props<App> {
-  stateLayer: StateLayer;
+  stateLayer?: StateLayer;
 }
 
+@connectStateLayer()
 class App extends React.Component<AppProps, {}> {
+  // TypeScript jsx parser omits adding displayName when using decorator
+  static displayName = 'App';
+
   editor: AceAjax.Editor;
   terminal: any;
   terminalContainer: JQuery;
