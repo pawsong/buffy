@@ -15,8 +15,13 @@ import {
 
 import { createEffectManager } from '../effects';
 import ObjectManager from './ObjectManager';
-import { Services } from './HandlerInterface';
+import { Services } from './interface';
 import * as handlers from './handlers';
+
+import Fsm from './Fsm';
+
+import * as tools from './tools';
+import { ToolState } from './interface';
 
 export default (container: HTMLElement, stateLayer: StateLayer) => {
   const camera = new THREE.OrthographicCamera(
@@ -36,7 +41,6 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
   const effectManager = createEffectManager(scene);
 
   const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
 
   const planeGeo = new THREE.PlaneBufferGeometry( 2 * GRID_SIZE, 2 * GRID_SIZE );
   planeGeo.rotateX( - Math.PI / 2 );
@@ -45,18 +49,6 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
     visible: false,
   }));
   scene.add( plane );
-
-  const rollOverPlaneGeo = new THREE.PlaneBufferGeometry( BOX_SIZE, BOX_SIZE );
-  rollOverPlaneGeo.rotateX( - Math.PI / 2 );
-  const rollOverMaterial = new THREE.MeshBasicMaterial({
-    color: 0xff0000,
-    opacity: 0.5,
-    transparent: true,
-    polygonOffset: true,
-    polygonOffsetFactor: -0.1,
-  });
-  const rollOverPlane = new THREE.Mesh( rollOverPlaneGeo, rollOverMaterial);
-  scene.add( rollOverPlane );
 
   // Cubes
   var geometry = new THREE.BoxGeometry( BOX_SIZE, BOX_SIZE, BOX_SIZE );
@@ -104,51 +96,6 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
   // Add event listeners
   /////////////////////////////////////////////////////////////////////////
 
-  function onMouseMove(event) {
-    event.preventDefault();
-
-    mouse.set(
-      (event.offsetX / container.offsetWidth) * 2 - 1,
-      -(event.offsetY / container.offsetHeight) * 2 + 1
-    );
-
-    raycaster.setFromCamera(mouse, camera);
-
-    const intersects = raycaster.intersectObjects(terrains);
-    if (intersects.length === 0) { return; }
-
-    const intersect = intersects[0];
-
-    rollOverPlane.position.copy(intersect.point).add(intersect.face.normal);
-    rollOverPlane.position
-      .divideScalar(BOX_SIZE)
-      .floor()
-      .multiplyScalar(BOX_SIZE)
-      .addScalar(PIXEL_UNIT);
-
-    rollOverPlane.position.y = 0;
-
-    render();
-  }
-
-  function onMouseDown(event) {
-    event.preventDefault();
-
-    const position = new THREE.Vector3();
-    position.copy(rollOverPlane.position)
-      .divideScalar(BOX_SIZE)
-      .floor()
-      .addScalar(1);
-
-    stateLayer.rpc.move({
-      id: stateLayer.store.myId,
-      x: position.x,
-      z: position.z,
-    });
-  }
-
-  container.addEventListener('mousemove', onMouseMove, false);
-  container.addEventListener('mousedown', onMouseDown, false);
   window.addEventListener('resize', onWindowResize, false);
 
   function onWindowResize() {
@@ -238,15 +185,25 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
   // Sync view to store data
   resyncToStore();
 
-  const tokens = Object.keys(handlers).map(key => handlers[key](stateLayer.store.subscribe, {
+  const services: Services = {
+    container,
     objectManager,
     effectManager,
     camera,
     stateLayer,
     resyncToStore,
+    scene,
+    raycaster,
+    terrains,
     cubeGeometry: geometry,
     cubeMaterial: material,
-  } as Services));
+  };
+
+  const tokens = Object.keys(handlers).map(key => handlers[key](stateLayer.store.subscribe, services));
+
+  const toolsFsm = new Fsm<ToolState>();
+  Object.keys(tools).forEach(toolName => toolsFsm.add(toolName, tools[toolName](services)));
+  toolsFsm.start('move');
 
   /////////////////////////////////////////////////////////////////////////
   // FIN
@@ -263,8 +220,7 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
 
   return {
     destroy() {
-      container.removeEventListener('mousemove', onMouseMove, false);
-      container.removeEventListener('mousedown', onMouseDown, false);
+      toolsFsm.destroy();
       window.removeEventListener('resize', onWindowResize, false);
       tokens.forEach(token => token.remove());
       cancelAnimationFrame(frameId);
