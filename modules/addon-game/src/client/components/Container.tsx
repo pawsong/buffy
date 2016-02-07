@@ -3,11 +3,11 @@ import { EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 
-import Main from './Main';
+import Canvas from './Canvas';
 import ContactsButton from './ContactsButton';
 
 const styles = {
-  main: {
+  canvas: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -52,7 +52,7 @@ class Container extends React.Component<ContainerProps, {
 
   render() {
     return <div>
-      <Main style={styles.main}/>
+      <Canvas style={styles.canvas}/>
       <div style={styles.info}>Map: {this.state.mapName}</div>
       <ContactsButton/>
     </div>;

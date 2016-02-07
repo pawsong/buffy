@@ -4,15 +4,15 @@ import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 
 import initCanvas from '../canvas';
 
-interface MainProps extends React.Props<Main> {
+interface CanvasProps extends React.Props<Canvas> {
   style: Object;
   stateLayer?: StateLayer;
 }
 
 @connectStateLayer()
-class Main extends React.Component<MainProps, {}> {
+class Canvas extends React.Component<CanvasProps, {}> {
   // TypeScript jsx parser omits adding displayName when using decorator
-  static displayName = 'Main';
+  static displayName = 'Canvas';
 
   canvas;
 
@@ -29,4 +29,4 @@ class Main extends React.Component<MainProps, {}> {
   }
 };
 
-export default Main;
+export default Canvas;
