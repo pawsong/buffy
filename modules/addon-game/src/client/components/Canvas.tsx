@@ -14,10 +14,18 @@ class Canvas extends React.Component<CanvasProps, {}> {
   // TypeScript jsx parser omits adding displayName when using decorator
   static displayName = 'Canvas';
 
+  static contextTypes = {
+    store: React.PropTypes.any.isRequired,
+  }
+
   canvas;
 
   componentDidMount() {
-    this.canvas = initCanvas(this.refs['canvas'] as HTMLElement, this.props.stateLayer);
+    this.canvas = initCanvas(
+      this.refs['canvas'] as HTMLElement,
+      this.props.stateLayer,
+      this.context['store']
+    );
   }
 
   componentWillUnmount() {

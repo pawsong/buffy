@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { EventSubscription } from 'fbemitter';
+import { Store } from 'redux';
 import Mesh from '@pasta/core/lib/classes/Mesh';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
@@ -24,7 +25,9 @@ import Fsm from './Fsm';
 import * as tools from './tools';
 import { ToolState } from './interface';
 
-export default (container: HTMLElement, stateLayer: StateLayer) => {
+import { observeStore } from '../store';
+
+export default (container: HTMLElement, stateLayer: StateLayer, store: Store) => {
   const camera = new THREE.OrthographicCamera(
     container.offsetWidth / - 2,
     container.offsetWidth / 2,
@@ -158,7 +161,12 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
 
   const toolsFsm = new Fsm<ToolState>();
   Object.keys(tools).forEach(toolName => toolsFsm.add(toolName, tools[toolName](services)));
-  toolsFsm.start('editTerrain');
+
+  const reduxTokens = [
+    observeStore(store, state => state.tool, ({ type }) => {
+      toolsFsm.transition(type);
+    }),
+  ];
 
   /////////////////////////////////////////////////////////////////////////
   // FIN
@@ -178,6 +186,7 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
       toolsFsm.destroy();
       window.removeEventListener('resize', onWindowResize, false);
       tokens.forEach(token => token.remove());
+      reduxTokens.forEach(token => token.remove());
       cancelAnimationFrame(frameId);
       terrainManager.destroy();
     },

@@ -5,6 +5,7 @@ import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 
 import Canvas from './Canvas';
 import ContactsButton from './ContactsButton';
+import Tools from './Tools';
 
 const styles = {
   canvas: {
@@ -55,6 +56,7 @@ class Container extends React.Component<ContainerProps, {
       <Canvas style={styles.canvas}/>
       <div style={styles.info}>Map: {this.state.mapName}</div>
       <ContactsButton/>
+      <Tools/>
     </div>;
   }
 }

@@ -55,9 +55,10 @@ class Fsm<T extends StateInterface> {
     const next = this.states[stateName];
     if (!next) { throw new Error(`Cannot find state ${stateName}`); }
 
-    // const prev = this.current.name;
+    if (this.current) {
+      this.current.onLeave();
+    }
 
-    this.current.onLeave();
     this.current = next;
     this.current.onEnter();
 
