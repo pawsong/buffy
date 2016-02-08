@@ -62,10 +62,10 @@ const factory: ToolStateFactory = ({
       .floor()
       .addScalar(1);
 
-    stateLayer.rpc.move({
-      id: stateLayer.store.myId,
+    stateLayer.rpc.updateTerrain({
       x: position.x,
       z: position.z,
+      color: 0x00ff00,
     });
   }
 

@@ -1,5 +1,6 @@
 import GameObject from '../classes/GameObject';
 import { Position } from '../classes/GameObject';
+import Terrain from '../classes/Terrain';
 import { EventSubscription } from 'fbemitter';
 import * as ZC from '../packet/ZC';
 
@@ -9,6 +10,7 @@ export const StoreEvents = [
   'objectRemoved',
   'move',
   'playEffect',
+  'terrainUpdated',
   'meshUpdated',
 ];
 
@@ -19,6 +21,7 @@ export interface StoreEmit {
   move(params: MoveParams): void;
   playEffect(params: PlayEffectParams): void;
   meshUpdated(params: MeshUpdatedParams): void;
+  terrainUpdated(params: TerrainUpdateParams): void;
 }
 
 export interface StoreListen {
@@ -28,6 +31,7 @@ export interface StoreListen {
   move(fn: (params: MoveParams) => any): EventSubscription;
   playEffect(fn: (params: PlayEffectParams) => any): EventSubscription;
   meshUpdated(fn: (params: MeshUpdatedParams) => any): EventSubscription;
+  terrainUpdated(fn: (params: TerrainUpdateParams) => any): EventSubscription;
 }
 
 export interface StoreEventParams { }
@@ -52,4 +56,8 @@ export interface PlayEffectParams extends ZC.PlayEffectParams {
 
 export interface MeshUpdatedParams extends StoreEventParams {
   object: GameObject;
+}
+
+export interface TerrainUpdateParams extends StoreEventParams {
+  terrain: Terrain;
 }

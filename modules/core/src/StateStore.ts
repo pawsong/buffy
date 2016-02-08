@@ -1,6 +1,7 @@
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import GameObject from './classes/GameObject';
 import GameMap from './classes/GameMap';
+import Terrain from './classes/Terrain';
 import Mesh from './classes/Mesh';
 import { StoreEvents, StoreEmit, StoreListen } from './store/Events';
 import * as ZC from './packet/ZC';
@@ -152,6 +153,11 @@ StateStore.on.meshUpdated((store, params) => {
 
 StateStore.on.playEffect((store, params) => {
   store.emit.playEffect(params);
+});
+
+StateStore.on.terrainUpdated((store, params) => {
+  const terrain = store.map.updateTerrain(params.terrain);
+  store.emit.terrainUpdated({ terrain });
 });
 
 StateStore.on.objectAdded((store, params) => {

@@ -4,10 +4,12 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { StateInterface } from './Fsm';
 import ObjectManager from './ObjectManager';
+import TerrainManager from './TerrainManager';
 
 export interface Services {
   container: HTMLElement;
   objectManager: ObjectManager;
+  terrainManager: TerrainManager;
   effectManager: any;
   camera: THREE.OrthographicCamera;
   stateLayer: StateLayer;
@@ -16,7 +18,6 @@ export interface Services {
   resyncToStore: Function;
   scene: THREE.Scene;
   raycaster: THREE.Raycaster;
-  terrains: THREE.Mesh[];
 }
 
 export interface StoreHandler {

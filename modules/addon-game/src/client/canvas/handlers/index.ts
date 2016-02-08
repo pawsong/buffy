@@ -15,3 +15,6 @@ export { playEffect };
 
 import resync from './resync';
 export { resync };
+
+import terrainUpdated from './terrainUpdated';
+export { terrainUpdated };

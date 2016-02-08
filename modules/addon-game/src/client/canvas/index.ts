@@ -15,6 +15,7 @@ import {
 
 import { createEffectManager } from '../effects';
 import ObjectManager from './ObjectManager';
+import TerrainManager from './TerrainManager';
 import { Services } from './interface';
 import * as handlers from './handlers';
 
@@ -38,6 +39,7 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
   const scene = new THREE.Scene();
 
   const objectManager = new ObjectManager(scene);
+  const terrainManager = new TerrainManager(scene);
   const effectManager = createEffectManager(scene);
 
   const raycaster = new THREE.Raycaster();
@@ -77,21 +79,6 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
     renderer.render(scene, camera);
   }
 
-  const terrains: THREE.Mesh[] = [];
-  let terrainsIndexed: {
-    [index: string]: THREE.Object3D;
-  } = {};
-
-  function addTerrain(x: number, z: number, terrain: THREE.Mesh) {
-    const key = `${x}_${z}`;
-    terrains.push(terrain);
-    terrainsIndexed[key] = terrain;
-  }
-
-  function existsTerrain(x: number, z: number) {
-    const key = `${x}_${z}`;
-    return !!terrainsIndexed[key];
-  }
   /////////////////////////////////////////////////////////////////////////
   // Add event listeners
   /////////////////////////////////////////////////////////////////////////
@@ -108,52 +95,20 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
     renderer.setSize( container.offsetWidth, container.offsetHeight )
   }
 
-  const terrainGeometry = new THREE.PlaneGeometry(BOX_SIZE, BOX_SIZE);
-  terrainGeometry.rotateX( - Math.PI / 2 );
-  terrainGeometry.translate( PIXEL_UNIT, 0, PIXEL_UNIT );
-
   function resyncToStore() {
-    // Clear terrains
-    terrains.forEach(terrain => {
-      scene.remove(terrain);
-      terrain.material.dispose();
-    });
-    terrains.length = 0;
-    terrainsIndexed = {};
-
     // Clear objects
     objectManager.removeAll();
 
     // Terrains
-    stateLayer.store.map.terrains.forEach(terrain => {
-      const material = new THREE.MeshBasicMaterial({
-        side: THREE.FrontSide,
-        color: terrain.color,
-      });
-      const terrainMesh = new THREE.Mesh(terrainGeometry, material);
-      terrainMesh.position.x = (terrain.position.x - 1) * BOX_SIZE;
-      terrainMesh.position.z = (terrain.position.z - 1) * BOX_SIZE;
-      scene.add(terrainMesh);
-
-      addTerrain(terrain.position.x, terrain.position.z, terrainMesh);
-    });
-
     for (let i = 1; i <= stateLayer.store.map.width; ++i) {
       for (let j = 1; j <= stateLayer.store.map.depth; ++j) {
-        if (existsTerrain(i, j)) { continue; }
-
-        const material = new THREE.MeshBasicMaterial({
-          side: THREE.FrontSide,
-          color: 0xffffff,
-        });
-        const terrainMesh = new THREE.Mesh(terrainGeometry, material);
-        terrainMesh.position.x = (i - 1) * BOX_SIZE;
-        terrainMesh.position.z = (j - 1) * BOX_SIZE;
-        scene.add(terrainMesh);
-
-        addTerrain(i, j, terrainMesh);
+        terrainManager.findAndUpdate(i, j, 0xffffff);
       }
     }
+
+    stateLayer.store.map.terrains.forEach(terrain => {
+      terrainManager.findAndUpdate(terrain.position.x, terrain.position.z, terrain.color);
+    });
 
     // Objects
     stateLayer.store.map.objects.forEach(obj => {
@@ -188,13 +143,13 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
   const services: Services = {
     container,
     objectManager,
+    terrainManager,
     effectManager,
     camera,
     stateLayer,
     resyncToStore,
     scene,
     raycaster,
-    terrains,
     cubeGeometry: geometry,
     cubeMaterial: material,
   };
@@ -203,7 +158,7 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
 
   const toolsFsm = new Fsm<ToolState>();
   Object.keys(tools).forEach(toolName => toolsFsm.add(toolName, tools[toolName](services)));
-  toolsFsm.start('move');
+  toolsFsm.start('editTerrain');
 
   /////////////////////////////////////////////////////////////////////////
   // FIN
@@ -224,6 +179,7 @@ export default (container: HTMLElement, stateLayer: StateLayer) => {
       window.removeEventListener('resize', onWindowResize, false);
       tokens.forEach(token => token.remove());
       cancelAnimationFrame(frameId);
+      terrainManager.destroy();
     },
   };
 }
