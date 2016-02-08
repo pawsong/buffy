@@ -17,6 +17,8 @@ import {
 import { createEffectManager } from '../effects';
 import ObjectManager from './ObjectManager';
 import TerrainManager from './TerrainManager';
+import CursorManager from './CursorManager';
+
 import { Services } from './interface';
 import * as handlers from './handlers';
 
@@ -46,6 +48,7 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
   const effectManager = createEffectManager(scene);
 
   const raycaster = new THREE.Raycaster();
+  const cursorManager = new CursorManager(container, scene, raycaster, camera, terrainManager);
 
   const planeGeo = new THREE.PlaneBufferGeometry( 2 * GRID_SIZE, 2 * GRID_SIZE );
   planeGeo.rotateX( - Math.PI / 2 );
@@ -148,6 +151,7 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
     objectManager,
     terrainManager,
     effectManager,
+    cursorManager,
     camera,
     stateLayer,
     resyncToStore,
@@ -183,12 +187,13 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
 
   return {
     destroy() {
-      toolsFsm.destroy();
+      toolsFsm.stop();
       window.removeEventListener('resize', onWindowResize, false);
       tokens.forEach(token => token.remove());
       reduxTokens.forEach(token => token.remove());
       cancelAnimationFrame(frameId);
       terrainManager.destroy();
+      cursorManager.destroy();
     },
   };
 }

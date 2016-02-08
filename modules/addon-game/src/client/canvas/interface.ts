@@ -5,12 +5,14 @@ import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { StateInterface } from './Fsm';
 import ObjectManager from './ObjectManager';
 import TerrainManager from './TerrainManager';
+import CursorManager from './CursorManager';
 
 export interface Services {
   container: HTMLElement;
   objectManager: ObjectManager;
   terrainManager: TerrainManager;
   effectManager: any;
+  cursorManager: CursorManager;
   camera: THREE.OrthographicCamera;
   stateLayer: StateLayer;
   cubeGeometry: THREE.Geometry;

@@ -3,7 +3,6 @@ import { EventEmitter, EventSubscription } from 'fbemitter';
 export interface StateInterface {
   onEnter: () => any;
   onLeave: () => any;
-  onDestroy: () => any;
 }
 
 class Fsm<T extends StateInterface> {
@@ -44,11 +43,6 @@ class Fsm<T extends StateInterface> {
       this.current = undefined;
       this.emitter.emit('stop');
     }
-  }
-
-  destroy() {
-    this.stop();
-    Object.keys(this.states).forEach(stateName => this.states[stateName].onDestroy());
   }
 
   transition(stateName) {
