@@ -65,7 +65,12 @@ class CursorManager {
     }
   }
 
+  setColor(color: number) {
+    this.cursorMesh.material['color'].setHex(color);
+  }
+
   start() {
+    this.cursorMesh.material['color'].setHex(0xff0000);
     this.scene.add(this.cursorMesh);
     this.container.addEventListener('mousemove', this.onMouseMove, false);
   }
