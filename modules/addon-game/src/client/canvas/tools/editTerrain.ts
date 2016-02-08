@@ -4,6 +4,10 @@ import {
   PIXEL_UNIT,
 } from '../../Constants';
 
+export function rgbToHex({ r, g, b }) {
+  return (1 << 24) | (r << 16) | (g << 8) | b;
+}
+
 const factory: ToolStateFactory = ({
   container,
   stateLayer,
@@ -12,6 +16,7 @@ const factory: ToolStateFactory = ({
   raycaster,
   terrainManager,
   cursorManager,
+  store,
 }) => {
   function onMouseDown(event) {
     event.preventDefault();
@@ -19,10 +24,12 @@ const factory: ToolStateFactory = ({
     const { hit, position } = cursorManager.getPosition();
     if (!hit) { return; }
 
+    const state = store.getState();
+
     stateLayer.rpc.updateTerrain({
       x: position.x,
       z: position.z,
-      color: 0x00ff00,
+      color: rgbToHex(state.brush.color),
     });
   }
 

@@ -157,6 +157,7 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
     resyncToStore,
     scene,
     raycaster,
+    store,
     cubeGeometry: geometry,
     cubeMaterial: material,
   };

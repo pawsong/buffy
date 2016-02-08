@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { EventSubscription } from 'fbemitter';
+import { Store } from 'redux';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { StateInterface } from './Fsm';
@@ -20,6 +21,7 @@ export interface Services {
   resyncToStore: Function;
   scene: THREE.Scene;
   raycaster: THREE.Raycaster;
+  store: Store;
 }
 
 export interface StoreHandler {
