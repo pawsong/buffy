@@ -9,7 +9,6 @@
     "experimentalDecorators": true
   },
   "files": [
-    "src/worker/worker.ts",
     "src/client/index.ts",
     "src/client/install.tsx",
     "src/server/server.ts",

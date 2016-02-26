@@ -5,6 +5,8 @@ import * as ReactDOM from 'react-dom';
 import { InstallAddon } from '@pasta/core/lib/Addon';
 import StateLayerProvider from '@pasta/components/lib/stateLayer/Provider';
 
+import './blockly/blocks';
+
 import App from './components/App';
 
 const install: InstallAddon = (container, stateLayer) => {

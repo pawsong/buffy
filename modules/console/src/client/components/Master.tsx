@@ -288,7 +288,7 @@ class Master extends React.Component<MasterProps, MasterStates> {
     localStorage.setItem(StorageKeys.MASTER_INITIAL_TAB, value);
   }
 
-  // Rerender three.js scene
+  // Rerender addon screen
   forceUpdate() {
     setTimeout(() => window.dispatchEvent(new Event('resize')), 0);
   }
@@ -315,7 +315,7 @@ class Master extends React.Component<MasterProps, MasterStates> {
           <div ref="addon-voxel-editor" style={styles.addon}></div>
           {addonOverlays['addon-voxel-editor']}
         </Tab>
-        <Tab label="Develop" value="1">
+        <Tab label="Develop" value="1" onActive={this.forceUpdate}>
           <div ref="addon-code-editor" style={styles.addon}></div>
           {addonOverlays['addon-code-editor']}
         </Tab>

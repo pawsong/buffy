@@ -4,19 +4,18 @@ import Toolbar = require('material-ui/lib/toolbar/toolbar');
 import ToolbarGroup = require('material-ui/lib/toolbar/toolbar-group');
 import RaisedButton = require('material-ui/lib/raised-button');
 
-import * as jQuery from 'jquery';
-window['jQuery'] = jQuery;
-import 'script!jquery.terminal/js/jquery.terminal-0.9.3';
-import 'jquery.terminal/css/jquery.terminal-0.9.3.css';
+import * as shortid from 'shortid';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
 import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 
-import { Layout, LayoutContainer } from './Layout';
-import UserProcess from '../UserProcess';
+import { Blockly, Interpreter } from '../blockly';
+import * as Scope from '../blockly/scope';
+
+const toolbox = require('raw!../blockly/toolbox.xml');
+const initBlock = require('raw!../blockly/initBlock.xml');
 
 const TOOLBAR_HEIGHT = 48;
-const TERMINAL_HEIGHT = 150;
 
 const styles = {
   toolbar: {
@@ -32,34 +31,13 @@ const styles = {
   editor: {
     position: 'absolute',
     margin: 0,
-    top: 0,
+    top: TOOLBAR_HEIGHT,
     bottom: 0,
     left: 0,
     right: 0,
-  },
-  terminal: {
-    position: 'absolute',
-    padding: 0,
-    margin: 0,
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    overflowY: 'scroll',
+    overflow: 'hidden',
   },
 };
-
-const snippet =
-`import { player, util } from '@pasta/core';
-
-util.loop(async () => {
-  await player.move(1, 1);
-  await util.sleep(1000);
-  await player.move(2, 3);
-  await util.sleep(1000);
-  await player.boom();
-  await util.sleep(2000);
-});`;
 
 interface AppProps extends React.Props<App> {
   stateLayer?: StateLayer;
@@ -70,58 +48,69 @@ class App extends React.Component<AppProps, {}> {
   // TypeScript jsx parser omits adding displayName when using decorator
   static displayName = 'App';
 
-  editor: AceAjax.Editor;
-  terminal: any;
-  terminalContainer: JQuery;
-  proc: UserProcess;
+  workspace: any;
+  runningProcessId = '';
 
   componentDidMount() {
-    // Code editor
-    const editor = this.editor = ace.edit(this.refs['editor'] as HTMLElement);
-    editor.setTheme('ace/theme/twilight');
-    editor.session.setMode('ace/mode/javascript');
-    editor.setValue(snippet);
-    editor.clearSelection();
-
-    // Terminal
-    const terminalElem = jQuery('#terminal');
-    this.terminalContainer = terminalElem.parent();
-    this.terminal = terminalElem['terminal'](() => {}, {
-      greetings: 'Logs',
-      name: 'js_demo',
-      height: 200,
-      prompt: '> ',
+    // Blockly
+    this.workspace = Blockly.inject(this.refs['editor'], {
+      toolbox,
+      grid: {
+        spacing: 20,
+        length: 3,
+        colour: '#ccc',
+        snap: true
+      },
+      trashcan: true,
     });
+
+    Blockly.JavaScript.init(this.workspace);
+
+    // Put when_run block
+    const dom = Blockly.Xml.textToDom(initBlock);
+    Blockly.Xml.domToWorkspace(this.workspace, dom);
   }
 
   componentWillUnmount() {
     this.destroyProcess();
+    this.workspace.dispose();
   }
 
   destroyProcess() {
-    if (this.proc) {
-      this.proc.terminate();
-      this.proc = null;
-    }
+    this.runningProcessId = '';
+
+    // TODO: Ensure all running threads are terminated
+    // TODO: Remove event listeners
   }
 
   handleRun() {
     this.destroyProcess();
 
-    const source = this.editor.getValue();
+    const processId = this.runningProcessId = shortid.generate();
 
-    this.terminal.echo('Compiling...');
-    this.proc = new UserProcess(source, this.props.stateLayer);
+    this.workspace.getTopBlocks().forEach(block => {
+      // TODO: Check top block is an event emitter
+      if (block.type === 'when_run') {
+        const code = Blockly.JavaScript.blockToCode(block);
 
-    this.proc.addListener('log', log => {
-        this.terminal.echo(log.message);
+        const interpreter = new Interpreter(code, (instance, scope) => Scope.inject(instance, scope, {
+          stateLayer: this.props.stateLayer,
+          interpreter: instance,
+        }));
+
+        const nextStep = () => {
+          // Do not step when process is not running
+          if (processId !== this.runningProcessId) { return; }
+          if (!interpreter.step()) { return; }
+          setTimeout(nextStep, 10);
+        };
+        nextStep();
+      }
     });
   }
 
-  onEditorResize = () => this.editor.resize()
-
-  onTerminalResize = () => {
-    this.terminal.resize(this.terminalContainer.width(), this.terminalContainer.height());
+  onEditorResize() {
+    Blockly.svgResize(this.workspace);
   }
 
   render() {
@@ -132,14 +121,7 @@ class App extends React.Component<AppProps, {}> {
           primary={true} onClick={this.handleRun.bind(this)}/>
         </ToolbarGroup>
       </Toolbar>
-      <Layout flow="column" style={styles.paneContainer}>
-        <LayoutContainer remaining={true} onResize={this.onEditorResize}>
-          <pre ref="editor" style={styles.editor}></pre>
-        </LayoutContainer>
-        <LayoutContainer size={200} onResize={this.onTerminalResize}>
-          <pre ref="terminal" id="terminal" style={styles.terminal}></pre>
-        </LayoutContainer>
-      </Layout>
+      <div ref="editor" style={styles.editor}></div>
     </div>;
   };
 }

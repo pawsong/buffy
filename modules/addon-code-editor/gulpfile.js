@@ -31,30 +31,6 @@ require('../../gulp/app')({
           },
         },
       },
-    }, {
-      name: 'worker',
-      target: 'webworker',
-      devServerPort: conf.addonCodeEditorWorkerPort,
-      entry: './src/worker/worker.ts',
-      defines: {
-        'window': undefined, // eventsource-polyfill
-        'window.XDomainRequest': undefined, // eventsource-polyfill
-      },
-      devtool: 'inline-source-map',
-      env: {
-        development: {
-          output: {
-            path: `${__dirname}/build/dev`,
-            filename: 'worker.js',
-          },
-        },
-        production: {
-          output: {
-            path: `${__dirname}/build/prod`,
-            filename: 'worker.js',
-          },
-        },
-      },
     }],
     server: [{
       name: 'server',
