@@ -15,13 +15,8 @@ const Blockly = window['Blockly'];
 export { Blockly };
 
 // JS-Interpreter does not have 'package.json' file, so use relative path
-if (process.env.NODE_ENV === 'development') {
-  window['acorn'] = require('../../../externals/JS-Interpreter/acorn');
-  require('script!../../../externals/JS-Interpreter/interpreter');
-} else {
-  require('script!../../../externals/JS-Interpreter/acorn_interpreter');
-}
+window['acorn'] = require('../../../externals/JS-Interpreter/acorn');
+require('script!../../../externals/JS-Interpreter/interpreter');
 
 const Interpreter = window['Interpreter'];
-console.log(Interpreter);
 export { Interpreter };

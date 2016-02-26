@@ -22,7 +22,6 @@ export function registerAsync(name: string, api: Api) {
 }
 
 export function inject(interpreter, scope, context: ApiContext) {
-  console.log(interpreter);
   Object.keys(registry).forEach(name => {
     const { async, api } = registry[name];
 

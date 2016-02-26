@@ -6,7 +6,6 @@ Scope.register('alert', ({
   interpreter,
 }) => text => {
   const msg = text ? text.toString() : '';
-  console.log(msg);
   return interpreter.createPrimitive(alert(msg));
 });
 
