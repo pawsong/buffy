@@ -308,7 +308,12 @@ class Master extends React.Component<MasterProps, MasterStates> {
         home
       </IconButton>
 
-      <Tabs style={styles.tabs} contentContainerStyle={styles.leftPane}
+      <div style={styles.leftPane}>
+        <div ref="addon-game" style={styles.game}></div>
+        {addonOverlays['addon-game']}
+      </div>
+
+      <Tabs style={styles.tabs} contentContainerStyle={styles.rightPane}
         tabTemplate={TabTemplate}
         initialSelectedIndex={this.initialTabIndex} onChange={this.onTabChange.bind(this)}>
         <Tab label="Design" value="0" onActive={this.forceUpdate}>
@@ -328,11 +333,6 @@ class Master extends React.Component<MasterProps, MasterStates> {
         }>
         <MenuItem primaryText="Sign out" onTouchTap={this.onSignOut.bind(this)}/>
       </IconMenu>
-
-      <div style={styles.rightPane}>
-        <div ref="addon-game" style={styles.game}></div>
-        {addonOverlays['addon-game']}
-      </div>
 
       <Dialog
         title="Disconnected"
