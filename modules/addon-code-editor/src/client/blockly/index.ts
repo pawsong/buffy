@@ -23,4 +23,5 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const Interpreter = window['Interpreter'];
+console.log(Interpreter);
 export { Interpreter };
