@@ -65,8 +65,7 @@
     "../config",
     "../helper",
     "../core",
-    "../components",
-    "../blockly"
+    "../components"
   ],
   "jspm": {
     "dependencies": {
