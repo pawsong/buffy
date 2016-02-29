@@ -128,9 +128,9 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
       group.position.y = PIXEL_UNIT;
 
       group.lookAt(new THREE.Vector3(
-        group.position.x /* + 1*/,
-        group.position.y,
-        group.position.z
+        group.position.x + obj.direction.x,
+        group.position.y + obj.direction.y,
+        group.position.z + obj.direction.z
       ));
 
       if (obj.mesh) {

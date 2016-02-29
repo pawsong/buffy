@@ -52,6 +52,11 @@ export default (io: SocketIO.Server) => {
           pos: {
             x: 1,
             z: 1,
+          },
+          dir: {
+            x: 0,
+            y: 0,
+            z: 1,
           }
         };
         await userDoc.save();
@@ -71,6 +76,7 @@ export default (io: SocketIO.Server) => {
           x: userDoc.loc.pos.x,
           z: userDoc.loc.pos.z,
         },
+        direction: userDoc.loc.dir || { x: 0, y: 0, z: 1 },
         mesh: mesh ? {
           id: mesh.id,
           vertices: mesh.vertices,

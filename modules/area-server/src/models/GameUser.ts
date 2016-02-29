@@ -3,7 +3,6 @@ const { Schema } = mongoose;
 
 import { GameMapDocument } from './GameMap';
 
-
 export interface GameUserDocument extends mongoose.Document {
   owner: string;
   home: mongoose.Types.ObjectId;
@@ -11,6 +10,11 @@ export interface GameUserDocument extends mongoose.Document {
     map: mongoose.Types.ObjectId | GameMapDocument;
     pos: {
       x: number;
+      z: number;
+    }
+    dir: {
+      x: number;
+      y: number;
       z: number;
     }
   }
@@ -26,6 +30,11 @@ const GameUserSchema = new Schema({
       x: Number,
       z: Number,
     },
+    dir: {
+      x: Number,
+      y: Number,
+      z: Number,
+    }
   },
   mesh: { type: Schema.Types.ObjectId, ref: 'Mesh' },
 });
