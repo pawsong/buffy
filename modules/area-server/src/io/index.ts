@@ -51,6 +51,7 @@ export default (io: SocketIO.Server) => {
           map: userDoc.home,
           pos: {
             x: 1,
+            y: 0,
             z: 1,
           },
           dir: {
@@ -74,6 +75,7 @@ export default (io: SocketIO.Server) => {
         id: userDoc.id,
         position: {
           x: userDoc.loc.pos.x,
+          y: userDoc.loc.pos.y || 0,
           z: userDoc.loc.pos.z,
         },
         direction: userDoc.loc.dir || { x: 0, y: 0, z: 1 },

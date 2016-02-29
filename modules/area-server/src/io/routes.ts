@@ -189,6 +189,7 @@ export default (socket: SocketIO.Socket) => {
     try {
       await GameUserModel.findByIdAndUpdate(me.id, {
         'loc.pos.x': Math.round(me.position.x),
+        'loc.pos.y': Math.round(me.position.y),
         'loc.pos.z': Math.round(me.position.z),
         'loc.dir.x': me.direction.x,
         'loc.dir.y': me.direction.y,

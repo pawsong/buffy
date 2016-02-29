@@ -10,6 +10,7 @@ export interface GameUserDocument extends mongoose.Document {
     map: mongoose.Types.ObjectId | GameMapDocument;
     pos: {
       x: number;
+      y: number;
       z: number;
     }
     dir: {
@@ -28,6 +29,7 @@ const GameUserSchema = new Schema({
     map: { type: Schema.Types.ObjectId, ref: 'GameMap' },
     pos: {
       x: Number,
+      y: Number,
       z: Number,
     },
     dir: {

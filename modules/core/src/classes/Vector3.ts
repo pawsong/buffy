@@ -35,6 +35,14 @@ class Vector3 {
 		return this;
 	}
 
+  clone() {
+    return new Vector3({
+      x: this.x,
+      y: this.y,
+      z: this.z,
+    });
+  }
+
 	multiplyScalar(scalar) {
 		if (isFinite(scalar)) {
 			this.x *= scalar;

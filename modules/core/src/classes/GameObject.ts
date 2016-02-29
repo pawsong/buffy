@@ -4,14 +4,9 @@ import { SerializedMesh } from './Mesh';
 import Vector3 from './Vector3';
 import { SerializedVector3 } from './Vector3';
 
-export interface Position {
-  x: number;
-  z: number;
-}
-
 export interface SerializedGameObject {
   id: string;
-  position: Position;
+  position: SerializedVector3;
   mesh: SerializedMesh;
   tween?: Object;
   direction: SerializedVector3;
@@ -19,34 +14,32 @@ export interface SerializedGameObject {
 
 class GameObject {
   id: string;
-  position: Position;
+  position: Vector3;
   tween: TWEEN.Tween;
   mesh: Mesh;
   direction: Vector3;
 
   constructor(data: SerializedGameObject) {
     this.id = data.id;
-    this.position = {
-      x: data.position.x,
-      z: data.position.z,
-    };
+
+    this.position = new Vector3(data.position);
+
     this.tween = new TWEEN.Tween(this.position);
     if (data.tween) {
       this.tween.deserialize(data.tween);
     }
+
     if (data.mesh) {
       this.mesh = new Mesh(data.mesh);
     }
+
     this.direction = new Vector3(data.direction);
   }
 
   serialize(): SerializedGameObject {
     return {
       id: this.id,
-      position: {
-        x: this.position.x,
-        z: this.position.z,
-      },
+      position: this.position.serialize(),
       mesh: this.mesh ? this.mesh.serialize() : null,
       tween: this.tween.serialize(),
       direction: this.direction.serialize(),

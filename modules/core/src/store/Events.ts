@@ -1,7 +1,7 @@
 import GameObject from '../classes/GameObject';
-import { Position } from '../classes/GameObject';
 import Terrain from '../classes/Terrain';
 import { EventSubscription } from 'fbemitter';
+import Vector3 from '../classes/Vector3';
 import * as ZC from '../packet/ZC';
 
 export const StoreEvents = [
@@ -38,8 +38,8 @@ export interface StoreEventParams { }
 
 export interface MoveParams extends StoreEventParams {
   object: GameObject;
-  to: Position;
-  from: Position;
+  to: { x: number, y: number, z: number };
+  from: { x: number, y: number, z: number };
 }
 
 export interface ObjectAddedParams extends StoreEventParams {
