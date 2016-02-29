@@ -92,8 +92,6 @@ Scope.registerAsync('moveForward', ({
 }) => (distance) => {
   const obj = stateLayer.store.getPlayer();
   const newPos = obj.position.clone().add(obj.direction.clone().multiplyScalar(distance));
-  console.log(newPos);
-  console.log(distance);
   return stateLayer.rpc.move({
     id: obj.id,
     x: newPos.x,
@@ -117,4 +115,40 @@ Blockly.Blocks['move'] = {
 
 Blockly.JavaScript['move'] = block => {
   return `window.moveForward(${block.getFieldValue('DISTANCE')});\n`;
+};
+
+/**
+ * turn block
+ */
+
+Scope.registerAsync('rotate', ({
+  stateLayer,
+}) => (angle) => {
+  const obj = stateLayer.store.getPlayer();
+  const newDirection = obj.direction.clone().applyAxisAngle({ x: 0, y: 1, z: 0 }, angle / 180 * Math.PI);
+  return stateLayer.rpc.rotate({
+    id: obj.id,
+    direction: newDirection.serialize(),
+  });
+});
+
+Blockly.Blocks['turn'] = {
+  init: function() {
+    this.setColour(160);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.appendDummyInput()
+      .appendField('turn')
+      .appendField(new Blockly.FieldDropdown([['right', 'RIGHT'], ['left', 'LEFT']]), 'DIRECTION')
+      .appendField('by')
+      .appendField(new Blockly.FieldTextInput('90', Blockly.FieldTextInput.nonnegativeIntegerValidator), 'ANGLE')
+      .appendField('degree(s)');
+    this.setTooltip('turn');
+    this.setHelpUrl('http://www.example.com');
+  }
+};
+
+Blockly.JavaScript['turn'] = block => {
+  const direction = block.getFieldValue('DIRECTION') === 'LEFT' ? '1' : '-1';
+  return `window.rotate(${direction} * ${block.getFieldValue('ANGLE')});\n`;
 };

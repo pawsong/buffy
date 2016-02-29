@@ -1,3 +1,5 @@
+import Quaternion from './Quaternion';
+
 /**
  * Three.js Vector3 for universal javascript
  */
@@ -13,10 +15,11 @@ class Vector3 {
   y: number;
   z: number;
 
-  constructor(options: SerializedVector3) {
-    this.x = options.x;
-    this.y = options.y;
-    this.z = options.z;
+  quaternion: Quaternion;
+
+  constructor(data: SerializedVector3) {
+    this.quaternion = new Quaternion();
+    this.deserialize(data);
   }
 
   serialize(): SerializedVector3 {
@@ -27,13 +30,20 @@ class Vector3 {
     };
   }
 
-	set(x: number, y: number, z: number) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+  deserialize(data: SerializedVector3) {
+    this.x = data.x;
+    this.y = data.y;
+    this.z = data.z;
+    return this;
+  }
 
-		return this;
-	}
+  set(x: number, y: number, z: number) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+
+    return this;
+  }
 
   clone() {
     return new Vector3({
@@ -59,30 +69,58 @@ class Vector3 {
     return this;
   }
 
-	multiplyScalar(scalar) {
-		if (isFinite(scalar)) {
-			this.x *= scalar;
-			this.y *= scalar;
-			this.z *= scalar;
-		} else {
-			this.x = 0;
-			this.y = 0;
-			this.z = 0;
-		}
-		return this;
-	}
+  multiplyScalar(scalar) {
+    if (isFinite(scalar)) {
+      this.x *= scalar;
+      this.y *= scalar;
+      this.z *= scalar;
+    } else {
+      this.x = 0;
+      this.y = 0;
+      this.z = 0;
+    }
+    return this;
+  }
 
-	divideScalar(scalar) {
-		return this.multiplyScalar(1 / scalar);
-	}
+  applyAxisAngle(axis, angle) {
+    this.applyQuaternion(this.quaternion.setFromAxisAngle(axis, angle));
+    return this;
+  };
 
-	length() {
-		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-	}
+  applyQuaternion(q: Quaternion) {
+    const x = this.x;
+    const y = this.y;
+    const z = this.z;
 
-	normalize() {
-		return this.divideScalar(this.length());
-	}
+    const qx = q.x;
+    const qy = q.y;
+    const qz = q.z;
+    const qw = q.w;
+
+    // calculate quat * vector
+    const ix =  qw * x + qy * z - qz * y;
+    const iy =  qw * y + qz * x - qx * z;
+    const iz =  qw * z + qx * y - qy * x;
+    const iw = - qx * x - qy * y - qz * z;
+
+    // calculate result * inverse quat
+    this.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
+    this.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
+    this.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
+    return this;
+  }
+
+  divideScalar(scalar) {
+    return this.multiplyScalar(1 / scalar);
+  }
+
+  length() {
+    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+  }
+
+  normalize() {
+    return this.divideScalar(this.length());
+  }
 }
 
 export default Vector3;

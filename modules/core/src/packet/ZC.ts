@@ -2,6 +2,7 @@ import { SerializedGameMap } from '../classes/GameMap';
 import { SerializedGameObject } from '../classes/GameObject';
 import { SerializedTerrain } from '../classes/Terrain';
 import { SerializedMesh } from '../classes/Mesh';
+import { SerializedVector3 } from '../classes/Vector3';
 import { RpcParams, RpcResponse } from './base';
 import * as CZ from './CZ';
 
@@ -22,6 +23,8 @@ export interface Send {
 
 export const BroadcastEvents = [
   'move',
+  'stop',
+  'rotate',
   'create',
   'objectAdded',
   'objectRemoved',
@@ -32,6 +35,8 @@ export const BroadcastEvents = [
 
 export interface Broadcast {
   move(params: MoveParams): void;
+  stop(params: StopParams): void;
+  rotate(params: RotateParams): void;
   create(params: CreateParams): void;
   objectAdded(params: ObjectAddedParams): void;
   objectRemoved(params: ObjectRemovedParams): void;
@@ -43,6 +48,8 @@ export interface Broadcast {
 export interface Listen<T> {
   init(fn: (store: T, params: InitParams) => any): void;
   move(fn: (store: T, params: MoveParams) => any): void;
+  stop(fn: (store: T, params: StopParams) => any): void;
+  rotate(fn: (store: T, params: RotateParams) => any): void;
   create(fn: (store: T, params: CreateParams) => any): void;
   objectAdded(fn: (store: T, params: ObjectAddedParams) => any): void;
   objectRemoved(fn: (store: T, params: ObjectRemovedParams) => any): void;
@@ -60,6 +67,15 @@ export interface InitParams extends RpcParams {
 export interface MoveParams extends RpcParams {
   id;
   tween;
+}
+
+export interface StopParams extends RpcParams {
+  id: string;
+}
+
+export interface RotateParams extends RpcParams {
+  id: string;
+  direction: SerializedVector3;
 }
 
 export interface CreateParams extends RpcParams {

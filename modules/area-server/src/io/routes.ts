@@ -93,6 +93,23 @@ export default (socket: SocketIO.Socket) => {
     });
   });
 
+  listen.rotate(async (params) => {
+    if (params.direction.x === 0 && params.direction.x === 0 && params.direction.x === 0 ) {
+      console.warn('Invalid vector');
+      return;
+    }
+
+    if (me.tween.isPlaying()) { me.tween.stop(); }
+    me.map.broadcast.stop({ id: params.id });
+
+    me.direction.deserialize(params.direction).normalize();
+
+    me.map.broadcast.rotate({
+      id: params.id,
+      direction: me.direction.serialize(),
+    });
+  });
+
   listen.moveMap(async (params) => {
     const map = await GameMapManager.findOrCreate(params.id);
 

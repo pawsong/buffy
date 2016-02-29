@@ -2,6 +2,7 @@
   <block type="boom"></block>
   <block type="wait"></block>
   <block type="move"></block>
+  <block type="turn"></block>
   <block type="controls_if"></block>
   <block type="controls_repeat_ext"></block>
   <block type="logic_compare"></block>

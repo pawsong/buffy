@@ -131,6 +131,37 @@ StateStore.on.move((store, params) => {
   object.tween.deserialize(params.tween);
 });
 
+StateStore.on.stop((store, params) => {
+  const object = store.map.findObject(params.id);
+  if (!object) {
+    // TODO: Request missing object data to server.
+    // Out of sync in this case. We may have to reset all data.
+    console.error('Client and server out of sync!');
+    console.error(`Cannot find object ${params.id}`);
+    return;
+  }
+  object.tween.stop();
+});
+
+StateStore.on.rotate((store, params) => {
+  const object = store.map.findObject(params.id);
+  if (!object) {
+    // TODO: Request missing object data to server.
+    // Out of sync in this case. We may have to reset all data.
+    console.error('Client and server out of sync!');
+    console.error(`Cannot find object ${params.id}`);
+    return;
+  }
+
+  // TODO: Perform rotation during multiple frames
+  object.direction.deserialize(params.direction);
+
+  store.emit.rotate({
+    object,
+    direction: object.direction,
+  });
+});
+
 StateStore.on.meshUpdated((store, params) => {
   // TODO: Save to store memory
   const object = store.map.findObject(params.id);

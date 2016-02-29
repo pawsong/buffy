@@ -4,6 +4,9 @@ export { meshUpdated };
 import move from './move';
 export { move };
 
+import rotate from './rotate';
+export { rotate };
+
 import objectAdded from './objectAdded';
 export { objectAdded };
 
