@@ -31,18 +31,6 @@ Blockly.JavaScript['when_run'] = () => '\n';
  * boom block
  */
 
-Blockly.Blocks['boom'] = {
-  init: function() {
-    this.setColour(160);
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.appendDummyInput()
-        .appendField('boom');
-    this.setTooltip('Play boom effect.');
-    this.setHelpUrl('http://www.example.com');
-  }
-};
-
 Scope.registerAsync('boom', ({
   stateLayer,
 }) => () => {
@@ -55,6 +43,18 @@ Scope.registerAsync('boom', ({
   return Promise.resolve();
 });
 
+Blockly.Blocks['boom'] = {
+  init: function() {
+    this.setColour(160);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.appendDummyInput()
+        .appendField('boom');
+    this.setTooltip('Play boom effect.');
+    this.setHelpUrl('http://www.example.com');
+  }
+};
+
 Blockly.JavaScript['boom'] = block => {
   return 'window.boom();\n';
 };
@@ -62,6 +62,8 @@ Blockly.JavaScript['boom'] = block => {
 /**
  * wait block
  */
+
+Scope.registerAsync('wait', () => (secs) => new Promise(resolve => setTimeout(resolve, secs * 1000)));
 
 Blockly.Blocks['wait'] = {
   init: function() {
@@ -76,8 +78,6 @@ Blockly.Blocks['wait'] = {
     this.setHelpUrl('http://www.example.com');
   }
 };
-
-Scope.registerAsync('wait', () => (secs) => new Promise(resolve => setTimeout(resolve, secs * 1000)));
 
 Blockly.JavaScript['wait'] = block => {
   return `window.wait(${block.getFieldValue('SECS')});\n`;
