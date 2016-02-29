@@ -82,3 +82,39 @@ Blockly.Blocks['wait'] = {
 Blockly.JavaScript['wait'] = block => {
   return `window.wait(${block.getFieldValue('SECS')});\n`;
 };
+
+/**
+ * move block
+ */
+
+Scope.registerAsync('moveForward', ({
+  stateLayer,
+}) => (distance) => {
+  const obj = stateLayer.store.getPlayer();
+  const newPos = obj.position.clone().add(obj.direction.clone().multiplyScalar(distance));
+  console.log(newPos);
+  console.log(distance);
+  return stateLayer.rpc.move({
+    id: obj.id,
+    x: newPos.x,
+    z: newPos.z,
+  });
+});
+
+Blockly.Blocks['move'] = {
+  init: function() {
+    this.setColour(160);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.appendDummyInput()
+      .appendField('move forward by')
+      .appendField(new Blockly.FieldTextInput('3', Blockly.FieldTextInput.nonnegativeIntegerValidator), 'DISTANCE')
+      .appendField('meter(s)');
+    this.setTooltip('move');
+    this.setHelpUrl('http://www.example.com');
+  }
+};
+
+Blockly.JavaScript['move'] = block => {
+  return `window.moveForward(${block.getFieldValue('DISTANCE')});\n`;
+};

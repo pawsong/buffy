@@ -43,6 +43,22 @@ class Vector3 {
     });
   }
 
+  add(v: Vector3) {
+    this.x += v.x;
+    this.y += v.y;
+    this.z += v.z;
+
+    return this;
+  }
+
+  sub(v: Vector3) {
+    this.x -= v.x;
+    this.y -= v.y;
+    this.z -= v.z;
+
+    return this;
+  }
+
 	multiplyScalar(scalar) {
 		if (isFinite(scalar)) {
 			this.x *= scalar;

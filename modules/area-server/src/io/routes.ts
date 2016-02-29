@@ -188,9 +188,9 @@ export default (socket: SocketIO.Socket) => {
     me.map.removeUser(me);
     try {
       await GameUserModel.findByIdAndUpdate(me.id, {
-        'loc.pos.x': Math.round(me.position.x),
-        'loc.pos.y': Math.round(me.position.y),
-        'loc.pos.z': Math.round(me.position.z),
+        'loc.pos.x': me.position.x,
+        'loc.pos.y': me.position.y,
+        'loc.pos.z': me.position.z,
         'loc.dir.x': me.direction.x,
         'loc.dir.y': me.direction.y,
         'loc.dir.z': me.direction.z,
