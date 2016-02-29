@@ -41,8 +41,6 @@ export interface StoreEventParams { }
 
 export interface MoveParams extends StoreEventParams {
   object: GameObject;
-  to: { x: number, y: number, z: number };
-  from: { x: number, y: number, z: number };
 }
 
 export interface RotateParams extends StoreEventParams {

@@ -1,8 +1,11 @@
 import * as TWEEN from '@pasta/tween.js';
+import { EventEmitter, EventSubscription } from 'fbemitter';
 import Mesh from './Mesh';
 import { SerializedMesh } from './Mesh';
 import Vector3 from './Vector3';
 import { SerializedVector3 } from './Vector3';
+
+const EPS = 0.000001;
 
 export interface SerializedGameObject {
   id: string;
@@ -12,12 +15,17 @@ export interface SerializedGameObject {
   direction: SerializedVector3;
 }
 
+export const Events = {
+  MOVE: 'move',
+}
+
 class GameObject {
   id: string;
   position: Vector3;
   tween: TWEEN.Tween;
   mesh: Mesh;
   direction: Vector3;
+  emitter: EventEmitter;
 
   constructor(data: SerializedGameObject) {
     this.id = data.id;
@@ -34,6 +42,8 @@ class GameObject {
     }
 
     this.direction = new Vector3(data.direction);
+
+    this.emitter = new EventEmitter();
   }
 
   serialize(): SerializedGameObject {
@@ -48,19 +58,41 @@ class GameObject {
 
   update(dt: number) {
     if (this.tween.isPlaying()) {
-      const oldPos = {
+      const positionFrom = {
         x: this.position.x,
         z: this.position.z
       };
 
+      // const directionFrom = {
+      //   x: this.direction.x,
+      //   y: this.direction.y,
+      //   z: this.direction.z,
+      // };
+
       const ended = this.tween.update2(dt) === false;
 
-      this.direction
-        .set(this.position.x - oldPos.x, 0, this.position.z - oldPos.z)
-        .normalize();
+      const dx = this.position.x - positionFrom.x;
+      const dz = this.position.z - positionFrom.z;
+
+      const len = Math.sqrt(dx * dx + dz * dz);
+      if (len >= EPS) {
+        this.direction
+          .set(dx, 0, dz)
+          .multiplyScalar(1 / len); // Normalize
+      }
+
+      this.emitter.emit(Events.MOVE);
 
       if (ended) { this.tween.stop(); }
     }
+  }
+
+  onMove(listener) {
+    return this.emitter.addListener(Events.MOVE, listener);
+  }
+
+  removeAllListeners() {
+    this.emitter.removeAllListeners();
   }
 }
 

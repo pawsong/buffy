@@ -6,6 +6,8 @@ import {
   PIXEL_UNIT,
 } from '../../Constants';
 
+const posToLookAt = new THREE.Vector3();
+
 const handler: StoreHandler = (listen, {
   objectManager,
   stateLayer,
@@ -13,16 +15,17 @@ const handler: StoreHandler = (listen, {
 }) => listen.move(params => {
   const { group } = objectManager.find(params.object.id);
 
-  // Rotate
-  var pos = new THREE.Vector3();
-  pos.x = BOX_SIZE * params.to.x - PIXEL_UNIT;
-  pos.z = BOX_SIZE * params.to.z - PIXEL_UNIT;
-  pos.y = group.position.y;
-  group.lookAt(pos);
-
   // Move
-  group.position.x = pos.x;
-  group.position.z = pos.z;
+  group.position.x = BOX_SIZE * params.object.position.x - PIXEL_UNIT;
+  group.position.z = BOX_SIZE * params.object.position.z - PIXEL_UNIT;
+
+  // Rotate
+  posToLookAt.set(
+    group.position.x + params.object.direction.x,
+    group.position.y + params.object.direction.y,
+    group.position.z + params.object.direction.z
+  );
+  group.lookAt(posToLookAt);
 
   if (params.object.id === stateLayer.store.myId) {
     camera.position.copy(group.position);

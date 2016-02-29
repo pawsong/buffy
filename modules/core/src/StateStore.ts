@@ -87,27 +87,13 @@ class StateStore {
   }
 
   watchObject(object: GameObject) {
-    object.tween.onStart(() => {
-      // this.emit('start', object);
-    });
-
-    object.tween.onUpdate((value, newPos) => {
-      this.emit.move({
-        object,
-        to: newPos,
-        from: object.position,
-      });
-    });
-
-    object.tween.onStop(() => {
-      // this.emit('stop', object);
+    object.onMove(() => {
+      this.emit.move({ object });
     });
   };
 
   unwatchObject(object: GameObject) {
-    object.tween.onStart(null);
-    object.tween.onUpdate(null);
-    object.tween.onStop(null);
+    object.removeAllListeners();
   }
 }
 

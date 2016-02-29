@@ -12,6 +12,8 @@ import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 import { Blockly, Interpreter } from '../blockly';
 import * as Scope from '../blockly/scope';
 
+import * as StorageKeys from '../constants/StorageKeys';
+
 const toolbox = require('raw!../blockly/toolbox.xml');
 const initBlock = require('raw!../blockly/initBlock.xml');
 
@@ -66,9 +68,15 @@ class App extends React.Component<AppProps, {}> {
 
     Blockly.JavaScript.init(this.workspace);
 
-    // Put when_run block
-    const dom = Blockly.Xml.textToDom(initBlock);
-    Blockly.Xml.domToWorkspace(this.workspace, dom);
+    const savedXml = localStorage.getItem(StorageKeys.BLOCKLY_WORKSPACE);
+    const initDom = Blockly.Xml.textToDom(savedXml || initBlock);
+    Blockly.Xml.domToWorkspace(this.workspace, initDom);
+
+    this.workspace.addChangeListener((e) => {
+      const dom = Blockly.Xml.workspaceToDom(this.workspace);
+      const xml = Blockly.Xml.domToText(dom);
+      localStorage.setItem(StorageKeys.BLOCKLY_WORKSPACE, xml);
+    });
   }
 
   componentWillUnmount() {
@@ -102,7 +110,7 @@ class App extends React.Component<AppProps, {}> {
           // Do not step when process is not running
           if (processId !== this.runningProcessId) { return; }
           if (!interpreter.step()) { return; }
-          setTimeout(nextStep, 10);
+          setTimeout(nextStep, 5);
         };
         nextStep();
       }

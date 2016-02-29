@@ -114,12 +114,27 @@ class Vector3 {
     return this.multiplyScalar(1 / scalar);
   }
 
+  dot(v: Vector3) {
+    return this.x * v.x + this.y * v.y + this.z * v.z;
+  }
+
   length() {
     return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
   }
 
   normalize() {
     return this.divideScalar(this.length());
+  }
+
+  crossVectors(a, b) {
+    const ax = a.x, ay = a.y, az = a.z;
+    const bx = b.x, by = b.y, bz = b.z;
+
+    this.x = ay * bz - az * by;
+    this.y = az * bx - ax * bz;
+    this.z = ax * by - ay * bx;
+
+    return this;
   }
 }
 

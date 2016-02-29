@@ -1,5 +1,15 @@
+import Vector3 from '@pasta/core/lib/classes/Vector3';
+import Quaternion from '@pasta/core/lib/classes/Quaternion';
 import { Blockly } from './index';
 import * as Scope from './scope';
+
+function nonnegativeNumberValidator(text) {
+  let n = Blockly.FieldTextInput.numberValidator(text);
+  if (n) {
+    n = String(Math.max(0, n));
+  }
+  return n;
+}
 
 Scope.register('alert', ({
   stateLayer,
@@ -72,7 +82,7 @@ Blockly.Blocks['wait'] = {
     this.setNextStatement(true);
     this.appendDummyInput()
       .appendField('wait for')
-      .appendField(new Blockly.FieldTextInput('10', Blockly.FieldTextInput.nonnegativeIntegerValidator), 'SECS')
+      .appendField(new Blockly.FieldTextInput('10', nonnegativeNumberValidator), 'SECS')
       .appendField('seconds')
     this.setTooltip('wait for seconds');
     this.setHelpUrl('http://www.example.com');
@@ -106,7 +116,7 @@ Blockly.Blocks['move'] = {
     this.setNextStatement(true);
     this.appendDummyInput()
       .appendField('move forward by')
-      .appendField(new Blockly.FieldTextInput('3', Blockly.FieldTextInput.nonnegativeIntegerValidator), 'DISTANCE')
+      .appendField(new Blockly.FieldTextInput('3', nonnegativeNumberValidator), 'DISTANCE')
       .appendField('meter(s)');
     this.setTooltip('move');
     this.setHelpUrl('http://www.example.com');
@@ -141,7 +151,7 @@ Blockly.Blocks['turn'] = {
       .appendField('turn')
       .appendField(new Blockly.FieldDropdown([['right', 'RIGHT'], ['left', 'LEFT']]), 'DIRECTION')
       .appendField('by')
-      .appendField(new Blockly.FieldTextInput('90', Blockly.FieldTextInput.nonnegativeIntegerValidator), 'ANGLE')
+      .appendField(new Blockly.FieldTextInput('90', nonnegativeNumberValidator), 'ANGLE')
       .appendField('degree(s)');
     this.setTooltip('turn');
     this.setHelpUrl('http://www.example.com');
@@ -151,4 +161,77 @@ Blockly.Blocks['turn'] = {
 Blockly.JavaScript['turn'] = block => {
   const direction = block.getFieldValue('DIRECTION') === 'LEFT' ? '1' : '-1';
   return `window.rotate(${direction} * ${block.getFieldValue('ANGLE')});\n`;
+};
+
+/**
+ * floor color sensor block
+ */
+const q = new Quaternion();
+const u = new Vector3({ x: 1, y: 0, z: 0 });
+
+Scope.register('getFloorColor', ({
+  stateLayer,
+  interpreter,
+}) => (x: number, z: number) => {
+  const obj = stateLayer.store.getPlayer();
+  q.setFromUnitVectors(u, obj.direction);
+
+  const v = new Vector3({ x, y: 0, z }).applyQuaternion(q);
+
+  const roundedX = Math.round(obj.position.x + v.x);
+  const roundedZ = Math.round(obj.position.z + v.z);
+
+  const len = stateLayer.store.map.terrains.length;
+  for (let i = 0; i < len; ++i) {
+    const terrain = stateLayer.store.map.terrains[i];
+    if (terrain.position.x === roundedX && terrain.position.z === roundedZ) {
+      return interpreter.createPrimitive(terrain.color);
+    }
+  }
+  return interpreter.createPrimitive(-1);
+});
+
+Blockly.Blocks['color_sensor_center'] = {
+  init: function() {
+    this.setColour(160);
+    this.appendDummyInput()
+      .appendField('center floor color')
+    this.setOutput(true, 'Number');
+    this.setTooltip('Returns floor color');
+    this.setHelpUrl('http://www.example.com');
+  }
+};
+
+Blockly.JavaScript['color_sensor_center'] = block => {
+  return [`window.getFloorColor(0, 0)`, Blockly.JavaScript.ORDER_NONE];
+};
+
+Blockly.Blocks['color_sensor_front_left'] = {
+  init: function() {
+    this.setColour(160);
+    this.appendDummyInput()
+      .appendField('front-left floor color')
+    this.setOutput(true, 'Number');
+    this.setTooltip('Returns floor color');
+    this.setHelpUrl('http://www.example.com');
+  }
+};
+
+Blockly.JavaScript['color_sensor_front_left'] = block => {
+  return [`window.getFloorColor(2/16, -2/16)`, Blockly.JavaScript.ORDER_NONE];
+};
+
+Blockly.Blocks['color_sensor_front_right'] = {
+  init: function() {
+    this.setColour(160);
+    this.appendDummyInput()
+      .appendField('front-right floor color')
+    this.setOutput(true, 'Number');
+    this.setTooltip('Returns floor color');
+    this.setHelpUrl('http://www.example.com');
+  }
+};
+
+Blockly.JavaScript['color_sensor_front_right'] = block => {
+  return [`window.getFloorColor(2/16, 2/16)`, Blockly.JavaScript.ORDER_NONE];
 };
