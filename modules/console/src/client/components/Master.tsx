@@ -158,6 +158,8 @@ class Master extends React.Component<MasterProps, MasterStates> {
   }
 
   initialTabIndex: number;
+  initialVerticalPaneSize: number;
+  initialLeftHorizontalPaneSize: number;
   activeTabName: string;
   socket: SocketIOClient.Socket;
   stateLayer: StateLayer;
@@ -175,6 +177,8 @@ class Master extends React.Component<MasterProps, MasterStates> {
     this.initialTabIndex = Math.max(
       MasterTabNames.indexOf(this.activeTabName), 0
     );
+    this.initialVerticalPaneSize = parseInt(localStorage.getItem(StorageKeys.MASTER_PANE_V_SIZE) || '600', 10);
+    this.initialLeftHorizontalPaneSize = parseInt(localStorage.getItem(StorageKeys.MASTER_PANE_LEFT_H_SIZE) || '480', 10);
   }
 
   exec<T>(promise: Promise<T>): Promise<T> {
@@ -321,6 +325,16 @@ class Master extends React.Component<MasterProps, MasterStates> {
     if (addonInst) { addonInst.emit('run'); }
   }
 
+  onResizeVertical(size: number) {
+    this.onResizeAddon('addon-game');
+    localStorage.setItem(StorageKeys.MASTER_PANE_V_SIZE, '' + size);
+  }
+
+  onResizeLeftHorizontal(size: number) {
+    this.onResizeAddon('addon-game');
+    localStorage.setItem(StorageKeys.MASTER_PANE_LEFT_H_SIZE, '' + size);
+  }
+
   render() {
     const user = this.props.user || {};
     const username = user.name || '';
@@ -361,9 +375,9 @@ class Master extends React.Component<MasterProps, MasterStates> {
       </div>
 
       <Layout flow="row" style={styles.content}>
-        <LayoutContainer size={600} onResize={() => this.onResizeAddon('addon-game')}>
+        <LayoutContainer size={this.initialVerticalPaneSize} onResize={size => this.onResizeVertical(size)}>
           <Layout flow="column" style={styles.fillParent}>
-            <LayoutContainer size={480} onResize={() => this.onResizeAddon('addon-game')}>
+            <LayoutContainer size={this.initialLeftHorizontalPaneSize} onResize={size => this.onResizeLeftHorizontal(size)}>
               <div ref="addon-game" style={styles.game}></div>
               {addonOverlays['addon-game']}
             </LayoutContainer>
