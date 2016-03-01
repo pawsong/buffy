@@ -106,7 +106,13 @@ Scope.registerAsync('moveForward', ({
     id: obj.id,
     x: newPos.x,
     z: newPos.z,
-  });
+  }).then(() => new Promise(resolve => {
+    const token = obj.onStop(() => {
+      // TODO: Check if interrupted or finished
+      token.remove();
+      resolve();
+    });
+  }));
 });
 
 Blockly.Blocks['move'] = {

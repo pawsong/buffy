@@ -104,13 +104,21 @@ class App extends React.Component<AppProps, {}> {
         const interpreter = new Interpreter(code, (instance, scope) => Scope.inject(instance, scope, {
           stateLayer: this.props.stateLayer,
           interpreter: instance,
-        }));
+        }, () => nextStep()));
 
         const nextStep = () => {
           // Do not step when process is not running
           if (processId !== this.runningProcessId) { return; }
           if (!interpreter.step()) { return; }
-          setTimeout(nextStep, 5);
+          if (interpreter.paused_) {
+            // Response will resume this interpreter
+            return;
+          }
+
+          // TODO: Support detailed speed setting
+          // TODO: Prevent halting vm on infinite loop
+          nextStep();
+          // setTimeout(nextStep, 0);
         };
         nextStep();
       }

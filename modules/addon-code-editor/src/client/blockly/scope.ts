@@ -21,7 +21,7 @@ export function registerAsync(name: string, api: Api) {
   registry[name] = { async: true, api };
 }
 
-export function inject(interpreter, scope, context: ApiContext) {
+export function inject(interpreter, scope, context: ApiContext, onAsyncDone: Function) {
   Object.keys(registry).forEach(name => {
     const { async, api } = registry[name];
 
@@ -36,7 +36,8 @@ export function inject(interpreter, scope, context: ApiContext) {
 
         Promise.resolve()
           .then(() => api(context).apply(null, args))
-          .then(result => callback.call(interpreter, result));
+          .then(result => callback.call(interpreter, result))
+          .then(() => onAsyncDone());
       }));
     } else {
       interpreter.setProperty(scope, name, interpreter.createNativeFunction(api(context)));

@@ -17,6 +17,7 @@ export interface SerializedGameObject {
 
 export const Events = {
   MOVE: 'move',
+  STOP: 'stop',
 }
 
 class GameObject {
@@ -83,12 +84,19 @@ class GameObject {
 
       this.emitter.emit(Events.MOVE);
 
-      if (ended) { this.tween.stop(); }
+      if (ended) {
+        this.tween.stop();
+        this.emitter.emit(Events.STOP);
+      }
     }
   }
 
   onMove(listener) {
     return this.emitter.addListener(Events.MOVE, listener);
+  }
+
+  onStop(listener) {
+    return this.emitter.addListener(Events.STOP, listener);
   }
 
   removeAllListeners() {

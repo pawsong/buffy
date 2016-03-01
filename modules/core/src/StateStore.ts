@@ -87,9 +87,7 @@ class StateStore {
   }
 
   watchObject(object: GameObject) {
-    object.onMove(() => {
-      this.emit.move({ object });
-    });
+    object.onMove(() => this.emit.move({ object }));
   };
 
   unwatchObject(object: GameObject) {
