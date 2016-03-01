@@ -54,17 +54,17 @@ function isElementOfType(inst, convenienceConstructor) {
  * Layout
  */
 
-interface LayoutProps extends React.Props<Layout> {
+export interface LayoutProps extends React.Props<Layout> {
   flow: string; // row | column
   style?: Object;
 }
 
-interface LayoutStates {
+export interface LayoutStates {
   [index: string]: number;
 }
 
 @Radium
-class Layout extends React.Component<LayoutProps, LayoutStates> {
+export class Layout extends React.Component<LayoutProps, LayoutStates> {
   static propTypes = {
     flow: React.PropTypes.string.isRequired,
   }
@@ -124,12 +124,6 @@ class Layout extends React.Component<LayoutProps, LayoutStates> {
 
     const remainingChild = children[this.remainingIndex];
 
-    result.push(<div key={`c${this.remainingIndex}`} style={{
-                  flex: 1,
-                  display: 'flex',
-                  overflow: 'auto',
-                }}>{remainingChild}</div>);
-
     for (let i = 0; i < this.remainingIndex; ++i) {
       const child = children[i];
       const size = this.state[`size_${i}`];
@@ -151,6 +145,12 @@ class Layout extends React.Component<LayoutProps, LayoutStates> {
       result.push(<LayoutDivider flow={this.props.flow}
                                  key={`d${i}`} index={i} size={size} onDrag={onDrag}/>);
     }
+
+    result.push(<div key={`c${this.remainingIndex}`} style={{
+                  flex: 1,
+                  display: 'flex',
+                  overflow: 'auto',
+                }}>{remainingChild}</div>);
 
     for (let i = this.remainingIndex + 1; i < len; ++i) {
       const child = children[i];
@@ -186,13 +186,13 @@ class Layout extends React.Component<LayoutProps, LayoutStates> {
  * LayoutContainer
  */
 
-interface LayoutContainerProps extends React.Props<LayoutContainer> {
+export interface LayoutContainerProps extends React.Props<LayoutContainer> {
   remaining?: boolean;
   size?: number;
   onResize?: (size?: number) => any;
 }
 
-class LayoutContainer extends React.Component<LayoutContainerProps, {}> {
+export class LayoutContainer extends React.Component<LayoutContainerProps, {}> {
   static propTypes = {
     remaining: React.PropTypes.bool,
     size: React.PropTypes.number,
@@ -286,8 +286,3 @@ class LayoutDivider extends React.Component<LayoutDividerProps, {}> {
                 onTouchStart={this.handleMouseDown.bind(this)}></div>;
   }
 }
-
-export {
-  LayoutContainer,
-  Layout,
-};

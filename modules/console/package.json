@@ -50,7 +50,6 @@
     "jsonwebtoken": "^5.4.1",
     "kerberos": "0.0.17",
     "lodash": "^4.2.1",
-    "material-ui": "^0.14.3",
     "mongoose": "^4.3.6",
     "object-assign": "^4.0.1",
     "react": "^0.14.7",
@@ -72,12 +71,15 @@
   "links": [
     "../config",
     "../helper",
-    "../core"
+    "../core",
+    "../components"
   ],
   "devDependencies": {
     "babel-preset-react-hmre": "^1.1.0",
     "eventsource-polyfill": "^0.9.6",
     "lodash.clonedeep": "^4.0.4",
+    "material-ui": "^0.14.4",
+    "radium": "^0.16.6",
     "webpack-hot-middleware": "^2.6.4"
   }
 }

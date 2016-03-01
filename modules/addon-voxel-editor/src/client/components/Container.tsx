@@ -5,6 +5,9 @@ import { bindActionCreators } from 'redux';
 import { Provider, connect } from 'react-redux';
 import { DropTarget, DragDropContext } from 'react-dnd';
 import * as HTML5Backend from 'react-dnd-html5-backend';
+
+import { EventEmitter, EventSubscription } from 'fbemitter';
+
 const mapValues = require('lodash.mapvalues');
 import objectAssign = require('object-assign');
 
@@ -50,10 +53,11 @@ const PANELS = {
 };
 
 interface ContainerProps extends React.Props<React.ClassicComponentClass<ContainerProps>> {
-   stateLayer?: StateLayer;
-   connectDropTarget?: any;
-   workspace?: any;
-   voxel?: any;
+  addonEmitter: EventEmitter;
+  stateLayer?: StateLayer;
+  connectDropTarget?: any;
+  workspace?: any;
+  voxel?: any;
 }
 
 interface ContainerStates {
@@ -63,6 +67,8 @@ interface ContainerStates {
 
 class Container extends React.Component<ContainerProps, ContainerStates> {
   canvas: any;
+
+  resizeToken: EventSubscription;
 
   constructor(props) {
     super(props);
@@ -131,9 +137,11 @@ class Container extends React.Component<ContainerProps, ContainerStates> {
 
   componentDidMount() {
     this.canvas = initCanvas(this.refs['canvas']);
+    this.resizeToken = this.props.addonEmitter.addListener('resize', () => this.canvas.resize());
   }
 
   componentWillUnmount() {
+    this.resizeToken.remove();
     this.canvas.destroy();
   }
 
@@ -156,6 +164,7 @@ class Container extends React.Component<ContainerProps, ContainerStates> {
           left: panel.left,
           top: panel.top,
           zIndex: panel.order,
+          addonEmitter: this.props.addonEmitter,
         });
       });
 

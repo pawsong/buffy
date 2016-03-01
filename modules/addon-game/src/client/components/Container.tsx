@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { EventSubscription } from 'fbemitter';
+import { EventEmitter, EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 
@@ -24,6 +24,7 @@ const styles = {
 };
 
 interface ContainerProps extends React.Props<Container> {
+  addonEmitter: EventEmitter;
   stateLayer?: StateLayer;
 }
 
@@ -53,7 +54,7 @@ class Container extends React.Component<ContainerProps, {
 
   render() {
     return <div>
-      <Canvas style={styles.canvas}/>
+      <Canvas style={styles.canvas} addonEmitter={this.props.addonEmitter}/>
       <div style={styles.info}>Map: {this.state.mapName}</div>
       <ContactsButton/>
       <Tools/>

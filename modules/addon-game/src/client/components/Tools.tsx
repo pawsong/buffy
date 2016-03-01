@@ -17,7 +17,7 @@ const styles = {
   wrapper: {
     position: 'absolute',
     left: '50%',
-    bottom: 70,
+    bottom: 30,
     transform: 'translate(-50%,0)',
   },
   tool: {

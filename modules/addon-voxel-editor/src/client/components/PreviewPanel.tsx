@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { EventEmitter, EventSubscription } from 'fbemitter';
 import FlatButton = require('material-ui/lib/flat-button');
 import FontIcon = require('material-ui/lib/font-icon');
 import * as Colors from 'material-ui/lib/styles/colors';
@@ -51,10 +52,12 @@ interface PreviewPanelProps extends React.Props<PreviewPanel> {
   connectDragPreview: ReactDnd.ConnectDragPreview;
   connectDragSource: ReactDnd.ConnectDragSource;
   isDragging: boolean;
+  addonEmitter: EventEmitter;
 }
 
 class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
   canvas: any;
+  resizeToken: EventSubscription;
 
   _handleClickRotate(axis) {
     this.props.actions.voxelRotate(axis);
@@ -62,9 +65,11 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
 
   componentDidMount() {
     this.canvas = initPreview(this.refs['canvas']);
+    this.resizeToken = this.props.addonEmitter.addListener('resize', () => this.canvas.resize());
   }
 
   componentWillUnmount() {
+    this.resizeToken.remove();
     this.canvas.destroy();
   }
 

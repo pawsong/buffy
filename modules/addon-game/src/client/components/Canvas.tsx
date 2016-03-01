@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { EventEmitter, EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
 
@@ -6,6 +7,7 @@ import initCanvas from '../canvas';
 
 interface CanvasProps extends React.Props<Canvas> {
   style: Object;
+  addonEmitter: EventEmitter;
   stateLayer?: StateLayer;
 }
 
@@ -19,6 +21,7 @@ class Canvas extends React.Component<CanvasProps, {}> {
   }
 
   canvas;
+  resizeToken: EventSubscription;
 
   componentDidMount() {
     this.canvas = initCanvas(
@@ -26,9 +29,11 @@ class Canvas extends React.Component<CanvasProps, {}> {
       this.props.stateLayer,
       this.context['store']
     );
+    this.resizeToken = this.props.addonEmitter.addListener('resize', () => this.canvas.resize());
   }
 
   componentWillUnmount() {
+    this.resizeToken.remove();
     this.canvas.destroy();
   }
 

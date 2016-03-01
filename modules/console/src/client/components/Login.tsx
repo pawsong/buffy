@@ -66,8 +66,7 @@ class Login extends React.Component<LoginProps, {}> {
             <img src="/assets/fox.jpg"/>
           </CardMedia>
           <CardActions style={styles.button}>
-            <FlatButton label="Login with facebook"
-              onClick={this.handleClick.bind(this)}/>
+            <FlatButton label="Login with facebook" onTouchTap={this.handleClick.bind(this)}/>
           </CardActions>
         </Card>
       </div>

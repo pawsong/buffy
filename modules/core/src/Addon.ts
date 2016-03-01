@@ -1,11 +1,12 @@
 import StateLayer from './StateLayer';
 
-export interface UninstallAddon {
-  (): void;
+export interface AddonInst {
+  destroy(): void;
+  emit(event: string, data?: Object): void;
 }
 
 export interface InstallAddon {
-  (element: HTMLElement, stateLayer: StateLayer): UninstallAddon;
+  (element: HTMLElement, stateLayer: StateLayer): AddonInst;
 }
 
 declare const __ADDON_REGISTER__;

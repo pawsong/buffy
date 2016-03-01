@@ -1,10 +1,8 @@
 import * as React from 'react';
 
-import Toolbar = require('material-ui/lib/toolbar/toolbar');
-import ToolbarGroup = require('material-ui/lib/toolbar/toolbar-group');
-import RaisedButton = require('material-ui/lib/raised-button');
-
 import * as shortid from 'shortid';
+
+import { EventEmitter, EventSubscription } from 'fbemitter';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
 import connectStateLayer from '@pasta/components/lib/stateLayer/connect';
@@ -17,23 +15,11 @@ import * as StorageKeys from '../constants/StorageKeys';
 const toolbox = require('raw!../blockly/toolbox.xml');
 const initBlock = require('raw!../blockly/initBlock.xml');
 
-const TOOLBAR_HEIGHT = 48;
-
 const styles = {
-  toolbar: {
-    height: TOOLBAR_HEIGHT,
-  },
-  paneContainer: {
-    position: 'absolute',
-    top: TOOLBAR_HEIGHT,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
   editor: {
     position: 'absolute',
     margin: 0,
-    top: TOOLBAR_HEIGHT,
+    top: 0,
     bottom: 0,
     left: 0,
     right: 0,
@@ -42,6 +28,7 @@ const styles = {
 };
 
 interface AppProps extends React.Props<App> {
+  addonEmitter: EventEmitter;
   stateLayer?: StateLayer;
 }
 
@@ -52,6 +39,9 @@ class App extends React.Component<AppProps, {}> {
 
   workspace: any;
   runningProcessId = '';
+
+  resizeToken: EventSubscription;
+  runToken: EventSubscription;
 
   componentDidMount() {
     // Blockly
@@ -77,9 +67,15 @@ class App extends React.Component<AppProps, {}> {
       const xml = Blockly.Xml.domToText(dom);
       localStorage.setItem(StorageKeys.BLOCKLY_WORKSPACE, xml);
     });
+
+    this.resizeToken = this.props.addonEmitter.addListener('resize', () => Blockly.svgResize(this.workspace));
+    this.runToken = this.props.addonEmitter.addListener('run', () => this.handleRun());
   }
 
   componentWillUnmount() {
+    this.resizeToken.remove();
+    this.runToken.remove();
+
     this.destroyProcess();
     this.workspace.dispose();
   }
@@ -125,18 +121,8 @@ class App extends React.Component<AppProps, {}> {
     });
   }
 
-  onEditorResize() {
-    Blockly.svgResize(this.workspace);
-  }
-
   render() {
     return <div>
-      <Toolbar style={styles.toolbar}>
-        <ToolbarGroup key={0} float="left">
-          <RaisedButton label="Run" style={{ marginTop: 6 }}
-          primary={true} onClick={this.handleRun.bind(this)}/>
-        </ToolbarGroup>
-      </Toolbar>
       <div ref="editor" style={styles.editor}></div>
     </div>;
   };

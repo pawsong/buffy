@@ -196,5 +196,8 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
       terrainManager.destroy();
       cursorManager.destroy();
     },
+    resize() {
+      onWindowResize();
+    },
   };
 }

@@ -346,6 +346,9 @@ export function initCanvas(container) {
   animate();
 
   return {
+    resize() {
+      onWindowResize();
+    },
     destroy() {
       unsubscribe();
       renderer.domElement.removeEventListener('mousemove', onDocumentMouseMove, false);
@@ -457,6 +460,9 @@ export function initPreview(container) {
   animate();
 
   return {
+    resize() {
+      onWindowResize();
+    },
     destroy() {
       window.removeEventListener('resize', onWindowResize, false);
       cancelAnimationFrame(frameId);

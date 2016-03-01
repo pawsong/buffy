@@ -1,23 +1,31 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
+import Toolbar = require('material-ui/lib/toolbar/toolbar');
+import ToolbarGroup = require('material-ui/lib/toolbar/toolbar-group');
+import RaisedButton = require('material-ui/lib/raised-button');
+
 import Menu = require('material-ui/lib/menus/menu');
 const MenuItem = require('material-ui/lib/menus/menu-item');
-import IconMenu = require('material-ui/lib/menus/icon-menu');
+const IconMenu = require('material-ui/lib/menus/icon-menu');
 import FlatButton = require('material-ui/lib/flat-button');
 import Avatar = require('material-ui/lib/avatar');
 import Tabs = require('material-ui/lib/tabs/tabs');
 import Tab = require('material-ui/lib/tabs/tab');
 import IconButton = require('material-ui/lib/icon-button');
 import Dialog = require('material-ui/lib/dialog');
+import AppBar = require('material-ui/lib/app-bar');
 
 import * as axios from 'axios';
 import * as $script from 'scriptjs';
 import * as io from 'socket.io-client';
 
 import Addon from '@pasta/core/lib/Addon';
+import { AddonInst } from '@pasta/core/lib/Addon';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { InitParams } from '@pasta/core/lib/packet/ZC';
+
+import { Layout, LayoutContainer } from '@pasta/components/lib/Layout';
 
 import * as AddonLoader from '../AddonLoader';
 import * as StorageKeys from '../constants/StorageKeys';
@@ -25,12 +33,14 @@ import * as ActionTypes from '../constants/ActionTypes';
 
 import UserInfoDialog from './dialogs/UserInfoDialog';
 
+import { NAVBAR_HEIGHT } from '../constants/Layout';
+
 const navbarHeight = 48;
 
 const styles = {
   tabs: {
-    width: 400,
-    marginLeft: 48,
+    // width: 400,
+    // marginLeft: 48,
   },
   nameContainer: {
     position: 'absolute',
@@ -43,33 +53,46 @@ const styles = {
     top: -4,
     right: 5,
   },
+  profile: {
+    position: 'absolute',
+    top: -4,
+    right: 50,
+    zIndex: 2000,
+  },
   avatar: {
     cursor: 'pointer',
     marginTop: 8,
   },
   content: {
     position: 'absolute',
-    top: navbarHeight,
+    top: NAVBAR_HEIGHT,
     right: 0,
     bottom: 0,
     left: 0,
   },
   leftPane: {
     position: 'absolute',
-    top: navbarHeight,
+    top: NAVBAR_HEIGHT,
     bottom: 0,
     left: 0,
     right: '50%',
   },
   rightPane: {
     position: 'absolute',
-    top: navbarHeight,
+    top: NAVBAR_HEIGHT,
     bottom: 0,
     left: '50%',
     right: 0,
     backgroundColor: 'rgb(232,232,232)',
   },
   addon: {
+    position: 'absolute',
+    top: 48,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  fillParent: {
     position: 'absolute',
     top: 0,
     bottom: 0,
@@ -142,14 +165,25 @@ interface MasterStates {
   addonGame?: AddonStatus;
 }
 
-const MasterTabs = [
+interface MasterTab {
+  name: string;
+  url: string;
+  label: string;
+}
+
+const MasterTabs: MasterTab[] = [
   { name: 'addon-voxel-editor', url: '/addons/voxel-editor', label: 'Design' },
   { name: 'addon-code-editor', url: '/addons/code-editor', label: 'Develop' },
 ];
 
+const MasterTabNames = MasterTabs.map(tab => tab.name);
+
+const MasterTabsIndexed: { [index: string]: MasterTab } = {};
+MasterTabs.forEach(tab => MasterTabsIndexed[tab.name] = tab);
+
 const MasterAddons = [
   'addon-game',
-  ...MasterTabs.map(tab => tab.name),
+  ...MasterTabNames,
 ];
 
 class Master extends React.Component<MasterProps, MasterStates> {
@@ -158,9 +192,10 @@ class Master extends React.Component<MasterProps, MasterStates> {
   }
 
   initialTabIndex: number;
+  activeTabName: string;
   socket: SocketIOClient.Socket;
   stateLayer: StateLayer;
-  uninstalls: any[] = [];
+  addonInsts: { [index: string]: AddonInst } = {};
   promiseTokens: PromiseToken[] = [];
 
   constructor(props, context) {
@@ -170,9 +205,9 @@ class Master extends React.Component<MasterProps, MasterStates> {
   }
 
   componentWillMount() {
-    const initialTabName = localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB) || 'addon-voxel-editor';
+    this.activeTabName = localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB) || 'addon-voxel-editor';
     this.initialTabIndex = Math.max(
-      MasterTabs.map(tab => tab.name).indexOf(initialTabName), 0
+      MasterTabNames.indexOf(this.activeTabName), 0
     );
   }
 
@@ -197,8 +232,8 @@ class Master extends React.Component<MasterProps, MasterStates> {
       this.setState({ [addonName]: AddonStatus.Loading });
       const addon = await AddonLoader.load(url, `@pasta/${addonName}`);
       const element = this.refs[addonName] as HTMLElement;
-      const uninstall = addon.install(element, this.stateLayer);
-      this.uninstalls.push(uninstall);
+      const addonInst = addon.install(element, this.stateLayer);
+      this.addonInsts[addonName] = addonInst;
       this.setState({ [addonName]: AddonStatus.Loaded });
     } catch(err) {
       this.setState({ [addonName]: AddonStatus.Error });
@@ -252,10 +287,15 @@ class Master extends React.Component<MasterProps, MasterStates> {
     this.promiseTokens.forEach(token => token.cancel());
     this.promiseTokens = [];
 
-    this.uninstalls.forEach(uninstall => uninstall());
+    Object.keys(this.addonInsts).forEach(key => {
+      const addonInst = this.addonInsts[key];
+      addonInst.destroy();
+    });
+
     if (this.stateLayer) {
       this.stateLayer.destroy();
     }
+
     if (this.socket) {
       this.socket.removeAllListeners();
       this.socket.disconnect();
@@ -294,20 +334,25 @@ class Master extends React.Component<MasterProps, MasterStates> {
   };
 
   onTabChange(value) {
+    this.activeTabName = value;
     localStorage.setItem(StorageKeys.MASTER_INITIAL_TAB, value);
 
     if (this.state[value] === AddonStatus.Init) {
-      const tabIndex = MasterTabs.map(tab => tab.name).indexOf(value);
-      if (tabIndex !== -1) {
-        const tab = MasterTabs[tabIndex];
-        this.loadAddon(tab.url, tab.name);
-      }
+      const tab = MasterTabsIndexed[value];
+      if (tab) { this.loadAddon(tab.url, tab.name); }
+    } else {
+      setTimeout(() => this.onResizeAddon(value), 0);
     }
   }
 
-  // Rerender addon screen
-  forceUpdate() {
-    setTimeout(() => window.dispatchEvent(new Event('resize')), 0);
+  onResizeAddon(addonName) {
+    const addonInst = this.addonInsts[addonName];
+    if (addonInst) { addonInst.emit('resize'); }
+  }
+
+  handleRun() {
+    const addonInst = this.addonInsts['addon-code-editor'];
+    if (addonInst) { addonInst.emit('run'); }
   }
 
   render() {
@@ -321,35 +366,60 @@ class Master extends React.Component<MasterProps, MasterStates> {
     });
 
     const tabs = MasterTabs.map(tab => {
-      return <Tab key={tab.name} label={tab.label} value={tab.name} onActive={this.forceUpdate}>
-        <div ref={tab.name} style={styles.addon}></div>
+      return <Tab key={tab.name} label={tab.label} value={tab.name}>
+        <div ref={tab.name} style={styles.fillParent}></div>
         {addonOverlays[tab.name]}
       </Tab>;
     });
 
-    return <div style={{ backgroundColor: '#00bcd4'}}>
-      <IconButton iconClassName="material-icons" style={{position: 'absolute' }}>
-        home
-      </IconButton>
+    return <div>
+      <AppBar
+        title="Pasta"
+        zDepth={0}
+        iconElementLeft={<IconButton iconClassName="material-icons">home</IconButton>}
+        iconElementRight={
+          <IconMenu
+            desktop={true}
+            iconButtonElement={<IconButton iconClassName="material-icons">expand_more</IconButton>}
+            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+            targetOrigin={{horizontal: 'right', vertical: 'top'}}
+          >
+            <MenuItem primaryText="Sign out" onTouchTap={this.onSignOut.bind(this)}/>
+          </IconMenu>
+        }
+      />
 
-      <div style={styles.leftPane}>
-        <div ref="addon-game" style={styles.game}></div>
-        {addonOverlays['addon-game']}
+      <div style={styles.profile}>
+        <Avatar src={picture} size={30} style={{ marginTop: 11 }}/>
+        <div style={{ color: 'white', float: 'right', marginTop: 18, marginLeft: 6 }}>{username}</div>
       </div>
 
-      <Tabs style={styles.tabs} contentContainerStyle={styles.rightPane}
-        tabTemplate={TabTemplate}
-        initialSelectedIndex={this.initialTabIndex} onChange={this.onTabChange.bind(this)}>
-        {tabs}
-      </Tabs>
+      <Layout flow="row" style={styles.content}>
+        <LayoutContainer size={600} onResize={() => this.onResizeAddon('addon-game')}>
+          <Layout flow="column" style={styles.fillParent}>
+            <LayoutContainer size={480} onResize={() => this.onResizeAddon('addon-game')}>
+              <div ref="addon-game" style={styles.game}></div>
+              {addonOverlays['addon-game']}
+            </LayoutContainer>
+            <LayoutContainer remaining={true}>
+              <Toolbar>
+                <ToolbarGroup key={0} float="right">
+                  <RaisedButton label="Run"
+                  primary={true} onClick={this.handleRun.bind(this)}/>
+                </ToolbarGroup>
+              </Toolbar>
+            </LayoutContainer>
+          </Layout>
+        </LayoutContainer>
 
-      <div style={styles.nameContainer}>{username}</div>
-
-      <IconMenu style={styles.avatarContainer} desktop={true} iconButtonElement={
-        <Avatar style={styles.avatar} src={picture}/>
-        }>
-        <MenuItem primaryText="Sign out" onTouchTap={this.onSignOut.bind(this)}/>
-      </IconMenu>
+        <LayoutContainer remaining={true} onResize={() => this.onResizeAddon(this.activeTabName)}>
+          <Tabs style={styles.tabs} contentContainerStyle={styles.addon}
+            tabTemplate={TabTemplate}
+            initialSelectedIndex={this.initialTabIndex} onChange={this.onTabChange.bind(this)}>
+            {tabs}
+          </Tabs>
+        </LayoutContainer>
+      </Layout>
 
       <Dialog
         title="Disconnected"
