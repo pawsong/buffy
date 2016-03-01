@@ -38,7 +38,12 @@ class CursorManager {
       }, camera);
 
       const intersects = raycaster.intersectObjects(terrainManager.terrains);
-      if (intersects.length === 0) { return; }
+      if (intersects.length === 0) {
+        this.cursorMesh.visible = false;
+        return;
+      }
+
+      this.cursorMesh.visible = true;
 
       const intersect = intersects[0];
 
@@ -51,6 +56,8 @@ class CursorManager {
 
       this.cursorMesh.position.y = 0;
     }
+
+    this.cursorMesh.visible = false;
   }
 
   getPosition() {
@@ -60,7 +67,7 @@ class CursorManager {
       .addScalar(1);
 
     return {
-      hit: true,
+      hit: this.cursorMesh.visible,
       position,
     }
   }
