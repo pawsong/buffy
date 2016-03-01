@@ -389,13 +389,13 @@ export function initPreview(container) {
   renderer.domElement.style.position = 'relative';
   container.appendChild(renderer.domElement)
 
-  var ambientLight = new THREE.AmbientLight( 0xaaaaaa );
-  scene.add( ambientLight );
+  var ambientLight = new THREE.AmbientLight(0x666666);
+  scene.add(ambientLight);
 
-  const light = new THREE.DirectionalLight( 0xffffff );
-  light.position.set(-7, 3, 5);
+  const light = new THREE.DirectionalLight(0xffffff);
+  light.position.set(5, 3, 4);
   light.position.normalize();
-  scene.add( light );
+  scene.add(light);
 
   let surfacemesh;
   voxelGeometryListeners.push((geometry) => {

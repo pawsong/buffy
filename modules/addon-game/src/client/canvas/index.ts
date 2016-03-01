@@ -66,13 +66,13 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
   });
 
   // Lights
-  var ambientLight = new THREE.AmbientLight( 0x10 );
-  scene.add( ambientLight );
+  var ambientLight = new THREE.AmbientLight(0x666666);
+  scene.add(ambientLight);
 
-  const light = new THREE.DirectionalLight( 0xffffff );
-  light.position.set(3, 7, 5);
+  const light = new THREE.DirectionalLight(0xffffff);
+  light.position.set(5, 3, 4);
   light.position.normalize();
-  scene.add( light );
+  scene.add(light);
 
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize(container.offsetWidth, container.offsetHeight);
