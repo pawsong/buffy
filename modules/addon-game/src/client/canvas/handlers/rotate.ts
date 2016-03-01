@@ -6,7 +6,6 @@ const handler: StoreHandler = (listen, {
   stateLayer,
   camera,
 }) => listen.rotate(params => {
-  console.log(params);
   const { group } = objectManager.find(params.object.id);
 
   var pos = group.position.clone();
