@@ -38,30 +38,11 @@ import { NAVBAR_HEIGHT } from '../constants/Layout';
 const navbarHeight = 48;
 
 const styles = {
-  tabs: {
-    // width: 400,
-    // marginLeft: 48,
-  },
-  nameContainer: {
-    position: 'absolute',
-    color: 'white',
-    top: 17,
-    right: 58,
-  },
-  avatarContainer: {
-    position: 'absolute',
-    top: -4,
-    right: 5,
-  },
   profile: {
     position: 'absolute',
     top: -4,
     right: 50,
     zIndex: 1500,
-  },
-  avatar: {
-    cursor: 'pointer',
-    marginTop: 8,
   },
   content: {
     position: 'absolute',
@@ -69,21 +50,6 @@ const styles = {
     right: 0,
     bottom: 0,
     left: 0,
-  },
-  leftPane: {
-    position: 'absolute',
-    top: NAVBAR_HEIGHT,
-    bottom: 0,
-    left: 0,
-    right: '50%',
-  },
-  rightPane: {
-    position: 'absolute',
-    top: NAVBAR_HEIGHT,
-    bottom: 0,
-    left: '50%',
-    right: 0,
-    backgroundColor: 'rgb(232,232,232)',
   },
   addon: {
     position: 'absolute',
@@ -413,7 +379,7 @@ class Master extends React.Component<MasterProps, MasterStates> {
         </LayoutContainer>
 
         <LayoutContainer remaining={true} onResize={() => this.onResizeAddon(this.activeTabName)}>
-          <Tabs style={styles.tabs} contentContainerStyle={styles.addon}
+          <Tabs contentContainerStyle={styles.addon}
             tabTemplate={TabTemplate}
             initialSelectedIndex={this.initialTabIndex} onChange={this.onTabChange.bind(this)}>
             {tabs}
