@@ -28,7 +28,7 @@ Blockly.Blocks['when_run'] = {
   helpUrl: '',
   init: function () {
     this.setColour(160);
-    this.appendDummyInput().appendTitle('when run');
+    this.appendDummyInput().appendField('when run');
     this.setPreviousStatement(false);
     this.setNextStatement(true);
   },
