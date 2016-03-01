@@ -57,7 +57,7 @@ const styles = {
     position: 'absolute',
     top: -4,
     right: 50,
-    zIndex: 2000,
+    zIndex: 1500,
   },
   avatar: {
     cursor: 'pointer',
