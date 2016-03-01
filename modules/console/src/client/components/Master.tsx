@@ -127,7 +127,7 @@ interface PromiseToken {
   cancel: () => any,
 }
 
-enum AddonStatus { Loading, Loaded, Error };
+enum AddonStatus { Init, Loading, Loaded, Error };
 
 interface MasterProps extends React.Props<Master> {
   user: any;
@@ -142,6 +142,16 @@ interface MasterStates {
   addonGame?: AddonStatus;
 }
 
+const MasterTabs = [
+  { name: 'addon-voxel-editor', url: '/addons/voxel-editor', label: 'Design' },
+  { name: 'addon-code-editor', url: '/addons/code-editor', label: 'Develop' },
+];
+
+const MasterAddons = [
+  'addon-game',
+  ...MasterTabs.map(tab => tab.name),
+];
+
 class Master extends React.Component<MasterProps, MasterStates> {
   static contextTypes = {
     router: React.PropTypes.object.isRequired
@@ -153,26 +163,18 @@ class Master extends React.Component<MasterProps, MasterStates> {
   uninstalls: any[] = [];
   promiseTokens: PromiseToken[] = [];
 
-  Addons = [
-    'addon-voxel-editor',
-    'addon-code-editor',
-    'addon-game',
-  ];
-
   constructor(props, context) {
     super(props, context);
-    this.state.disconnected = false;
-    this.Addons.forEach(addonName => this.state[addonName] = AddonStatus.Loading);
-    this.initialTabIndex =
-      parseInt(localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB), 10) || 0;
+    this.state = { disconnected: false };
+    MasterAddons.forEach(addonName => this.state[addonName] = AddonStatus.Init);
   }
 
-  state = {
-    disconnected: false,
-    addonCodeEditor: AddonStatus.Loading,
-    addonVoxelEditor: AddonStatus.Loading,
-    addonGame: AddonStatus.Loading,
-  };
+  componentWillMount() {
+    const initialTabName = localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB) || 'addon-voxel-editor';
+    this.initialTabIndex = Math.max(
+      MasterTabs.map(tab => tab.name).indexOf(initialTabName), 0
+    );
+  }
 
   exec<T>(promise: Promise<T>): Promise<T> {
     let cancelled = false;
@@ -188,6 +190,21 @@ class Master extends React.Component<MasterProps, MasterStates> {
       });
     });
   }
+
+  // Bind addons
+  async loadAddon(url: string, addonName: string) {
+    try {
+      this.setState({ [addonName]: AddonStatus.Loading });
+      const addon = await AddonLoader.load(url, `@pasta/${addonName}`);
+      const element = this.refs[addonName] as HTMLElement;
+      const uninstall = addon.install(element, this.stateLayer);
+      this.uninstalls.push(uninstall);
+      this.setState({ [addonName]: AddonStatus.Loaded });
+    } catch(err) {
+      this.setState({ [addonName]: AddonStatus.Error });
+      console.error(err);
+    }
+  };
 
   async _componentDidMount() {
     this.socket = io(CONFIG_GAME_SERVER_URL);
@@ -221,23 +238,9 @@ class Master extends React.Component<MasterProps, MasterStates> {
       },
     }, params);
 
-    // Bind addons
-    const loadAddon = async (url: string, addonName: string) => {
-      try {
-        const addon = await AddonLoader.load(url, `@pasta/${addonName}`);
-        const element = this.refs[addonName] as HTMLElement;
-        const uninstall = addon.install(element, this.stateLayer);
-        this.uninstalls.push(uninstall);
-        this.setState({ [addonName]: AddonStatus.Loaded });
-      } catch(err) {
-        this.setState({ [addonName]: AddonStatus.Error });
-        console.error(err);
-      }
-    };
-
-    loadAddon('/addons/code-editor', 'addon-code-editor');
-    loadAddon('/addons/voxel-editor', 'addon-voxel-editor');
-    loadAddon('/addons/game', 'addon-game');
+    const tab = MasterTabs[this.initialTabIndex];
+    this.loadAddon(tab.url, tab.name);
+    this.loadAddon('/addons/game', 'addon-game');
   }
 
   // Put codes which do not need to be rendered by server.
@@ -269,6 +272,12 @@ class Master extends React.Component<MasterProps, MasterStates> {
   }
 
   getAddonStatusOverlayGen = {
+    [AddonStatus.Init]: () => <div style={styles.overlay}>
+      <div style={styles.overlayInner}>
+        <div>Loading...</div>
+        <div>We are working hard!</div>
+      </div>
+    </div>,
     [AddonStatus.Loading]: () => <div style={styles.overlay}>
       <div style={styles.overlayInner}>
         <div>Loading...</div>
@@ -286,6 +295,14 @@ class Master extends React.Component<MasterProps, MasterStates> {
 
   onTabChange(value) {
     localStorage.setItem(StorageKeys.MASTER_INITIAL_TAB, value);
+
+    if (this.state[value] === AddonStatus.Init) {
+      const tabIndex = MasterTabs.map(tab => tab.name).indexOf(value);
+      if (tabIndex !== -1) {
+        const tab = MasterTabs[tabIndex];
+        this.loadAddon(tab.url, tab.name);
+      }
+    }
   }
 
   // Rerender addon screen
@@ -299,8 +316,15 @@ class Master extends React.Component<MasterProps, MasterStates> {
     const picture = user.picture || '';
 
     const addonOverlays = {};
-    this.Addons.forEach(addonName => {
+    MasterAddons.forEach(addonName => {
       addonOverlays[addonName] = this.getAddonStatusOverlayGen[this.state[addonName]]();
+    });
+
+    const tabs = MasterTabs.map(tab => {
+      return <Tab key={tab.name} label={tab.label} value={tab.name} onActive={this.forceUpdate}>
+        <div ref={tab.name} style={styles.addon}></div>
+        {addonOverlays[tab.name]}
+      </Tab>;
     });
 
     return <div style={{ backgroundColor: '#00bcd4'}}>
@@ -316,14 +340,7 @@ class Master extends React.Component<MasterProps, MasterStates> {
       <Tabs style={styles.tabs} contentContainerStyle={styles.rightPane}
         tabTemplate={TabTemplate}
         initialSelectedIndex={this.initialTabIndex} onChange={this.onTabChange.bind(this)}>
-        <Tab label="Design" value="0" onActive={this.forceUpdate}>
-          <div ref="addon-voxel-editor" style={styles.addon}></div>
-          {addonOverlays['addon-voxel-editor']}
-        </Tab>
-        <Tab label="Develop" value="1" onActive={this.forceUpdate}>
-          <div ref="addon-code-editor" style={styles.addon}></div>
-          {addonOverlays['addon-code-editor']}
-        </Tab>
+        {tabs}
       </Tabs>
 
       <div style={styles.nameContainer}>{username}</div>
