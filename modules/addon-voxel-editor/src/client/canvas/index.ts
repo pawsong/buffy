@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as ndarray from 'ndarray';
 
 import GreedyMesh from './meshers/greedy';
+import { GridFace } from './meshers/greedy';
 import CulledMesh from './meshers/culled';
 
 import vector3ToString from '@pasta/helper/lib/vector3ToString';
@@ -43,7 +44,7 @@ const handlers = [
 
 let voxelData;
 let voxelGeometry;
-let voxelGeometryListeners = [];
+let voxelUpdateListeners: ((geometry, gridFaces: GridFace[]) => void)[] = [];
 
 function reloadVoxelData() {
   const { voxel } = store.getState();
@@ -55,18 +56,18 @@ function updateVoxelGeometry() {
   // TODO: Lazy meshing
   const mesher = GreedyMesh;
   //const mesher = CulledMesh;
-  const result = mesher(voxelData.data, voxelData.shape);
+  const { vertices, faces, gridFaces } = mesher(voxelData.data, voxelData.shape);
 
   const geometry = new THREE.Geometry();
 
   geometry.vertices.length = 0;
   geometry.faces.length = 0;
-  for(var i = 0; i < result.vertices.length; ++i) {
-    var q = result.vertices[i];
+  for(var i = 0; i < vertices.length; ++i) {
+    const q = vertices[i];
     geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
   }
-  for(var i = 0; i < result.faces.length; ++i) {
-    const q = result.faces[i];
+  for(var i = 0; i < faces.length; ++i) {
+    const q = faces[i];
     const f = new THREE.Face3(q[0], q[1], q[2]);
     f.color = new THREE.Color(q[3]);
     f.vertexColors = [f.color,f.color,f.color];
@@ -82,7 +83,7 @@ function updateVoxelGeometry() {
   geometry.computeBoundingBox()
   geometry.computeBoundingSphere()
 
-  voxelGeometryListeners.forEach(listener => listener(geometry));
+  voxelUpdateListeners.forEach(listener => listener(geometry, gridFaces));
 }
 
 observeStore(state => state.voxelOp, op => {
@@ -171,7 +172,7 @@ export function initCanvas(container) {
   }
 
   let surfacemesh;
-  voxelGeometryListeners.push((geometry) => {
+  voxelUpdateListeners.push((geometry, gridFaces) => {
     if (surfacemesh) {
       // TODO: dispose geometry and material
       scene.remove(surfacemesh.edges);
@@ -196,6 +197,57 @@ export function initCanvas(container) {
 
     surfacemesh.edges = new THREE.EdgesHelper(surfacemesh, 0x000000);
     scene.add(surfacemesh.edges);
+
+    gridFaces.forEach(gridFace => {
+      const gridGeometry = new THREE.Geometry();
+      const vertices = [];
+
+      const { d, c } = gridFace;
+      const u = (d+1)%3;
+      const v = (d+2)%3;
+
+      for (let i = 1; i < gridFace.w; ++i) {
+        const vertex0 = new Array(3);
+        vertex0[d] = gridFace.origin[d];
+        vertex0[u] = gridFace.origin[u] + i;
+        vertex0[v] = gridFace.origin[v];
+
+        const vertex1 = new Array(3);
+        vertex1[d] = gridFace.origin[d];
+        vertex1[u] = gridFace.origin[u] + i;
+        vertex1[v] = gridFace.origin[v] + gridFace.h;
+
+        gridGeometry.vertices.push(new THREE.Vector3(vertex0[0], vertex0[1], vertex0[2]));
+        gridGeometry.vertices.push(new THREE.Vector3(vertex1[0], vertex1[1], vertex1[2]));
+      }
+
+      for (let i = 1; i < gridFace.h; ++i) {
+        const vertex0 = new Array(3);
+        vertex0[d] = gridFace.origin[d];
+        vertex0[u] = gridFace.origin[u];
+        vertex0[v] = gridFace.origin[v] + i;
+
+        const vertex1 = new Array(3);
+        vertex1[d] = gridFace.origin[d];
+        vertex1[u] = gridFace.origin[u] + gridFace.w;
+        vertex1[v] = gridFace.origin[v] + i;
+
+        gridGeometry.vertices.push(new THREE.Vector3(vertex0[0], vertex0[1], vertex0[2]));
+        gridGeometry.vertices.push(new THREE.Vector3(vertex1[0], vertex1[1], vertex1[2]));
+      }
+
+      const r = (c >> 16) & 0xff;  // extract red
+      const g = (c >>  8) & 0xff;  // extract green
+      const b = (c >>  0) & 0xff;  // extract blue
+
+      const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
+      const color = luma < 40 ? 0xffffff : 0x000000;
+
+      const line = new THREE.LineSegments(gridGeometry, new THREE.LineBasicMaterial({
+        color, linewidth: 1,
+      }));
+      surfacemesh.add(line);
+    });
   });
 
   /////////////////////////////////////////////////////////////
@@ -401,7 +453,7 @@ export function initPreview(container) {
   scene.add(light);
 
   let surfacemesh;
-  voxelGeometryListeners.push((geometry) => {
+  voxelUpdateListeners.push((geometry) => {
     if (surfacemesh) {
       // TODO: dispose geometry and material
       scene.remove(surfacemesh);
