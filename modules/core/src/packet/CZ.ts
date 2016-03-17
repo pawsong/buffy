@@ -6,7 +6,13 @@ import { SerializedVector3 } from '../classes/Vector3';
  *   - Type 1: Does not wait response. Returns void
  *   - Type 2: Server sends back result to client. Returns Promise<Result>
  */
-export const Methods = {
+export interface Method {
+  response: boolean;
+}
+
+export const Methods: {
+  [index: string]: Method,
+} = {
   playEffect: { response: false },
   move: { response: true },
   rotate: { response: true },
@@ -16,12 +22,12 @@ export const Methods = {
 };
 
 export interface Rpc {
-  playEffect(params: PlayEffectParams): void;
+  playEffect(params: PlayEffectParams): Promise<void>;
   move(params: MoveParams): Promise<void>;
   rotate(params: RotateParams): Promise<void>;
   moveMap(params: MoveMapParams): Promise<void>;
   updateTerrain(params: UpdateTerrainParams): Promise<void>;
-  updateMesh(params: UpdateMeshParams): void;
+  updateMesh(params: UpdateMeshParams): Promise<void>;
 }
 
 export interface Listen {

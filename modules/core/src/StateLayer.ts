@@ -31,7 +31,10 @@ class StateLayer {
     this.rpc = {} as CZ.Rpc;
     Object.keys(CZ.Methods).forEach(method => {
       if (CZ.Methods[method].response === false) {
-        this.rpc[method] = (params) => options.emit(method, params);
+        this.rpc[method] = (params) => new Promise(resolve => {
+          options.emit(method, params);
+          resolve();
+        });
       } else {
         this.rpc[method] = (params) => new Promise((resolve, reject) => {
           options.emit(method, params, (res) => {

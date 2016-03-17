@@ -47,9 +47,12 @@ module.exports = options => ({
   },
 
   plugins: [
+    new webpack.optimize.OccurenceOrderPlugin(),
+
     new webpack.DefinePlugin(_.mapValues(Object.assign({
       'process.env.NODE_ENV': 'development',
-      __DEV__: false,
+      __DEV__: true,
+      __CLIENT__: true,
     }, options.defines || {}), val => JSON.stringify(val))),
 
     new webpack.HotModuleReplacementPlugin(),

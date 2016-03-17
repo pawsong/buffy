@@ -7,14 +7,14 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>
     <style>html, body { margin: 0; padding: 0; }</style>
-    <link href="/assets/styles.css" rel="stylesheet">
+    <%= head %>
   </head>
   <body>
     <!--[if lt IE 8]>
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
-    <div id="content"></div>
-    <script src="/assets/two.min.js"></script>
-    <script src="/assets/ace.js"></script>
+    <div id="content"><%= body %></div>
+    <script>window.__INTIAL_STATE__=<%= initialState %></script>
+    <%= script %>
   </body>
 </html>

@@ -1,2 +1,0 @@
-- Listens to state store event
-- Handle UI input

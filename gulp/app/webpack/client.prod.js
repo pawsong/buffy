@@ -34,6 +34,7 @@ module.exports = options => Object.assign(require('./client.dev')(options), {
     new webpack.DefinePlugin(_.mapValues(Object.assign({
       'process.env.NODE_ENV': 'production',
       __DEV__: false,
+      __CLIENT__: true,
     }, options.defines || {}), val => JSON.stringify(val))),
 
     new webpack.optimize.UglifyJsPlugin({

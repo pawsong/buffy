@@ -14,4 +14,13 @@ const GameMapSchema = new Schema({
   depth: Number,
 });
 
+// Duplicate the ID field.
+GameMapSchema.virtual('id').get(function(){
+  return this._id.toHexString();
+});
+
+GameMapSchema.set('toJSON', {
+  virtuals: true,
+});
+
 export default mongoose.model<GameMapDocument>('GameMap', GameMapSchema);

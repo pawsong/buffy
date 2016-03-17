@@ -1,24 +1,14 @@
 {
   "apps": [{
-    "name": "addon-code-editor",
-    "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev"],
-    "cwd": "modules/addon-code-editor"
-  }, {
-    "name": "addon-game",
-    "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev"],
-    "cwd": "modules/addon-game"
-  }, {
-    "name": "addon-voxel-editor",
-    "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev"],
-    "cwd": "modules/addon-voxel-editor"
-  }, {
     "name": "admin",
     "script": "node_modules/.bin/gulp",
     "args": ["serve:dev"],
     "cwd": "modules/admin"
+  }, {
+    "name": "api-server",
+    "script": "node_modules/.bin/gulp",
+    "args": ["serve:dev"],
+    "cwd": "modules/api-server"
   }, {
     "name": "area-server",
     "script": "node_modules/.bin/gulp",

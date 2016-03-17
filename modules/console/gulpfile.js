@@ -16,7 +16,7 @@ require('../../gulp/app')({
     client: [{
       name: 'client',
       devServerPort: conf.addonConsoleClientPort,
-      entry: './src/client/app.tsx',
+      entry: './src/client.tsx',
       plugins: [
         new HtmlWebpackPlugin({
           template: './src/index.html', // Load a custom template
@@ -28,6 +28,7 @@ require('../../gulp/app')({
         development: {
           defines: {
             'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
+            'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
             'CONFIG_AUTH_SERVER_URL': `http://localhost:${conf.authServerPort}`,
             'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdDev,
           },
@@ -39,6 +40,7 @@ require('../../gulp/app')({
         production: {
           defines: {
             'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
+            'CONFIG_API_SERVER_URL': conf.apiServerUrl,
             'CONFIG_AUTH_SERVER_URL': conf.authServerUrl,
             'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdProd,
           },
@@ -52,11 +54,14 @@ require('../../gulp/app')({
     }],
     server: [{
       name: 'server',
-      entry: './src/server/server.ts',
+      devServerPort: conf.addonConsoleClientPort, // For server rendering
+      entry: './src/server.tsx',
       env: {
         development: {
           defines: {
             'CONFIG_DOMAIN': '',
+            'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
+            'CONFIG_AUTH_SERVER_URL': `http://localhost:${conf.authServerPort}`,
           },
           output: {
             path: `${__dirname}/build/dev`,
@@ -66,10 +71,13 @@ require('../../gulp/app')({
         production: {
           defines: {
             'CONFIG_DOMAIN': conf.domain,
+            'CONFIG_API_SERVER_URL': conf.apiServerUrl,
+            'CONFIG_AUTH_SERVER_URL': conf.authServerUrl,
           },
           output: {
             path: `${__dirname}/build/prod`,
             filename: 'server.js',
+            publicPath: `${conf.consolePublicPath}/`,
           },
         },
       },

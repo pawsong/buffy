@@ -61,7 +61,7 @@ class UserInfoDialog extends React.Component<UserInfoDialogProps, UserInfoDialog
       onEnterKeyDown={this.submit.bind(this)}
       disabled={this.state.pending}
       onChange={(e) => this.setState({ username: e.target['value'] })}
-      hintText="Dora	Fisher"/><br/>
+      hintText="Dora Fisher"/><br/>
     </Dialog>;
   };
 };

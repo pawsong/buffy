@@ -18,11 +18,10 @@ const babelOptions = JSON.stringify({
 module.exports = options => ({
   target: 'node',
   entry: options.entry,
-  output: {
-    path: options.output.path,
-    filename: options.output.filename,
+  output: Object.assign({
+    publicPath: `http://localhost:${options.devServerPort}/`,
     libraryTarget: 'commonjs2',
-  },
+  }, options.output),
   module: {
     loaders: [
       { test: /\.json$/, loader: 'json-loader' },
@@ -41,6 +40,7 @@ module.exports = options => ({
     new webpack.DefinePlugin(_.mapValues(Object.assign({
       'process.env.NODE_ENV': 'development',
       __DEV__: true,
+      __CLIENT__: false,
     }, options.defines || {}), val => JSON.stringify(val))),
 
     new webpack.BannerPlugin('require("source-map-support").install();', {

@@ -9,8 +9,8 @@
     "experimentalDecorators": true
   },
   "files": [
-    "src/client/app.tsx",
-    "src/server/server.ts",
+    "src/client.tsx",
+    "src/server.tsx",
     "src/tsd.d.ts",
     "typings/tsd.d.ts"
   ]

@@ -160,9 +160,13 @@ module.exports = function (options) {
     const cm = new Childminder();
     const child = cm.create('node', [main], { lazy: true });
 
-    gulp.watch(main).on('change', () => {
+    gulp.watch(main).on('change', async () => {
       gutil.log('Restart server...');
-      child.startOrRestart();
+
+      await child.kill();
+      await tcpPortUsed.waitUntilFree(options.port, 100, 60 * 1000)
+
+      await child.startOrRestart();
     });
 
     await child.startOrRestart();

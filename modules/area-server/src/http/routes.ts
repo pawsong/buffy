@@ -37,7 +37,7 @@ export default (app: express.Express) => {
       .exec();
 
     res.send(gameUsers.map(gameUser => {
-      const json = gameUser.toObject();
+      const json = gameUser.toJSON();
       json['name'] = userIndexedById[gameUser.owner].name
       return json;
     }));

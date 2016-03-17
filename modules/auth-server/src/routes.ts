@@ -143,13 +143,13 @@ export default app => {
 
   app.get('/me', ejwt({
     secret: conf.jwtSecret,
-    getToken: req => req.cookies.tt,
+    getToken: getToken,
   }), wrap(async (req, res) => {
     const user = await User.findById(req.user.id).exec();
     return res.send(user);
   }));
 
-  app.post('/me', ejwt({
+  app.put('/me', ejwt({
     secret: conf.jwtSecret,
     getToken: req => req.cookies.tt,
   }), wrap(async (req, res) => {
