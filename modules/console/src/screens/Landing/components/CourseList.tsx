@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router';
 import Wrapper from '../../../components/Wrapper';
 
 const objectAssign = require('object-assign');
@@ -6,6 +7,9 @@ const objectAssign = require('object-assign');
 import Colors from 'material-ui/lib/styles/colors';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
+
+import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
+import Messages from '../../../constants/Messages';
 
 const styles = {
   root: {
@@ -55,7 +59,8 @@ class CourseList extends React.Component<CourseListProps, {}> {
         secondaryTextLines={2}
         leftAvatar={<div style={leftAvatarStyle}></div>}
         innerDivStyle={styles.courseInnerDiv}
-        onTouchTap={() => this.handleClickItem(course)}
+        linkButton={true}
+        containerElement={<Link to={`/courses/${course.id}`}></Link>}
       />
     );
   }
@@ -67,7 +72,7 @@ class CourseList extends React.Component<CourseListProps, {}> {
     return (
       <Wrapper style={styles.root}>
         <div>
-          <h1>Courses</h1>
+          <h1><FormattedMessage {...Messages.courses}/></h1>
         </div>
         {spinner}
         <List>

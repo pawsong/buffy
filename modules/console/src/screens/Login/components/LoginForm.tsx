@@ -17,11 +17,6 @@ const messages = defineMessages({
     description: 'Login form heading message',
     defaultMessage: 'Log in',
   },
-  facebookLogin: {
-    id: 'login.form.facebookLogin',
-    description: 'Facebook login button label',
-    defaultMessage: 'Login with facebook',
-  },
   newToService: {
     id: 'login.form.newToService',
     description: 'Ask if signup is needed or not',
@@ -54,7 +49,7 @@ class LoginForm extends React.Component<LoginFormProps, {}> {
             <FormattedMessage tagName="h1" {...messages.heading} />
 
             <div style={styles.button}>
-              <RaisedButton label={this.props.intl.formatMessage(messages.facebookLogin)}
+              <RaisedButton label={this.props.intl.formatMessage(Messages.facebookLogin)}
                             onTouchTap={() => this.handleLoginWithFacebook()}
                             backgroundColor={'#3b5998'} labelColor={Colors.white}
                             fullWidth={true}

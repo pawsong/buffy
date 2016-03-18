@@ -35,7 +35,9 @@ export default function updateLocaleData() {
     const missingIds = difference(localeIds, ids);
 
     const content = `export default {\n${concat(
-      ids.map(id => `  '${id}': '${messages[id] || ''}', // ${defaultMessages[id]}`),
+      ids.map(id => {
+        return `  ${!messages[id] ? '/* translate */ ' : ''}'${id}': '${messages[id] || ''}', // ${defaultMessages[id]}`
+      }),
       missingIds.map(id => `  /* [Warning] Message not in use */ '${id}': '${messages[id] || ''}',`)
     ).join('\n')}\n}\n`
 

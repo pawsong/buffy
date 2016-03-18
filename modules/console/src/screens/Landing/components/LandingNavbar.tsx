@@ -31,13 +31,10 @@ interface LandingNavbarProps extends React.Props<LandingNavbar> {
   dispatch?: Dispatch;
 }
 
-// backgroundColor={Colors.pink100} hoverColor={Colors.pink50}
-
 @injectIntl
 @connect()
 class LandingNavbar extends React.Component<LandingNavbarProps, {}> {
   render() {
-    console.log(this.props);
     return (
       <Navbar>
         <ToolbarGroup float="left">

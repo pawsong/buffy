@@ -21,10 +21,20 @@ const messages = defineMessages({
     description: 'Login',
     defaultMessage: 'Login',
   },
+  facebookLogin: {
+    id: 'facebookLogin',
+    description: 'Facebook login button label',
+    defaultMessage: 'Login with facebook',
+  },
   signup: {
     id: 'signup',
     description: 'Sign up',
     defaultMessage: 'Sign up',
+  },
+  courses: {
+    id: 'courses',
+    description: 'Courses',
+    defaultMessage: 'Courses',
   },
 });
 
