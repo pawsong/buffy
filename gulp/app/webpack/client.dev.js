@@ -13,6 +13,10 @@ const babelOptions = JSON.stringify({
     'transform-regenerator',
     'syntax-object-rest-spread',
     'transform-object-rest-spread',
+    ["react-intl", {
+      "messagesDir": `${__dirname}/build/messages/`,
+      "enforceDescriptions": true
+    }],
   ],
   babelrc: false,
 });

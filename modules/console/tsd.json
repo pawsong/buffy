@@ -45,7 +45,7 @@
       "commit": "9f0f926a12026287b5a4a229e5672c01e7549313"
     },
     "react/react.d.ts": {
-      "commit": "0cd5f0a1482dc3149f5446b1d885ef6ac7c57720"
+      "commit": "cc3d223a946f661eff871787edeb0fcb8f0db156"
     },
     "redux/redux.d.ts": {
       "commit": "9f0f926a12026287b5a4a229e5672c01e7549313"
@@ -72,7 +72,7 @@
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
     "react/react-dom.d.ts": {
-      "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
+      "commit": "cc3d223a946f661eff871787edeb0fcb8f0db156"
     },
     "ace/ace.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
@@ -112,6 +112,9 @@
     },
     "invariant/invariant.d.ts": {
       "commit": "d22516f9f089de107d7e7d5938566377370631f6"
+    },
+    "react-intl/react-intl.d.ts": {
+      "commit": "cc3d223a946f661eff871787edeb0fcb8f0db156"
     }
   }
 }

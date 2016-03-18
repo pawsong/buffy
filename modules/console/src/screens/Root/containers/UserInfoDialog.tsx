@@ -38,7 +38,7 @@ class UserInfoDialog extends React.Component<UserInfoDialogProps, UserInfoDialog
   }
 
   shouldUpdateInfo() {
-    return this.props.userid && !this.props.username;
+    return !!this.props.userid && !this.props.username;
   }
 
   submit() {

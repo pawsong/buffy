@@ -17,7 +17,10 @@ const { ReduxAsyncConnect, loadOnServer } = require('redux-async-connect');
 const MuiThemeProvider = require('material-ui/lib/MuiThemeProvider');
 const getMuiTheme = require('material-ui/lib/styles/getMuiTheme');
 const { StyleRoot } = require('radium');
+const Hairdresser = require('hairdresser');
+import { IntlProvider } from 'react-intl';
 
+import { Provider as HairdresserProvider } from './hairdresser';
 import { Provider as SagaProvider } from './saga';
 
 import { baseTheme, muiTheme } from './theme';
@@ -37,22 +40,25 @@ const { store, sagaMiddleware } = configureStore(initialState, history);
 const routes = getRoutes(store);
 
 const finalMuiTheme = getMuiTheme(baseTheme, muiTheme);
+const hairdresser = new Hairdresser();
+hairdresser.render();
 
 match({ history, routes }, (error, redirectLocation, renderProps) => {
-  console.log('render start');
   render(
-    <MuiThemeProvider muiTheme={finalMuiTheme}>
-      <Provider store={store}>
-        <SagaProvider middleware={sagaMiddleware}>
-          <Router history={history}
-                  render={props => <StyleRoot><RouterContext {...props} /></StyleRoot>}
-          >{routes}</Router>
-        </SagaProvider>
-      </Provider>
-    </MuiThemeProvider>,
+    <IntlProvider locale="en">
+      <HairdresserProvider hairdresser={hairdresser}>
+        <MuiThemeProvider muiTheme={finalMuiTheme}>
+          <Provider store={store}>
+            <SagaProvider middleware={sagaMiddleware}>
+              <Router history={history}
+                      render={props => <StyleRoot><RouterContext {...props} /></StyleRoot>}
+              >{routes}</Router>
+            </SagaProvider>
+          </Provider>
+        </MuiThemeProvider>
+      </HairdresserProvider>
+    </IntlProvider>,
     document.getElementById('content')
   );
-  console.log('render end');
   store.dispatch({ type: EXPIRE_PRELOAD });
-  console.log('render expired');
 });

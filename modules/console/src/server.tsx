@@ -14,7 +14,11 @@ const getMuiTheme = require('material-ui/lib/styles/getMuiTheme');
 import { Provider } from 'react-redux';
 const { ReduxAsyncConnect, loadOnServer } = require('redux-async-connect');
 const { StyleRoot } = require('radium');
+const Hairdresser = require('hairdresser');
 
+import { IntlProvider } from 'react-intl';
+
+import { Provider as HairdresserProvider } from './hairdresser';
 import { Provider as SagaProvider } from './saga';
 
 import * as express from 'express';
@@ -142,23 +146,31 @@ app.get('*', async (req, res) => {
     const userAgent = req.headers['user-agent'];
     const finalMuiTheme = getMuiTheme(baseTheme, Object.assign({}, muiTheme, { userAgent }));
 
+    const hairdresser = new Hairdresser();
+
     const body = renderToString(
-      <MuiThemeProvider muiTheme={finalMuiTheme}>
-        <Provider store={store}>
-          <SagaProvider middleware={sagaMiddleware}>
-            <StyleRoot radiumConfig={{ userAgent }}>
-              <RouterContext {...renderProps} />
-            </StyleRoot>
-          </SagaProvider>
-        </Provider>
-      </MuiThemeProvider>
+      <IntlProvider locale="en">
+        <HairdresserProvider hairdresser={hairdresser}>
+          <MuiThemeProvider muiTheme={finalMuiTheme}>
+            <Provider store={store}>
+              <SagaProvider middleware={sagaMiddleware}>
+                <StyleRoot radiumConfig={{ userAgent }}>
+                  <RouterContext {...renderProps} />
+                </StyleRoot>
+              </SagaProvider>
+            </Provider>
+          </MuiThemeProvider>
+        </HairdresserProvider>
+      </IntlProvider>
     );
+
+    const head = hairdresser.renderToString();
 
     // Delete token because token in store is used only on server
     store.dispatch({ type: DELETE_TOKEN });
 
     const html = compiledIndexHtml({
-      head: '',
+      head,
       body,
       initialState: JSON.stringify(store.getState()),
     });
