@@ -40,9 +40,9 @@ module.exports = function (options) {
     if(errors.length > 0) {
       return new Error(statsJson.errors.join('\n'));
     }
-    if(warnings.length > 0) {
-      return new Error(statsJson.warnings.join('\n'));
-    }
+    // if(warnings.length > 0) {
+    //   return new Error(statsJson.warnings.join('\n'));
+    // }
     return null;
   }
 
@@ -58,12 +58,12 @@ module.exports = function (options) {
         title: `[${options.name}] Build ${name} failed`,
         message: errors[0],
       });
-    } else if (warnings.length > 0) {
-      warnings.forEach(warings => console.error(warnings));
-      notifier.notify({
-        title: `[${options.name}] Build ${name} failed`,
-        message: warnings[0],
-      });
+    // } else if (warnings.length > 0) {
+    //   warnings.forEach(warings => console.error(warnings));
+    //   notifier.notify({
+    //     title: `[${options.name}] Build ${name} failed`,
+    //     message: warnings[0],
+    //   });
     } else {
       notifier.notify({
         title: `[${options.name}] Build ${name} succeeded`,

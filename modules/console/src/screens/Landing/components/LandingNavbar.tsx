@@ -1,20 +1,16 @@
 import * as React from 'react';
+import { Dispatch } from 'redux';
 import { Link } from 'react-router';
-import { Styles } from 'material-ui';
-import AppBar from 'material-ui/lib/app-bar';
+import { connect } from 'react-redux';
 const FlatButton = require('material-ui/lib/flat-button');
 import Colors from 'material-ui/lib/styles/colors';
-import IconMenu from 'material-ui/lib/menus/icon-menu';
-import IconButton from 'material-ui/lib/icon-button';
-import FontIcon from 'material-ui/lib/font-icon';
-import NavigationExpandMoreIcon from 'material-ui/lib/svg-icons/navigation/expand-more';
-import MenuItem from 'material-ui/lib/menus/menu-item';
-import DropDownMenu from 'material-ui/lib/DropDownMenu';
-import RaisedButton from 'material-ui/lib/raised-button';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import ToolbarSeparator from 'material-ui/lib/toolbar/toolbar-separator';
 import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
+import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
+import { push } from 'react-router-redux';
+import Messages from '../../../constants/Messages';
+import RaisedButton from 'material-ui/lib/raised-button';
 
 import Navbar from '../../../components/Navbar';
 
@@ -30,23 +26,33 @@ const styles = {
   },
 };
 
-class LandingNavbar extends React.Component<{}, {}> {
+interface LandingNavbarProps extends React.Props<LandingNavbar> {
+  intl?: InjectedIntlProps;
+  dispatch?: Dispatch;
+}
+
+// backgroundColor={Colors.pink100} hoverColor={Colors.pink50}
+
+@injectIntl
+@connect()
+class LandingNavbar extends React.Component<LandingNavbarProps, {}> {
   render() {
+    console.log(this.props);
     return (
       <Navbar>
         <ToolbarGroup float="left">
-          <Link to="/"><ToolbarTitle text="PASTA" style={styles.title} /></Link>
+          <Link to="/"><ToolbarTitle text={this.props.intl.formatMessage(Messages.service)} style={styles.title} /></Link>
         </ToolbarGroup>
         <ToolbarGroup float="right">
-          <FlatButton label="Log in"
-                      linkButton={true}
-                      containerElement={<Link to="/login" />}
+          <FlatButton label={this.props.intl.formatMessage(Messages.login)}
                       style={styles.button}
+                      onTouchTap={() => this.props.dispatch(push('/login'))}
           />
-          <FlatButton label="Sign up"
-                      linkButton={true}
-                      containerElement={<Link to="/join" />}
-                      backgroundColor={Colors.pink100} hoverColor={Colors.pink50} style={styles.button}
+          <FlatButton label={this.props.intl.formatMessage(Messages.signup)}
+                      style={styles.button}
+                      onTouchTap={() => this.props.dispatch(push('/join'))}
+                      backgroundColor={Colors.pinkA200}
+                      hoverColor={Colors.pinkA100}
           />
         </ToolbarGroup>
       </Navbar>
