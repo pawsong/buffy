@@ -1,4 +1,4 @@
-import update = require('react-addons-update');
+const update = require('react-addons-update');
 
 import { Action } from '../actions';
 import {

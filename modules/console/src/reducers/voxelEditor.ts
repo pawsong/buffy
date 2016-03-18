@@ -1,5 +1,5 @@
 import * as Immutable from 'immutable';
-import update = require('react-addons-update');
+const update = require('react-addons-update');
 import pagenate from './paginate';
 
 import {
@@ -29,7 +29,7 @@ import {
 
 import { Action } from '../actions';
 
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 const findIndex = require('lodash/findIndex');
 import vector3ToString from '@pasta/helper/lib/vector3ToString';
 

@@ -62,6 +62,7 @@
     "git-repository": "^0.1.1",
     "gitbook-cli": "^1.0.1",
     "gitignore-parser": "0.0.2",
+    "glob": "^7.0.3",
     "gulp": "^3.9.0",
     "gulp-babel": "^6.1.1",
     "gulp-eslint": "^1.1.1",

@@ -1,5 +1,5 @@
 import * as Immutable from 'immutable';
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 import update from '../utils/update';
 
 import {

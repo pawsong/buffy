@@ -7,7 +7,7 @@ import { Course } from '../../../../../../reducers/course';
 import Footer from '../../../../../../components/Footer';
 import { saga } from '../../../../../../saga';
 import Wrapper from '../../../../../../components/Wrapper';
-import RaisedButton = require('material-ui/lib/raised-button');
+const RaisedButton = require('material-ui/lib/raised-button');
 import { connectApi, preloadApi, ApiCall, get } from '../../../../../../api';
 
 interface CourseIndexHandlerRouteParams {

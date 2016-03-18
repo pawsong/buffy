@@ -46,6 +46,10 @@ module.exports = function (options) {
     return null;
   }
 
+  function isCompileFailed(statsJson) {
+    return statsJson.errors.length > 0;
+  }
+
   function notifyCompileResult(name, statsJson) {
     const { errors, warnings } = statsJson;
     if (errors.length > 0) {
@@ -128,10 +132,23 @@ module.exports = function (options) {
   gulp.task('serve:dev:client', function (done) {
     const options = getWebpackOptions('client', 'development');
 
-    return Promise.all(options.map(async ({ name, devServerPort, config }) => {
+    return Promise.all(options.map(async ({ name, devServerPort, config, postCompile }) => {
       const compiler = webpack(config);
       compiler.plugin('done', stats => {
-        notifyCompileResult(name, stats.toJson());
+        const statsJson = stats.toJson();
+        if (isCompileFailed(statsJson)) return notifyCompileResult(name, statsJson);
+        if (!postCompile) return notifyCompileResult(name, statsJson);
+
+        postCompile(function (error) {
+          if (error) {
+            notifier.notify({
+              title: `[${name}] Post compile hook failed`,
+              message: error && error.message,
+            });
+            return;
+          }
+          notifyCompileResult(name, statsJson);
+        });
       });
 
       await webpackServer(compiler, devServerPort);

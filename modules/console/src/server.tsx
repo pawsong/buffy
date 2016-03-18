@@ -24,8 +24,7 @@ import { Provider as SagaProvider } from './saga';
 import * as express from 'express';
 import * as fs from 'fs';
 const template = require('lodash.template');
-
-import * as _ from 'lodash';
+const locale = require('locale');
 
 import * as conf from '@pasta/config';
 
@@ -43,10 +42,6 @@ import {
   USER_REMOVE, UserRemoveAction,
 } from './actions/users';
 
-import {
-  requestRecommendedCourses,
-} from './actions/course';
-
 import { callApiOnServer } from './api/saga';
 import {
   ApiCall,
@@ -56,6 +51,20 @@ import {
   ApiSpecDictionary,
   ApiCallDictionary,
 } from './api';
+
+const SUPPORTED_LOCALES = ['en', 'ko'];
+locale.Locale['default'] = 'en';
+
+function loadLocaleData(locale: string) {
+  switch(locale) {
+    case 'ko': {
+      return require('./messages/ko').default;
+    }
+    default: {
+      return {};
+    }
+  }
+}
 
 // Prepare compiled index html template
 const indexHtml = __DEV__ ? require('raw!./index.html') : fs.readFileSync(`${__dirname}/index.html`, 'utf8');
@@ -67,11 +76,14 @@ const compiledIndexHtml = template(indexHtml, {
 
 const app = express();
 
+app.use(locale(SUPPORTED_LOCALES));
 app.use(cookieParser());
 app.use('/assets', express.static(`${__dirname}/../public`));
 
 app.get('*', async (req, res) => {
   try {
+    const locale = req['locale'];
+
     const { store, sagaMiddleware } = configureStore();
 
     // Authenticate.
@@ -148,8 +160,10 @@ app.get('*', async (req, res) => {
 
     const hairdresser = new Hairdresser();
 
+    const messages = loadLocaleData(locale);
+
     const body = renderToString(
-      <IntlProvider locale="en">
+      <IntlProvider locale={locale} messages={messages}>
         <HairdresserProvider hairdresser={hairdresser}>
           <MuiThemeProvider muiTheme={finalMuiTheme}>
             <Provider store={store}>
@@ -170,10 +184,12 @@ app.get('*', async (req, res) => {
     store.dispatch({ type: DELETE_TOKEN });
 
     const html = compiledIndexHtml({
+      locale,
       head,
       body,
       initialState: JSON.stringify(store.getState()),
     });
+
     res.status(200).send(html);
   } catch(err) {
     // TODO: Smart logging

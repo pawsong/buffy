@@ -4,10 +4,10 @@ import { Course } from '../../../../../reducers/course';
 import Wrapper from '../../../../../components/Wrapper';
 
 
-import objectAssign = require('object-assign');
-import Colors = require('material-ui/lib/styles/colors');
+const objectAssign = require('object-assign');
 
-import List = require('material-ui/lib/lists/list');
+import Colors from 'material-ui/lib/styles/colors';
+import List from 'material-ui/lib/lists/list';
 const ListItem = require('material-ui/lib/lists/list-item');
 
 interface CourseListProps extends React.Props<CourseList> {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { Styles } from 'material-ui';
-import Colors = require('material-ui/lib/styles/colors');
+import Colors from 'material-ui/lib/styles/colors';
 const TextField = require('material-ui/lib/text-field');
 const Paper = require('material-ui/lib/paper');
 const Divider = require('material-ui/lib/divider');

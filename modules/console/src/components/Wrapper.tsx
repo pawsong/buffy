@@ -1,8 +1,8 @@
 import * as React from 'react';
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 const Radium = require('radium');
 
-import Colors = require('material-ui/lib/styles/colors');
+import Colors from 'material-ui/lib/styles/colors';
 
 const styles = {
   inner: {

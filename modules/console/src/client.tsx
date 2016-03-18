@@ -18,7 +18,7 @@ const MuiThemeProvider = require('material-ui/lib/MuiThemeProvider');
 const getMuiTheme = require('material-ui/lib/styles/getMuiTheme');
 const { StyleRoot } = require('radium');
 const Hairdresser = require('hairdresser');
-import { IntlProvider } from 'react-intl';
+import { IntlProvider, addLocaleData } from 'react-intl';
 
 import { Provider as HairdresserProvider } from './hairdresser';
 import { Provider as SagaProvider } from './saga';
@@ -33,6 +33,9 @@ import { EXPIRE_PRELOAD } from './api';
 const initialState = window['__INTIAL_STATE__'];
 delete window['__INTIAL_STATE__'];
 
+const locale = window['__LOCALE__'];
+delete window['__LOCALE__'];
+
 // const history = useScroll(() => browserHistory)();
 const history = browserHistory;
 
@@ -43,9 +46,49 @@ const finalMuiTheme = getMuiTheme(baseTheme, muiTheme);
 const hairdresser = new Hairdresser();
 hairdresser.render();
 
-match({ history, routes }, (error, redirectLocation, renderProps) => {
+interface LocaleData {
+  data: any;
+  messages: any;
+}
+
+
+function loadLocaleData(locale: string) {
+  return new Promise<LocaleData>(resolve => {
+    switch(locale) {
+      case 'ko': {
+        return require.ensure([], require => resolve({
+          messages: require('./messages/ko')['default'],
+          data: require('react-intl/locale-data/ko')
+        }));
+      }
+      default: {
+        return require.ensure([], () => resolve({
+          messages: {},
+          data: {},
+        }))
+      }
+    }
+  });
+}
+
+function resolveRoute() {
+  return new Promise((resolve, reject) => {
+    match({ history, routes }, (error, redirectLocation, renderProps) => {
+      if (error) return reject(error);
+      resolve({ redirectLocation, renderProps });
+    });
+  });
+}
+
+Promise.all<LocaleData>([
+  loadLocaleData(locale),
+  resolveRoute(),
+])
+.then(([localeData]) => {
+  addLocaleData(localeData.data);
+  console.log(localeData.messages)
   render(
-    <IntlProvider locale="en">
+    <IntlProvider locale={locale} messages={localeData.messages}>
       <HairdresserProvider hairdresser={hairdresser}>
         <MuiThemeProvider muiTheme={finalMuiTheme}>
           <Provider store={store}>
@@ -61,4 +104,7 @@ match({ history, routes }, (error, redirectLocation, renderProps) => {
     document.getElementById('content')
   );
   store.dispatch({ type: EXPIRE_PRELOAD });
+})
+.catch(error => {
+  console.error(error);
 });

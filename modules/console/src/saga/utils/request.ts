@@ -1,7 +1,7 @@
 import { take, put, call, fork, cancel, select } from 'redux-saga/effects'
 import { State } from '../../reducers';
 import update from '../../utils/update';
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 
 import * as Promise from 'bluebird';
 import * as axios from 'axios';

@@ -1,6 +1,6 @@
-import Colors = require('material-ui/lib/styles/colors');
-import ColorManipulator = require('material-ui/lib/utils/color-manipulator');
-import Spacing = require('material-ui/lib/styles/spacing');
+import Colors from 'material-ui/lib/styles/colors';
+import ColorManipulator from 'material-ui/lib/utils/color-manipulator';
+import Spacing from 'material-ui/lib/styles/spacing';
 const zIndex = require('material-ui/lib/styles/zIndex');
 
 // import { NAVBAR_HEIGHT } from './constants/Layout';

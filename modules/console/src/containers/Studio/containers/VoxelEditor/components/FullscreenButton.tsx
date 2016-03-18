@@ -1,7 +1,7 @@
 import * as React from 'react';
-import IconButton = require('material-ui/lib/icon-button');
-const ThemeManager = require('material-ui/lib/styles/theme-manager');
-const LightRawTheme = require('material-ui/lib/styles/raw-themes/light-raw-theme');
+import IconButton from 'material-ui/lib/icon-button';
+import ThemeManager from 'material-ui/lib/styles/theme-manager';
+import LightRawTheme from 'material-ui/lib/styles/raw-themes/light-raw-theme';
 
 interface FullscreenButtonProps extends React.Props<FullscreenButton> {
   onTouchTap: () => any;

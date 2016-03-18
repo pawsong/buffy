@@ -1,6 +1,6 @@
 import * as React from 'react';
-import RaisedButton = require('material-ui/lib/raised-button');
-import IconButton = require('material-ui/lib/icon-button');
+import RaisedButton from 'material-ui/lib/raised-button';
+import IconButton from 'material-ui/lib/icon-button';
 import { connect } from 'react-redux';
 const Contacts = require('material-ui/lib/svg-icons/communication/contacts');
 const Terrain = require('material-ui/lib/svg-icons/maps/terrain');

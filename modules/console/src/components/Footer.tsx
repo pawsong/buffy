@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Wrapper from './Wrapper';
 
-import Colors = require('material-ui/lib/styles/colors');
+import Colors from 'material-ui/lib/styles/colors';
 
 const styles = {
   root: {

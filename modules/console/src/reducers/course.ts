@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import * as Immutable from 'immutable';
 import update from '../utils/update';
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 
 import { Action } from '../actions';
 // import {

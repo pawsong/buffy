@@ -1,8 +1,7 @@
 import * as React from 'react';
-import Dialog = require('material-ui/lib/dialog');
-import * as MaterialUI from 'material-ui';
-import FlatButton = require('material-ui/lib/flat-button');
-import TextField = require('material-ui/lib/text-field');
+import Dialog from 'material-ui/lib/dialog';
+import FlatButton from 'material-ui/lib/flat-button';
+import TextField from 'material-ui/lib/text-field';
 import { connect } from 'react-redux';
 import { State } from '../../../reducers';
 import { saga, SagaProps, ImmutableTask, isRunning, request } from '../../../saga';

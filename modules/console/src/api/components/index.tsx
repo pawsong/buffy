@@ -6,7 +6,7 @@ import wrapActionCreators from './utils/wrapActionCreators';
 import getDisplayName from './utils/getDisplayName';
 const hoistStatics = require('hoist-non-react-statics');
 import * as invariant from 'invariant';
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 const isPlainObject = require('lodash/isPlainObject');
 
 import { State } from '../../reducers';

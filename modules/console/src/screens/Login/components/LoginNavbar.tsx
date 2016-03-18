@@ -1,22 +1,20 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { Styles } from 'material-ui';
-import AppBar = require('material-ui/lib/app-bar');
 const FlatButton = require('material-ui/lib/flat-button');
 
-import Colors = require('material-ui/lib/styles/colors');
-
-import IconMenu = require('material-ui/lib/menus/icon-menu');
-import IconButton = require('material-ui/lib/icon-button');
-import FontIcon = require('material-ui/lib/font-icon');
-const NavigationExpandMoreIcon = require('material-ui/lib/svg-icons/navigation/expand-more');
-import MenuItem = require('material-ui/lib/menus/menu-item');
-const DropDownMenu = require('material-ui/lib/DropDownMenu');
-const RaisedButton = require('material-ui/lib/raised-button');
-import Toolbar = require('material-ui/lib/toolbar/toolbar');
-import ToolbarGroup = require('material-ui/lib/toolbar/toolbar-group');
-import ToolbarSeparator = require('material-ui/lib/toolbar/toolbar-separator');
-import ToolbarTitle = require('material-ui/lib/toolbar/toolbar-title');
+import Colors from 'material-ui/lib/styles/colors';
+import IconMenu from 'material-ui/lib/menus/icon-menu';
+import IconButton from 'material-ui/lib/icon-button';
+import FontIcon from 'material-ui/lib/font-icon';
+import NavigationExpandMoreIcon from 'material-ui/lib/svg-icons/navigation/expand-more';
+import MenuItem from 'material-ui/lib/menus/menu-item';
+import DropDownMenu from 'material-ui/lib/DropDownMenu';
+import RaisedButton from 'material-ui/lib/raised-button';
+import Toolbar from 'material-ui/lib/toolbar/toolbar';
+import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
+import ToolbarSeparator from 'material-ui/lib/toolbar/toolbar-separator';
+import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
 
 const ActionHome = require('material-ui/lib/svg-icons/action/home');
 

@@ -1,4 +1,4 @@
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 
 /**
  * Immutable update

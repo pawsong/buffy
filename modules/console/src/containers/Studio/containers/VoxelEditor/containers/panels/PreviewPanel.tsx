@@ -2,11 +2,11 @@ import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { EventEmitter, EventSubscription } from 'fbemitter';
-import FlatButton = require('material-ui/lib/flat-button');
-import FontIcon = require('material-ui/lib/font-icon');
+import FlatButton from 'material-ui/lib/flat-button';
+import FontIcon from 'material-ui/lib/font-icon';
 import * as Colors from 'material-ui/lib/styles/colors';
 import * as ReactDnd from 'react-dnd';
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 
 import { CanvasShared } from '../../canvas/shared';
 
@@ -40,7 +40,7 @@ class RotateButton extends React.Component<RotateButtonProps, {}> {
         lineHeight: 1.2,
         margin: 4,
         padding: 6,
-      }} secondary={true} onClick={this.props.onClick}>
+      }} secondary={true} onTouchTap={this.props.onClick}>
         <FontIcon className="material-icons">rotate_90_degrees_ccw</FontIcon>
         <div>{this.props.children}</div>
       </FlatButton>

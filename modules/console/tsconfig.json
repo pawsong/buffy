@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "es6",
     "moduleResolution": "node",
     "target": "es6",
     "outDir": ".tsc_out",
     "sourceMap": true,
-    "jsx": "react",
+    "jsx": "preserve",
     "experimentalDecorators": true
   },
   "files": [

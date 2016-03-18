@@ -1,15 +1,14 @@
 import * as React from 'react';
 import Wrapper from '../../../components/Wrapper';
 
-import Colors = require('material-ui/lib/styles/colors');
-
-import Card = require('material-ui/lib/card/card');
-import CardActions = require('material-ui/lib/card/card-actions');
-import CardHeader = require('material-ui/lib/card/card-header');
-import CardMedia = require('material-ui/lib/card/card-media');
-import CardTitle = require('material-ui/lib/card/card-title');
-const FlatButton = require('material-ui/lib/flat-button');
-import CardText = require('material-ui/lib/card/card-text');
+import Colors from 'material-ui/lib/styles/colors';
+import Card from 'material-ui/lib/card/card';
+import CardActions from 'material-ui/lib/card/card-actions';
+import CardHeader from 'material-ui/lib/card/card-header';
+import CardMedia from 'material-ui/lib/card/card-media';
+import CardTitle from 'material-ui/lib/card/card-title';
+import FlatButton from 'material-ui/lib/flat-button';
+import CardText from 'material-ui/lib/card/card-text';
 
 const backgroundImageUrl = require('file!../assets/banner_bg.png');
 

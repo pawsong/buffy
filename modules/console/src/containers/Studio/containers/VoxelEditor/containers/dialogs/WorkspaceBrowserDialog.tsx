@@ -1,20 +1,20 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Dialog = require('material-ui/lib/dialog');
+import Dialog from 'material-ui/lib/dialog';
 import * as Promise from 'bluebird';
 import * as axios from 'axios';
 
 import { call, put } from 'redux-saga/effects';
 
-import Table = require('material-ui/lib/table/table');
-import TableBody = require('material-ui/lib/table/table-body');
-import TableFooter = require('material-ui/lib/table/table-footer');
-import TableHeader = require('material-ui/lib/table/table-header');
-import TableHeaderColumn = require('material-ui/lib/table/table-header-column');
-import TableRow = require('material-ui/lib/table/table-row');
-import TableRowColumn = require('material-ui/lib/table/table-row-column');
+import Table from 'material-ui/lib/table/table';
+import TableBody from 'material-ui/lib/table/table-body';
+import TableFooter from 'material-ui/lib/table/table-footer';
+import TableHeader from 'material-ui/lib/table/table-header';
+import TableHeaderColumn from 'material-ui/lib/table/table-header-column';
+import TableRow from 'material-ui/lib/table/table-row';
+import TableRowColumn from 'material-ui/lib/table/table-row-column';
 
-import FlatButton = require('material-ui/lib/flat-button');
+import FlatButton from 'material-ui/lib/flat-button';
 
 import { State } from '../../../../../../reducers';
 import { connectApi, ApiDispatchProps, ApiCall, compareOptions, get } from '../../../../../../api';

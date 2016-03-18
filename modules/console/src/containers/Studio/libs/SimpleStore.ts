@@ -1,4 +1,4 @@
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 
 interface StoreListener<T> {
   (data: T): any;

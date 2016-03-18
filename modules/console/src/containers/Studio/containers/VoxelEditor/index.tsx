@@ -4,17 +4,17 @@ import { connect } from 'react-redux';
 import { State } from '../../../../reducers';
 
 // OrbitControls patch
-import './OrbitControls';
+require('./OrbitControls');
 
 import { bindActionCreators } from 'redux';
 import { DropTarget, DragDropContext } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
-import update = require('react-addons-update');
+const update = require('react-addons-update');
 import { EventEmitter, EventSubscription } from 'fbemitter';
 const mapValues = require('lodash/mapValues');
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 import * as invariant from 'invariant';
-import RaisedButton = require('material-ui/lib/raised-button');
+import RaisedButton from 'material-ui/lib/raised-button';
 
 import * as StorageKeys from '../../../../constants/StorageKeys';
 

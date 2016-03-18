@@ -2,9 +2,9 @@ import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { call, put, select } from 'redux-saga/effects';
-import RaisedButton = require('material-ui/lib/raised-button');
+import RaisedButton from 'material-ui/lib/raised-button';
 import * as ReactDnd from 'react-dnd';
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 import * as axios from 'axios';
 
 import { State } from '../../../../../../reducers';
@@ -110,9 +110,9 @@ class WorkspacePanel extends React.Component<WorkspacePanelProps, {}> {
     return connectDragPreview(
       <div style={previewStyle}>
         {connectDragSource(<div style={PanelStyles.handle}>Workspace</div>)}
-        <RaisedButton label="Open" secondary={true} onClick={() => this.handleOpenButtonClick()} />
-        <RaisedButton label="New" secondary={true} onClick={() => this.handleNewButtonClick()}/>
-        <RaisedButton label="Save" secondary={true} onClick={() => this.handleSaveButtonClick()}/>
+        <RaisedButton label="Open" secondary={true} onTouchTap={() => this.handleOpenButtonClick()} />
+        <RaisedButton label="New" secondary={true} onTouchTap={() => this.handleNewButtonClick()}/>
+        <RaisedButton label="Save" secondary={true} onTouchTap={() => this.handleSaveButtonClick()}/>
       </div>
     );
   }

@@ -4,7 +4,7 @@ import { call } from 'redux-saga/effects';
 
 import * as invariant from 'invariant';
 const hoistStatics = require('hoist-non-react-statics');
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 
 import { UnlistenableTask, ImmutableTask, isRunning } from '../core';
 

@@ -1,16 +1,16 @@
 import * as React from 'react';
-import IconButton = require('material-ui/lib/icon-button');
-import Dialog = require('material-ui/lib/dialog');
-import FlatButton = require('material-ui/lib/flat-button');
-import RaisedButton = require('material-ui/lib/raised-button');
-import Table = require('material-ui/lib/table/table');
-import TableBody = require('material-ui/lib/table/table-body');
-import TableFooter = require('material-ui/lib/table/table-footer');
-import TableHeader = require('material-ui/lib/table/table-header');
-import TableHeaderColumn = require('material-ui/lib/table/table-header-column');
-import TableRow = require('material-ui/lib/table/table-row');
-import TableRowColumn = require('material-ui/lib/table/table-row-column');
-const { connect } = require('react-redux');
+import IconButton from 'material-ui/lib/icon-button';
+import Dialog from 'material-ui/lib/dialog';
+import FlatButton from 'material-ui/lib/flat-button';
+import RaisedButton from 'material-ui/lib/raised-button';
+import Table from 'material-ui/lib/table/table';
+import TableBody from 'material-ui/lib/table/table-body';
+import TableFooter from 'material-ui/lib/table/table-footer';
+import TableHeader from 'material-ui/lib/table/table-header';
+import TableHeaderColumn from 'material-ui/lib/table/table-header-column';
+import TableRow from 'material-ui/lib/table/table-row';
+import TableRowColumn from 'material-ui/lib/table/table-row-column';
+import { connect } from 'react-redux';
 import StateLayer from '@pasta/core/lib/StateLayer';
 
 import { State } from '../../../../../reducers';
@@ -65,7 +65,7 @@ class ContactDialog extends React.Component<ContectDialogProps, ContactDialogSta
     ));
 
     return (
-      <Table selectable={true} onRowSelection={rows => this.setState({ selectedRow: rows[0] })}>
+      <Table selectable={true} onRowSelection={rows => this.setState({ selectedRow: rows[0] as number })}>
         <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
           <TableRow>
             <TableHeaderColumn tooltip="Friend's name">Name</TableHeaderColumn>

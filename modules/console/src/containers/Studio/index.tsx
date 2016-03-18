@@ -1,12 +1,14 @@
+import './patch';
+
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Toolbar = require('material-ui/lib/toolbar/toolbar');
-import ToolbarGroup = require('material-ui/lib/toolbar/toolbar-group');
-import RaisedButton = require('material-ui/lib/raised-button');
-import Tabs = require('material-ui/lib/tabs/tabs');
-import Tab = require('material-ui/lib/tabs/tab');
-import objectAssign = require('object-assign');
-import update = require('react-addons-update');
+import Toolbar from 'material-ui/lib/toolbar/toolbar';
+import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
+import RaisedButton from 'material-ui/lib/raised-button';
+import Tabs from 'material-ui/lib/tabs/tabs';
+import Tab from 'material-ui/lib/tabs/tab';
+const objectAssign = require('object-assign');
+const update = require('react-addons-update');
 
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Blockly } from './containers/CodeEditor/blockly';
@@ -171,7 +173,7 @@ class Studio extends React.Component<StudioProps, StudioState> {
                     <RaisedButton label="Run"
                                   primary={true}
                                   disabled={!this.props.isBlocklyReady}
-                                  onClick={() => this.props.onRun()}
+                                  onTouchTap={() => this.props.onRun()}
                     />
                   </ToolbarGroup>
                 </Toolbar>

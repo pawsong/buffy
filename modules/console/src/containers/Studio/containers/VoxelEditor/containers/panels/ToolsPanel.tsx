@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import IconButton = require('material-ui/lib/icon-button');
-import * as Colors from 'material-ui/lib/styles/colors';
+import IconButton from 'material-ui/lib/icon-button';
+import Colors from 'material-ui/lib/styles/colors';
 import * as ReactDnd from 'react-dnd';
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 const {
   default: ColorPicker
 } = require('react-color/lib/components/SketchPicker');

@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware, Middleware, compose } from 'redux';
 import { routerMiddleware, push } from 'react-router-redux';
 import createSagaMiddleware from 'redux-saga';
-import objectAssign = require('object-assign');
+const objectAssign = require('object-assign');
 import rootReducer, { initialize } from '../reducers';
 import apiSaga from '../api/saga';
 

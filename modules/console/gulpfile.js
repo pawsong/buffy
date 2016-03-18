@@ -1,9 +1,30 @@
+// Monkey patch babel interop function to make it equals to that of typescript
+const template = require('babel-template');
+require('babel-helpers/lib/helpers').interopRequireWildcard = template(`
+  (function (obj) {
+    if (obj && (obj.__esModule || typeof obj === 'function')) {
+      return obj;
+    } else {
+      var newObj = {};
+      if (obj != null) {
+        for (var key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+        }
+      }
+      newObj.default = obj;
+      return newObj;
+    }
+  })
+`);
+
 require('babel-polyfill');
 require('babel-register');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const conf = require('@pasta/config');
+
+const updateLocaleData = require('./scripts/updateLocaleData').default;
 const pkg = require('./package.json');
 
 require('../../gulp/app')({
@@ -50,6 +71,14 @@ require('../../gulp/app')({
             publicPath: `${conf.consolePublicPath}/`,
           },
         },
+      },
+      postCompile(done) {
+        try {
+          updateLocaleData();
+          done();
+        } catch(error) {
+          done(error);
+        }
       },
     }],
     server: [{

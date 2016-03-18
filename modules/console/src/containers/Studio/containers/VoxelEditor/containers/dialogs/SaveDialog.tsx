@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import Dialog = require('material-ui/lib/dialog');
-import TextField = require('material-ui/lib/text-field');
-import FlatButton = require('material-ui/lib/flat-button');
+import Dialog from 'material-ui/lib/dialog';
+import TextField from 'material-ui/lib/text-field';
+import FlatButton from 'material-ui/lib/flat-button';
 import * as axios from 'axios';
 
 import { call, put } from 'redux-saga/effects';

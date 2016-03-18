@@ -3,10 +3,10 @@ import { findDOMNode } from 'react-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as ReactDnd from 'react-dnd';
-import RaisedButton = require('material-ui/lib/raised-button');
-import List = require('material-ui/lib/lists/list');
-import ListItem = require('material-ui/lib/lists/list-item');
-import objectAssign = require('object-assign');
+import RaisedButton from 'material-ui/lib/raised-button';
+import List from 'material-ui/lib/lists/list';
+import ListItem from 'material-ui/lib/lists/list-item';
+const objectAssign = require('object-assign');
 
 import {
   PanelConstants,

@@ -3,70 +3,73 @@ const autoprefixer = require('autoprefixer');
 const _ = require('lodash');
 const path = require('path');
 
-const babelOptions = JSON.stringify({
-  presets: [
-    'es2015',
-    'react-hmre',
-  ],
-  plugins: [
-    'syntax-async-functions',
-    'transform-regenerator',
-    'syntax-object-rest-spread',
-    'transform-object-rest-spread',
-    ["react-intl", {
-      "messagesDir": `${__dirname}/build/messages/`,
-      "enforceDescriptions": true
-    }],
-  ],
-  babelrc: false,
-});
-
-module.exports = options => ({
-  target: options.target || 'web',
-
-  entry: [
-    'eventsource-polyfill', // necessary for hot reloading with IE
-    `webpack-hot-middleware/client?path=http://localhost:${options.devServerPort}/__webpack_hmr`,
-    options.entry,
-  ],
-
-  module: {
-    preLoaders: [
-      { test: /\.js$/, loader: 'source-map-loader' },
+module.exports = options => {
+  const babelOptions = JSON.stringify({
+    presets: [
+      'es2015',
+      'react',
+      'react-hmre',
     ],
-    loaders: [
-      { test: /\.css$/, loader: 'style-loader!css-loader!postcss-loader' },
-      { test: /\.json$/, loader: 'json-loader' },
-      { test: /\.ts(x?)$/, loader: `babel-loader?${babelOptions}!ts-loader` },
+    plugins: [
+      'syntax-async-functions',
+      'transform-regenerator',
+      'syntax-object-rest-spread',
+      'transform-object-rest-spread',
+      ['react-intl', {
+        messagesDir: `${options.output.path}/../messages/`,
+        enforceDescriptions: true,
+      }],
     ],
-  },
+    babelrc: false,
+  });
 
-  output: Object.assign({
-    publicPath: `http://localhost:${options.devServerPort}/`,
-  }, options.output),
+  return {
+    target: options.target || 'web',
 
-  resolve: {
-    extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
-    fallback: path.join(process.cwd(), 'node_modules'),
-  },
+    entry: [
+      'eventsource-polyfill', // necessary for hot reloading with IE
+      `webpack-hot-middleware/client?path=http://localhost:${options.devServerPort}/__webpack_hmr`,
+      options.entry,
+    ],
 
-  plugins: [
-    new webpack.optimize.OccurenceOrderPlugin(),
+    module: {
+      preLoaders: [
+        { test: /\.js$/, loader: 'source-map-loader' },
+      ],
+      loaders: [
+        { test: /\.css$/, loader: 'style-loader!css-loader!postcss-loader' },
+        { test: /\.json$/, loader: 'json-loader' },
+        { test: /\.ts(x?)$/, loader: `babel-loader?${babelOptions}!ts-loader` },
+      ],
+    },
 
-    new webpack.DefinePlugin(_.mapValues(Object.assign({
-      'process.env.NODE_ENV': 'development',
-      __DEV__: true,
-      __CLIENT__: true,
-    }, options.defines || {}), val => JSON.stringify(val))),
+    output: Object.assign({
+      publicPath: `http://localhost:${options.devServerPort}/`,
+    }, options.output),
 
-    new webpack.HotModuleReplacementPlugin(),
+    resolve: {
+      extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
+      fallback: path.join(process.cwd(), 'node_modules'),
+    },
 
-    ...(options.plugins || []),
-  ],
+    plugins: [
+      new webpack.optimize.OccurenceOrderPlugin(),
 
-  postcss: function () {
-      return [autoprefixer];
-  },
+      new webpack.DefinePlugin(_.mapValues(Object.assign({
+        'process.env.NODE_ENV': 'development',
+        __DEV__: true,
+        __CLIENT__: true,
+      }, options.defines || {}), val => JSON.stringify(val))),
 
-  devtool: options.devtool || 'cheap-module-eval-source-map',
-});
+      new webpack.HotModuleReplacementPlugin(),
+
+      ...(options.plugins || []),
+    ],
+
+    postcss: function () {
+        return [autoprefixer];
+    },
+
+    devtool: options.devtool || 'cheap-module-eval-source-map',
+  };
+};

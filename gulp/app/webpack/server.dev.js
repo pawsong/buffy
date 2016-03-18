@@ -5,6 +5,7 @@ const _ = require('lodash');
 const babelOptions = JSON.stringify({
   presets: [
     'es2015',
+    'react',
   ],
   plugins: [
     'syntax-async-functions',

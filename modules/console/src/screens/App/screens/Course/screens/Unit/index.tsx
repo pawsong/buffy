@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Link } from 'react-router';
-import RaisedButton = require('material-ui/lib/raised-button');
+const RaisedButton = require('material-ui/lib/raised-button');
 import {
   requestZoneConnect,
 } from '../../../../../../actions/zone';

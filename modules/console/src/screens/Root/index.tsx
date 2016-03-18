@@ -28,11 +28,11 @@ interface RootProps extends React.Props<Root>, SagaProps {
 }
 
 const messages = defineMessages({
-    title: {
-        id: 'app.home.greeting',
-        description: 'Message to greet the user.',
-        defaultMessage: 'Hello!',
-    },
+  title: {
+    id: 'app.home.title',
+    description: 'Title of home page.',
+    defaultMessage: 'Pasta',
+  },
 });
 
 @injectIntl

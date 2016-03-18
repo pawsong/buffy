@@ -52,6 +52,7 @@
     "invariant": "^2.2.1",
     "jsonwebtoken": "^5.4.1",
     "kerberos": "0.0.17",
+    "locale": "0.0.21",
     "lodash": "^4.6.1",
     "lodash.template": "^4.2.2",
     "material-ui": "^0.14.4",
