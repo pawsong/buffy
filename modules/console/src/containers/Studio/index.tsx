@@ -9,6 +9,8 @@ import Tabs from 'material-ui/lib/tabs/tabs';
 import Tab from 'material-ui/lib/tabs/tab';
 const objectAssign = require('object-assign');
 const update = require('react-addons-update');
+import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
+import Messages from '../../constants/Messages';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Blockly } from './containers/CodeEditor/blockly';
@@ -30,9 +32,23 @@ import Game from './containers/Game';
 import CodeEditor from './containers/CodeEditor';
 import VoxelEditor from './containers/VoxelEditor';
 
-/*
- * Component
- */
+const messages = defineMessages({
+  run: {
+    id: 'run',
+    description: 'Run code',
+    defaultMessage: 'Run',
+  },
+  code: {
+    id: 'code',
+    description: 'Write code for robot with blocks',
+    defaultMessage: 'Code',
+  },
+  design: {
+    id: 'design',
+    description: 'Design robot with blocks',
+    defaultMessage: 'Design',
+  },
+});
 
 const styles = {
   root: {
@@ -90,6 +106,7 @@ interface StudioProps extends React.Props<Studio> {
   onRun: () => any;
   isBlocklyReady: boolean;
   style?: React.CSSProperties;
+  intl?: InjectedIntlProps;
 }
 
 interface StudioState {
@@ -101,6 +118,7 @@ interface StudioState {
   activeTab?: string;
 }
 
+@injectIntl
 class Studio extends React.Component<StudioProps, StudioState> {
   initialTabIndex: number;
   initialGameWidth: number;
@@ -170,7 +188,7 @@ class Studio extends React.Component<StudioProps, StudioState> {
               <LayoutContainer remaining={true}>
                 <Toolbar>
                   <ToolbarGroup key={0} float="right">
-                    <RaisedButton label="Run"
+                    <RaisedButton label={this.props.intl.formatMessage(messages.run)}
                                   primary={true}
                                   disabled={!this.props.isBlocklyReady}
                                   onTouchTap={() => this.props.onRun()}
@@ -187,10 +205,10 @@ class Studio extends React.Component<StudioProps, StudioState> {
                   onChange={value => this.onTabChange(value)}
                   value={this.state.activeTab}
             >
-              <Tab label={'Code'} value="code">
+              <Tab label={this.props.intl.formatMessage(messages.code)} value="code">
                 <CodeEditor sizeVersion={this.state.editorSizeVersions.code} active={this.state.activeTab === 'code'} />
               </Tab>
-              <Tab label={'Design'} value="design">
+              <Tab label={this.props.intl.formatMessage(messages.design)} value="design">
                 <VoxelEditor sizeVersion={this.state.editorSizeVersions.design} />
               </Tab>
             </Tabs>
