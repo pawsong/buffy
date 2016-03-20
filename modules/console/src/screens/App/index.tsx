@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { RouteComponentProps } from 'react-router';
 import { State } from '../../reducers';
 import {
   User,
@@ -9,9 +10,9 @@ import {
 } from '../../actions/auth';
 import AppNavbar from './components/AppNavbar';
 
-interface AppProps extends React.Props<AppHandler> {
-  user: User;
-  requestLogout: () => any;
+interface AppProps extends RouteComponentProps<{}, {}> {
+  user?: User;
+  requestLogout?: () => any;
 }
 
 @connect((state: State) => ({
@@ -27,7 +28,7 @@ class AppHandler extends React.Component<AppProps, {}> {
   render() {
     return (
       <div>
-        <AppNavbar user={this.props.user} onLogout={this.handleLogout.bind(this)}/>
+        <AppNavbar user={this.props.user} onLogout={this.handleLogout.bind(this)} location={this.props.location} />
         {this.props.children}
       </div>
     );

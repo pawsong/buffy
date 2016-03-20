@@ -26,6 +26,8 @@ import LogoutIcon from 'material-ui/lib/svg-icons/action/exit-to-app';
 
 const objectAssign = require('object-assign');
 
+import ClickAwayListener from '../../../components/ClickAwayListener';
+
 import {
   User,
  } from '../../../reducers/users';
@@ -33,6 +35,7 @@ import {
 import Navbar from '../../../components/Navbar';
 
 interface AppNavbarProps extends React.Props<AppNavbar> {
+  location: any;
   user: User;
   onLogout: () => any;
 }
@@ -55,6 +58,22 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
 
   handleAvatarClick() {
     this.setState({ accountInfoBoxOpened: !this.state.accountInfoBoxOpened });
+  }
+
+  closeAccountInfoBox() {
+    if (this.state.accountInfoBoxOpened) {
+      this.setState({ accountInfoBoxOpened: false });
+    }
+  }
+
+  handleClickAway() {
+    this.closeAccountInfoBox();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.location !== prevProps.location) {
+      this.closeAccountInfoBox();
+    }
   }
 
   render() {
@@ -81,10 +100,12 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
           <Link to="/"><ToolbarTitle text="PASTA" style={styles.title} /></Link>
         </ToolbarGroup>
         <ToolbarGroup float="right">
-          <IconButton style={styles.avatarButton} iconStyle={styles.avatarButtonIcon} onTouchTap={() => this.handleAvatarClick()}>
-            <Avatar size={32} src={picture} />
-          </IconButton>
-          {accountInfoBox}
+          <ClickAwayListener onClickAway={() => this.handleClickAway()}>
+            <IconButton style={styles.avatarButton} iconStyle={styles.avatarButtonIcon} onTouchTap={() => this.handleAvatarClick()}>
+              <Avatar size={32} src={picture} />
+            </IconButton>
+            {accountInfoBox}
+          </ClickAwayListener>
         </ToolbarGroup>
       </Navbar>
     );

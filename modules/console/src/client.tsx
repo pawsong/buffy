@@ -10,7 +10,6 @@ import * as Immutable from 'immutable';
 import * as React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import { browserHistory } from 'react-router';
 import { match } from 'react-router'
 const { Router, RouterContext }  = require('react-router');
 const { ReduxAsyncConnect, loadOnServer } = require('redux-async-connect');
@@ -36,10 +35,7 @@ delete window['__INTIAL_STATE__'];
 const locale = window['__LOCALE__'];
 delete window['__LOCALE__'];
 
-// const history = useScroll(() => browserHistory)();
-const history = browserHistory;
-
-const { store, sagaMiddleware } = configureStore(initialState, history);
+const { store, history, sagaMiddleware } = configureStore(initialState);
 const routes = getRoutes(store);
 
 const finalMuiTheme = getMuiTheme(baseTheme, muiTheme);
@@ -50,7 +46,6 @@ interface LocaleData {
   data: any;
   messages: any;
 }
-
 
 function loadLocaleData(locale: string) {
   return new Promise<LocaleData>(resolve => {

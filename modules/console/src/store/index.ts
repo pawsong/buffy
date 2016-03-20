@@ -2,21 +2,13 @@ import { createStore, applyMiddleware, Middleware, compose } from 'redux';
 import { routerMiddleware, push } from 'react-router-redux';
 import createSagaMiddleware from 'redux-saga';
 const objectAssign = require('object-assign');
+import { browserHistory } from 'react-router';
+import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
+
 import rootReducer, { initialize } from '../reducers';
 import apiSaga from '../api/saga';
 
-export default function configureStore(initialState?: any, history?) {
-  const middlewares: Middleware[] = [];
-
-  // react-router-redux middleware
-  if (history) {
-    middlewares.push(routerMiddleware(history));
-  }
-
-  // redux-saga middleware
-  const sagaMiddleware = createSagaMiddleware(apiSaga);
-  middlewares.push(sagaMiddleware);
-
+export default function configureStore(initialState?: any) {
   const finalInitialState = {};
   if (initialState) {
     Object.keys(initialState).forEach(prop => {
@@ -24,6 +16,16 @@ export default function configureStore(initialState?: any, history?) {
       finalInitialState[prop] = init ? init(initialState[prop]) : initialState[prop];
     });
   }
+
+  const middlewares: Middleware[] = [];
+
+  if (__CLIENT__) {
+    middlewares.push(routerMiddleware(browserHistory));
+  }
+
+  // redux-saga middleware
+  const sagaMiddleware = createSagaMiddleware(apiSaga);
+  middlewares.push(sagaMiddleware);
 
   const store = createStore(
     rootReducer,
@@ -33,6 +35,11 @@ export default function configureStore(initialState?: any, history?) {
     ) as any
   );
 
+  let history = null;
+  if (__CLIENT__) {
+    history = syncHistoryWithStore(browserHistory, store);
+  }
+
   if (__DEV__ && module.hot) {
     // Enable Webpack hot module replacement for reducers
     module.hot.accept('../reducers', () => {
@@ -41,8 +48,5 @@ export default function configureStore(initialState?: any, history?) {
     });
   }
 
-  return {
-    store,
-    sagaMiddleware,
-  };
+  return { store, history, sagaMiddleware };
 }

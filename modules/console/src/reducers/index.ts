@@ -1,4 +1,6 @@
 import { combineReducers } from 'redux';
+import { routerReducer } from 'react-router-redux';
+
 import auth, { AuthState } from './auth';
 import codeEditor, { CodeEditorState } from './codeEditor';
 import course, { CourseState, initialize as courseInit } from './course';
@@ -40,4 +42,5 @@ export default combineReducers({
   voxelEditor,
   zone,
   api,
+  routing: routerReducer,
 });
