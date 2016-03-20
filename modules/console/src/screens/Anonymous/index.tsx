@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { RouteComponentProps } from 'react-router';
 import { State } from '../../reducers';
 
 import {
@@ -15,7 +16,7 @@ import Footer from '../../components/Footer';
 
 import { preloadApi, connectApi, ApiCall, get } from '../../api';
 
-interface AnonymousHandlerProps extends React.Props<AnonymousHandler> {
+interface AnonymousHandlerProps extends RouteComponentProps<{}, {}> {
   courses: ApiCall<Course[]>;
 }
 
@@ -27,7 +28,7 @@ class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
   render() {
     return (
       <div>
-        <LandingNavbar />
+        <LandingNavbar location={this.props.location} />
         {this.props.children}
       </div>
     );

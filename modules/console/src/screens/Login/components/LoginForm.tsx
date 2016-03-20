@@ -91,6 +91,7 @@ const messages = defineMessages({
 });
 
 interface LoginFormProps extends React.Props<LoginForm>, SagaProps {
+  location: HistoryModule.Location;
   localLoginErrorMessage: string;
   facebookLoginErrorMessage: string;
   onLocalLoginSubmit: (email, password) => any;
@@ -111,23 +112,21 @@ interface LoginResult {
 
 @injectIntl
 @saga({
-  localLogin: function* (email: string, password: string) {
+  localLogin: function* (locationDesc: HistoryModule.LocationDescriptor, email: string, password: string) {
     try {
       const result = yield call(localLogin, email, password);
-      if (result) {
-        yield put(replace('/'));
-      }
+      if (result) yield put(replace(locationDesc));
+
       return { result };
     } catch(error) {
       if (!isCancelError(error)) throw error;
     }
   },
-  facebookLogin: function* () {
+  facebookLogin: function* (locationDesc: HistoryModule.LocationDescriptor) {
     try {
       const result = yield call(facebookLogin);
-      if (result) {
-        yield put(replace('/'));
-      }
+      if (result) yield put(replace(locationDesc));
+
       return { result };
     } catch(error) {
       if (!isCancelError(error)) throw error;
@@ -135,15 +134,25 @@ interface LoginResult {
   },
 })
 class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
+  nextLocationDesc: HistoryModule.LocationDescriptor;
+
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      email: '', password: '',
-    };
+    this.state = { email: '', password: '' };
+
+    this.nextLocationDesc = { pathname: '/', query: {} };
+
+    const nextLocation = this.props.location.query['n'];
+    if (nextLocation) {
+      try {
+        const { p, q } = JSON.parse(nextLocation);
+        if (p) this.nextLocationDesc['pathname'] = p;
+        if (q) this['query'] = q;
+      } catch(error) {}
+    }
   }
 
   componentWillUnmount() {
-    console.log('will unmount');
     this.cancelLoginRequests();
   }
 
@@ -163,12 +172,12 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
   handleLocalLogin(e: React.FormEvent) {
     e.preventDefault();
     this.cancelLoginRequests();
-    this.props.runSaga(this.props.localLogin, this.state.email, this.state.password);
+    this.props.runSaga(this.props.localLogin, this.nextLocationDesc, this.state.email, this.state.password);
   }
 
   handleLoginWithFacebook() {
     this.cancelLoginRequests();
-    this.props.runSaga(this.props.facebookLogin);
+    this.props.runSaga(this.props.facebookLogin, this.nextLocationDesc);
   }
 
   isFormBusy() {

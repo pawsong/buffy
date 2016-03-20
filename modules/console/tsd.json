@@ -45,10 +45,10 @@
       "commit": "9f0f926a12026287b5a4a229e5672c01e7549313"
     },
     "react/react.d.ts": {
-      "commit": "cc3d223a946f661eff871787edeb0fcb8f0db156"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "redux/redux.d.ts": {
-      "commit": "9f0f926a12026287b5a4a229e5672c01e7549313"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "react-redux/react-redux.d.ts": {
       "commit": "9f0f926a12026287b5a4a229e5672c01e7549313"
@@ -57,10 +57,10 @@
       "commit": "cc3d223a946f661eff871787edeb0fcb8f0db156"
     },
     "react-router/react-router.d.ts": {
-      "commit": "9f0f926a12026287b5a4a229e5672c01e7549313"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "react-router/history.d.ts": {
-      "commit": "9f0f926a12026287b5a4a229e5672c01e7549313"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "socket.io-client/socket.io-client.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
@@ -97,9 +97,6 @@
     },
     "cheerio/cheerio.d.ts": {
       "commit": "e69fe60f2d6377ea4fae539493997b098f52cad1"
-    },
-    "react-router-redux/react-router-redux.d.ts": {
-      "commit": "9f0f926a12026287b5a4a229e5672c01e7549313"
     },
     "threejs/three.d.ts": {
       "commit": "0144ad5a74053f2292424847259c4c8e1d0fecaa"

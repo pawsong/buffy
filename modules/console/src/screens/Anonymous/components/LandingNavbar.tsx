@@ -29,6 +29,7 @@ const styles = {
 interface LandingNavbarProps extends React.Props<LandingNavbar> {
   intl?: InjectedIntlProps;
   dispatch?: Dispatch;
+  location: HistoryModule.Location;
 }
 
 @injectIntl
@@ -43,7 +44,15 @@ class LandingNavbar extends React.Component<LandingNavbarProps, {}> {
         <ToolbarGroup float="right">
           <FlatButton label={this.props.intl.formatMessage(Messages.login)}
                       style={styles.button}
-                      onTouchTap={() => this.props.dispatch(push('/login'))}
+                      onTouchTap={() => this.props.dispatch(push({
+                        pathname: '/login',
+                        query: {
+                          n: JSON.stringify({
+                            p: this.props.location.pathname,
+                            q: this.props.location.query,
+                          }),
+                        },
+                      }))}
           />
           <FlatButton label={this.props.intl.formatMessage(Messages.signup)}
                       style={styles.button}

@@ -2,6 +2,7 @@
 /// <reference path="../node_modules/immutable/dist/immutable.d.ts"/>
 /// <reference path="./typings/object-assign/object-assign.d.ts" />
 /// <reference path="./typings/redux-saga/redux-saga.d.ts" />
+/// <reference path="./typings/react-router-redux/react-router-redux.d.ts" />
 
 declare const __DEV__: boolean;
 declare const __CLIENT__: boolean;
