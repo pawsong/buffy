@@ -26,6 +26,9 @@ import LogoutIcon from 'material-ui/lib/svg-icons/action/exit-to-app';
 
 const objectAssign = require('object-assign');
 
+import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
+import Messages from '../../../constants/Messages';
+
 import ClickAwayListener from '../../../components/ClickAwayListener';
 
 import {
@@ -38,12 +41,14 @@ interface AppNavbarProps extends React.Props<AppNavbar> {
   location: any;
   user: User;
   onLogout: () => any;
+  intl?: InjectedIntlProps;
 }
 
 interface AppNavbarState {
   accountInfoBoxOpened?: boolean;
 }
 
+@injectIntl
 class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
   constructor(props, context) {
     super(props, context);
@@ -61,9 +66,7 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
   }
 
   closeAccountInfoBox() {
-    if (this.state.accountInfoBoxOpened) {
-      this.setState({ accountInfoBoxOpened: false });
-    }
+    if (this.state.accountInfoBoxOpened) this.setState({ accountInfoBoxOpened: false });
   }
 
   handleClickAway() {
@@ -71,16 +74,11 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.location !== prevProps.location) {
-      this.closeAccountInfoBox();
-    }
+    if (this.props.location !== prevProps.location) this.closeAccountInfoBox();
   }
 
-  render() {
-    const user = this.props.user;
-    const picture = user ? user.picture : '';
-
-    const accountInfoBox = !this.state.accountInfoBoxOpened ? null : (
+  renderAccountBox() {
+    return (
       <div style={styles.accountInfoBox}>
         <div style={styles.accountInfoBoxCaretCont}>
           <div style={styles.accountInfoBoxOuterCaret} />
@@ -88,16 +86,26 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
         </div>
         <Paper zDepth={1}>
           <List>
-            <ListItem primaryText="Log out" leftIcon={<LogoutIcon />} onTouchTap={() => this.handleLogout()} />
+            <ListItem primaryText={this.props.intl.formatMessage(Messages.logout)}
+                      leftIcon={<LogoutIcon />}
+                      onTouchTap={() => this.handleLogout()}
+            />
           </List>
         </Paper>
       </div>
     );
+  }
+
+  render() {
+    const user = this.props.user;
+    const picture = user ? user.picture : '';
+
+    const accountInfoBox = this.state.accountInfoBoxOpened ? this.renderAccountBox() : null;
 
     return (
       <Navbar>
         <ToolbarGroup float="left">
-          <Link to="/"><ToolbarTitle text="PASTA" style={styles.title} /></Link>
+          <Link to="/"><ToolbarTitle text={this.props.intl.formatMessage(Messages.service)} style={styles.title} /></Link>
         </ToolbarGroup>
         <ToolbarGroup float="right">
           <ClickAwayListener onClickAway={() => this.handleClickAway()}>

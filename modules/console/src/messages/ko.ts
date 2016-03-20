@@ -19,6 +19,7 @@ export default {
   'login': '로그인', // Login
   'login.form.heading': '{service}에 로그인하세요', // Log in to {service}
   'login.form.newToService': '{service}에 처음이세요?', // New to {service}?
+  'logout': '로그아웃', // Log out
   'name': '이름', // Name
   'nameRequired': '이름을 입력하세요', // Please enter your name
   'password': '패스워드', // Password

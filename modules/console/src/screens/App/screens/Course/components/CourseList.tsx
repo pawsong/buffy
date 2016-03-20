@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import { Course } from '../../../../../reducers/course';
 import Wrapper from '../../../../../components/Wrapper';
 
-
 const objectAssign = require('object-assign');
 
 import Colors from 'material-ui/lib/styles/colors';

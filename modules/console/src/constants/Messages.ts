@@ -51,6 +51,11 @@ const messages = defineMessages({
     description: 'Login with facebook is failed',
     defaultMessage: 'Cannot login with facebook.',
   },
+  logout: {
+    id: 'logout',
+    description: 'Log out',
+    defaultMessage: 'Log out',
+  },
 });
 
 export default messages;
