@@ -21,10 +21,10 @@
       "commit": "dc9dabe74a5be62613b17a3605309783a12ff28a"
     },
     "form-data/form-data.d.ts": {
-      "commit": "dc9dabe74a5be62613b17a3605309783a12ff28a"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "request/request.d.ts": {
-      "commit": "dc9dabe74a5be62613b17a3605309783a12ff28a"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "compression/compression.d.ts": {
       "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
