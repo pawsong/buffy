@@ -84,6 +84,7 @@ export default (app: express.Express) => {
       data: req.body.data,
       modifiedAt: Date.now(),
     }).exec();
-    res.send();
+
+    res.sendStatus(200);
   }));
 };
