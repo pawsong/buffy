@@ -32,7 +32,6 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
         <CourseList fetching={this.props.courses.state !== 'fulfilled'}
                     courses={this.props.courses.result}
         />
-        <Footer />
       </div>
     );
   }

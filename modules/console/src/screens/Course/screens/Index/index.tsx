@@ -4,7 +4,6 @@ import { Link, RouteComponentProps } from 'react-router';
 import { State } from '../../../../reducers';
 import { User } from '../../../../reducers/users';
 import { Course } from '../../../../reducers/course';
-import Footer from '../../../../components/Footer';
 import { saga } from '../../../../saga';
 import Wrapper from '../../../../components/Wrapper';
 const RaisedButton = require('material-ui/lib/raised-button');
@@ -40,7 +39,6 @@ class CourseIndexHandler extends React.Component<CourseIndexHandlerProps, {}> {
                         containerElement={<Link to={`/courses/${course.result.id}/units/${1}`}/>}
           />
         </Wrapper>
-        <Footer />
       </div>
     );
   }

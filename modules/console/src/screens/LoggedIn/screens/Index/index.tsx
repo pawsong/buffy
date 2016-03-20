@@ -28,7 +28,6 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
     return (
       <div>
         <CourseList courses={this.props.courses.result} />
-        <Footer />
       </div>
     );
   }

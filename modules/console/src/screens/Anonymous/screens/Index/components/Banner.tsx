@@ -1,4 +1,7 @@
 import * as React from 'react';
+import { Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 import Wrapper from '../../../../../components/Wrapper';
 
 import Colors from 'material-ui/lib/styles/colors';
@@ -38,12 +41,14 @@ const styles = {
 
 interface BannerProps extends React.Props<Banner> {
   intl?: InjectedIntlProps;
+  dispatch?: Dispatch;
 }
 
 @injectIntl
+@connect()
 class Banner extends React.Component<BannerProps, {}> {
   handleInfoButtonClick() {
-    console.log('Show more info...');
+    this.props.dispatch(push('/features'));
   }
 
   render() {

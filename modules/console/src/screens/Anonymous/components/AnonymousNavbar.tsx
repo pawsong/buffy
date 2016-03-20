@@ -2,13 +2,13 @@ import * as React from 'react';
 import { Dispatch } from 'redux';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 const FlatButton = require('material-ui/lib/flat-button');
 import Colors from 'material-ui/lib/styles/colors';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
 import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
-import { push } from 'react-router-redux';
 import Messages from '../../../constants/Messages';
 import RaisedButton from 'material-ui/lib/raised-button';
 
@@ -18,6 +18,12 @@ const styles = {
   title: {
     color: Colors.white,
   },
+  leftButton: {
+    float: 'right',
+    color: Colors.white,
+    marginLeft: 18,
+    marginRight: 0,
+  },
   button: {
     // color: Colors.amber50,
     color: Colors.white,
@@ -26,20 +32,32 @@ const styles = {
   },
 };
 
-interface LandingNavbarProps extends React.Props<LandingNavbar> {
+interface AnonymousNavbarProps extends React.Props<AnonymousNavbar> {
   intl?: InjectedIntlProps;
   dispatch?: Dispatch;
   location: HistoryModule.Location;
 }
 
+const messages = defineMessages({
+  featuresLabel: {
+    id: 'anon.navbar.features',
+    description: 'Simple question to ask why this service is good',
+    defaultMessage: 'Why?',
+  },
+});
+
 @injectIntl
 @connect()
-class LandingNavbar extends React.Component<LandingNavbarProps, {}> {
+class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
   render() {
     return (
       <Navbar>
         <ToolbarGroup float="left">
           <Link to="/"><ToolbarTitle text={this.props.intl.formatMessage(Messages.service)} style={styles.title} /></Link>
+          <FlatButton label={this.props.intl.formatMessage(messages.featuresLabel)}
+                      style={styles.leftButton}
+                      onTouchTap={() => this.props.dispatch(push({ pathname: '/features' }))}
+          />
         </ToolbarGroup>
         <ToolbarGroup float="right">
           <FlatButton label={this.props.intl.formatMessage(Messages.login)}
@@ -66,4 +84,4 @@ class LandingNavbar extends React.Component<LandingNavbarProps, {}> {
   }
 }
 
-export default LandingNavbar;
+export default AnonymousNavbar;

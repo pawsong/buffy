@@ -4,6 +4,7 @@ import Anonymous from './screens/Anonymous';
 import AnonymousIndex from './screens/Anonymous/Index';
 import LoggedIn from './screens/LoggedIn';
 import LoggedInIndex from './screens/LoggedIn/screens/Index';
+import Features from './screens/Features';
 import Course from './screens/Course';
 import CourseIndex from './screens/Course/screens/Index';
 import Unit from './screens/Course/screens/Unit';
@@ -53,6 +54,12 @@ export default function getRoutes(store: Store) {
           }
         },
         childRoutes: [
+          {
+            path: '/features',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: Features }>('./screens/Features').default);
+            }),
+          },
           {
             path: '/courses/:courseId',
             getComponent: (location, cb) => require.ensure([], require => {

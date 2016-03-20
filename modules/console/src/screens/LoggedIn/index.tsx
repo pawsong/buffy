@@ -8,6 +8,7 @@ import {
 import {
   requestLogout,
 } from '../../actions/auth';
+import Footer from '../../components/Footer';
 import AppNavbar from './components/AppNavbar';
 
 interface LoggedInHandlerProps extends RouteComponentProps<{}, {}> {
@@ -30,6 +31,7 @@ class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
       <div>
         <AppNavbar user={this.props.user} onLogout={this.handleLogout.bind(this)} location={this.props.location} />
         {this.props.children}
+        <Footer />
       </div>
     );
   }

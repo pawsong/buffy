@@ -1,4 +1,5 @@
 export default {
+  'anon.navbar.features': '특징은?', // Why?
   'app.home.title': '파스타', // Pasta
   'app.login.title': '로그인', // Log in to Pasta
   'code': '코드', // Code

@@ -81,7 +81,6 @@ Promise.all<LocaleData>([
 ])
 .then(([localeData]) => {
   addLocaleData(localeData.data);
-  console.log(localeData.messages)
   render(
     <IntlProvider locale={locale} messages={localeData.messages}>
       <HairdresserProvider hairdresser={hairdresser}>
