@@ -10,6 +10,21 @@
     },
     "fbemitter/fbemitter.d.ts": {
       "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
+    },
+    "serve-static/serve-static.d.ts": {
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
+    },
+    "express/express.d.ts": {
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
+    },
+    "express-serve-static-core/express-serve-static-core.d.ts": {
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
+    },
+    "mime/mime.d.ts": {
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
+    },
+    "node/node.d.ts": {
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     }
   }
 }

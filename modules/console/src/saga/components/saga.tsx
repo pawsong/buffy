@@ -6,7 +6,7 @@ import * as invariant from 'invariant';
 const hoistStatics = require('hoist-non-react-statics');
 const objectAssign = require('object-assign');
 
-import { UnlistenableTask, ImmutableTask, isRunning } from '../core';
+import { UnlistenableTask, ImmutableTask } from '../core';
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -27,7 +27,7 @@ interface SagaComponentState {
 
 function filterGetState(saga) {
   return function* (getState, ...args) {
-    yield* saga(...args);
+    return yield* saga(...args);
   };
 }
 
@@ -66,12 +66,25 @@ export default function saga(options: SagaDictionary) {
         });
       }
 
+      _cancelSaga(sagaTask: ImmutableTask<any>) {
+        if (sagaTask.task) {
+          sagaTask.task.unlisten();
+          sagaTask.task.cancel();
+        }
+      }
+
       cancelSaga = (sagaTask: ImmutableTask<any>) => {
-        if (sagaTask.task) { sagaTask.task.cancel(); }
+        this._cancelSaga(sagaTask);
+        this.setState({
+          [sagaTask.name]: {
+            name: sagaTask.name,
+            state: 'ready',
+          }
+        });
       }
 
       runSaga = (sagaTask: ImmutableTask<any>, ...args) => {
-        this.cancelSaga(sagaTask);
+        if (sagaTask.state === 'running') this._cancelSaga(sagaTask);
 
         const saga = sagas[sagaTask.name];
         const task = new UnlistenableTask(this.middleware.run(saga, ...args));
@@ -87,7 +100,7 @@ export default function saga(options: SagaDictionary) {
           .onCatch(error => this.setState({
             [sagaTask.name]: {
               name: sagaTask.name,
-              state: 'done',
+              state: 'error',
               error: error,
               task: task,
             },

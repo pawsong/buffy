@@ -44,7 +44,7 @@ export class UnlistenableTask {
 
 export interface ImmutableTask<T> {
   name: string;
-  state:  'ready' | 'running' | 'done';
+  state:  'ready' | 'running' | 'done' | 'error';
   result?: T;
   error?: Error;
   task?: UnlistenableTask;
@@ -52,4 +52,8 @@ export interface ImmutableTask<T> {
 
 export function isRunning(sagaTask: ImmutableTask<any>) {
   return sagaTask.state === 'running';
+}
+
+export function isDone(sagaTask: ImmutableTask<any>) {
+  return sagaTask.state === 'done';
 }

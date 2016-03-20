@@ -1,5 +1,6 @@
 'use strict';
 
+import * as express from 'express';
 import * as gm from 'gm';
 import * as shortid from 'shortid';
 import * as request from 'request';
@@ -37,11 +38,48 @@ function getToken(req) {
   return '';
 }
 
-export default app => {
-  app.post('/login/anonymous', wrap(async (req, res) => {
+export default (app: express.Express) => {
+  app.get('/signup/local/exists/:email', wrap(async (req, res) => {
+    const { email } = req.params;
+    if (!email) return res.send(400);
+
+    const user = await User.findOne({ email }, { _id: true });
+    return res.send({ result: !!user });
+  }));
+
+  app.post('/signup/local', wrap(async (req, res) => {
+    const { email, password, name } = req.body;
+    if (!email || !password || !name) {
+      return res.send(400);
+    }
+
+    const user = new User({
+      name,
+      email,
+      password,
+    });
+
+    await user.save();
+    res.send(user);
+  }));
+
+  app.post('/login/local', wrap(async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) return res.sendStatus(400);
+
+    const user = await User.findOne({ email }).exec();
+    if (!user) {
+      console.log(`Cannot find user ${email}`);
+      return res.sendStatus(400);
+    }
+
+    if (!user.authenticate(password)) {
+      console.log(`User ${email} authentication failed`);
+      return res.sendStatus(400);
+    }
+
     const token = jwt.sign({
-      id: new User()._id, // Fake ID generator
-      anonymous: true,
+      id: user._id,
     }, conf.jwtSecret);
 
     res.cookie('tt' /* tiat token */, token, {
@@ -50,9 +88,7 @@ export default app => {
       maxAge: 2592000000, // 1 Month
     });
 
-    res.send({
-      picture: '',
-    });
+    res.send(user);
   }));
 
   app.post('/login/facebook', wrap(async (req, res) => {
@@ -72,7 +108,7 @@ export default app => {
       if (err.status !== 401) {
         throw err;
       }
-      return res.status(401).send();
+      return res.sendStatus(401);
     }
 
     let user = await User.findOne({
@@ -126,9 +162,8 @@ export default app => {
   }));
 
   app.post('/logout', wrap(async (req, res) => {
-    res.clearCookie('tt', {
-      domain: DOMAIN,
-    }).send();
+    res.clearCookie('tt', { domain: DOMAIN });
+    res.sendStatus(200);
   }));
 
   app.get('/users/:id', ejwt({

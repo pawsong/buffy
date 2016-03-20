@@ -6,6 +6,11 @@ const messages = defineMessages({
     description: 'Service name',
     defaultMessage: 'Pasta',
   },
+  name: {
+    id: 'name',
+    description: 'Name',
+    defaultMessage: 'Name',
+  },
   email: {
     id: 'email',
     description: 'Email',
@@ -35,6 +40,16 @@ const messages = defineMessages({
     id: 'courses',
     description: 'Courses',
     defaultMessage: 'Courses',
+  },
+  localLoginFailed: {
+    id: 'localLoginFailed',
+    description: 'Login with email and password is failed',
+    defaultMessage: 'The email and password do not match.',
+  },
+  facebookLoginFailed: {
+    id: 'facebookLoginFailed',
+    description: 'Login with facebook is failed',
+    defaultMessage: 'Cannot login with facebook.',
   },
 });
 

@@ -29,8 +29,7 @@ export default function configureStore(initialState?: any, history?) {
     rootReducer,
     finalInitialState,
     compose(
-      applyMiddleware(...middlewares),
-      __DEV__ && typeof window === 'object' && typeof window['devToolsExtension'] !== 'undefined' ? window['devToolsExtension']() : f => f
+      applyMiddleware(...middlewares)
     ) as any
   );
 

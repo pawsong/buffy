@@ -19,9 +19,16 @@ let _request: Request;
 if (__CLIENT__) {
   // Use cookie for token store
   _request = function* (config) {
-    return yield call(axios as any, objectAssign({}, config, {
-      withCredentials: true,
-    }));
+    try {
+      return yield call(axios as any, objectAssign({}, config, {
+        withCredentials: true,
+      }));
+    } catch(response) {
+      if (response.status && response.status >= 200 && response.status < 600) {
+        return response;
+      }
+      throw new Error(`Unexpected ajax error (status=${response.status})`);
+    }
   };
 } else {
   // Convey token on header
@@ -32,7 +39,14 @@ if (__CLIENT__) {
         Authorization: `Bearer ${token}`,
       }),
     });
-    return yield call(axios as any, _config);
+    try {
+      return yield call(axios as any, _config);
+    } catch(response) {
+      if (response.status && response.status >= 200 && response.status < 600) {
+        return response;
+      }
+      throw new Error(`Unexpected ajax error (status=${response.status})`);
+    }
   };
 }
 

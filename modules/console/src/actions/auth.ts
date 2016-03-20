@@ -13,10 +13,14 @@ export interface RequestLoginAction extends Action<typeof REQUEST_LOGIN> {
   password?: string;
 }
 
-export function requestLocalLogin(email: string, password: string): RequestLoginAction {
+export const REQUEST_LOCAL_LOGIN: 'auth/REQUEST_LOCAL_LOGIN' = 'auth/REQUEST_LOCAL_LOGIN';
+export interface RequestLocalLoginAction extends Action<typeof REQUEST_LOCAL_LOGIN> {
+  email: string;
+  password: string;
+}
+export function requestLocalLogin(email: string, password: string): RequestLocalLoginAction {
   return {
-    type: REQUEST_LOGIN,
-    loginType: LoginType.Local,
+    type: REQUEST_LOCAL_LOGIN,
     email,
     password,
   };
