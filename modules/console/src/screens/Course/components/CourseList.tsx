@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Course } from '../../../../../reducers/course';
-import Wrapper from '../../../../../components/Wrapper';
+import { Course } from '../../../reducers/course';
+import Wrapper from '../../../components/Wrapper';
 
 const objectAssign = require('object-assign');
 

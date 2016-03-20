@@ -1,11 +1,12 @@
 import { Store } from 'redux';
-import Landing from './screens/Landing';
 import Root from './screens/Root';
-import App from './screens/App';
-import Dashboard from './screens/App/screens/Dashboard';
-import Course from './screens/App/screens/Course';
-import CourseIndex from './screens/App/screens/Course/screens/Index';
-import Unit from './screens/App/screens/Course/screens/Unit';
+import Anonymous from './screens/Anonymous';
+import AnonymousIndex from './screens/Anonymous/Index';
+import LoggedIn from './screens/LoggedIn';
+import LoggedInIndex from './screens/LoggedIn/screens/Index';
+import Course from './screens/Course';
+import CourseIndex from './screens/Course/screens/Index';
+import Unit from './screens/Course/screens/Unit';
 import Join from './screens/Join';
 import Login from './screens/Login';
 import StudioForCourse from './screens/StudioForCourse';
@@ -30,39 +31,43 @@ export default function getRoutes(store: Store) {
         getComponent: (location, cb) => {
           if (!isLoggedIn()) {
             return require.ensure([], require => {
-              cb(null, require<{ default: Landing }>('./screens/Landing').default);
+              cb(null, require<{ default: Anonymous }>('./screens/Anonymous').default);
+            });
+          } else {
+            return require.ensure([], require => {
+              cb(null, require<{ default: LoggedIn }>('./screens/LoggedIn').default);
             });
           }
-
-          return require.ensure([], (require) => {
-            cb(null, require<{ default: App }>('./screens/App').default);
-          });
         },
         indexRoute: {
           getComponent: (location, cb) => {
-            if (!isLoggedIn()) { return cb(); }
-
-            return require.ensure([], (require) => {
-              cb(null, require<{ default: Dashboard }>('./screens/App/screens/Dashboard').default);
-            });
+            if (!isLoggedIn()) {
+              return require.ensure([], (require) => {
+                cb(null, require<{ default: AnonymousIndex }>('./screens/Anonymous/screens/Index').default);
+              });
+            } else {
+              return require.ensure([], (require) => {
+                cb(null, require<{ default: LoggedInIndex }>('./screens/LoggedIn/screens/Index').default);
+              });
+            }
           }
         },
         childRoutes: [
           {
             path: '/courses/:courseId',
             getComponent: (location, cb) => require.ensure([], require => {
-              cb(null, require<{ default: Course }>('./screens/App/screens/Course').default);
+              cb(null, require<{ default: Course }>('./screens/Course').default);
             }),
             indexRoute: {
               getComponent: (location, cb) => require.ensure([], (require) => {
-                cb(null, require<{ default: CourseIndex }>('./screens/App/screens/Course/screens/Index').default);
+                cb(null, require<{ default: CourseIndex }>('./screens/Course/screens/Index').default);
               }),
             },
             childRoutes: [
               {
                 path: 'units/:unitIndex',
                 getComponent: (location, cb) => require.ensure([], require => {
-                  cb(null, require<{ default: Unit }>('./screens/App/screens/Course/screens/Unit').default);
+                  cb(null, require<{ default: Unit }>('./screens/Course/screens/Unit').default);
                 }),
               }
             ],

@@ -10,7 +10,7 @@ import {
 } from '../../actions/auth';
 import AppNavbar from './components/AppNavbar';
 
-interface AppProps extends RouteComponentProps<{}, {}> {
+interface LoggedInHandlerProps extends RouteComponentProps<{}, {}> {
   user?: User;
   requestLogout?: () => any;
 }
@@ -20,7 +20,7 @@ interface AppProps extends RouteComponentProps<{}, {}> {
 }), {
   requestLogout: requestLogout,
 })
-class AppHandler extends React.Component<AppProps, {}> {
+class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
   handleLogout() {
     this.props.requestLogout();
   }
@@ -35,4 +35,4 @@ class AppHandler extends React.Component<AppProps, {}> {
   }
 }
 
-export default AppHandler;
+export default LoggedInHandler;

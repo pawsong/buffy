@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Wrapper from '../../../components/Wrapper';
+import Wrapper from '../../../../../components/Wrapper';
 
 import Colors from 'material-ui/lib/styles/colors';
 import Card from 'material-ui/lib/card/card';
@@ -10,7 +10,7 @@ import CardTitle from 'material-ui/lib/card/card-title';
 import FlatButton from 'material-ui/lib/flat-button';
 import CardText from 'material-ui/lib/card/card-text';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-import Messages from '../../../constants/Messages';
+import Messages from '../../../../../constants/Messages';
 
 const messages = defineMessages({
   bannerTitle: {
@@ -43,7 +43,7 @@ interface BannerProps extends React.Props<Banner> {
 @injectIntl
 class Banner extends React.Component<BannerProps, {}> {
   handleInfoButtonClick() {
-    console.log('Show more info');
+    console.log('Show more info...');
   }
 
   render() {

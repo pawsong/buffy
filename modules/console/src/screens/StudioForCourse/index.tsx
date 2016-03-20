@@ -7,7 +7,7 @@ import {
   requestZoneConnect,
 } from '../../actions/zone';
 import { State } from '../../reducers';
-import { UnitHandlerRouteParams } from '../App/screens/Course/screens/Unit';
+import { UnitHandlerRouteParams } from '../Course/screens/Unit';
 import Studio from '../../containers/Studio';
 
 interface StudioForCourseHandlerRouteParams extends UnitHandlerRouteParams {}

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router';
-import Wrapper from '../../../components/Wrapper';
+import Wrapper from '../../../../../components/Wrapper';
 
 const objectAssign = require('object-assign');
 
@@ -9,7 +9,7 @@ import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-import Messages from '../../../constants/Messages';
+import Messages from '../../../../../constants/Messages';
 
 const styles = {
   root: {

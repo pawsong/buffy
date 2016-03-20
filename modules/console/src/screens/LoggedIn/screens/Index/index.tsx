@@ -9,7 +9,7 @@ import { connectApi, preloadApi, ApiCall, get } from '../../../../api';
 
 import CourseList from './components/CourseList';
 
-interface DashboardHandlerProps extends React.Props<DashboardHandler> {
+interface IndexHandlerProps extends React.Props<IndexHandler> {
   user: User;
   courses: ApiCall<Course[]>;
   request: any;
@@ -19,7 +19,7 @@ interface DashboardHandlerProps extends React.Props<DashboardHandler> {
   courses: get(`${CONFIG_API_SERVER_URL}/courses`),
 }))
 @connectApi()
-class DashboardHandler extends React.Component<DashboardHandlerProps, {}> {
+class IndexHandler extends React.Component<IndexHandlerProps, {}> {
   render() {
     if (this.props.courses.state !== 'fulfilled') {
       return <div>Loading ...</div>;
@@ -34,4 +34,4 @@ class DashboardHandler extends React.Component<DashboardHandlerProps, {}> {
   }
 }
 
-export default DashboardHandler;
+export default IndexHandler;

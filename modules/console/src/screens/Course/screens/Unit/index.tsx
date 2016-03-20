@@ -6,12 +6,12 @@ import { Link } from 'react-router';
 const RaisedButton = require('material-ui/lib/raised-button');
 import {
   requestZoneConnect,
-} from '../../../../../../actions/zone';
-import { State } from '../../../../../../reducers';
+} from '../../../../actions/zone';
+import { State } from '../../../../reducers';
 
 import { CourseHandlerRouteParams } from '../../';
 
-import Wrapper from '../../../../../../components/Wrapper';
+import Wrapper from '../../../../components/Wrapper';
 
 export interface UnitHandlerRouteParams extends CourseHandlerRouteParams {
   unitIndex: string;
