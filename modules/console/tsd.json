@@ -12,7 +12,7 @@
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
     "node/node.d.ts": {
-      "commit": "c0d876601e0f8236fd6b57626eb62c4e485f1563"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "jsonwebtoken/jsonwebtoken.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
@@ -33,13 +33,13 @@
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
     "express/express.d.ts": {
-      "commit": "c0d876601e0f8236fd6b57626eb62c4e485f1563"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "serve-static/serve-static.d.ts": {
-      "commit": "c0d876601e0f8236fd6b57626eb62c4e485f1563"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "mime/mime.d.ts": {
-      "commit": "c0d876601e0f8236fd6b57626eb62c4e485f1563"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "lodash/lodash.d.ts": {
       "commit": "9f0f926a12026287b5a4a229e5672c01e7549313"
@@ -112,6 +112,12 @@
     },
     "react-intl/react-intl.d.ts": {
       "commit": "cc3d223a946f661eff871787edeb0fcb8f0db156"
+    },
+    "express-serve-static-core/express-serve-static-core.d.ts": {
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
+    },
+    "compression/compression.d.ts": {
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'babel-polyfill';
 import * as express from 'express';
+import * as compress from 'compression';
 import * as request from 'request';
 import * as fs from 'fs';
 import {
@@ -10,6 +11,7 @@ import {
 import auth from './auth';
 
 const app = express();
+app.use(compress());
 
 // app.use('/auth', auth);
 // app.use((req, res, next) => {

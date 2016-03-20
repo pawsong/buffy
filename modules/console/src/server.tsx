@@ -22,6 +22,7 @@ import { Provider as HairdresserProvider } from './hairdresser';
 import { Provider as SagaProvider } from './saga';
 
 import * as express from 'express';
+import * as compress from 'compression';
 import * as fs from 'fs';
 const template = require('lodash.template');
 const locale = require('locale');
@@ -76,6 +77,7 @@ const compiledIndexHtml = template(indexHtml, {
 
 const app = express();
 
+app.use(compress());
 app.use(locale(SUPPORTED_LOCALES));
 app.use(cookieParser());
 app.use('/assets', express.static(`${__dirname}/../public`));

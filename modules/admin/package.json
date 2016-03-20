@@ -33,6 +33,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "babel-polyfill": "^6.3.14",
+    "compression": "^1.6.1",
     "express": "^4.13.3",
     "request": "^2.67.0",
     "source-map-support": "^0.4.0"

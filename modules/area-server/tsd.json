@@ -12,7 +12,7 @@
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
     "node/node.d.ts": {
-      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "cookie/cookie.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
@@ -24,13 +24,13 @@
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
     },
     "express/express.d.ts": {
-      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "serve-static/serve-static.d.ts": {
-      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "mime/mime.d.ts": {
-      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "cors/cors.d.ts": {
       "commit": "fe563dff3428bac1260d1794e2c2ecf8f097535a"
@@ -42,7 +42,7 @@
       "commit": "627b6c158b73494c803f36fc2fe00ad75faa8fde"
     },
     "socket.io/socket.io.d.ts": {
-      "commit": "7b3d5a6ea5acda4a81f71309f1cc62354e63b681"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "express-jwt/express-jwt.d.ts": {
       "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
@@ -60,10 +60,16 @@
       "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
     },
     "request/request.d.ts": {
-      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "form-data/form-data.d.ts": {
-      "commit": "f7164a47ffe5e9a7ea2f4bec8fc4009347c64f6d"
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
+    },
+    "compression/compression.d.ts": {
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
+    },
+    "express-serve-static-core/express-serve-static-core.d.ts": {
+      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     }
   }
 }

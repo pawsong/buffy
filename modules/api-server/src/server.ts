@@ -4,6 +4,7 @@ import * as Promise from 'bluebird';
 Promise.config({ warnings: false });
 
 import * as express from 'express';
+import * as compress from 'compression';
 import * as cors from 'cors';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
@@ -15,6 +16,7 @@ import routes from './routes';
 
 const app = express();
 
+app.use(compress());
 app.use(cookieParser());
 app.use(bodyParser.json({
   limit: '50mb',

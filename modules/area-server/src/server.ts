@@ -7,11 +7,14 @@ import httpHandler from './http';
 import ioHandler from './io';
 import * as socketIo from 'socket.io';
 import * as express from 'express';
+import * as compress from 'compression';
 
 // Surpress annoying warnings
 Promise.config({ warnings: false });
 
 const app = express();
+
+app.use(compress());
 const http = require('http').Server(app);
 const io = socketIo(http);
 
