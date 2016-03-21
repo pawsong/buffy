@@ -11,6 +11,7 @@ import { isCancelError } from 'redux-saga';
 import { call, put } from 'redux-saga/effects';
 import { replace } from 'react-router-redux';
 import CircularProgress from 'material-ui/lib/circular-progress';
+import ActionPets from 'material-ui/lib/svg-icons/action/pets';
 import { saga, ImmutableTask, SagaProps, isRunning, isDone } from '../../../saga';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../constants/Messages';
@@ -26,11 +27,11 @@ const styles = {
   logoContainer: {
     textDecoration: 'none',
     textAlign: 'center',
-    marginBottom: 15,
+    marginBottom: 36,
   },
   logo: {
-    color: Colors.black,
-    display: 'inline-block',
+    width: 40,
+    height: 40,
   },
   paper: {
     position: 'relative',
@@ -198,7 +199,9 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
       <div style={styles.root}>
         <Wrapper width={400}>
           <div style={styles.logoContainer}>
-            <Link to="/"><h1 style={styles.logo}>{this.props.intl.formatMessage(Messages.service)}</h1></Link>
+            <Link to="/">
+            <ActionPets style={styles.logo}/>
+            </Link>
           </div>
           <Paper style={styles.paper}>
             {formIsBusy ? <CircularProgress style={styles.progressOverlay} /> : null}

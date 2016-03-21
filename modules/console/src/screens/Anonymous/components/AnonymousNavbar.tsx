@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 const FlatButton = require('material-ui/lib/flat-button');
+import ActionPets from 'material-ui/lib/svg-icons/action/pets';
 import Colors from 'material-ui/lib/styles/colors';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
@@ -11,12 +12,16 @@ import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
 import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../constants/Messages';
 import RaisedButton from 'material-ui/lib/raised-button';
+import FontIcon from 'material-ui/lib/font-icon';
 
 import Navbar from '../../../components/Navbar';
 
 const styles = {
   title: {
     color: Colors.white,
+  },
+  logo: {
+    marginTop: 16,
   },
   leftButton: {
     float: 'right',
@@ -53,7 +58,7 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
     return (
       <Navbar>
         <ToolbarGroup float="left">
-          <Link to="/"><ToolbarTitle text={this.props.intl.formatMessage(Messages.service)} style={styles.title} /></Link>
+          <Link to="/"><ActionPets style={styles.logo} /></Link>
           <FlatButton label={this.props.intl.formatMessage(messages.featuresLabel)}
                       style={styles.leftButton}
                       onTouchTap={() => this.props.dispatch(push({ pathname: '/features' }))}
