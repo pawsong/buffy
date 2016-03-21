@@ -32,7 +32,7 @@ export const gameServerPort: number = 9200;
 /**
  * Game zone server public url
  */
-export const gameServerUrl = 'http://zone.project-pasta.io';
+export const gameServerUrl = 'http://zone.buffy.run';
 
 /**
  * API server port
@@ -40,17 +40,17 @@ export const gameServerUrl = 'http://zone.project-pasta.io';
 
 export const apiServerPort: number = 9300;
 
-export const apiServerUrl = `http://api.project-pasta.io`;
+export const apiServerUrl = `http://api.buffy.run`;
 
 export const addonVoxelEditorServerPort: number = 9300;
 
-export const addonVoxelEditorServerUrl = `http://api.project-pasta.io`;
+export const addonVoxelEditorServerUrl = `http://api.buffy.run`;
 
 export const addonVoxelEditorClientPort: number = 9301;
 
 export const addonCodeEditorServerPort: number = 9600;
 
-export const addonCodeEditorServerUrl = `http://code.project-pasta.io`;
+export const addonCodeEditorServerUrl = `http://code.buffy.run`;
 
 export const addonCodeEditorClientPort: number = 9601;
 
@@ -79,7 +79,7 @@ export const adminServerDevPort: number = 9402;
 
 export const authServerPort = 9500;
 
-export const authServerUrl = 'http://auth.project-pasta.io';
+export const authServerUrl = 'http://auth.buffy.run';
 
 /**
 * public path for admin server assets
