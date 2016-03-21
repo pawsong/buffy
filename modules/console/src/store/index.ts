@@ -4,7 +4,6 @@ import createSagaMiddleware from 'redux-saga';
 const objectAssign = require('object-assign');
 import { browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
-const useScroll = require('scroll-behavior/lib/useStandardScroll');
 
 import rootReducer, { initialize } from '../reducers';
 import apiSaga from '../api/saga';
@@ -38,8 +37,7 @@ export default function configureStore(initialState?: any) {
 
   let history = null;
   if (__CLIENT__) {
-    const scrollHistory = useScroll(() => browserHistory)();
-    history = syncHistoryWithStore(scrollHistory, store);
+    history = syncHistoryWithStore(browserHistory, store);
   }
 
   if (__DEV__ && module.hot) {
