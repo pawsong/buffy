@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import RaisedButton from 'material-ui/lib/raised-button';
 import Colors from 'material-ui/lib/styles/colors';
@@ -136,6 +137,8 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
             }} />
           </h1>
           <RaisedButton secondary={true}
+                        linkButton={true}
+                        containerElement={<Link to="/getting-started" />}
                         label={this.props.intl.formatMessage(messages.takeTutorial)}
           />
           <div style={{ height: 100 }}/>
@@ -143,6 +146,8 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
             <FormattedMessage {...messages.areYouTeacher} />
           </h1>
           <RaisedButton secondary={true}
+                        linkButton={true}
+                        containerElement={<Link to="/features/teachers" />}
                         label={this.props.intl.formatMessage(messages.seeTeacherInfo)}
           />
         </Wrapper>

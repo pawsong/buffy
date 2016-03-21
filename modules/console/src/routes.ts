@@ -2,6 +2,8 @@ import { Store } from 'redux';
 import Root from './screens/Root';
 import Anonymous from './screens/Anonymous';
 import AnonymousIndex from './screens/Anonymous/screens/Index';
+import GettingStarted from './screens/GettingStarted';
+import FeaturesForTeachers from './screens/FeaturesForTeachers';
 import LoggedIn from './screens/LoggedIn';
 import LoggedInIndex from './screens/LoggedIn/screens/Index';
 import Features from './screens/Features';
@@ -55,9 +57,21 @@ export default function getRoutes(store: Store) {
         },
         childRoutes: [
           {
+            path: '/getting-started',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: GettingStarted }>('./screens/GettingStarted').default);
+            }),
+          },
+          {
             path: '/features',
             getComponent: (location, cb) => require.ensure([], require => {
               cb(null, require<{ default: Features }>('./screens/Features').default);
+            }),
+          },
+          {
+            path: '/features/teachers',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: FeaturesForTeachers }>('./screens/FeaturesForTeachers').default);
             }),
           },
           {

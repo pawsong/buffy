@@ -56,6 +56,11 @@ declare module THREE {
   export function OrbitControls(object: any, domElement: any): void;
 }
 
+declare namespace __MaterialUI {
+  interface RaisedButtonProps {
+    containerElement?: React.ReactElement<any>;
+  }
+}
 // declare var require: {
 //     // <T>(path: string): T;
 //     // (paths: string[], callback: (...modules: any[]) => void): void;

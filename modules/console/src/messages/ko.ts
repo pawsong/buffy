@@ -67,7 +67,21 @@ export default {
    * description: Simple question to ask why this service is good
    * defaultMessage: Why?
    */
-  'anon.navbar.features': '특징은?',
+  'anon.navbar.features': '특징',
+
+  /**
+   * path: src/screens/Anonymous/components/AnonymousNavbar.json
+   * description: Features for teachers page link button label
+   * defaultMessage: Teachers
+   */
+  'anon.navbar.featuresForTeachers': '선생님',
+
+  /**
+   * path: src/screens/Anonymous/components/AnonymousNavbar.json
+   * description: Label for getting started button
+   * defaultMessage: Getting Started
+   */
+  'anon.navbar.gettingStarted': '시작하기',
 
   /**
    * path: src/screens/Login/index.json
