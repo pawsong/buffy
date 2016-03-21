@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { Styles } from 'material-ui';
 import AppBar from 'material-ui/lib/app-bar';
 import FlatButton from 'material-ui/lib/flat-button';
+import ActionPets from 'material-ui/lib/svg-icons/action/pets';
 
 import Colors from 'material-ui/lib/styles/colors';
 
@@ -105,7 +106,7 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
     return (
       <Navbar>
         <ToolbarGroup float="left">
-          <Link to="/"><ToolbarTitle text={this.props.intl.formatMessage(Messages.service)} style={styles.title} /></Link>
+          <Link to="/"><ActionPets style={styles.logo} /></Link>
         </ToolbarGroup>
         <ToolbarGroup float="right">
           <ClickAwayListener onClickAway={() => this.handleClickAway()}>
@@ -126,11 +127,8 @@ const styles = {
   title: {
     color: Colors.white,
   },
-  button: {
-    // color: Colors.amber50,
-    // color: Colors.white,
-    // marginLeft: 18,
-    // marginRight: 0,
+  logo: {
+    marginTop: 16,
   },
   avatarButton: {
     margin: '4px -8px 4px 0',
