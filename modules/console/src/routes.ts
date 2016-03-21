@@ -1,7 +1,7 @@
 import { Store } from 'redux';
 import Root from './screens/Root';
 import Anonymous from './screens/Anonymous';
-import AnonymousIndex from './screens/Anonymous/Index';
+import AnonymousIndex from './screens/Anonymous/screens/Index';
 import LoggedIn from './screens/LoggedIn';
 import LoggedInIndex from './screens/LoggedIn/screens/Index';
 import Features from './screens/Features';

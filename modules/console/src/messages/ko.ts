@@ -1,5 +1,68 @@
 export default {
   /**
+   * path: src/screens/Anonymous/screens/Index/index.json
+   * description: Introduce detailed info for teachers
+   * defaultMessage: Are you a teacher?
+   */
+  'anon.index.areYouTeacher': '혹시 선생님이신가요?',
+
+  /**
+   * path: src/screens/Anonymous/screens/Index/index.json
+   * description: Introduce code editor to new users (body)
+   * defaultMessage: You can control your robot with code blocks
+   */
+  'anon.index.introduceCodeEditor.body': '코드 블럭으로 로봇을 움직일 수 있어요',
+
+  /**
+   * path: src/screens/Anonymous/screens/Index/index.json
+   * description: Introduce code editor to new users (header)
+   * defaultMessage: Tell it to do something!
+   */
+  'anon.index.introduceCodeEditor.header': '로봇을 조종해보세요!',
+
+  /**
+   * path: src/screens/Anonymous/screens/Index/index.json
+   * description: Introduce voxel editor to new users (body)
+   * defaultMessage: Make your own robot with cubes
+   */
+  'anon.index.introduceVoxelEditor.body': '큐브로 당신만의 로봇을 만들어보세요',
+
+  /**
+   * path: src/screens/Anonymous/screens/Index/index.json
+   * description: Introduce voxel editor to new users (header)
+   * defaultMessage: Craft your friend!
+   */
+  'anon.index.introduceVoxelEditor.header': '로봇 친구를 만들어보세요!',
+
+  /**
+   * path: src/screens/Anonymous/screens/Index/index.json
+   * description: Label for teacher info link
+   * defaultMessage: See more info for you
+   */
+  'anon.index.seeTeacherInfo': '선생님을 위한 정보를 소개합니다',
+
+  /**
+   * path: src/screens/Anonymous/screens/Index/index.json
+   * description: Introduce recommended courses to new users
+   * defaultMessage: Take awesome online courses!
+   */
+  'anon.index.takeCourses': '멋진 온라인 강좌를 들어보세요!',
+
+  /**
+   * path: src/screens/Anonymous/screens/Index/index.json
+   * description: Tutorial link button label
+   * defaultMessage: Take a live tutorial
+   */
+  'anon.index.takeTutorial': '쉬운 예제로 시작해보세요',
+
+  /**
+   * path: src/screens/Anonymous/screens/Index/index.json
+   * description: Suggest clicking tutorial link button
+   * defaultMessage: Want to learn more about {service}?
+   */
+  'anon.index.wantToLearnMore': '{service}에 대해 더 알고 싶으세요?',
+
+  /**
    * path: src/screens/Anonymous/components/AnonymousNavbar.json
    * description: Simple question to ask why this service is good
    * defaultMessage: Why?

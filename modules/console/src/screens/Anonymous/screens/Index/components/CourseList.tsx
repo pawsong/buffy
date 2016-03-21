@@ -70,10 +70,7 @@ class CourseList extends React.Component<CourseListProps, {}> {
     const spinner = this.props.fetching ? <div>Fetching...</div> : null;
 
     return (
-      <Wrapper style={styles.root}>
-        <div>
-          <h1><FormattedMessage {...Messages.courses}/></h1>
-        </div>
+      <Wrapper>
         {spinner}
         <List>
           {courses}

@@ -15,8 +15,11 @@ const styles = {
   },
   logo: {
     position: 'absolute',
-    left: '50%',
+    left: 0,
+    right: 0,
     marginTop: -4,
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
   left: {
     margin: 0,
@@ -40,9 +43,7 @@ class Footer extends React.Component<{}, {}> {
       <Wrapper>
         <div style={styles.root}>
           <ul style={styles.right}><li></li></ul>
-          <div>
-            <Link to="/"><ActionPets style={styles.logo} color={Colors.lightBlack} /></Link>
-          </div>
+          <Link to="/"><ActionPets style={styles.logo} color={Colors.lightBlack} /></Link>
           <ul style={styles.left}><li>© 2016 Buffy, Inc.</li></ul>
         </div>
       </Wrapper>
