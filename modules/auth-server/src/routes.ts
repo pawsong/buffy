@@ -14,8 +14,6 @@ import * as jwt from 'jsonwebtoken';
 import * as ejwt from 'express-jwt';
 import * as conf from '@pasta/config';
 
-const DOMAIN = conf.domain || '';
-
 function getToken(req) {
   if (req.cookies && req.cookies.tt) {
     return req.cookies.tt;
@@ -83,7 +81,7 @@ export default (app: express.Express) => {
     }, conf.jwtSecret);
 
     res.cookie('tt' /* tiat token */, token, {
-      domain: DOMAIN,
+      domain: __DOMAIN__,
       httpOnly: true,
       maxAge: 2592000000, // 1 Month
     });
@@ -153,7 +151,7 @@ export default (app: express.Express) => {
     }, conf.jwtSecret);
 
     res.cookie('tt' /* tiat token */, token, {
-      domain: DOMAIN,
+      domain: __DOMAIN__,
       httpOnly: true,
       maxAge: 2592000000, // 1 Month
     });
@@ -162,7 +160,7 @@ export default (app: express.Express) => {
   }));
 
   app.post('/logout', wrap(async (req, res) => {
-    res.clearCookie('tt', { domain: DOMAIN });
+    res.clearCookie('tt', { domain: __DOMAIN__ });
     res.sendStatus(200);
   }));
 

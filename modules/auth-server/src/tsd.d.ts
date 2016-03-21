@@ -3,3 +3,5 @@
 interface PromiseConstructor {
   config: any;
 }
+
+declare const __DOMAIN__: string;
