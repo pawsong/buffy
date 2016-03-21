@@ -1,7 +1,8 @@
 import * as React from 'react';
-import Wrapper from './Wrapper';
-
+import { Link } from 'react-router';
+import ActionPets from 'material-ui/lib/svg-icons/action/pets';
 import Colors from 'material-ui/lib/styles/colors';
+import Wrapper from './Wrapper';
 
 import Messages from '../constants/Messages';
 
@@ -13,9 +14,23 @@ const styles = {
     paddingBottom: 40,
   },
   logo: {
-    width: 100,
-    marginRight: 'auto',
-    marginLeft: 'auto',
+    position: 'absolute',
+    left: '50%',
+    marginTop: -4,
+  },
+  left: {
+    margin: 0,
+    paddingLeft: 0,
+    listStyle: 'none',
+    fontSize: 14,
+    color: Colors.lightBlack,
+  },
+  right: {
+    float: 'right',
+    margin: 0,
+    listStyle: 'none',
+    fontSize: 14,
+    color: Colors.lightBlack,
   },
 };
 
@@ -24,7 +39,11 @@ class Footer extends React.Component<{}, {}> {
     return (
       <Wrapper>
         <div style={styles.root}>
-          <div style={styles.logo}>{Messages.service.defaultMessage}</div>
+          <ul style={styles.right}><li></li></ul>
+          <div>
+            <Link to="/"><ActionPets style={styles.logo} color={Colors.lightBlack} /></Link>
+          </div>
+          <ul style={styles.left}><li>© 2016 Buffy, Inc.</li></ul>
         </div>
       </Wrapper>
     );
