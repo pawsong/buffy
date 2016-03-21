@@ -26,6 +26,7 @@ import * as compress from 'compression';
 import * as fs from 'fs';
 const template = require('lodash.template');
 const locale = require('locale');
+import { minify } from 'html-minifier';
 
 import * as conf from '@pasta/config';
 
@@ -69,7 +70,15 @@ function loadLocaleData(locale: string) {
 
 // Prepare compiled index html template
 const indexHtml = __DEV__ ? require('raw!./index.html') : fs.readFileSync(`${__dirname}/index.html`, 'utf8');
-const compiledIndexHtml = template(indexHtml, {
+const minifiedIndexHtml = minify(indexHtml, {
+  collapseWhitespace: true,
+  conservativeCollapse: true,
+  collapseBooleanAttributes: true,
+  removeCommentsFromCDATA: true,
+  minifyCSS: true,
+  minifyJS: true,
+});
+const compiledIndexHtml = template(minifiedIndexHtml, {
   imports: {
     script: __DEV__ ? `<script src="http://localhost:${conf.consoleClientPort}/bundle.js"></script>` : '',
   }
