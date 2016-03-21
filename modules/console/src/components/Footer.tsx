@@ -3,6 +3,8 @@ import Wrapper from './Wrapper';
 
 import Colors from 'material-ui/lib/styles/colors';
 
+import Messages from '../constants/Messages';
+
 const styles = {
   root: {
     borderTop: `1px solid ${Colors.faintBlack}`,
@@ -22,7 +24,7 @@ class Footer extends React.Component<{}, {}> {
     return (
       <Wrapper>
         <div style={styles.root}>
-          <div style={styles.logo}>Pasta</div>
+          <div style={styles.logo}>{Messages.service.defaultMessage}</div>
         </div>
       </Wrapper>
     );

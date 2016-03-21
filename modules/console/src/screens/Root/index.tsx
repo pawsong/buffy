@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
+import Messages from '../../constants/Messages';
 
 import { State } from '../../reducers';
 import { SnackbarRequest } from '../../reducers/snackbar';
@@ -27,14 +28,6 @@ interface RootProps extends React.Props<Root>, SagaProps {
   intl?: InjectedIntlProps;
 }
 
-const messages = defineMessages({
-  title: {
-    id: 'app.home.title',
-    description: 'Title of home page.',
-    defaultMessage: 'Pasta',
-  },
-});
-
 @injectIntl
 @saga({
   init: rootSaga,
@@ -56,7 +49,7 @@ class Root extends React.Component<RootProps, {}> {
   }
 
   render() {
-    const title = this.props.intl.formatMessage(messages.title);
+    const title = this.props.intl.formatMessage(Messages.service);
     return (
       <div>
         <Title>{title}</Title>

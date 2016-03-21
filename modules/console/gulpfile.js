@@ -20,6 +20,8 @@ require('babel-helpers/lib/helpers').interopRequireWildcard = template(`
 require('babel-polyfill');
 require('babel-register');
 
+const del = require('del');
+
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const conf = require('@pasta/config');
@@ -33,6 +35,9 @@ require('../../gulp/app')({
   main: './build/dev/server.js',
   port: conf.consolePort,
   open: true,
+  hooks: {
+    'serve:dev:start': () => del.sync(`${__dirname}/build/**`),
+  },
   webpack: {
     client: [{
       name: 'client',

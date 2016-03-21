@@ -15,6 +15,8 @@ const superb = require('superb');
 const webpackServer = require('./webpackServer');
 const open = require('open');
 
+import fs from 'fs';
+
 const wcTemplate = {
   client: {
     development: require('./webpack/client.dev'),
@@ -172,7 +174,18 @@ module.exports = function (options) {
     })));
   });
 
-  gulp.task('serve:dev', ['serve:dev:client', 'serve:dev:server'], async function () {
+  gulp.task('serve:dev', async function () {
+    if (options.hooks && options.hooks['serve:dev:start']) {
+      options.hooks['serve:dev:start']();
+    }
+
+    await new Promise((resolve, reject) => {
+      runSequence([
+        'serve:dev:client',
+        'serve:dev:server',
+      ], err => err ? reject(err) : resolve())
+    });
+
     const main = path.resolve(options.root, options.main);
     const cm = new Childminder();
     const child = cm.create('node', [main], { lazy: true });

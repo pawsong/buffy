@@ -4,7 +4,7 @@ const messages = defineMessages({
   service: {
     id: 'service',
     description: 'Service name',
-    defaultMessage: 'Pasta',
+    defaultMessage: 'Buffy',
   },
   name: {
     id: 'name',
