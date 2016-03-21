@@ -47,8 +47,37 @@ interface LocaleData {
   messages: any;
 }
 
+function ensureIntl(locale: string) {
+  return new Promise((resolve => {
+    if (window['Intl']) return resolve();
+
+    switch(locale) {
+      case 'ko': {
+        return require.ensure([
+          'intl',
+          'intl/locale-data/jsonp/ko.js'
+        ], require => {
+          require('intl');
+          require('intl/locale-data/jsonp/ko.js');
+          resolve();
+        });
+      }
+      default: {
+        return require.ensure([
+          'intl',
+          'intl/locale-data/jsonp/en.js'
+        ], require => {
+          require('intl');
+          require('intl/locale-data/jsonp/en.js');
+          resolve();
+        });
+      }
+    }
+  }));
+}
+
 function loadLocaleData(locale: string) {
-  return new Promise<LocaleData>(resolve => {
+  return ensureIntl(locale).then(() => new Promise<LocaleData>(resolve => {
     switch(locale) {
       case 'ko': {
         return require.ensure([], require => resolve({
@@ -63,7 +92,7 @@ function loadLocaleData(locale: string) {
         }))
       }
     }
-  });
+  }));
 }
 
 function resolveRoute() {
