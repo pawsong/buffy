@@ -8,6 +8,8 @@ declare const process;
   Object.prototype.toString.call(process) === '[object process]'
 );
 
+export const domain = 'buffy.run';
+
 /**
  * Console server port
  */
@@ -32,7 +34,7 @@ export const gameServerPort: number = 9200;
 /**
  * Game zone server public url
  */
-export const gameServerUrl = 'http://zone.buffy.run';
+export const gameServerUrl = `http://zone.${domain}`;
 
 /**
  * API server port
@@ -40,17 +42,17 @@ export const gameServerUrl = 'http://zone.buffy.run';
 
 export const apiServerPort: number = 9300;
 
-export const apiServerUrl = `http://api.buffy.run`;
+export const apiServerUrl = `http://api.${domain}`;
 
 export const addonVoxelEditorServerPort: number = 9300;
 
-export const addonVoxelEditorServerUrl = `http://api.buffy.run`;
+export const addonVoxelEditorServerUrl = `http://api.${domain}`;
 
 export const addonVoxelEditorClientPort: number = 9301;
 
 export const addonCodeEditorServerPort: number = 9600;
 
-export const addonCodeEditorServerUrl = `http://code.buffy.run`;
+export const addonCodeEditorServerUrl = `http://code.${domain}`;
 
 export const addonCodeEditorClientPort: number = 9601;
 
@@ -79,7 +81,7 @@ export const adminServerDevPort: number = 9402;
 
 export const authServerPort = 9500;
 
-export const authServerUrl = 'http://auth.buffy.run';
+export const authServerUrl = `http://auth.${domain}`;
 
 /**
 * public path for admin server assets
@@ -115,8 +117,6 @@ export const awsSecretKey: string = process.env.PASTA_AWS_SECRET_KEY;
  * jwt secret for authentication
  */
 export const jwtSecret: string = process.env.PASTA_JWT_SECRET;
-
-export const domain = process.env.PASTA_DOMAIN;
 
 export const facebookAppIdDev: string = '1127122043982378';
 
