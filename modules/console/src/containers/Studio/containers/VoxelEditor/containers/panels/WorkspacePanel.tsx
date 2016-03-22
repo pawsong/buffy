@@ -30,6 +30,13 @@ import {
   wrapPanel
 } from './Panel';
 
+const styles = {
+  padding: {
+    display: 'inline-block',
+    width: 6,
+  },
+};
+
 const messages = defineMessages({
   title: {
     id: 'voxel-editor.panels.workspace.title',
@@ -100,9 +107,17 @@ class WorkspacePanel extends React.Component<WorkspacePanelProps, {}> {
 
     return (
       <div>
-        <RaisedButton label="Open" secondary={true} onTouchTap={() => this.handleOpenButtonClick()} />
-        <RaisedButton label="New" secondary={true} onTouchTap={() => this.handleNewButtonClick()}/>
-        <RaisedButton label="Save" secondary={true} onTouchTap={() => this.handleSaveButtonClick()}/>
+        <RaisedButton label="Open"
+                      onTouchTap={() => this.handleOpenButtonClick()}
+        />
+        <div style={styles.padding} />
+        <RaisedButton label="New"
+                      onTouchTap={() => this.handleNewButtonClick()}
+        />
+        <div style={styles.padding} />
+        <RaisedButton label="Save"
+                      onTouchTap={() => this.handleSaveButtonClick()}
+        />
       </div>
     );
   }
