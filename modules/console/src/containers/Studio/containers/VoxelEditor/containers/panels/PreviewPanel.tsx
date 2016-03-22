@@ -7,6 +7,7 @@ import FontIcon from 'material-ui/lib/font-icon';
 import * as Colors from 'material-ui/lib/styles/colors';
 import * as ReactDnd from 'react-dnd';
 const objectAssign = require('object-assign');
+import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
 import { CanvasShared } from '../../canvas/shared';
 
@@ -22,6 +23,14 @@ import { State } from '../../../../../../reducers';
 import {
   voxelRotate,
 } from '../../../../../../actions/voxelEditor';
+
+const messages = defineMessages({
+  title: {
+    id: 'voxel-editor.panels.preview.title',
+    description: 'Voxel editor preview panel title',
+    defaultMessage: 'Preview',
+  },
+});
 
 interface RotateButtonProps extends React.Props<RotateButton> {
   onClick: () => void;
@@ -62,7 +71,9 @@ interface PreviewPanelProps extends React.Props<PreviewPanel> {
   voxelRotate: (axis: string) => any;
 }
 
-@wrapPanel
+@wrapPanel({
+  title: messages.title,
+})
 @connect((state: State) => ({
 }), {
   voxelRotate,
@@ -89,20 +100,10 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
   }
 
   render() {
-    const {
-      left,
-      top,
-      zIndex,
-      connectDragPreview,
-      connectDragSource,
-      isDragging,
-    } = this.props;
+    const { } = this.props;
 
-    const opacity = isDragging ? PanelConstants.DRAGGING_OPACITY : 1;
-
-    return connectDragPreview(
-      <div style={objectAssign({ zIndex, left, top, opacity }, PanelStyles.root)}>
-        {connectDragSource(<div style={PanelStyles.handle}>Preview</div>)}
+    return (
+      <div>
         <div style={{ width: 150, height: 150 }} ref="canvas"></div>
         <div>
           <RotateButton onClick={() => this.handleClickRotate('x')}>X</RotateButton>

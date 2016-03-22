@@ -7,6 +7,8 @@ const objectAssign = require('object-assign');
 const {
   default: ColorPicker
 } = require('react-color/lib/components/SketchPicker');
+import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
+
 import { State } from '../../../../../../reducers';
 import { ToolType, Color } from '../../../../../../reducers/voxelEditor';
 import { changeTool, setColor } from '../../../../../../actions/voxelEditor';
@@ -44,6 +46,14 @@ const styles = {
   },
 };
 
+const messages = defineMessages({
+  title: {
+    id: 'voxel-editor.panels.tools.title',
+    description: 'Voxel editor tools panel title',
+    defaultMessage: 'Tools',
+  },
+});
+
 interface ToolsPanelProps extends React.Props<ToolsPanel> {
   actions: any;
   left: number;
@@ -62,7 +72,9 @@ interface ToolsPanelState {
   displayColorPicker: boolean;
 }
 
-@wrapPanel
+@wrapPanel({
+  title: messages.title,
+})
 @connect((state: State) => ({
   color: state.voxelEditor.palette.color,
   toolType: state.voxelEditor.tool.type,
@@ -97,24 +109,10 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
   }
 
   render() {
-    const {
-      left,
-      top,
-      zIndex,
+    const { color } = this.props;
 
-      connectDragPreview,
-      connectDragSource,
-      isDragging,
-
-      color,
-    } = this.props;
-
-    const opacity = isDragging ? PanelConstants.DRAGGING_OPACITY : 1;
-
-    const previewStyle = objectAssign({ zIndex, left, top, opacity }, PanelStyles.root);
-    return connectDragPreview(
-      <div style={previewStyle}>
-        {connectDragSource(<div style={PanelStyles.handle}>Tools</div>)}
+    return (
+      <div>
         <IconButton
           onTouchTap={() => this.props.changeTool('BRUSH')}
           style={this.getIconButtonStyle('BRUSH')}

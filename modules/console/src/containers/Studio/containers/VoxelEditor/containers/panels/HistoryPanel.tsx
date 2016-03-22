@@ -7,6 +7,8 @@ import RaisedButton from 'material-ui/lib/raised-button';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 const objectAssign = require('object-assign');
+import AppBar from 'material-ui/lib/app-bar';
+import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
 import {
   PanelConstants,
@@ -21,6 +23,14 @@ import {
   voxelUndoSeek,
   voxelRedoSeek,
 } from '../../../../../../actions/voxelEditor';
+
+const messages = defineMessages({
+  title: {
+    id: 'voxel-editor.panels.history.title',
+    description: 'Voxel editor history panel title',
+    defaultMessage: 'History',
+  },
+});
 
 /*
  * Container
@@ -76,7 +86,9 @@ interface HistoryPanelProps extends PanelProps<HistoryPanel> {
   onRedoClick: (historyIndex: number) => any;
 }
 
-@wrapPanel
+@wrapPanel({
+  title: messages.title,
+})
 class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
   componentDidUpdate() {
     if (this.props.voxel.historyIndex === this.props.voxel.present.historyIndex) {
@@ -86,17 +98,7 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
   };
 
   render() {
-    const {
-      left,
-      top,
-      zIndex,
-      connectDragPreview,
-      connectDragSource,
-      isDragging,
-      voxel,
-    } = this.props;
-
-    const opacity = isDragging ? PanelConstants.DRAGGING_OPACITY : 1;
+    const { voxel } = this.props;
 
     const styles = {
       listItem: {
@@ -120,11 +122,9 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
       </div>;
     }));
 
-    const previewStyle = objectAssign({ zIndex, left, top, opacity, display: 'table', height: 200 }, PanelStyles.root);
-    return connectDragPreview(
-      <div style={previewStyle}>
-        {connectDragSource(<div style={PanelStyles.handle}>History</div>)}
-        <div ref="list" style={{ height: 200 - PanelStyles.handle.height, overflow: 'scroll'}}>
+    return (
+      <div>
+        <div ref="list" style={{ height: 200 - PanelStyles.height, overflow: 'scroll'}}>
           {listItems}
         </div>
       </div>

@@ -6,6 +6,7 @@ import RaisedButton from 'material-ui/lib/raised-button';
 import * as ReactDnd from 'react-dnd';
 const objectAssign = require('object-assign');
 import * as axios from 'axios';
+import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
 import { State } from '../../../../../../reducers';
 import { WorkspaceState, VoxelState } from '../../../../../../reducers/voxelEditor';
@@ -32,6 +33,14 @@ import {
   wrapPanel
 } from './Panel';
 
+const messages = defineMessages({
+  title: {
+    id: 'voxel-editor.panels.workspace.title',
+    description: 'Voxel editor workspace panel title',
+    defaultMessage: 'Workspace',
+  },
+});
+
 /*
  * Container
  */
@@ -49,7 +58,9 @@ interface WorkspacePanelProps extends PanelProps<WorkspacePanel>, SagaProps {
   isDragging?: boolean;
 }
 
-@wrapPanel
+@wrapPanel({
+  title: messages.title,
+})
 @saga({
   save: function* (name) {
     const voxel: VoxelState = yield select<State>(state => state.voxelEditor.voxel);
@@ -92,24 +103,10 @@ class WorkspacePanel extends React.Component<WorkspacePanelProps, {}> {
   }
 
   render() {
-     const {
-      left,
-      top,
-      zIndex,
-      connectDragPreview,
-      connectDragSource,
-      isDragging,
-    } = this.props;
+     const { } = this.props;
 
-    const opacity = isDragging ? PanelConstants.DRAGGING_OPACITY : 1;
-
-    const previewStyle = objectAssign({
-      zIndex, left, top, opacity,
-    }, PanelStyles.root);
-
-    return connectDragPreview(
-      <div style={previewStyle}>
-        {connectDragSource(<div style={PanelStyles.handle}>Workspace</div>)}
+    return (
+      <div>
         <RaisedButton label="Open" secondary={true} onTouchTap={() => this.handleOpenButtonClick()} />
         <RaisedButton label="New" secondary={true} onTouchTap={() => this.handleNewButtonClick()}/>
         <RaisedButton label="Save" secondary={true} onTouchTap={() => this.handleSaveButtonClick()}/>

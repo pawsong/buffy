@@ -286,4 +286,32 @@ export default {
    */
   'signup': '가입하기',
 
+  /**
+   * path: src/containers/Studio/containers/VoxelEditor/containers/panels/HistoryPanel.json
+   * description: Voxel editor history panel title
+   * defaultMessage: History
+   */
+  'voxel-editor.panels.history.title': '히스토리',
+
+  /**
+   * path: src/containers/Studio/containers/VoxelEditor/containers/panels/PreviewPanel.json
+   * description: Voxel editor preview panel title
+   * defaultMessage: Preview
+   */
+  'voxel-editor.panels.preview.title': '프리뷰',
+
+  /**
+   * path: src/containers/Studio/containers/VoxelEditor/containers/panels/ToolsPanel.json
+   * description: Voxel editor tools panel title
+   * defaultMessage: Tools
+   */
+  'voxel-editor.panels.tools.title': '도구상자',
+
+  /**
+   * path: src/containers/Studio/containers/VoxelEditor/containers/panels/WorkspacePanel.json
+   * description: Voxel editor workspace panel title
+   * defaultMessage: Workspace
+   */
+  'voxel-editor.panels.workspace.title': '워크스페이스',
+
 }
