@@ -7,19 +7,28 @@ const Terrain = require('material-ui/lib/svg-icons/maps/terrain');
 const NearMe = require('material-ui/lib/svg-icons/maps/near-me');
 const Palette = require('material-ui/lib/svg-icons/image/palette');
 const reactColor = require('react-color');
-const { default: ColorPicker }  = require('react-color/lib/components/CompactPicker');
+const { default: ColorPicker }  = require('react-color/lib/components/compact/Compact');
 const objectAssign = require('object-assign');
+import ClickAwayListener from '../../../../../components/ClickAwayListener';
 
 // console.log(ColorPicker);
 const styles = {
   wrapper: {
     position: 'absolute',
-    left: '50%',
+    left: 30,
     bottom: 30,
-    transform: 'translate(-50%,0)',
   },
   tool: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  colorContainer: {
+    display: 'inline-block',
+  },
+  colorPicker: {
+    position: 'absolute',
+    bottom: 0,
+    left: '100%',
+    marginLeft: 10,
   },
 };
 
@@ -33,32 +42,52 @@ interface ColorPickerToolStates {
 }
 
 class ColorPickerTool extends React.Component<ColorPickerToolProps, ColorPickerToolStates> {
+  readyToOpen: boolean;
   constructor(props, context) {
     super(props, context);
     this.state = { open: false };
+    this.readyToOpen = false;
   }
 
-  handleClose() {
-    this.setState({ open: false });
+  handleTouchStart() {
+    this.readyToOpen = true;
+  }
+
+  handleTouchEnd() {
+    if (this.readyToOpen) {
+      this.readyToOpen = false;
+      if (!this.state.open) this.setState({ open: true });
+    }
+  }
+
+  handleColorPickerClickAway() {
+    this.readyToOpen = false;
+    if (this.state.open) this.setState({ open: false });
   }
 
   render() {
     const color = this.props.color;
 
     return (
-      <IconButton style={styles.tool}
-        onClick={() => this.setState({ open: !this.state.open })}
-        tooltipPosition="bottom-center"
-        tooltip="Color picker"
-      >
-        <Palette color={`rgb(${color.r}, ${color.g}, ${color.b})`}/>
-        <ColorPicker position="right"
-                     color={color}
-                     display={this.state.open}
-                     onChange={color => this.props.onClick(color)}
-                     onClose={() => this.handleClose()}
-        />
-      </IconButton>
+      <div style={styles.colorContainer}>
+        <IconButton style={styles.tool}
+                    onMouseDown={() => this.handleTouchStart()}
+                    onMouseUp={() => this.handleTouchEnd()}
+                    tooltipPosition="bottom-center"
+                    tooltip="Color picker"
+        >
+          <Palette color={`rgb(${color.r}, ${color.g}, ${color.b})`}/>
+        </IconButton>
+        { this.state.open ? (
+          <ClickAwayListener style={styles.colorPicker} onClickAway={() => this.handleColorPickerClickAway()}>
+            <ColorPicker position="right"
+                         color={color}
+                         display={this.state.open}
+                         onChange={color => this.props.onClick(color)}
+            />
+          </ClickAwayListener>
+        ) : null}
+      </div>
     )
   }
 }
@@ -84,9 +113,9 @@ class Tool extends React.Component<ToolProps, {}> {
     });
 
     return <IconButton style={style}
-      onClick={() => this.props.onClick(this.props.type)}
-      tooltipPosition="bottom-center"
-      tooltip={this.props.label}
+                       onClick={() => this.props.onClick(this.props.type)}
+                       tooltipPosition="bottom-center"
+                       tooltip={this.props.label}
     >{icon}</IconButton>;
   }
 }
