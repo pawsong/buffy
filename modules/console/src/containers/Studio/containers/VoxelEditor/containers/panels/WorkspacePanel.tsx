@@ -27,9 +27,6 @@ import NotImplDialog from '../dialogs/NotImplDialog';
 import SaveDialog from '../dialogs/SaveDialog';
 
 import {
-  PanelConstants,
-  PanelProps,
-  PanelStyles,
   wrapPanel
 } from './Panel';
 
@@ -45,17 +42,13 @@ const messages = defineMessages({
  * Container
  */
 
-interface WorkspacePanelProps extends PanelProps<WorkspacePanel>, SagaProps {
+interface WorkspacePanelProps extends React.Props<WorkspacePanel>, SagaProps {
   notImplDialogOpened?: boolean;
   updateWorkspaceBrowser?: (query: UpdateWorkspaceBrowserQuery) => any;
   updateSaveDialog?: (query: UpdateSaveDialogQuery) => any;
   showNotImplDialog?: (show: boolean) => any;
   workspace?: WorkspaceState;
   save?: ImmutableTask<any>;
-
-  connectDragPreview?: ReactDnd.ConnectDragPreview;
-  connectDragSource?: ReactDnd.ConnectDragSource;
-  isDragging?: boolean;
 }
 
 @wrapPanel({

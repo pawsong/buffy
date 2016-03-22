@@ -17,33 +17,35 @@ import { changeTool, setColor } from '../../../../../../actions/voxelEditor';
 
 import * as Tools from '../../constants/Tools';
 
-import {
-  PanelConstants,
-  PanelStyles,
-  wrapPanel
-} from './Panel';
+import { wrapPanel } from './Panel';
 
 const styles = {
   color: {
-    width: '36px',
-    height: '16px',
-    borderRadius: '1px',
+    width: 38,
+    height: 16,
+    borderRadius: 1,
   },
   swatch: {
     marginTop: 15,
-    padding: '5px',
+    padding: 5,
     background: '#fff',
-    borderRadius: '1px',
+    borderRadius: 1,
     boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
     display: 'inline-block',
     cursor: 'pointer',
   },
-  toolContainer: {
-    width: '100%',
+  iconRow: {
+    width: 110,
+    margin: '0 auto',
   },
   iconButton: {
     display: 'inline-block',
     margin: '5px 0',
+  },
+  iconButtonRight: {
+    display: 'inline-block',
+    margin: '5px 0',
+    float: 'right',
   },
   tooltips: {
     top: 24,
@@ -54,6 +56,7 @@ const styles = {
     top: 0,
     left: '100%',
     marginLeft: 10,
+    zIndex: 999,
   },
 };
 
@@ -66,13 +69,9 @@ const messages = defineMessages({
 });
 
 interface ToolsPanelProps extends React.Props<ToolsPanel> {
-  actions: any;
-  left: number;
-  top: number;
-  zIndex: number;
-  connectDragPreview: ReactDnd.ConnectDragPreview;
-  connectDragSource: ReactDnd.ConnectDragSource;
-  isDragging: boolean;
+  id: string;
+  moveToTop: (id: string) => any;
+
   color?: Color;
   toolType?: ToolType;
   changeTool?: (toolType: ToolType) => any;
@@ -114,6 +113,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
 
   handleColorPickerMouseUp() {
     if (this.readyToOpenColorPicker) {
+      this.props.moveToTop(this.props.id);
       this.readyToOpenColorPicker = false;
       this.setState({ displayColorPicker: true });
     }
@@ -129,10 +129,10 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
     this.props.setColor(rgb);
   };
 
-  getIconButtonStyle(tool: ToolType) {
+  getIconButtonStyle(style: React.CSSProperties, tool: ToolType) {
     return objectAssign({
       backgroundColor: this.props.toolType === tool ? Colors.grey200 : Colors.white,
-    }, styles.iconButton);
+    }, style);
   }
 
   render() {
@@ -141,16 +141,16 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
 
     return (
       <div>
-        <div style={styles.toolContainer}>
+        <div style={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.changeTool('BRUSH')}
-            style={this.getIconButtonStyle('BRUSH')}
+            style={this.getIconButtonStyle(styles.iconButton, 'BRUSH')}
             tooltipStyles={styles.tooltips}
             iconClassName="material-icons" tooltipPosition="bottom-center"
             tooltip={'Brush'}>brush</IconButton>
           <IconButton
             onTouchTap={() => this.props.changeTool('ERASE')}
-            style={this.getIconButtonStyle('ERASE')}
+            style={this.getIconButtonStyle(styles.iconButtonRight, 'ERASE')}
             iconStyle={{
               transform: 'rotate(45deg)',
             }}
@@ -158,17 +158,17 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             iconClassName="material-icons" tooltipPosition="bottom-center"
             tooltip={'Erase'}>crop_portrait</IconButton>
         </div>
-        <div>
+        <div style={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.changeTool('COLORIZE')}
-            style={this.getIconButtonStyle('COLORIZE')}
+            style={this.getIconButtonStyle(styles.iconButton, 'COLORIZE')}
             tooltipStyles={styles.tooltips}
             iconClassName="material-icons" tooltipPosition="bottom-center"
             tooltip={'Colorize'}
           >
             colorize
           </IconButton>
-          <ClickAwayListener style={{ display: 'inline-block' }}
+          <ClickAwayListener style={styles.iconButtonRight}
                              onClickAway={() => this.handleColorPickerClickAway()}
           >
             <div style={styles.swatch} onMouseDown={() => this.handleColorPickerMouseDown()}

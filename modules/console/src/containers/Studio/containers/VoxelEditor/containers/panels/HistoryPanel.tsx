@@ -13,7 +13,7 @@ import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 
 import {
   PanelConstants,
   PanelStyles,
-  PanelProps,
+  PanelBodyProps,
   wrapPanel
 } from './Panel';
 
@@ -36,58 +36,20 @@ const messages = defineMessages({
  * Container
  */
 
-interface HistoryPanelContainerProps extends PanelProps<HistoryPanelContainer> {
-  voxel: VoxelState;
-  voxelUndoSeek: (historyIndex: number) => any,
-  voxelRedoSeek: (historyIndex: number) => any,
-}
-
-@connect((state: State) => ({
-  voxel: state.voxelEditor.voxel,
-  // voxel: state.voxel,
-}), {
-  voxelUndoSeek,
-  voxelRedoSeek,
-})
-class HistoryPanelContainer extends React.Component<HistoryPanelContainerProps, {}> {
-  handleUndoClick(historyIndex: number) {
-    this.props.voxelUndoSeek(historyIndex);
-  }
-
-  handleRedoClick(historyIndex: number) {
-    this.props.voxelRedoSeek(historyIndex);
-  }
-
-  render() {
-    const { left, top, zIndex } = this.props;
-    return (
-      <HistoryPanel id={this.props.id} left={this.props.left} top={this.props.top} zIndex={this.props.zIndex}
-                    voxel={this.props.voxel}
-                    onUndoClick={historyIndex => this.handleUndoClick(historyIndex)}
-                    onRedoClick={historyIndex => this.handleRedoClick(historyIndex)}
-      />
-    );
-  }
-}
-
-export default HistoryPanelContainer;
-
-/*
- * Component
- */
-
-interface HistoryPanelProps extends PanelProps<HistoryPanel> {
-  connectDragPreview?: ReactDnd.ConnectDragPreview;
-  connectDragSource?: ReactDnd.ConnectDragSource;
-  isDragging?: boolean;
-
-  voxel: VoxelState;
-  onUndoClick: (historyIndex: number) => any;
-  onRedoClick: (historyIndex: number) => any;
+interface HistoryPanelProps extends React.Props<HistoryPanel>, PanelBodyProps {
+  voxel?: VoxelState;
+  voxelUndoSeek?: (historyIndex: number) => any;
+  voxelRedoSeek?: (historyIndex: number) => any;
 }
 
 @wrapPanel({
   title: messages.title,
+})
+@connect((state: State) => ({
+  voxel: state.voxelEditor.voxel,
+}), {
+  voxelUndoSeek,
+  voxelRedoSeek,
 })
 class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
   componentDidUpdate() {
@@ -96,6 +58,14 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
       list.scrollTop = list.scrollHeight;
     }
   };
+
+  handleUndoClick(historyIndex: number) {
+    this.props.voxelUndoSeek(historyIndex);
+  }
+
+  handleRedoClick(historyIndex: number) {
+    this.props.voxelRedoSeek(historyIndex);
+  }
 
   render() {
     const { voxel } = this.props;
@@ -108,7 +78,7 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
 
     const listItems = voxel.past.map(state => {
       return <div style={styles.listItem} key={state.historyIndex}
-        onClick={() => this.props.onUndoClick(state.historyIndex)}>
+        onClick={() => this.handleUndoClick(state.historyIndex)}>
         {state.action}
       </div>;
     }).concat([
@@ -117,7 +87,7 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
       </div>
     ]).concat(voxel.future.map(state => {
       return <div style={styles.listItem} key={state.historyIndex}
-        onClick={() => this.props.onRedoClick(state.historyIndex)}>
+        onClick={() => this.handleRedoClick(state.historyIndex)}>
         {state.action}
       </div>;
     }));
@@ -131,3 +101,5 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
     );
   };
 };
+
+export default HistoryPanel;

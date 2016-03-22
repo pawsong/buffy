@@ -11,11 +11,7 @@ import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 
 
 import { CanvasShared } from '../../canvas/shared';
 
-import {
-  PanelConstants,
-  PanelStyles,
-  wrapPanel
-} from './Panel';
+import { wrapPanel } from './Panel';
 
 import initPreview from '../../canvas/views/preview';
 
@@ -60,15 +56,7 @@ class RotateButton extends React.Component<RotateButtonProps, {}> {
 interface PreviewPanelProps extends React.Props<PreviewPanel> {
   canvasShared: CanvasShared;
   sizeVersion: number;
-
-  actions: any;
-  left: number;
-  top: number;
-  zIndex: number;
-  connectDragPreview: ReactDnd.ConnectDragPreview;
-  connectDragSource: ReactDnd.ConnectDragSource;
-  isDragging: boolean;
-  voxelRotate: (axis: string) => any;
+  voxelRotate?: (axis: string) => any;
 }
 
 @wrapPanel({
@@ -82,7 +70,7 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
   canvas: any;
 
   handleClickRotate(axis) {
-    this.props.actions.voxelRotate(axis);
+    this.props.voxelRotate(axis);
   };
 
   componentDidMount() {

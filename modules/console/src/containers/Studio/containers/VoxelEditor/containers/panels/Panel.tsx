@@ -43,17 +43,25 @@ function getDisplayName(Component) {
   return Component.displayName || Component.name || 'Component';
 }
 
-export interface PanelProps<T> extends React.Props<T> {
+interface PanelProps extends React.Props<any> {
   id: string;
   left: number;
   top: number;
   zIndex: number;
+  moveToTop: (id: string) => any;
+  canvasShared: any,
+  sizeVersion: number;
 
   connectDragPreview?: ConnectDragPreview;
   connectDragSource?: ConnectDragSource;
   isDragging?: boolean;
 
   intl?: InjectedIntlProps;
+}
+
+export interface PanelBodyProps {
+  id: string;
+  moveToTop: (id: string) => any;
 }
 
 interface PanelState {
@@ -67,7 +75,7 @@ interface PanelOptions {
 export function wrapPanel(options: PanelOptions): any {
   return function (WrappedComponent) {
     @injectIntl
-    class Panel extends React.Component<PanelProps<any>, PanelState> {
+    class Panel extends React.Component<PanelProps, PanelState> {
       static displayName = `Panel(${getDisplayName(WrappedComponent)})`;
 
       static contextTypes = {
@@ -118,7 +126,11 @@ export function wrapPanel(options: PanelOptions): any {
                   />
                 </div>
               )}
-              <WrappedComponent {...this.props} />
+              <WrappedComponent id={this.props.id}
+                                moveToTop={this.props.moveToTop}
+                                canvasShared={this.props.canvasShared}
+                                sizeVersion={this.props.sizeVersion}
+              />
             </Paper>
           </div>
         );

@@ -36,7 +36,6 @@ import SaveDialog from './containers/dialogs/SaveDialog';
 import NotImplDialog from './containers/dialogs/NotImplDialog';
 
 import FullscreenButton from './components/FullscreenButton';
-import Canvas from './containers/Canvas';
 
 import initCanvasShared from './canvas/shared';
 import initCanvas from './canvas/views/main';
@@ -181,6 +180,18 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
 
   movePanel(id, left, top) {
     const { order } = this.state.panels[id];
+    this.moveToTop(id);
+    this.setState(update(this.state, {
+      panels: {
+        [id]: { $merge: { left, top } },
+      },
+    }), () => {
+      localStorage.setItem(`${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${id}`, JSON.stringify(this.state.panels[id]));
+    });
+  }
+
+  moveToTop(id: string) {
+    const { order } = this.state.panels[id];
 
     const values = {};
     const panelKeys = Object.keys(this.state.panels);
@@ -190,11 +201,8 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
         values[key] = { $merge: { order: panel.order - 1 } };
       }
     });
-    values[id] = { $merge: { order: panelKeys.length, left, top } };
-
-    this.setState(update(this.state, { panels: values }), () => {
-      localStorage.setItem(`${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${id}`, JSON.stringify(this.state.panels[id]));
-    });
+    values[id] = { $merge: { order: panelKeys.length } };
+    this.setState(update(this.state, { panels: values }));
   }
 
   handleFullscreenButtonClick() {
@@ -243,6 +251,7 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
         zIndex: panel.order,
         canvasShared: this.canvasShared,
         sizeVersion: this.props.sizeVersion,
+        moveToTop: (id: string) => this.moveToTop(id),
       }));
 
     const style = this.state.fullscreen ? {
