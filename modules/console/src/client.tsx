@@ -5,8 +5,6 @@ Promise.config({ warnings: false });
 require('react-tap-event-plugin')();
 import './vendor';
 
-import * as Immutable from 'immutable';
-
 import * as React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
