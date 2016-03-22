@@ -2,7 +2,7 @@ import { Store } from 'redux';
 import Root from './screens/Root';
 import Anonymous from './screens/Anonymous';
 import AnonymousIndex from './screens/Anonymous/screens/Index';
-import GettingStarted from './screens/GettingStarted';
+import GetStarted from './screens/GetStarted';
 import FeaturesForTeachers from './screens/FeaturesForTeachers';
 import LoggedIn from './screens/LoggedIn';
 import LoggedInIndex from './screens/LoggedIn/screens/Index';
@@ -57,9 +57,9 @@ export default function getRoutes(store: Store) {
         },
         childRoutes: [
           {
-            path: '/getting-started',
+            path: '/get-started',
             getComponent: (location, cb) => require.ensure([], require => {
-              cb(null, require<{ default: GettingStarted }>('./screens/GettingStarted').default);
+              cb(null, require<{ default: GetStarted }>('./screens/GetStarted').default);
             }),
           },
           {

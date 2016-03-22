@@ -53,10 +53,10 @@ const messages = defineMessages({
     description: 'Features for teachers page link button label',
     defaultMessage: 'Teachers',
   },
-  gettingStarted: {
-    id: 'anon.navbar.gettingStarted',
-    description: 'Label for getting started button',
-    defaultMessage: 'Getting Started',
+  getStarted: {
+    id: 'anon.navbar.getStarted',
+    description: 'Label for get started button',
+    defaultMessage: 'Get Started',
   },
 });
 
@@ -119,7 +119,7 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, AnonymousNav
         <ToolbarGroup float="left">
           <Tabs value={this.props.location.pathname}
                 onChange={value => this.handleTabChange(value)}
-                style={{ width: 300 }}
+                style={{ width: 339 }}
           >
             <Tab value="/features"
               icon={<FontIcon className="material-icons">playlist_add_check</FontIcon>}
@@ -129,9 +129,9 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, AnonymousNav
               icon={<FontIcon className="material-icons">tag_faces</FontIcon>}
               label={this.props.intl.formatMessage(messages.featuresForTeachersLabel)}
             />
-            <Tab value="/getting-started"
+            <Tab value="/get-started"
               icon={<FontIcon className="material-icons">play_arrow</FontIcon>}
-              label={this.props.intl.formatMessage(messages.gettingStarted)}
+              label={this.props.intl.formatMessage(messages.getStarted)}
             />
           </Tabs>
         </ToolbarGroup>

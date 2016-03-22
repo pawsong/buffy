@@ -78,10 +78,10 @@ export default {
 
   /**
    * path: src/screens/Anonymous/components/AnonymousNavbar.json
-   * description: Label for getting started button
-   * defaultMessage: Getting Started
+   * description: Label for get started button
+   * defaultMessage: Get Started
    */
-  'anon.navbar.gettingStarted': '시작하기',
+  'anon.navbar.getStarted': '시작하기',
 
   /**
    * path: src/screens/Login/index.json
