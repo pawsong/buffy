@@ -43,7 +43,6 @@ const messages = defineMessages({
 })
 class LoginHandler extends React.Component<LoginHandlerProps, {}> {
   render() {
-    const title = this.props.intl.formatMessage(messages.title);
     return (
       <div>
         <EnhancedTitle>

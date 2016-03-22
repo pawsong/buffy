@@ -110,7 +110,6 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, AnonymousNav
   }
 
   render() {
-    console.log(this.props.location);
     return (
       <Navbar>
         <ToolbarGroup float="left" style={{ marginRight: 30 }}>
