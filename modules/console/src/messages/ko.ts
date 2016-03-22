@@ -86,9 +86,9 @@ export default {
   /**
    * path: src/screens/Login/index.json
    * description: Title of login page
-   * defaultMessage: Log in to Pasta
+   * defaultMessage: Log in to {service}
    */
-  'app.login.title': '로그인',
+  'app.login.title': '{service}에 로그인',
 
   /**
    * path: src/containers/Studio/index.json
@@ -166,6 +166,13 @@ export default {
    * defaultMessage: Join {service}
    */
   'join.form.heading': '지금 {service}에 가입하세요',
+
+  /**
+   * path: src/screens/Join/index.json
+   * description: Title of join page
+   * defaultMessage: Join {service}
+   */
+  'join.title': '{service} 가입하기',
 
   /**
    * path: src/screens/Anonymous/screens/Index/components/Banner.json

@@ -2,11 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
-
 import Messages from '../../constants/Messages';
 
-import { Title, Meta } from '../../hairdresser';
-import { META_TITLE } from '../../constants/HeadSelectors';
+import { EnhancedTitle, Meta } from '../../hairdresser';
 
 import { State } from '../../reducers';
 import { AuthState } from '../../reducers/auth';
@@ -31,7 +29,7 @@ const messages = defineMessages({
   title: {
     id: 'app.login.title',
     description: 'Title of login page',
-    defaultMessage: 'Log in to Pasta',
+    defaultMessage: 'Log in to {service}',
   },
 });
 
@@ -48,8 +46,11 @@ class LoginHandler extends React.Component<LoginHandlerProps, {}> {
     const title = this.props.intl.formatMessage(messages.title);
     return (
       <div>
-        <Title>{title}</Title>
-        <Meta attrs={META_TITLE} values={{ content: title }}/>
+        <EnhancedTitle>
+          {this.props.intl.formatMessage(messages.title, {
+            service: this.props.intl.formatMessage(Messages.service),
+          })}
+        </EnhancedTitle>
         <LoginForm location={this.props.location}
                    onLocalLoginSubmit={(email, password) => this.props.requestLocalLogin(email, password)}
                    localLoginErrorMessage={this.props.localLoginErrorMessage}

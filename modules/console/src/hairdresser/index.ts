@@ -6,3 +6,6 @@ export { Title }
 
 import Meta from './components/Meta';
 export { Meta }
+
+import EnhancedTitle from './components/EnhancedTitle';
+export { EnhancedTitle }

@@ -9,8 +9,7 @@ const Snackbar = require('material-ui/lib/snackbar');
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import rootSaga from './sagas';
 
-import { Title, Meta } from '../../hairdresser';
-import { META_TITLE } from '../../constants/HeadSelectors';
+import { EnhancedTitle, Meta } from '../../hairdresser';
 
 import {
   pushSnackbar, PushSnackbarQuery,
@@ -52,8 +51,7 @@ class Root extends React.Component<RootProps, {}> {
     const title = this.props.intl.formatMessage(Messages.service);
     return (
       <div>
-        <Title>{title}</Title>
-        <Meta attrs={META_TITLE} values={{ content: title }}/>
+        <EnhancedTitle>{title}</EnhancedTitle>
         {this.props.children}
         <Snackbar
           open={this.props.snackbarOpen}
