@@ -48,7 +48,7 @@
     "bluebird": "^3.0.6",
     "browser-sync": "^2.11.0",
     "chai": "^3.4.0",
-    "childminder": "^1.1.0",
+    "childminder": "^1.1.1",
     "cli-color": "^1.1.0",
     "cors": "^2.7.1",
     "del": "^2.2.0",

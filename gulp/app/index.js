@@ -193,14 +193,23 @@ module.exports = function (options) {
     gulp.watch(main).on('change', async () => {
       gutil.log('Restart server...');
 
-      await child.kill();
-      await tcpPortUsed.waitUntilFree(options.port, 100, 60 * 1000)
+      try {
+        await child.kill('SIGKILL');
+        await tcpPortUsed.waitUntilFree(options.port, 100, 10 * 1000)
 
-      await child.startOrRestart();
+        await child.startOrRestart();
+      } catch(error) {
+        console.error(`${child.terminal.pid} may be a zombie process...`);
+        console.error(error.stack || error);
+        notifier.notify({
+          title: `[${options.name}] Error occurred`,
+          message: error.message || 'Refer to error log',
+        });
+      }
     });
 
     await child.startOrRestart();
-    await tcpPortUsed.waitUntilUsed(options.port, 100, 60 * 1000);
+    await tcpPortUsed.waitUntilUsed(options.port, 100, 10 * 1000);
 
     gutil.log('Everything is ready now!');
 
