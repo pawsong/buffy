@@ -15,6 +15,7 @@ const unbind = (callback) => clickAwayEvents.forEach((event) => events.off(docum
 
 interface ClickAwayListenerProps extends React.Props<ClickAwayListener> {
   onClickAway: (event: Event) => any;
+  style?: React.CSSProperties;
 }
 
 export default class ClickAwayListener extends React.Component<ClickAwayListenerProps, {}> {
@@ -44,10 +45,6 @@ export default class ClickAwayListener extends React.Component<ClickAwayListener
   }
 
   handleClickAway = (event) => {
-    if (event.defaultPrevented) {
-      return;
-    }
-
     const el = ReactDOM.findDOMNode(this);
 
     if (document.documentElement.contains(event.target) && !isDescendant(el, event.target)) {
@@ -56,6 +53,6 @@ export default class ClickAwayListener extends React.Component<ClickAwayListener
   };
 
   render() {
-    return <div>{this.props.children}</div>;
+    return <div style={this.props.style || {}}>{this.props.children}</div>;
   }
 }

@@ -4,10 +4,12 @@ import IconButton from 'material-ui/lib/icon-button';
 import Colors from 'material-ui/lib/styles/colors';
 import * as ReactDnd from 'react-dnd';
 const objectAssign = require('object-assign');
-const {
-  default: ColorPicker
-} = require('react-color/lib/components/SketchPicker');
+const { default: ColorPicker } = require('react-color/lib/components/swatches/Swatches');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
+import rgbToHex from '../../../../../../utils/rgbToHex';
+import hexToRgb from '../../../../../../utils/hexToRgb';
+
+import ClickAwayListener from '../../../../../../components/ClickAwayListener';
 
 import { State } from '../../../../../../reducers';
 import { ToolType, Color } from '../../../../../../reducers/voxelEditor';
@@ -36,13 +38,22 @@ const styles = {
     display: 'inline-block',
     cursor: 'pointer',
   },
+  toolContainer: {
+    width: '100%',
+  },
   iconButton: {
-    display: 'block',
+    display: 'inline-block',
     margin: '5px 0',
   },
   tooltips: {
     top: 24,
     zIndex: 1,
+  },
+  colorPickerContainer: {
+    position: 'absolute',
+    top: 0,
+    left: '100%',
+    marginLeft: 10,
   },
 };
 
@@ -83,23 +94,39 @@ interface ToolsPanelState {
   setColor,
 })
 class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
+  readyToOpenColorPicker: boolean;
+
   constructor(props) {
     super(props);
     this.state = {
       displayColorPicker: false,
     };
+    this.readyToOpenColorPicker = false;
   }
 
-  handleColorPickerToggle() {
-    this.setState({ displayColorPicker: !this.state.displayColorPicker });
-  };
+  handleColorPickerMouseDown() {
+    this.readyToOpenColorPicker = true;
+  }
+
+  handleColorPickerClickAway() {
+    this.readyToOpenColorPicker = false;
+  }
+
+  handleColorPickerMouseUp() {
+    if (this.readyToOpenColorPicker) {
+      this.readyToOpenColorPicker = false;
+      this.setState({ displayColorPicker: true });
+    }
+  }
 
   handleColorPickerClose() {
+    this.readyToOpenColorPicker = false;
     this.setState({ displayColorPicker: false });
   };
 
-  handleColorPickerChange(value: any) {
-    this.props.setColor(value.rgb);
+  handleColorPickerChange(hex: string) {
+    const rgb = hexToRgb(hex);
+    this.props.setColor(rgb);
   };
 
   getIconButtonStyle(tool: ToolType) {
@@ -110,41 +137,62 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
 
   render() {
     const { color } = this.props;
+    const hex = rgbToHex(color);
 
     return (
       <div>
-        <IconButton
-          onTouchTap={() => this.props.changeTool('BRUSH')}
-          style={this.getIconButtonStyle('BRUSH')}
-          tooltipStyles={styles.tooltips}
-          iconClassName="material-icons" tooltipPosition="bottom-center"
-          tooltip={'Brush'}>brush</IconButton>
-        <IconButton
-          onTouchTap={() => this.props.changeTool('ERASE')}
-          style={this.getIconButtonStyle('ERASE')}
-          iconStyle={{
-            transform: 'rotate(45deg)',
-          }}
-          tooltipStyles={styles.tooltips}
-          iconClassName="material-icons" tooltipPosition="bottom-center"
-          tooltip={'Erase'}>crop_portrait</IconButton>
-        <IconButton
-          onTouchTap={() => this.props.changeTool('COLORIZE')}
-          style={this.getIconButtonStyle('COLORIZE')}
-          tooltipStyles={styles.tooltips}
-          iconClassName="material-icons" tooltipPosition="bottom-center"
-          tooltip={'Colorize'}>colorize</IconButton>
-        <div style={styles.swatch} onClick={() => this.handleColorPickerToggle()}>
-          <div style={objectAssign({
-            backgroundColor: `rgb(${color.r}, ${color.g}, ${color.b})`,
-          }, styles.color)}/>
+        <div style={styles.toolContainer}>
+          <IconButton
+            onTouchTap={() => this.props.changeTool('BRUSH')}
+            style={this.getIconButtonStyle('BRUSH')}
+            tooltipStyles={styles.tooltips}
+            iconClassName="material-icons" tooltipPosition="bottom-center"
+            tooltip={'Brush'}>brush</IconButton>
+          <IconButton
+            onTouchTap={() => this.props.changeTool('ERASE')}
+            style={this.getIconButtonStyle('ERASE')}
+            iconStyle={{
+              transform: 'rotate(45deg)',
+            }}
+            tooltipStyles={styles.tooltips}
+            iconClassName="material-icons" tooltipPosition="bottom-center"
+            tooltip={'Erase'}>crop_portrait</IconButton>
         </div>
-        <ColorPicker
-          color={ this.props.color }
-          position="right"
-          display={ this.state.displayColorPicker }
-          onChange={(value) => this.handleColorPickerChange(value) }
-          onClose={() => this.handleColorPickerClose()}/>
+        <div>
+          <IconButton
+            onTouchTap={() => this.props.changeTool('COLORIZE')}
+            style={this.getIconButtonStyle('COLORIZE')}
+            tooltipStyles={styles.tooltips}
+            iconClassName="material-icons" tooltipPosition="bottom-center"
+            tooltip={'Colorize'}
+          >
+            colorize
+          </IconButton>
+          <ClickAwayListener style={{ display: 'inline-block' }}
+                             onClickAway={() => this.handleColorPickerClickAway()}
+          >
+            <div style={styles.swatch} onMouseDown={() => this.handleColorPickerMouseDown()}
+                                       onMouseUp={() => this.handleColorPickerMouseUp()}
+            >
+              <div style={objectAssign({
+                backgroundColor: `rgb(${color.r}, ${color.g}, ${color.b})`,
+              }, styles.color)}/>
+            </div>
+          </ClickAwayListener>
+          <div style={styles.colorPickerContainer}>
+            {this.state.displayColorPicker ? (
+              <ClickAwayListener onClickAway={() => this.handleColorPickerClose()}>
+                <ColorPicker
+                  hex={hex}
+                  height="100%"
+                  position="right"
+                  display={ this.state.displayColorPicker }
+                  onChange={(value) => this.handleColorPickerChange(value) }
+                />
+              </ClickAwayListener>
+            ) : null}
+          </div>
+        </div>
       </div>
     );
   };
