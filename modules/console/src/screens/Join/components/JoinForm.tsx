@@ -34,6 +34,9 @@ const styles = {
     textAlign: 'center',
     marginBottom: 36,
   },
+  heading: {
+    fontWeight: 'normal',
+  },
   logo: {
     width: 40,
     height: 40,
@@ -377,9 +380,11 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
           <Paper style={styles.paper}>
             {formIsBusy ? <CircularProgress style={styles.progressOverlay} /> : null}
 
-            <h1>{this.props.intl.formatMessage(messages.heading, {
-              service: this.props.intl.formatMessage(Messages.service),
-            })}</h1>
+            <h1 style={styles.heading}>
+              {this.props.intl.formatMessage(messages.heading, {
+                service: this.props.intl.formatMessage(Messages.service),
+              })}
+            </h1>
 
             {
               errorMessage ? (
