@@ -7,6 +7,7 @@ import AppBar from 'material-ui/lib/app-bar';
 import Colors from 'material-ui/lib/styles/colors';
 import { Styles } from 'material-ui';
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
+import Paper from 'material-ui/lib/paper';
 
 export const PanelConstants = {
   DRAGGING_OPACITY: 0.4,
@@ -16,9 +17,9 @@ export const PanelStyles = {
   height: 30,
   root: {
     position: 'absolute',
-    border: '1px dashed gray',
-    backgroundColor: 'white',
-    padding: '0.5rem 1rem',
+    // border: '1px dashed gray',
+    // backgroundColor: 'white',
+    // padding: '0.5rem 1rem',
   },
   handle: {
     marginBottom: 6,
@@ -30,6 +31,9 @@ export const PanelStyles = {
   },
   handleLabel: {
     fontSize: 18,
+  },
+  paper: {
+    padding: 5,
   },
 }
 
@@ -102,18 +106,20 @@ export function wrapPanel(options: PanelOptions): any {
 
         return connectDragPreview(
           <div style={previewStyle}>
-            {connectDragSource(
-              <div>
-                <AppBar style={styles.handle}
-                        title={this.props.intl.formatMessage(options.title)}
-                        titleStyle={styles.handleLabel}
-                        iconElementLeft={
-                          <FontIcon className="material-icons" style={styles.handleIcon} color={Colors.white}>menu</FontIcon>
-                        }
-                />
-              </div>
-            )}
-            <WrappedComponent {...this.props} />
+            <Paper style={styles.paper}>
+              {connectDragSource(
+                <div>
+                  <AppBar style={styles.handle}
+                          title={this.props.intl.formatMessage(options.title)}
+                          titleStyle={styles.handleLabel}
+                          iconElementLeft={
+                            <FontIcon className="material-icons" style={styles.handleIcon} color={Colors.white}>menu</FontIcon>
+                          }
+                  />
+                </div>
+              )}
+              <WrappedComponent {...this.props} />
+            </Paper>
           </div>
         );
       }
