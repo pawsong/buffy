@@ -13,7 +13,6 @@ import {
   requestFacebookLogin,
 } from '../../actions/auth';
 
-import LoginNavbar from './components/LoginNavbar';
 import LoginForm from './components/LoginForm';
 import Footer from '../../components/Footer';
 

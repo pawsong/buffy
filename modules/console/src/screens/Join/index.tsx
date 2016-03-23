@@ -2,7 +2,6 @@ import * as React from 'react';
 import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
 import { EnhancedTitle } from '../../hairdresser';
 import Messages from '../../constants/Messages';
-import JoinNavbar from './components/JoinNavbar';
 import JoinForm from './components/JoinForm';
 import Footer from '../../components/Footer';
 
