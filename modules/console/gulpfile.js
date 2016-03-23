@@ -46,7 +46,6 @@ require('../../gulp/app')({
       plugins: [
         new HtmlWebpackPlugin({
           template: './src/index.html', // Load a custom template
-          inject: 'body', // Inject all scripts into the body
           filename: '../../index.html',
         }),
       ],
