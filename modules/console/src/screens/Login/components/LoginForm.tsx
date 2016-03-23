@@ -52,9 +52,7 @@ const styles = {
     zIndex: 1,
   },
   input: {
-    marginLeft: 20,
     marginBottom: 10,
-    width: 'calc(100% - 40px)',
   },
   loginButton: {
     marginTop: 20,

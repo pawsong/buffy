@@ -56,10 +56,15 @@ const styles = {
     transform: 'translate(-50%, -50%)',
     zIndex: 1,
   },
-  input: {
-    marginLeft: 20,
+  inputRow: {
+    position: 'relative',
     marginBottom: 10,
-    width: 'calc(100% - 40px)',
+  },
+  textfield: {
+    width: '100%',
+  },
+  input: {
+    width: 'calc(100% - 30px)',
   },
   loginButton: {
     marginTop: 20,
@@ -80,16 +85,18 @@ const styles = {
     bottom: -10,
   },
   textfieldCheck: {
+    position: 'absolute',
     color: Colors.cyan500,
     fontSize: 20,
-    top: 6,
-    left: 6,
+    top: 12,
+    right: 6,
   },
   progress: {
     position: 'absolute',
     width: 30,
     height: 30,
-    marginLeft: -9,
+    marginLeft: -41,
+    marginTop: -3,
   },
   divider: {
     marginTop: 20,
@@ -396,46 +403,55 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
             }
 
             <form onSubmit={e => this.handleLocalSignUpSubmit(e)} noValidate={true}>
-              <TextField type="text"
-                         hintText={this.props.intl.formatMessage(Messages.name)}
-                         errorText={nameValidation.error}
-                         onChange={e => this.handleNameChange(e)}
-                         style={styles.input}
-                         errorStyle={styles.textfieldError}
-                         disabled={formIsBusy}
-              />
+              <div style={styles.inputRow}>
+                <TextField type="text"
+                          hintText={this.props.intl.formatMessage(Messages.name)}
+                          errorText={nameValidation.error}
+                          onChange={e => this.handleNameChange(e)}
+                          style={styles.textfield}
+                          inputStyle={styles.input}
+                          errorStyle={styles.textfieldError}
+                          disabled={formIsBusy}
+                />
 
-              <FontIcon className="material-icons" style={objectAssign({}, styles.textfieldCheck, {
-                display: nameValidation.valid ? 'inline-block' : 'none',
-              })}>check</FontIcon>
+                <FontIcon className="material-icons" style={objectAssign({}, styles.textfieldCheck, {
+                  display: nameValidation.valid ? 'inline-block' : 'none',
+                })}>check</FontIcon>
+              </div>
 
-              <TextField type="email"
-                         hintText={this.props.intl.formatMessage(Messages.email)}
-                         errorText={emailValidation.error}
-                         onChange={e => this.handleEmailChange(e)}
-                         style={styles.input}
-                         errorStyle={styles.textfieldError}
-                         disabled={formIsBusy}
-              />
+              <div style={styles.inputRow}>
+                <TextField type="email"
+                          hintText={this.props.intl.formatMessage(Messages.email)}
+                          errorText={emailValidation.error}
+                          onChange={e => this.handleEmailChange(e)}
+                          style={styles.textfield}
+                          inputStyle={styles.input}
+                          errorStyle={styles.textfieldError}
+                          disabled={formIsBusy}
+                />
 
-              {isRunning(this.props.validateEmail) ? <CircularProgress size={0.3} style={styles.progress} /> : null}
+                {isRunning(this.props.validateEmail) ? <CircularProgress size={0.3} style={styles.progress} /> : null}
 
-              <FontIcon className="material-icons" style={objectAssign({}, styles.textfieldCheck, {
-                display: emailValidation.valid ? 'inline-block' : 'none',
-              })}>check</FontIcon>
+                <FontIcon className="material-icons" style={objectAssign({}, styles.textfieldCheck, {
+                  display: emailValidation.valid ? 'inline-block' : 'none',
+                })}>check</FontIcon>
+              </div>
 
-              <TextField type="password"
-                         hintText={this.props.intl.formatMessage(Messages.password)}
-                         errorText={passwordValidation.error}
-                         onChange={e => this.handlePasswordChange(e)}
-                         style={styles.input}
-                         errorStyle={styles.textfieldError}
-                         disabled={formIsBusy}
-              />
+              <div style={styles.inputRow}>
+                <TextField type="password"
+                          hintText={this.props.intl.formatMessage(Messages.password)}
+                          errorText={passwordValidation.error}
+                          onChange={e => this.handlePasswordChange(e)}
+                          style={styles.textfield}
+                          inputStyle={styles.input}
+                          errorStyle={styles.textfieldError}
+                          disabled={formIsBusy}
+                />
 
-              <FontIcon className="material-icons" style={objectAssign({}, styles.textfieldCheck, {
-                display: passwordValidation.valid ? 'inline-block' : 'none',
-              })}>check</FontIcon>
+                <FontIcon className="material-icons" style={objectAssign({}, styles.textfieldCheck, {
+                  display: passwordValidation.valid ? 'inline-block' : 'none',
+                })}>check</FontIcon>
+              </div>
 
               <RaisedButton type="submit"
                             primary={true} fullWidth={true} style={styles.loginButton}
