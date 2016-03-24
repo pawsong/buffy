@@ -42,7 +42,7 @@ class Footer extends React.Component<{}, {}> {
     return (
       <Wrapper>
         <div style={styles.root}>
-          <ul style={styles.right}><li></li></ul>
+          <ul style={styles.right}><li><Link to="/about">About</Link></li></ul>
           <Link to="/"><ActionPets style={styles.logo} color={Colors.lightBlack} /></Link>
           <ul style={styles.left}><li>© 2016 Buffy, Inc.</li></ul>
         </div>
