@@ -33,9 +33,6 @@ const styles = {
     width: 40,
     height: 40,
   },
-  heading: {
-    fontWeight: 'normal',
-  },
   paper: {
     position: 'relative',
     padding: 20,
@@ -207,7 +204,7 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
           <Paper style={styles.paper}>
             {formIsBusy ? <CircularProgress style={styles.progressOverlay} /> : null}
 
-            <h1 style={styles.heading}>
+            <h1>
               {this.props.intl.formatMessage(messages.heading, {
                 service: this.props.intl.formatMessage(Messages.service),
               })}

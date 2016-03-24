@@ -77,7 +77,6 @@ const styles = {
   },
   header: {
     marginTop: 60,
-    fontWeight: 'normal',
   },
   learnMoreWrapper: {
     backgroundColor: Colors.grey200,
@@ -89,7 +88,6 @@ const styles = {
   learnMoreHeader: {
     marginTop: 0,
     marginBottom: 30,
-    fontWeight: 'normal',
   },
 };
 
