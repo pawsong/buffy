@@ -1,4 +1,8 @@
 const autoprefixer = require('autoprefixer');
-module.exports = function () {
-  return [autoprefixer];
-};
+const cssnano = require('cssnano');
+
+export const development = [autoprefixer];
+
+export const production = development.concat([
+  cssnano()
+]);

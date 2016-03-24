@@ -1,6 +1,8 @@
 const webpack = require('webpack');
 const _ = require('lodash');
 
+import * as postcss from './postcss';
+
 const babelOptions = JSON.stringify({
   presets: [
     'es2015',
@@ -44,6 +46,8 @@ module.exports = options => Object.assign(require('./client.dev')(options), {
 
     ...(options.plugins || []),
   ],
+
+  postcss: () => postcss.production,
 
   devtool: options.devtool || 'source-map',
 });

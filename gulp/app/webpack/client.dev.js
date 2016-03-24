@@ -1,7 +1,8 @@
 const webpack = require('webpack');
 const _ = require('lodash');
 const path = require('path');
-const postcss = require('./postcss');
+
+import * as postcss from './postcss';
 
 module.exports = options => {
   const babelOptions = JSON.stringify({
@@ -66,7 +67,7 @@ module.exports = options => {
       ...(options.plugins || []),
     ],
 
-    postcss: postcss,
+    postcss: () => postcss.development,
 
     devtool: options.devtool || 'cheap-module-eval-source-map',
   };

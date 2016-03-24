@@ -1,6 +1,8 @@
 const webpack = require('webpack');
 const _ = require('lodash');
 
+import * as postcss from './postcss';
+
 module.exports = options => Object.assign(require('./server.dev')(options), {
   plugins: [
     new webpack.DefinePlugin(_.mapValues(Object.assign({
@@ -15,4 +17,6 @@ module.exports = options => Object.assign(require('./server.dev')(options), {
 
     ...(options.plugins || []),
   ],
+
+  postcss: () => postcss.production,
 });

@@ -51,6 +51,7 @@
     "childminder": "^1.1.1",
     "cli-color": "^1.1.0",
     "cors": "^2.7.1",
+    "cssnano": "^3.5.2",
     "del": "^2.2.0",
     "eslint-config-airbnb": "^3.0.2",
     "event-stream": "^3.3.2",
