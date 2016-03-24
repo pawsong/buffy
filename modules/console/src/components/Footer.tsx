@@ -4,6 +4,7 @@ import ActionPets from 'material-ui/lib/svg-icons/action/pets';
 import Colors from 'material-ui/lib/styles/colors';
 import Wrapper from './Wrapper';
 
+import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../constants/Messages';
 
 const styles = {
@@ -35,14 +36,38 @@ const styles = {
     fontSize: 14,
     color: Colors.lightBlack,
   },
+  list: {
+    display: 'inline-block',
+    marginLeft: 10,
+  },
 };
+
+const messages = defineMessages({
+  contact: {
+    id: 'footer.contact',
+    description: 'Contact link label',
+    defaultMessage: 'Contact',
+  },
+  about: {
+    id: 'footer.about',
+    description: 'About link label',
+    defaultMessage: 'About',
+  },
+});
 
 class Footer extends React.Component<{}, {}> {
   render() {
     return (
       <Wrapper>
         <div style={styles.root}>
-          <ul style={styles.right}><li><Link to="/about">About</Link></li></ul>
+          <ul style={styles.right}>
+            <li style={styles.list}>
+              <Link to="/contact"><FormattedMessage {...messages.contact}></FormattedMessage></Link>
+            </li>
+            <li style={styles.list}>
+              <Link to="/about"><FormattedMessage {...messages.about}></FormattedMessage></Link>
+            </li>
+          </ul>
           <Link to="/"><ActionPets style={styles.logo} color={Colors.lightBlack} /></Link>
           <ul style={styles.left}><li>© 2016 Buffy, Inc.</li></ul>
         </div>

@@ -3,6 +3,7 @@ import Root from './screens/Root';
 import Anonymous from './screens/Anonymous';
 import AnonymousIndex from './screens/Anonymous/screens/Index';
 import About from './screens/About';
+import Contact from './screens/Contact';
 import GetStarted from './screens/GetStarted';
 import FeaturesForTeachers from './screens/FeaturesForTeachers';
 import LoggedIn from './screens/LoggedIn';
@@ -91,6 +92,12 @@ export default function getRoutes(store: Store) {
             path: '/about',
             getComponent: (location, cb) => require.ensure([], require => {
               cb(null, require<{ default: About }>('./screens/About').default);
+            }),
+          },
+          {
+            path: '/contact',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: Contact }>('./screens/Contact').default);
             }),
           },
           {

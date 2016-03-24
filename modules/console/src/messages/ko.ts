@@ -147,6 +147,20 @@ export default {
   'facebookLoginFailed': '페이스북으로 로그인할 수 없습니다',
 
   /**
+   * path: src/components/Footer.json
+   * description: About link label
+   * defaultMessage: About
+   */
+  'footer.about': '회사소개',
+
+  /**
+   * path: src/components/Footer.json
+   * description: Contact link label
+   * defaultMessage: Contact
+   */
+  'footer.contact': '연락처',
+
+  /**
    * path: src/screens/Join/components/JoinForm.json
    * description: Warning message for invalid email
    * defaultMessage: Please enter a valid email
