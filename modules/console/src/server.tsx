@@ -54,6 +54,9 @@ import {
   ApiCallDictionary,
 } from './api';
 
+// To serve style file on webpack server
+const styles = require('./styles.js');
+
 const SUPPORTED_LOCALES = ['en', 'ko'];
 locale.Locale['default'] = 'en';
 
@@ -81,6 +84,7 @@ const minifiedIndexHtml = minify(indexHtml, {
 const compiledIndexHtml = template(minifiedIndexHtml, {
   interpolate: /{{([\s\S]+?)}}/g,
   imports: {
+    styles,
     script: __DEV__ ? `<script src="http://localhost:${conf.consoleClientPort}/bundle.js"></script>` : '',
   }
 });

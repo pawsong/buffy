@@ -1,7 +1,7 @@
 const webpack = require('webpack');
-const autoprefixer = require('autoprefixer');
 const _ = require('lodash');
 const path = require('path');
+const postcss = require('./postcss');
 
 module.exports = options => {
   const babelOptions = JSON.stringify({
@@ -66,9 +66,7 @@ module.exports = options => {
       ...(options.plugins || []),
     ],
 
-    postcss: function () {
-        return [autoprefixer];
-    },
+    postcss: postcss,
 
     devtool: options.devtool || 'cheap-module-eval-source-map',
   };

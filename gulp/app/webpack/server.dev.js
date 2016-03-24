@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const fs = require('fs');
 const _ = require('lodash');
+const postcss = require('./postcss');
 
 const babelOptions = JSON.stringify({
   presets: [
@@ -53,5 +54,8 @@ module.exports = options => ({
   node: {
     __dirname: false,
   },
+
+  postcss: postcss,
+
   devtool: 'source-map',
 });
