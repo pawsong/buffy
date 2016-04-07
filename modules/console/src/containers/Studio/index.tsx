@@ -102,14 +102,43 @@ const styles = {
   },
 };
 
-interface StudioProps extends React.Props<Studio> {
-  onRun: () => any;
-  isBlocklyReady: boolean;
-  style?: React.CSSProperties;
-  intl?: InjectedIntlProps;
+interface TabTemplateProps extends React.Props<TabTemplate> {
+  selected: boolean;
 }
 
-interface StudioState {
+class TabTemplate extends React.Component<TabTemplateProps, {}> {
+  render() {
+    const styles: {
+      width: string;
+      height: string;
+      display?: string;
+    } = {
+      'width': '100%',
+      'height': '100%',
+    };
+
+    if (!this.props.selected) {
+      styles.display = 'none';
+    }
+
+    return (
+      <div style={styles}>
+        {this.props.children}
+      </div>
+    );
+  }
+};
+
+interface StudioBodyProps extends React.Props<Studio>, SagaProps {
+  stateLayer: StateLayer;
+  blocklyWorkspace?: any;
+  style?: React.CSSProperties;
+  intl?: InjectedIntlProps;
+  root?: ImmutableTask<any>;
+  requestRunBlockly?: (workspace: any) => any;
+}
+
+interface StudioBodyState {
   gameSizeVersion?: number;
   editorSizeVersions?: {
     code: number;
@@ -119,13 +148,20 @@ interface StudioState {
 }
 
 @injectIntl
-class Studio extends React.Component<StudioProps, StudioState> {
+@saga({
+  root: rootSaga,
+})
+@connect((state: State) => ({
+  blocklyWorkspace: state.codeEditor.workspace,
+}), {
+  requestRunBlockly,
+})
+class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   initialTabIndex: number;
   initialGameWidth: number;
   initialGameHeight: number;
 
   activeTabName: string;
-  socket: SocketIOClient.Socket;
 
   constructor(props, context) {
     super(props, context);
@@ -137,6 +173,22 @@ class Studio extends React.Component<StudioProps, StudioState> {
       gameSizeVersion: 0,
       activeTab: localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB) || 'code',
     };
+  }
+
+  componentDidMount() {
+    this.props.runSaga(this.props.root);
+  }
+
+  componentWillUnmount() {
+    this.props.cancelSaga(this.props.root);
+  }
+
+  handleRun() {
+    const workspace = this.props.blocklyWorkspace;
+    if (!workspace) {
+      return console.error('Workspace is empty');
+    }
+    this.props.requestRunBlockly(workspace);
   }
 
   componentWillMount() {
@@ -178,122 +230,70 @@ class Studio extends React.Component<StudioProps, StudioState> {
   render() {
     const rootStyle = objectAssign({}, styles.root, this.props.style);
     return (
-      <div style={rootStyle}>
-        <Layout flow="row" style={styles.content}>
-          <LayoutContainer size={this.initialGameWidth} onResize={size => this.handleGameWidthResize(size)}>
-            <Layout flow="column" style={styles.fillParent}>
-              <LayoutContainer size={this.initialGameHeight} onResize={size => this.handleGameHeightResize(size)}>
-                <Game sizeVersion={this.state.gameSizeVersion}/>
-              </LayoutContainer>
-              <LayoutContainer remaining={true}>
-                <Toolbar>
-                  <ToolbarGroup key={0} float="right">
-                    <RaisedButton label={this.props.intl.formatMessage(messages.run)}
-                                  primary={true}
-                                  disabled={!this.props.isBlocklyReady}
-                                  onTouchTap={() => this.props.onRun()}
-                    />
-                  </ToolbarGroup>
-                </Toolbar>
-              </LayoutContainer>
-            </Layout>
-          </LayoutContainer>
+      <Provider stateLayer={this.props.stateLayer}>
+        <div style={rootStyle}>
+          <Layout flow="row" style={styles.content}>
+            <LayoutContainer size={this.initialGameWidth} onResize={size => this.handleGameWidthResize(size)}>
+              <Layout flow="column" style={styles.fillParent}>
+                <LayoutContainer size={this.initialGameHeight} onResize={size => this.handleGameHeightResize(size)}>
+                  <Game sizeVersion={this.state.gameSizeVersion}/>
+                </LayoutContainer>
+                <LayoutContainer remaining={true}>
+                  <Toolbar>
+                    <ToolbarGroup key={0} float="right">
+                      <RaisedButton label={this.props.intl.formatMessage(messages.run)}
+                                    primary={true}
+                                    disabled={!this.props.blocklyWorkspace}
+                                    onTouchTap={() => this.handleRun()}
+                      />
+                    </ToolbarGroup>
+                  </Toolbar>
+                </LayoutContainer>
+              </Layout>
+            </LayoutContainer>
 
-          <LayoutContainer remaining={true}>
-            <Tabs contentContainerStyle={styles.addon}
-                  tabTemplate={TabTemplate}
-                  onChange={value => this.onTabChange(value)}
-                  value={this.state.activeTab}
-            >
-              <Tab label={this.props.intl.formatMessage(messages.code)} value="code">
-                <CodeEditor sizeVersion={this.state.editorSizeVersions.code} active={this.state.activeTab === 'code'} />
-              </Tab>
-              <Tab label={this.props.intl.formatMessage(messages.design)} value="design">
-                <VoxelEditor sizeVersion={this.state.editorSizeVersions.design} />
-              </Tab>
-            </Tabs>
-          </LayoutContainer>
-        </Layout>
-      </div>
+            <LayoutContainer remaining={true}>
+              <Tabs contentContainerStyle={styles.addon}
+                    tabTemplate={TabTemplate}
+                    onChange={value => this.onTabChange(value)}
+                    value={this.state.activeTab}
+              >
+                <Tab label={this.props.intl.formatMessage(messages.code)} value="code">
+                  <CodeEditor sizeVersion={this.state.editorSizeVersions.code} active={this.state.activeTab === 'code'} />
+                </Tab>
+                <Tab label={this.props.intl.formatMessage(messages.design)} value="design">
+                  <VoxelEditor sizeVersion={this.state.editorSizeVersions.design} />
+                </Tab>
+              </Tabs>
+            </LayoutContainer>
+          </Layout>
+        </div>
+      </Provider>
     );
   }
 }
 
-interface TabTemplateProps extends React.Props<TabTemplate> {
-  selected: boolean;
-}
-
-class TabTemplate extends React.Component<TabTemplateProps, {}> {
-  render() {
-    const styles: {
-      width: string;
-      height: string;
-      display?: string;
-    } = {
-      'width': '100%',
-      'height': '100%',
-    };
-
-    if (!this.props.selected) {
-      styles.display = 'none';
-    }
-
-    return (
-      <div style={styles}>
-        {this.props.children}
-      </div>
-    );
-  }
-};
-
-/*
- * Container
- */
-
-interface StudioContainerProps extends React.Props<{}>, SagaProps {
+interface StudioProps extends React.Props<Studio> {
   stateLayer: StateLayer;
-  blocklyWorkspace?: any;
   style?: React.CSSProperties;
-  requestRunBlockly?: (workspace: any) => any;
-  root?: ImmutableTask<any>;
 }
 
-interface StudioContainerState {
+interface StudioState {
   mount?: boolean;
 }
 
-@saga({
-  root: rootSaga,
-})
-@connect((state: State) => ({
-  blocklyWorkspace: state.codeEditor.workspace,
-}), {
-  requestRunBlockly,
-})
-class StudioContainer extends React.Component<StudioContainerProps, StudioContainerState> {
+class Studio extends React.Component<StudioProps, StudioState> {
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      mount: false,
-    };
+    this.state = { mount: false };
   }
 
   componentDidMount() {
     this.setState({ mount: true });
-    this.props.runSaga(this.props.root);
   }
 
   componentWillUnmount() {
     this.setState({ mount: false });
-    this.props.cancelSaga(this.props.root);
-  }
-
-  handleRun() {
-    const workspace = this.props.blocklyWorkspace;
-    if (!workspace) {
-      return console.error('Workspace is empty');
-    }
-    this.props.requestRunBlockly(workspace);
   }
 
   render() {
@@ -305,15 +305,8 @@ class StudioContainer extends React.Component<StudioContainerProps, StudioContai
       return <div>Connecting...</div>;
     }
 
-    return (
-      <Provider stateLayer={this.props.stateLayer}>
-        <Studio style={this.props.style}
-                    onRun={() => this.handleRun()}
-                    isBlocklyReady={!!this.props.blocklyWorkspace}
-        />
-      </Provider>
-    );
-  }
+    return <StudioBody stateLayer={this.props.stateLayer} style={this.props.style} />
+  };
 }
 
-export default StudioContainer;
+export default Studio;
