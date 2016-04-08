@@ -23,12 +23,8 @@ Object.keys(CZ.Methods).forEach(method => {
       this.socket.on(method, (params, fn) => {
         const promise = handler(params);
         if (!promise || !promise.then) {
-          console.error(
-            `handler must return Promise object to send back response`
-          );
-          return fn({
-            error: new Error('500'),
-          });
+          console.error('handler must return Promise object to send back response');
+          return fn({ error: new Error('500') });
         }
 
         // TODO: make RPC
@@ -94,7 +90,7 @@ export default (socket: SocketIO.Socket) => {
   });
 
   listen.rotate(async (params) => {
-    if (params.direction.x === 0 && params.direction.x === 0 && params.direction.x === 0 ) {
+    if (params.direction.x === 0 && params.direction.y === 0 && params.direction.z === 0 ) {
       console.warn('Invalid vector');
       return;
     }

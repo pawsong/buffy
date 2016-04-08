@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import StateLayer from '@pasta/core/lib/StateLayer';
 import { EventSubscription } from 'fbemitter';
-import { connect as connectStateLayer } from '../../../../containers/stateLayer';
 
 import { State } from '../../../../reducers';
 import {
@@ -46,7 +44,6 @@ interface CodeEditorProps extends React.Props<CodeEditor> {
   active: boolean;
 }
 
-@connectStateLayer()
 @connect((state: State) => ({
   workspace: state.codeEditor.workspace,
 }), {

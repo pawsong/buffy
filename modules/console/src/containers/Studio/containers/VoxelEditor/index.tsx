@@ -41,7 +41,7 @@ import initCanvasShared from './canvas/shared';
 import initCanvas from './canvas/views/main';
 
 import { VoxelState } from '../../../../reducers/voxelEditor';
-import { saga, SagaProps, ImmutableTask, rpc } from '../../../../saga';
+import { saga, SagaProps, ImmutableTask } from '../../../../saga';
 import { select, call, put } from 'redux-saga/effects';
 
 import { connect as connectStateLayer } from '../../../../containers/stateLayer';
@@ -80,10 +80,10 @@ interface PanelState {
 
 interface VoxelEditorProps extends React.Props<VoxelEditor>, SagaProps {
   sizeVersion: number;
+  stateLayer: StateLayer;
   connectDropTarget?: any;
   workspace?: any;
   submit?: ImmutableTask<any>;
-  stateLayer?: StateLayer;
 }
 
 interface ContainerStates {
@@ -91,15 +91,14 @@ interface ContainerStates {
   fullscreen?: boolean;
 }
 
-@connectStateLayer()
 @saga({
-  submit: function* (id: string) {
+  submit: function* (stateLayer: StateLayer, id: string) {
     const voxel: VoxelState = yield select<State>(state => state.voxelEditor.voxel);
 
     const voxelData = voxelMapToArray(voxel.present.data);
     const result = mesher(voxelData.data, voxelData.shape);
 
-    yield call(rpc.updateMesh, {
+    yield call(stateLayer.rpc.updateMesh, {
       id,
       vertices: result.vertices,
       faces: result.faces,
@@ -210,7 +209,7 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   }
 
   handleSubmit() {
-    this.props.runSaga(this.props.submit, this.props.stateLayer.store.myId);
+    this.props.runSaga(this.props.submit, this.props.stateLayer, this.props.stateLayer.store.myId);
   }
 
   componentWillMount() {

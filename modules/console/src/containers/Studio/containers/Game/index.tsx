@@ -2,7 +2,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { EventSubscription } from 'fbemitter';
-import { connect as connectStateLayer } from '../../../../containers/stateLayer';
 
 import { State } from '../../../../reducers';
 import {
@@ -28,7 +27,7 @@ import ContactsDialog from './components/ContactsDialog';
 interface GameProps extends React.Props<Game> {
   sizeVersion: number; // For resize
 
-  stateLayer?: StateLayer;
+  stateLayer: StateLayer;
   tool?: ToolState;
   brush?: BrushState;
   changeTool?: (type: ToolType) => any;
@@ -44,7 +43,6 @@ interface GameState {
   mapName: string;
 }
 
-@connectStateLayer()
 @connect((state: State) => ({
   tool: state.game.tool,
   brush: state.game.brush,
@@ -95,7 +93,7 @@ class Game extends React.Component<GameProps, GameState> {
     return (
       <div>
         <MapInfo mapName={this.state.mapName} />
-        <Canvas sizeVersion={this.props.sizeVersion}/>
+        <Canvas sizeVersion={this.props.sizeVersion} stateLayer={this.props.stateLayer} />
         <ContactsButton onTouchTap={() => this.handleContactsButtonClick()} />
         <Tools tool={this.props.tool}
                brush={this.props.brush}

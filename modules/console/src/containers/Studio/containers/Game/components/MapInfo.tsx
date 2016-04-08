@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { EventEmitter, EventSubscription } from 'fbemitter';
-import StateLayer from '@pasta/core/lib/StateLayer';
 
 interface MapInfoProps extends React.Props<MapInfo> {
   mapName: string;

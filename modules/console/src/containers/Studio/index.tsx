@@ -21,7 +21,7 @@ import { State } from '../../reducers';
 import { Provider } from '../stateLayer';
 
 import { saga, SagaProps, ImmutableTask } from '../../saga';
-import rootSaga from './sagas';
+import rootSaga, { runBlocklyWorkspace } from './sagas';
 
 import {
   requestRunBlockly,
@@ -135,6 +135,7 @@ interface StudioBodyProps extends React.Props<Studio>, SagaProps {
   style?: React.CSSProperties;
   intl?: InjectedIntlProps;
   root?: ImmutableTask<any>;
+  run?: ImmutableTask<any>;
   requestRunBlockly?: (workspace: any) => any;
 }
 
@@ -150,6 +151,7 @@ interface StudioBodyState {
 @injectIntl
 @saga({
   root: rootSaga,
+  run: runBlocklyWorkspace,
 })
 @connect((state: State) => ({
   blocklyWorkspace: state.codeEditor.workspace,
@@ -181,6 +183,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
   componentWillUnmount() {
     this.props.cancelSaga(this.props.root);
+    this.props.cancelSaga(this.props.run);
   }
 
   handleRun() {
@@ -188,7 +191,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     if (!workspace) {
       return console.error('Workspace is empty');
     }
-    this.props.requestRunBlockly(workspace);
+    this.props.runSaga(this.props.run, this.props.stateLayer, workspace);
   }
 
   componentWillMount() {
@@ -230,45 +233,45 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   render() {
     const rootStyle = objectAssign({}, styles.root, this.props.style);
     return (
-      <Provider stateLayer={this.props.stateLayer}>
-        <div style={rootStyle}>
-          <Layout flow="row" style={styles.content}>
-            <LayoutContainer size={this.initialGameWidth} onResize={size => this.handleGameWidthResize(size)}>
-              <Layout flow="column" style={styles.fillParent}>
-                <LayoutContainer size={this.initialGameHeight} onResize={size => this.handleGameHeightResize(size)}>
-                  <Game sizeVersion={this.state.gameSizeVersion}/>
-                </LayoutContainer>
-                <LayoutContainer remaining={true}>
-                  <Toolbar>
-                    <ToolbarGroup key={0} float="right">
-                      <RaisedButton label={this.props.intl.formatMessage(messages.run)}
-                                    primary={true}
-                                    disabled={!this.props.blocklyWorkspace}
-                                    onTouchTap={() => this.handleRun()}
-                      />
-                    </ToolbarGroup>
-                  </Toolbar>
-                </LayoutContainer>
-              </Layout>
-            </LayoutContainer>
+      <div style={rootStyle}>
+        <Layout flow="row" style={styles.content}>
+          <LayoutContainer size={this.initialGameWidth} onResize={size => this.handleGameWidthResize(size)}>
+            <Layout flow="column" style={styles.fillParent}>
+              <LayoutContainer size={this.initialGameHeight} onResize={size => this.handleGameHeightResize(size)}>
+                <Game sizeVersion={this.state.gameSizeVersion} stateLayer={this.props.stateLayer} />
+              </LayoutContainer>
+              <LayoutContainer remaining={true}>
+                <Toolbar>
+                  <ToolbarGroup key={0} float="right">
+                    <RaisedButton label={this.props.intl.formatMessage(messages.run)}
+                                  primary={true}
+                                  disabled={!this.props.blocklyWorkspace}
+                                  onTouchTap={() => this.handleRun()}
+                    />
+                  </ToolbarGroup>
+                </Toolbar>
+              </LayoutContainer>
+            </Layout>
+          </LayoutContainer>
 
-            <LayoutContainer remaining={true}>
-              <Tabs contentContainerStyle={styles.addon}
-                    tabTemplate={TabTemplate}
-                    onChange={value => this.onTabChange(value)}
-                    value={this.state.activeTab}
-              >
-                <Tab label={this.props.intl.formatMessage(messages.code)} value="code">
-                  <CodeEditor sizeVersion={this.state.editorSizeVersions.code} active={this.state.activeTab === 'code'} />
-                </Tab>
-                <Tab label={this.props.intl.formatMessage(messages.design)} value="design">
-                  <VoxelEditor sizeVersion={this.state.editorSizeVersions.design} />
-                </Tab>
-              </Tabs>
-            </LayoutContainer>
-          </Layout>
-        </div>
-      </Provider>
+          <LayoutContainer remaining={true}>
+            <Tabs contentContainerStyle={styles.addon}
+                  tabTemplate={TabTemplate}
+                  onChange={value => this.onTabChange(value)}
+                  value={this.state.activeTab}
+            >
+              <Tab label={this.props.intl.formatMessage(messages.code)} value="code">
+                <CodeEditor sizeVersion={this.state.editorSizeVersions.code}
+                            active={this.state.activeTab === 'code'}
+                />
+              </Tab>
+              <Tab label={this.props.intl.formatMessage(messages.design)} value="design">
+                <VoxelEditor sizeVersion={this.state.editorSizeVersions.design} stateLayer={this.props.stateLayer} />
+              </Tab>
+            </Tabs>
+          </LayoutContainer>
+        </Layout>
+      </div>
     );
   }
 }

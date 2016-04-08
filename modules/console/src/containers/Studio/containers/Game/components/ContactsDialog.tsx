@@ -11,7 +11,6 @@ import TableHeaderColumn from 'material-ui/lib/table/table-header-column';
 import TableRow from 'material-ui/lib/table/table-row';
 import TableRowColumn from 'material-ui/lib/table/table-row-column';
 import { connect } from 'react-redux';
-import StateLayer from '@pasta/core/lib/StateLayer';
 
 import { State } from '../../../../../reducers';
 import {
@@ -21,7 +20,6 @@ import {
 interface ContectDialogProps extends React.Props<ContactDialog> {
   open: boolean;
   onClose: () => any;
-  stateLayer?: StateLayer;
   userid?: string;
   friends: GameUser[];
   onSubmit: (mapId: string) => any;

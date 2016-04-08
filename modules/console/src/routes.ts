@@ -16,6 +16,7 @@ import Unit from './screens/Course/screens/Unit';
 import Join from './screens/Join';
 import Login from './screens/Login';
 import StudioForCourse from './screens/StudioForCourse';
+import Play from './screens/Play';
 import { State } from './reducers';
 
 export default function getRoutes(store: Store) {
@@ -54,6 +55,12 @@ export default function getRoutes(store: Store) {
             },
           },
         ],
+      },
+      {
+        path: '/play',
+        getComponent: (location, cb) => require.ensure([], require => {
+          cb(null, require<{ default: Play }>('./screens/Play').default);
+        }),
       },
       {
         path: '/courses/:courseId/units/:unitIndex/play',

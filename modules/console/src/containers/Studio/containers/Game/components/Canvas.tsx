@@ -7,10 +7,9 @@ import initCanvas from '../canvas';
 
 interface CanvasProps extends React.Props<Canvas> {
   sizeVersion: number;
-  stateLayer?: StateLayer;
+  stateLayer: StateLayer;
 }
 
-@connectStateLayer()
 class Canvas extends React.Component<CanvasProps, {}> {
   // TypeScript jsx parser omits adding displayName when using decorator
   static displayName = 'Canvas';

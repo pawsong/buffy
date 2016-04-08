@@ -1,5 +1,6 @@
 import { call, fork, put, take, race, select, cancel } from 'redux-saga/effects';
 import { isCancelError } from 'redux-saga';
+import StateLayer from '@pasta/core/lib/StateLayer';
 import { Blockly, Interpreter, Scope } from '../containers/CodeEditor/blockly';
 
 import { State } from '../../../reducers';
@@ -64,15 +65,11 @@ function* watchWarpRequest() {
  */
 
 // Should be cancellable
-function* runBlocklyWorkspace(action: RequestRunBlocklyAction) {
-  const stateLayer = yield select<State>(state => state.zone.stateLayer);
-  if (!stateLayer) {
-    throw new Error('stateLayer is not ready now');
-  }
-
+export function* runBlocklyWorkspace(stateLayer: StateLayer, workspace: any) {
   let running = true;
+
   function run() {
-    const topBlocks: any[] = action.workspace.getTopBlocks();
+    const topBlocks: any[] = workspace.getTopBlocks();
     return Promise.all(topBlocks.map(block => {
     // TODO: Check top block is an event emitter
       if (block.type === 'when_run') {
@@ -120,10 +117,6 @@ function* runBlocklyWorkspace(action: RequestRunBlocklyAction) {
   }
 }
 
-function* watchRunCodeRequest() {
-  yield* takeLatest(REQUEST_RUN_BLOCKLY, runBlocklyWorkspace);
-}
-
 /*
  * Voxel editor container sagas
  */
@@ -133,7 +126,6 @@ export default function* studioRootSaga() {
     yield [
       call(watchFriendsDialog),
       call(watchWarpRequest),
-      call(watchRunCodeRequest),
     ]
   } catch(error) {
     if (!isCancelError(error)) {
