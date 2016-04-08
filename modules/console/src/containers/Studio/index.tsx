@@ -18,8 +18,6 @@ import { Blockly } from './containers/CodeEditor/blockly';
 import * as StorageKeys from '../../constants/StorageKeys';
 import { State } from '../../reducers';
 
-import { Provider } from '../stateLayer';
-
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import rootSaga, { runBlocklyWorkspace } from './sagas';
 

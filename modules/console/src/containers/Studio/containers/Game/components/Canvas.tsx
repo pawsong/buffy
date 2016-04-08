@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
-import { connect as connectStateLayer } from '../../../../../containers/stateLayer';
 
 import initCanvas from '../canvas';
 

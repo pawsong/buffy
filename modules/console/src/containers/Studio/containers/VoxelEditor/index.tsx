@@ -44,8 +44,6 @@ import { VoxelState } from '../../../../reducers/voxelEditor';
 import { saga, SagaProps, ImmutableTask } from '../../../../saga';
 import { select, call, put } from 'redux-saga/effects';
 
-import { connect as connectStateLayer } from '../../../../containers/stateLayer';
-
 import {
   pushSnackbar,
 } from '../../../../actions/snackbar';
