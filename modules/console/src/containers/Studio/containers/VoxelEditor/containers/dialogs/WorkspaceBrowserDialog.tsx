@@ -103,6 +103,10 @@ class FileBrowserDialog extends React.Component<FileBrowserDialogProps, FileBrow
     return <div>Pending</div>;
   }
 
+  renderRejected() {
+    return <div>Something went wrong :(</div>;
+  }
+
   renderFulfilled() {
     const tableBody = this.props.workspaces.result.map((workspace, index) => (
       <TableRow key={workspace._id} selected={index === this.state.selectedRow}>
@@ -138,6 +142,10 @@ class FileBrowserDialog extends React.Component<FileBrowserDialogProps, FileBrow
     switch(this.props.workspaces.state) {
       case 'fulfilled': {
         body = this.renderFulfilled();
+        break;
+      }
+      case 'rejected': {
+        body = this.renderRejected();
         break;
       }
       case 'pending': {

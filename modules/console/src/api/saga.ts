@@ -25,17 +25,21 @@ function* requestCall(apiCall: ApiCall<any>) {
   });
 
   try {
-    const response = yield call(request.default, <any>{
+    const { status, data } = yield call(request.default, <any>{
       method: apiCall.options.method,
       url: apiCall.options.url,
       params: apiCall.options.qs || {},
       body: apiCall.options.body || {},
     });
 
+    if (status < 200 || status > 300) {
+      throw new Error(data);
+    }
+
     yield put<ApiSuccessAction>({
       type: API_SUCCESS,
       callId: apiCall.id,
-      result: response.data,
+      result: data,
     });
   } catch(error) {
     yield put<ApiFailureAction>({
