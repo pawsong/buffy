@@ -1,3 +1,6 @@
 import * as THREE from 'three';
-window['THREE'] = THREE;
-require('three/examples/js/controls/OrbitControls');
+
+if (__CLIENT__) {
+  window['THREE'] = THREE;
+  require('three/examples/js/controls/OrbitControls');
+}
