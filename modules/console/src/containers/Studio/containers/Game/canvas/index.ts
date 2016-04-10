@@ -194,6 +194,9 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
       cancelAnimationFrame(frameId);
       terrainManager.destroy();
       cursorManager.destroy();
+      renderer.forceContextLoss();
+      renderer.context = null;
+      renderer.domElement = null;
     },
     resize() {
       onWindowResize();

@@ -325,6 +325,9 @@ export default function initCanvas(container: HTMLElement, store: Store, canvasS
       renderer.domElement.removeEventListener('mouseup', onDocumentMouseUp, false);
       window.removeEventListener('resize', onWindowResize, false);
       cancelAnimationFrame(frameId);
+      renderer.forceContextLoss();
+      renderer.context = null;
+      renderer.domElement = null;
     },
   };
 }

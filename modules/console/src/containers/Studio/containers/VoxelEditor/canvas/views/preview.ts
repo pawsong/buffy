@@ -126,6 +126,9 @@ export default function initPreview(container, canvasShared: CanvasShared) {
     destroy() {
       window.removeEventListener('resize', onWindowResize, false);
       cancelAnimationFrame(frameId);
+      renderer.forceContextLoss();
+      renderer.context = null;
+      renderer.domElement = null;
     },
   };
 }
