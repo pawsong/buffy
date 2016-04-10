@@ -8,6 +8,13 @@ export default {
 
   /**
    * path: src/screens/Anonymous/screens/Index/index.json
+   * description: Label for get started button
+   * defaultMessage: Let's get started
+   */
+  'anon.index.getStarted': '지금 시작해보세요',
+
+  /**
+   * path: src/screens/Anonymous/screens/Index/index.json
    * description: Introduce code editor to new users (body)
    * defaultMessage: You can control your robot with code blocks
    */

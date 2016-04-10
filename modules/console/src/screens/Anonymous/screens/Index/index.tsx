@@ -69,6 +69,11 @@ const messages = defineMessages({
     description: 'Label for teacher info link',
     defaultMessage: 'See more info for you',
   },
+  getStarted: {
+    id: 'anon.index.getStarted',
+    description: 'Label for get started button',
+    defaultMessage: 'Let\'s get started',
+  },
 });
 
 const styles = {
@@ -108,6 +113,17 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
     return (
       <div>
         <Banner />
+        <div style={{
+          textAlign: 'center',
+          marginTop: 100,
+          marginBottom: 100,
+        }}>
+          <RaisedButton secondary={true}
+                        linkButton={true}
+                        containerElement={<Link to="/play" />}
+                        label={this.props.intl.formatMessage(messages.getStarted)}
+          />
+        </div>
         <Wrapper>
           <h1 style={styles.header}>
             <FormattedMessage {...messages.introduceVoxelEditorHeader} />
@@ -136,7 +152,7 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
           </h1>
           <RaisedButton secondary={true}
                         linkButton={true}
-                        containerElement={<Link to="/get-started" />}
+                        containerElement={<Link to="/play" />}
                         label={this.props.intl.formatMessage(messages.takeTutorial)}
           />
           <div style={{ height: 100 }}/>
