@@ -36,6 +36,11 @@ const messages = defineMessages({
     description: 'Run code',
     defaultMessage: 'Run',
   },
+  stop: {
+    id: 'stop',
+    description: 'Stop code',
+    defaultMessage: 'Stop',
+  },
   code: {
     id: 'code',
     description: 'Write code for robot with blocks',
@@ -192,6 +197,10 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     this.props.runSaga(this.props.run, this.props.stateLayer, workspace);
   }
 
+  handleStop() {
+    this.props.cancelSaga(this.props.run);
+  }
+
   componentWillMount() {
     this.initialGameWidth = parseInt(localStorage.getItem(StorageKeys.MASTER_GAME_WIDTH_SIZE) || 600, 10);
     this.initialGameHeight = parseInt(localStorage.getItem(StorageKeys.MASTER_GAME_HEIGHT_SIZE) || 480, 10);
@@ -230,6 +239,18 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
   render() {
     const rootStyle = objectAssign({}, styles.root, this.props.style);
+    const controlButton = this.props.run.state === 'running'
+      ? <RaisedButton label={this.props.intl.formatMessage(messages.stop)}
+                      secondary={true}
+                      disabled={!this.props.blocklyWorkspace}
+                      onTouchTap={() => this.handleStop()}
+        />
+      : <RaisedButton label={this.props.intl.formatMessage(messages.run)}
+                      primary={true}
+                      disabled={!this.props.blocklyWorkspace}
+                      onTouchTap={() => this.handleRun()}
+        />;
+
     return (
       <div style={rootStyle}>
         <Layout flow="row" style={styles.content}>
@@ -241,11 +262,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
               <LayoutContainer remaining={true}>
                 <Toolbar>
                   <ToolbarGroup key={0} float="right">
-                    <RaisedButton label={this.props.intl.formatMessage(messages.run)}
-                                  primary={true}
-                                  disabled={!this.props.blocklyWorkspace}
-                                  onTouchTap={() => this.handleRun()}
-                    />
+                    {controlButton}
                   </ToolbarGroup>
                 </Toolbar>
               </LayoutContainer>

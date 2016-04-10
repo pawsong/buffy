@@ -308,6 +308,13 @@ export default {
   'signup': '가입하기',
 
   /**
+   * path: src/containers/Studio/index.json
+   * description: Stop code
+   * defaultMessage: Stop
+   */
+  'stop': '멈추기',
+
+  /**
    * path: src/containers/Studio/containers/VoxelEditor/containers/panels/HistoryPanel.json
    * description: Voxel editor history panel title
    * defaultMessage: History
