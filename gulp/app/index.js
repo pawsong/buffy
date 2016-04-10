@@ -189,28 +189,32 @@ module.exports = function (options) {
     const main = path.resolve(options.root, options.main);
     const cm = new Childminder();
     const child = cm.create('node', [main], { lazy: true });
+    let restarting = false;
+    let haveToRestart = false;
 
-    gulp.watch(main).on('change', async () => {
+    async function restartChildProcess() {
+      if (restarting) {
+        haveToRestart = true;
+        return;
+      }
+
+      restarting = true;
+      haveToRestart = false;
+
       gutil.log('Restart server...');
 
-      try {
-        await child.kill('SIGKILL');
-        await tcpPortUsed.waitUntilFree(options.port, 100, 10 * 1000)
+      await child.kill('SIGKILL');
+      await tcpPortUsed.waitUntilFree(options.port, 100, 10 * 1000)
 
-        await child.startOrRestart();
-      } catch(error) {
-        console.error(`${child.terminal.pid} may be a zombie process...`);
-        console.error(error.stack || error);
-        notifier.notify({
-          title: `[${options.name}] Error occurred`,
-          message: error.message || 'Refer to error log',
-        });
-      }
-    });
+      await child.startOrRestart();
 
-    await child.startOrRestart();
-    await tcpPortUsed.waitUntilUsed(options.port, 100, 10 * 1000);
+      restarting = false;
+      if (haveToRestart) restartChildProcess();
+    }
 
+    gulp.watch(main).on('change', restartChildProcess);
+
+    await restartChildProcess();
     gutil.log('Everything is ready now!');
 
     notifier.notify({
