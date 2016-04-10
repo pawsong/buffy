@@ -9,6 +9,7 @@ import snackbar, { SnackbarState } from './snackbar';
 import users, { UsersState, initialize as usersInit } from './users';
 import voxelEditor, { VoxelEditorState, initialize as voxelEditorInit } from './voxelEditor';
 import zone, { ZoneState } from './zone';
+import loading from './loading';
 
 import api, { ApiState, initialize as apiInit } from '../api/reducer';
 
@@ -21,6 +22,7 @@ export interface State {
   users: UsersState;
   voxelEditor: VoxelEditorState;
   zone: ZoneState;
+  loading: boolean;
   api: ApiState;
 }
 
@@ -41,6 +43,7 @@ export default combineReducers({
   users,
   voxelEditor,
   zone,
+  loading,
   api,
   routing: routerReducer,
 });

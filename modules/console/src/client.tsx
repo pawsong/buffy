@@ -36,7 +36,7 @@ delete window['__INTIAL_STATE__'];
 const locale = window['__LOCALE__'];
 delete window['__LOCALE__'];
 
-const { store, history, sagaMiddleware } = configureStore(initialState);
+const { store, history, sagaMiddleware, onRouterUpdate } = configureStore(initialState);
 const routes = getRoutes(store);
 
 const finalMuiTheme = getMuiTheme(baseTheme, muiTheme);
@@ -118,6 +118,7 @@ Promise.all<LocaleData>([
           <Provider store={store}>
             <SagaProvider middleware={sagaMiddleware}>
               <Router history={history}
+                      onUpdate={onRouterUpdate}
                       render={props => <StyleRoot><RouterContext {...props} /></StyleRoot>}
               >{routes}</Router>
             </SagaProvider>

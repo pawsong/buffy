@@ -8,6 +8,8 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import rootReducer, { initialize } from '../reducers';
 import apiSaga from '../api/saga';
 
+import { LOADING_DONE } from '../actions/loading';
+
 export default function configureStore(initialState?: any) {
   const finalInitialState = {};
   if (initialState) {
@@ -36,8 +38,12 @@ export default function configureStore(initialState?: any) {
   );
 
   let history = null;
+  let onRouterUpdate = null;
   if (__CLIENT__) {
     history = syncHistoryWithStore(browserHistory, store);
+    onRouterUpdate = function () {
+      store.dispatch({ type: LOADING_DONE });
+    };
   }
 
   if (__DEV__ && module.hot) {
@@ -48,5 +54,5 @@ export default function configureStore(initialState?: any) {
     });
   }
 
-  return { store, history, sagaMiddleware };
+  return { store, history, sagaMiddleware, onRouterUpdate };
 }
