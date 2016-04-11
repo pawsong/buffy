@@ -57,7 +57,19 @@ export default function getRoutes(store: Store) {
         ],
       },
       {
-        path: '/play',
+        path: '/create',
+        getComponent: (location, cb) => require.ensure([], require => {
+          cb(null, require<{ default: Play }>('./screens/Play').default);
+        }),
+      },
+      {
+        path: '/@:userId/:projectId/:revision/edit',
+        getComponent: (location, cb) => require.ensure([], require => {
+          cb(null, require<{ default: Play }>('./screens/Play').default);
+        }),
+      },
+      {
+        path: '/@:userId/:projectId/:revision/vr',
         getComponent: (location, cb) => require.ensure([], require => {
           cb(null, require<{ default: Play }>('./screens/Play').default);
         }),

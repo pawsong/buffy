@@ -8,18 +8,24 @@ import { State } from '../../reducers';
 import { UnitHandlerRouteParams } from '../Course/screens/Unit';
 import Studio from '../../containers/Studio';
 import LocalServer from './LocalServer';
+import Navbar from './components/AppNavbar';
+
+const NAVBAR_HEIGHT = 56;
 
 const styles = {
+  navbar: {
+    height: NAVBAR_HEIGHT,
+  },
   studio: {
     position: 'absolute',
-    top: 0,
+    top: NAVBAR_HEIGHT,
     bottom: 0,
     left: 0,
     right: 0,
   },
 };
 
-interface PlayProps extends React.Props<Play> {
+interface PlayProps extends RouteComponentProps<{}, {}> {
 
 }
 
@@ -64,12 +70,14 @@ class Play extends React.Component<PlayProps, PlayState> {
 
   componentWillUnmount() {
     this.server.destroy();
+    this.state.stateLayer.destroy();
     this.server = null;
   }
 
   render() {
     return (
       <div>
+        <Navbar onLogout={() => {}} location={this.props.location} />
         <Studio stateLayer={this.state.stateLayer} style={styles.studio} />
       </div>
     );
