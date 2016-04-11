@@ -18,7 +18,6 @@ import RaisedButton from 'material-ui/lib/raised-button';
 
 import * as StorageKeys from '../../../../constants/StorageKeys';
 
-import StateLayer from '@pasta/core/lib/StateLayer';
 import mesher from './canvas/meshers/greedy';
 
 import {
@@ -41,12 +40,6 @@ import initCanvasShared from './canvas/shared';
 import initCanvas from './canvas/views/main';
 
 import { VoxelState } from '../../../../reducers/voxelEditor';
-import { saga, SagaProps, ImmutableTask } from '../../../../saga';
-import { select, call, put } from 'redux-saga/effects';
-
-import {
-  pushSnackbar,
-} from '../../../../actions/snackbar';
 
 const styles = {
   canvas: {
@@ -76,12 +69,12 @@ interface PanelState {
   component: React.Component<{}, {}>;
 }
 
-interface VoxelEditorProps extends React.Props<VoxelEditor>, SagaProps {
+interface VoxelEditorProps extends React.Props<VoxelEditor> {
   sizeVersion: number;
-  stateLayer: StateLayer;
+  onSubmit: (data) => any;
   connectDropTarget?: any;
   workspace?: any;
-  submit?: ImmutableTask<any>;
+  voxel?: any;
 }
 
 interface ContainerStates {
@@ -89,26 +82,9 @@ interface ContainerStates {
   fullscreen?: boolean;
 }
 
-@saga({
-  submit: function* (stateLayer: StateLayer, id: string) {
-    const voxel: VoxelState = yield select<State>(state => state.voxelEditor.voxel);
-
-    const voxelData = voxelMapToArray(voxel.present.data);
-    const result = mesher(voxelData.data, voxelData.shape);
-
-    yield call(stateLayer.rpc.updateMesh, {
-      id,
-      vertices: result.vertices,
-      faces: result.faces,
-    });
-
-    yield put(pushSnackbar({
-      message: 'Mesh updated',
-    }));
-  },
-})
 @connect((state: State) => ({
   workspace: state.voxelEditor.workspace,
+  voxel: state.voxelEditor.voxel,
 }))
 @(DragDropContext<VoxelEditorProps>(HTML5Backend) as any)
 @(DropTarget<VoxelEditorProps>('panel', {
@@ -207,7 +183,9 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   }
 
   handleSubmit() {
-    this.props.runSaga(this.props.submit, this.props.stateLayer, this.props.stateLayer.store.myId);
+    const voxelData = voxelMapToArray(this.props.voxel.present.data);
+    const result = mesher(voxelData.data, voxelData.shape);
+    this.props.onSubmit(result);
   }
 
   componentWillMount() {

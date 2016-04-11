@@ -19,7 +19,7 @@ import * as StorageKeys from '../../constants/StorageKeys';
 import { State } from '../../reducers';
 
 import { saga, SagaProps, ImmutableTask } from '../../saga';
-import rootSaga, { runBlocklyWorkspace } from './sagas';
+import rootSaga, { runBlocklyWorkspace, submitVoxel } from './sagas';
 
 import {
   requestRunBlockly,
@@ -139,6 +139,7 @@ interface StudioBodyProps extends React.Props<Studio>, SagaProps {
   intl?: InjectedIntlProps;
   root?: ImmutableTask<any>;
   run?: ImmutableTask<any>;
+  submitVoxel?: ImmutableTask<any>;
   requestRunBlockly?: (workspace: any) => any;
 }
 
@@ -155,6 +156,7 @@ interface StudioBodyState {
 @saga({
   root: rootSaga,
   run: runBlocklyWorkspace,
+  submitVoxel: submitVoxel,
 })
 @connect((state: State) => ({
   blocklyWorkspace: state.codeEditor.workspace,
@@ -199,6 +201,10 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
   handleStop() {
     this.props.cancelSaga(this.props.run);
+  }
+
+  handleVoxelEditorSubmit(data) {
+    this.props.runSaga(this.props.submitVoxel, this.props.stateLayer, data);
   }
 
   componentWillMount() {
@@ -281,7 +287,9 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                 />
               </Tab>
               <Tab label={this.props.intl.formatMessage(messages.design)} value="design">
-                <VoxelEditor sizeVersion={this.state.editorSizeVersions.design} stateLayer={this.props.stateLayer} />
+                <VoxelEditor sizeVersion={this.state.editorSizeVersions.design}
+                             onSubmit={(data) => this.handleVoxelEditorSubmit(data)}
+                />
               </Tab>
             </Tabs>
           </LayoutContainer>

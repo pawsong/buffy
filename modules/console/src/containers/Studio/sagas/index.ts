@@ -3,6 +3,10 @@ import { isCancelError } from 'redux-saga';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Blockly, Interpreter, Scope } from '../containers/CodeEditor/blockly';
 
+import {
+  pushSnackbar,
+} from '../../../actions/snackbar';
+
 import { State } from '../../../reducers';
 
 import {
@@ -116,6 +120,18 @@ export function* runBlocklyWorkspace(stateLayer: StateLayer, workspace: any) {
     }
   }
 }
+
+export function* submitVoxel(stateLayer: StateLayer, data: any) {
+  yield call(stateLayer.rpc.updateMesh, {
+    id: stateLayer.store.myId,
+    vertices: data.vertices,
+    faces: data.faces,
+  });
+
+  yield put(pushSnackbar({
+    message: 'Mesh updated',
+  }));
+};
 
 /*
  * Voxel editor container sagas
