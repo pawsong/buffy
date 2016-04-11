@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link, History } from 'react-router';
 import { Styles } from 'material-ui';
 import AppBar from 'material-ui/lib/app-bar';
 import FlatButton from 'material-ui/lib/flat-button';
@@ -39,8 +39,11 @@ import {
 import Navbar from '../../../components/Navbar';
 
 interface AppNavbarProps extends React.Props<AppNavbar> {
+  user: User;
   location: any;
   onLogout: () => any;
+  onSave: () => any;
+  onLinkClick: (location: HistoryModule.LocationDescriptor) => any;
   intl?: InjectedIntlProps;
 }
 
@@ -50,15 +53,25 @@ interface AppNavbarState {
 
 @injectIntl
 class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
+  static contextTypes = {
+    muiTheme: React.PropTypes.object,
+  }
+
+  backgroundColor: string;
+  toolbarStyle: Object;
+
   constructor(props, context) {
     super(props, context);
+
+    const muiTheme: Styles.MuiTheme = context['muiTheme'];
+    this.backgroundColor = muiTheme.rawTheme.palette.primary1Color;
+    this.toolbarStyle = objectAssign({}, styles.navbar, {
+      backgroundColor: this.backgroundColor,
+    });
+
     this.state = {
       accountInfoBoxOpened: false,
     };
-  }
-
-  handleLogout() {
-    this.props.onLogout();
   }
 
   handleAvatarClick() {
@@ -88,7 +101,7 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
           <List>
             <ListItem primaryText={this.props.intl.formatMessage(Messages.logout)}
                       leftIcon={<LogoutIcon />}
-                      onTouchTap={() => this.handleLogout()}
+                      onTouchTap={() => this.props.onLogout()}
             />
           </List>
         </Paper>
@@ -96,28 +109,64 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
     );
   }
 
-  render() {
-    const picture = '';
+  renderRightMenuAnonymous() {
+    return (
+      <ToolbarGroup float="right">
+        <FlatButton label={this.props.intl.formatMessage(Messages.login)}
+                    style={styles.button}
+                    onTouchTap={() => this.props.onLinkClick({
+                      pathname: '/login',
+                      query: {
+                        n: JSON.stringify({
+                          p: this.props.location.pathname,
+                          q: this.props.location.query,
+                        }),
+                      },
+                    })}
+        />
+        <FlatButton label={this.props.intl.formatMessage(Messages.signup)}
+                    style={styles.button}
+                    onTouchTap={() => this.props.onLinkClick('/join')}
+                    backgroundColor={Colors.pinkA200}
+                    hoverColor={Colors.pinkA100}
+        />
+      </ToolbarGroup>
+    );
+  }
 
+  renderRightMenuLoggedIn(user: User) {
     const accountInfoBox = this.state.accountInfoBoxOpened ? this.renderAccountBox() : null;
+    return (
+      <ToolbarGroup float="right">
+        <ClickAwayListener onClickAway={() => this.handleClickAway()} style={{ float: 'right' }}>
+          <IconButton style={styles.avatarButton} iconStyle={styles.avatarButtonIcon} onTouchTap={() => this.handleAvatarClick()}>
+            <Avatar size={32} src={user.picture} />
+          </IconButton>
+          {accountInfoBox}
+        </ClickAwayListener>
+      </ToolbarGroup>
+    );
+  }
+
+  render() {
+    const rightMenu = this.props.user
+      ? this.renderRightMenuLoggedIn(this.props.user)
+      : this.renderRightMenuAnonymous();
+
+    const rootStyle = objectAssign({}, styles.navbar, {});
 
     return (
-      <Toolbar style={styles.navbar}>
+      <Toolbar style={this.toolbarStyle}>
         <ToolbarGroup float="left">
           <Link to="/"><ActionPets style={styles.logo} /></Link>
-          <RaisedButton label="Run" primary={true} />
-          <RaisedButton label="Save" primary={true} />
+          <FlatButton label={this.props.intl.formatMessage(Messages.save)}
+                      style={styles.button}
+                      onTouchTap={() => this.props.onSave()}
+                      backgroundColor={Colors.pinkA200}
+                      hoverColor={Colors.pinkA100}
+          />
         </ToolbarGroup>
-        <ToolbarGroup float="right">
-          <RaisedButton label="Sign up" primary={true} />
-          <RaisedButton label="Log in" primary={true} />
-          <ClickAwayListener onClickAway={() => this.handleClickAway()} style={{ float: 'right' }}>
-            <IconButton style={styles.avatarButton} iconStyle={styles.avatarButtonIcon} onTouchTap={() => this.handleAvatarClick()}>
-              <Avatar size={32} src={picture} />
-            </IconButton>
-            {accountInfoBox}
-          </ClickAwayListener>
-        </ToolbarGroup>
+        {rightMenu}
       </Toolbar>
     );
   }
@@ -130,11 +179,17 @@ const styles = {
     position: 'fixed',
     zIndex: 1000,
   },
+  button: {
+    color: Colors.white,
+    marginLeft: 18,
+    marginRight: 0,
+  },
   title: {
     color: Colors.white,
   },
   logo: {
     marginTop: 16,
+    marginRight: 16,
     float: 'left',
   },
   avatarButton: {

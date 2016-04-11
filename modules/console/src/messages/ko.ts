@@ -112,6 +112,13 @@ export default {
   'courses': '코스',
 
   /**
+   * path: src/screens/LoggedIn/screens/Index/index.json
+   * description: Create a new project button label
+   * defaultMessage: Create a new project
+   */
+  'create.project': '새 프로젝트 만들기',
+
+  /**
    * path: src/containers/Studio/index.json
    * description: Design robot with blocks
    * defaultMessage: Design
@@ -292,6 +299,13 @@ export default {
    * defaultMessage: Run
    */
   'run': '실행하기',
+
+  /**
+   * path: src/constants/Messages.json
+   * description: Save
+   * defaultMessage: Save
+   */
+  'save': '저장하기',
 
   /**
    * path: src/constants/Messages.json

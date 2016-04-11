@@ -1,21 +1,22 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps, Link } from 'react-router';
+import { push } from 'react-router-redux';
 import StateLayer from '@pasta/core/lib/StateLayer';
-import { Link } from 'react-router';
 import { InitParams } from '@pasta/core/lib/packet/ZC';
 import { State } from '../../reducers';
+import { User } from '../../reducers/users';
 import { UnitHandlerRouteParams } from '../Course/screens/Unit';
 import Studio from '../../containers/Studio';
 import LocalServer from './LocalServer';
-import Navbar from './components/AppNavbar';
+import PlayNavbar from './components/PlayNavbar';
+import {
+  requestLogout,
+} from '../../actions/auth';
 
 const NAVBAR_HEIGHT = 56;
 
 const styles = {
-  navbar: {
-    height: NAVBAR_HEIGHT,
-  },
   studio: {
     position: 'absolute',
     top: NAVBAR_HEIGHT,
@@ -26,13 +27,21 @@ const styles = {
 };
 
 interface PlayProps extends RouteComponentProps<{}, {}> {
-
+  user: User;
+  requestLogout?: () => any;
+  push?: (location: HistoryModule.LocationDescriptor) => any;
 }
 
 interface PlayState {
   stateLayer?: StateLayer;
 }
 
+@connect((state: State) => ({
+  user: state.users.get(state.auth.userid),
+}), {
+  requestLogout,
+  push,
+})
 class Play extends React.Component<PlayProps, PlayState> {
   server: LocalServer;
 
@@ -74,10 +83,23 @@ class Play extends React.Component<PlayProps, PlayState> {
     this.server = null;
   }
 
+  handleSave() {
+    console.log('Save!');
+  }
+
+  handleLogout() {
+    this.props.requestLogout();
+  }
+
   render() {
     return (
       <div>
-        <Navbar onLogout={() => {}} location={this.props.location} />
+        <PlayNavbar user={this.props.user}
+                location={this.props.location}
+                onLogout={() => this.handleLogout()}
+                onSave={() => this.handleSave()}
+                onLinkClick={location => this.props.push(location)}
+        />
         <Studio stateLayer={this.state.stateLayer} style={styles.studio} />
       </div>
     );
