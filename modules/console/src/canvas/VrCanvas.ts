@@ -4,6 +4,7 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 if (__CLIENT__) {
   window['THREE'] = THREE;
   require('three/examples/js/effects/CardboardEffect');
+  require('three/examples/js/controls/DeviceOrientationControls');
 }
 
 import TerrainManager from './TerrainManager';
@@ -35,6 +36,7 @@ class VrCanvas {
 
   terrainManager: TerrainManager;
   renderer: THREE.WebGLRenderer;
+  controls: any;
 
   constructor(options: VrCanvasOptions) {
     const { stateLayer, container } = options;
@@ -43,7 +45,11 @@ class VrCanvas {
     const camera = new THREE.PerspectiveCamera(90, container.offsetWidth / container.offsetHeight, 0.001, 700);
     // camera.position.set(0, 15, 0);
     camera.position.set(200, 200, 200);
+    camera['focalLength'] = camera.position.distanceTo( scene.position );
     scene.add(camera);
+
+    const controls = this.controls = new THREE['DeviceOrientationControls']( camera );
+
 
     // const camera = new THREE.OrthographicCamera(
     //   container.offsetWidth / - 2,
@@ -87,8 +93,13 @@ class VrCanvas {
     light.position.normalize();
     scene.add(light);
 
-    const renderer = this.renderer = new THREE.WebGLRenderer();
+    const renderer = this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+    });
     renderer.setSize(container.offsetWidth, container.offsetHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+
     container.appendChild(renderer.domElement);
 
     const effect = new THREE['CardboardEffect'](renderer);
@@ -96,6 +107,7 @@ class VrCanvas {
     camera.lookAt(scene.position);
 
     function render(dt = 0) {
+      controls.update();
       effectManager.update(dt);
       // renderer.render(scene, camera);
       effect.render(scene, camera);
@@ -223,6 +235,8 @@ class VrCanvas {
     cancelAnimationFrame(this.frameId);
     window.removeEventListener('resize', this.handleWindowResize, false);
     this.tokens.forEach(token => token.remove());
+
+    this.controls.dispose();
 
     this.terrainManager.destroy();
     this.renderer.forceContextLoss();
