@@ -24,7 +24,7 @@ class StateLayer {
 
   private _destroyFuncs: DestroyFunc[];
 
-  constructor(options: StateLayerOptions, params: ZC.InitParams) {
+  constructor(options: StateLayerOptions, params: ZC.InitParams = null) {
     this.options = options;
 
     // Create Rpc Instance
@@ -50,32 +50,23 @@ class StateLayer {
     });
 
     // Create Store Instance
-    this.store = new StateStore(params);
+    this.store = new StateStore();
+  }
+
+  start(params: ZC.InitParams) {
+    this.store.deserialize(params);
+
+    // Start listening server
     this._destroyFuncs = Object.keys(StateStore.Routes).map(event => {
-      return options.listen(event, (params) => {
+      return this.options.listen(event, (params) => {
         StateStore.Routes[event](this.store, params);
       });
     });
+
+    // Start client-side update
     this._destroyFuncs.push(
-      options.update((dt) => this.store.update(dt))
+      this.options.update((dt) => this.store.update(dt))
     );
-  }
-
-  propagate(handler) {
-    let destroyFuncs = Object.keys(StateStore.Routes).map(event => {
-      return this.options.listen(event, (params) => {
-        handler(event, params);
-      });
-    });
-    this._destroyFuncs = this._destroyFuncs.concat(destroyFuncs);
-
-    return () => {
-      this._destroyFuncs = this._destroyFuncs.filter(fn => {
-        return destroyFuncs.indexOf(fn) === -1;
-      });
-      destroyFuncs.forEach(fn => fn());
-      destroyFuncs = [];
-    };
   }
 
   destroy() {

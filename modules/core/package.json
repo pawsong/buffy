@@ -31,6 +31,7 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "fbemitter": "^2.0.1"
+    "fbemitter": "^2.0.1",
+    "invariant": "^2.2.1"
   }
 }

@@ -152,7 +152,7 @@ app.get('*', async (req, res) => {
     renderProps.components
       .filter(component => component && component['mapParamsToProps'])
       .forEach(component => {
-        const mapParamsToProps: MapParamsToProps = component['mapParamsToProps'];
+        const mapParamsToProps: MapParamsToProps<any> = component['mapParamsToProps'];
         const specs = mapParamsToProps(renderProps.params, renderProps.location);
         Object.keys(specs).forEach(key => {
           const spec = specs[key];

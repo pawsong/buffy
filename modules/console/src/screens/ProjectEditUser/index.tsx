@@ -7,12 +7,15 @@ import { InitParams } from '@pasta/core/lib/packet/ZC';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
 import { UnitHandlerRouteParams } from '../Course/screens/Unit';
+import { saga, SagaProps, ImmutableTask } from '../../saga';
 import Studio from '../../containers/Studio';
 import LocalServer from './LocalServer';
 import PlayNavbar from './components/PlayNavbar';
 import {
   requestLogout,
 } from '../../actions/auth';
+
+import { save } from './sagas';
 
 const NAVBAR_HEIGHT = 56;
 
@@ -26,8 +29,9 @@ const styles = {
   },
 };
 
-interface PlayProps extends RouteComponentProps<{}, {}> {
+interface PlayProps extends RouteComponentProps<{}, {}>, SagaProps {
   user: User;
+  save: ImmutableTask<{}>;
   requestLogout?: () => any;
   push?: (location: HistoryModule.LocationDescriptor) => any;
 }
@@ -36,6 +40,9 @@ interface PlayState {
   stateLayer?: StateLayer;
 }
 
+@saga({
+  save: save,
+})
 @connect((state: State) => ({
   user: state.users.get(state.auth.userid),
 }), {
@@ -84,7 +91,8 @@ class Play extends React.Component<PlayProps, PlayState> {
   }
 
   handleSave() {
-    console.log('Save!');
+    const serialized = this.server.serialize();
+    this.props.runSaga(this.props.save, serialized);
   }
 
   handleLogout() {
@@ -95,12 +103,14 @@ class Play extends React.Component<PlayProps, PlayState> {
     return (
       <div>
         <PlayNavbar user={this.props.user}
-                location={this.props.location}
-                onLogout={() => this.handleLogout()}
-                onSave={() => this.handleSave()}
-                onLinkClick={location => this.props.push(location)}
+                    location={this.props.location}
+                    onLogout={() => this.handleLogout()}
+                    onSave={() => this.handleSave()}
+                    onLinkClick={location => this.props.push(location)}
         />
-        <Studio stateLayer={this.state.stateLayer} style={styles.studio} />
+        <Studio stateLayer={this.state.stateLayer} style={styles.studio}
+                studioState={null} onUpdate={() => {}}
+        />
       </div>
     );
   }

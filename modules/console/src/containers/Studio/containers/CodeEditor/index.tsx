@@ -39,6 +39,7 @@ const styles = {
 
 interface CodeEditorProps extends React.Props<CodeEditor> {
   sizeVersion: number;
+  initialBlocklyXml: string;
   workspace?: any;
   setWorkspace?: (workspace: any) => any;
   active: boolean;
@@ -60,7 +61,7 @@ class CodeEditor extends React.Component<CodeEditorProps, {}> {
 
   initWorkspace(workspace) {
     Blockly.JavaScript.init(workspace);
-    const savedXml = localStorage.getItem(StorageKeys.BLOCKLY_WORKSPACE);
+    const savedXml = this.props.initialBlocklyXml || localStorage.getItem(StorageKeys.BLOCKLY_WORKSPACE);
     const dom = Blockly.Xml.textToDom(savedXml || initBlock);
     Blockly.Xml.domToWorkspace(workspace, dom);
   }

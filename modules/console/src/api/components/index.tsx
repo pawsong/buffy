@@ -35,13 +35,13 @@ export interface ApiDispatchProps {
  * preloadApi decorator
  */
 
-interface PreloadComponentProps extends RouteComponentProps<{}, {}> {}
+interface PreloadComponentProps extends RouteComponentProps<any, {}> {}
 
-export interface MapParamsToProps {
-  (params, location): ApiSpecDictionary;
+export interface MapParamsToProps<T> {
+  (params: T, location: HistoryModule.Location): ApiSpecDictionary;
 }
 
-export function preloadApi<T>(mapParamsToProps: MapParamsToProps) {
+export function preloadApi<T>(mapParamsToProps: MapParamsToProps<T>) {
   return function wrapWithPreload(WrappedComponent) {
     const componentName = getDisplayName(WrappedComponent);
 

@@ -7,3 +7,6 @@
 [submodule "modules/console/externals/JS-Interpreter"]
 	path = modules/console/externals/JS-Interpreter
 	url = https://github.com/NeilFraser/JS-Interpreter.git
+[submodule "modules/console/vendor/JS-Interpreter"]
+	path = modules/console/vendor/JS-Interpreter
+	url = https://github.com/NeilFraser/JS-Interpreter.git

@@ -3,6 +3,7 @@
 import * as express from 'express';
 import wrap from '@pasta/helper/lib/wrap';
 import VoxelWorkspace from './models/VoxelWorkspace';
+import Project from './models/Project';
 import * as conf from '@pasta/config';
 
 const pkg = require('../package.json');
@@ -86,5 +87,28 @@ export default (app: express.Express) => {
     }).exec();
 
     res.sendStatus(200);
+  }));
+
+  app.post('/projects', wrap(async (req, res) => {
+    if (!req.body.data) return res.send(400);
+
+    const { blocklyXml, map, scripts } = req.body.data;
+
+    const project = new Project({
+      name: '',
+      desc: '',
+      data: map,
+      blocklyXml,
+      scripts,
+    });
+
+    await project.save();
+    res.send({ id: project.id });
+  }));
+
+  app.get('/projects/:projectId', wrap(async (req, res) => {
+    const project = await Project.findById(req.params.projectId);
+    if (!project) return res.send(404);
+    res.send(project);
   }));
 };

@@ -49,7 +49,9 @@ class StudioForCourseHandler extends React.Component<StudioForCourseHandlerProps
         <div style={styles.navbar}>
           Draw navbar somehow
         </div>
-        <Studio stateLayer={this.props.stateLayer} style={styles.studio} />
+        <Studio stateLayer={this.props.stateLayer} style={styles.studio}
+                studioState={null} onUpdate={() => {}}
+        />
       </div>
     );
   }

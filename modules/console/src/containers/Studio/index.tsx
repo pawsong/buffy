@@ -134,6 +134,9 @@ class TabTemplate extends React.Component<TabTemplateProps, {}> {
 
 interface StudioBodyProps extends React.Props<Studio>, SagaProps {
   stateLayer: StateLayer;
+  initialBlocklyXml: string;
+  studioState: any;
+  onUpdate: any;
   blocklyWorkspace?: any;
   style?: React.CSSProperties;
   intl?: InjectedIntlProps;
@@ -180,6 +183,14 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       gameSizeVersion: 0,
       activeTab: localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB) || 'code',
     };
+  }
+
+  componentWillReceiveProps(nextProps: StudioBodyProps) {
+    if (nextProps.blocklyWorkspace !== this.props.blocklyWorkspace) {
+      this.props.onUpdate({
+        blocklyWorkspace: nextProps.blocklyWorkspace,
+      });
+    }
   }
 
   componentDidMount() {
@@ -284,6 +295,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
               <Tab label={this.props.intl.formatMessage(messages.code)} value="code">
                 <CodeEditor sizeVersion={this.state.editorSizeVersions.code}
                             active={this.state.activeTab === 'code'}
+                            initialBlocklyXml={this.props.initialBlocklyXml}
                 />
               </Tab>
               <Tab label={this.props.intl.formatMessage(messages.design)} value="design">
@@ -301,7 +313,10 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
 interface StudioProps extends React.Props<Studio> {
   stateLayer: StateLayer;
+  studioState: any;
+  onUpdate: any;
   style?: React.CSSProperties;
+  initialBlocklyXml?: string;
 }
 
 interface StudioState {
@@ -331,7 +346,13 @@ class Studio extends React.Component<StudioProps, StudioState> {
       return <div>Connecting...</div>;
     }
 
-    return <StudioBody stateLayer={this.props.stateLayer} style={this.props.style} />
+    return (
+      <StudioBody stateLayer={this.props.stateLayer} style={this.props.style}
+                  initialBlocklyXml={this.props.initialBlocklyXml}
+                  studioState={this.props.studioState}
+                  onUpdate={this.props.onUpdate}
+      />
+    );
   };
 }
 

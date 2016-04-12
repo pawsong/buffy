@@ -5,6 +5,7 @@ import Terrain from './classes/Terrain';
 import Mesh from './classes/Mesh';
 import { StoreEvents, StoreEmit, StoreListen } from './store/Events';
 import * as ZC from './packet/ZC';
+import invariant = require('invariant');
 
 function Emit(emitter) {
   this.emitter = emitter;
@@ -44,16 +45,19 @@ class StateStore {
 
   emitter: EventEmitter;
   emit: StoreEmit;
+
   myId: string;
   map: GameMap;
+
   subscribe: StoreListen;
 
-  constructor(data: ZC.InitParams) {
+  constructor() {
     this.emitter = new EventEmitter();
     this.emit = new Emit(this.emitter);
     this.subscribe = new Subscribe(this.emitter);
 
-    this.deserialize(data);
+    this.myId = '';
+    this.map = null;
   }
 
   serialize(): ZC.InitParams {
@@ -75,6 +79,9 @@ class StateStore {
   }
 
   update(dt) {
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(this.map, 'Update must be executed after store initialization');
+    }
     return this.map.update(dt);
   }
 

@@ -2,6 +2,9 @@ import * as shortid from 'shortid';
 import { EventEmitter } from 'fbemitter';
 import { CZ, ZC } from '@pasta/core/lib/packet';
 import Mesh from '@pasta/core/lib/classes/Mesh';
+import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
+import GameObject from '@pasta/core/lib/classes/GameObject';
+const objectAssign = require('object-assign');
 import GameMap from './classes/ClientGameMap';
 import GameUser from './classes/ClientGameUser';
 
@@ -24,7 +27,7 @@ Object.keys(CZ.Methods).forEach(method => {
         promise
           .then(result => fn({ result }))
           .catch(error => {
-            console.error(error);
+            console.error(error.stack || error);
             fn({ error: new Error('failed') });
           });
       });
@@ -49,30 +52,16 @@ class LocalServer {
   map: GameMap;
   frameId: number;
 
-  constructor() {
+  constructor(data?: SerializedGameMap) {
     this.emitter = new EventEmitter();
     this.srvEmitter = new EventEmitter();
 
-    // Initialize data
-    this.map = new GameMap({
-      id: '',
-      name: '',
-      width: 10,
-      depth: 10,
-      terrains: [],
-      objects: [],
-    });
+    const userFilteredData = objectAssign({}, data, { objects: [] });
 
-    const me = new GameUser(this.emitter, '', {
-      id: LocalServer.USER_ID,
-      position: {
-        x: 1,
-        y: 0,
-        z: 1,
-      },
-      mesh: null,
-      direction: { x: 0, y: 0, z: 1 },
-    });
+    // Initialize data
+    this.map = new GameMap(userFilteredData);
+
+    const me = new GameUser(this.emitter, '', data.objects[0]);
 
     this.map.addUser(me);
     me.map = this.map;
@@ -200,6 +189,10 @@ class LocalServer {
 
   addListener(event, handler) {
     return this.emitter.addListener(event, handler);
+  }
+
+  serialize() {
+    return this.map.serialize();
   }
 
   destroy() {

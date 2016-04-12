@@ -16,7 +16,10 @@ import Unit from './screens/Course/screens/Unit';
 import Join from './screens/Join';
 import Login from './screens/Login';
 import StudioForCourse from './screens/StudioForCourse';
-import Play from './screens/Play';
+import ProjectCreate from './screens/ProjectCreate';
+import ProjectEditAnon from './screens/ProjectEditAnon';
+import ProjectEditUser from './screens/ProjectEditUser';
+import ProjectVrAnon from './screens/ProjectVrAnon';
 import { State } from './reducers';
 
 export default function getRoutes(store: Store) {
@@ -59,19 +62,31 @@ export default function getRoutes(store: Store) {
       {
         path: '/create',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: Play }>('./screens/Play').default);
+          cb(null, require<{ default: ProjectCreate }>('./screens/ProjectCreate').default);
+        }),
+      },
+      {
+        path: '/@/:projectId/:revision/edit',
+        getComponent: (location, cb) => require.ensure([], require => {
+          cb(null, require<{ default: ProjectEditAnon }>('./screens/ProjectEditAnon').default);
         }),
       },
       {
         path: '/@:userId/:projectId/:revision/edit',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: Play }>('./screens/Play').default);
+          cb(null, require<{ default: ProjectEditUser }>('./screens/ProjectEditUser').default);
+        }),
+      },
+      {
+        path: '/@/:projectId/:revision/vr',
+        getComponent: (location, cb) => require.ensure([], require => {
+          cb(null, require<{ default: ProjectVrAnon }>('./screens/ProjectVrAnon').default);
         }),
       },
       {
         path: '/@:userId/:projectId/:revision/vr',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: Play }>('./screens/Play').default);
+          cb(null, require<{ default: ProjectVrAnon }>('./screens/ProjectVrAnon').default);
         }),
       },
       {
