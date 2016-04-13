@@ -1,5 +1,3 @@
-import GameUser from './classes/GameUser';
-
 const sessions: {
   [index: string]: SocketIO.Socket,
 } = {};

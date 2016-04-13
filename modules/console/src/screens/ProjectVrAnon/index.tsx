@@ -7,6 +7,7 @@ import { findDOMNode } from 'react-dom';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { InitParams } from '@pasta/core/lib/packet/ZC';
 import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
+import { Project } from '@pasta/core/lib/Project';
 import { connectApi, preloadApi, ApiCall, get } from '../../api';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
@@ -15,11 +16,11 @@ import { saga, SagaProps, ImmutableTask } from '../../saga';
 import Studio from '../../containers/Studio';
 import VrCanvas from '../../canvas/VrCanvas';
 import { Runtime } from '../../runtime';
-import LocalServer from './LocalServer';
 import PlayNavbar from './components/PlayNavbar';
 import {
   requestLogout,
 } from '../../actions/auth';
+import LocalServer, { LocalSocket } from '../../LocalServer';
 
 import { save } from './sagas';
 
@@ -41,14 +42,6 @@ const styles = {
     right: 0,
   },
 };
-
-interface Project {
-  name: string;
-  desc: string;
-  data: SerializedGameMap;
-  blocklyXml: string;
-  scripts: { [index: string]: string[] };
-}
 
 interface ProjectEditAnonRouteParams {
   projectId: string;
@@ -98,41 +91,29 @@ class ProjectVrAnon extends React.Component<ProjectEditAnonProps, ProjectEditAno
     super(props);
 
     this.initialized = false;
-
-    // Initialize canvas
-    this.server = new LocalServer();
-
-    this.stateLayer = new StateLayer({
-      emit: (event, params, cb) => {
-        this.server.emit(event, params, cb);
-      },
-      listen: (event, handler) => {
-        const token = this.server.addListener(event, handler);
-        return () => token.remove();
-      },
-      update: (callback) => {
-        let frameId = requestAnimationFrame(update);
-        let then = Date.now();
-        function update() {
-          const now = Date.now();
-          callback(now - then);
-          then = now;
-          frameId = requestAnimationFrame(update);
-        }
-        return () => cancelAnimationFrame(frameId);
-      },
-    });
   }
 
   componentWillReceiveProps(nextProps: ProjectEditAnonProps) {
+    if (nextProps.project.state !== 'fulfilled') return;
+
     if (this.initialized) return;
     this.initialized = true;
 
-    if (nextProps.project.state !== 'fulfilled') return;
+    const socket = new LocalSocket();
 
-    const { data, scripts } = nextProps.project.result;
+    this.stateLayer = new StateLayer({
+      emit: (event, params, cb) => {
+        socket.emit(event, params, cb);
+      },
+      listen: (event, handler) => {
+        const token = socket.addListener(event, handler);
+        return () => token.remove();
+      },
+    });
 
-    this.server.initialize(data);
+    const { server, scripts } = nextProps.project.result;
+
+    this.server = new LocalServer(server, socket);
     this.stateLayer.start(this.server.getInitData());
 
     this.canvas = new VrCanvas({
@@ -150,17 +131,8 @@ class ProjectVrAnon extends React.Component<ProjectEditAnonProps, ProjectEditAno
     if (this.runtime) this.runtime.destroy();
     if (this.canvas) this.canvas.destroy();
 
-    this.stateLayer.destroy();
-    this.server.destroy();
-  }
-
-  handleSave() {
-    const serialized = this.server.serialize();
-    this.props.runSaga(this.props.save, serialized);
-  }
-
-  handleLogout() {
-    this.props.requestLogout();
+    if (this.stateLayer) this.stateLayer.destroy();
+    if (this.server) this.server.destroy();
   }
 
   render() {

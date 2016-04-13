@@ -1,3 +1,5 @@
+const objectAssign = require('object-assign');
+
 import { CZ, ZC } from './packet';
 import { RpcResponse } from './packet/base';
 
@@ -14,7 +16,7 @@ export interface DestroyFunc {
 export interface StateLayerOptions {
   emit: (e: string, params: any, cb?: (res: RpcResponse) => any) => void;
   listen: (e: string, handler: Function) => DestroyFunc;
-  update: (onUpdate: (dt: number) => any) => DestroyFunc;
+  update?: (onUpdate: (dt: number) => any) => DestroyFunc;
 }
 
 class StateLayer {
@@ -25,28 +27,33 @@ class StateLayer {
   private _destroyFuncs: DestroyFunc[];
 
   constructor(options: StateLayerOptions, params: ZC.InitParams = null) {
-    this.options = options;
+    this.options = objectAssign({}, {
+      update: (callback) => {
+        let frameId = requestAnimationFrame(update);
+        let then = Date.now();
+        function update() {
+          const now = Date.now();
+          callback(now - then);
+          then = now;
+          frameId = requestAnimationFrame(update);
+        }
+        return () => cancelAnimationFrame(frameId);
+      },
+    }, options);
 
     // Create Rpc Instance
     this.rpc = {} as CZ.Rpc;
-    Object.keys(CZ.Methods).forEach(method => {
-      if (CZ.Methods[method].response === false) {
-        this.rpc[method] = (params) => new Promise(resolve => {
-          options.emit(method, params);
-          resolve();
+    CZ.Methods.forEach(method => {
+      this.rpc[method] = (params) => new Promise((resolve, reject) => {
+        options.emit(method, params, (res) => {
+          if (res.error) {
+            // TODO: Create Error instance
+            reject(res.error);
+          } else {
+            resolve(res.result);
+          }
         });
-      } else {
-        this.rpc[method] = (params) => new Promise((resolve, reject) => {
-          options.emit(method, params, (res) => {
-            if (res.error) {
-              // TODO: Create Error instance
-              reject(res.error);
-            } else {
-              resolve(res.result);
-            }
-          });
-        });
-      }
+      });
     });
 
     // Create Store Instance

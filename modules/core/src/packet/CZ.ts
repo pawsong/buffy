@@ -1,55 +1,44 @@
 import { RpcParams, RpcResponse } from './base';
 import { SerializedVector3 } from '../classes/Vector3';
 
-/*
- * Packet types:
- *   - Type 1: Does not wait response. Returns void
- *   - Type 2: Server sends back result to client. Returns Promise<Result>
- */
-export interface Method {
-  response: boolean;
+export interface RpcMethod<T, U> {
+  (params: T): Promise<U>;
 }
 
-export const Methods: {
-  [index: string]: Method,
-} = {
-  playEffect: { response: false },
-  move: { response: true },
-  rotate: { response: true },
-  moveMap: { response: true },
-  updateTerrain: { response: true },
-  updateMesh: { response: true },
-};
+export const Methods = [
+  'move',
+  'moveMap',
+  'playEffect',
+  'rotate',
+  'updateMesh',
+  'updateTerrain',
+];
 
+// RPC
 export interface Rpc {
-  playEffect(params: PlayEffectParams): Promise<void>;
-  move(params: MoveParams): Promise<void>;
-  rotate(params: RotateParams): Promise<void>;
-  moveMap(params: MoveMapParams): Promise<void>;
-  updateTerrain(params: UpdateTerrainParams): Promise<void>;
-  updateMesh(params: UpdateMeshParams): Promise<void>;
+  move: RpcMethod<MoveParams, void>;
+  moveMap: RpcMethod<MoveMapParams, void>;
+  playEffect: RpcMethod<PlayEffectParams, void>;
+  rotate: RpcMethod<RotateParams, void>;
+  updateMesh: RpcMethod<UpdateMeshParams, void>;
+  updateTerrain: RpcMethod<UpdateTerrainParams, void>;
 }
 
-export interface Listen {
-  playEffect(fn: (params: PlayEffectParams) => void): void;
-  move(fn: (params: MoveParams) => Promise<void>): void;
-  rotate(fn: (params: RotateParams) => Promise<void>): void;
-  moveMap(fn: (params: MoveMapParams) => Promise<void>): void;
-  updateTerrain(fn: (params: UpdateTerrainParams) => Promise<void>): void;
-  updateMesh(fn: (params: UpdateMeshParams) => Promise<void>): void;
-}
-
-// Events
-export interface PlayEffectParams extends RpcParams {
-  x: number;
-  z: number;
-  duration: number;
-}
-
+// Payload
 export interface MoveParams extends RpcParams {
   id: string;
   x: number;
   z: number;
+}
+
+export interface MoveMapParams extends RpcParams {
+  id: string;
+}
+
+export interface PlayEffectParams extends RpcParams {
+  x: number;
+  z: number;
+  duration: number;
 }
 
 export interface RotateParams extends RpcParams {
@@ -57,8 +46,10 @@ export interface RotateParams extends RpcParams {
   direction: SerializedVector3;
 }
 
-export interface MoveMapParams extends RpcParams {
+export interface UpdateMeshParams extends RpcParams {
   id: string;
+  vertices: any[];
+  faces: any[];
 }
 
 export interface UpdateTerrainParams extends RpcParams {
@@ -67,8 +58,3 @@ export interface UpdateTerrainParams extends RpcParams {
   color: number;
 }
 
-export interface UpdateMeshParams extends RpcParams {
-  id: string;
-  vertices: any[];
-  faces: any[];
-}

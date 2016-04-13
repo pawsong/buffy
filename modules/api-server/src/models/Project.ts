@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 export interface ProjectDocument extends mongoose.Document {
   name: string;
   desc: string;
-  data: any;
+  server: any;
   blocklyXml: string;
   scripts: any;
 }
@@ -13,7 +13,7 @@ export interface ProjectDocument extends mongoose.Document {
 const ProjectSchema = new Schema({
   name: String,
   desc: String,
-  data: {},
+  server: {},
   blocklyXml: String,
   scripts: {},
 });

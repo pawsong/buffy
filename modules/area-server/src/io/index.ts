@@ -3,8 +3,8 @@ import * as jwt from 'jsonwebtoken';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 import * as conf from '@pasta/config';
-import ServerGameMap from '../classes/ServerGameMap';
-import GameUser from '../classes/GameUser';
+import ServerGameMap from '@pasta/core/lib/packet/ServerGameMap';
+import AreaUserGameObject from '../classes/AreaUserGameObject';
 import GameMapModel from '../models/GameMap';
 import GameUserModel from '../models/GameUser';
 import TerrainModel from '../models/Terrain';
@@ -14,6 +14,8 @@ import * as GameMapManager from '../GameMapManager';
 import routes from './routes';
 import * as Sessions from '../Sessions';
 import * as TWEEN from '@pasta/tween.js';
+
+import AreaRoutes from './AreaRoutes';
 
 async function findOrCreateUser(userId: string) {
   const userDoc = await GameUserModel.findOne({ owner: userId }).exec();
@@ -71,7 +73,10 @@ export default (io: SocketIO.Server) => {
         mesh = await MeshModel.findById(userDoc.mesh.toHexString()).exec();
       }
 
-      const user = new GameUser(socket, userId, {
+      // Prevent duplicate session.
+      Sessions.login(userId, socket);
+
+      const user = new AreaUserGameObject({
         id: userDoc.id,
         position: {
           x: userDoc.loc.pos.x,
@@ -84,15 +89,10 @@ export default (io: SocketIO.Server) => {
           vertices: mesh.vertices,
           faces: mesh.faces,
         } : null,
-      });
-
-      // Prevent duplicate session.
-      Sessions.login(userId, socket);
+      }, map, socket);
       map.addUser(user);
-      user.map = map;
 
       socket['user'] = user;
-
       next();
     } catch(err) {
       next(err);

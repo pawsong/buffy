@@ -1,8 +1,7 @@
-'use strict';
 import * as _ from 'lodash';
+import ServerGameMap from '@pasta/core/lib/packet/ServerGameMap';
 import GameMapModel from './models/GameMap';
 import TerrainModel from './models/Terrain';
-import ServerGameMap from './classes/ServerGameMap';
 
 const gameMaps: ServerGameMap[] = [];
 

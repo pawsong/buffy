@@ -2,14 +2,18 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, Link } from 'react-router';
 import { push } from 'react-router-redux';
+import * as shortid from 'shortid';
 import StateLayer from '@pasta/core/lib/StateLayer';
-import { InitParams } from '@pasta/core/lib/packet/ZC';
+import { SerializedGameObject } from '@pasta/core/lib/classes/GameObject';
+import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
-import { UnitHandlerRouteParams } from '../Course/screens/Unit';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import Studio from '../../containers/Studio';
-import LocalServer from './LocalServer';
+
+import { Project } from '@pasta/core/lib/Project';
+import LocalServer, { LocalSocket } from '../../LocalServer';
+
 import PlayNavbar from './components/PlayNavbar';
 import {
   requestLogout,
@@ -39,7 +43,6 @@ interface PlayProps extends RouteComponentProps<{}, {}>, SagaProps {
 }
 
 interface PlayState {
-  stateLayer?: StateLayer;
   studioState?: any;
 }
 
@@ -53,46 +56,66 @@ interface PlayState {
   push,
 })
 class ProjectCreate extends React.Component<PlayProps, PlayState> {
+  socket: LocalSocket;
   server: LocalServer;
+  stateLayer: StateLayer;
 
   constructor(props) {
     super(props);
-    this.state = { stateLayer: null, studioState: null };
+    this.state = { studioState: null };
+
+    this.socket = new LocalSocket();
+
+    this.stateLayer = new StateLayer({
+      emit: (event, params, cb) => {
+        this.socket.emit(event, params, cb);
+      },
+      listen: (event, handler) => {
+        const token = this.socket.addListener(event, handler);
+        return () => token.remove();
+      },
+    });
   }
 
   componentDidMount() {
-    this.server = new LocalServer();
+    const userId = shortid.generate();
 
-    const stateLayer = new StateLayer({
-      emit: (event, params, cb) => {
-        this.server.emit(event, params, cb);
+    // const
+    const serializedGameObject: SerializedGameObject = {
+      id: userId,
+      position: {
+        x: 1,
+        y: 0,
+        z: 1,
       },
-      listen: (event, handler) => {
-        const token = this.server.addListener(event, handler);
-        return () => token.remove();
-      },
-      update: (callback) => {
-        let frameId = requestAnimationFrame(update);
-        let then = Date.now();
-        function update() {
-          const now = Date.now();
-          callback(now - then);
-          then = now;
-          frameId = requestAnimationFrame(update);
-        }
-        return () => cancelAnimationFrame(frameId);
-      },
-    });
+      mesh: null,
+      direction: { x: 0, y: 0, z: 1 },
+    };
 
-    stateLayer.start(this.server.getInitData());
+    // Initialize data
+    const serializedGameMap: SerializedGameMap = {
+      id: shortid.generate(),
+      name: '',
+      width: 10,
+      depth: 10,
+      terrains: [],
+      objects: [serializedGameObject],
+    };
 
-    this.setState({ stateLayer });
+    this.server = new LocalServer({
+      myId: userId,
+      maps: [serializedGameMap],
+    }, this.socket);
+
+    this.stateLayer.start(this.server.getInitData());
   }
 
   componentWillUnmount() {
     this.server.destroy();
-    this.state.stateLayer.destroy();
     this.server = null;
+
+    this.stateLayer.destroy();
+    this.stateLayer = null;
   }
 
   handleSave() {
@@ -116,7 +139,7 @@ class ProjectCreate extends React.Component<PlayProps, PlayState> {
     this.props.runSaga(this.props.save, {
       scripts,
       blocklyXml: xml,
-      map: serialized,
+      server: serialized,
     });
   }
 
@@ -133,7 +156,7 @@ class ProjectCreate extends React.Component<PlayProps, PlayState> {
                     onSave={() => this.handleSave()}
                     onLinkClick={location => this.props.push(location)}
         />
-        <Studio stateLayer={this.state.stateLayer} style={styles.studio}
+        <Studio stateLayer={this.stateLayer} style={styles.studio}
                 studioState={this.state.studioState}
                 onUpdate={(studioState) => this.setState({ studioState })}
         />

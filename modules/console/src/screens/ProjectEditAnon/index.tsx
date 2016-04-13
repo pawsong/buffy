@@ -4,19 +4,15 @@ import { RouteComponentProps, Link } from 'react-router';
 import { push } from 'react-router-redux';
 const update = require('react-addons-update');
 import StateLayer from '@pasta/core/lib/StateLayer';
-import { InitParams } from '@pasta/core/lib/packet/ZC';
-import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import { connectApi, preloadApi, ApiCall, get } from '../../api';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
-import { UnitHandlerRouteParams } from '../Course/screens/Unit';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import Studio from '../../containers/Studio';
-import LocalServer from './LocalServer';
+import { Project } from '@pasta/core/lib/Project';
+import LocalServer, { LocalSocket } from '../../LocalServer';
 import PlayNavbar from './components/PlayNavbar';
-import {
-  requestLogout,
-} from '../../actions/auth';
+import { requestLogout } from '../../actions/auth';
 
 import { save } from './sagas';
 
@@ -31,13 +27,6 @@ const styles = {
     right: 0,
   },
 };
-
-interface Project {
-  name: string;
-  desc: string;
-  data: SerializedGameMap;
-  blocklyXml: string;
-}
 
 interface ProjectEditAnonRouteParams {
   projectId: string;
@@ -54,7 +43,6 @@ interface ProjectEditAnonProps
 }
 
 interface ProjectEditAnonState {
-  stateLayer?: StateLayer;
   studioState?: any;
 }
 
@@ -72,51 +60,48 @@ interface ProjectEditAnonState {
   push,
 })
 class ProjectEditAnon extends React.Component<ProjectEditAnonProps, ProjectEditAnonState> {
+  socket: LocalSocket;
   server: LocalServer;
+  stateLayer: StateLayer;
+
+  initialized: boolean;
 
   constructor(props) {
     super(props);
-    this.state = { stateLayer: null, studioState: {} };
+
+    this.initialized = false;
+    this.state = { studioState: {} };
+
+    this.socket = new LocalSocket();
+
+    this.stateLayer = new StateLayer({
+      emit: (event, params, cb) => {
+        this.socket.emit(event, params, cb);
+      },
+      listen: (event, handler) => {
+        const token = this.socket.addListener(event, handler);
+        return () => token.remove();
+      },
+    });
   }
 
   componentWillReceiveProps(nextProps: ProjectEditAnonProps) {
-    if (this.server) return;
     if (nextProps.project.state !== 'fulfilled') return;
 
-    const { data } = nextProps.project.result;
+    if (this.initialized) return;
+    this.initialized = true;
 
-    this.server = new LocalServer(data);
-
-    const stateLayer = new StateLayer({
-      emit: (event, params, cb) => {
-        this.server.emit(event, params, cb);
-      },
-      listen: (event, handler) => {
-        const token = this.server.addListener(event, handler);
-        return () => token.remove();
-      },
-      update: (callback) => {
-        let frameId = requestAnimationFrame(update);
-        let then = Date.now();
-        function update() {
-          const now = Date.now();
-          callback(now - then);
-          then = now;
-          frameId = requestAnimationFrame(update);
-        }
-        return () => cancelAnimationFrame(frameId);
-      },
-    });
-
-    stateLayer.start(this.server.getInitData());
-
-    this.setState({ stateLayer });
+    const { server } = nextProps.project.result;
+    this.server = new LocalServer(server, this.socket);
+    this.stateLayer.start(this.server.getInitData());
   }
 
   componentWillUnmount() {
     this.server.destroy();
-    this.state.stateLayer.destroy();
     this.server = null;
+
+    this.stateLayer.destroy();
+    this.stateLayer = null;
   }
 
   handleSave() {
@@ -145,7 +130,7 @@ class ProjectEditAnon extends React.Component<ProjectEditAnonProps, ProjectEditA
                     onSave={() => this.handleSave()}
                     onLinkClick={location => this.props.push(location)}
         />
-        <Studio stateLayer={this.state.stateLayer} style={styles.studio}
+        <Studio stateLayer={this.stateLayer} style={styles.studio}
                 initialBlocklyXml={blocklyXml}
                 studioState={this.state.studioState}
                 onUpdate={studioState => this.setState(studioState)}

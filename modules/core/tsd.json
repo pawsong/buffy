@@ -13,6 +13,15 @@
     },
     "invariant/invariant.d.ts": {
       "commit": "2712dd1e88d5a3f940592bc5d7102c2ab4eb39a7"
+    },
+    "shortid/shortid.d.ts": {
+      "commit": "5ef5579faebcf7c2827d42f911a21bcda8bd0fad"
+    },
+    "bluebird/bluebird.d.ts": {
+      "commit": "ea1030269b50762d8b259e233a50e42953cda0de"
+    },
+    "http-errors/http-errors.d.ts": {
+      "commit": "641df27e73ca67fa7199a3deedae104198d41a17"
     }
   }
 }

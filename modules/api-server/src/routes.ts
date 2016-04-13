@@ -92,12 +92,12 @@ export default (app: express.Express) => {
   app.post('/projects', wrap(async (req, res) => {
     if (!req.body.data) return res.send(400);
 
-    const { blocklyXml, map, scripts } = req.body.data;
+    const { blocklyXml, server, scripts } = req.body.data;
 
     const project = new Project({
       name: '',
       desc: '',
-      data: map,
+      server,
       blocklyXml,
       scripts,
     });
