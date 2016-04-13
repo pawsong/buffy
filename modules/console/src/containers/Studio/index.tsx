@@ -18,7 +18,7 @@ import { Blockly } from './containers/CodeEditor/blockly';
 import * as StorageKeys from '../../constants/StorageKeys';
 import { State } from '../../reducers';
 
-import { Runtime, Scripts } from '../../Runtime';
+import { Sandbox, Scripts } from '../../sandbox';
 
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import rootSaga, { runBlocklyWorkspace, submitVoxel } from './sagas';
@@ -175,7 +175,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
   activeTabName: string;
 
-  runtime: Runtime;
+  sandbox: Sandbox;
 
   constructor(props, context) {
     super(props, context);
@@ -188,7 +188,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       activeTab: localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB) || 'code',
     };
 
-    this.runtime = new Runtime(this.props.stateLayer);
+    this.sandbox = new Sandbox(this.props.stateLayer);
   }
 
   componentWillReceiveProps(nextProps: StudioBodyProps) {
@@ -226,7 +226,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       }
     });
 
-    this.props.runSaga(this.props.run, this.runtime, scripts);
+    this.props.runSaga(this.props.run, this.sandbox, scripts);
   }
 
   handleStop() {

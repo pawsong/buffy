@@ -3,7 +3,7 @@ import { isCancelError } from 'redux-saga';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Blockly, Interpreter, Scope } from '../containers/CodeEditor/blockly';
 
-import { Runtime, Scripts } from '../../../Runtime';
+import { Sandbox, Scripts } from '../../../sandbox';
 
 import {
   pushSnackbar,
@@ -71,10 +71,10 @@ function* watchWarpRequest() {
  */
 
 // Should be cancellable
-export function* runBlocklyWorkspace(runtime: Runtime, scripts: Scripts) {
+export function* runBlocklyWorkspace(sandbox: Sandbox, scripts: Scripts) {
   function run() {
-    const promise = runtime.exec(scripts);
-    runtime.emit('when_run');
+    const promise = sandbox.exec(scripts);
+    sandbox.emit('when_run');
 
     return promise;
   }
@@ -82,7 +82,7 @@ export function* runBlocklyWorkspace(runtime: Runtime, scripts: Scripts) {
   try {
     yield call(run);
   } catch(error) {
-    runtime.killAll();
+    sandbox.killAll();
 
     if (!isCancelError(error)) {
       console.log('runBlocklyWorkspace', error);

@@ -15,7 +15,7 @@ import { UnitHandlerRouteParams } from '../Course/screens/Unit';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import Studio from '../../containers/Studio';
 import VrCanvas from '../../canvas/VrCanvas';
-import { Runtime } from '../../runtime';
+import { Sandbox } from '../../sandbox';
 import PlayNavbar from './components/PlayNavbar';
 import {
   requestLogout,
@@ -83,7 +83,7 @@ class ProjectVrAnon extends React.Component<ProjectEditAnonProps, ProjectEditAno
   canvas: VrCanvas;
 
   // Runtime
-  runtime: Runtime;
+  sandbox: Sandbox;
 
   initialized: boolean;
 
@@ -122,13 +122,13 @@ class ProjectVrAnon extends React.Component<ProjectEditAnonProps, ProjectEditAno
     });
 
     // Initialize code
-    this.runtime = new Runtime(this.stateLayer);
-    this.runtime.exec(scripts);
-    this.runtime.emit('when_run');
+    this.sandbox = new Sandbox(this.stateLayer);
+    this.sandbox.exec(scripts);
+    this.sandbox.emit('when_run');
   }
 
   componentWillUnmount() {
-    if (this.runtime) this.runtime.destroy();
+    if (this.sandbox) this.sandbox.destroy();
     if (this.canvas) this.canvas.destroy();
 
     if (this.stateLayer) this.stateLayer.destroy();
