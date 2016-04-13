@@ -1,2 +1,2 @@
-import Runtime from './Runtime';
-export { Runtime };
+import Runtime, { Scripts } from './Runtime';
+export { Runtime, Scripts };

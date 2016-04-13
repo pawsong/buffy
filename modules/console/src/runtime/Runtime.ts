@@ -1,12 +1,15 @@
+import { EventEmitter } from 'fbemitter';
+import * as Promise from 'bluebird';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import Interpreter from './Interpreter';
 import { inject as injectContext } from './context';
 
-interface Scripts {
+export interface Scripts {
   [index: string /* event */]: string[];
 }
 
 class Process {
+  emitter: EventEmitter;
   stateLayer: StateLayer;
   scripts: Scripts;
   running: boolean;
@@ -15,6 +18,12 @@ class Process {
     this.stateLayer = stateLayer;
     this.scripts = scripts;
     this.running = true;
+
+    this.emitter = new EventEmitter();
+  }
+
+  on(event: string, handler: Function) {
+    return this.emitter.addListener(event, handler);
   }
 
   emit(event: string) {
@@ -32,13 +41,13 @@ class Process {
 
     const nextStep = () => {
       if (!this.running) {
-        // return reject(new Error('Stopped'));
+        this.emitter.emit('exit');
         return;
       }
 
       // Do not step when process is not running
       if (!interpreter.step()) {
-        // return resolve();
+        this.emitter.emit('exit');
         return;
       }
 
@@ -70,9 +79,13 @@ class Runtime {
     this.processes = [];
   }
 
-  exec(scripts: Scripts) {
+  exec(scripts: Scripts): Promise<void> {
     const process = new Process(this.stateLayer, scripts);
     this.processes.push(process);
+
+    return new Promise<void>((resolve, reject) => {
+      process.on('exit', () => resolve());
+    });
   }
 
   emit(event: string) {

@@ -18,6 +18,8 @@ import { Blockly } from './containers/CodeEditor/blockly';
 import * as StorageKeys from '../../constants/StorageKeys';
 import { State } from '../../reducers';
 
+import { Runtime, Scripts } from '../../Runtime';
+
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import rootSaga, { runBlocklyWorkspace, submitVoxel } from './sagas';
 
@@ -173,6 +175,8 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
   activeTabName: string;
 
+  runtime: Runtime;
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -183,6 +187,8 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       gameSizeVersion: 0,
       activeTab: localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB) || 'code',
     };
+
+    this.runtime = new Runtime(this.props.stateLayer);
   }
 
   componentWillReceiveProps(nextProps: StudioBodyProps) {
@@ -207,7 +213,20 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     if (!workspace) {
       return console.error('Workspace is empty');
     }
-    this.props.runSaga(this.props.run, this.props.stateLayer, workspace);
+
+    const scripts: Scripts = {};
+
+    workspace.getTopBlocks().forEach(block => {
+      // TODO: Check if top block is an event emitter
+      if (block.type === 'when_run') {
+        if (!scripts[block.type]) scripts[block.type] = [];
+
+        const code = Blockly.JavaScript.blockToCode(block);
+        scripts[block.type].push(code);
+      }
+    });
+
+    this.props.runSaga(this.props.run, this.runtime, scripts);
   }
 
   handleStop() {

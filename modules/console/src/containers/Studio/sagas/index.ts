@@ -3,6 +3,8 @@ import { isCancelError } from 'redux-saga';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Blockly, Interpreter, Scope } from '../containers/CodeEditor/blockly';
 
+import { Runtime, Scripts } from '../../../Runtime';
+
 import {
   pushSnackbar,
 } from '../../../actions/snackbar';
@@ -69,52 +71,19 @@ function* watchWarpRequest() {
  */
 
 // Should be cancellable
-export function* runBlocklyWorkspace(stateLayer: StateLayer, workspace: any) {
-  let running = true;
-
+export function* runBlocklyWorkspace(runtime: Runtime, scripts: Scripts) {
   function run() {
-    const topBlocks: any[] = workspace.getTopBlocks();
-    return Promise.all(topBlocks.map(block => {
-    // TODO: Check top block is an event emitter
-      if (block.type === 'when_run') {
-        const code = Blockly.JavaScript.blockToCode(block);
+    const promise = runtime.exec(scripts);
+    runtime.emit('when_run');
 
-        return new Promise((resolve, reject) => {
-          const interpreter = new Interpreter(code, (instance, scope) => Scope.inject(instance, scope, {
-            stateLayer: stateLayer,
-            interpreter: instance,
-          }, () => nextStep()));
-
-          const nextStep = () => {
-            if (!running) {
-              return reject(new Error('Stopped'));
-            }
-
-            // Do not step when process is not running
-            if (!interpreter.step()) {
-              return resolve();
-            }
-
-            if (interpreter.paused_) {
-              // Response will resume this interpreter
-              return;
-            }
-
-            // TODO: Support detailed speed setting
-            // TODO: Prevent halting vm on infinite loop
-            nextStep();
-            // setTimeout(nextStep, 0);
-          };
-          nextStep();
-        });
-      }
-    }));
+    return promise;
   }
 
   try {
     yield call(run);
   } catch(error) {
-    running = false;
+    runtime.killAll();
+
     if (!isCancelError(error)) {
       console.log('runBlocklyWorkspace', error);
     }
