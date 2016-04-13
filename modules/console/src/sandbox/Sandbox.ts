@@ -4,6 +4,8 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 import Interpreter from './Interpreter';
 import { inject as injectContext } from './context';
 
+const INFINITE_LOOP_GUARD_LIMIT = 1000;
+
 export interface Scripts {
   [index: string /* event */]: string[];
 }
@@ -39,6 +41,8 @@ class Process {
       interpreter: instance,
     }, () => nextStep()));
 
+    let infiniteLoopGuard = 0;
+
     const nextStep = () => {
       if (!this.running) {
         this.emitter.emit('exit');
@@ -58,8 +62,13 @@ class Process {
 
       // TODO: Support detailed speed setting
       // TODO: Prevent halting vm on infinite loop
-      nextStep();
-      // setTimeout(nextStep, 0);
+      infiniteLoopGuard++;
+      if (infiniteLoopGuard > INFINITE_LOOP_GUARD_LIMIT) {
+        infiniteLoopGuard = 0;
+        setTimeout(nextStep, 0);
+      } else {
+        nextStep();
+      }
     };
     nextStep();
   }
