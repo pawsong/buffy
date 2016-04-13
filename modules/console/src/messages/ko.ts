@@ -356,4 +356,11 @@ export default {
    */
   'voxel-editor.panels.workspace.title': '워크스페이스',
 
+  /**
+   * path: src/screens/ProjectVrAnon/index.json
+   * description: VR Start button label
+   * defaultMessage: Start
+   */
+  'vr.start': '시작하기',
+
 }

@@ -85,6 +85,7 @@
     "redux-ignore": "^1.2.3",
     "redux-saga": "^0.9.3",
     "request": "^2.65.0",
+    "screenfull": "^3.0.0",
     "scriptjs": "^2.5.8",
     "scroll-behavior": "^0.3.3",
     "shader-particle-engine": "^1.0.2",
