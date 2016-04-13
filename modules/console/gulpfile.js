@@ -61,6 +61,7 @@ require('../../gulp/app')({
             path: `${__dirname}/build/dev/client/public`,
             filename: 'bundle.js',
           },
+          devtool: 'cheap-module-source-map',
         },
         production: {
           defines: {

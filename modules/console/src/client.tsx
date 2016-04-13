@@ -111,25 +111,31 @@ Promise.all<LocaleData>([
 ])
 .then(([localeData]) => {
   addLocaleData(localeData.data);
-  render(
-    <IntlProvider locale={locale} messages={localeData.messages}>
-      <HairdresserProvider hairdresser={hairdresser}>
-        <MuiThemeProvider muiTheme={finalMuiTheme}>
-          <Provider store={store}>
-            <SagaProvider middleware={sagaMiddleware}>
-              <Router history={history}
-                      onUpdate={onRouterUpdate}
-                      render={props => <StyleRoot><RouterContext {...props} /></StyleRoot>}
-              >{routes}</Router>
-            </SagaProvider>
-          </Provider>
-        </MuiThemeProvider>
-      </HairdresserProvider>
-    </IntlProvider>,
-    document.getElementById('content')
-  );
-  store.dispatch({ type: EXPIRE_PRELOAD });
+
+  try {
+    render(
+      <IntlProvider locale={locale} messages={localeData.messages}>
+        <HairdresserProvider hairdresser={hairdresser}>
+          <MuiThemeProvider muiTheme={finalMuiTheme}>
+            <Provider store={store}>
+              <SagaProvider middleware={sagaMiddleware}>
+                <Router history={history}
+                        onUpdate={onRouterUpdate}
+                        render={props => <StyleRoot><RouterContext {...props} /></StyleRoot>}
+                >{routes}</Router>
+              </SagaProvider>
+            </Provider>
+          </MuiThemeProvider>
+        </HairdresserProvider>
+      </IntlProvider>,
+      document.getElementById('content')
+    );
+    store.dispatch({ type: EXPIRE_PRELOAD });
+  } catch(error) {
+    console.error(error.stack || error);
+    throw error;
+  }
 })
 .catch(error => {
-  console.error(error);
+  // TODO: Display error view
 });
