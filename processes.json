@@ -15,11 +15,6 @@
     "args": ["serve:dev"],
     "cwd": "modules/area-server"
   }, {
-    "name": "auth-server",
-    "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev"],
-    "cwd": "modules/auth-server"
-  }, {
     "name": "config",
     "script": "node_modules/.bin/gulp",
     "args": ["build:watch"],

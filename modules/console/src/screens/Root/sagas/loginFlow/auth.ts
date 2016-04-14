@@ -17,7 +17,7 @@ export function* loginWithFacebook() {
   const result = yield call(retrieveFacebookToken);
   if (!result) { return; }
 
-  const { data } = yield call(request.post, `${CONFIG_AUTH_SERVER_URL}/login/facebook`, { token: result.token });
+  const { data } = yield call(request.post, `${CONFIG_API_SERVER_URL}/login/facebook`, { token: result.token });
   return { user: data };
   // } catch(error) {
   //   console.log(error);
@@ -25,5 +25,5 @@ export function* loginWithFacebook() {
 }
 
 export function* logout() {
-  return yield call(request.post, `${CONFIG_AUTH_SERVER_URL}/logout`);
+  return yield call(request.post, `${CONFIG_API_SERVER_URL}/logout`);
 }

@@ -79,10 +79,6 @@ export const adminWebpackAppPort: number = 9401;
  */
 export const adminServerDevPort: number = 9402;
 
-export const authServerPort = 9500;
-
-export const authServerUrl = `http://auth.${domain}`;
-
 /**
 * public path for admin server assets
 */

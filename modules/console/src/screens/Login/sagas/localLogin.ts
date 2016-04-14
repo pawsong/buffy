@@ -21,7 +21,7 @@ import {
 import { State } from '../../../reducers';
 
 export default function* localLogin(email: string, password: string) {
-  const response = yield call(request.post, `${CONFIG_AUTH_SERVER_URL}/login/local`, { email, password });
+  const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/login/local`, { email, password });
   if (response.status !== 200) return false;
 
   const user = response.data;

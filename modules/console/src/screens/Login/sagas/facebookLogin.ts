@@ -51,7 +51,7 @@ export default function* facebookLogin(email: string, password: string) {
   const result = yield call(retrieveToken);
   if (!result) return false;
 
-  const response = yield call(request.post, `${CONFIG_AUTH_SERVER_URL}/login/facebook`, { token: result.token });
+  const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/login/facebook`, { token: result.token });
   const user = response.data;
 
   yield put<UserAddAction>({

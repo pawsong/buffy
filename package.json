@@ -17,7 +17,6 @@
     "deploy:addon-voxel-editor": "npm stop && gulp deploy:addon-voxel-editor",
     "deploy:addon-game": "npm stop && gulp deploy:addon-game",
     "deploy:area-server": "npm stop && gulp deploy:area-server",
-    "deploy:auth-server": "npm stop && gulp deploy:auth-server",
     "deploy:console": "npm stop && gulp deploy:console",
     "deploy:admin": "npm stop && gulp deploy:admin",
     "docs:clean": "rimraf _book",
@@ -114,7 +113,6 @@
   "deployables": [
     "api-server",
     "area-server",
-    "auth-server",
     "console",
     "admin"
   ],

@@ -54,7 +54,6 @@ require('../../gulp/app')({
           defines: {
             'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
             'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
-            'CONFIG_AUTH_SERVER_URL': `http://localhost:${conf.authServerPort}`,
             'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdDev,
           },
           output: {
@@ -67,7 +66,6 @@ require('../../gulp/app')({
           defines: {
             'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
             'CONFIG_API_SERVER_URL': conf.apiServerUrl,
-            'CONFIG_AUTH_SERVER_URL': conf.authServerUrl,
             'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdProd,
           },
           output: {
@@ -95,7 +93,6 @@ require('../../gulp/app')({
           defines: {
             'CONFIG_DOMAIN': '',
             'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
-            'CONFIG_AUTH_SERVER_URL': `http://localhost:${conf.authServerPort}`,
           },
           output: {
             path: `${__dirname}/build/dev`,
@@ -106,7 +103,6 @@ require('../../gulp/app')({
           defines: {
             'CONFIG_DOMAIN': conf.domain,
             'CONFIG_API_SERVER_URL': conf.apiServerUrl,
-            'CONFIG_AUTH_SERVER_URL': conf.authServerUrl,
           },
           output: {
             path: `${__dirname}/build/prod`,

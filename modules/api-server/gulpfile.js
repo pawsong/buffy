@@ -20,6 +20,7 @@ require('../../gulp/app')({
         development: {
           defines: {
             'BUILD_DIR': `${__dirname}/../build/dev`,
+            '__DOMAIN__': '',
           },
           output: {
             path: `${__dirname}/build/dev`,
@@ -29,6 +30,7 @@ require('../../gulp/app')({
         production: {
           defines: {
             'BUILD_DIR': `${__dirname}/../build/prod`,
+            '__DOMAIN__': conf.domain,
           },
           output: {
             path: `${__dirname}/build/prod`,

@@ -193,7 +193,7 @@ interface LoginResult {
         };
       }
 
-      const response = yield call(request.get, `${CONFIG_AUTH_SERVER_URL}/signup/local/exists/${email}`);
+      const response = yield call(request.get, `${CONFIG_API_SERVER_URL}/signup/local/exists/${email}`);
       const exists = response.data.result;
       return exists ? {
         valid: false,
@@ -208,7 +208,7 @@ interface LoginResult {
   },
   localSignUp: function* (name, email, password) {
     try {
-      const response = yield call(request.post, `${CONFIG_AUTH_SERVER_URL}/signup/local`, {
+      const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/signup/local`, {
         name,
         email,
         password,

@@ -106,7 +106,7 @@ app.get('*', async (req, res) => {
     const token = req.cookies.tt;
     if (token) {
       try {
-        const res = await axios.get(`${CONFIG_AUTH_SERVER_URL}/me`, {
+        const res = await axios.get(`${CONFIG_API_SERVER_URL}/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

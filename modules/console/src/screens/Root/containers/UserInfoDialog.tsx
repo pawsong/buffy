@@ -21,7 +21,7 @@ interface UserInfoDialogStates {
 
 @saga({
   submit: function* (username) {
-    yield call(request.put, `${CONFIG_AUTH_SERVER_URL}/me`, {
+    yield call(request.put, `${CONFIG_API_SERVER_URL}/me`, {
       name: username,
     });
     yield put(usernameUpdate(username));

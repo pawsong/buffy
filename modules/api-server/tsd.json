@@ -18,7 +18,7 @@
       "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "node/node.d.ts": {
-      "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
+      "commit": "94d8775a947f626269b06ccadd6f5e61839389d0"
     },
     "serve-static/serve-static.d.ts": {
       "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
@@ -45,7 +45,7 @@
       "commit": "6766ed1d0faf02ede9e2edf2e66bbb2388c825ec"
     },
     "gm/gm.d.ts": {
-      "commit": "70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e"
+      "commit": "94d8775a947f626269b06ccadd6f5e61839389d0"
     },
     "shortid/shortid.d.ts": {
       "commit": "70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e"
