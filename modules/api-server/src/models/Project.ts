@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 export interface ProjectDocument extends mongoose.Document {
+  owner: mongoose.Types.ObjectId;
   name: string;
   desc: string;
   server: any;
@@ -11,6 +12,7 @@ export interface ProjectDocument extends mongoose.Document {
 }
 
 const ProjectSchema = new Schema({
+  owner: { type: Schema.Types.ObjectId, ref: 'User' },
   name: String,
   desc: String,
   server: {},

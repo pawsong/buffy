@@ -15,7 +15,10 @@ import * as StorageKeys from '../../constants/StorageKeys';
 import ProjectStudio from '../../components/ProjectStudio';
 import { requestLogout } from '../../actions/auth';
 
-import { save } from './sagas';
+import {
+  createAnonProject,
+  createUserProject,
+} from './sagas';
 
 interface ProjectStudioHandlerState {
   initialData?: ProjectStudioData;
@@ -39,9 +42,10 @@ function inferProjectStudioMode(params: RouteParams): ProjectStudioMode {
   return ProjectStudioMode.CREATE;
 }
 
-interface ProjectStudioHandlerProps extends RouteComponentProps<{}, {}>, ApiDispatchProps, SagaProps {
+interface ProjectStudioHandlerProps extends RouteComponentProps<RouteParams, RouteParams>, ApiDispatchProps, SagaProps {
   user: User;
-  save: ImmutableTask<{}>;
+  createAnonProject: ImmutableTask<{}>;
+  createUserProject: ImmutableTask<{}>;
   project?: ApiCall<Project>;
   requestLogout?: () => any;
   push?: (location: HistoryModule.LocationDescriptor) => any;
@@ -57,8 +61,8 @@ interface ProjectStudioData {
   if (type === ProjectStudioMode.CREATE) return;
 
   const project = type === ProjectStudioMode.ANON_EDIT
-    ? get(`${CONFIG_API_SERVER_URL}/projects/${params.projectId}`)
-    : get(`${CONFIG_API_SERVER_URL}/projects/${params.projectId}`);
+    ? get(`${CONFIG_API_SERVER_URL}/projects/anonymous/${params.projectId}`)
+    : get(`${CONFIG_API_SERVER_URL}/projects/@${params.userId}/${params.projectId}`);
 
   return { project };
 })
@@ -70,7 +74,8 @@ interface ProjectStudioData {
   push,
 })
 @saga({
-  save: save,
+  createAnonProject,
+  createUserProject,
 })
 class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, ProjectStudioHandlerState> {
   cachedProjectStudioData: ProjectStudioData;
@@ -148,7 +153,29 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   handleSave(data: ProjectData) {
-    this.props.runSaga(this.props.save, data);
+    const mode = inferProjectStudioMode(this.props.routeParams);
+    switch (mode) {
+      case ProjectStudioMode.CREATE: {
+        if (this.props.user) {
+          this.props.runSaga(this.props.createUserProject, this.props.user.id, data);
+        } else {
+          this.props.runSaga(this.props.createAnonProject, data);
+        }
+        return;
+      }
+      case ProjectStudioMode.ANON_EDIT: {
+        const { projectId } = this.props.routeParams;
+        console.log(projectId);
+        // this.props.runSaga(this.props.save, projectId, data);
+        return;
+      }
+      case ProjectStudioMode.USER_EDIT: {
+        const { projectId, userId } = this.props.routeParams;
+        console.log(projectId, userId);
+        // this.props.runSaga(this.props.save, data);
+        return;
+      }
+    }
   }
 
   render() {

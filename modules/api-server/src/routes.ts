@@ -89,7 +89,7 @@ export default (app: express.Express) => {
     res.sendStatus(200);
   }));
 
-  app.post('/projects', wrap(async (req, res) => {
+  app.post('/projects/anonymous', wrap(async (req, res) => {
     if (!req.body.data) return res.send(400);
 
     const { blocklyXml, server, scripts } = req.body.data;
@@ -106,7 +106,33 @@ export default (app: express.Express) => {
     res.send({ id: project.id });
   }));
 
-  app.get('/projects/:projectId', wrap(async (req, res) => {
+  app.post('/projects/@:userId', wrap(async (req, res) => {
+    if (!req.body.data) return res.send(400);
+
+    const { userId } = req.params;
+
+    const { blocklyXml, server, scripts } = req.body.data;
+
+    const project = new Project({
+      owner: userId,
+      name: '',
+      desc: '',
+      server,
+      blocklyXml,
+      scripts,
+    });
+
+    await project.save();
+    res.send({ id: project.id });
+  }));
+
+  app.get('/projects/anonymous/:projectId', wrap(async (req, res) => {
+    const project = await Project.findById(req.params.projectId);
+    if (!project) return res.send(404);
+    res.send(project);
+  }));
+
+  app.get('/projects/@:userId/:projectId', wrap(async (req, res) => {
     const project = await Project.findById(req.params.projectId);
     if (!project) return res.send(404);
     res.send(project);

@@ -4,12 +4,26 @@ import { replace } from 'react-router-redux';
 import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import { request } from '../../../saga';
 
-export function* save(data) {
-  const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/projects`, {
-    userid: '', // Anonymous
+/**
+ * createAnonProject
+ */
+export function* createAnonProject(data) {
+  const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/projects/anonymous`, {
     data,
   });
 
   const { id: projectId } = response.data;
   yield put(replace({ pathname: `/@/${projectId}/latest/edit` }));
+};
+
+/**
+ * createUserProject
+ */
+export function* createUserProject(userId: string, data) {
+  const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/projects/@${userId}`, {
+    data,
+  });
+
+  const { id: projectId } = response.data;
+  yield put(replace({ pathname: `/@${userId}/${projectId}/latest/edit` }));
 };
