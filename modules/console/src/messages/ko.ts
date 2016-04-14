@@ -357,7 +357,7 @@ export default {
   'voxel-editor.panels.workspace.title': '워크스페이스',
 
   /**
-   * path: src/screens/ProjectVrAnon/index.json
+   * path: src/components/ProjectCardboard.json
    * description: VR Start button label
    * defaultMessage: Start
    */
