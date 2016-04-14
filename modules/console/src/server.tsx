@@ -154,6 +154,8 @@ app.get('*', async (req, res) => {
       .forEach(component => {
         const mapParamsToProps: MapParamsToProps<any> = component['mapParamsToProps'];
         const specs = mapParamsToProps(renderProps.params, renderProps.location);
+        if (!specs) return;
+
         Object.keys(specs).forEach(key => {
           const spec = specs[key];
           if (!apiCalls[spec.id]) {

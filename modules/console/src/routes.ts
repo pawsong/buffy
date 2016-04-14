@@ -19,6 +19,7 @@ import StudioForCourse from './screens/StudioForCourse';
 import ProjectCreate from './screens/ProjectCreate';
 import ProjectEditAnon from './screens/ProjectEditAnon';
 import ProjectVrAnon from './screens/ProjectVrAnon';
+import ProjectStudio from './screens/ProjectStudio';
 import { State } from './reducers';
 
 export default function getRoutes(store: Store) {
@@ -61,19 +62,19 @@ export default function getRoutes(store: Store) {
       {
         path: '/create',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: ProjectCreate }>('./screens/ProjectCreate').default);
+          cb(null, require<{ default: ProjectStudio }>('./screens/ProjectStudio').default);
         }),
       },
       {
         path: '/@/:projectId/:revision/edit',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: ProjectEditAnon }>('./screens/ProjectEditAnon').default);
+          cb(null, require<{ default: ProjectStudio }>('./screens/ProjectStudio').default);
         }),
       },
       {
         path: '/@:userId/:projectId/:revision/edit',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: ProjectEditAnon }>('./screens/ProjectEditAnon').default);
+          cb(null, require<{ default: ProjectStudio }>('./screens/ProjectStudio').default);
         }),
       },
       {

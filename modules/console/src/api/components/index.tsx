@@ -65,7 +65,7 @@ export function preloadApi<T>(mapParamsToProps: MapParamsToProps<T>) {
 
       render() {
         const { params, location } = this.props;
-        const specs = mapParamsToProps(params, location);
+        const specs = mapParamsToProps(params, location) || {};
         return <WrappedComponent parentProps={this.props} preloadApiSpecs={specs} />
       }
     }
