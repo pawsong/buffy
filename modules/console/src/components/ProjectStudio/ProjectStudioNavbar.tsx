@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Link, History } from 'react-router';
+import { Link } from 'react-router';
 import { Styles } from 'material-ui';
-import AppBar from 'material-ui/lib/app-bar';
 import FlatButton from 'material-ui/lib/flat-button';
 import ActionPets from 'material-ui/lib/svg-icons/action/pets';
 
@@ -9,17 +8,9 @@ import Colors from 'material-ui/lib/styles/colors';
 
 import Avatar from 'material-ui/lib/avatar';
 import Paper from 'material-ui/lib/paper';
-import IconMenu from 'material-ui/lib/menus/icon-menu';
 import IconButton from 'material-ui/lib/icon-button';
-import FontIcon from 'material-ui/lib/font-icon';
-import NavigationExpandMoreIcon from 'material-ui/lib/svg-icons/navigation/expand-more';
-import MenuItem from 'material-ui/lib/menus/menu-item';
-import DropDownMenu from 'material-ui/lib/DropDownMenu';
-import RaisedButton from 'material-ui/lib/raised-button';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import ToolbarSeparator from 'material-ui/lib/toolbar/toolbar-separator';
-import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
 
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
@@ -27,18 +18,77 @@ import LogoutIcon from 'material-ui/lib/svg-icons/action/exit-to-app';
 
 const objectAssign = require('object-assign');
 
+// TODO: Move type definition to dedicated definition directory
+import { User } from '../../reducers/users';
+
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-import Messages from '../../../constants/Messages';
+import Messages from '../../constants/Messages';
 
-import ClickAwayListener from '../../../components/ClickAwayListener';
+import ClickAwayListener from '../ClickAwayListener';
 
-import {
-  User,
- } from '../../../reducers/users';
+const styles = {
+  navbar: {
+    position: 'fixed',
+    zIndex: 1000,
+  },
+  button: {
+    color: Colors.white,
+    marginLeft: 18,
+    marginRight: 0,
+  },
+  logo: {
+    marginTop: 16,
+    marginRight: 16,
+    float: 'left',
+  },
+  avatarButton: {
+    margin: '4px -8px 4px 0',
+  },
+  avatarButtonIcon: {
+    margin: '-8px 0 -8px -4px',
+  },
+  accountInfoBox: {
+    position: 'absolute',
+    right: 0,
+    width: 200,
+  },
+  accountInfoBoxCaretCont: {
+    position: 'absolute',
+    top: -10,
+    left: 'auto',
+    right: 8,
+    width: 18,
+    height: 10,
+    float: 'left',
+    overflow: 'hidden',
+  },
+  accountInfoBoxOuterCaret: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    display: 'inline-block',
+    marginLeft: -1,
+    borderBottom: '10px solid #8899a6',
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderLeft: '10px solid transparent',
+    borderRight: '10px solid transparent',
+    height: 'auto',
+    width: 'auto',
+  },
+  accountInfoBoxInnerCaret: {
+    position: 'absolute',
+    display: 'inline-block',
+    marginLeft: -1,
+    top: 1,
+    left: 1,
+    borderLeft: '9px solid transparent',
+    borderRight: '9px solid transparent',
+    borderBottom: '9px solid #fff',
+    borderBottomColor: 'rgba(255,255,255,0.98)',
+  },
+};
 
-import Navbar from '../../../components/Navbar';
-
-interface AppNavbarProps extends React.Props<AppNavbar> {
+interface ProjectStudioNavbarProps extends React.Props<ProjectStudioNavbar> {
   user: User;
   location: any;
   onLogout: () => any;
@@ -47,31 +97,26 @@ interface AppNavbarProps extends React.Props<AppNavbar> {
   intl?: InjectedIntlProps;
 }
 
-interface AppNavbarState {
+interface ProjectStudioNavbarState {
   accountInfoBoxOpened?: boolean;
 }
 
 @injectIntl
-class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
+class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, ProjectStudioNavbarState> {
   static contextTypes = {
     muiTheme: React.PropTypes.object,
   }
 
-  backgroundColor: string;
   toolbarStyle: Object;
 
   constructor(props, context) {
     super(props, context);
 
     const muiTheme: Styles.MuiTheme = context['muiTheme'];
-    this.backgroundColor = muiTheme.rawTheme.palette.primary1Color;
-    this.toolbarStyle = objectAssign({}, styles.navbar, {
-      backgroundColor: this.backgroundColor,
-    });
+    const backgroundColor = muiTheme.rawTheme.palette.primary1Color;
+    this.toolbarStyle = objectAssign({}, styles.navbar, { backgroundColor });
 
-    this.state = {
-      accountInfoBoxOpened: false,
-    };
+    this.state = { accountInfoBoxOpened: false };
   }
 
   handleAvatarClick() {
@@ -172,69 +217,4 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
   }
 }
 
-export default AppNavbar;
-
-const styles = {
-  navbar: {
-    position: 'fixed',
-    zIndex: 1000,
-  },
-  button: {
-    color: Colors.white,
-    marginLeft: 18,
-    marginRight: 0,
-  },
-  title: {
-    color: Colors.white,
-  },
-  logo: {
-    marginTop: 16,
-    marginRight: 16,
-    float: 'left',
-  },
-  avatarButton: {
-    margin: '4px -8px 4px 0',
-  },
-  avatarButtonIcon: {
-    margin: '-8px 0 -8px -4px',
-  },
-  accountInfoBox: {
-    position: 'absolute',
-    right: 0,
-    width: 200,
-  },
-  accountInfoBoxCaretCont: {
-    position: 'absolute',
-    top: -10,
-    left: 'auto',
-    right: 8,
-    width: 18,
-    height: 10,
-    float: 'left',
-    overflow: 'hidden',
-  },
-  accountInfoBoxOuterCaret: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    display: 'inline-block',
-    marginLeft: -1,
-    borderBottom: '10px solid #8899a6',
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-    borderLeft: '10px solid transparent',
-    borderRight: '10px solid transparent',
-    height: 'auto',
-    width: 'auto',
-  },
-  accountInfoBoxInnerCaret: {
-    position: 'absolute',
-    display: 'inline-block',
-    marginLeft: -1,
-    top: 1,
-    left: 1,
-    borderLeft: '9px solid transparent',
-    borderRight: '9px solid transparent',
-    borderBottom: '9px solid #fff',
-    borderBottomColor: 'rgba(255,255,255,0.98)',
-  },
-};
+export default ProjectStudioNavbar;

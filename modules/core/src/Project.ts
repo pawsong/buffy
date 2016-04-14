@@ -5,10 +5,17 @@ export interface SerializedLocalServer {
   maps: SerializedGameMap[];
 }
 
-export interface Project {
-  name: string;
-  desc: string;
+export interface Scripts {
+  [index: string]: string[];
+}
+
+export interface ProjectData {
   server: SerializedLocalServer;
   blocklyXml: string;
-  scripts: { [index: string]: string[] };
+  scripts: Scripts;
+}
+
+export interface Project extends ProjectData {
+  name: string;
+  desc: string;
 }
