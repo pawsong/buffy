@@ -8,6 +8,32 @@ import ObjectManager from './ObjectManager';
 import TerrainManager from './TerrainManager';
 import CursorManager from './CursorManager';
 
+import { GameState } from '../interface';
+
+export interface GameStateListener {
+  (gameState: GameState): any;
+}
+
+export interface GameStateSelector<T> {
+  (gameState: GameState): T;
+}
+
+export interface GameStateObserver<T> {
+  (state: T): any;
+}
+
+export interface RemoveObserver {
+  (): void;
+}
+
+export interface ObserveGameState {
+  <T>(selector: GameStateSelector<T>, listener: GameStateObserver<T>): RemoveObserver;
+}
+
+export interface GetGameState {
+  (): GameState;
+}
+
 export interface Services {
   container: HTMLElement;
   objectManager: ObjectManager;
@@ -21,7 +47,8 @@ export interface Services {
   resyncToStore: Function;
   scene: THREE.Scene;
   raycaster: THREE.Raycaster;
-  store: Store;
+  getGameState: GetGameState;
+  observeGameState: ObserveGameState;
 }
 
 export interface StoreHandler {

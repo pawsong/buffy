@@ -1,11 +1,8 @@
-import { ToolStateFactory } from '../interface';
+import { ToolStateFactory, RemoveObserver } from '../interface';
 import {
   BOX_SIZE,
   PIXEL_UNIT,
 } from '../../Constants';
-
-import { State } from '../../../../../../reducers';
-import observeStore from '../../../../../../utils/observeStore';
 
 export function rgbToHex({ r, g, b }) {
   return (1 << 24) | (r << 16) | (g << 8) | b;
@@ -19,7 +16,8 @@ const factory: ToolStateFactory = ({
   raycaster,
   terrainManager,
   cursorManager,
-  store,
+  getGameState,
+  observeGameState,
 }) => {
   function onMouseDown(event) {
     event.preventDefault();
@@ -27,29 +25,29 @@ const factory: ToolStateFactory = ({
     const { hit, position } = cursorManager.getPosition();
     if (!hit) { return; }
 
-    const state: State = store.getState();
+    const gameState = getGameState();
 
     stateLayer.rpc.updateTerrain({
       x: position.x,
       z: position.z,
-      color: rgbToHex(state.game.brush.color),
+      color: rgbToHex(gameState.brushColor),
     });
   }
 
-  let token;
+  let removeObserver: RemoveObserver;
 
   return {
     onEnter() {
       cursorManager.start();
       container.addEventListener('mousedown', onMouseDown, false);
 
-      token = observeStore(store, state => state.game.brush, ({ color }) => {
-        cursorManager.setColor(rgbToHex(color));
+      removeObserver = observeGameState(gameState => gameState.brushColor, brushColor => {
+        cursorManager.setColor(rgbToHex(brushColor));
       });
     },
 
     onLeave() {
-      token.remove();
+      removeObserver();
 
       cursorManager.stop();
       container.removeEventListener('mousedown', onMouseDown, false);

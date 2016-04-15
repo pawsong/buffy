@@ -1,9 +1,7 @@
 import * as THREE from 'three';
 import { EventSubscription } from 'fbemitter';
-import { Store } from 'redux';
 import Mesh from '@pasta/core/lib/classes/Mesh';
 import StateLayer from '@pasta/core/lib/StateLayer';
-import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 
 import {
   PIXEL_NUM,
@@ -24,11 +22,19 @@ import * as handlers from './handlers';
 import Fsm from './Fsm';
 
 import * as tools from './tools';
-import { ToolState } from './interface';
 
-import observeStore from '../../../../../utils/observeStore';
+import {
+  ToolState,
+  GetGameState,
+  ObserveGameState,
+  GameStateListener,
+  GameStateSelector,
+  GameStateObserver,
+} from './interface';
 
-export default (container: HTMLElement, stateLayer: StateLayer, store: Store) => {
+import { GameState, ToolType } from '../interface';
+
+export default (container: HTMLElement, stateLayer: StateLayer, getGameState: GetGameState) => {
   const camera = new THREE.OrthographicCamera(
     container.offsetWidth / - 2,
     container.offsetWidth / 2,
@@ -145,6 +151,27 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
   // Sync view to store data
   resyncToStore();
 
+  const gameStateListeners: GameStateListener[] = [];
+
+  const observeGameState: ObserveGameState = (selector: GameStateSelector<any>, observer: GameStateObserver<any>) => {
+    let state;
+
+    const listener = (gameState: GameState) => {
+      const nextState = selector(gameState);
+      if (state !== nextState) {
+        observer(nextState);
+      }
+    };
+    gameStateListeners.push(listener);
+
+    listener(getGameState());
+
+    return () => {
+      const index = gameStateListeners.indexOf(listener);
+      if (index !== -1) gameStateListeners.splice(index, 1);
+    };
+  };
+
   const services: Services = {
     container,
     objectManager,
@@ -156,7 +183,8 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
     resyncToStore,
     scene,
     raycaster,
-    store,
+    getGameState,
+    observeGameState,
     cubeGeometry: geometry,
     cubeMaterial: material,
   };
@@ -166,11 +194,7 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
   const toolsFsm = new Fsm<ToolState>();
   Object.keys(tools).forEach(toolName => toolsFsm.add(toolName, tools[toolName](services)));
 
-  const reduxTokens = [
-    observeStore(store, state => state.game.tool, ({ type }) => {
-      toolsFsm.transition(type);
-    }),
-  ];
+  observeGameState(gameState => gameState.selectedTool, selectedTool => toolsFsm.transition(ToolType[selectedTool]));
 
   /////////////////////////////////////////////////////////////////////////
   // FIN
@@ -190,13 +214,15 @@ export default (container: HTMLElement, stateLayer: StateLayer, store: Store) =>
       toolsFsm.stop();
       window.removeEventListener('resize', onWindowResize, false);
       tokens.forEach(token => token.remove());
-      reduxTokens.forEach(token => token.remove());
       cancelAnimationFrame(frameId);
       terrainManager.destroy();
       cursorManager.destroy();
       renderer.forceContextLoss();
       renderer.context = null;
       renderer.domElement = null;
+    },
+    onChange(gameState: GameState) {
+      gameStateListeners.forEach(listener => listener(gameState));
     },
     resize() {
       onWindowResize();

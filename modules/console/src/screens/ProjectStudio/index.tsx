@@ -97,15 +97,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
   componentDidMount() {
     if (this.mode === ProjectStudioMode.CREATE) {
-      this.setState({
-        initialized: true,
-        initialLocalServer: LocalServer.createInitialData(),
-        studioState: Studio.creatState({
-          codeEditorState: {
-            blocklyXml: localStorage.getItem(StorageKeys.BLOCKLY_WORKSPACE_CREATE),
-          },
-        }),
-      });
+      this.setState(this.createStateFromLocalStorage());
     }
   }
 
@@ -119,6 +111,18 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     if (nextProps.project && nextProps.project.state === 'fulfilled') {
       this.setState(this.createStateFromResponse(nextProps.project.result));
     }
+  }
+
+  createStateFromLocalStorage(): ProjectStudioHandlerState {
+    return {
+      initialized: true,
+      initialLocalServer: LocalServer.createInitialData(),
+      studioState: Studio.creatState({
+        codeEditorState: {
+          blocklyXml: localStorage.getItem(StorageKeys.BLOCKLY_WORKSPACE_CREATE),
+        },
+      }),
+    };
   }
 
   createStateFromResponse(project: Project): ProjectStudioHandlerState {

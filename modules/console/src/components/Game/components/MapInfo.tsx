@@ -1,6 +1,15 @@
 import * as React from 'react';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 
+const styles = {
+  info: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    color: 'white',
+  },
+};
+
 interface MapInfoProps extends React.Props<MapInfo> {
   mapName: string;
 }
@@ -18,12 +27,3 @@ class MapInfo extends React.Component<MapInfoProps, {
 }
 
 export default MapInfo;
-
-const styles = {
-  info: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    color: 'white',
-  },
-};

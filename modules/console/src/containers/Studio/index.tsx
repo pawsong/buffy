@@ -1,6 +1,7 @@
 import './patch';
 
 import * as React from 'react';
+import { connect } from 'react-redux';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import RaisedButton from 'material-ui/lib/raised-button';
@@ -24,11 +25,24 @@ import rootSaga, { runBlocklyWorkspace, submitVoxel } from './sagas';
 
 import { Layout, LayoutContainer } from '../../components/Layout';
 
-import Game from './containers/Game';
+import Game, { GameState } from '../../components/Game';
 import CodeEditor, { CodeEditorState } from '../../components/CodeEditor';
 import { convertXmlToCodes } from '../../blockly/utils';
 
+import ContactsButton from './components/ContactsButton';
+import ContactsDialog from './components/ContactsDialog';
+
 import VoxelEditor from './containers/VoxelEditor';
+
+import {
+  GameUsersState,
+} from '../../reducers/game';
+
+import {
+  openFriendsDialog,
+  closeFriendsDialog,
+  requestWarp,
+} from '../../actions/game';
 
 const messages = defineMessages({
   run: {
@@ -133,7 +147,8 @@ class TabTemplate extends React.Component<TabTemplateProps, {}> {
 };
 
 export interface StudioState {
-  codeEditorState: CodeEditorState;
+  gameState?: GameState;
+  codeEditorState?: CodeEditorState;
 }
 
 interface StudioBodyProps extends React.Props<Studio>, SagaProps {
@@ -146,6 +161,12 @@ interface StudioBodyProps extends React.Props<Studio>, SagaProps {
   root?: ImmutableTask<any>;
   run?: ImmutableTask<any>;
   submitVoxel?: ImmutableTask<any>;
+
+  users?: GameUsersState;
+  friendsModalOpened?: boolean;
+  openFriendsDialog?: () => any;
+  closeFriendsDialog?: () => any;
+  requestWarp?: (targetMapId: string) => any;
 }
 
 interface StudioBodyState {
@@ -158,6 +179,14 @@ interface StudioBodyState {
 }
 
 @injectIntl
+@connect((state: State) => ({
+  friendsModalOpened: state.game.ui.friendsModalOpened,
+  users: state.game.users,
+}), {
+  openFriendsDialog,
+  closeFriendsDialog,
+  requestWarp,
+})
 @saga({
   root: rootSaga,
   run: runBlocklyWorkspace,
@@ -244,10 +273,20 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     localStorage.setItem(StorageKeys.MASTER_INITIAL_TAB, value);
   }
 
-  handleCodeEditorChange(codeEditorState: CodeEditorState) {
-    this.props.onChange(objectAssign({}, this.props.studioState, {
-      codeEditorState
-    }));
+  handleStateChange(nextState: StudioState) {
+    this.props.onChange(objectAssign({}, this.props.studioState, nextState));
+  }
+
+  handleContactsButtonClick() {
+    this.props.openFriendsDialog();
+  }
+
+  handleContactsDialogClose() {
+    this.props.closeFriendsDialog();
+  }
+
+  handleContactsDialogSubmit(mapId) {
+    this.props.requestWarp(mapId);
   }
 
   render() {
@@ -268,7 +307,18 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
           <LayoutContainer size={this.initialGameWidth} onResize={size => this.handleGameWidthResize(size)}>
             <Layout flow="column" style={styles.fillParent}>
               <LayoutContainer size={this.initialGameHeight} onResize={size => this.handleGameHeightResize(size)}>
-                <Game sizeVersion={this.state.gameSizeVersion} stateLayer={this.props.stateLayer} />
+                <Game gameState={this.props.studioState.gameState}
+                      onChange={(gameState => this.handleStateChange({ gameState }))}
+                      sizeVersion={this.state.gameSizeVersion}
+                      stateLayer={this.props.stateLayer}
+                >
+                  <ContactsButton onTouchTap={() => this.handleContactsButtonClick()} />
+                  <ContactsDialog open={this.props.friendsModalOpened}
+                                  friends={this.props.users.toArray()}
+                                  onSubmit={mapId => this.handleContactsDialogSubmit(mapId)}
+                                  onClose={() => this.handleContactsDialogClose()}
+                  />
+                </Game>
               </LayoutContainer>
               <LayoutContainer remaining={true}>
                 <Toolbar>
@@ -288,7 +338,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
             >
               <Tab label={this.props.intl.formatMessage(messages.code)} value="code">
                 <CodeEditor editorState={this.props.studioState.codeEditorState}
-                            onChange={codeEditorState => this.handleCodeEditorChange(codeEditorState)}
+                            onChange={codeEditorState => this.handleStateChange({ codeEditorState })}
                             sizeRevision={this.state.editorSizeVersions.code}
                             readyToRender={this.state.activeTab === 'code'}
                 />
@@ -318,16 +368,11 @@ interface StudioOwnState {
   mount?: boolean;
 }
 
-const defaultStudioState: StudioState = {
-  codeEditorState: CodeEditor.creatState(),
-};
-
 class Studio extends React.Component<StudioProps, StudioOwnState> {
-  static creatState(initialState?: StudioState): StudioState {
-    if (!initialState) return defaultStudioState;
-
+  static creatState(initialState: StudioState = {}): StudioState {
     return {
-      codeEditorState: CodeEditor.creatState(initialState && initialState.codeEditorState),
+      codeEditorState: CodeEditor.creatState(initialState.codeEditorState),
+      gameState: Game.createState(),
     };
   }
 

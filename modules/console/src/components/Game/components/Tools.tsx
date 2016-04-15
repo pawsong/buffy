@@ -1,17 +1,15 @@
 import * as React from 'react';
 import RaisedButton from 'material-ui/lib/raised-button';
 import IconButton from 'material-ui/lib/icon-button';
-import { connect } from 'react-redux';
-const Contacts = require('material-ui/lib/svg-icons/communication/contacts');
 const Terrain = require('material-ui/lib/svg-icons/maps/terrain');
 const NearMe = require('material-ui/lib/svg-icons/maps/near-me');
 const Palette = require('material-ui/lib/svg-icons/image/palette');
-const reactColor = require('react-color');
 const { default: ColorPicker }  = require('react-color/lib/components/compact/Compact');
 const objectAssign = require('object-assign');
-import ClickAwayListener from '../../../../../components/ClickAwayListener';
+import ClickAwayListener from '../../ClickAwayListener';
 
-// console.log(ColorPicker);
+import { ToolType, Color } from '../interface';
+
 const styles = {
   wrapper: {
     position: 'absolute',
@@ -94,10 +92,10 @@ class ColorPickerTool extends React.Component<ColorPickerToolProps, ColorPickerT
 
 interface ToolProps extends React.Props<Tool> {
   label: string;
-  type: string;
+  type: ToolType;
   icon: any;
-  tool: Object;
-  onClick: Function;
+  selectedTool: ToolType;
+  changeTool: (tool: ToolType) => any;
 }
 
 class Tool extends React.Component<ToolProps, {}> {
@@ -106,51 +104,52 @@ class Tool extends React.Component<ToolProps, {}> {
       color: '#ffffff',
     });
 
-    const style = objectAssign({}, styles.tool, this.props.type === this.props.tool['type'] ? {
+    const style = objectAssign({}, styles.tool, this.props.type === this.props.selectedTool ? {
       backgroundColor: `rgba(${22}, ${165}, ${165}, 0.5)`,
     } : {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
     });
 
-    return <IconButton style={style}
-                       onClick={() => this.props.onClick(this.props.type)}
-                       tooltipPosition="bottom-center"
-                       tooltip={this.props.label}
-    >{icon}</IconButton>;
+    return (
+        <IconButton style={style}
+                    onTouchTap={() => this.props.changeTool(this.props.type)}
+                    tooltipPosition="bottom-center"
+                    tooltip={this.props.label}
+        >{icon}</IconButton>
+    );
   }
 }
 
 interface ToolsProps extends React.Props<Tools> {
-  tool: Object;
-  brush: Object;
-  changeTool: Function;
-  changeColor: Function;
+  selectedTool: ToolType;
+  brushColor: Color;
+  changeTool: (tool: ToolType) => any;
+  changeBrushColor: (color: Color) => any;
 }
 
 class Tools extends React.Component<ToolsProps, {}> {
-  handleClickTool(type) {
-    this.props.changeTool(type);
-  }
-
   render() {
-    const tool = this.props.tool;
+    const { selectedTool } = this.props;
 
-    return <div style={styles.wrapper}>
-      <Tool label="Move"
-            type="move"
-            icon={NearMe}
-            tool={tool}
-            onClick={this.handleClickTool.bind(this)}
-      ></Tool>
-      <Tool label="Edit terrain"
-            type="editTerrain"
-            icon={Terrain}
-            tool={tool}
-            onClick={this.handleClickTool.bind(this)}
-      ></Tool>
-      <ColorPickerTool color={this.props.brush['color']}
-                       onClick={color => this.props.changeColor(color.rgb)}/>
-    </div>;
+    return (
+      <div style={styles.wrapper}>
+        <Tool label="Move"
+              icon={NearMe}
+              type={ToolType.move}
+              selectedTool={selectedTool}
+              changeTool={this.props.changeTool}
+        />
+        <Tool label="Edit terrain"
+              icon={Terrain}
+              type={ToolType.editTerrain}
+              selectedTool={selectedTool}
+              changeTool={this.props.changeTool}
+        />
+        <ColorPickerTool color={this.props.brushColor}
+                        onClick={color => this.props.changeBrushColor(color.rgb)}
+        />
+      </div>
+    );
   }
 }
 

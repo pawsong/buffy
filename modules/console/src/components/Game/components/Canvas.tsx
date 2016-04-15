@@ -3,16 +3,25 @@ import { EventEmitter, EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
 
 import initCanvas from '../canvas';
+import { GameState } from '../interface';
 
 interface CanvasProps extends React.Props<Canvas> {
   sizeVersion: number;
   stateLayer: StateLayer;
+  gameState: GameState;
 }
 
-class Canvas extends React.Component<CanvasProps, {}> {
-  // TypeScript jsx parser omits adding displayName when using decorator
-  static displayName = 'Canvas';
+const styles = {
+  root: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  },
+};
 
+class Canvas extends React.Component<CanvasProps, {}> {
   static contextTypes = {
     store: React.PropTypes.any.isRequired,
   }
@@ -23,13 +32,17 @@ class Canvas extends React.Component<CanvasProps, {}> {
     this.canvas = initCanvas(
       this.refs['canvas'] as HTMLElement,
       this.props.stateLayer,
-      this.context['store']
+      () => this.props.gameState
     );
   }
 
   componentWillReceiveProps(nextProps: CanvasProps) {
     if (nextProps.sizeVersion !== this.props.sizeVersion) {
       this.canvas.resize();
+    }
+
+    if (this.props.gameState !== nextProps.gameState) {
+      this.canvas.onChange(nextProps.gameState);
     }
   }
 
@@ -43,13 +56,3 @@ class Canvas extends React.Component<CanvasProps, {}> {
 };
 
 export default Canvas;
-
-const styles = {
-  root: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-  },
-};
