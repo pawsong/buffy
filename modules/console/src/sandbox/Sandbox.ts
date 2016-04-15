@@ -101,13 +101,13 @@ class Runtime {
     this.processes.forEach(process => process.emit(event));
   }
 
-  killAll() {
+  reset() {
     this.processes.forEach(process => process.kill());
     this.processes = [];
   }
 
   destroy() {
-    this.killAll();
+    this.reset();
     this.stateLayer = null;
   }
 }

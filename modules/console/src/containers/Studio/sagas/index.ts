@@ -71,23 +71,20 @@ function* watchWarpRequest() {
  * Code editor container sagas
  */
 
+function execSandbox(sandbox: Sandbox, scripts: Scripts) {
+  const promise = sandbox.exec(scripts);
+  sandbox.emit('when_run');
+  return promise;
+}
+
 // Should be cancellable
 export function* runBlocklyWorkspace(sandbox: Sandbox, scripts: Scripts) {
-  function run() {
-    const promise = sandbox.exec(scripts);
-    sandbox.emit('when_run');
-
-    return promise;
-  }
-
   try {
-    yield call(run);
+    yield call(execSandbox, sandbox, scripts);
   } catch(error) {
-    sandbox.killAll();
-
-    if (!isCancelError(error)) {
-      console.log('runBlocklyWorkspace', error);
-    }
+    if (!isCancelError(error)) console.log('runBlocklyWorkspace', error);
+  } finally {
+    sandbox.reset();
   }
 }
 

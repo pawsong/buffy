@@ -36,7 +36,7 @@ interface CodeEditorProps extends React.Props<CodeEditor> {
   readyToRender: boolean;
 }
 
-class CodeEditor extends React.Component<CodeEditorProps, {}> {
+class CodeEditor extends React.Component<CodeEditorProps, void> {
   workspace: any;
 
   static creatState(initialState?: CodeEditorState): CodeEditorState {
