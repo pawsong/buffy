@@ -1,8 +1,9 @@
 import { call, fork, put, take, race, select, cancel } from 'redux-saga/effects';
 import { isCancelError } from 'redux-saga';
-import StateLayer from '@pasta/core/lib/StateLayer';
-import { Blockly, Interpreter, Scope } from '../containers/CodeEditor/blockly';
 
+import StateLayer from '@pasta/core/lib/StateLayer';
+
+import Blockly from '../../../blockly';
 import { Sandbox, Scripts } from '../../../sandbox';
 
 import {

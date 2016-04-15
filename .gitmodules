@@ -1,12 +1,9 @@
 [submodule "modules/tween.js"]
 	path = modules/tween.js
 	url = https://github.com/project-pasta/tween.js.git
-[submodule "modules/console/externals/blockly"]
-	path = modules/console/externals/blockly
-	url = https://github.com/google/blockly.git
-[submodule "modules/console/externals/JS-Interpreter"]
-	path = modules/console/externals/JS-Interpreter
-	url = https://github.com/NeilFraser/JS-Interpreter.git
 [submodule "modules/console/vendor/JS-Interpreter"]
 	path = modules/console/vendor/JS-Interpreter
 	url = https://github.com/NeilFraser/JS-Interpreter.git
+[submodule "modules/console/vendor/blockly"]
+	path = modules/console/vendor/blockly
+	url = https://github.com/google/blockly.git

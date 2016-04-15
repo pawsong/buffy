@@ -1,7 +1,4 @@
-import Vector3 from '@pasta/core/lib/classes/Vector3';
-import Quaternion from '@pasta/core/lib/classes/Quaternion';
-import { Blockly } from './';
-import * as Scope from './scope';
+import Blockly from './';
 
 function nonnegativeNumberValidator(text) {
   let n = Blockly.FieldTextInput.numberValidator(text);
@@ -10,14 +7,6 @@ function nonnegativeNumberValidator(text) {
   }
   return n;
 }
-
-Scope.register('alert', ({
-  stateLayer,
-  interpreter,
-}) => text => {
-  const msg = text ? text.toString() : '';
-  return interpreter.createPrimitive(alert(msg));
-});
 
 /**
  * whenRun block
@@ -41,17 +30,6 @@ Blockly.JavaScript['when_run'] = () => '\n';
  * boom block
  */
 
-Scope.registerAsync('boom', ({
-  stateLayer,
-}) => () => {
-  const { position } = stateLayer.store.getPlayer();
-  return stateLayer.rpc.playEffect({
-    x: position.x,
-    z: position.z,
-    duration: 2,
-  });
-});
-
 Blockly.Blocks['boom'] = {
   init: function() {
     this.setColour(160);
@@ -71,8 +49,6 @@ Blockly.JavaScript['boom'] = block => {
 /**
  * wait block
  */
-
-Scope.registerAsync('wait', () => (secs) => new Promise(resolve => setTimeout(resolve, secs * 1000)));
 
 Blockly.Blocks['wait'] = {
   init: function() {
@@ -96,24 +72,6 @@ Blockly.JavaScript['wait'] = block => {
  * move block
  */
 
-Scope.registerAsync('moveForward', ({
-  stateLayer,
-}) => (distance) => {
-  const obj = stateLayer.store.getPlayer();
-  const newPos = obj.position.clone().add(obj.direction.clone().multiplyScalar(distance));
-  return stateLayer.rpc.move({
-    id: obj.id,
-    x: newPos.x,
-    z: newPos.z,
-  }).then(() => new Promise(resolve => {
-    const token = obj.onStop(() => {
-      // TODO: Check if interrupted or finished
-      token.remove();
-      resolve();
-    });
-  }));
-});
-
 Blockly.Blocks['move'] = {
   init: function() {
     this.setColour(160);
@@ -135,17 +93,6 @@ Blockly.JavaScript['move'] = block => {
 /**
  * turn block
  */
-
-Scope.registerAsync('rotate', ({
-  stateLayer,
-}) => (angle) => {
-  const obj = stateLayer.store.getPlayer();
-  const newDirection = obj.direction.clone().applyAxisAngle({ x: 0, y: 1, z: 0 }, angle / 180 * Math.PI);
-  return stateLayer.rpc.rotate({
-    id: obj.id,
-    direction: newDirection.serialize(),
-  });
-});
 
 Blockly.Blocks['turn'] = {
   init: function() {
@@ -171,30 +118,6 @@ Blockly.JavaScript['turn'] = block => {
 /**
  * floor color sensor block
  */
-const q = new Quaternion();
-const u = new Vector3({ x: 1, y: 0, z: 0 });
-
-Scope.register('getFloorColor', ({
-  stateLayer,
-  interpreter,
-}) => (x: number, z: number) => {
-  const obj = stateLayer.store.getPlayer();
-  q.setFromUnitVectors(u, obj.direction);
-
-  const v = new Vector3({ x, y: 0, z }).applyQuaternion(q);
-
-  const roundedX = Math.round(obj.position.x + v.x);
-  const roundedZ = Math.round(obj.position.z + v.z);
-
-  const len = stateLayer.store.map.terrains.length;
-  for (let i = 0; i < len; ++i) {
-    const terrain = stateLayer.store.map.terrains[i];
-    if (terrain.position.x === roundedX && terrain.position.z === roundedZ) {
-      return interpreter.createPrimitive(terrain.color);
-    }
-  }
-  return interpreter.createPrimitive(-1);
-});
 
 Blockly.Blocks['color_sensor_center'] = {
   init: function() {

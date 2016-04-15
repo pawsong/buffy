@@ -15,13 +15,13 @@ import {
 } from '../../../../actions/codeEditor';
 
 if (__CLIENT__) {
-  require('./blockly/blocks');
+  require('../../../../blockly/blocks');
 }
 
-import { Blockly, Interpreter } from './blockly';
+import Blockly from '../../../../blockly';
 
-const toolbox = require('raw!./blockly/toolbox.xml');
-const initBlock = require('raw!./blockly/initBlock.xml');
+const toolbox = require('raw!../../../../blockly/toolbox.xml');
+const initBlock = require('raw!../../../../blockly/initBlock.xml');
 
 import * as StorageKeys from './constants/StorageKeys';
 
@@ -63,7 +63,7 @@ class CodeEditor extends React.Component<CodeEditorProps, {}> {
     Blockly.JavaScript.init(workspace);
     const savedXml = this.props.initialBlocklyXml || localStorage.getItem(StorageKeys.BLOCKLY_WORKSPACE);
     const dom = Blockly.Xml.textToDom(savedXml || initBlock);
-    Blockly.Xml.domToWorkspace(workspace, dom);
+    Blockly.Xml.domToWorkspace(dom, workspace);
   }
 
   createHeadlessWorkspace() {

@@ -7,7 +7,7 @@ import Studio from '../../containers/Studio';
 import { ProjectData, SerializedLocalServer, Scripts } from '@pasta/core/lib/Project';
 import LocalServer, { LocalSocket } from '../../LocalServer';
 
-import { Blockly } from '../../containers/Studio/containers/CodeEditor/blockly';
+import Blockly from '../../blockly';
 
 const NAVBAR_HEIGHT = 56;
 

@@ -13,7 +13,7 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 import Messages from '../../constants/Messages';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
-import { Blockly } from './containers/CodeEditor/blockly';
+import Blockly from '../../blockly';
 
 import * as StorageKeys from '../../constants/StorageKeys';
 import { State } from '../../reducers';
