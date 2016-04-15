@@ -17,7 +17,7 @@ interface ProjectVrAnonProps
 }
 
 @preloadApi<ProjectVrAnonParams>(params => ({
-  project: get(`${CONFIG_API_SERVER_URL}/projects/${params.projectId}`),
+  project: get(`${CONFIG_API_SERVER_URL}/projects/anonymous/${params.projectId}`),
 }))
 @connectApi()
 class ProjectVrAnon extends React.Component<ProjectVrAnonProps, {}> {
