@@ -100,8 +100,6 @@ class ProjectCardboard extends React.Component<ProjectCardboardProps, ProjectCar
   constructor(props, context) {
     super(props, context);
 
-    console.log(context.muiTheme);
-
     this.muiTheme = update(context.muiTheme, {
       button: { height: { $set: 64 } },
       rawTheme: { spacing: { iconSize: { $set: 48 } } },

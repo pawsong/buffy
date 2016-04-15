@@ -1,7 +1,6 @@
 import './patch';
 
 import * as React from 'react';
-import { connect } from 'react-redux';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import RaisedButton from 'material-ui/lib/raised-button';
@@ -23,13 +22,12 @@ import { Sandbox, Scripts } from '../../sandbox';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import rootSaga, { runBlocklyWorkspace, submitVoxel } from './sagas';
 
-import {
-  requestRunBlockly,
-} from '../../actions/codeEditor';
 import { Layout, LayoutContainer } from '../../components/Layout';
 
 import Game from './containers/Game';
-import CodeEditor from './containers/CodeEditor';
+import CodeEditor, { CodeEditorState } from '../../components/CodeEditor';
+import { convertXmlToCodes } from '../../blockly/utils';
+
 import VoxelEditor from './containers/VoxelEditor';
 
 const messages = defineMessages({
@@ -134,18 +132,21 @@ class TabTemplate extends React.Component<TabTemplateProps, {}> {
   }
 };
 
+export interface StudioState {
+  codeEditorState: CodeEditorState;
+}
+
 interface StudioBodyProps extends React.Props<Studio>, SagaProps {
+  studioState: StudioState;
+  onChange: (nextState: StudioState) => any;
+
   stateLayer: StateLayer;
   initialBlocklyXml: string;
-  studioState: any;
-  onUpdate: any;
-  blocklyWorkspace?: any;
   style?: React.CSSProperties;
   intl?: InjectedIntlProps;
   root?: ImmutableTask<any>;
   run?: ImmutableTask<any>;
   submitVoxel?: ImmutableTask<any>;
-  requestRunBlockly?: (workspace: any) => any;
 }
 
 interface StudioBodyState {
@@ -162,11 +163,6 @@ interface StudioBodyState {
   root: rootSaga,
   run: runBlocklyWorkspace,
   submitVoxel: submitVoxel,
-})
-@connect((state: State) => ({
-  blocklyWorkspace: state.codeEditor.workspace,
-}), {
-  requestRunBlockly,
 })
 class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   initialTabIndex: number;
@@ -191,14 +187,6 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     this.sandbox = new Sandbox(this.props.stateLayer);
   }
 
-  componentWillReceiveProps(nextProps: StudioBodyProps) {
-    if (nextProps.blocklyWorkspace !== this.props.blocklyWorkspace) {
-      this.props.onUpdate({
-        blocklyWorkspace: nextProps.blocklyWorkspace,
-      });
-    }
-  }
-
   componentDidMount() {
     this.props.runSaga(this.props.root);
   }
@@ -209,23 +197,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   }
 
   handleRun() {
-    const workspace = this.props.blocklyWorkspace;
-    if (!workspace) {
-      return console.error('Workspace is empty');
-    }
-
-    const scripts: Scripts = {};
-
-    workspace.getTopBlocks().forEach(block => {
-      // TODO: Check if top block is an event emitter
-      if (block.type === 'when_run') {
-        if (!scripts[block.type]) scripts[block.type] = [];
-
-        const code = Blockly.JavaScript.blockToCode(block);
-        scripts[block.type].push(code);
-      }
-    });
-
+    const scripts = convertXmlToCodes(this.props.studioState.codeEditorState.blocklyXml);
     this.props.runSaga(this.props.run, this.sandbox, scripts);
   }
 
@@ -273,17 +245,21 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     localStorage.setItem(StorageKeys.MASTER_INITIAL_TAB, value);
   }
 
+  handleCodeEditorChange(codeEditorState: CodeEditorState) {
+    this.props.onChange(objectAssign({}, this.props.studioState, {
+      codeEditorState
+    }));
+  }
+
   render() {
     const rootStyle = objectAssign({}, styles.root, this.props.style);
     const controlButton = this.props.run.state === 'running'
       ? <RaisedButton label={this.props.intl.formatMessage(messages.stop)}
                       secondary={true}
-                      disabled={!this.props.blocklyWorkspace}
                       onTouchTap={() => this.handleStop()}
         />
       : <RaisedButton label={this.props.intl.formatMessage(messages.run)}
                       primary={true}
-                      disabled={!this.props.blocklyWorkspace}
                       onTouchTap={() => this.handleRun()}
         />;
 
@@ -312,9 +288,10 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                   value={this.state.activeTab}
             >
               <Tab label={this.props.intl.formatMessage(messages.code)} value="code">
-                <CodeEditor sizeVersion={this.state.editorSizeVersions.code}
-                            active={this.state.activeTab === 'code'}
-                            initialBlocklyXml={this.props.initialBlocklyXml}
+                <CodeEditor editorState={this.props.studioState.codeEditorState}
+                            onChange={codeEditorState => this.handleCodeEditorChange(codeEditorState)}
+                            sizeRevision={this.state.editorSizeVersions.code}
+                            readyToRender={this.state.activeTab === 'code'}
                 />
               </Tab>
               <Tab label={this.props.intl.formatMessage(messages.design)} value="design">
@@ -331,20 +308,33 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 }
 
 interface StudioProps extends React.Props<Studio> {
+  studioState: StudioState;
+  onChange: (nextState: StudioState) => any;
+
   stateLayer: StateLayer;
-  studioState: any;
-  onUpdate: any;
   style?: React.CSSProperties;
   initialBlocklyXml?: string;
 }
 
-interface StudioState {
+interface StudioOwnState {
   mount?: boolean;
 }
 
-class Studio extends React.Component<StudioProps, StudioState> {
-  constructor(props, context) {
-    super(props, context);
+const defaultStudioState: StudioState = {
+  codeEditorState: CodeEditor.creatState(),
+};
+
+class Studio extends React.Component<StudioProps, StudioOwnState> {
+  static creatState(initialState?: StudioState): StudioState {
+    if (!initialState) return defaultStudioState;
+
+    return {
+      codeEditorState: CodeEditor.creatState(initialState && initialState.codeEditorState),
+    };
+  }
+
+  constructor(props) {
+    super(props);
     this.state = { mount: false };
   }
 
@@ -361,15 +351,11 @@ class Studio extends React.Component<StudioProps, StudioState> {
       return <div>Loading...</div>;
     }
 
-    if (!this.props.stateLayer) {
-      return <div>Connecting...</div>;
-    }
-
     return (
-      <StudioBody stateLayer={this.props.stateLayer} style={this.props.style}
+      <StudioBody studioState={this.props.studioState}
+                  onChange={this.props.onChange}
+                  stateLayer={this.props.stateLayer} style={this.props.style}
                   initialBlocklyXml={this.props.initialBlocklyXml}
-                  studioState={this.props.studioState}
-                  onUpdate={this.props.onUpdate}
       />
     );
   };

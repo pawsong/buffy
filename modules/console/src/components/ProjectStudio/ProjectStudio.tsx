@@ -2,12 +2,13 @@ import * as React from 'react';
 import ProjectStudioNavbar from './ProjectStudioNavbar';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { User } from '../../reducers/users';
-import Studio from '../../containers/Studio';
+import Studio, { StudioState } from '../../containers/Studio';
 
 import { ProjectData, SerializedLocalServer, Scripts } from '@pasta/core/lib/Project';
 import LocalServer, { LocalSocket } from '../../LocalServer';
 
 import Blockly from '../../blockly';
+import { convertXmlToCodes } from '../../blockly/utils';
 
 const NAVBAR_HEIGHT = 56;
 
@@ -32,7 +33,7 @@ interface ProjectStudioProps extends React.Props<ProjectStudio> {
 }
 
 interface ProjectStudioState {
-  studioState?: any;
+  studioState?: StudioState;
 }
 
 class ProjectStudio extends React.Component<ProjectStudioProps, ProjectStudioState> {
@@ -42,7 +43,11 @@ class ProjectStudio extends React.Component<ProjectStudioProps, ProjectStudioSta
 
   constructor(props) {
     super(props);
-    this.state = { studioState: null };
+    this.state = {
+      studioState: Studio.creatState({
+        codeEditorState: { blocklyXml: this.props.initialBlocklyXml },
+      }),
+    };
 
     this.socket = new LocalSocket();
 
@@ -71,27 +76,13 @@ class ProjectStudio extends React.Component<ProjectStudioProps, ProjectStudioSta
   }
 
   handleSave() {
-    const { blocklyWorkspace: workspace } = this.state.studioState;
-    const dom = Blockly.Xml.workspaceToDom(workspace);
-    const xml = Blockly.Xml.domToText(dom);
-
-    const scripts: Scripts = {};
-
-    workspace.getTopBlocks().forEach(block => {
-      // TODO: Check if top block is an event emitter
-      if (block.type === 'when_run') {
-        if (!scripts[block.type]) scripts[block.type] = [];
-
-        const code = Blockly.JavaScript.blockToCode(block);
-        scripts[block.type].push(code);
-      }
-    });
-
+    const { blocklyXml } = this.state.studioState.codeEditorState;
+    const scripts = convertXmlToCodes(blocklyXml);
     const serialized = this.server.serialize();
 
     this.props.onSave({
       scripts,
-      blocklyXml: xml,
+      blocklyXml,
       server: serialized,
     });
   }
@@ -105,10 +96,10 @@ class ProjectStudio extends React.Component<ProjectStudioProps, ProjectStudioSta
                              onSave={() => this.handleSave()}
                              onLinkClick={location => this.props.onPush(location)}
         />
-        <Studio initialBlocklyXml={this.props.initialBlocklyXml}
+        <Studio studioState={this.state.studioState}
+                onChange={studioState => this.setState({ studioState })}
+                initialBlocklyXml={this.props.initialBlocklyXml}
                 stateLayer={this.stateLayer} style={styles.studio}
-                studioState={this.state.studioState}
-                onUpdate={(studioState) => this.setState({ studioState })}
         />
       </div>
     );

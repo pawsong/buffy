@@ -8,7 +8,7 @@ import {
 } from '../../actions/zone';
 import { State } from '../../reducers';
 import { UnitHandlerRouteParams } from '../Course/screens/Unit';
-import Studio from '../../containers/Studio';
+import Studio, { StudioState } from '../../containers/Studio';
 
 interface StudioForCourseHandlerRouteParams extends UnitHandlerRouteParams {}
 interface StudioForCourseHandlerParams extends StudioForCourseHandlerRouteParams {}
@@ -32,15 +32,22 @@ const styles = {
   },
 };
 
+interface StudioForCourseState {
+  studioState: StudioState;
+}
+
 @connect((state: State) => ({
   stateLayer: state.zone.stateLayer,
 }), {
   requestZoneConnect,
 })
-class StudioForCourseHandler extends React.Component<StudioForCourseHandlerProps, {}> {
+class StudioForCourseHandler extends React.Component<StudioForCourseHandlerProps, StudioForCourseState> {
   componentDidMount() {
     // Request zone server connection
     this.props.requestZoneConnect();
+    this.state = {
+      studioState: Studio.creatState(),
+    };
   }
 
   render() {
@@ -49,8 +56,10 @@ class StudioForCourseHandler extends React.Component<StudioForCourseHandlerProps
         <div style={styles.navbar}>
           Draw navbar somehow
         </div>
-        <Studio stateLayer={this.props.stateLayer} style={styles.studio}
-                studioState={null} onUpdate={() => {}}
+        <Studio studioState={this.state.studioState}
+                onChange={studioState => this.setState({ studioState })}
+                stateLayer={this.props.stateLayer}
+                style={styles.studio}
         />
       </div>
     );
