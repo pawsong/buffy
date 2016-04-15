@@ -16,10 +16,8 @@ import Unit from './screens/Course/screens/Unit';
 import Join from './screens/Join';
 import Login from './screens/Login';
 import StudioForCourse from './screens/StudioForCourse';
-import ProjectCreate from './screens/ProjectCreate';
-import ProjectEditAnon from './screens/ProjectEditAnon';
-import ProjectVrAnon from './screens/ProjectVrAnon';
 import ProjectStudio from './screens/ProjectStudio';
+import ProjectVrAnon from './screens/ProjectVrAnon';
 import { State } from './reducers';
 
 export default function getRoutes(store: Store) {

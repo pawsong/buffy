@@ -23,31 +23,23 @@ const styles = {
 };
 
 interface ProjectStudioProps extends React.Props<ProjectStudio> {
+  studioState: StudioState;
+  onChange: (studioState: StudioState) => any;
+  initialLocalServer: SerializedLocalServer;
   user: User;
   location: HistoryModule.Location;
   onLogout: () => any;
   onSave: (project: ProjectData) => any;
   onPush: (location: HistoryModule.LocationDescriptor) => any;
-  initialBlocklyXml: string;
-  initialLocalServer: SerializedLocalServer;
 }
 
-interface ProjectStudioState {
-  studioState?: StudioState;
-}
-
-class ProjectStudio extends React.Component<ProjectStudioProps, ProjectStudioState> {
+class ProjectStudio extends React.Component<ProjectStudioProps, {}> {
   socket: LocalSocket;
   server: LocalServer;
   stateLayer: StateLayer;
 
   constructor(props) {
     super(props);
-    this.state = {
-      studioState: Studio.creatState({
-        codeEditorState: { blocklyXml: this.props.initialBlocklyXml },
-      }),
-    };
 
     this.socket = new LocalSocket();
 
@@ -76,7 +68,7 @@ class ProjectStudio extends React.Component<ProjectStudioProps, ProjectStudioSta
   }
 
   handleSave() {
-    const { blocklyXml } = this.state.studioState.codeEditorState;
+    const { blocklyXml } = this.props.studioState.codeEditorState;
     const scripts = convertXmlToCodes(blocklyXml);
     const serialized = this.server.serialize();
 
@@ -96,9 +88,8 @@ class ProjectStudio extends React.Component<ProjectStudioProps, ProjectStudioSta
                              onSave={() => this.handleSave()}
                              onLinkClick={location => this.props.onPush(location)}
         />
-        <Studio studioState={this.state.studioState}
-                onChange={studioState => this.setState({ studioState })}
-                initialBlocklyXml={this.props.initialBlocklyXml}
+        <Studio studioState={this.props.studioState}
+                onChange={this.props.onChange}
                 stateLayer={this.stateLayer} style={styles.studio}
         />
       </div>

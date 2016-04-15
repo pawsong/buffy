@@ -7,11 +7,13 @@ import { SerializedGameObject } from '@pasta/core/lib/classes/GameObject';
 import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import { Project, ProjectData, SerializedLocalServer } from '@pasta/core/lib/Project';
 
+import LocalServer from '../../LocalServer';
 import { connectApi, preloadApi, ApiCall, get, ApiDispatchProps } from '../../api';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import * as StorageKeys from '../../constants/StorageKeys';
+import Studio, { StudioState } from '../../containers/Studio';
 import ProjectStudio from '../../components/ProjectStudio';
 import { requestLogout } from '../../actions/auth';
 
@@ -21,7 +23,9 @@ import {
 } from './sagas';
 
 interface ProjectStudioHandlerState {
-  initialData?: ProjectStudioData;
+  initialized?: boolean;
+  initialLocalServer?: SerializedLocalServer;
+  studioState?: StudioState;
 }
 
 enum ProjectStudioMode {
@@ -78,78 +82,53 @@ interface ProjectStudioData {
   createUserProject,
 })
 class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, ProjectStudioHandlerState> {
-  cachedProjectStudioData: ProjectStudioData;
+  mode: ProjectStudioMode;
 
   constructor(props) {
     super(props);
-    this.cachedProjectStudioData = null;
+    this.mode = inferProjectStudioMode(this.props.params);
 
-    // State is used in create mode. Build initial state on componentDidMount()
-    this.state = { initialData: null };
+    if (this.props.project && this.props.project.state === 'fulfilled') {
+      this.state = this.createStateFromResponse(this.props.project.result);
+    } else {
+      this.state = { initialized: false };
+    }
   }
 
   componentDidMount() {
-    if (!this.props.project) {
-      this.setState({ initialData: this.createInitialData() });
+    if (this.mode === ProjectStudioMode.CREATE) {
+      this.setState({
+        initialized: true,
+        initialLocalServer: LocalServer.createInitialData(),
+        studioState: Studio.creatState({
+          codeEditorState: {
+            blocklyXml: localStorage.getItem(StorageKeys.BLOCKLY_WORKSPACE_CREATE),
+          },
+        }),
+      });
     }
   }
 
-  createInitialData(): ProjectStudioData {
-    const userId = shortid.generate();
+  componentWillReceiveProps(nextProps: ProjectStudioHandlerProps) {
+    if (this.props.params !== nextProps.params) {
+      this.mode = inferProjectStudioMode(nextProps.params);
+    }
 
-    // const
-    const serializedGameObject: SerializedGameObject = {
-      id: userId,
-      position: {
-        x: 1,
-        y: 0,
-        z: 1,
-      },
-      mesh: null,
-      direction: { x: 0, y: 0, z: 1 },
-    };
+    if (this.state.initialized) return;
 
-    // Initialize data
-    const serializedGameMap: SerializedGameMap = {
-      id: shortid.generate(),
-      name: '',
-      width: 10,
-      depth: 10,
-      terrains: [],
-      objects: [serializedGameObject],
-    };
-
-    return {
-      initialBlocklyXml: localStorage.getItem(StorageKeys.BLOCKLY_WORKSPACE) || '',
-      initialLocalServer: {
-        myId: userId,
-        maps: [serializedGameMap],
-      },
-    };
+    if (nextProps.project && nextProps.project.state === 'fulfilled') {
+      this.setState(this.createStateFromResponse(nextProps.project.result));
+    }
   }
 
-  createInitialDataFromResponse(project: Project): ProjectStudioData {
+  createStateFromResponse(project: Project): ProjectStudioHandlerState {
     return {
-      initialBlocklyXml: project.blocklyXml,
+      initialized: true,
       initialLocalServer: project.server,
+      studioState: Studio.creatState({
+        codeEditorState: { blocklyXml: project.blocklyXml },
+      }),
     };
-  }
-
-  getProjectStudioData(): ProjectStudioData {
-    if (this.cachedProjectStudioData) return this.cachedProjectStudioData;
-
-    if (this.props.project) {
-      const { state, result } = this.props.project;
-      if (state === 'fulfilled') {
-        this.cachedProjectStudioData = this.createInitialDataFromResponse(result);
-      }
-    } else {
-      if (this.state.initialData) {
-        this.cachedProjectStudioData = this.state.initialData;
-      }
-    }
-
-    return this.cachedProjectStudioData;
   }
 
   handleSave(data: ProjectData) {
@@ -178,23 +157,31 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     }
   }
 
-  render() {
-    const data = this.getProjectStudioData();
+  handleStudioStateChange(nextState: StudioState) {
+    if (this.mode === ProjectStudioMode.CREATE) {
+      if (this.state.studioState.codeEditorState.blocklyXml !== nextState.codeEditorState.blocklyXml) {
+        localStorage.setItem(StorageKeys.BLOCKLY_WORKSPACE_CREATE, nextState.codeEditorState.blocklyXml);
+      }
+    }
+    this.setState({ studioState: nextState });
+  }
 
-    if (!data) {
+  render() {
+    if (!this.state.initialized) {
       return <div>Loading now...</div>;
     }
 
-    const { initialBlocklyXml, initialLocalServer } = data;
+    const { initialLocalServer, studioState } = this.state;
 
     return (
-      <ProjectStudio user={this.props.user}
+      <ProjectStudio studioState={studioState}
+                     onChange={studioState => this.handleStudioStateChange(studioState)}
+                     initialLocalServer={initialLocalServer}
+                     user={this.props.user}
                      location={this.props.location}
                      onLogout={() => this.props.requestLogout()}
                      onSave={data => this.handleSave(data)}
                      onPush={location => this.props.push(location)}
-                     initialBlocklyXml={initialBlocklyXml}
-                     initialLocalServer={initialLocalServer}
       />
     );
   }

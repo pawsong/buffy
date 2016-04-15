@@ -74,7 +74,6 @@ class CodeEditor extends React.Component<CodeEditorProps, {}> {
     this.workspace.addChangeListener((e) => {
       const dom = Blockly.Xml.workspaceToDom(this.workspace);
       const xml = Blockly.Xml.domToText(dom);
-
       this.setEditorState({ blocklyXml: xml });
     });
   }
@@ -88,9 +87,7 @@ class CodeEditor extends React.Component<CodeEditorProps, {}> {
   componentWillReceiveProps(nextProps: CodeEditorProps) {
     if (this.workspace) return;
 
-    if (this.props.readyToRender) {
-      this.injectWorkspace();
-    }
+    if (nextProps.readyToRender) this.injectWorkspace();
   }
 
   componentWillUnmount() {

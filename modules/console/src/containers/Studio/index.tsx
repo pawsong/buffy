@@ -141,7 +141,6 @@ interface StudioBodyProps extends React.Props<Studio>, SagaProps {
   onChange: (nextState: StudioState) => any;
 
   stateLayer: StateLayer;
-  initialBlocklyXml: string;
   style?: React.CSSProperties;
   intl?: InjectedIntlProps;
   root?: ImmutableTask<any>;
@@ -313,7 +312,6 @@ interface StudioProps extends React.Props<Studio> {
 
   stateLayer: StateLayer;
   style?: React.CSSProperties;
-  initialBlocklyXml?: string;
 }
 
 interface StudioOwnState {
@@ -355,7 +353,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
       <StudioBody studioState={this.props.studioState}
                   onChange={this.props.onChange}
                   stateLayer={this.props.stateLayer} style={this.props.style}
-                  initialBlocklyXml={this.props.initialBlocklyXml}
       />
     );
   };

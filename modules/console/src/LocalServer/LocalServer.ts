@@ -1,3 +1,4 @@
+import * as shortid from 'shortid';
 const objectAssign = require('object-assign');
 const update = require('react-addons-update');
 const findIndex = require('lodash/findIndex');
@@ -8,11 +9,43 @@ import ServerGameMap from '@pasta/core/lib/packet/ServerGameMap';
 import { SerializedGameObject } from '@pasta/core/lib/classes/GameObject';
 import { InitParams } from '@pasta/core/lib/packet/ZC';
 import { SerializedLocalServer } from '@pasta/core/lib/Project';
+
 import LocalUserGameObject from './LocalUserGameObject';
 import LocalRoutes from './LocalRoutes';
 import LocalSocket from './LocalSocket';
 
 class LocalServer {
+  static createInitialData(): SerializedLocalServer {
+    const userId = shortid.generate();
+
+    // const
+    const serializedGameObject: SerializedGameObject = {
+      id: userId,
+      position: {
+        x: 1,
+        y: 0,
+        z: 1,
+      },
+      mesh: null,
+      direction: { x: 0, y: 0, z: 1 },
+    };
+
+    // Initialize data
+    const serializedGameMap: SerializedGameMap = {
+      id: shortid.generate(),
+      name: '',
+      width: 10,
+      depth: 10,
+      terrains: [],
+      objects: [serializedGameObject],
+    };
+
+    return {
+      myId: userId,
+      maps: [serializedGameMap],
+    };
+  }
+
   routes: LocalRoutes;
   myId: string;
   maps: ServerGameMap[];
