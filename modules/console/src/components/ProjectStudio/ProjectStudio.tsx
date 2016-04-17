@@ -4,7 +4,7 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 import { User } from '../../reducers/users';
 import Studio, { StudioState } from '../Studio';
 
-import { ProjectData, SerializedLocalServer, Scripts } from '@pasta/core/lib/Project';
+import { ProjectData, SerializedLocalServer } from '@pasta/core/lib/Project';
 import LocalServer, { LocalSocket } from '../../LocalServer';
 
 import Blockly from '../../blockly';

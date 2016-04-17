@@ -1,4 +1,4 @@
-import { Scripts } from '@pasta/core/lib/Project';
+import { Scripts } from '@pasta/core/lib/types';
 import Blockly from './';
 
 export function convertXmlToCodes(xml: string): Scripts {

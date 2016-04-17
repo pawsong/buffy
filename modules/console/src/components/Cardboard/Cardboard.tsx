@@ -9,14 +9,12 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { InitParams } from '@pasta/core/lib/packet/ZC';
 import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
-import { Project } from '@pasta/core/lib/Project';
+import { Scripts } from '@pasta/core/lib/types';
 
 import Colors from 'material-ui/lib/styles/colors';
 
-
-import VrCanvas from '../canvas/VrCanvas';
-import { Sandbox } from '../sandbox';
-import LocalServer, { LocalSocket } from '../LocalServer';
+import VrCanvas from '../../canvas/VrCanvas';
+import { Sandbox } from '../../sandbox';
 
 let screenfull;
 if (__CLIENT__) {
@@ -65,32 +63,30 @@ const messages = defineMessages({
   },
 });
 
-interface ProjectCardboardProps extends React.Props<ProjectCardboard> {
-  project: Project;
+interface CardboardProps extends React.Props<Cardboard> {
+  stateLayer: StateLayer;
+  scripts: Scripts;
+  onStart: () => any;
   intl?: InjectedIntlProps;
 }
 
-interface ProjectCardboardState {
+interface CardboardState {
   showFullscreenButton?: boolean;
   started?: boolean;
 }
 
 @injectIntl
-class ProjectCardboard extends React.Component<ProjectCardboardProps, ProjectCardboardState> {
+class Cardboard extends React.Component<CardboardProps, CardboardState> {
   static contextTypes = {
     muiTheme: React.PropTypes.object,
   } as any
 
-  //the key passed through context must be called "muiTheme"
+  // the key passed through context must be called "muiTheme"
   static childContextTypes = {
     muiTheme: React.PropTypes.object,
   } as any
 
   muiTheme: Styles.MuiTheme;
-
-  // (fake) server interface
-  server: LocalServer;
-  stateLayer: StateLayer;
 
   canvas: VrCanvas;
   sandbox: Sandbox;
@@ -122,9 +118,6 @@ class ProjectCardboard extends React.Component<ProjectCardboardProps, ProjectCar
 
     if (this.sandbox) this.sandbox.destroy();
     if (this.canvas) this.canvas.destroy();
-
-    if (this.stateLayer) this.stateLayer.destroy();
-    if (this.server) this.server.destroy();
   }
 
   handleStartButtonClick() {
@@ -133,31 +126,16 @@ class ProjectCardboard extends React.Component<ProjectCardboardProps, ProjectCar
     if (screenfull.enabled) screenfull.request();
     this.setState({ started: true });
 
-    const socket = new LocalSocket();
-
-    this.stateLayer = new StateLayer({
-      emit: (event, params, cb) => {
-        socket.emit(event, params, cb);
-      },
-      listen: (event, handler) => {
-        const token = socket.addListener(event, handler);
-        return () => token.remove();
-      },
-    });
-
-    const { server, scripts } = this.props.project;
-
-    this.server = new LocalServer(server, socket);
-    this.stateLayer.start(this.server.getInitData());
+    this.props.onStart();
 
     this.canvas = new VrCanvas({
-      stateLayer: this.stateLayer,
+      stateLayer: this.props.stateLayer,
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
     });
 
     // Initialize code
-    this.sandbox = new Sandbox(this.stateLayer);
-    this.sandbox.exec(scripts);
+    this.sandbox = new Sandbox(this.props.stateLayer);
+    this.sandbox.exec(this.props.scripts);
     this.sandbox.emit('when_run');
   }
 
@@ -171,7 +149,7 @@ class ProjectCardboard extends React.Component<ProjectCardboardProps, ProjectCar
         <div style={styles.readyContent}>
           <RaisedButton label={this.props.intl.formatMessage(messages.start)}
                         labelStyle={styles.buttonLabel}
-                        disabled={!this.props.project}
+                        disabled={!this.props.scripts}
                         primary={true}
                         onTouchTap={() => this.handleStartButtonClick()}
           />
@@ -213,4 +191,4 @@ class ProjectCardboard extends React.Component<ProjectCardboardProps, ProjectCar
   }
 }
 
-export default ProjectCardboard;
+export default Cardboard;

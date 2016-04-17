@@ -350,7 +350,7 @@ export default {
   'voxel-editor.panels.tools.title': '도구상자',
 
   /**
-   * path: src/components/ProjectCardboard.json
+   * path: src/components/Cardboard/Cardboard.json
    * description: VR Start button label
    * defaultMessage: Start
    */
