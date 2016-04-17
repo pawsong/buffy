@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import FlatButton from 'material-ui/lib/flat-button';
 import FontIcon from 'material-ui/lib/font-icon';
@@ -9,16 +7,16 @@ import * as ReactDnd from 'react-dnd';
 const objectAssign = require('object-assign');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
-import { CanvasShared } from '../../canvas/shared';
+import CanvasShared from '../../canvas/shared';
 
-import { wrapPanel } from './Panel';
+import {
+  wrapPanel,
+  PanelBodyProps,
+} from './Panel';
 
 import initPreview from '../../canvas/views/preview';
 
-import { State } from '../../../../../../reducers';
-import {
-  voxelRotate,
-} from '../../../../../../actions/voxelEditor';
+import { voxelRotate } from '../../voxels/actions';
 
 const messages = defineMessages({
   title: {
@@ -53,24 +51,16 @@ class RotateButton extends React.Component<RotateButtonProps, {}> {
   };
 };
 
-interface PreviewPanelProps extends React.Props<PreviewPanel> {
-  canvasShared: CanvasShared;
-  sizeVersion: number;
-  voxelRotate?: (axis: string) => any;
-}
+interface PreviewPanelProps extends React.Props<PreviewPanel>, PanelBodyProps { }
 
 @wrapPanel({
   title: messages.title,
-})
-@connect((state: State) => ({
-}), {
-  voxelRotate,
 })
 class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
   canvas: any;
 
   handleClickRotate(axis) {
-    this.props.voxelRotate(axis);
+    this.props.dispatchAction(voxelRotate(axis));
   };
 
   componentDidMount() {

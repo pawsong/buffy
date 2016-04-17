@@ -1,12 +1,17 @@
 import * as THREE from 'three';
-import { Store } from 'redux';
 import Voxel, { VoxelMesh } from '../Voxel';
+
+import {
+  Services,
+  GetEditorState,
+  ObserveEditorState,
+} from '../../interface';
 
 import Fsm from '../../Fsm';
 
 import {
   voxelRemoveBatch,
-} from '../../../../../../actions/voxelEditor';
+} from '../../voxels/actions';
 
 import highlightVoxel from './highlightVoxel';
 
@@ -34,21 +39,13 @@ const cubeMaterial = new THREE.MeshBasicMaterial({
   polygonOffsetFactor: -0.1,
 });
 
-interface Services {
-  scene;
-  container;
-  interact;
-  controls;
-  store: Store;
-}
-
 export default [
   ({
     scene,
     container,
     interact,
     controls,
-    store,
+    dispatchAction,
   }: Services) => {
     const cursor = new Voxel(scene);
 
@@ -141,7 +138,7 @@ export default [
         }) {
           const positions = Object.keys(this._selected)
             .map(key => this._selected[key].position);
-          store.dispatch(voxelRemoveBatch(positions));
+          dispatchAction(voxelRemoveBatch(positions));
 
           this.transition(State.IDLE);
         },

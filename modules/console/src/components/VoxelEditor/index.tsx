@@ -1,12 +1,9 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-
-import { State } from '../../../../reducers';
+import { findDOMNode } from 'react-dom';
 
 // OrbitControls patch
 require('./OrbitControls');
 
-import { bindActionCreators } from 'redux';
 import { DropTarget, DragDropContext } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
 const update = require('react-addons-update');
@@ -16,7 +13,7 @@ const objectAssign = require('object-assign');
 import * as invariant from 'invariant';
 import RaisedButton from 'material-ui/lib/raised-button';
 
-import * as StorageKeys from '../../../../constants/StorageKeys';
+import * as StorageKeys from '../../constants/StorageKeys';
 
 import mesher from './canvas/meshers/greedy';
 
@@ -25,21 +22,23 @@ import {
   voxelMapToArray,
 } from './canvas/utils';
 
-import ToolsPanel from './containers/panels/ToolsPanel';
-import WorkspacePanel from './containers/panels/WorkspacePanel';
-import HistoryPanel from './containers/panels/HistoryPanel';
-import PreviewPanel from './containers/panels/PreviewPanel';
+import ToolsPanel from './components/panels/ToolsPanel';
+// import WorkspacePanel from './containers/panels/WorkspacePanel';
+import HistoryPanel from './components/panels/HistoryPanel';
+import PreviewPanel from './components/panels/PreviewPanel';
 
-import WorkspaceBrowserDialog from './containers/dialogs/WorkspaceBrowserDialog';
-import SaveDialog from './containers/dialogs/SaveDialog';
-import NotImplDialog from './containers/dialogs/NotImplDialog';
+// import WorkspaceBrowserDialog from './containers/dialogs/WorkspaceBrowserDialog';
+// import SaveDialog from './containers/dialogs/SaveDialog';
+// import NotImplDialog from './containers/dialogs/NotImplDialog';
 
 import FullscreenButton from './components/FullscreenButton';
 
-import initCanvasShared from './canvas/shared';
-import initCanvas from './canvas/views/main';
+import CanvasShared from './canvas/shared';
+import MainCanvas from './canvas/views/main';
 
-import { VoxelState } from '../../../../reducers/voxelEditor';
+import voxelReducer, {
+  initialState as initialVoxelState,
+} from './voxels/reducer';
 
 const styles = {
   canvas: {
@@ -50,7 +49,7 @@ const styles = {
 
 const PANELS = {
   tools: ToolsPanel,
-  workspace: WorkspacePanel,
+  // workspace: WorkspacePanel,
   history: HistoryPanel,
   preview: PreviewPanel,
 };
@@ -69,12 +68,22 @@ interface PanelState {
   component: React.Component<{}, {}>;
 }
 
+import {
+  Action,
+  ToolType,
+  Color,
+  VoxelEditorState,
+} from './interface';
+
+export { VoxelEditorState };
+
 interface VoxelEditorProps extends React.Props<VoxelEditor> {
+  editorState: VoxelEditorState;
+  onChange: (voxelEditorState: VoxelEditorState) => any;
   sizeVersion: number;
   onSubmit: (data) => any;
   connectDropTarget?: any;
-  workspace?: any;
-  voxel?: any;
+  // workspace?: any;
 }
 
 interface ContainerStates {
@@ -82,10 +91,6 @@ interface ContainerStates {
   fullscreen?: boolean;
 }
 
-@connect((state: State) => ({
-  workspace: state.voxelEditor.workspace,
-  voxel: state.voxelEditor.voxel,
-}))
 @(DragDropContext<VoxelEditorProps>(HTML5Backend) as any)
 @(DropTarget<VoxelEditorProps>('panel', {
   drop(props, monitor, component: VoxelEditor) {
@@ -101,24 +106,13 @@ interface ContainerStates {
   connectDropTarget: connect.dropTarget()
 })) as any)
 class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
-  middleware: any;
-  store: any;
-  canvasShared;
-  canvas;
+  static createState: () => VoxelEditorState;
 
-  static contextTypes: { [index: string]: any } = {
-    middleware: React.PropTypes.func.isRequired,
-    store: React.PropTypes.object.isRequired,
-  }
+  canvasShared: CanvasShared;
+  canvas: MainCanvas;
 
-  constructor(props, context) {
-    super(props, context);
-    this.middleware = this.context['middleware'];
-
-    invariant(this.middleware,
-      `Could not find "middleware" in the context of "VoxelEditor". ` +
-      `Wrap the root component in a <SagaProvider>.`
-    );
+  constructor(props) {
+    super(props);
 
     this.state = {
       panels: [],
@@ -149,6 +143,15 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
       panels,
       fullscreen: false,
     };
+  }
+
+  handleStateChange(editorState: VoxelEditorState) {
+    this.props.onChange(objectAssign({}, this.props.editorState, editorState));
+  }
+
+  dispatchVoxelAction(action: Action<any>) {
+    const voxel = voxelReducer(this.props.editorState.voxel, action);
+    this.handleStateChange({ voxel });
   }
 
   movePanel(id, left, top) {
@@ -183,29 +186,39 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   }
 
   handleSubmit() {
-    const voxelData = voxelMapToArray(this.props.voxel.present.data);
+    const voxelData = voxelMapToArray(this.props.editorState.voxel.present.data);
     const result = mesher(voxelData.data, voxelData.shape);
     this.props.onSubmit(result);
   }
 
   componentWillMount() {
-    this.canvasShared = initCanvasShared({
-      sagaMiddleware: this.middleware,
-      store: this.store,
+    this.props.editorState.voxel
+    this.canvasShared = new CanvasShared({
+      getState: () => this.props.editorState.voxel,
     });
   }
 
   componentDidMount() {
-    this.canvas = initCanvas(
-      this.refs['canvas'] as HTMLElement,
-      this.context['store'],
-      this.canvasShared
-    );
+    this.canvas = new MainCanvas({
+      container: findDOMNode<HTMLElement>(this.refs['canvas']),
+      canvasShared: this.canvasShared,
+      dispatchAction: action => this.dispatchVoxelAction(action),
+      handleEditorStateChange: (nextState: VoxelEditorState) => this.handleStateChange(nextState),
+      getEditorState: () => this.props.editorState,
+    });
   }
 
   componentWillReceiveProps(nextProps: VoxelEditorProps) {
     if (nextProps.sizeVersion !== this.props.sizeVersion) {
       this.canvas.resize();
+    }
+
+    if (this.props.editorState !== nextProps.editorState) {
+      this.canvas.updateState(nextProps.editorState);
+    }
+
+    if (this.props.editorState.voxel !== nextProps.editorState.voxel) {
+      this.canvasShared.voxelStateChange(nextProps.editorState.voxel);
     }
   }
 
@@ -224,6 +237,9 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
         left: panel.left,
         top: panel.top,
         zIndex: panel.order,
+        editorState: this.props.editorState,
+        onChange: this.props.onChange,
+        dispatchAction: (action: Action<any>) => this.dispatchVoxelAction(action),
         canvasShared: this.canvasShared,
         sizeVersion: this.props.sizeVersion,
         moveToTop: (id: string) => this.moveToTop(id),
@@ -238,8 +254,6 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
       height: '100%',
     };
 
-    const workspaceName = this.props.workspace.name || '(Untitled)';
-
     return (
       <div>
         {this.props.connectDropTarget(
@@ -250,9 +264,6 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
                 <RaisedButton label="Submit" primary={true} onTouchTap={() => this.handleSubmit()}/>
               </div>
             </div>
-            <div style={{ position: 'absolute', top: 15, left: 15 }}>
-              {workspaceName} workspace
-            </div>
             <FullscreenButton
               onTouchTap={() => this.handleFullscreenButtonClick()}
               fullscreen={this.state.fullscreen}
@@ -260,12 +271,21 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
             {panels}
           </div>
         )}
-        <WorkspaceBrowserDialog />
-        <NotImplDialog />
-        <SaveDialog />
       </div>
     );
+
+    // <WorkspaceBrowserDialog />
+    // <NotImplDialog />
+    // <SaveDialog />
   }
+}
+
+VoxelEditor.createState = function VoxelEditor(): VoxelEditorState {
+  return {
+    selectedTool: ToolType.brush,
+    paletteColor: { r: 104, g: 204, b: 202 },
+    voxel: initialVoxelState,
+  };
 }
 
 export default VoxelEditor;

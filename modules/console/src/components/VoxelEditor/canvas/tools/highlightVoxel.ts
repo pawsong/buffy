@@ -2,6 +2,10 @@ import Voxel from '../Voxel';
 import * as THREE from 'three';
 
 import {
+  Services
+} from '../../interface';
+
+import {
   GRID_SIZE,
   UNIT_PIXEL,
   BOX_SIZE,
@@ -14,7 +18,7 @@ const cube = new THREE.CubeGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE);
 export default ({
   container,
   scene,
-}) => {
+}: Services) => {
   const cursor = new Voxel(scene);
 
   return {

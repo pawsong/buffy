@@ -1,10 +1,10 @@
-import { Store } from 'redux';
+import {
+  Services,
+  GetEditorState,
+  ObserveEditorState,
+} from '../../interface';
 
 import highlightVoxel from './highlightVoxel';
-
-import {
-  setColor,
-} from '../../../../../../actions/voxelEditor';
 
 const COLOR_TOOLTIP_RADIUS = 20;
 
@@ -16,15 +16,10 @@ function multiplyColor({ r, g, b }) {
   };
 }
 
-interface Services {
-  store: Store;
-  container;
-}
-
 export default [
   ({
+    handleEditorStateChange,
     container,
-    store,
   }: Services) => {
 
     const colorTooltip = document.createElement("div");
@@ -69,7 +64,7 @@ export default [
         if (!intersect.object.isVoxel) { return; }
 
         const { face } = intersect;
-        store.dispatch(setColor(multiplyColor(face.color)));
+        handleEditorStateChange({ paletteColor: multiplyColor(face.color) });
       },
 
       onLeave() {

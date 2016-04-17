@@ -2,7 +2,6 @@ import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 
 import auth, { AuthState } from './auth';
-import codeEditor, { CodeEditorState } from './codeEditor';
 import course, { CourseState, initialize as courseInit } from './course';
 import game, { GameState, initialize as gameInit } from './game';
 import snackbar, { SnackbarState } from './snackbar';
@@ -15,7 +14,6 @@ import api, { ApiState, initialize as apiInit } from '../api/reducer';
 
 export interface State {
   auth: AuthState;
-  codeEditor: CodeEditorState;
   course: CourseState;
   game: GameState;
   snackbar: SnackbarState;
@@ -36,7 +34,6 @@ export const initialize = {
 
 export default combineReducers({
   auth,
-  codeEditor,
   course,
   game,
   snackbar,

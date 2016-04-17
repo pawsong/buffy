@@ -20,10 +20,6 @@ import {
 } from '../../../actions/game';
 
 import {
-  REQUEST_RUN_BLOCKLY, RequestRunBlocklyAction,
-} from '../../../actions/codeEditor';
-
-import {
   request,
   rpc,
   takeLatest,

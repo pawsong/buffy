@@ -1,7 +1,10 @@
 import * as THREE from 'three';
-import { Store } from 'redux';
 
-import observeStore from '../../../../../../utils/observeStore';
+import {
+  Services,
+  GetEditorState,
+  ObserveEditorState,
+} from '../../interface';
 
 import {
   GRID_SIZE,
@@ -20,7 +23,7 @@ import {
 
 import {
   voxelAddBatch,
-} from '../../../../../../actions/voxelEditor';
+} from '../../voxels/actions';
 
 const cube = new THREE.CubeGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE);
 
@@ -36,28 +39,20 @@ interface DrawGuideMesh extends VoxelMesh {
   prev: DrawGuideMesh;
 }
 
-interface Services {
-  container;
-  scene;
-  controls;
-  interact;
-  setIntersectFilter;
-  store: Store;
-}
-
 export default [
   ({
     container,
     scene,
     controls,
     interact,
-    setIntersectFilter,
-    store,
+    dispatchAction,
+    getEditorState,
+    observeEditorState,
   }: Services) => {
     const brush = new Voxel(scene);
     brush.mesh.isBrush = true;
 
-    observeStore(store, state => state.voxelEditor.palette.color, (color) => {
+    observeEditorState(state => state.paletteColor, color => {
       brush.mesh.material.color.setStyle(`rgb(${color.r},${color.g},${color.b})`);
     });
 
@@ -226,8 +221,9 @@ export default [
           return;
         }
 
-        const { color } = store.getState().voxelEditor.palette;
-        store.dispatch(voxelAddBatch(selectedMeshes.map(mesh => ({
+        const color = getEditorState().paletteColor;
+
+        dispatchAction(voxelAddBatch(selectedMeshes.map(mesh => ({
           color,
           position: toAbsPos(mesh.position),
         }))));

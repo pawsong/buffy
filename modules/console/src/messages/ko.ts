@@ -329,32 +329,25 @@ export default {
   'stop': '멈추기',
 
   /**
-   * path: src/containers/Studio/containers/VoxelEditor/containers/panels/HistoryPanel.json
+   * path: src/components/VoxelEditor/components/panels/HistoryPanel.json
    * description: Voxel editor history panel title
    * defaultMessage: History
    */
   'voxel-editor.panels.history.title': '히스토리',
 
   /**
-   * path: src/containers/Studio/containers/VoxelEditor/containers/panels/PreviewPanel.json
+   * path: src/components/VoxelEditor/components/panels/PreviewPanel.json
    * description: Voxel editor preview panel title
    * defaultMessage: Preview
    */
   'voxel-editor.panels.preview.title': '프리뷰',
 
   /**
-   * path: src/containers/Studio/containers/VoxelEditor/containers/panels/ToolsPanel.json
+   * path: src/components/VoxelEditor/components/panels/ToolsPanel.json
    * description: Voxel editor tools panel title
    * defaultMessage: Tools
    */
   'voxel-editor.panels.tools.title': '도구상자',
-
-  /**
-   * path: src/containers/Studio/containers/VoxelEditor/containers/panels/WorkspacePanel.json
-   * description: Voxel editor workspace panel title
-   * defaultMessage: Workspace
-   */
-  'voxel-editor.panels.workspace.title': '워크스페이스',
 
   /**
    * path: src/components/ProjectCardboard.json
@@ -363,4 +356,5 @@ export default {
    */
   'vr.start': '시작하기',
 
+/* [Warning] Message not in use */ 'voxel-editor.panels.workspace.title': '워크스페이스',
 }

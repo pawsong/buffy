@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import * as ndarray from 'ndarray';
-import { Store } from 'redux';
 
 import vector3ToString from '@pasta/helper/lib/vector3ToString';
 
@@ -12,7 +11,9 @@ import {
   PLANE_Y_OFFSET,
 } from '../../constants/Pixels';
 
-import { CanvasShared } from '../shared';
+import CanvasShared from '../shared';
+
+import { VoxelEditorState } from '../../interface';
 
 const size = GRID_SIZE * UNIT_PIXEL;
 
@@ -122,6 +123,9 @@ export default function initPreview(container, canvasShared: CanvasShared) {
   return {
     resize() {
       onWindowResize();
+    },
+    onChange(state: VoxelEditorState) {
+
     },
     destroy() {
       window.removeEventListener('resize', onWindowResize, false);

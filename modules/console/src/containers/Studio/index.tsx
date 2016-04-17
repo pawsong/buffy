@@ -27,12 +27,12 @@ import { Layout, LayoutContainer } from '../../components/Layout';
 
 import Game, { GameState } from '../../components/Game';
 import CodeEditor, { CodeEditorState } from '../../components/CodeEditor';
+import VoxelEditor, { VoxelEditorState } from '../../components/VoxelEditor';
+
 import { convertXmlToCodes } from '../../blockly/utils';
 
 import ContactsButton from './components/ContactsButton';
 import ContactsDialog from './components/ContactsDialog';
-
-import VoxelEditor from './containers/VoxelEditor';
 
 import {
   GameUsersState,
@@ -147,8 +147,9 @@ class TabTemplate extends React.Component<TabTemplateProps, {}> {
 };
 
 export interface StudioState {
-  gameState?: GameState;
   codeEditorState?: CodeEditorState;
+  gameState?: GameState;
+  voxelEditorState?: VoxelEditorState;
 }
 
 interface StudioBodyProps extends React.Props<Studio>, SagaProps {
@@ -344,7 +345,9 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                 />
               </Tab>
               <Tab label={this.props.intl.formatMessage(messages.design)} value="design">
-                <VoxelEditor sizeVersion={this.state.editorSizeVersions.design}
+                <VoxelEditor editorState={this.props.studioState.voxelEditorState}
+                             onChange={voxelEditorState => this.handleStateChange({ voxelEditorState })}
+                             sizeVersion={this.state.editorSizeVersions.design}
                              onSubmit={(data) => this.handleVoxelEditorSubmit(data)}
                 />
               </Tab>
@@ -373,6 +376,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     return {
       codeEditorState: CodeEditor.creatState(initialState.codeEditorState),
       gameState: Game.createState(),
+      voxelEditorState: VoxelEditor.createState(),
     };
   }
 

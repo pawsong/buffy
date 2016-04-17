@@ -1,7 +1,5 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import * as ReactDnd from 'react-dnd';
 import RaisedButton from 'material-ui/lib/raised-button';
 import List from 'material-ui/lib/lists/list';
@@ -11,18 +9,21 @@ import AppBar from 'material-ui/lib/app-bar';
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
 import {
+  VoxelEditorState,
+  DispatchAction,
+} from '../../interface';
+
+import {
   PanelConstants,
   PanelStyles,
   PanelBodyProps,
   wrapPanel
 } from './Panel';
 
-import { State } from '../../../../../../reducers';
-import { VoxelState } from '../../../../../../reducers/voxelEditor';
 import {
   voxelUndoSeek,
   voxelRedoSeek,
-} from '../../../../../../actions/voxelEditor';
+} from '../../voxels/actions';
 
 const messages = defineMessages({
   title: {
@@ -36,39 +37,29 @@ const messages = defineMessages({
  * Container
  */
 
-interface HistoryPanelProps extends React.Props<HistoryPanel>, PanelBodyProps {
-  voxel?: VoxelState;
-  voxelUndoSeek?: (historyIndex: number) => any;
-  voxelRedoSeek?: (historyIndex: number) => any;
-}
+interface HistoryPanelProps extends React.Props<HistoryPanel>, PanelBodyProps { }
 
 @wrapPanel({
   title: messages.title,
 })
-@connect((state: State) => ({
-  voxel: state.voxelEditor.voxel,
-}), {
-  voxelUndoSeek,
-  voxelRedoSeek,
-})
 class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
   componentDidUpdate() {
-    if (this.props.voxel.historyIndex === this.props.voxel.present.historyIndex) {
+    if (this.props.editorState.voxel.historyIndex === this.props.editorState.voxel.present.historyIndex) {
       const list = findDOMNode(this.refs['list']);
       list.scrollTop = list.scrollHeight;
     }
   };
 
   handleUndoClick(historyIndex: number) {
-    this.props.voxelUndoSeek(historyIndex);
+    this.props.dispatchAction(voxelUndoSeek(historyIndex));
   }
 
   handleRedoClick(historyIndex: number) {
-    this.props.voxelRedoSeek(historyIndex);
+    this.props.dispatchAction(voxelRedoSeek(historyIndex));
   }
 
   render() {
-    const { voxel } = this.props;
+    const { voxel } = this.props.editorState;
 
     const styles = {
       listItem: {

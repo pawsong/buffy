@@ -9,6 +9,13 @@ import { Styles } from 'material-ui';
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 import Paper from 'material-ui/lib/paper';
 
+import CanvasShared from '../../canvas/shared';
+
+import {
+  DispatchAction,
+  VoxelEditorState,
+} from '../../interface';
+
 export const PanelConstants = {
   DRAGGING_OPACITY: 0.4,
 }
@@ -51,6 +58,9 @@ interface PanelProps extends React.Props<any> {
   moveToTop: (id: string) => any;
   canvasShared: any,
   sizeVersion: number;
+  editorState: VoxelEditorState;
+  onChange: (editorState: VoxelEditorState) => any;
+  dispatchAction: DispatchAction;
 
   connectDragPreview?: ConnectDragPreview;
   connectDragSource?: ConnectDragSource;
@@ -62,6 +72,10 @@ interface PanelProps extends React.Props<any> {
 export interface PanelBodyProps {
   id: string;
   moveToTop: (id: string) => any;
+  canvasShared: CanvasShared;
+  dispatchAction: DispatchAction;
+  editorState: VoxelEditorState;
+  sizeVersion: number;
 }
 
 interface PanelState {
@@ -130,6 +144,9 @@ export function wrapPanel(options: PanelOptions): any {
                                 moveToTop={this.props.moveToTop}
                                 canvasShared={this.props.canvasShared}
                                 sizeVersion={this.props.sizeVersion}
+                                dispatchAction={this.props.dispatchAction}
+                                editorState={this.props.editorState}
+                                onChange={this.props.onChange}
               />
             </Paper>
           </div>
