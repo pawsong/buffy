@@ -11,7 +11,7 @@ class AreaUserGameObject extends UserGameObject {
   }
 
   emit(event: string, params: Object) {
-    this.emit(event, params);
+    this.socket.emit(event, params);
   }
 }
 

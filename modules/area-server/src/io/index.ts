@@ -95,6 +95,7 @@ export default (io: SocketIO.Server) => {
       socket['user'] = user;
       next();
     } catch(err) {
+      console.error(err.stack || err);
       next(err);
     }
   });

@@ -15,7 +15,7 @@ import CourseIndex from './screens/Course/screens/Index';
 import Unit from './screens/Course/screens/Unit';
 import Join from './screens/Join';
 import Login from './screens/Login';
-import StudioForCourse from './screens/StudioForCourse';
+import OnlineStudio from './screens/OnlineStudio';
 import ProjectStudio from './screens/ProjectStudio';
 import ProjectVrAnon from './screens/ProjectVrAnon';
 import { State } from './reducers';
@@ -88,9 +88,9 @@ export default function getRoutes(store: Store) {
         }),
       },
       {
-        path: '/courses/:courseId/units/:unitIndex/play',
+        path: '/connect',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: StudioForCourse }>('./screens/StudioForCourse').default);
+          cb(null, require<{ default: OnlineStudio }>('./screens/OnlineStudio').default);
         }),
       },
       {
