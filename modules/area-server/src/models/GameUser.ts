@@ -3,6 +3,12 @@ const { Schema } = mongoose;
 
 import { GameMapDocument } from './GameMap';
 
+const secrets = [
+  'fb',
+  '_id',
+  '__v',
+];
+
 export interface GameUserDocument extends mongoose.Document {
   owner: string;
   home: mongoose.Types.ObjectId;
@@ -39,6 +45,20 @@ const GameUserSchema = new Schema({
     }
   },
   mesh: { type: Schema.Types.ObjectId, ref: 'Mesh' },
+});
+
+// Duplicate the ID field.
+GameUserSchema.virtual('id').get(function(){
+  return this._id.toHexString();
+});
+
+GameUserSchema.set('toJSON', {
+  virtuals: true,
+  transform: function (doc, ret) {
+    secrets.forEach(secret => {
+      delete ret[secret];
+    });
+  },
 });
 
 export default mongoose.model<GameUserDocument>('GameUser', GameUserSchema);

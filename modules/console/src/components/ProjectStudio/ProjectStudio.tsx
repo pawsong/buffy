@@ -2,7 +2,7 @@ import * as React from 'react';
 import ProjectStudioNavbar from './ProjectStudioNavbar';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { User } from '../../reducers/users';
-import Studio, { StudioState } from '../../containers/Studio';
+import Studio, { StudioState } from '../Studio';
 
 import { ProjectData, SerializedLocalServer, Scripts } from '@pasta/core/lib/Project';
 import LocalServer, { LocalSocket } from '../../LocalServer';

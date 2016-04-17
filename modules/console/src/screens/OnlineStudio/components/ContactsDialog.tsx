@@ -10,12 +10,8 @@ import TableHeader from 'material-ui/lib/table/table-header';
 import TableHeaderColumn from 'material-ui/lib/table/table-header-column';
 import TableRow from 'material-ui/lib/table/table-row';
 import TableRowColumn from 'material-ui/lib/table/table-row-column';
-import { connect } from 'react-redux';
 
-import { State } from '../../../reducers';
-import {
-  GameUser,
-} from '../../../reducers/game';
+import { GameUser } from '../base';
 
 interface ContectDialogProps extends React.Props<ContactDialog> {
   open: boolean;

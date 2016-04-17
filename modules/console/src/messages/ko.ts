@@ -98,7 +98,7 @@ export default {
   'app.login.title': '{service}에 로그인',
 
   /**
-   * path: src/containers/Studio/index.json
+   * path: src/components/Studio/index.json
    * description: Write code for robot with blocks
    * defaultMessage: Code
    */
@@ -119,7 +119,7 @@ export default {
   'create.project': '새 프로젝트 만들기',
 
   /**
-   * path: src/containers/Studio/index.json
+   * path: src/components/Studio/index.json
    * description: Design robot with blocks
    * defaultMessage: Design
    */
@@ -294,7 +294,7 @@ export default {
   'passwordTooShort': '패스워드는 최소 {minimum} 글자 이상이어야 합니다',
 
   /**
-   * path: src/containers/Studio/index.json
+   * path: src/components/Studio/index.json
    * description: Run code
    * defaultMessage: Run
    */
@@ -322,7 +322,7 @@ export default {
   'signup': '가입하기',
 
   /**
-   * path: src/containers/Studio/index.json
+   * path: src/components/Studio/index.json
    * description: Stop code
    * defaultMessage: Stop
    */

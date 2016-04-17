@@ -1,7 +1,6 @@
 import './patch';
 
 import * as React from 'react';
-import { connect } from 'react-redux';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import RaisedButton from 'material-ui/lib/raised-button';
@@ -16,7 +15,6 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 import Blockly from '../../blockly';
 
 import * as StorageKeys from '../../constants/StorageKeys';
-import { State } from '../../reducers';
 
 import { Sandbox, Scripts } from '../../sandbox';
 
@@ -30,19 +28,6 @@ import CodeEditor, { CodeEditorState } from '../../components/CodeEditor';
 import VoxelEditor, { VoxelEditorState } from '../../components/VoxelEditor';
 
 import { convertXmlToCodes } from '../../blockly/utils';
-
-import ContactsButton from './components/ContactsButton';
-import ContactsDialog from './components/ContactsDialog';
-
-import {
-  GameUsersState,
-} from '../../reducers/game';
-
-import {
-  openFriendsDialog,
-  closeFriendsDialog,
-  requestWarp,
-} from '../../actions/game';
 
 const messages = defineMessages({
   run: {
@@ -156,18 +141,14 @@ interface StudioBodyProps extends React.Props<Studio>, SagaProps {
   studioState: StudioState;
   onChange: (nextState: StudioState) => any;
 
+  game: React.ReactElement<any>;
+
   stateLayer: StateLayer;
   style?: React.CSSProperties;
   intl?: InjectedIntlProps;
   root?: ImmutableTask<any>;
   run?: ImmutableTask<any>;
   submitVoxel?: ImmutableTask<any>;
-
-  users?: GameUsersState;
-  friendsModalOpened?: boolean;
-  openFriendsDialog?: () => any;
-  closeFriendsDialog?: () => any;
-  requestWarp?: (targetMapId: string) => any;
 }
 
 interface StudioBodyState {
@@ -180,14 +161,6 @@ interface StudioBodyState {
 }
 
 @injectIntl
-@connect((state: State) => ({
-  friendsModalOpened: state.game.ui.friendsModalOpened,
-  users: state.game.users,
-}), {
-  openFriendsDialog,
-  closeFriendsDialog,
-  requestWarp,
-})
 @saga({
   root: rootSaga,
   run: runBlocklyWorkspace,
@@ -278,18 +251,6 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     this.props.onChange(objectAssign({}, this.props.studioState, nextState));
   }
 
-  handleContactsButtonClick() {
-    this.props.openFriendsDialog();
-  }
-
-  handleContactsDialogClose() {
-    this.props.closeFriendsDialog();
-  }
-
-  handleContactsDialogSubmit(mapId) {
-    this.props.requestWarp(mapId);
-  }
-
   render() {
     const rootStyle = objectAssign({}, styles.root, this.props.style);
     const controlButton = this.props.run.state === 'running'
@@ -313,12 +274,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                       sizeVersion={this.state.gameSizeVersion}
                       stateLayer={this.props.stateLayer}
                 >
-                  <ContactsButton onTouchTap={() => this.handleContactsButtonClick()} />
-                  <ContactsDialog open={this.props.friendsModalOpened}
-                                  friends={this.props.users.toArray()}
-                                  onSubmit={mapId => this.handleContactsDialogSubmit(mapId)}
-                                  onClose={() => this.handleContactsDialogClose()}
-                  />
+                  {this.props.game}
                 </Game>
               </LayoutContainer>
               <LayoutContainer remaining={true}>
@@ -364,6 +320,7 @@ interface StudioProps extends React.Props<Studio> {
   onChange: (nextState: StudioState) => any;
 
   stateLayer: StateLayer;
+  game?: React.ReactElement<any>;
   style?: React.CSSProperties;
 }
 
@@ -402,6 +359,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
       <StudioBody studioState={this.props.studioState}
                   onChange={this.props.onChange}
                   stateLayer={this.props.stateLayer} style={this.props.style}
+                  game={this.props.game || null}
       />
     );
   };

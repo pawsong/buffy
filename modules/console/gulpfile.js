@@ -92,6 +92,7 @@ require('../../gulp/app')({
         development: {
           defines: {
             'CONFIG_DOMAIN': '',
+            'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
             'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
           },
           output: {
@@ -102,6 +103,7 @@ require('../../gulp/app')({
         production: {
           defines: {
             'CONFIG_DOMAIN': conf.domain,
+            'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
             'CONFIG_API_SERVER_URL': conf.apiServerUrl,
           },
           output: {

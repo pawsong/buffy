@@ -13,7 +13,7 @@ import { State } from '../../reducers';
 import { User } from '../../reducers/users';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import * as StorageKeys from '../../constants/StorageKeys';
-import Studio, { StudioState } from '../../containers/Studio';
+import Studio, { StudioState } from '../../components/Studio';
 import ProjectStudio from '../../components/ProjectStudio';
 import { requestLogout } from '../../actions/auth';
 
