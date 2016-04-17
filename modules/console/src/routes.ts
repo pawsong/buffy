@@ -16,6 +16,7 @@ import Unit from './screens/Course/screens/Unit';
 import Join from './screens/Join';
 import Login from './screens/Login';
 import OnlineStudio from './screens/OnlineStudio';
+import OnlineCardboard from './screens/OnlineCardboard';
 import ProjectStudio from './screens/ProjectStudio';
 import ProjectVrAnon from './screens/ProjectVrAnon';
 import { State } from './reducers';
@@ -91,6 +92,12 @@ export default function getRoutes(store: Store) {
         path: '/connect',
         getComponent: (location, cb) => require.ensure([], require => {
           cb(null, require<{ default: OnlineStudio }>('./screens/OnlineStudio').default);
+        }),
+      },
+      {
+        path: '/connect/vr',
+        getComponent: (location, cb) => require.ensure([], require => {
+          cb(null, require<{ default: OnlineCardboard }>('./screens/OnlineCardboard').default);
         }),
       },
       {
