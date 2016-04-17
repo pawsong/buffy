@@ -19,6 +19,7 @@ class SimpleStore<T> {
 
   listen(listener: StoreListener<T>) {
     this.listeners.push(listener);
+    listener(this.data);
   }
 
   removeAllListeners() {

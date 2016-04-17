@@ -24,8 +24,14 @@ import rootSaga, { runBlocklyWorkspace, submitVoxel } from './sagas';
 import { Layout, LayoutContainer } from '../../components/Layout';
 
 import Game, { GameState } from '../../components/Game';
-import CodeEditor, { CodeEditorState } from '../../components/CodeEditor';
-import VoxelEditor, { VoxelEditorState } from '../../components/VoxelEditor';
+import CodeEditor, {
+  CodeEditorState,
+  CreateStateOptions as CreateCodeEditorStateOptions,
+} from '../../components/CodeEditor';
+import VoxelEditor, {
+  VoxelEditorState,
+  CreateStateOptions as CreateVoxelEditorStateOptions,
+} from '../../components/VoxelEditor';
 
 import { convertXmlToCodes } from '../../blockly/utils';
 
@@ -328,12 +334,17 @@ interface StudioOwnState {
   mount?: boolean;
 }
 
+interface CreateStateOptions {
+  codeEditorState?: CreateCodeEditorStateOptions;
+  voxelEditorState?: CreateVoxelEditorStateOptions;
+}
+
 class Studio extends React.Component<StudioProps, StudioOwnState> {
-  static creatState(initialState: StudioState = {}): StudioState {
+  static creatState(options: CreateStateOptions = {}): StudioState {
     return {
-      codeEditorState: CodeEditor.creatState(initialState.codeEditorState),
+      codeEditorState: CodeEditor.creatState(options.codeEditorState),
       gameState: Game.createState(),
-      voxelEditorState: VoxelEditor.createState(),
+      voxelEditorState: VoxelEditor.createState(options.voxelEditorState),
     };
   }
 

@@ -6,7 +6,7 @@ import * as conf from '@pasta/config';
 export const createAnonymousProject = wrap(async (req, res) => {
   if (!req.body.data) return res.send(400);
 
-  const { blocklyXml, server, scripts } = req.body.data;
+  const { blocklyXml, server, scripts, voxels } = req.body.data;
 
   const project = new Project({
     name: '',
@@ -14,6 +14,7 @@ export const createAnonymousProject = wrap(async (req, res) => {
     server,
     blocklyXml,
     scripts,
+    voxels,
   });
 
   await project.save();
@@ -25,7 +26,7 @@ export const createUserProject = wrap(async (req, res) => {
 
   const { userId } = req.params;
 
-  const { blocklyXml, server, scripts } = req.body.data;
+  const { blocklyXml, server, scripts, voxels } = req.body.data;
 
   const project = new Project({
     owner: userId,
@@ -34,6 +35,7 @@ export const createUserProject = wrap(async (req, res) => {
     server,
     blocklyXml,
     scripts,
+    voxels,
   });
 
   await project.save();

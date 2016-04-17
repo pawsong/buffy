@@ -68,14 +68,21 @@ class ProjectStudio extends React.Component<ProjectStudioProps, {}> {
   }
 
   handleSave() {
+    // Game
+    const serialized = this.server.serialize();
+
+    // Code editor
     const { blocklyXml } = this.props.studioState.codeEditorState;
     const scripts = convertXmlToCodes(blocklyXml);
-    const serialized = this.server.serialize();
+
+    // Voxel editor
+    const voxels = this.props.studioState.voxelEditorState.voxel.present.data.toJS();
 
     this.props.onSave({
       scripts,
       blocklyXml,
       server: serialized,
+      voxels,
     });
   }
 

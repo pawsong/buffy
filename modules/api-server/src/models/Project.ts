@@ -9,6 +9,7 @@ export interface ProjectDocument extends mongoose.Document {
   server: any;
   blocklyXml: string;
   scripts: any;
+  voxels: any;
 }
 
 const ProjectSchema = new Schema({
@@ -18,6 +19,7 @@ const ProjectSchema = new Schema({
   server: {},
   blocklyXml: String,
   scripts: {},
+  voxels: {},
 });
 
 // Duplicate the ID field.

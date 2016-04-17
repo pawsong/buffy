@@ -131,6 +131,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       initialLocalServer: project.server,
       studioState: Studio.creatState({
         codeEditorState: { blocklyXml: project.blocklyXml },
+        voxelEditorState: { voxels: project.voxels },
       }),
     };
   }

@@ -10,6 +10,7 @@ export interface ProjectData {
   server: SerializedLocalServer;
   blocklyXml: string;
   scripts: Scripts;
+  voxels: any;
 }
 
 export interface Project extends ProjectData {

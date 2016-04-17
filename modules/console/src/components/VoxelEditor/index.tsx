@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 
+import * as Immutable from 'immutable';
+
 // OrbitControls patch
 require('./OrbitControls');
 
@@ -21,6 +23,10 @@ import {
   rgbToHex,
   voxelMapToArray,
 } from './canvas/utils';
+
+import {
+  VoxelState,
+} from './interface';
 
 import ToolsPanel from './components/panels/ToolsPanel';
 // import WorkspacePanel from './containers/panels/WorkspacePanel';
@@ -91,6 +97,10 @@ interface ContainerStates {
   fullscreen?: boolean;
 }
 
+export interface CreateStateOptions {
+  voxels?: any;
+}
+
 @(DragDropContext<VoxelEditorProps>(HTML5Backend) as any)
 @(DropTarget<VoxelEditorProps>('panel', {
   drop(props, monitor, component: VoxelEditor) {
@@ -106,7 +116,7 @@ interface ContainerStates {
   connectDropTarget: connect.dropTarget()
 })) as any)
 class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
-  static createState: () => VoxelEditorState;
+  static createState: (options?: CreateStateOptions) => VoxelEditorState;
 
   canvasShared: CanvasShared;
   canvas: MainCanvas;
@@ -280,11 +290,15 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   }
 }
 
-VoxelEditor.createState = function VoxelEditor(): VoxelEditorState {
+VoxelEditor.createState = function VoxelEditor(options: CreateStateOptions = {}): VoxelEditorState {
+  const voxel: VoxelState = options.voxels ? update(initialVoxelState, {
+    present: { data: { $set: Immutable.Map(options.voxels), } },
+  }) : initialVoxelState;
+
   return {
     selectedTool: ToolType.brush,
     paletteColor: { r: 104, g: 204, b: 202 },
-    voxel: initialVoxelState,
+    voxel,
   };
 }
 

@@ -36,11 +36,13 @@ interface CodeEditorProps extends React.Props<CodeEditor> {
   readyToRender: boolean;
 }
 
+export interface CreateStateOptions extends CodeEditorState {}
+
 class CodeEditor extends React.Component<CodeEditorProps, void> {
   workspace: any;
 
-  static creatState(initialState?: CodeEditorState): CodeEditorState {
-    return objectAssign({}, defaultEditorState, initialState);
+  static creatState(options?: CreateStateOptions): CodeEditorState {
+    return objectAssign({}, defaultEditorState, options);
   }
 
   constructor(props, context) {
