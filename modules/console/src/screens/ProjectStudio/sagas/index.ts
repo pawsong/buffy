@@ -7,7 +7,7 @@ import { request } from '../../../saga';
 /**
  * createAnonProject
  */
-export function* createAnonProject(data) {
+export function* createAnonProject(data: any) {
   const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/projects/anonymous`, {
     data,
   });
@@ -19,7 +19,7 @@ export function* createAnonProject(data) {
 /**
  * createUserProject
  */
-export function* createUserProject(userId: string, data) {
+export function* createUserProject(userId: string, data: any) {
   const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/projects/@${userId}`, {
     data,
   });
@@ -27,3 +27,17 @@ export function* createUserProject(userId: string, data) {
   const { id: projectId } = response.data;
   yield put(replace({ pathname: `/@${userId}/${projectId}/latest/edit` }));
 };
+
+export function* updateAnonProject(projectId: string, data: any) {
+  const response = yield call(request.put, `${CONFIG_API_SERVER_URL}/projects/anonymous/${projectId}`, {
+    data,
+  });
+  console.log(response);
+}
+
+export function* updateUserProject(userId: string, projectId: string, data: any) {
+  const response = yield call(request.put, `${CONFIG_API_SERVER_URL}/projects/@${userId}/${projectId}`, {
+    data,
+  });
+  console.log(response);
+}

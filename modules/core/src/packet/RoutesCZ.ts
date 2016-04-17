@@ -53,7 +53,7 @@ export abstract class RoutesCZ implements Rpc {
           const status = error.status || 500;
           fn({ status, error: error.message });
 
-          if (status >= 500) console.error(error);
+          if (status >= 500) console.error(error.stack || error);
         });
     }));
   }

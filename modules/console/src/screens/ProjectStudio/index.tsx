@@ -20,6 +20,8 @@ import { requestLogout } from '../../actions/auth';
 import {
   createAnonProject,
   createUserProject,
+  updateAnonProject,
+  updateUserProject,
 } from './sagas';
 
 interface ProjectStudioHandlerState {
@@ -50,6 +52,8 @@ interface ProjectStudioHandlerProps extends RouteComponentProps<RouteParams, Rou
   user: User;
   createAnonProject: ImmutableTask<{}>;
   createUserProject: ImmutableTask<{}>;
+  updateAnonProject: ImmutableTask<{}>;
+  updateUserProject: ImmutableTask<{}>;
   project?: ApiCall<Project>;
   requestLogout?: () => any;
   push?: (location: HistoryModule.LocationDescriptor) => any;
@@ -80,6 +84,8 @@ interface ProjectStudioData {
 @saga({
   createAnonProject,
   createUserProject,
+  updateAnonProject,
+  updateUserProject,
 })
 class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, ProjectStudioHandlerState> {
   mode: ProjectStudioMode;
@@ -149,14 +155,12 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       }
       case ProjectStudioMode.ANON_EDIT: {
         const { projectId } = this.props.routeParams;
-        console.log(projectId);
-        // this.props.runSaga(this.props.save, projectId, data);
+        this.props.runSaga(this.props.updateAnonProject, projectId, data);
         return;
       }
       case ProjectStudioMode.USER_EDIT: {
-        const { projectId, userId } = this.props.routeParams;
-        console.log(projectId, userId);
-        // this.props.runSaga(this.props.save, data);
+        const { userId, projectId } = this.props.routeParams;
+        this.props.runSaga(this.props.updateUserProject, userId, projectId, data);
         return;
       }
     }

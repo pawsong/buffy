@@ -53,3 +53,31 @@ export const getUserProject = wrap(async (req, res) => {
   if (!project) return res.send(404);
   res.send(project);
 });
+
+export const updateAnonymousProject = wrap(async (req, res) => {
+  const { blocklyXml, server, scripts, voxels } = req.body.data;
+
+  const project = await Project.findByIdAndUpdate(req.params.projectId, {
+    server,
+    blocklyXml,
+    scripts,
+    voxels,
+  });
+
+  if (!project) return res.send(404);
+  res.send(project);
+});
+
+export const updateUserProject = wrap(async (req, res) => {
+  const { blocklyXml, server, scripts, voxels } = req.body.data;
+
+  const project = await Project.findByIdAndUpdate(req.params.projectId, {
+    server,
+    blocklyXml,
+    scripts,
+    voxels,
+  });
+
+  if (!project) return res.send(404);
+  res.send(project);
+});
