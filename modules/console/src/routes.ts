@@ -19,6 +19,7 @@ import OnlineStudio from './screens/OnlineStudio';
 import OnlineCardboard from './screens/OnlineCardboard';
 import ProjectStudio from './screens/ProjectStudio';
 import ProjectCardboard from './screens/ProjectCardboard';
+import ProfileHandler from './screens/Profile';
 import { State } from './reducers';
 
 export default function getRoutes(store: Store) {
@@ -127,6 +128,12 @@ export default function getRoutes(store: Store) {
           }
         },
         childRoutes: [
+          {
+            path: '/@:username',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: ProfileHandler }>('./screens/Profile').default);
+            }),
+          },
           {
             path: '/about',
             getComponent: (location, cb) => require.ensure([], require => {
