@@ -1,7 +1,8 @@
 import wrap from './wrap';
-import vector3ToString from './vector3ToString';
+export { wrap };
 
-export {
-  wrap,
-  vector3ToString,
-};
+import vector3ToString from './vector3ToString';
+export { vector3ToString }
+
+import validateUsername from './validateUsername';
+export { validateUsername }

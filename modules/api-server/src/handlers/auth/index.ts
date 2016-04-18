@@ -17,13 +17,12 @@ export const checkIfEmailExists = wrap(async (req, res) => {
 });
 
 export const signupWithLocal = wrap(async (req, res) => {
-  const { email, password, name } = req.body;
-  if (!email || !password || !name) {
+  const { email, password } = req.body;
+  if (!email || !password) {
     return res.send(400);
   }
 
   const user = new User({
-    name,
     email,
     password,
   });

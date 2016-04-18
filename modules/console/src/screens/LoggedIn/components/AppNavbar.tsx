@@ -49,6 +49,14 @@ interface AppNavbarState {
   accountInfoBoxOpened?: boolean;
 }
 
+const messages = defineMessages({
+  username: {
+    id: 'navbar.accountinfo.username',
+    description: 'Show username of logged in user',
+    defaultMessage: 'Logged in as {username}',
+  },
+});
+
 @injectIntl
 class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
   constructor(props, context) {
@@ -79,6 +87,15 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
   }
 
   renderAccountBox() {
+    const user = this.props.user;
+    const username = (user && user.username) || '';
+
+    const subheader = (
+      <FormattedMessage {...messages.username} values={{
+        username: <span style={{ fontWeight: 'bold' }}>{username}</span>,
+      }} />
+    );
+
     return (
       <div style={styles.accountInfoBox}>
         <div style={styles.accountInfoBoxCaretCont}>
@@ -86,7 +103,7 @@ class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
           <div style={styles.accountInfoBoxInnerCaret} />
         </div>
         <Paper zDepth={1}>
-          <List>
+          <List subheader={subheader as any}>
             <ListItem primaryText={this.props.intl.formatMessage(Messages.logout)}
                       leftIcon={<LogoutIcon />}
                       onTouchTap={() => this.handleLogout()}

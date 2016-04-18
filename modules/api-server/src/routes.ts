@@ -38,6 +38,7 @@ export default (app: express.Express) => {
   app.put ('/projects/@:userId/:projectId', projectHandlers.updateUserProject);
   app.get ('/projects/@:userId/:projectId', projectHandlers.getUserProject);
 
+  app.get ('/username-exists/:username', userHandlers.usernameExists);
   app.get ('/users/:id', userHandlers.getUserById);
   app.get ('/me', userHandlers.getMyUserData);
   app.put ('/me', userHandlers.updateMyUserData);

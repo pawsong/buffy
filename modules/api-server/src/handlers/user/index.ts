@@ -1,7 +1,18 @@
 import wrap from '@pasta/helper/lib/wrap';
+import validateUsername, {
+  ValidationResult as UsernameValidationResult,
+} from '@pasta/helper/lib/validateUsername';
 import User from '../../models/User';
 import { compose } from 'compose-middleware/lib';
 import { requiresLogin } from '../../middlewares/auth';
+
+export const usernameExists = wrap(async (req, res) => {
+  const { username } = req.params;
+  if (!username) return res.send(400);
+
+  const user = await User.findOne({ username }, { _id: true });
+  return res.send({ result: !!user });
+});
 
 export const getUserById = compose(requiresLogin, wrap(async (req, res) => {
   if (req.user.id !== req.params.id) {
@@ -17,7 +28,11 @@ export const getMyUserData = compose(requiresLogin, wrap(async (req, res) => {
 }));
 
 export const updateMyUserData = compose(requiresLogin, wrap(async (req, res) => {
-  const user = await User.findByIdAndUpdate(req.user.id, req.body).exec();
+  if (!req.body) return res.send(400);
+  if (req.body.username &&  validateUsername(req.body.username) !== UsernameValidationResult.OK) {
+    return res.send(400);
+  }
+  const user = await User.findByIdAndUpdate(req.user.id, req.body, { runValidators: true } as any).exec();
   return res.send(user);
 }));
 

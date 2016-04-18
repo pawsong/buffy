@@ -1,13 +1,17 @@
 import * as Immutable from 'immutable';
 import update from '../utils/update';
+const objectAssign = require('object-assign');
 import { Action } from '../actions';
 import {
   USER_ADD, UserAddAction,
+  USER_UPDATE, UserUpdateAction,
   USER_REMOVE, UserRemoveAction,
 } from '../actions/users';
 
 export interface User {
   id: string;
+  email: string;
+  username: string;
   picture: string;
 }
 
@@ -23,12 +27,20 @@ export default function users(state: UsersState = initialize(), action: Action<s
       const { user } = <UserAddAction>action;
       return state.set(user.id, {
         id: user.id,
+        email: user.email,
+        username: user.username,
         picture: user.picture,
       });
     }
     case USER_REMOVE: {
       const { userid } = <UserRemoveAction>action;
       return state.remove(userid);
+    }
+    case USER_UPDATE: {
+      const { userId, query } = <UserUpdateAction>action;
+      const user = state.get(userId);
+      if (!user) return state;
+      return state.set(userId, objectAssign({}, user, query));
     }
     default: {
       return state;

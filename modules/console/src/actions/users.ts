@@ -13,6 +13,18 @@ export function userAdd(user: User): UserAddAction {
   };
 };
 
+export const USER_UPDATE: 'users/USER_UPDATE' = 'users/USER_UPDATE';
+export interface UserUpdateAction extends Action<typeof USER_UPDATE> {
+  userId: string;
+  query: Object;
+}
+export function userUpdate(userId: string, query: Object): UserUpdateAction {
+  return {
+    type: USER_UPDATE,
+    userId, query,
+  };
+}
+
 export const USER_REMOVE: 'users/USER_REMOVE' = 'users/USER_REMOVE';
 export interface UserRemoveAction extends Action<typeof USER_REMOVE> {
   userid: string;

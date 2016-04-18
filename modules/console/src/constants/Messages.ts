@@ -41,6 +41,16 @@ const messages = defineMessages({
     description: 'Save',
     defaultMessage: 'Save',
   },
+  username: {
+    id: 'username',
+    description: 'Username',
+    defaultMessage: 'Username',
+  },
+  submit: {
+    id: 'submit',
+    description: 'Submit',
+    defaultMessage: 'Submit',
+  },
   courses: {
     id: 'courses',
     description: 'Courses',

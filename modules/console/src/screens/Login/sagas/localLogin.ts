@@ -30,6 +30,8 @@ export default function* localLogin(email: string, password: string) {
     type: USER_ADD,
     user: {
       id: user['id'],
+      email: user.email || '',
+      username: user.username || '',
       picture: user['picture'],
     },
   });

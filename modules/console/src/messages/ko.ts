@@ -273,6 +273,13 @@ export default {
   'nameRequired': '이름을 입력하세요',
 
   /**
+   * path: src/screens/LoggedIn/components/AppNavbar.json
+   * description: Show username of logged in user
+   * defaultMessage: Logged in as {username}
+   */
+  'navbar.accountinfo.username': '{username}으로 로그인',
+
+  /**
    * path: src/constants/Messages.json
    * description: Password
    * defaultMessage: Password
@@ -322,11 +329,81 @@ export default {
   'signup': '가입하기',
 
   /**
+   * path: src/screens/Root/containers/UserInfoDialog.json
+   * description: signup model sub description
+   * defaultMessage: Create your username
+   */
+  'signup.modal.create.username': '사용자 이름을 설정하세요.',
+
+  /**
+   * path: src/screens/Root/containers/UserInfoDialog.json
+   * description: signup modal note
+   * defaultMessage: You can change your username in your account settings at any time.
+   */
+  'signup.modal.note': '사용자 이름은 계정 설정 화면에서 바꿀 수 있습니다.',
+
+  /**
+   * path: src/screens/Root/containers/UserInfoDialog.json
+   * description: signup modal title
+   * defaultMessage: Thank you for signing up!
+   */
+  'signup.modal.title': '가입해 주셔서 감사합니다',
+
+  /**
    * path: src/components/Studio/index.json
    * description: Stop code
    * defaultMessage: Stop
    */
   'stop': '멈추기',
+
+  /**
+   * path: src/constants/Messages.json
+   * description: Submit
+   * defaultMessage: Submit
+   */
+  'submit': '확인',
+
+  /**
+   * path: src/constants/Messages.json
+   * description: Username
+   * defaultMessage: Username
+   */
+  'username': '사용자 이름',
+
+  /**
+   * path: src/screens/Root/containers/UserInfoDialog.json
+   * description: Error message for username that has already been taken by others
+   * defaultMessage: This username is already in use.
+   */
+  'username.already.exists': '사용자 이름이 이미 사용중입니다 :(',
+
+  /**
+   * path: src/screens/Root/containers/UserInfoDialog.json
+   * description: Error message for username that contains invalid characters
+   * defaultMessage: Usernames must only contain lowercase letters, numbers, dashes and must start with a letter or number.
+   */
+  'username.invalid.character': '사용자 이름은 알파벳 소문자, 숫자, 그리고 대쉬 기호(-)를 사용할 수 있으며, 알파벳 혹은 숫자로 시작해야 합니다.',
+
+  /**
+   * path: src/screens/Root/containers/UserInfoDialog.json
+   * description: Error message for too short username
+   * defaultMessage: Your username must be at most {maximum} characters.
+   */
+  'username.too.long': '사용자 이름은 최대 {maximum} 글자 입니다.',
+
+  /**
+   * path: src/screens/Root/containers/UserInfoDialog.json
+   * description: Error message for too short username
+   * defaultMessage: Your username must be at least {minimum} characters.
+   */
+  'username.too.short': '사용자 이름은 최소 {minimum} 글자 이상이어야 합니다.',
+
+  /**
+   * path: src/screens/Root/containers/UserInfoDialog.json
+   * description: Error message for invalid username for unknown reason
+   * defaultMessage: Your username is invalid.
+   */
+  'username.unknown.error': '사용자 이름이 올바르지 않습니다.',
 
   /**
    * path: src/components/VoxelEditor/components/panels/HistoryPanel.json

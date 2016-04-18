@@ -1,5 +1,10 @@
 import * as crypto from 'crypto';
 import * as mongoose from 'mongoose';
+
+import validateUsername, {
+  ValidationResult as UsernameValidationResult,
+} from '@pasta/helper/lib/validateUsername';
+
 const { Schema } = mongoose;
 
 const secrets = [
@@ -10,6 +15,7 @@ const secrets = [
 
 export interface UserDocument extends mongoose.Document {
   fb: string; // Facebook ID
+  username: string;
   name: string;
   email: string;
   picture: string;
@@ -19,12 +25,17 @@ export interface UserDocument extends mongoose.Document {
 
 const UserSchema = new Schema({
   fb: { type: String, sparse: true, unique: true },
+  username: { type: String, sparse: true, unique: true },
   name: { type: String },
   email: { type: String, sparse: true, unique: true },
   picture: { type: String },
   hashedPassword: { type: String },
   salt: { type: String },
 });
+
+UserSchema.path('username').validate(function (username) {
+  return validateUsername(username) === UsernameValidationResult.OK;
+}, '{VALUE} is a valid username');
 
 // Duplicate the ID field.
 UserSchema.virtual('id').get(function(){

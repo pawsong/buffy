@@ -168,7 +168,6 @@ interface JoinFormProps extends React.Props<JoinForm>, SagaProps {
 }
 
 interface JoinFormState {
-  name?: string;
   email?: string;
   password?: string;
   haveSubmitted?: boolean;
@@ -206,10 +205,9 @@ interface LoginResult {
       if (!isCancelError(error)) throw error;
     }
   },
-  localSignUp: function* (name, email, password) {
+  localSignUp: function* (email, password) {
     try {
       const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/signup/local`, {
-        name,
         email,
         password,
       });
@@ -244,7 +242,6 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      name: '',
       email: '',
       password: '',
       haveSubmitted: false,
@@ -261,10 +258,6 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
   componentWillUnmount() {
     this.props.cancelSaga(this.props.validateEmail);
     this.cancelSignUpRequests();
-  }
-
-  handleNameChange(e) {
-    this.setState({ name: e.target.value });
   }
 
   handleEmailChange(e) {
@@ -289,7 +282,7 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
     if (!this.validateForm()) return;
 
     this.cancelSignUpRequests();
-    this.props.runSaga(this.props.localSignUp, this.state.name, this.state.email, this.state.password);
+    this.props.runSaga(this.props.localSignUp, this.state.email, this.state.password);
   }
 
   handleFacebookSignUpSubmit() {
@@ -299,20 +292,9 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
 
   validateForm() {
     return [
-      this.validateName().valid,
       isDone(this.props.validateEmail) ? this.props.validateEmail.result.valid : false,
       this.validatePassword().valid,
     ].reduce((prev, cur) => prev && cur);
-  }
-
-  validateName(): ValidateResult {
-    if (!this.state.name) {
-      return {
-        valid: false,
-        error: this.props.intl.formatMessage(messages.nameRequired),
-      };
-    }
-    return { valid: true, error: '' };
   }
 
   validatePassword(): ValidateResult {
@@ -338,11 +320,6 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
   }
 
   render() {
-    let nameValidation = this.defaultValidation;
-    if (this.state.haveSubmitted || this.state.name) {
-      nameValidation = this.validateName();
-    }
-
     let emailValidation = this.defaultValidation;
     if (this.state.haveSubmitted || this.state.email) {
       if (!this.state.email) {
@@ -361,7 +338,6 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
     }
 
     const localLoginSubmitDisabled = this.state.haveSubmitted && ![
-      nameValidation.valid,
       emailValidation.valid,
       passwordValidation.valid,
     ].reduce((prev, cur) => prev && cur);
@@ -400,22 +376,6 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
             }
 
             <form onSubmit={e => this.handleLocalSignUpSubmit(e)} noValidate={true}>
-              <div style={styles.inputRow}>
-                <TextField type="text"
-                          hintText={this.props.intl.formatMessage(Messages.name)}
-                          errorText={nameValidation.error}
-                          onChange={e => this.handleNameChange(e)}
-                          style={styles.textfield}
-                          inputStyle={styles.input}
-                          errorStyle={styles.textfieldError}
-                          disabled={formIsBusy}
-                />
-
-                <FontIcon className="material-icons" style={objectAssign({}, styles.textfieldCheck, {
-                  display: nameValidation.valid ? 'inline-block' : 'none',
-                })}>check</FontIcon>
-              </div>
-
               <div style={styles.inputRow}>
                 <TextField type="email"
                           hintText={this.props.intl.formatMessage(Messages.email)}

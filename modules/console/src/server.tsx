@@ -114,6 +114,8 @@ app.get('*', async (req, res) => {
           type: USER_ADD,
           user: {
             id: res.data.id,
+            email: res.data.email || '',
+            username: res.data.username || '',
             picture: res.data.picture,
           },
         };
