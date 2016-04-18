@@ -82,7 +82,9 @@ const minifiedIndexHtml = minify(indexHtml, {
   minifyJS: true,
 });
 const compiledIndexHtml = template(minifiedIndexHtml, {
-  interpolate: /{{([\s\S]+?)}}/g,
+  evaluate:    /\{\{(.+?)\}\}/g,
+  interpolate: /\{\{=(.+?)\}\}/g,
+  escape:      /\{\{-(.+?)\}\}/g,
   imports: {
     styles,
     script: __DEV__ ? `<script src="http://localhost:${conf.consoleClientPort}/bundle.js"></script>` : '',
