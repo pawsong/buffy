@@ -24,13 +24,9 @@ import OnlineStudioNavbar from './components/OnlineStudioNavbar';
 const NAVBAR_HEIGHT = 56;
 
 const styles = {
-  // navbar: {
-  //   height: NAVBAR_SIZE,
-  // },
   studio: {
     position: 'absolute',
     top: NAVBAR_HEIGHT,
-    // top: 0,
     bottom: 0,
     left: 0,
     right: 0,

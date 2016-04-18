@@ -58,6 +58,9 @@ interface IndexHandlerProps extends React.Props<IndexHandler> {
 @injectIntl
 class IndexHandler extends React.Component<IndexHandlerProps, {}> {
   renderProjectList() {
+    // TODO: Make sure user props exists.
+    if (!this.props.user) return null;
+
     const projects = this.props.projects.state !== 'fulfilled' ? [] : this.props.projects.result;
 
     const listBody = projects.map(project => {

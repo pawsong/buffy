@@ -166,6 +166,14 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     }
   }
 
+  handleVrModeRequest() {
+    if (this.mode === ProjectStudioMode.ANON_EDIT) {
+      this.props.push(`/@/${this.props.params.projectId}/latest/vr`);
+    } else if (this.mode === ProjectStudioMode.USER_EDIT) {
+      this.props.push(`/@${this.props.params.username}/${this.props.params.projectId}/latest/vr`);
+    }
+  }
+
   handleStudioStateChange(nextState: StudioState) {
     if (this.mode === ProjectStudioMode.CREATE) {
       if (this.state.studioState.codeEditorState.blocklyXml !== nextState.codeEditorState.blocklyXml) {
@@ -191,6 +199,8 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
                      onLogout={() => this.props.requestLogout()}
                      onSave={data => this.handleSave(data)}
                      onPush={location => this.props.push(location)}
+                     vrModeAvaiable={this.mode !== ProjectStudioMode.CREATE}
+                     onVrModeRequest={() => this.handleVrModeRequest()}
       />
     );
   }

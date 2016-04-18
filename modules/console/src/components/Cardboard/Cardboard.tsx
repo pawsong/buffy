@@ -118,6 +118,8 @@ class Cardboard extends React.Component<CardboardProps, CardboardState> {
 
     if (this.sandbox) this.sandbox.destroy();
     if (this.canvas) this.canvas.destroy();
+
+    if (screenfull.isFullscreen) screenfull.exit();
   }
 
   handleStartButtonClick() {

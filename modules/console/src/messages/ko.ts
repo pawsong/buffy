@@ -70,21 +70,21 @@ export default {
   'anon.index.wantToLearnMore': '{service}에 대해 더 알고 싶으세요?',
 
   /**
-   * path: src/components/AnonymousNavbar/AnonymousNavbar.json
+   * path: src/screens/Anonymous/index.json
    * description: Simple question to ask why this service is good
    * defaultMessage: Why?
    */
   'anon.navbar.features': '특징',
 
   /**
-   * path: src/components/AnonymousNavbar/AnonymousNavbar.json
+   * path: src/screens/Anonymous/index.json
    * description: Features for teachers page link button label
    * defaultMessage: Teachers
    */
   'anon.navbar.featuresForTeachers': '선생님',
 
   /**
-   * path: src/components/AnonymousNavbar/AnonymousNavbar.json
+   * path: src/screens/Anonymous/index.json
    * description: Label for get started button
    * defaultMessage: Get Started
    */
@@ -106,6 +106,13 @@ export default {
 
   /**
    * path: src/constants/Messages.json
+   * description: Connect to online service button label
+   * defaultMessage: Connect
+   */
+  'connect.to.area.server': '접속하기',
+
+  /**
+   * path: src/constants/Messages.json
    * description: Courses
    * defaultMessage: Courses
    */
@@ -117,6 +124,13 @@ export default {
    * defaultMessage: Create a new project
    */
   'create.project': '새 프로젝트 만들기',
+
+  /**
+   * path: src/constants/Messages.json
+   * description: Create project button label
+   * defaultMessage: Create
+   */
+  'create.project.button': '만들기',
 
   /**
    * path: src/components/Studio/index.json
@@ -439,6 +453,13 @@ export default {
    * defaultMessage: Start
    */
   'vr.start': '시작하기',
+
+  /**
+   * path: src/constants/Messages.json
+   * description: VR mode
+   * defaultMessage: VR Mode
+   */
+  'vrMode': 'VR 모드',
 
 /* [Warning] Message not in use */ 'voxel-editor.panels.workspace.title': '워크스페이스',
 }

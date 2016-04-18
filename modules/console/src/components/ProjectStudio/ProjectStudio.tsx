@@ -31,6 +31,8 @@ interface ProjectStudioProps extends React.Props<ProjectStudio> {
   onLogout: () => any;
   onSave: (project: ProjectData) => any;
   onPush: (location: HistoryModule.LocationDescriptor) => any;
+  vrModeAvaiable: boolean;
+  onVrModeRequest: () => any;
 }
 
 class ProjectStudio extends React.Component<ProjectStudioProps, {}> {
@@ -94,6 +96,8 @@ class ProjectStudio extends React.Component<ProjectStudioProps, {}> {
                              onLogout={this.props.onLogout}
                              onSave={() => this.handleSave()}
                              onLinkClick={location => this.props.onPush(location)}
+                             vrModeAvaiable={this.props.vrModeAvaiable}
+                             onVrModeRequest={() => this.props.onVrModeRequest()}
         />
         <Studio studioState={this.props.studioState}
                 onChange={this.props.onChange}

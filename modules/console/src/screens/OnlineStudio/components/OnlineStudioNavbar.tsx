@@ -29,6 +29,19 @@ interface OnlineStudioNavbarProps extends React.Props<OnlineStudioNavbar> {
 
 @injectIntl
 class OnlineStudioNavbar extends React.Component<OnlineStudioNavbarProps, void> {
+  renderLeftToolbarGroup() {
+    return (
+      <ToolbarGroup float="left">
+        <FlatButton label={this.props.intl.formatMessage(Messages.vrMode)}
+                    style={styles.button}
+                    onTouchTap={() => this.props.onLinkClick('/connect/vr')}
+                    backgroundColor={Colors.pinkA200}
+                    hoverColor={Colors.pinkA100}
+        />
+      </ToolbarGroup>
+    );
+  }
+
   renderAnonymousNavbar() {
     return (
       <AnonymousNavbar location={this.props.location} width="100%"
@@ -39,6 +52,7 @@ class OnlineStudioNavbar extends React.Component<OnlineStudioNavbarProps, void> 
   renderLoggedInNavbar() {
     return (
       <LoggedInNavbar location={this.props.location} width="100%"
+                      leftToolbarGroup={this.renderLeftToolbarGroup()}
                       user={this.props.user}
                       onLogout={this.props.onLogout}
       />

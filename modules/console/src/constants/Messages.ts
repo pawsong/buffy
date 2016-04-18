@@ -71,6 +71,21 @@ const messages = defineMessages({
     description: 'Log out',
     defaultMessage: 'Log out',
   },
+  vrMode: {
+    id: 'vrMode',
+    description: 'VR mode',
+    defaultMessage: 'VR Mode',
+  },
+  create: {
+    id: 'create.project.button',
+    description: 'Create project button label',
+    defaultMessage: 'Create',
+  },
+  connect: {
+    id: 'connect.to.area.server',
+    description: 'Connect to online service button label',
+    defaultMessage: 'Connect',
+  },
 });
 
 export default messages;

@@ -14,16 +14,18 @@ import AnonymousNavbar from '../AnonymousNavbar';
 const styles = {
   button: {
     color: Colors.white,
-    marginLeft: 50,
+    marginLeft: 25,
     marginRight: 0,
   },
 };
 
 interface ProjectStudioNavbarProps extends React.Props<ProjectStudioNavbar> {
+  vrModeAvaiable: boolean;
   user: User;
   location: any;
   onLogout: () => any;
   onSave: () => any;
+  onVrModeRequest: () => any;
   onLinkClick: (location: HistoryModule.LocationDescriptor) => any;
   intl?: InjectedIntlProps;
 }
@@ -32,13 +34,19 @@ interface ProjectStudioNavbarProps extends React.Props<ProjectStudioNavbar> {
 class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, void> {
   renderLeftToolbarGroup() {
     return (
-      <ToolbarGroup float="left">
+      <ToolbarGroup float="left" style={{ marginLeft: 25 }}>
         <FlatButton label={this.props.intl.formatMessage(Messages.save)}
                     style={styles.button}
                     onTouchTap={() => this.props.onSave()}
                     backgroundColor={Colors.pinkA200}
                     hoverColor={Colors.pinkA100}
         />
+        {this.props.vrModeAvaiable ? <FlatButton label={this.props.intl.formatMessage(Messages.vrMode)}
+                    style={styles.button}
+                    onTouchTap={() => this.props.onVrModeRequest()}
+                    backgroundColor={Colors.pinkA200}
+                    hoverColor={Colors.pinkA100}
+        /> : null}
       </ToolbarGroup>
     );
   }
