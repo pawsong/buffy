@@ -1,5 +1,9 @@
-import * as conf from '@pasta/config';
+import { compose } from 'compose-middleware/lib';
 import * as ejwt from 'express-jwt';
+import * as createError from 'http-errors';
+import * as conf from '@pasta/config';
+
+import User from '../models/User';
 
 function getToken(req) {
   if (req.cookies && req.cookies.tt) {
@@ -23,7 +27,15 @@ function getToken(req) {
   return '';
 }
 
-export const requiresLogin = ejwt({
+export const requiresLogin = compose(ejwt({
   secret: conf.jwtSecret,
   getToken: getToken,
+}), function (req, res, next) {
+  User.findById(req.user.id, (err, user) => {
+    if (err) return next(err);
+    if (!user) return next(createError(403));
+
+    req.userDoc = user;
+    return next();
+  });
 });

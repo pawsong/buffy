@@ -31,12 +31,14 @@ export default (app: express.Express) => {
   app.get ('/courses', courseHandlers.getCourseList);
   app.get ('/courses/:courseId', courseHandlers.getCourseById);
 
-  app.post('/projects/anonymous', projectHandlers.createAnonymousProject);
-  app.put ('/projects/anonymous/:projectId', projectHandlers.updateAnonymousProject);
-  app.get ('/projects/anonymous/:projectId', projectHandlers.getAnonymousProject);
-  app.post('/projects/@:userId', projectHandlers.createUserProject);
-  app.put ('/projects/@:userId/:projectId', projectHandlers.updateUserProject);
-  app.get ('/projects/@:userId/:projectId', projectHandlers.getUserProject);
+  // Create and update project
+  app.post('/projects/anonymous', projectHandlers.createAnonProject);
+  app.put ('/projects/anonymous/:projectId', projectHandlers.updateAnonProject);
+  app.get ('/projects/anonymous/:projectId', projectHandlers.getAnonProject);
+
+  app.post('/projects/user', projectHandlers.createUserProject);
+  app.put ('/projects/user/:projectId', projectHandlers.updateUserProject);
+  app.get ('/projects/@:username/:projectId', projectHandlers.getUserProject);
 
   app.get ('/username-exists/:username', userHandlers.usernameExists);
   app.get ('/users/:id', userHandlers.getUserById);

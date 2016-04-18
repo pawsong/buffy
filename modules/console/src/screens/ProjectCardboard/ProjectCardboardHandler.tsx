@@ -11,7 +11,7 @@ import Cardboard from '../../components/Cardboard';
 import LocalServer, { LocalSocket } from '../../LocalServer';
 
 interface RouteParams {
-  userId: string;
+  username: string;
   projectId: string;
 }
 
@@ -21,7 +21,7 @@ enum ProjectCardboardMode {
 }
 
 function inferProjectCardboardMode(params: RouteParams): ProjectCardboardMode {
-  return params.userId ? ProjectCardboardMode.USER : ProjectCardboardMode.ANON;
+  return params.username ? ProjectCardboardMode.USER : ProjectCardboardMode.ANON;
 }
 
 interface Params extends RouteParams {}
@@ -33,7 +33,7 @@ interface HandlerProps extends RouteComponentProps<Params, RouteParams> {
 @preloadApi<RouteParams>(params => {
   const project = inferProjectCardboardMode(params) === ProjectCardboardMode.ANON
     ? get(`${CONFIG_API_SERVER_URL}/projects/anonymous/${params.projectId}`)
-    : get(`${CONFIG_API_SERVER_URL}/projects/@${params.userId}/${params.projectId}`);
+    : get(`${CONFIG_API_SERVER_URL}/projects/@${params.username}/${params.projectId}`);
 
   return { project };
 })

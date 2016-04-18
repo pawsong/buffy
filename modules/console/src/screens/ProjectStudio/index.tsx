@@ -37,13 +37,13 @@ enum ProjectStudioMode {
 }
 
 interface RouteParams {
-  userId: string;
+  username: string;
   projectId: string;
 }
 
 function inferProjectStudioMode(params: RouteParams): ProjectStudioMode {
   if (params.projectId) {
-    return params.userId ? ProjectStudioMode.USER_EDIT : ProjectStudioMode.ANON_EDIT;
+    return params.username ? ProjectStudioMode.USER_EDIT : ProjectStudioMode.ANON_EDIT;
   }
   return ProjectStudioMode.CREATE;
 }
@@ -70,7 +70,7 @@ interface ProjectStudioData {
 
   const project = type === ProjectStudioMode.ANON_EDIT
     ? get(`${CONFIG_API_SERVER_URL}/projects/anonymous/${params.projectId}`)
-    : get(`${CONFIG_API_SERVER_URL}/projects/@${params.userId}/${params.projectId}`);
+    : get(`${CONFIG_API_SERVER_URL}/projects/@${params.username}/${params.projectId}`);
 
   return { project };
 })
@@ -147,7 +147,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     switch (mode) {
       case ProjectStudioMode.CREATE: {
         if (this.props.user) {
-          this.props.runSaga(this.props.createUserProject, this.props.user.id, data);
+          this.props.runSaga(this.props.createUserProject, data);
         } else {
           this.props.runSaga(this.props.createAnonProject, data);
         }
@@ -159,8 +159,8 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
         return;
       }
       case ProjectStudioMode.USER_EDIT: {
-        const { userId, projectId } = this.props.routeParams;
-        this.props.runSaga(this.props.updateUserProject, userId, projectId, data);
+        const { username, projectId } = this.props.routeParams;
+        this.props.runSaga(this.props.updateUserProject, username, projectId, data);
         return;
       }
     }

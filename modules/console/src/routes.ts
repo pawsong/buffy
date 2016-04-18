@@ -71,7 +71,7 @@ export default function getRoutes(store: Store) {
         }),
       },
       {
-        path: '/@:userId/:projectId/:revision/edit',
+        path: '/@:username/:projectId/:revision/edit',
         getComponent: (location, cb) => require.ensure([], require => {
           cb(null, require<{ default: ProjectStudio }>('./screens/ProjectStudio').default);
         }),
@@ -83,7 +83,7 @@ export default function getRoutes(store: Store) {
         }),
       },
       {
-        path: '/@:userId/:projectId/:revision/vr',
+        path: '/@:username/:projectId/:revision/vr',
         getComponent: (location, cb) => require.ensure([], require => {
           cb(null, require<{ default: ProjectCardboard }>('./screens/ProjectCardboard').default);
         }),
