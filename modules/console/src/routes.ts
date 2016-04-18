@@ -1,26 +1,22 @@
 import { Store } from 'redux';
-import Root from './screens/Root';
-import Anonymous from './screens/Anonymous';
-import AnonymousIndex from './screens/Anonymous/screens/Index';
-import About from './screens/About';
-import Contact from './screens/Contact';
-import GetStarted from './screens/GetStarted';
-import FeaturesForTeachers from './screens/FeaturesForTeachers';
-import LoggedIn from './screens/LoggedIn';
-import LoggedInIndex from './screens/LoggedIn/screens/Index';
-import Features from './screens/Features';
-import NotFound from './screens/NotFound';
-import Course from './screens/Course';
-import CourseIndex from './screens/Course/screens/Index';
-import Unit from './screens/Course/screens/Unit';
-import Join from './screens/Join';
-import Login from './screens/Login';
-import OnlineStudio from './screens/OnlineStudio';
-import OnlineCardboard from './screens/OnlineCardboard';
-import ProjectStudio from './screens/ProjectStudio';
-import ProjectCardboard from './screens/ProjectCardboard';
-import ProfileHandler from './screens/Profile';
 import { State } from './reducers';
+
+import RootHandler from './screens/Root';
+import JoinHandler from './screens/Join';
+import LoginHandler from './screens/Login';
+import AnonymousHandler from './screens/Anonymous';
+import AnonymousIndexHandler from './screens/Anonymous/screens/Index';
+import LoggedInHandler from './screens/LoggedIn';
+import LoggedInIndexHandler from './screens/LoggedIn/screens/Index';
+import AboutHandler from './screens/About';
+import ContactHandler from './screens/Contact';
+import GetStartedHandler from './screens/GetStarted';
+import OnlineStudioHandler from './screens/OnlineStudio';
+import OnlineCardboardHandler from './screens/OnlineCardboard';
+import ProjectStudioHandler from './screens/ProjectStudio';
+import ProjectCardboardHandler from './screens/ProjectCardboard';
+import ProfileHandler from './screens/Profile';
+import NotFoundHandler from './screens/NotFound';
 
 export default function getRoutes(store: Store) {
 
@@ -34,7 +30,7 @@ export default function getRoutes(store: Store) {
   }
 
   return {
-    component: Root,
+    component: RootHandler,
     childRoutes: [
       {
         onEnter: redirectToDashboard,
@@ -45,7 +41,7 @@ export default function getRoutes(store: Store) {
             path: '/join',
             getComponent: (location, cb) => {
               return require.ensure([], require => {
-                cb(null, require<{ default: Join }>('./screens/Join').default);
+                cb(null, require<{ default: JoinHandler }>('./screens/Join').default);
               });
             },
           },
@@ -53,7 +49,7 @@ export default function getRoutes(store: Store) {
             path: '/login',
             getComponent: (location, cb) => {
               return require.ensure([], require => {
-                cb(null, require<{ default: Join }>('./screens/Login').default);
+                cb(null, require<{ default: JoinHandler }>('./screens/Login').default);
               });
             },
           },
@@ -62,43 +58,43 @@ export default function getRoutes(store: Store) {
       {
         path: '/create',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: ProjectStudio }>('./screens/ProjectStudio').default);
+          cb(null, require<{ default: ProjectStudioHandler }>('./screens/ProjectStudio').default);
         }),
       },
       {
         path: '/@/:projectId/:revision/edit',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: ProjectStudio }>('./screens/ProjectStudio').default);
+          cb(null, require<{ default: ProjectStudioHandler }>('./screens/ProjectStudio').default);
         }),
       },
       {
         path: '/@:username/:projectId/:revision/edit',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: ProjectStudio }>('./screens/ProjectStudio').default);
+          cb(null, require<{ default: ProjectStudioHandler }>('./screens/ProjectStudio').default);
         }),
       },
       {
         path: '/@/:projectId/:revision/vr',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: ProjectCardboard }>('./screens/ProjectCardboard').default);
+          cb(null, require<{ default: ProjectCardboardHandler }>('./screens/ProjectCardboard').default);
         }),
       },
       {
         path: '/@:username/:projectId/:revision/vr',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: ProjectCardboard }>('./screens/ProjectCardboard').default);
+          cb(null, require<{ default: ProjectCardboardHandler }>('./screens/ProjectCardboard').default);
         }),
       },
       {
         path: '/connect',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: OnlineStudio }>('./screens/OnlineStudio').default);
+          cb(null, require<{ default: OnlineStudioHandler }>('./screens/OnlineStudio').default);
         }),
       },
       {
         path: '/connect/vr',
         getComponent: (location, cb) => require.ensure([], require => {
-          cb(null, require<{ default: OnlineCardboard }>('./screens/OnlineCardboard').default);
+          cb(null, require<{ default: OnlineCardboardHandler }>('./screens/OnlineCardboard').default);
         }),
       },
       {
@@ -106,11 +102,11 @@ export default function getRoutes(store: Store) {
         getComponent: (location, cb) => {
           if (!isLoggedIn()) {
             return require.ensure([], require => {
-              cb(null, require<{ default: Anonymous }>('./screens/Anonymous').default);
+              cb(null, require<{ default: AnonymousHandler }>('./screens/Anonymous').default);
             });
           } else {
             return require.ensure([], require => {
-              cb(null, require<{ default: LoggedIn }>('./screens/LoggedIn').default);
+              cb(null, require<{ default: LoggedInHandler }>('./screens/LoggedIn').default);
             });
           }
         },
@@ -118,11 +114,11 @@ export default function getRoutes(store: Store) {
           getComponent: (location, cb) => {
             if (!isLoggedIn()) {
               return require.ensure([], (require) => {
-                cb(null, require<{ default: AnonymousIndex }>('./screens/Anonymous/screens/Index').default);
+                cb(null, require<{ default: AnonymousIndexHandler }>('./screens/Anonymous/screens/Index').default);
               });
             } else {
               return require.ensure([], (require) => {
-                cb(null, require<{ default: LoggedInIndex }>('./screens/LoggedIn/screens/Index').default);
+                cb(null, require<{ default: LoggedInIndexHandler }>('./screens/LoggedIn/screens/Index').default);
               });
             }
           }
@@ -137,56 +133,25 @@ export default function getRoutes(store: Store) {
           {
             path: '/about',
             getComponent: (location, cb) => require.ensure([], require => {
-              cb(null, require<{ default: About }>('./screens/About').default);
+              cb(null, require<{ default: AboutHandler }>('./screens/About').default);
             }),
           },
           {
             path: '/contact',
             getComponent: (location, cb) => require.ensure([], require => {
-              cb(null, require<{ default: Contact }>('./screens/Contact').default);
+              cb(null, require<{ default: ContactHandler }>('./screens/Contact').default);
             }),
           },
           {
             path: '/get-started',
             getComponent: (location, cb) => require.ensure([], require => {
-              cb(null, require<{ default: GetStarted }>('./screens/GetStarted').default);
+              cb(null, require<{ default: GetStartedHandler }>('./screens/GetStarted').default);
             }),
-          },
-          {
-            path: '/features',
-            getComponent: (location, cb) => require.ensure([], require => {
-              cb(null, require<{ default: Features }>('./screens/Features').default);
-            }),
-          },
-          {
-            path: '/features/teachers',
-            getComponent: (location, cb) => require.ensure([], require => {
-              cb(null, require<{ default: FeaturesForTeachers }>('./screens/FeaturesForTeachers').default);
-            }),
-          },
-          {
-            path: '/courses/:courseId',
-            getComponent: (location, cb) => require.ensure([], require => {
-              cb(null, require<{ default: Course }>('./screens/Course').default);
-            }),
-            indexRoute: {
-              getComponent: (location, cb) => require.ensure([], (require) => {
-                cb(null, require<{ default: CourseIndex }>('./screens/Course/screens/Index').default);
-              }),
-            },
-            childRoutes: [
-              {
-                path: 'units/:unitIndex',
-                getComponent: (location, cb) => require.ensure([], require => {
-                  cb(null, require<{ default: Unit }>('./screens/Course/screens/Unit').default);
-                }),
-              }
-            ],
           },
           {
             path: '*',
             getComponent: (location, cb) => require.ensure([], require => {
-              cb(null, require<{ default: NotFound }>('./screens/NotFound').default);
+              cb(null, require<{ default: NotFoundHandler }>('./screens/NotFound').default);
             }),
           },
         ],
