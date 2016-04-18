@@ -28,7 +28,9 @@ const styles = {
   },
 };
 
-interface NavbarProps extends React.Props<Navbar> {}
+interface NavbarProps extends React.Props<Navbar> {
+  width?: number | string;
+}
 
 class Navbar extends React.Component<NavbarProps, {}> {
   static contextTypes = {
@@ -52,7 +54,7 @@ class Navbar extends React.Component<NavbarProps, {}> {
     return (
       <div>
         <div style={styles.content}>
-          <Wrapper backgroundColor={this.backgroundColor}>
+          <Wrapper backgroundColor={this.backgroundColor} width={this.props.width}>
             <Toolbar style={this.toolbarStyle}>{this.props.children}</Toolbar>
           </Wrapper>
         </div>

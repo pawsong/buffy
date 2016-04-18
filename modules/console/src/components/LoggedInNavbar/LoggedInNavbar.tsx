@@ -24,121 +24,20 @@ import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 import LogoutIcon from 'material-ui/lib/svg-icons/action/exit-to-app';
+import ProfileIcon from 'material-ui/lib/svg-icons/action/account-box';
 
 const objectAssign = require('object-assign');
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-import Messages from '../../../constants/Messages';
+import Messages from '../../constants/Messages';
 
-import ClickAwayListener from '../../../components/ClickAwayListener';
+import ClickAwayListener from '../ClickAwayListener';
 
 import {
   User,
- } from '../../../reducers/users';
+ } from '../../reducers/users';
 
-import Navbar from '../../../components/Navbar';
-
-interface AppNavbarProps extends React.Props<AppNavbar> {
-  location: any;
-  user: User;
-  onLogout: () => any;
-  intl?: InjectedIntlProps;
-}
-
-interface AppNavbarState {
-  accountInfoBoxOpened?: boolean;
-}
-
-const messages = defineMessages({
-  username: {
-    id: 'navbar.accountinfo.username',
-    description: 'Show username of logged in user',
-    defaultMessage: 'Logged in as {username}',
-  },
-});
-
-@injectIntl
-class AppNavbar extends React.Component<AppNavbarProps, AppNavbarState> {
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      accountInfoBoxOpened: false,
-    };
-  }
-
-  handleLogout() {
-    this.props.onLogout();
-  }
-
-  handleAvatarClick() {
-    this.setState({ accountInfoBoxOpened: !this.state.accountInfoBoxOpened });
-  }
-
-  closeAccountInfoBox() {
-    if (this.state.accountInfoBoxOpened) this.setState({ accountInfoBoxOpened: false });
-  }
-
-  handleClickAway() {
-    this.closeAccountInfoBox();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.location !== prevProps.location) this.closeAccountInfoBox();
-  }
-
-  renderAccountBox() {
-    const user = this.props.user;
-    const username = (user && user.username) || '';
-
-    const subheader = (
-      <FormattedMessage {...messages.username} values={{
-        username: <span style={{ fontWeight: 'bold' }}>{username}</span>,
-      }} />
-    );
-
-    return (
-      <div style={styles.accountInfoBox}>
-        <div style={styles.accountInfoBoxCaretCont}>
-          <div style={styles.accountInfoBoxOuterCaret} />
-          <div style={styles.accountInfoBoxInnerCaret} />
-        </div>
-        <Paper zDepth={1}>
-          <List subheader={subheader as any}>
-            <ListItem primaryText={this.props.intl.formatMessage(Messages.logout)}
-                      leftIcon={<LogoutIcon />}
-                      onTouchTap={() => this.handleLogout()}
-            />
-          </List>
-        </Paper>
-      </div>
-    );
-  }
-
-  render() {
-    const user = this.props.user;
-    const picture = user ? user.picture : '';
-
-    const accountInfoBox = this.state.accountInfoBoxOpened ? this.renderAccountBox() : null;
-
-    return (
-      <Navbar>
-        <ToolbarGroup float="left">
-          <Link to="/"><ActionPets style={styles.logo} /></Link>
-        </ToolbarGroup>
-        <ToolbarGroup float="right">
-          <ClickAwayListener onClickAway={() => this.handleClickAway()}>
-            <IconButton style={styles.avatarButton} iconStyle={styles.avatarButtonIcon} onTouchTap={() => this.handleAvatarClick()}>
-              <Avatar size={32} src={picture} />
-            </IconButton>
-            {accountInfoBox}
-          </ClickAwayListener>
-        </ToolbarGroup>
-      </Navbar>
-    );
-  }
-}
-
-export default AppNavbar;
+import Navbar from '../Navbar';
 
 const styles = {
   title: {
@@ -193,3 +92,120 @@ const styles = {
     borderBottomColor: 'rgba(255,255,255,0.98)',
   },
 };
+
+interface LoggedInNavbarProps extends React.Props<LoggedInNavbar> {
+  location: any;
+  user: User;
+  onLogout: () => any;
+  leftToolbarGroup?: React.ReactElement<any>;
+  width?: number | string;
+  intl?: InjectedIntlProps;
+}
+
+interface LoggedInNavbarState {
+  accountInfoBoxOpened?: boolean;
+}
+
+const messages = defineMessages({
+  profile: {
+    id: 'navbar.accountinfo.profile',
+    description: 'Your profile link label',
+    defaultMessage: 'Your profile',
+  },
+  username: {
+    id: 'navbar.accountinfo.username',
+    description: 'Show username of logged in user',
+    defaultMessage: 'Logged in as {username}',
+  },
+});
+
+@injectIntl
+class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbarState> {
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      accountInfoBoxOpened: false,
+    };
+  }
+
+  handleLogout() {
+    this.props.onLogout();
+  }
+
+  handleAvatarClick() {
+    this.setState({ accountInfoBoxOpened: !this.state.accountInfoBoxOpened });
+  }
+
+  closeAccountInfoBox() {
+    if (this.state.accountInfoBoxOpened) this.setState({ accountInfoBoxOpened: false });
+  }
+
+  handleClickAway() {
+    this.closeAccountInfoBox();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.location !== prevProps.location) this.closeAccountInfoBox();
+  }
+
+  renderAccountBox() {
+    const user = this.props.user;
+    const username = (user && user.username) || '';
+
+    const subheader = (
+      <FormattedMessage {...messages.username} values={{
+        username: <span style={{ fontWeight: 'bold' }}>{username}</span>,
+      }} />
+    );
+
+    return (
+      <div style={styles.accountInfoBox}>
+        <div style={styles.accountInfoBoxCaretCont}>
+          <div style={styles.accountInfoBoxOuterCaret} />
+          <div style={styles.accountInfoBoxInnerCaret} />
+        </div>
+        <Paper zDepth={1}>
+          <List subheader={subheader as any}>
+            <ListItem primaryText={this.props.intl.formatMessage(messages.profile)}
+                      leftIcon={<ProfileIcon />}
+                      linkButton={true}
+                      containerElement={<Link to={`/@${username}`}></Link>}
+            />
+            <ListItem primaryText={this.props.intl.formatMessage(Messages.logout)}
+                      leftIcon={<LogoutIcon />}
+                      onTouchTap={() => this.handleLogout()}
+            />
+          </List>
+        </Paper>
+      </div>
+    );
+  }
+
+  render() {
+    const user = this.props.user;
+    const picture = user ? user.picture : '';
+
+    const accountInfoBox = this.state.accountInfoBoxOpened ? this.renderAccountBox() : null;
+
+    const leftToolbarGroup = this.props.leftToolbarGroup || null;
+
+    return (
+      <Navbar width={this.props.width}>
+        <ToolbarGroup float="left">
+          <Link to="/"><ActionPets style={styles.logo} /></Link>
+        </ToolbarGroup>
+        {leftToolbarGroup}
+        <ToolbarGroup float="right">
+          <ClickAwayListener onClickAway={() => this.handleClickAway()}>
+            <IconButton style={styles.avatarButton} iconStyle={styles.avatarButtonIcon} onTouchTap={() => this.handleAvatarClick()}>
+              <Avatar size={32} src={picture} />
+            </IconButton>
+            {accountInfoBox}
+          </ClickAwayListener>
+        </ToolbarGroup>
+      </Navbar>
+    );
+  }
+}
+
+export default LoggedInNavbar;

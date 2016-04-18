@@ -70,21 +70,21 @@ export default {
   'anon.index.wantToLearnMore': '{service}에 대해 더 알고 싶으세요?',
 
   /**
-   * path: src/screens/Anonymous/components/AnonymousNavbar.json
+   * path: src/components/AnonymousNavbar/AnonymousNavbar.json
    * description: Simple question to ask why this service is good
    * defaultMessage: Why?
    */
   'anon.navbar.features': '특징',
 
   /**
-   * path: src/screens/Anonymous/components/AnonymousNavbar.json
+   * path: src/components/AnonymousNavbar/AnonymousNavbar.json
    * description: Features for teachers page link button label
    * defaultMessage: Teachers
    */
   'anon.navbar.featuresForTeachers': '선생님',
 
   /**
-   * path: src/screens/Anonymous/components/AnonymousNavbar.json
+   * path: src/components/AnonymousNavbar/AnonymousNavbar.json
    * description: Label for get started button
    * defaultMessage: Get Started
    */
@@ -273,7 +273,14 @@ export default {
   'nameRequired': '이름을 입력하세요',
 
   /**
-   * path: src/screens/LoggedIn/components/AppNavbar.json
+   * path: src/components/LoggedInNavbar/LoggedInNavbar.json
+   * description: Your profile link label
+   * defaultMessage: Your profile
+   */
+  'navbar.accountinfo.profile': '내 프로필 보기',
+
+  /**
+   * path: src/components/LoggedInNavbar/LoggedInNavbar.json
    * description: Show username of logged in user
    * defaultMessage: Logged in as {username}
    */

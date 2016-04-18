@@ -14,7 +14,7 @@ const styles = {
 interface WrapperProps extends React.Props<Wrapper> {
   backgroundColor?: string;
   style?: React.CSSProperties;
-  width?: number;
+  width?: number | string;
 }
 
 @Radium

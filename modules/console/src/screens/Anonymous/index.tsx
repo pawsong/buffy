@@ -11,7 +11,7 @@ import {
   Course,
 } from '../../reducers/course';
 
-import AnonymousNavbar from './components/AnonymousNavbar';
+import AnonymousNavbar from '../../components/AnonymousNavbar';
 import Footer from '../../components/Footer';
 
 import { preloadApi, connectApi, ApiCall, get } from '../../api';
@@ -28,7 +28,7 @@ class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
   render() {
     return (
       <div>
-        <AnonymousNavbar location={this.props.location} />
+        <AnonymousNavbar location={this.props.location} height={72} />
         {this.props.children}
         <Footer />
       </div>

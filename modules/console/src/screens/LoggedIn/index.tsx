@@ -9,7 +9,7 @@ import {
   requestLogout,
 } from '../../actions/auth';
 import Footer from '../../components/Footer';
-import AppNavbar from './components/AppNavbar';
+import LoggedInNavbar from '../../components/LoggedInNavbar';
 
 interface LoggedInHandlerProps extends RouteComponentProps<{}, {}> {
   user?: User;
@@ -29,7 +29,7 @@ class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
   render() {
     return (
       <div>
-        <AppNavbar user={this.props.user} onLogout={this.handleLogout.bind(this)} location={this.props.location} />
+        <LoggedInNavbar user={this.props.user} onLogout={this.handleLogout.bind(this)} location={this.props.location} />
         {this.props.children}
         <Footer />
       </div>
