@@ -3,13 +3,13 @@ import FlatButton from 'material-ui/lib/flat-button';
 import Colors from 'material-ui/lib/styles/colors';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 
-import { User } from '../../reducers/users';
+import { User } from '../../../reducers/users';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-import Messages from '../../constants/Messages';
+import Messages from '../../../constants/Messages';
 
-import LoggedInNavbar from '../LoggedInNavbar';
-import AnonymousNavbar from '../AnonymousNavbar';
+import LoggedInNavbar from '../../../components/LoggedInNavbar';
+import AnonymousNavbar from '../../../components/AnonymousNavbar';
 
 const styles = {
   button: {

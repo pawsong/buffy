@@ -6,16 +6,19 @@ import * as shortid from 'shortid';
 import { SerializedGameObject } from '@pasta/core/lib/classes/GameObject';
 import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import { Project, ProjectData, SerializedLocalServer } from '@pasta/core/lib/Project';
+import StateLayer from '@pasta/core/lib/StateLayer';
 
-import LocalServer from '../../LocalServer';
+import LocalServer, { LocalSocket } from '../../LocalServer';
 import { connectApi, preloadApi, ApiCall, get, ApiDispatchProps } from '../../api';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import * as StorageKeys from '../../constants/StorageKeys';
 import Studio, { StudioState } from '../../components/Studio';
-import ProjectStudio from '../../components/ProjectStudio';
 import { requestLogout } from '../../actions/auth';
+import { convertXmlToCodes } from '../../blockly/utils';
+
+import ProjectStudioNavbar from './components/ProjectStudioNavbar';
 
 import {
   createAnonProject,
@@ -24,11 +27,17 @@ import {
   updateUserProject,
 } from './sagas';
 
-interface ProjectStudioHandlerState {
-  initialized?: boolean;
-  initialLocalServer?: SerializedLocalServer;
-  studioState?: StudioState;
-}
+const NAVBAR_HEIGHT = 56;
+
+const styles = {
+  studio: {
+    position: 'absolute',
+    top: NAVBAR_HEIGHT,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+};
 
 enum ProjectStudioMode {
   CREATE,
@@ -59,10 +68,19 @@ interface ProjectStudioHandlerProps extends RouteComponentProps<RouteParams, Rou
   push?: (location: HistoryModule.LocationDescriptor) => any;
 }
 
-interface ProjectStudioData {
-  initialLocalServer: SerializedLocalServer;
-  initialBlocklyXml: string;
+interface ProjectStudioHandlerState {
+  stateLayerIsRunning?: boolean;
+  initialLocalServer?: SerializedLocalServer;
+  studioState?: StudioState;
 }
+
+/*
+ * ProjectStudioHandler component handles various modes to support url change without rerendering.
+ *
+ * Create mode: StateLayer is started in componentDidMount with localStorage data.
+ * Edit mode (preloaded): StateLayer is started in componentDidMount with preloaded data.
+ * Edit mode (not preloaded): StartLayer is started componentWillReceiveProps when response arrives.
+ */
 
 @preloadApi<RouteParams>((params, location) => {
   const type = inferProjectStudioMode(params);
@@ -90,38 +108,43 @@ interface ProjectStudioData {
 class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, ProjectStudioHandlerState> {
   mode: ProjectStudioMode;
 
+  socket: LocalSocket;
+  server: LocalServer;
+  stateLayer: StateLayer;
+  startStateLayerGuard: boolean;
+  startStateLayerReserved: boolean;
+
   constructor(props) {
     super(props);
+
     this.mode = inferProjectStudioMode(this.props.params);
 
     if (this.props.project && this.props.project.state === 'fulfilled') {
       this.state = this.createStateFromResponse(this.props.project.result);
+      this.state.stateLayerIsRunning = false;
+      this.startStateLayerReserved = true;
     } else {
-      this.state = { initialized: false };
-    }
-  }
-
-  componentDidMount() {
-    if (this.mode === ProjectStudioMode.CREATE) {
-      this.setState(this.createStateFromLocalStorage());
-    }
-  }
-
-  componentWillReceiveProps(nextProps: ProjectStudioHandlerProps) {
-    if (this.props.params !== nextProps.params) {
-      this.mode = inferProjectStudioMode(nextProps.params);
+      this.state = { stateLayerIsRunning: false };
+      this.startStateLayerReserved = false;
     }
 
-    if (this.state.initialized) return;
+    this.socket = new LocalSocket();
 
-    if (nextProps.project && nextProps.project.state === 'fulfilled') {
-      this.setState(this.createStateFromResponse(nextProps.project.result));
-    }
+    this.stateLayer = new StateLayer({
+      emit: (event, params, cb) => {
+        this.socket.emit(event, params, cb);
+      },
+      listen: (event, handler) => {
+        const token = this.socket.addListener(event, handler);
+        return () => token.remove();
+      },
+    });
+
+    this.startStateLayerGuard = false;
   }
 
   createStateFromLocalStorage(): ProjectStudioHandlerState {
     return {
-      initialized: true,
       initialLocalServer: LocalServer.createInitialData(),
       studioState: Studio.creatState({
         codeEditorState: {
@@ -133,7 +156,6 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
   createStateFromResponse(project: Project): ProjectStudioHandlerState {
     return {
-      initialized: true,
       initialLocalServer: project.server,
       studioState: Studio.creatState({
         codeEditorState: { blocklyXml: project.blocklyXml },
@@ -142,9 +164,65 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     };
   }
 
-  handleSave(data: ProjectData) {
-    const mode = inferProjectStudioMode(this.props.routeParams);
-    switch (mode) {
+  startStateLayer() {
+    if (this.startStateLayerGuard) return;
+    this.startStateLayerGuard = true;
+
+    this.server = new LocalServer(this.state.initialLocalServer, this.socket);
+    this.stateLayer.start(this.server.getInitData());
+
+    this.setState({ stateLayerIsRunning: true });
+  }
+
+  componentDidMount() {
+    if (this.startStateLayerReserved) {
+      this.startStateLayer();
+    } else if (this.mode === ProjectStudioMode.CREATE) {
+      this.setState(this.createStateFromLocalStorage(), () => this.startStateLayer());
+    }
+  }
+
+  componentWillReceiveProps(nextProps: ProjectStudioHandlerProps) {
+    if (this.props.params !== nextProps.params) {
+      this.mode = inferProjectStudioMode(nextProps.params);
+    }
+
+    if (this.state.stateLayerIsRunning || this.startStateLayerReserved) return;
+
+    if (nextProps.project && nextProps.project.state === 'fulfilled') {
+      this.setState(this.createStateFromResponse(nextProps.project.result), () => this.startStateLayer());
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.server) {
+      this.server.destroy();
+      this.server = null;
+    }
+
+    this.stateLayer.destroy();
+    this.stateLayer = null;
+  }
+
+  handleSave() {
+    // Game
+    const serialized = this.server.serialize();
+
+    // Code editor
+    const { blocklyXml } = this.state.studioState.codeEditorState;
+    const scripts = convertXmlToCodes(blocklyXml);
+
+    // Voxel editor
+    const voxels = this.state.studioState.voxelEditorState.voxel.present.data.toJS();
+
+    const data: ProjectData = {
+      scripts,
+      blocklyXml,
+      server: serialized,
+      voxels,
+    };
+
+    switch (this.mode) {
       case ProjectStudioMode.CREATE: {
         if (this.props.user) {
           this.props.runSaga(this.props.createUserProject, data);
@@ -184,24 +262,25 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   render() {
-    if (!this.state.initialized) {
+    if (!this.state.stateLayerIsRunning) {
       return <div>Loading now...</div>;
     }
 
-    const { initialLocalServer, studioState } = this.state;
-
     return (
-      <ProjectStudio studioState={studioState}
-                     onChange={studioState => this.handleStudioStateChange(studioState)}
-                     initialLocalServer={initialLocalServer}
-                     user={this.props.user}
-                     location={this.props.location}
-                     onLogout={() => this.props.requestLogout()}
-                     onSave={data => this.handleSave(data)}
-                     onPush={location => this.props.push(location)}
-                     vrModeAvaiable={this.mode !== ProjectStudioMode.CREATE}
-                     onVrModeRequest={() => this.handleVrModeRequest()}
-      />
+      <div>
+        <ProjectStudioNavbar user={this.props.user}
+                             location={this.props.location}
+                             onLogout={() => this.props.requestLogout()}
+                             onSave={() => this.handleSave()}
+                             onLinkClick={location => this.props.push(location)}
+                             vrModeAvaiable={this.mode !== ProjectStudioMode.CREATE}
+                             onVrModeRequest={() => this.handleVrModeRequest()}
+        />
+        <Studio studioState={this.state.studioState}
+                onChange={studioState => this.handleStudioStateChange(studioState)}
+                stateLayer={this.stateLayer} style={styles.studio}
+        />
+      </div>
     );
   }
 }
