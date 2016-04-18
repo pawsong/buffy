@@ -66,7 +66,7 @@ export function preloadApi<T>(mapParamsToProps: MapParamsToProps<T>) {
       render() {
         const { params, location } = this.props;
         const specs = mapParamsToProps(params, location) || {};
-        return <WrappedComponent parentProps={this.props} preloadApiSpecs={specs} />
+        return <WrappedComponent location={location} parentProps={this.props} preloadApiSpecs={specs} />
       }
     }
 
@@ -79,6 +79,7 @@ export function preloadApi<T>(mapParamsToProps: MapParamsToProps<T>) {
  */
 
 interface ConnectApiContainerProps extends React.Props<{}> {
+  location?: any;
   preloadApiSpecs?: ApiSpecDictionary;
   parentProps: any;
 }
@@ -92,6 +93,7 @@ interface ConnectApiOwnProps extends React.Props<{}> {
 }
 
 interface ConnectApiProps extends ConnectApiOwnProps {
+  location?: any;
   stateProps?: any;
   dispatchProps?: any;
   calls?: ApiCallDictionary;
@@ -171,7 +173,8 @@ export function connectApi<T>(
 
       render() {
         return (
-          <ConnectApi parentProps={this.props.parentProps || this.props}
+          <ConnectApi location={this.props.location}
+                      parentProps={this.props.parentProps || this.props}
                       preloadApiSpecs={this.props.preloadApiSpecs || {}}
                       getInitialApiCall={this.getInitialApiCall}
                       getNextCalls={this.getNextCalls}
@@ -240,6 +243,15 @@ export function connectApi<T>(
             const spec = this.props.preloadApiSpecs[key];
             const call = this.props.calls[spec.id];
             this.props.referenceCall(spec.id, spec.options);
+          });
+        }
+      }
+
+      componentDidUpdate(prevProps: ConnectApiProps) {
+        if (this.props.preloadExpired && prevProps.location !== this.props.location) {
+          Object.keys(this.props.preloadApiSpecs).forEach(key => {
+            const call = this.props.calls[key];
+            this.request(call);
           });
         }
       }
