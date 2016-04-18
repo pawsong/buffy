@@ -13,9 +13,6 @@ import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
 import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';
 import RaisedButton from 'material-ui/lib/raised-button';
-import FontIcon from 'material-ui/lib/font-icon';
-import Tabs from 'material-ui/lib/tabs/tabs';
-import Tab from 'material-ui/lib/tabs/tab';
 import { Styles } from 'material-ui';
 
 
@@ -35,24 +32,6 @@ const styles = {
     marginRight: 0,
   },
 };
-
-const messages = defineMessages({
-  featuresLabel: {
-    id: 'anon.navbar.features',
-    description: 'Simple question to ask why this service is good',
-    defaultMessage: 'Why?',
-  },
-  featuresForTeachersLabel: {
-    id: 'anon.navbar.featuresForTeachers',
-    description: 'Features for teachers page link button label',
-    defaultMessage: 'Teachers',
-  },
-  getStarted: {
-    id: 'anon.navbar.getStarted',
-    description: 'Label for get started button',
-    defaultMessage: 'Get Started',
-  },
-});
 
 interface AnonymousNavbarProps extends React.Props<AnonymousNavbar> {
   leftToolbarGroup?: React.ReactElement<any>;
@@ -98,30 +77,8 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
     return { muiTheme: this.muiTheme };
   }
 
-  handleTabChange(value) {
-    this.props.dispatch(push(value));
-  }
-
   render() {
-    const leftToolbarGroup = this.props.leftToolbarGroup || (
-      <Tabs value={this.props.location.pathname}
-            onChange={value => this.handleTabChange(value)}
-            style={{ width: 339, display: 'inline-block', marginLeft: 30 }}
-      >
-        <Tab value="/features"
-          icon={<FontIcon className="material-icons">playlist_add_check</FontIcon>}
-          label={this.props.intl.formatMessage(messages.featuresLabel)}
-        />
-        <Tab value="/features/teachers"
-          icon={<FontIcon className="material-icons">tag_faces</FontIcon>}
-          label={this.props.intl.formatMessage(messages.featuresForTeachersLabel)}
-        />
-        <Tab value="/get-started"
-          icon={<FontIcon className="material-icons">play_arrow</FontIcon>}
-          label={this.props.intl.formatMessage(messages.getStarted)}
-        />
-      </Tabs>
-    );
+    const leftToolbarGroup = this.props.leftToolbarGroup || null;
 
     return (
       <Navbar width={this.props.width}>

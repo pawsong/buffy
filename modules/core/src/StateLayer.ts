@@ -77,7 +77,7 @@ class StateLayer {
   }
 
   destroy() {
-    this._destroyFuncs.forEach(fn => fn());
+    if (this._destroyFuncs) this._destroyFuncs.forEach(fn => fn());
   }
 }
 

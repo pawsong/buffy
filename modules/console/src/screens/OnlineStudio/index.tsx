@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { Link } from 'react-router';
+import { connect } from 'react-redux';
+import { Link, RouteComponentProps } from 'react-router';
 import { call } from 'redux-saga/effects';
+import { push } from 'react-router-redux';
 import * as io from 'socket.io-client';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { InitParams } from '@pasta/core/lib/packet/ZC';
@@ -8,13 +10,18 @@ import { InitParams } from '@pasta/core/lib/packet/ZC';
 import Studio, { StudioState } from '../../components/Studio';
 import { saga, ImmutableTask, SagaProps } from '../../saga';
 import { connectApi, get, ApiCall, ApiDispatchProps } from '../../api';
+import { State } from '../../reducers';
+import { User } from '../../reducers/users';
+import { requestLogout } from '../../actions/auth';
 
 import { GameUser } from './base';
 
 import ContactsButton from './components/ContactsButton';
 import ContactsDialog from './components/ContactsDialog';
 
-const NAVBAR_SIZE = 60;
+import OnlineStudioNavbar from './components/OnlineStudioNavbar';
+
+const NAVBAR_HEIGHT = 56;
 
 const styles = {
   // navbar: {
@@ -22,18 +29,21 @@ const styles = {
   // },
   studio: {
     position: 'absolute',
-    // top: NAVBAR_SIZE,
-    top: 0,
+    top: NAVBAR_HEIGHT,
+    // top: 0,
     bottom: 0,
     left: 0,
     right: 0,
   },
 };
 
-interface OnlineStudioProps extends React.Props<OnlineStudio>, SagaProps, ApiDispatchProps {
+interface OnlineStudioProps extends RouteComponentProps<{}, {}>, SagaProps, ApiDispatchProps {
   stateLayer: StateLayer;
   moveMap?: ImmutableTask<void>;
   users?: ApiCall<GameUser[]>;
+  user?: User;
+  requestLogout?: any;
+  push?: any;
 }
 
 interface OnlineStudioState {
@@ -49,6 +59,12 @@ interface OnlineStudioState {
   moveMap: function* (stateLayer: StateLayer, mapId: string) {
     yield call(stateLayer.rpc.moveMap, { id: mapId });
   },
+})
+@connect((state: State) => ({
+  user: state.users.get(state.auth.userid),
+}), {
+  requestLogout,
+  push,
 })
 class OnlineStudio extends React.Component<OnlineStudioProps, OnlineStudioState> {
   stateLayer: StateLayer;
@@ -116,21 +132,31 @@ class OnlineStudio extends React.Component<OnlineStudioProps, OnlineStudioState>
     );
   }
 
-  render() {
-    if (!this.state.initialized) {
-      return <div>Connecting...</div>;
-    }
-
+  renderStudio() {
     const game = this.renderGame();
 
     return (
+      <Studio studioState={this.state.studioState}
+              onChange={studioState => this.setState({ studioState })}
+              stateLayer={this.stateLayer}
+              style={styles.studio}
+              game={game}
+      />
+    );
+  }
+
+  render() {
+    const studio = this.state.initialized ? this.renderStudio() : (
+      <div>Connecting...</div>
+    );
+
+    return (
       <div>
-        <Studio studioState={this.state.studioState}
-                onChange={studioState => this.setState({ studioState })}
-                stateLayer={this.stateLayer}
-                style={styles.studio}
-                game={game}
+        <OnlineStudioNavbar location={this.props.location} user={this.props.user}
+                            onLogout={() => this.props.requestLogout()}
+                            onLinkClick={location => this.props.push(location)}
         />
+        {studio}
       </div>
     );
   }
