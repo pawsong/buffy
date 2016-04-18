@@ -16,6 +16,7 @@ import OnlineCardboardHandler from './screens/OnlineCardboard';
 import ProjectStudioHandler from './screens/ProjectStudio';
 import ProjectCardboardHandler from './screens/ProjectCardboard';
 import ProfileHandler from './screens/Profile';
+import SettingsHandler from './screens/Settings';
 import NotFoundHandler from './screens/NotFound';
 
 export default function getRoutes(store: Store) {
@@ -25,8 +26,12 @@ export default function getRoutes(store: Store) {
     return !!state.auth.userid;
   }
 
+  function redirectToLogin(nextState, replace) {
+    if (!isLoggedIn()) replace('/login');
+  }
+
   function redirectToDashboard(nextState, replace) {
-    if (isLoggedIn()) { replace('/'); }
+    if (isLoggedIn()) replace('/');
   }
 
   return {
@@ -124,6 +129,15 @@ export default function getRoutes(store: Store) {
           }
         },
         childRoutes: [
+          {
+            onEnter: redirectToLogin,
+            path: '/settings',
+            getComponent: (location, cb) => {
+              return require.ensure([], require => {
+                cb(null, require<{ default: SettingsHandler }>('./screens/Settings').default);
+              });
+            },
+          },
           {
             path: '/@:username',
             getComponent: (location, cb) => require.ensure([], require => {

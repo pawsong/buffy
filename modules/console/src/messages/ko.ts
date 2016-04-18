@@ -351,6 +351,41 @@ export default {
 
   /**
    * path: src/constants/Messages.json
+   * description: Settings
+   * defaultMessage: Settings
+   */
+  'settings': '설정',
+
+  /**
+   * path: src/screens/Settings/SettingsHandler.json
+   * description: Name area title
+   * defaultMessage: Name
+   */
+  'settings.name': '이름',
+
+  /**
+   * path: src/screens/Settings/SettingsHandler.json
+   * description: Profile picture area title
+   * defaultMessage: Profile picture
+   */
+  'settings.profile.picture': '프로필 사진',
+
+  /**
+   * path: src/screens/Settings/SettingsHandler.json
+   * description: Update profile button label
+   * defaultMessage: Update profile
+   */
+  'settings.update.profile': '프로필 수정',
+
+  /**
+   * path: src/screens/Settings/SettingsHandler.json
+   * description: Upload profile picture button label
+   * defaultMessage: Upload your picture
+   */
+  'settings.upload.profile.picture': '프로필 사진 업로드',
+
+  /**
+   * path: src/constants/Messages.json
    * description: Sign up
    * defaultMessage: Sign up
    */

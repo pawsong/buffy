@@ -117,6 +117,7 @@ app.get('*', async (req, res) => {
           user: {
             id: res.data.id,
             email: res.data.email || '',
+            name: res.data.name || '',
             username: res.data.username || '',
             picture: res.data.picture,
           },

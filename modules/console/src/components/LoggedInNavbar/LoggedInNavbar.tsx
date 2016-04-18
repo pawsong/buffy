@@ -23,8 +23,10 @@ import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
 
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
+import Divider from 'material-ui/lib/divider';
 import LogoutIcon from 'material-ui/lib/svg-icons/action/exit-to-app';
 import ProfileIcon from 'material-ui/lib/svg-icons/action/account-box';
+import SettingsIcon from 'material-ui/lib/svg-icons/action/settings';
 
 const objectAssign = require('object-assign');
 
@@ -170,6 +172,11 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
                       leftIcon={<ProfileIcon />}
                       linkButton={true}
                       containerElement={<Link to={`/@${username}`}></Link>}
+            />
+            <ListItem primaryText={this.props.intl.formatMessage(Messages.settings)}
+                      leftIcon={<SettingsIcon />}
+                      linkButton={true}
+                      containerElement={<Link to={`/settings`}></Link>}
             />
             <ListItem primaryText={this.props.intl.formatMessage(Messages.logout)}
                       leftIcon={<LogoutIcon />}

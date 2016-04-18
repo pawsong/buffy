@@ -31,6 +31,7 @@ export default function* localLogin(email: string, password: string) {
     user: {
       id: user['id'],
       email: user.email || '',
+      name: user.name || '',
       username: user.username || '',
       picture: user['picture'],
     },

@@ -10,6 +10,7 @@ import {
 
 export interface User {
   id: string;
+  name: string;
   email: string;
   username: string;
   picture: string;
@@ -27,6 +28,7 @@ export default function users(state: UsersState = initialize(), action: Action<s
       const { user } = <UserAddAction>action;
       return state.set(user.id, {
         id: user.id,
+        name: user.name,
         email: user.email,
         username: user.username,
         picture: user.picture,

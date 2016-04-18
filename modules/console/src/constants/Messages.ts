@@ -71,6 +71,11 @@ const messages = defineMessages({
     description: 'Log out',
     defaultMessage: 'Log out',
   },
+  settings: {
+    id: 'settings',
+    description: 'Settings',
+    defaultMessage: 'Settings',
+  },
   vrMode: {
     id: 'vrMode',
     description: 'VR mode',
