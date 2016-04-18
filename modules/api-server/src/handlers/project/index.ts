@@ -1,10 +1,45 @@
 import * as express from 'express';
 import wrap from '@pasta/helper/lib/wrap';
-import { UserDocument } from '../../models/User';
+import User, { UserDocument } from '../../models/User';
 import Project from '../../models/Project';
 import * as conf from '@pasta/config';
 import { compose } from 'compose-middleware/lib';
 import { requiresLogin } from '../../middlewares/auth';
+
+/**
+ * List
+ */
+export const getMyProjectList = compose(requiresLogin, wrap(async (req, res) => {
+  const user: UserDocument = req['userDoc'];
+  if (!user) return res.send(404);
+
+  const projects = await Project.find({
+    owner: user.id,
+  }, {
+    _id: true,
+    name: true,
+    desc: true,
+  });
+
+  res.send(projects);
+}));
+
+export const getUserProjectList = wrap(async (req, res) => {
+  const { username } = req.params;
+
+  const user = await User.findOne({ username }).exec();
+  if (!user) return res.send(404);
+
+  const projects = await Project.find({
+    owner: user.id,
+  }, {
+    _id: true,
+    name: true,
+    desc: true,
+  });
+
+  res.send(projects);
+});
 
 /*
  * Create

@@ -1,5 +1,11 @@
 import * as mongoose from 'mongoose';
 
+const secrets = [
+  'fb',
+  '_id',
+  '__v',
+];
+
 const { Schema } = mongoose;
 
 export interface ProjectDocument extends mongoose.Document {
@@ -29,6 +35,11 @@ ProjectSchema.virtual('id').get(function(){
 
 ProjectSchema.set('toJSON', {
   virtuals: true,
+  transform: function (doc, ret) {
+    secrets.forEach(secret => {
+      delete ret[secret];
+    });
+  },
 });
 
 export default mongoose.model<ProjectDocument>('Project', ProjectSchema);

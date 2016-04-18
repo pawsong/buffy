@@ -4,6 +4,9 @@ import { Link } from 'react-router';
 import RaisedButton from 'material-ui/lib/raised-button';
 import ClearFix from 'material-ui/lib/clearfix';
 
+import List from 'material-ui/lib/lists/list';
+import ListItem from 'material-ui/lib/lists/list-item';
+
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../../constants/Messages';
 import Wrapper from '../../../../components/Wrapper';
@@ -16,6 +19,12 @@ import { saga } from '../../../../saga';
 import { connectApi, preloadApi, ApiCall, get } from '../../../../api';
 
 import CourseList from './components/CourseList';
+
+interface ProjectSummary {
+  id: string;
+  name: string;
+  desc: string;
+}
 
 const messages = defineMessages({
   createProject: {
@@ -34,20 +43,46 @@ const styles = {
 interface IndexHandlerProps extends React.Props<IndexHandler> {
   user: User;
   courses: ApiCall<Course[]>;
+  projects: ApiCall<ProjectSummary[]>;
   request: any;
   intl: InjectedIntlProps;
 }
 
 @preloadApi(() => ({
   courses: get(`${CONFIG_API_SERVER_URL}/courses`),
+  projects: get(`${CONFIG_API_SERVER_URL}/projects/me`),
 }))
 @connectApi()
+@connect((state: State) => {
+  return {
+    user: state.users.get(state.auth.userid),
+  };
+})
 @injectIntl
 class IndexHandler extends React.Component<IndexHandlerProps, {}> {
+  renderProjectList() {
+    const projects = this.props.projects.state !== 'fulfilled' ? [] : this.props.projects.result;
+
+    const listBody = projects.map(project => {
+      console.log(project);
+      return (
+        <ListItem key={project.id} primaryText={project.id}
+                  href={`/@${this.props.user.username}/${project.id}/latest/edit`}
+        />
+      );
+    });
+
+    return (
+      <List>{listBody}</List>
+    );
+  }
+
   render() {
     if (this.props.courses.state !== 'fulfilled') {
       return <div>Loading ...</div>;
     }
+
+    const projectList = this.renderProjectList();
 
     return (
       <div>
@@ -59,8 +94,9 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
                         label={this.props.intl.formatMessage(messages.createProject)}
           />
           <ClearFix />
+          <h1>Projects</h1>
+          {projectList}
         </Wrapper>
-        <CourseList courses={this.props.courses.result} />
       </div>
     );
   }

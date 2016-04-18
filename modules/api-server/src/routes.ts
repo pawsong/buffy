@@ -36,8 +36,10 @@ export default (app: express.Express) => {
   app.put ('/projects/anonymous/:projectId', projectHandlers.updateAnonProject);
   app.get ('/projects/anonymous/:projectId', projectHandlers.getAnonProject);
 
+  app.get ('/projects/me', projectHandlers.getMyProjectList);
   app.post('/projects/user', projectHandlers.createUserProject);
   app.put ('/projects/user/:projectId', projectHandlers.updateUserProject);
+  app.get ('/projects/@:username', projectHandlers.getUserProjectList);
   app.get ('/projects/@:username/:projectId', projectHandlers.getUserProject);
 
   app.get ('/username-exists/:username', userHandlers.usernameExists);
