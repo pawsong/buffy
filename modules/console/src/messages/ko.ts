@@ -322,6 +322,13 @@ export default {
   'passwordTooShort': '패스워드는 최소 {minimum} 글자 이상이어야 합니다',
 
   /**
+   * path: src/screens/Profile/ProfileHandler.json
+   * description: Popular projects
+   * defaultMessage: Popular projects
+   */
+  'popular.projects': '인기 프로젝트',
+
+  /**
    * path: src/components/Studio/index.json
    * description: Run code
    * defaultMessage: Run

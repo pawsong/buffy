@@ -12,6 +12,7 @@ const styles = {
 }
 
 interface WrapperProps extends React.Props<Wrapper> {
+  className?: string;
   backgroundColor?: string;
   style?: React.CSSProperties;
   width?: number | string;
@@ -29,7 +30,7 @@ class Wrapper extends React.Component<WrapperProps, {}> {
     });
 
     return (
-      <div style={rootStyle}>
+      <div style={rootStyle} className={this.props.className || ''}>
         <div style={innerStyle}>
           {this.props.children}
         </div>

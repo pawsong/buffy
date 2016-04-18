@@ -1,1 +1,4 @@
-module.exports = require('!file!postcss!./styles.css');
+module.exports = [
+  require('!file!flexboxgrid/dist/flexboxgrid.min.css'),
+  require('!file!postcss!./styles.css'),
+];

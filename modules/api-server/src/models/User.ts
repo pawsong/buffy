@@ -8,9 +8,11 @@ import validateUsername, {
 const { Schema } = mongoose;
 
 const secrets = [
-  'fb',
   '_id',
   '__v',
+  'fb',
+  'hashedPassword',
+  'salt',
 ];
 
 export interface UserDocument extends mongoose.Document {

@@ -43,7 +43,7 @@ export default (app: express.Express) => {
   app.get ('/projects/@:username/:projectId', projectHandlers.getUserProject);
 
   app.get ('/username-exists/:username', userHandlers.usernameExists);
-  app.get ('/users/:id', userHandlers.getUserById);
+  app.get ('/users/:username', userHandlers.getUserByUsername);
   app.get ('/me', userHandlers.getMyUserData);
   app.put ('/me', userHandlers.updateMyUserData);
   app.get ('/friends', userHandlers.getFriends);
