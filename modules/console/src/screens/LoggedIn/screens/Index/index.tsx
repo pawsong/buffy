@@ -42,14 +42,11 @@ const styles = {
 
 interface IndexHandlerProps extends React.Props<IndexHandler> {
   user: User;
-  courses: ApiCall<Course[]>;
   projects: ApiCall<ProjectSummary[]>;
-  request: any;
   intl: InjectedIntlProps;
 }
 
 @preloadApi(() => ({
-  courses: get(`${CONFIG_API_SERVER_URL}/courses`),
   projects: get(`${CONFIG_API_SERVER_URL}/projects/me`),
 }))
 @connectApi()
@@ -64,10 +61,10 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
     const projects = this.props.projects.state !== 'fulfilled' ? [] : this.props.projects.result;
 
     const listBody = projects.map(project => {
-      console.log(project);
       return (
         <ListItem key={project.id} primaryText={project.id}
-                  href={`/@${this.props.user.username}/${project.id}/latest/edit`}
+                  linkButton={true}
+                  containerElement={<Link to={`/@${this.props.user.username}/${project.id}/latest/edit`}></Link>}
         />
       );
     });
@@ -78,10 +75,6 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
   }
 
   render() {
-    if (this.props.courses.state !== 'fulfilled') {
-      return <div>Loading ...</div>;
-    }
-
     const projectList = this.renderProjectList();
 
     return (
