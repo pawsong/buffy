@@ -98,6 +98,13 @@ export default {
   'app.login.title': '{service}에 로그인',
 
   /**
+   * path: src/constants/Messages.json
+   * description: Cancel
+   * defaultMessage: Cancel
+   */
+  'cancel': '취소',
+
+  /**
    * path: src/components/Studio/index.json
    * description: Write code for robot with blocks
    * defaultMessage: Code
@@ -138,6 +145,13 @@ export default {
    * defaultMessage: Design
    */
   'design': '설계',
+
+  /**
+   * path: src/constants/Messages.json
+   * description: Dialog next button label
+   * defaultMessage: Next
+   */
+  'dialog.next': '계속',
 
   /**
    * path: src/constants/Messages.json
@@ -355,6 +369,27 @@ export default {
    * defaultMessage: Settings
    */
   'settings': '설정',
+
+  /**
+   * path: src/screens/Settings/SettingsHandler.json
+   * description: Change profile picture button label
+   * defaultMessage: Change your picture
+   */
+  'settings.change.profile.picture': '프로필 사진 바꾸기',
+
+  /**
+   * path: src/screens/Settings/SettingsHandler.json
+   * description: Get image from URL
+   * defaultMessage: Get image from URL
+   */
+  'settings.get.image.from.url': 'URL에서 이미지 가져오기',
+
+  /**
+   * path: src/screens/Settings/SettingsHandler.json
+   * description: Image URL
+   * defaultMessage: Image URL
+   */
+  'settings.image.url': '이미지 URL',
 
   /**
    * path: src/screens/Settings/SettingsHandler.json

@@ -3,7 +3,7 @@ import * as shortid from 'shortid';
 import * as request from 'request';
 import wrap from '@pasta/helper/lib/wrap';
 import User from '../../models/User';
-import s3 from './s3';
+import s3 from '../../s3';
 import * as jwt from 'jsonwebtoken';
 import * as axios from 'axios';
 import * as conf from '@pasta/config';

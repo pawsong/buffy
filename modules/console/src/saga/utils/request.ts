@@ -20,9 +20,9 @@ if (__CLIENT__) {
   // Use cookie for token store
   _request = function* (config) {
     try {
-      return yield call(axios as any, objectAssign({}, config, {
+      return yield call(axios as any, objectAssign({
         withCredentials: true,
-      }));
+      }, config));
     } catch(response) {
       if (response.status && response.status >= 200 && response.status < 600) {
         return response;
@@ -57,6 +57,13 @@ export default request;
 export function* get(url: string, config: RequestOptions = {}) {
   return yield call(request, objectAssign({}, config, {
     method: 'get',
+    url,
+  }) as any);
+}
+
+export function* head(url: string, config: RequestOptions = {}) {
+  return yield call(request, objectAssign({}, config, {
+    method: 'head',
     url,
   }) as any);
 }

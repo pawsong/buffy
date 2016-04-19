@@ -51,6 +51,16 @@ const messages = defineMessages({
     description: 'Submit',
     defaultMessage: 'Submit',
   },
+  cancel: {
+    id: 'cancel',
+    description: 'Cancel',
+    defaultMessage: 'Cancel',
+  },
+  dialogNext: {
+    id: 'dialog.next',
+    description: 'Dialog next button label',
+    defaultMessage: 'Next',
+  },
   courses: {
     id: 'courses',
     description: 'Courses',

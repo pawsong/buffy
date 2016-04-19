@@ -7,6 +7,7 @@ import * as conf from '@pasta/config';
 const pkg = require('../package.json');
 
 import * as authHandlers from './handlers/auth';
+import * as cdnHandlers from './handlers/cdn';
 import * as courseHandlers from './handlers/course';
 import * as projectHandlers from './handlers/project';
 import * as userHandlers from './handlers/user';
@@ -52,4 +53,6 @@ export default (app: express.Express) => {
   app.get ('/voxel-workspaces/:owner/:name', voxelWorkspaceHandlers.getVoxelWorkspace);
   app.post('/voxel-workspaces/:owner/:name', voxelWorkspaceHandlers.createVoxelWorkspace);
   app.put ('/voxel-workspaces/:owner/:name', voxelWorkspaceHandlers.updateVoxelWorkspace);
+
+  app.post ('/cdn/signed-url/profile', cdnHandlers.issueS3SignedUrlForProfile);
 };
