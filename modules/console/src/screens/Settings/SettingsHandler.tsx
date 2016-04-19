@@ -15,7 +15,7 @@ import FlatButton from 'material-ui/lib/flat-button';
 import Slider from 'material-ui/lib/slider';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-import Messages from '../../constants/messages';
+import Messages from '../../constants/Messages';
 
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
