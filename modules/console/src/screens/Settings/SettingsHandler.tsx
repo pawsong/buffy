@@ -176,7 +176,7 @@ interface HandlerState {
 }))
 @injectIntl
 class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
-  reader: FileReader;
+  fileReader: FileReader;
 
   constructor(props) {
     super(props);
@@ -233,15 +233,8 @@ class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
     this.props.runSaga(this.props.uploadProfilePicture, this.props.user.id, blob, IMAGE_TYPE);
   }
 
-  componentDidMount() {
-    this.reader = new FileReader();
-    this.reader.onload = upload => {
-      this.setState({ profilePictureUrl: upload.target['result'] });
-    }
-  }
-
   componentWillUnmount() {
-    this.reader.abort();
+    if (this.fileReader) this.fileReader.abort();
     this.props.cancelSaga(this.props.uploadProfilePicture);
   }
 
@@ -293,10 +286,17 @@ class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
   }
 
   handleProfileImageChange(e: React.FormEvent) {
-    this.reader.abort();
-
     const file = e.target['files'][0];
-    this.reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (this.fileReader) this.fileReader.abort();
+
+    this.fileReader = new FileReader();
+    this.fileReader.onload = upload => {
+      this.setState({ profilePictureUrl: upload.target['result'] });
+    }
+
+    this.fileReader.readAsDataURL(file);
   }
 
   render() {
