@@ -15,6 +15,9 @@ const objectAssign = require('object-assign');
 import * as invariant from 'invariant';
 import RaisedButton from 'material-ui/lib/raised-button';
 
+import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
+import Messages from '../../constants/Messages';
+
 import * as StorageKeys from '../../constants/StorageKeys';
 
 import mesher from './canvas/meshers/greedy';
@@ -90,6 +93,7 @@ interface VoxelEditorProps extends React.Props<VoxelEditor> {
   onSubmit: (data) => any;
   connectDropTarget?: any;
   // workspace?: any;
+  intl?: InjectedIntlProps;
 }
 
 interface ContainerStates {
@@ -115,6 +119,7 @@ export interface CreateStateOptions {
 }, connect => ({
   connectDropTarget: connect.dropTarget()
 })) as any)
+@injectIntl
 class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   static createState: (options?: CreateStateOptions) => VoxelEditorState;
 
@@ -271,7 +276,11 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
             <div style={styles.canvas} ref="canvas"></div>
             <div style={{ position: 'absolute', top: 15, right: 15 }}>
               <div>
-                <RaisedButton label="Submit" primary={true} onTouchTap={() => this.handleSubmit()}/>
+                <RaisedButton
+                  label={this.props.intl.formatMessage(Messages.save)}
+                  primary={true}
+                  onTouchTap={() => this.handleSubmit()}
+                />
               </div>
             </div>
             <FullscreenButton
