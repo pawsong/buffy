@@ -11,7 +11,7 @@ import { isCancelError } from 'redux-saga';
 import { call, put } from 'redux-saga/effects';
 import { replace } from 'react-router-redux';
 import CircularProgress from 'material-ui/lib/circular-progress';
-import ActionPets from 'material-ui/lib/svg-icons/action/pets';
+import BuffyIcon from '../../../components/BuffyIcon';
 import { saga, ImmutableTask, SagaProps, isRunning, isDone } from '../../../saga';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../constants/Messages';
@@ -198,7 +198,7 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
         <Wrapper width={400}>
           <div style={styles.logoContainer}>
             <Link to="/">
-            <ActionPets style={styles.logo}/>
+            <BuffyIcon style={styles.logo}/>
             </Link>
           </div>
           <Paper style={styles.paper}>

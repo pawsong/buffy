@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router';
-import ActionPets from 'material-ui/lib/svg-icons/action/pets';
+import BuffyIcon from './BuffyIcon';
 import Colors from 'material-ui/lib/styles/colors';
 import Wrapper from './Wrapper';
 
@@ -68,7 +68,7 @@ class Footer extends React.Component<{}, {}> {
               <Link to="/about"><FormattedMessage {...messages.about}></FormattedMessage></Link>
             </li>
           </ul>
-          <Link to="/"><ActionPets style={styles.logo} color={Colors.lightBlack} /></Link>
+          <Link to="/"><BuffyIcon style={styles.logo} color={Colors.lightBlack} /></Link>
           <ul style={styles.left}><li>© 2016 Buffy, Inc.</li></ul>
         </div>
       </Wrapper>

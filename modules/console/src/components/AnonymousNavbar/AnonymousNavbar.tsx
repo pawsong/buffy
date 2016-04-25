@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 const update = require('react-addons-update');
 const FlatButton = require('material-ui/lib/flat-button');
-import ActionPets from 'material-ui/lib/svg-icons/action/pets';
+import BuffyIcon from '../BuffyIcon';
 import Colors from 'material-ui/lib/styles/colors';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
@@ -83,7 +83,7 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
     return (
       <Navbar width={this.props.width}>
         <ToolbarGroup float="left">
-          <Link to="/"><ActionPets style={this.logoStyle} color={Colors.darkWhite} /></Link>
+          <Link to="/"><BuffyIcon style={this.logoStyle} color={Colors.darkWhite} /></Link>
         </ToolbarGroup>
         {leftToolbarGroup}
         <ToolbarGroup float="right">

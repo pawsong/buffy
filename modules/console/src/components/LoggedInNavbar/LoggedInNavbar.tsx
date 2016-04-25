@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { Styles } from 'material-ui';
 import AppBar from 'material-ui/lib/app-bar';
 import FlatButton from 'material-ui/lib/flat-button';
-import ActionPets from 'material-ui/lib/svg-icons/action/pets';
+import BuffyIcon from '../BuffyIcon';
 
 import Colors from 'material-ui/lib/styles/colors';
 
@@ -199,7 +199,7 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
     return (
       <Navbar width={this.props.width}>
         <ToolbarGroup float="left">
-          <Link to="/"><ActionPets style={styles.logo} /></Link>
+          <Link to="/"><BuffyIcon style={styles.logo} /></Link>
         </ToolbarGroup>
         {leftToolbarGroup}
         <ToolbarGroup float="right">

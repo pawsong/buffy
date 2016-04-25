@@ -14,7 +14,7 @@ import { call, put } from 'redux-saga/effects';
 import { replace } from 'react-router-redux';
 const isEmail = require('validator/lib/isEmail');
 import CircularProgress from 'material-ui/lib/circular-progress';
-import ActionPets from 'material-ui/lib/svg-icons/action/pets';
+import BuffyIcon from '../../../components/BuffyIcon';
 import { TouchTapEvent } from 'material-ui';
 import { saga, SagaProps, ImmutableTask, request, wait, isRunning, isDone } from '../../../saga';
 import Messages from '../../../constants/Messages';
@@ -355,7 +355,7 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
       <div style={styles.root}>
         <Wrapper width={400}>
           <div style={styles.logoContainer}>
-            <Link to="/"><ActionPets style={styles.logo} /></Link>
+            <Link to="/"><BuffyIcon style={styles.logo} /></Link>
           </div>
           <Paper style={styles.paper}>
             {formIsBusy ? <CircularProgress style={styles.progressOverlay} /> : null}
