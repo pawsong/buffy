@@ -151,6 +151,10 @@ abstract class ZoneView {
     this.frameId = requestAnimationFrame(update);
   }
 
+  resize() {
+    this.boundHandleWindowResize();
+  }
+
   render(dt = 0) {
     this.effectManager.update(dt);
   }

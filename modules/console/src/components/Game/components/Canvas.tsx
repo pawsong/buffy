@@ -2,7 +2,7 @@ import * as React from 'react';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
 
-import initCanvas from '../canvas';
+import GameZoneView from '../GameZoneView';
 import { GameState } from '../interface';
 
 interface CanvasProps extends React.Props<Canvas> {
@@ -26,10 +26,10 @@ class Canvas extends React.Component<CanvasProps, {}> {
     store: React.PropTypes.any.isRequired,
   }
 
-  canvas;
+  canvas: GameZoneView;
 
   componentDidMount() {
-    this.canvas = initCanvas(
+    this.canvas = new GameZoneView(
       this.refs['canvas'] as HTMLElement,
       this.props.stateLayer,
       () => this.props.gameState

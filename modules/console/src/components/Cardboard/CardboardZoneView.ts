@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
-import ZoneView from '../../canvas/ZoneView';
+import ZoneView from '../../ZoneView';
 
 if (__CLIENT__) {
   window['THREE'] = THREE;
