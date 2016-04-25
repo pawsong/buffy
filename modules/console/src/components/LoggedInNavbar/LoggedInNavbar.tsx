@@ -199,7 +199,7 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
     return (
       <Navbar width={this.props.width}>
         <ToolbarGroup float="left">
-          <Link to="/"><BuffyIcon style={styles.logo} /></Link>
+          <Link to="/"><BuffyIcon style={styles.logo} color={Colors.darkWhite} /></Link>
         </ToolbarGroup>
         {leftToolbarGroup}
         <ToolbarGroup float="right">
