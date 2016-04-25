@@ -17,11 +17,13 @@ import * as StorageKeys from '../../constants/StorageKeys';
 import { Sandbox, Scripts } from '../../sandbox';
 
 import { saga, SagaProps, ImmutableTask } from '../../saga';
-import rootSaga, { runBlocklyWorkspace, submitVoxel } from './sagas';
+import { runBlocklyWorkspace, submitVoxel } from './sagas';
 
 import { Layout, LayoutContainer } from '../../components/Layout';
 
-import Game, { GameState } from '../../components/Game';
+import Game, {
+  GameState,
+} from '../../components/Game';
 import CodeEditor, {
   CodeEditorState,
   CreateStateOptions as CreateCodeEditorStateOptions,
@@ -166,7 +168,6 @@ interface StudioBodyState {
 
 @injectIntl
 @saga({
-  root: rootSaga,
   run: runBlocklyWorkspace,
   submitVoxel: submitVoxel,
 })
@@ -193,12 +194,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     this.sandbox = new Sandbox(this.props.stateLayer);
   }
 
-  componentDidMount() {
-    this.props.runSaga(this.props.root);
-  }
-
   componentWillUnmount() {
-    this.props.cancelSaga(this.props.root);
     this.props.cancelSaga(this.props.run);
   }
 

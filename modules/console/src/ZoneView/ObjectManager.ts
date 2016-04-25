@@ -52,11 +52,15 @@ export class SmartObject {
 
     geometry.vertices.length = 0;
     geometry.faces.length = 0;
-    for(var i = 0; i < mesh.vertices.length; ++i) {
-      var q = mesh.vertices[i];
+
+    const verticesLen = mesh.vertices.length;
+    for(let i = 0; i < verticesLen; ++i) {
+      const q = mesh.vertices[i];
       geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
     }
-    for(var i = 0; i < mesh.faces.length; ++i) {
+
+    const facesLen = mesh.faces.length;
+    for(let i = 0; i < facesLen; ++i) {
       const q = mesh.faces[i];
       const f = new THREE.Face3(q[0], q[1], q[2]);
       f.color = new THREE.Color(q[3]);
@@ -74,7 +78,7 @@ export class SmartObject {
     geometry.computeBoundingSphere();
 
     // Create surface mesh
-    var material = new THREE.MeshLambertMaterial({
+    const material = new THREE.MeshLambertMaterial({
       color: 0xffffff,
       vertexColors: THREE.VertexColors,
     });
