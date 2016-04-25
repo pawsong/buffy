@@ -1,5 +1,4 @@
 require('babel-polyfill');
-require('babel-register');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 

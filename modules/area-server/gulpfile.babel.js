@@ -1,5 +1,4 @@
 require('babel-polyfill');
-require('babel-register');
 
 const conf = require('@pasta/config');
 const pkg = require('./package.json');

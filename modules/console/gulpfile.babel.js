@@ -18,7 +18,6 @@ require('babel-helpers/lib/helpers').interopRequireWildcard = template(`
 `);
 
 require('babel-polyfill');
-require('babel-register');
 
 const del = require('del');
 
