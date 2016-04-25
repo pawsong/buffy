@@ -105,7 +105,7 @@ export default {
   'cancel': '취소',
 
   /**
-   * path: src/components/Studio/index.json
+   * path: src/components/Studio/Studio.json
    * description: Write code for robot with blocks
    * defaultMessage: Code
    */
@@ -140,7 +140,7 @@ export default {
   'create.project.button': '만들기',
 
   /**
-   * path: src/components/Studio/index.json
+   * path: src/components/Studio/Studio.json
    * description: Design robot with blocks
    * defaultMessage: Design
    */
@@ -343,7 +343,7 @@ export default {
   'popular.projects': '인기 프로젝트',
 
   /**
-   * path: src/components/Studio/index.json
+   * path: src/components/Studio/Studio.json
    * description: Run code
    * defaultMessage: Run
    */
@@ -448,7 +448,7 @@ export default {
   'signup.modal.title': '가입해 주셔서 감사합니다',
 
   /**
-   * path: src/components/Studio/index.json
+   * path: src/components/Studio/Studio.json
    * description: Stop code
    * defaultMessage: Stop
    */

@@ -13,9 +13,7 @@ import Messages from '../../constants/Messages';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
 import Blockly from '../../blockly';
-
 import * as StorageKeys from '../../constants/StorageKeys';
-
 import { Sandbox, Scripts } from '../../sandbox';
 
 import { saga, SagaProps, ImmutableTask } from '../../saga';
