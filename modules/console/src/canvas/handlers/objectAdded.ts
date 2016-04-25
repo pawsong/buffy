@@ -1,22 +1,17 @@
 import * as THREE from 'three';
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { StoreHandler } from '../interface';
+import ZoneView from '../ZoneView';
 
 import {
   BOX_SIZE,
   PIXEL_UNIT,
 } from '../Constants';
 
-const handler: StoreHandler = (listen, {
-  objectManager,
-  stateLayer,
-  camera,
-  cubeGeometry,
-  cubeMaterial,
-}) => listen.objectAdded(params => {
+export default <StoreHandler<ZoneView>>((listen, view, stateLayer) => listen.objectAdded(params => {
   const { object: obj } = params;
-  const object = objectManager.create(obj.id);
-  object.add(new THREE.Mesh( cubeGeometry, cubeMaterial ));
+  const object = view.objectManager.create(obj.id);
+  object.add(new THREE.Mesh( view.cubeGeometry, view.cubeMaterial ));
 
   const { group } = object;
 
@@ -35,8 +30,6 @@ const handler: StoreHandler = (listen, {
   }
 
   if (obj.id === stateLayer.store.myId) {
-    camera.position.copy(group.position);
+    view.camera.position.copy(group.position);
   }
-});
-
-export default handler;
+}));

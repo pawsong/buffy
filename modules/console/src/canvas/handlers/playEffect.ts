@@ -1,13 +1,10 @@
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { StoreHandler } from '../interface';
+import ZoneView from '../ZoneView';
 
-const handler: StoreHandler = (listen, {
-  effectManager,
-}) => listen.playEffect(params => {
-  effectManager.create('fire', params.duration, {
+export default <StoreHandler<ZoneView>>((listen, view) => listen.playEffect(params => {
+  view.effectManager.create('fire', params.duration, {
     x: params.x,
     z: params.z,
   });
-});
-
-export default handler;
+}));

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { StoreHandler } from '../interface';
+import ZoneView from '../ZoneView';
 
 import {
   BOX_SIZE,
@@ -9,12 +10,8 @@ import {
 
 const posToLookAt = new THREE.Vector3();
 
-const handler: StoreHandler = (listen, {
-  objectManager,
-  stateLayer,
-  camera,
-}) => listen.move(params => {
-  const { group } = objectManager.find(params.object.id);
+export default <StoreHandler<ZoneView>>((listen, view, stateLayer) => listen.move(params => {
+  const { group } = view.objectManager.find(params.object.id);
 
   // Move
   group.position.x = BOX_SIZE * params.object.position.x - PIXEL_UNIT;
@@ -29,8 +26,6 @@ const handler: StoreHandler = (listen, {
   group.lookAt(posToLookAt);
 
   if (params.object.id === stateLayer.store.myId) {
-    camera.position.copy(group.position);
+    view.camera.position.copy(group.position);
   }
-});
-
-export default handler;
+}));

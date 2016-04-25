@@ -1,10 +1,7 @@
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { StoreHandler } from '../interface';
+import ZoneView from '../ZoneView';
 
-const handler: StoreHandler = (listen, {
-  objectManager,
-}) => listen.objectRemoved(params => {
-  objectManager.remove(params.id);
-});
-
-export default handler;
+export default <StoreHandler<ZoneView>>((listen, view) => listen.objectRemoved(params => {
+  view.objectManager.remove(params.id);
+}));

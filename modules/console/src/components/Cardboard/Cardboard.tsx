@@ -13,7 +13,8 @@ import { Scripts } from '@pasta/core/lib/types';
 
 import Colors from 'material-ui/lib/styles/colors';
 
-import VrCanvas from '../../canvas/VrCanvas';
+import CardboardZoneView from './CardboardZoneView';
+
 import { Sandbox } from '../../sandbox';
 
 let screenfull;
@@ -88,7 +89,7 @@ class Cardboard extends React.Component<CardboardProps, CardboardState> {
 
   muiTheme: Styles.MuiTheme;
 
-  canvas: VrCanvas;
+  canvas: CardboardZoneView;
   sandbox: Sandbox;
 
   listenFullscreenEvent: Function;
@@ -130,10 +131,7 @@ class Cardboard extends React.Component<CardboardProps, CardboardState> {
 
     this.props.onStart();
 
-    this.canvas = new VrCanvas({
-      stateLayer: this.props.stateLayer,
-      container: findDOMNode<HTMLElement>(this.refs['canvas']),
-    });
+    this.canvas = new CardboardZoneView(findDOMNode<HTMLElement>(this.refs['canvas']), this.props.stateLayer);
 
     // Initialize code
     this.sandbox = new Sandbox(this.props.stateLayer);
