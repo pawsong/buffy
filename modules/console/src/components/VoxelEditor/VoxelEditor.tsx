@@ -105,6 +105,7 @@ export interface CreateStateOptions {
   voxels?: any;
 }
 
+@injectIntl
 @(DragDropContext<VoxelEditorProps>(HTML5Backend) as any)
 @(DropTarget<VoxelEditorProps>('panel', {
   drop(props, monitor, component: VoxelEditor) {
@@ -119,7 +120,6 @@ export interface CreateStateOptions {
 }, connect => ({
   connectDropTarget: connect.dropTarget()
 })) as any)
-@injectIntl
 class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   static createState: (options?: CreateStateOptions) => VoxelEditorState;
 

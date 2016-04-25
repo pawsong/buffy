@@ -6,6 +6,8 @@ import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import RaisedButton from 'material-ui/lib/raised-button';
 import Tabs from 'material-ui/lib/tabs/tabs';
 import Tab from 'material-ui/lib/tabs/tab';
+import IconButton from 'material-ui/lib/icon-button';
+import Colors from 'material-ui/lib/styles/colors';
 const objectAssign = require('object-assign');
 const update = require('react-addons-update');
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
@@ -58,6 +60,8 @@ const messages = defineMessages({
   },
 });
 
+const FILE_CATEROGY_BUTTON_CONTAINER_WIDTH = 60;
+
 const styles = {
   root: {
 
@@ -75,6 +79,24 @@ const styles = {
     right: 0,
     bottom: 0,
     left: 0,
+  },
+  fileCategoryButtonContainer: {
+    position: 'absolute',
+    width: FILE_CATEROGY_BUTTON_CONTAINER_WIDTH,
+    textAlign: 'center',
+    backgroundColor: Colors.grey200,
+    top: 0,
+    bottom: 0,
+  },
+  fileCategoryButton: {
+    margin: 2,
+  },
+  editor: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: FILE_CATEROGY_BUTTON_CONTAINER_WIDTH,
+    right: 0,
   },
   addon: {
     position: 'absolute',
@@ -251,6 +273,40 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     this.props.onChange(objectAssign({}, this.props.studioState, nextState));
   }
 
+  renderCodeEditor() {
+    return (
+      <CodeEditor
+        editorState={this.props.studioState.codeEditorState}
+        onChange={codeEditorState => this.handleStateChange({ codeEditorState })}
+        sizeRevision={this.state.editorSizeVersions.code}
+        readyToRender={this.state.activeTab === 'code'}
+      />
+    );
+  }
+
+  renderDesignEditor() {
+    return (
+      <VoxelEditor
+        editorState={this.props.studioState.voxelEditorState}
+        onChange={voxelEditorState => this.handleStateChange({ voxelEditorState })}
+        sizeVersion={this.state.editorSizeVersions.design}
+        onSubmit={(data) => this.handleVoxelEditorSubmit(data)}
+      />
+    );
+  }
+
+  renderEditor() {
+    switch(this.state.activeTab) {
+      case 'code': {
+        return this.renderCodeEditor();
+      }
+      case 'design': {
+        return this.renderDesignEditor();
+      }
+    }
+    return null;
+  }
+
   render() {
     const rootStyle = objectAssign({}, styles.root, this.props.style);
     const controlButton = this.props.run.state === 'running'
@@ -262,6 +318,8 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                       primary={true}
                       onTouchTap={() => this.handleRun()}
         />;
+
+    const editor = this.renderEditor();
 
     return (
       <div style={rootStyle}>
@@ -278,7 +336,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                 </Game>
               </LayoutContainer>
               <LayoutContainer remaining={true}>
-                <Toolbar>
+                <Toolbar style={{ backgroundColor: Colors.grey200 }}>
                   <ToolbarGroup key={0} float="right">
                     {controlButton}
                   </ToolbarGroup>
@@ -288,26 +346,29 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
           </LayoutContainer>
 
           <LayoutContainer remaining={true}>
-            <Tabs contentContainerStyle={styles.addon}
-                  tabTemplate={TabTemplate}
-                  onChange={value => this.onTabChange(value)}
-                  value={this.state.activeTab}
-            >
-              <Tab label={this.props.intl.formatMessage(messages.code)} value="code">
-                <CodeEditor editorState={this.props.studioState.codeEditorState}
-                            onChange={codeEditorState => this.handleStateChange({ codeEditorState })}
-                            sizeRevision={this.state.editorSizeVersions.code}
-                            readyToRender={this.state.activeTab === 'code'}
-                />
-              </Tab>
-              <Tab label={this.props.intl.formatMessage(messages.design)} value="design">
-                <VoxelEditor editorState={this.props.studioState.voxelEditorState}
-                             onChange={voxelEditorState => this.handleStateChange({ voxelEditorState })}
-                             sizeVersion={this.state.editorSizeVersions.design}
-                             onSubmit={(data) => this.handleVoxelEditorSubmit(data)}
-                />
-              </Tab>
-            </Tabs>
+            <div style={styles.fileCategoryButtonContainer}>
+              <IconButton
+                iconClassName="material-icons"
+                tooltip="Code"
+                onTouchTap={() => this.onTabChange('code')}
+                style={styles.fileCategoryButton}
+                tooltipStyles={{ opacity: 1 }}
+              >
+                code
+              </IconButton>
+              <IconButton
+                iconClassName="material-icons"
+                tooltip="Design"
+                onTouchTap={() => this.onTabChange('design')}
+                style={styles.fileCategoryButton}
+                tooltipStyles={{ opacity: 1 }}
+              >
+                build
+              </IconButton>
+            </div>
+            <div style={styles.editor}>
+              {editor}
+            </div>
           </LayoutContainer>
         </Layout>
       </div>
