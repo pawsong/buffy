@@ -8,6 +8,14 @@ import Tabs from 'material-ui/lib/tabs/tabs';
 import Tab from 'material-ui/lib/tabs/tab';
 import IconButton from 'material-ui/lib/icon-button';
 import Colors from 'material-ui/lib/styles/colors';
+
+import Avatar from 'material-ui/lib/avatar';
+import ActionAssignment from 'material-ui/lib/svg-icons/action/assignment';
+import EditorInsertChart from 'material-ui/lib/svg-icons/editor/insert-chart';
+import List from 'material-ui/lib/lists/list';
+import ListItem from 'material-ui/lib/lists/list-item';
+import ActionInfo from 'material-ui/lib/svg-icons/action/info';
+
 const objectAssign = require('object-assign');
 const update = require('react-addons-update');
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
@@ -295,6 +303,24 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     );
   }
 
+  renderRobotEditor() {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+        <div style={{  }}>
+          <h1>Robot editor</h1>
+
+          <h2>Codes for this robot</h2>
+          <div>Code list</div>
+          <div>Add button (Open browser)</div>
+
+          <h2>Design for this robot</h2>
+          <div>Preview</div>
+          <div>Select button (Open browser)</div>
+        </div>
+      </div>
+    );
+  }
+
   renderEditor() {
     switch(this.state.activeTab) {
       case 'code': {
@@ -302,6 +328,9 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       }
       case 'design': {
         return this.renderDesignEditor();
+      }
+      case 'robot': {
+        return this.renderRobotEditor();
       }
     }
     return null;
@@ -341,6 +370,21 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                     {controlButton}
                   </ToolbarGroup>
                 </Toolbar>
+                { /* Object instance browser */}
+                <List subheader="Robot instance list" insetSubheader={true}>
+                  <ListItem
+                    leftAvatar={<Avatar icon={<ActionAssignment />} backgroundColor={Colors.blue500} />}
+                    rightIcon={<ActionInfo />}
+                    primaryText="Vacation itinerary"
+                    secondaryText="Jan 20, 2014"
+                  />
+                  <ListItem
+                    leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={Colors.yellow600} />}
+                    rightIcon={<ActionInfo />}
+                    primaryText="Kitchen remodel"
+                    secondaryText="Jan 10, 2014"
+                  />
+                </List>
               </LayoutContainer>
             </Layout>
           </LayoutContainer>
@@ -364,6 +408,15 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                 tooltipStyles={{ opacity: 1 }}
               >
                 build
+              </IconButton>
+              <IconButton
+                iconClassName="material-icons"
+                tooltip="Robot"
+                onTouchTap={() => this.onTabChange('robot')}
+                style={styles.fileCategoryButton}
+                tooltipStyles={{ opacity: 1 }}
+              >
+                android
               </IconButton>
             </div>
             <div style={styles.editor}>
