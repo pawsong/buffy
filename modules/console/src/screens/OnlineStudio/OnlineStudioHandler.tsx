@@ -4,11 +4,13 @@ import { Link, RouteComponentProps } from 'react-router';
 import { call } from 'redux-saga/effects';
 import { push } from 'react-router-redux';
 import * as io from 'socket.io-client';
+const update = require('react-addons-update');
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { InitParams } from '@pasta/core/lib/packet/ZC';
 
 import Studio, { StudioState } from '../../components/Studio';
-import { saga, ImmutableTask, SagaProps } from '../../saga';
+import { RobotInstance, ZoneInstance } from '../../components/Studio';
+import { saga, ImmutableTask, SagaProps, isDone } from '../../saga';
 import { connectApi, get, ApiCall, ApiDispatchProps } from '../../api';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
@@ -46,6 +48,8 @@ interface OnlineStudioState {
   initialized?: boolean;
   studioState?: StudioState;
   friendsModalOpened?: boolean;
+  robotInstances?: { [index: string]: RobotInstance };
+  zoneInstances?: { [index: string]: ZoneInstance };
 }
 
 @connectApi(() => ({
@@ -71,6 +75,8 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
     this.state = {
       initialized: false,
       friendsModalOpened: false,
+      robotInstances: {},
+      zoneInstances: {},
     };
   }
 
@@ -92,6 +98,21 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
       this.setState({
         initialized: true,
         studioState: Studio.creatState(),
+        robotInstances: {
+          [params.myId]: {
+            id: params.myId,
+            name: this.props.user.name || '(Untitled)',
+            mapName: params.map.name,
+          },
+        },
+        zoneInstances: {
+          [params.map.id]: {
+            id: params.map.id,
+            name: params.map.name,
+            width: params.map.width,
+            depth: params.map.depth,
+          },
+        },
       });
     });
   }
@@ -99,6 +120,22 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
   componentWillUnmount() {
     this.stateLayer.destroy();
     this.socket.close();
+  }
+
+  componentWillReceiveProps(nextProps: OnlineStudioProps) {
+    if (!isDone(this.props.moveMap) && isDone(nextProps.moveMap)) {
+      this.setState(update(this.state, {
+        robotInstances: {
+          [this.stateLayer.store.myId]: {
+            $set: {
+              id: this.stateLayer.store.myId,
+              name: this.props.user.name || '(Untitled)',
+              mapName: this.stateLayer.store.map.name,
+            },
+          }
+        },
+      }));
+    }
   }
 
   handleContactsButtonClick() {
@@ -131,8 +168,13 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
   renderStudio() {
     const game = this.renderGame();
 
+    const robots = Object.keys(this.state.robotInstances).map(id => this.state.robotInstances[id]);
+    const zones = Object.keys(this.state.zoneInstances).map(id => this.state.zoneInstances[id]);
+
     return (
-      <Studio studioState={this.state.studioState}
+      <Studio robotInstances={robots}
+              zoneInstances={zones}
+              studioState={this.state.studioState}
               onChange={studioState => this.setState({ studioState })}
               stateLayer={this.stateLayer}
               style={styles.studio}

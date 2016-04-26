@@ -15,6 +15,7 @@ import { User } from '../../reducers/users';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import * as StorageKeys from '../../constants/StorageKeys';
 import Studio, { StudioState } from '../../components/Studio';
+import { RobotInstance, ZoneInstance } from '../../components/Studio';
 import { requestLogout } from '../../actions/auth';
 import { convertXmlToCodes } from '../../blockly/utils';
 
@@ -114,6 +115,9 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   startStateLayerGuard: boolean;
   startStateLayerReserved: boolean;
 
+  robots: RobotInstance[];
+  zones: ZoneInstance[];
+
   constructor(props) {
     super(props);
 
@@ -170,6 +174,21 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     this.server = new LocalServer(this.state.initialLocalServer, this.socket);
     this.stateLayer.start(this.server.getInitData());
+
+    this.robots = [{
+      id: this.server.user.id,
+      name: '(Untitled)',
+      mapName: this.server.user.map.name || '(Untitled)',
+    }];
+
+    this.zones = this.server.maps.map(map => {
+      return {
+        id: map.id,
+        name: map.name || '(Untitled)',
+        width: map.width,
+        depth: map.depth,
+      };
+    });
 
     this.setState({ stateLayerIsRunning: true });
   }
@@ -276,7 +295,9 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
                              vrModeAvaiable={this.mode !== ProjectStudioMode.CREATE}
                              onVrModeRequest={() => this.handleVrModeRequest()}
         />
-        <Studio studioState={this.state.studioState}
+        <Studio robotInstances={this.robots}
+                zoneInstances={this.zones}
+                studioState={this.state.studioState}
                 onChange={studioState => this.handleStudioStateChange(studioState)}
                 stateLayer={this.stateLayer} style={styles.studio}
         />

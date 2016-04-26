@@ -11,10 +11,11 @@ import Colors from 'material-ui/lib/styles/colors';
 
 import Avatar from 'material-ui/lib/avatar';
 import ActionAssignment from 'material-ui/lib/svg-icons/action/assignment';
-import EditorInsertChart from 'material-ui/lib/svg-icons/editor/insert-chart';
+import LayersIcon from 'material-ui/lib/svg-icons/maps/layers';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 import ActionInfo from 'material-ui/lib/svg-icons/action/info';
+import AndroidIcon from 'material-ui/lib/svg-icons/action/android';
 
 const objectAssign = require('object-assign');
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
@@ -152,6 +153,19 @@ const styles = {
   },
 };
 
+export interface RobotInstance {
+  id: string;
+  name: string;
+  mapName: string;
+}
+
+export interface ZoneInstance {
+  id: string;
+  name: string;
+  width: number;
+  depth: number;
+}
+
 export interface StudioState {
   codeEditorState?: CodeEditorState;
   gameState?: GameState;
@@ -159,6 +173,9 @@ export interface StudioState {
 }
 
 interface StudioBodyProps extends React.Props<Studio>, SagaProps {
+  robotInstances: RobotInstance[];
+  zoneInstances: ZoneInstance[];
+
   studioState: StudioState;
   onChange: (nextState: StudioState) => any;
 
@@ -446,6 +463,34 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     );
   }
 
+  renderRobotInstanceList() {
+    return this.props.robotInstances.map(inst => {
+      return (
+        <ListItem
+          key={inst.id}
+          leftAvatar={<Avatar icon={<AndroidIcon />} backgroundColor={Colors.blue500} />}
+          rightIcon={<ActionInfo />}
+          primaryText={inst.name}
+          secondaryText={`Map: ${inst.mapName}`}
+        />
+      );
+    });
+  }
+
+  renderZoneInstanceList() {
+    return this.props.zoneInstances.map(inst => {
+      return (
+        <ListItem
+          key={inst.id}
+          leftAvatar={<Avatar icon={<LayersIcon />} backgroundColor={Colors.amber500} />}
+          rightIcon={<ActionInfo />}
+          primaryText={inst.name}
+          secondaryText={`Size: ${inst.width} x ${inst.depth}`}
+        />
+      );
+    });
+  }
+
   renderInstanceBrowser() {
     const tabs = (
       <Tabs
@@ -463,32 +508,14 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       </Tabs>
     );
 
-    let body = null;
+    let listItems = null;
     switch(this.state.activeInstanceTab) {
       case InstanceTabs.ROBOT: {
-        body = (
-          <List>
-            <ListItem
-              leftAvatar={<Avatar icon={<ActionAssignment />} backgroundColor={Colors.blue500} />}
-              rightIcon={<ActionInfo />}
-              primaryText="Vacation itinerary"
-              secondaryText="Jan 20, 2014"
-            />
-          </List>
-        );
+        listItems = this.renderRobotInstanceList();
         break;
       }
       case InstanceTabs.ZONE: {
-        body = (
-          <List>
-            <ListItem
-              leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={Colors.yellow600} />}
-              rightIcon={<ActionInfo />}
-              primaryText="Kitchen remodel"
-              secondaryText="Jan 10, 2014"
-            />
-          </List>
-        );
+        listItems = this.renderZoneInstanceList();
         break;
       }
     }
@@ -496,7 +523,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     return (
       <div>
         {tabs}
-        {body}
+        <List>{listItems}</List>
       </div>
     );
   }
@@ -610,6 +637,9 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 }
 
 interface StudioProps extends React.Props<Studio> {
+  robotInstances: RobotInstance[];
+  zoneInstances: ZoneInstance[];
+
   studioState: StudioState;
   onChange: (nextState: StudioState) => any;
 
@@ -656,6 +686,8 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 
     return (
       <StudioBody studioState={this.props.studioState}
+                  robotInstances={this.props.robotInstances}
+                  zoneInstances={this.props.zoneInstances}
                   onChange={this.props.onChange}
                   stateLayer={this.props.stateLayer} style={this.props.style}
                   game={this.props.game || null}

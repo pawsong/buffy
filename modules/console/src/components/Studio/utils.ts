@@ -5,7 +5,7 @@ export function getIconName(fileType: FileType) {
     case FileType.ALL: return 'list';
     case FileType.CODE: return 'code';
     case FileType.DESIGN: return 'build';
-    case FileType.ROBOT: return 'android';
+    case FileType.ROBOT: return 'adb';
   }
   return '';
 }
