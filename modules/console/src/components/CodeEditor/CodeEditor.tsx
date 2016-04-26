@@ -87,7 +87,12 @@ class CodeEditor extends React.Component<CodeEditorProps, void> {
   }
 
   componentWillReceiveProps(nextProps: CodeEditorProps) {
-    if (this.workspace) return;
+    if (this.workspace) {
+      if (this.props.sizeRevision !== nextProps.sizeRevision) {
+        Blockly.svgResize(this.workspace);
+      }
+      return;
+    }
 
     if (nextProps.readyToRender) this.injectWorkspace();
   }
