@@ -277,7 +277,7 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
             <div style={{ position: 'absolute', top: 15, right: 15 }}>
               <div>
                 <RaisedButton
-                  label={this.props.intl.formatMessage(Messages.save)}
+                  label={this.props.intl.formatMessage(Messages.apply)}
                   primary={true}
                   onTouchTap={() => this.handleSubmit()}
                 />

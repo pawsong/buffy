@@ -36,6 +36,11 @@ const messages = defineMessages({
     description: 'Sign up',
     defaultMessage: 'Sign up',
   },
+  apply: {
+    id: 'apply',
+    description: 'Apply',
+    defaultMessage: 'Apply',
+  },
   save: {
     id: 'save',
     description: 'Save',

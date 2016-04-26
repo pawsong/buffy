@@ -99,6 +99,13 @@ export default {
 
   /**
    * path: src/constants/Messages.json
+   * description: Apply
+   * defaultMessage: Apply
+   */
+  'apply': '적용하기',
+
+  /**
+   * path: src/constants/Messages.json
    * description: Cancel
    * defaultMessage: Cancel
    */
