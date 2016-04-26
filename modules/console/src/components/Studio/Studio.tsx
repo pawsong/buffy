@@ -30,6 +30,9 @@ import { saga, SagaProps, ImmutableTask } from '../../saga';
 import { runBlocklyWorkspace, submitVoxel } from './sagas';
 
 import { Layout, LayoutContainer } from '../../components/Layout';
+import FileList from './components/FileList';
+
+import { getIconName } from './utils';
 
 const Radium = require('radium');
 
@@ -46,6 +49,8 @@ import VoxelEditor, {
 } from '../../components/VoxelEditor';
 
 import { convertXmlToCodes } from '../../blockly/utils';
+
+import { FileDescriptor, FileType, FileFilter } from './types';
 
 const messages = defineMessages({
   run: {
@@ -69,40 +74,6 @@ const messages = defineMessages({
     defaultMessage: 'Design',
   },
 });
-
-function getIconName(fileType: string) {
-  switch(fileType) {
-    case 'code': return 'code';
-    case 'design': return 'build';
-    case 'robot': return 'android';
-  }
-  return '';
-}
-
-const fileTypeAvatars = {
-  code: (
-    <Avatar
-      icon={<FontIcon className="material-icons">{getIconName('code')}</FontIcon>}
-      backgroundColor={Colors.green500}
-    />
-  ),
-  design: (
-    <Avatar
-      icon={<FontIcon className="material-icons">{getIconName('design')}</FontIcon>}
-      backgroundColor={Colors.yellow500}
-    />
-  ),
-  robot: (
-    <Avatar
-      icon={<FontIcon className="material-icons">{getIconName('robot')}</FontIcon>}
-      backgroundColor={Colors.blue500}
-    />
-  ),
-};
-
-function getFileTypeAvatar(fileType: string) {
-  return fileTypeAvatars[fileType] || null;
-}
 
 const FILE_CATEROGY_BUTTON_CONTAINER_WIDTH = 60;
 
@@ -196,12 +167,6 @@ interface StudioBodyProps extends React.Props<Studio>, SagaProps {
   submitVoxel?: ImmutableTask<any>;
 }
 
-interface FileDescriptor {
-  id: string;
-  name: string;
-  type: string;
-}
-
 enum InstanceTabs {
   ROBOT,
   ZONE,
@@ -219,7 +184,7 @@ interface StudioBodyState {
   activeFileId?: string;
 
   fileBrowserOpen?: boolean;
-  fileBrowserTypeFilter?: string;
+  fileBrowserTypeFilter?: FileFilter;
   activeInstanceTab?: InstanceTabs,
 }
 
@@ -286,27 +251,27 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
         '1': {
           id: '1',
           name: 'Code 1',
-          type: 'code',
+          type: FileType.CODE,
         },
         '2': {
           id: '2',
           name: 'Design 1',
-          type: 'design'
+          type: FileType.DESIGN
         },
         '3': {
           id: '3',
           name: 'Robot 1',
-          type: 'robot',
+          type: FileType.ROBOT,
         },
         '4': {
           id: '4',
           name: 'Code 2',
-          type: 'code',
+          type: FileType.CODE,
         },
       },
       activeFileId: '1',
       fileBrowserOpen: false,
-      fileBrowserTypeFilter: '',
+      fileBrowserTypeFilter: { type: null },
       activeInstanceTab: InstanceTabs.ROBOT,
     };
 
@@ -426,15 +391,15 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
     let editor = null;
     switch(this.state.files[this.state.activeFileId].type) {
-      case 'code': {
+      case FileType.CODE: {
         editor = this.renderCodeEditor();
         break;
       }
-      case 'design': {
+      case FileType.DESIGN: {
         editor = this.renderDesignEditor();
         break;
       }
-      case 'robot': {
+      case FileType.ROBOT: {
         editor = this.renderRobotEditor();
         break;
       }
@@ -453,10 +418,10 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     );
   }
 
-  toggleFileBrowser(fileType: string) {
+  toggleFileBrowser(fileType: FileFilter) {
     const activeEditorType = this.state.files[this.state.activeFileId].type;
 
-    if (this.state.fileBrowserTypeFilter === fileType) {
+    if (this.state.fileBrowserTypeFilter.type === fileType.type) {
       this.setState({
         fileBrowserOpen: !this.state.fileBrowserOpen,
       }, () => this.setState(update(this.state, {
@@ -479,28 +444,13 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   renderFileBrowser() {
     if (!this.state.fileBrowserOpen) return null;
 
-    const files = Object.keys(this.state.files)
-      .map(fileId => this.state.files[fileId])
-      .filter(file => this.state.fileBrowserTypeFilter === 'all' || file.type === this.state.fileBrowserTypeFilter)
-      .sort((lhs, rhs) => {
-        if (lhs.type !== rhs.type) return lhs.type > rhs.type ? 1 : -1;
-        if (lhs.name !== rhs.name) return lhs.name > rhs.name ? 1 : -1;
-        return 0;
-      })
-      .map(file => (
-        <ListItem
-          key={file.id}
-          leftAvatar={getFileTypeAvatar(file.type)}
-          primaryText={file.name}
-          secondaryText={file.type}
-          onTouchTap={() => this.setState({ activeFileId: file.id })}
-        />
-      ));
+    const files = Object.keys(this.state.files).map(fileId => this.state.files[fileId]);
 
     return (
-      <List>
-        {files}
-      </List>
+      <FileList
+        files={files}
+        filter={this.state.fileBrowserTypeFilter}
+      />
     );
   }
 
@@ -620,7 +570,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
               <IconButton
                 iconClassName="material-icons"
                 tooltip="All"
-                onTouchTap={() => this.toggleFileBrowser('all')}
+                onTouchTap={() => this.toggleFileBrowser({ type: undefined })}
                 style={styles.fileCategoryButton}
                 tooltipStyles={{ opacity: 1 }}
               >
@@ -629,29 +579,29 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
               <IconButton
                 iconClassName="material-icons"
                 tooltip="Code"
-                onTouchTap={() => this.toggleFileBrowser('code')}
+                onTouchTap={() => this.toggleFileBrowser({ type: FileType.CODE })}
                 style={styles.fileCategoryButton}
                 tooltipStyles={{ opacity: 1 }}
               >
-                {getIconName('code')}
+                {getIconName(FileType.CODE)}
               </IconButton>
               <IconButton
                 iconClassName="material-icons"
                 tooltip="Design"
-                onTouchTap={() => this.toggleFileBrowser('design')}
+                onTouchTap={() => this.toggleFileBrowser({ type: FileType.DESIGN })}
                 style={styles.fileCategoryButton}
                 tooltipStyles={{ opacity: 1 }}
               >
-                {getIconName('design')}
+                {getIconName(FileType.DESIGN)}
               </IconButton>
               <IconButton
                 iconClassName="material-icons"
                 tooltip="Robot"
-                onTouchTap={() => this.toggleFileBrowser('robot')}
+                onTouchTap={() => this.toggleFileBrowser({ type: FileType.ROBOT })}
                 style={styles.fileCategoryButton}
                 tooltipStyles={{ opacity: 1 }}
               >
-                {getIconName('robot')}
+                {getIconName(FileType.ROBOT)}
               </IconButton>
             </div>
 
