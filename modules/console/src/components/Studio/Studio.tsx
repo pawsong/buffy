@@ -31,7 +31,7 @@ import { runBlocklyWorkspace, submitVoxel } from './sagas';
 import { Layout, LayoutContainer } from '../../components/Layout';
 import FileList from './components/FileList';
 
-import { getIconName } from './utils';
+import { getIconName, getFileTypeLabel } from './utils';
 
 const Radium = require('radium');
 
@@ -49,7 +49,7 @@ import VoxelEditor, {
 
 import { convertXmlToCodes } from '../../blockly/utils';
 
-import { FileDescriptor, FileType, FileFilter } from './types';
+import { FileDescriptor, FileType } from './types';
 
 const messages = defineMessages({
   run: {
@@ -96,11 +96,17 @@ const styles = {
   },
   fileCategoryButtonContainer: {
     position: 'absolute',
-    width: FILE_CATEROGY_BUTTON_CONTAINER_WIDTH,
-    textAlign: 'center',
-    backgroundColor: Colors.grey200,
     top: 0,
     bottom: 0,
+    width: FILE_CATEROGY_BUTTON_CONTAINER_WIDTH,
+    backgroundColor: Colors.grey200,
+    textAlign: 'center',
+  },
+  fileCategoryButtons: {
+    display: 'flex',
+    flexDirection: 'column-reverse',
+    width: 52,
+    margin: '0 auto',
   },
   fileCategoryButton: {
     margin: 2,
@@ -180,7 +186,7 @@ interface StudioBodyState {
   activeFileId?: string;
 
   fileBrowserOpen?: boolean;
-  fileBrowserTypeFilter?: FileFilter;
+  fileBrowserTypeFilter?: FileType;
   activeInstanceTab?: InstanceTabs,
 }
 
@@ -264,7 +270,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       },
       activeFileId: '1',
       fileBrowserOpen: false,
-      fileBrowserTypeFilter: { type: null },
+      fileBrowserTypeFilter: FileType.ALL,
       activeInstanceTab: InstanceTabs.ROBOT,
     };
 
@@ -407,10 +413,10 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     );
   }
 
-  toggleFileBrowser(fileType: FileFilter) {
+  toggleFileBrowser(fileType: FileType) {
     const activeEditorType = this.state.files[this.state.activeFileId].type;
 
-    if (this.state.fileBrowserTypeFilter.type === fileType.type) {
+    if (this.state.fileBrowserTypeFilter === fileType) {
       this.setState({
         fileBrowserOpen: !this.state.fileBrowserOpen,
       }, () => this.setState({
@@ -435,6 +441,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       <FileList
         files={files}
         filter={this.state.fileBrowserTypeFilter}
+        onFileTouchTap={fileId => this.setState({ activeFileId: fileId })}
       />
     );
   }
@@ -504,6 +511,40 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     });
   }
 
+  renderFileBrowserButtons() {
+    const types = [
+      FileType.ROBOT,
+      FileType.DESIGN,
+      FileType.CODE,
+      FileType.ALL,
+    ];
+
+    const buttons = types.map(type => {
+      const active = this.state.fileBrowserOpen && this.state.fileBrowserTypeFilter === type;
+
+      return (
+        <IconButton
+          key={type}
+          iconClassName="material-icons"
+          iconStyle={{ color: active ? Colors.black : Colors.grey500 }}
+          tooltip={getFileTypeLabel(type)}
+          onTouchTap={() => this.toggleFileBrowser(type)}
+          style={styles.fileCategoryButton}
+        >
+          {getIconName(type)}
+        </IconButton>
+      );
+    })
+
+    return (
+      <div style={styles.fileCategoryButtonContainer}>
+        <div style={styles.fileCategoryButtons}>
+          {buttons}
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const rootStyle = objectAssign({}, styles.root, this.props.style);
     const controlButton = this.props.run.state === 'running'
@@ -517,9 +558,6 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
         />;
 
     const editor = this.renderEditor();
-
-    const fileBrowser = this.renderFileBrowser();
-
     const instanceBrowser = this.renderInstanceBrowser();
 
     return (
@@ -549,52 +587,14 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
           </LayoutContainer>
 
           <LayoutContainer remaining={true}>
-            <div style={styles.fileCategoryButtonContainer}>
-              <IconButton
-                iconClassName="material-icons"
-                tooltip="All"
-                onTouchTap={() => this.toggleFileBrowser({ type: undefined })}
-                style={styles.fileCategoryButton}
-                tooltipStyles={{ opacity: 1 }}
-              >
-                {'list'}
-              </IconButton>
-              <IconButton
-                iconClassName="material-icons"
-                tooltip="Code"
-                onTouchTap={() => this.toggleFileBrowser({ type: FileType.CODE })}
-                style={styles.fileCategoryButton}
-                tooltipStyles={{ opacity: 1 }}
-              >
-                {getIconName(FileType.CODE)}
-              </IconButton>
-              <IconButton
-                iconClassName="material-icons"
-                tooltip="Design"
-                onTouchTap={() => this.toggleFileBrowser({ type: FileType.DESIGN })}
-                style={styles.fileCategoryButton}
-                tooltipStyles={{ opacity: 1 }}
-              >
-                {getIconName(FileType.DESIGN)}
-              </IconButton>
-              <IconButton
-                iconClassName="material-icons"
-                tooltip="Robot"
-                onTouchTap={() => this.toggleFileBrowser({ type: FileType.ROBOT })}
-                style={styles.fileCategoryButton}
-                tooltipStyles={{ opacity: 1 }}
-              >
-                {getIconName(FileType.ROBOT)}
-              </IconButton>
-            </div>
-
+            {this.renderFileBrowserButtons()}
             <Layout flow="row" style={styles.editor}>
               <LayoutContainer
                 hide={!this.state.fileBrowserOpen}
                 size={this.initialBrowserWidth}
                 onResize={size => this.handleFileBrowserWidthResize(size)}
               >
-                {fileBrowser}
+                {this.renderFileBrowser()}
               </LayoutContainer>
               <LayoutContainer remaining={true}>
                 <div style={styles.fillParent}>

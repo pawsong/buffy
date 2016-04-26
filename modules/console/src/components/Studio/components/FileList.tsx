@@ -5,7 +5,7 @@ import FontIcon from 'material-ui/lib/font-icon';
 import Colors from 'material-ui/lib/styles/colors';
 import Avatar from 'material-ui/lib/avatar';
 
-import { FileDescriptor, FileType, FileFilter } from '../types';
+import { FileDescriptor, FileType } from '../types';
 import { getIconName, getFileTypeLabel } from '../utils';
 
 const fileTypeAvatars = {
@@ -35,13 +35,14 @@ function getFileTypeAvatar(fileType: FileType) {
 
 interface FileListProps extends React.Props<FileList> {
   files: FileDescriptor[];
-  filter: FileFilter;
+  filter: FileType;
+  onFileTouchTap: (fileId: string) => any;
 }
 
 class FileList extends React.Component<FileListProps, {}> {
   render() {
     const files = this.props.files
-      .filter(file => this.props.filter.type === undefined || file.type === this.props.filter.type)
+      .filter(file => this.props.filter === FileType.ALL || file.type === this.props.filter)
       .sort((lhs, rhs) => {
         if (lhs.type !== rhs.type) return lhs.type > rhs.type ? 1 : -1;
         if (lhs.name !== rhs.name) return lhs.name > rhs.name ? 1 : -1;
@@ -53,7 +54,7 @@ class FileList extends React.Component<FileListProps, {}> {
           leftAvatar={getFileTypeAvatar(file.type)}
           primaryText={file.name}
           secondaryText={getFileTypeLabel(file.type)}
-          onTouchTap={() => this.setState({ activeFileId: file.id })}
+          onTouchTap={() => this.props.onFileTouchTap(file.id)}
         />
       ));
 
