@@ -17,7 +17,6 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import ActionInfo from 'material-ui/lib/svg-icons/action/info';
 
 const objectAssign = require('object-assign');
-const update = require('react-addons-update');
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';
 
@@ -174,10 +173,7 @@ enum InstanceTabs {
 
 interface StudioBodyState {
   gameSizeVersion?: number;
-  editorSizeVersions?: {
-    code: number;
-    design: number;
-  }
+  editorSizeVersion?: number;
   activeTab?: string;
 
   files?: { [index: string]: FileDescriptor },
@@ -241,10 +237,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      editorSizeVersions: {
-        code: 0,
-        design: 0,
-      },
+      editorSizeVersion: 0,
       gameSizeVersion: 0,
       activeTab: localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB) || 'code',
       files: {
@@ -306,12 +299,10 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     localStorage.setItem(StorageKeys.MASTER_GAME_WIDTH_SIZE, `${size}`);
 
     // Resize game & editor
-    this.setState(update(this.state, {
-      gameSizeVersion: { $set: this.state.gameSizeVersion + 1 },
-      editorSizeVersions: {
-        [this.state.activeTab]: { $set: this.state.editorSizeVersions[this.state.activeTab] + 1 },
-      },
-    }));
+    this.setState({
+      gameSizeVersion: this.state.gameSizeVersion + 1,
+      editorSizeVersion: this.state.editorSizeVersion + 1,
+    });
   }
 
   handleGameHeightResize(size) {
@@ -324,12 +315,10 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   }
 
   onTabChange(value) {
-    this.setState(update(this.state, {
-      activeTab: { $set: value },
-      editorSizeVersions: {
-        [value]: { $set: this.state.editorSizeVersions[value] + 1 },
-      },
-    }));
+    this.setState({
+      activeTab: value,
+      editorSizeVersion: this.state.editorSizeVersion + 1,
+    });
     localStorage.setItem(StorageKeys.MASTER_INITIAL_TAB, value);
   }
 
@@ -342,7 +331,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       <CodeEditor
         editorState={this.props.studioState.codeEditorState}
         onChange={codeEditorState => this.handleStateChange({ codeEditorState })}
-        sizeRevision={this.state.editorSizeVersions.code}
+        sizeRevision={this.state.editorSizeVersion}
         readyToRender={true}
       />
     );
@@ -353,7 +342,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       <VoxelEditor
         editorState={this.props.studioState.voxelEditorState}
         onChange={voxelEditorState => this.handleStateChange({ voxelEditorState })}
-        sizeVersion={this.state.editorSizeVersions.design}
+        sizeVersion={this.state.editorSizeVersion}
         onSubmit={(data) => this.handleVoxelEditorSubmit(data)}
       />
     );
@@ -424,20 +413,16 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     if (this.state.fileBrowserTypeFilter.type === fileType.type) {
       this.setState({
         fileBrowserOpen: !this.state.fileBrowserOpen,
-      }, () => this.setState(update(this.state, {
-        editorSizeVersions: {
-          [activeEditorType]: { $set: this.state.editorSizeVersions[activeEditorType] + 1 },
-        },
-      })));
+      }, () => this.setState({
+        editorSizeVersion: this.state.editorSizeVersion + 1,
+      }));
     } else {
       this.setState({
         fileBrowserOpen: true,
         fileBrowserTypeFilter: fileType,
-      }, () => this.setState(update(this.state, {
-        editorSizeVersions: {
-          [activeEditorType]: { $set: this.state.editorSizeVersions[activeEditorType] + 1 },
-        },
-      })));
+      }, () => this.setState({
+        editorSizeVersion: this.state.editorSizeVersion + 1
+      }));
     }
   }
 
@@ -514,11 +499,9 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     localStorage.setItem(StorageKeys.MASTER_BROWSER_WIDTH, `${size}`);
 
     // Resize editor
-    this.setState(update(this.state, {
-      editorSizeVersions: {
-        [activeEditorType]: { $set: this.state.editorSizeVersions[activeEditorType] + 1 },
-      },
-    }));
+    this.setState({
+      editorSizeVersion: this.state.editorSizeVersion + 1,
+    });
   }
 
   render() {
