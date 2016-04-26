@@ -126,13 +126,22 @@ export class Layout extends React.Component<LayoutProps, LayoutStates> {
 
     for (let i = 0; i < this.remainingIndex; ++i) {
       const child = children[i];
+      if (child.props.hide) continue;
+
       const size = this.state[`size_${i}`];
 
       // Container
-      result.push(<div key={`c${i}`} style={{
-        display: 'flex',
-        [this.sizeProp]: size,
-      }}>{child}</div>);
+      result.push(
+        <div
+          key={`c${i}`}
+          style={{
+            display: 'flex',
+            [this.sizeProp]: size,
+          }}
+        >
+          {child}
+        </div>
+      );
 
       const onDrag = (params: DragParams) => {
         const size = Math.max(params.size + params.delta, 0);
@@ -142,18 +151,34 @@ export class Layout extends React.Component<LayoutProps, LayoutStates> {
       };
 
       // Divider
-      result.push(<LayoutDivider flow={this.props.flow}
-                                 key={`d${i}`} index={i} size={size} onDrag={onDrag}/>);
+      result.push(
+        <LayoutDivider
+          flow={this.props.flow}
+          key={`d${i}`}
+          index={i}
+          size={size}
+          onDrag={onDrag}
+        />
+      );
     }
 
-    result.push(<div key={`c${this.remainingIndex}`} style={{
-                  flex: 1,
-                  display: 'flex',
-                  overflow: 'auto',
-                }}>{remainingChild}</div>);
+    result.push(
+      <div
+        key={`c${this.remainingIndex}`}
+        style={{
+          flex: 1,
+          display: 'flex',
+          overflow: 'auto',
+        }}
+      >
+        {remainingChild}
+      </div>
+    );
 
     for (let i = this.remainingIndex + 1; i < len; ++i) {
       const child = children[i];
+      if (child.props.hide) continue;
+
       const size = this.state[`size_${i}`];
 
       const onDrag = (params: DragParams) => {
@@ -164,21 +189,41 @@ export class Layout extends React.Component<LayoutProps, LayoutStates> {
       };
 
       // Divider
-      result.push(<LayoutDivider flow={this.props.flow}
-                                 key={`d${i}`} index={i} size={size} onDrag={onDrag}/>);
+      result.push(
+        <LayoutDivider
+          flow={this.props.flow}
+          key={`d${i}`}
+          index={i}
+          size={size}
+          onDrag={onDrag}
+        />
+      );
 
       // Container
-      result.push(<div key={`c${i}`} style={{
-        display: 'flex',
-        [this.sizeProp]: size,
-      }}>{child}</div>);
+      result.push(
+        <div
+          key={`c${i}`}
+          style={{
+            display: 'flex',
+            [this.sizeProp]: size,
+          }}
+        >
+          {child}
+        </div>
+      );
     }
 
-    return <div style={[
-      styles.layout,
-      { flexFlow: this.props.flow },
-      this.props.style || {},
-      ]}>{result}</div>;
+    return (
+      <div
+        style={[
+          styles.layout,
+          { flexFlow: this.props.flow },
+          this.props.style || {},
+        ]}
+      >
+        {result}
+      </div>
+    );
   };
 }
 
@@ -190,6 +235,7 @@ export interface LayoutContainerProps extends React.Props<LayoutContainer> {
   remaining?: boolean;
   size?: number;
   onResize?: (size?: number) => any;
+  hide?: boolean;
 }
 
 export class LayoutContainer extends React.Component<LayoutContainerProps, {}> {

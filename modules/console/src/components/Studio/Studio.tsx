@@ -31,6 +31,8 @@ import { runBlocklyWorkspace, submitVoxel } from './sagas';
 
 import { Layout, LayoutContainer } from '../../components/Layout';
 
+const Radium = require('radium');
+
 import Game, {
   GameState,
 } from '../../components/Game';
@@ -108,7 +110,7 @@ const styles = {
   },
   addon: {
     position: 'absolute',
-    top: 48,
+    top: 33,
     bottom: 0,
     left: 0,
     right: 0,
@@ -187,6 +189,12 @@ interface StudioBodyProps extends React.Props<Studio>, SagaProps {
   submitVoxel?: ImmutableTask<any>;
 }
 
+interface FileDescriptor {
+  id: string;
+  name: string;
+  type: string;
+}
+
 interface StudioBodyState {
   gameSizeVersion?: number;
   editorSizeVersions?: {
@@ -194,6 +202,114 @@ interface StudioBodyState {
     design: number;
   }
   activeTab?: string;
+
+  files?: { [index: string]: FileDescriptor },
+  activeFileId?: string;
+
+  fileBrowserOpen?: boolean;
+  fileBrowserTypeFilter?: string;
+}
+
+interface FileTabProps extends React.Props<FileTab> {
+  style?: React.CSSProperties,
+  file: FileDescriptor;
+  modified: boolean;
+  active: boolean;
+  onClick(): any;
+  onClose(): any;
+}
+
+@Radium
+class FileTab extends React.Component<FileTabProps, {}> {
+  render() {
+    const style = objectAssign({
+      flex: 1,
+      borderLeft: '1px solid',
+      borderColor: Colors.grey400,
+      borderRadius: 0,
+      position: 'relative',
+      top: 0,
+      maxWidth: '22em',
+      minWidth: '7em',
+      height: '100%',
+      padding: 0,
+      margin: 0,
+      backgroundClip: 'content-box',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }, {
+      color: this.props.active ? '#282929' : '#939395',
+      backgroundColor: this.props.active ? Colors.white : '#e5e5e6',
+    }, this.props.style);
+
+    return (
+      <li
+        style={style}
+        onClick={this.props.onClick}
+      >
+        <div
+          style={{
+            textAlign: 'center',
+            margin: 0,
+            borderBottom: '1px solid transparent',
+            textOverflow: 'clip',
+            userSelect: 'none',
+            cursor: 'default',
+          }}
+        >
+          {this.props.file.name}
+        </div>
+      </li>
+    );
+  }
+}
+
+interface FileTabsProps extends React.Props<FileTabs> {
+  files: FileDescriptor[];
+  activeFileId: string;
+  onFileClick(fileId: string): any;
+  onFileClose(fileId: string): any;
+}
+
+class FileTabs extends React.Component<FileTabsProps, {}> {
+  render() {
+    const files = this.props.files.map((file, index) => {
+      const style = index === 0 ? {
+        borderLeft: 'none',
+      } : undefined;
+
+      return (
+        <FileTab
+          style={style}
+          key={file.id}
+          file={file}
+          modified={false}
+          active={file.id === this.props.activeFileId}
+          onClick={() => this.props.onFileClick(file.id)}
+          onClose={() => this.props.onFileClose(file.id)}
+        />
+      );
+    });
+
+    return (
+      <ul style={{
+        margin: 0,
+        display: 'flex',
+        position: 'relative',
+        height: 33,
+        boxShadow: 'inset 0 -1px 0 #d1d1d2',
+        background: '#e5e5e6',
+        overflowX: 'auto',
+        overflowY: 'hidden',
+        borderRadius: 0,
+        paddingLeft: 0,
+        listStyle: 'none',
+      }}>
+        {files}
+      </ul>
+    );
+  }
 }
 
 @injectIntl
@@ -205,6 +321,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   initialTabIndex: number;
   initialGameWidth: number;
   initialGameHeight: number;
+  initialBrowserWidth: number;
 
   activeTabName: string;
 
@@ -219,6 +336,31 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       },
       gameSizeVersion: 0,
       activeTab: localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB) || 'code',
+      files: {
+        '1': {
+          id: '1',
+          name: 'Code 1',
+          type: 'code',
+        },
+        '2': {
+          id: '2',
+          name: 'Design 1',
+          type: 'design'
+        },
+        '3': {
+          id: '3',
+          name: 'Robot 1',
+          type: 'robot',
+        },
+        '4': {
+          id: '4',
+          name: 'Code 2',
+          type: 'code',
+        },
+      },
+      activeFileId: '1',
+      fileBrowserOpen: false,
+      fileBrowserTypeFilter: '',
     };
 
     this.sandbox = new Sandbox(this.props.stateLayer);
@@ -244,6 +386,8 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   componentWillMount() {
     this.initialGameWidth = parseInt(localStorage.getItem(StorageKeys.MASTER_GAME_WIDTH_SIZE) || 600, 10);
     this.initialGameHeight = parseInt(localStorage.getItem(StorageKeys.MASTER_GAME_HEIGHT_SIZE) || 480, 10);
+
+    this.initialBrowserWidth = parseInt(localStorage.getItem(StorageKeys.MASTER_BROWSER_WIDTH) || 150, 10);
   }
 
   handleGameWidthResize(size) {
@@ -287,7 +431,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
         editorState={this.props.studioState.codeEditorState}
         onChange={codeEditorState => this.handleStateChange({ codeEditorState })}
         sizeRevision={this.state.editorSizeVersions.code}
-        readyToRender={this.state.activeTab === 'code'}
+        readyToRender={true}
       />
     );
   }
@@ -322,18 +466,102 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   }
 
   renderEditor() {
-    switch(this.state.activeTab) {
+    const files = Object.keys(this.state.files).map(fileId => this.state.files[fileId]);
+
+    const fileTabs = (
+      <FileTabs
+        files={files}
+        activeFileId={this.state.activeFileId}
+        onFileClick={fileId => this.setState({ activeFileId: fileId })}
+        onFileClose={() => {}}
+      />
+    );
+
+    let editor = null;
+    switch(this.state.files[this.state.activeFileId].type) {
       case 'code': {
-        return this.renderCodeEditor();
+        editor = this.renderCodeEditor();
+        break;
       }
       case 'design': {
-        return this.renderDesignEditor();
+        editor = this.renderDesignEditor();
+        break;
       }
       case 'robot': {
-        return this.renderRobotEditor();
+        editor = this.renderRobotEditor();
+        break;
       }
     }
-    return null;
+
+    return (
+      <div>
+        <FileTabs
+          files={files}
+          activeFileId={this.state.activeFileId}
+          onFileClick={fileId => this.setState({ activeFileId: fileId })}
+          onFileClose={() => {}}
+        />
+        <div style={styles.addon}>{editor}</div>
+      </div>
+    );
+  }
+
+  toggleFileBrowser(fileType: string) {
+    const activeEditorType = this.state.files[this.state.activeFileId].type;
+
+    if (this.state.fileBrowserTypeFilter === fileType) {
+      this.setState({
+        fileBrowserOpen: !this.state.fileBrowserOpen,
+      }, () => this.setState(update(this.state, {
+        editorSizeVersions: {
+          [activeEditorType]: { $set: this.state.editorSizeVersions[activeEditorType] + 1 },
+        },
+      })));
+    } else {
+      this.setState({
+        fileBrowserOpen: true,
+        fileBrowserTypeFilter: fileType,
+      }, () => this.setState(update(this.state, {
+        editorSizeVersions: {
+          [activeEditorType]: { $set: this.state.editorSizeVersions[activeEditorType] + 1 },
+        },
+      })));
+    }
+  }
+
+  renderFileBrowser() {
+    if (!this.state.fileBrowserOpen) return null;
+
+    const files = Object.keys(this.state.files)
+      .map(fileId => this.state.files[fileId])
+      .filter(file => file.type === this.state.fileBrowserTypeFilter)
+      .map(file => (
+        <ListItem
+          key={file.id}
+          leftAvatar={<Avatar icon={<ActionAssignment />} backgroundColor={Colors.blue500} />}
+          primaryText={file.name}
+          secondaryText={file.type}
+          onTouchTap={() => this.setState({ activeFileId: file.id })}
+        />
+      ));
+
+    return (
+      <List>
+        {files}
+      </List>
+    );
+  }
+
+  handleFileBrowserWidthResize(size) {
+    const activeEditorType = this.state.files[this.state.activeFileId].type;
+    localStorage.setItem(StorageKeys.MASTER_BROWSER_WIDTH, `${size}`);
+
+    // Resize editor
+    this.setState(update(this.state, {
+      editorSizeVersions: {
+        [activeEditorType]: { $set: this.state.editorSizeVersions[activeEditorType] + 1 },
+      },
+    }));
   }
 
   render() {
@@ -349,6 +577,8 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
         />;
 
     const editor = this.renderEditor();
+
+    const fileBrowser = this.renderFileBrowser();
 
     return (
       <div style={rootStyle}>
@@ -394,7 +624,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
               <IconButton
                 iconClassName="material-icons"
                 tooltip="Code"
-                onTouchTap={() => this.onTabChange('code')}
+                onTouchTap={() => this.toggleFileBrowser('code')}
                 style={styles.fileCategoryButton}
                 tooltipStyles={{ opacity: 1 }}
               >
@@ -403,7 +633,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
               <IconButton
                 iconClassName="material-icons"
                 tooltip="Design"
-                onTouchTap={() => this.onTabChange('design')}
+                onTouchTap={() => this.toggleFileBrowser('design')}
                 style={styles.fileCategoryButton}
                 tooltipStyles={{ opacity: 1 }}
               >
@@ -412,16 +642,28 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
               <IconButton
                 iconClassName="material-icons"
                 tooltip="Robot"
-                onTouchTap={() => this.onTabChange('robot')}
+                onTouchTap={() => this.toggleFileBrowser('robot')}
                 style={styles.fileCategoryButton}
                 tooltipStyles={{ opacity: 1 }}
               >
                 android
               </IconButton>
             </div>
-            <div style={styles.editor}>
-              {editor}
-            </div>
+
+            <Layout flow="row" style={styles.editor}>
+              <LayoutContainer
+                hide={!this.state.fileBrowserOpen}
+                size={this.initialBrowserWidth}
+                onResize={size => this.handleFileBrowserWidthResize(size)}
+              >
+                {fileBrowser}
+              </LayoutContainer>
+              <LayoutContainer remaining={true}>
+                <div style={styles.fillParent}>
+                  {editor}
+                </div>
+              </LayoutContainer>
+            </Layout>
           </LayoutContainer>
         </Layout>
       </div>
