@@ -4,8 +4,7 @@ import * as React from 'react';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import RaisedButton from 'material-ui/lib/raised-button';
-import Tabs from 'material-ui/lib/tabs/tabs';
-import Tab from 'material-ui/lib/tabs/tab';
+import { Tabs, Tab } from '../Tabs';
 import IconButton from 'material-ui/lib/icon-button';
 import Colors from 'material-ui/lib/styles/colors';
 
@@ -142,33 +141,6 @@ const styles = {
   },
 };
 
-interface TabTemplateProps extends React.Props<TabTemplate> {
-  selected: boolean;
-}
-
-class TabTemplate extends React.Component<TabTemplateProps, {}> {
-  render() {
-    const styles: {
-      width: string;
-      height: string;
-      display?: string;
-    } = {
-      'width': '100%',
-      'height': '100%',
-    };
-
-    if (!this.props.selected) {
-      styles.display = 'none';
-    }
-
-    return (
-      <div style={styles}>
-        {this.props.children}
-      </div>
-    );
-  }
-};
-
 export interface StudioState {
   codeEditorState?: CodeEditorState;
   gameState?: GameState;
@@ -195,6 +167,11 @@ interface FileDescriptor {
   type: string;
 }
 
+enum InstanceTabs {
+  ROBOT,
+  ZONE,
+};
+
 interface StudioBodyState {
   gameSizeVersion?: number;
   editorSizeVersions?: {
@@ -208,61 +185,7 @@ interface StudioBodyState {
 
   fileBrowserOpen?: boolean;
   fileBrowserTypeFilter?: string;
-}
-
-interface FileTabProps extends React.Props<FileTab> {
-  style?: React.CSSProperties,
-  file: FileDescriptor;
-  modified: boolean;
-  active: boolean;
-  onClick(): any;
-  onClose(): any;
-}
-
-@Radium
-class FileTab extends React.Component<FileTabProps, {}> {
-  render() {
-    const style = objectAssign({
-      flex: 1,
-      borderLeft: '1px solid',
-      borderColor: Colors.grey400,
-      borderRadius: 0,
-      position: 'relative',
-      top: 0,
-      maxWidth: '22em',
-      minWidth: '7em',
-      height: '100%',
-      padding: 0,
-      margin: 0,
-      backgroundClip: 'content-box',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }, {
-      color: this.props.active ? '#282929' : '#939395',
-      backgroundColor: this.props.active ? Colors.white : '#e5e5e6',
-    }, this.props.style);
-
-    return (
-      <li
-        style={style}
-        onClick={this.props.onClick}
-      >
-        <div
-          style={{
-            textAlign: 'center',
-            margin: 0,
-            borderBottom: '1px solid transparent',
-            textOverflow: 'clip',
-            userSelect: 'none',
-            cursor: 'default',
-          }}
-        >
-          {this.props.file.name}
-        </div>
-      </li>
-    );
-  }
+  activeInstanceTab?: InstanceTabs,
 }
 
 interface FileTabsProps extends React.Props<FileTabs> {
@@ -274,40 +197,28 @@ interface FileTabsProps extends React.Props<FileTabs> {
 
 class FileTabs extends React.Component<FileTabsProps, {}> {
   render() {
-    const files = this.props.files.map((file, index) => {
+    const tabs = this.props.files.map((file, index) => {
       const style = index === 0 ? {
         borderLeft: 'none',
       } : undefined;
 
       return (
-        <FileTab
-          style={style}
+        <Tab
           key={file.id}
-          file={file}
-          modified={false}
-          active={file.id === this.props.activeFileId}
-          onClick={() => this.props.onFileClick(file.id)}
-          onClose={() => this.props.onFileClose(file.id)}
+          value={file.id}
+          style={style}
+          label={file.name}
         />
       );
     });
 
     return (
-      <ul style={{
-        margin: 0,
-        display: 'flex',
-        position: 'relative',
-        height: 33,
-        boxShadow: 'inset 0 -1px 0 #d1d1d2',
-        background: '#e5e5e6',
-        overflowX: 'auto',
-        overflowY: 'hidden',
-        borderRadius: 0,
-        paddingLeft: 0,
-        listStyle: 'none',
-      }}>
-        {files}
-      </ul>
+      <Tabs
+        activeValue={this.props.activeFileId}
+        onTabClick={value => this.props.onFileClick(value)}
+      >
+        {tabs}
+      </Tabs>
     );
   }
 }
@@ -361,6 +272,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       activeFileId: '1',
       fileBrowserOpen: false,
       fileBrowserTypeFilter: '',
+      activeInstanceTab: InstanceTabs.ROBOT,
     };
 
     this.sandbox = new Sandbox(this.props.stateLayer);
@@ -552,6 +464,61 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     );
   }
 
+  renderInstanceBrowser() {
+    const tabs = (
+      <Tabs
+        activeValue={this.state.activeInstanceTab}
+        onTabClick={value => this.setState({ activeInstanceTab: value })}
+      >
+        <Tab
+          value={InstanceTabs.ROBOT}
+          label={'Robot'}
+        />
+        <Tab
+          value={InstanceTabs.ZONE}
+          label={'Zone'}
+        />
+      </Tabs>
+    );
+
+    let body = null;
+    switch(this.state.activeInstanceTab) {
+      case InstanceTabs.ROBOT: {
+        body = (
+          <List>
+            <ListItem
+              leftAvatar={<Avatar icon={<ActionAssignment />} backgroundColor={Colors.blue500} />}
+              rightIcon={<ActionInfo />}
+              primaryText="Vacation itinerary"
+              secondaryText="Jan 20, 2014"
+            />
+          </List>
+        );
+        break;
+      }
+      case InstanceTabs.ZONE: {
+        body = (
+          <List>
+            <ListItem
+              leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={Colors.yellow600} />}
+              rightIcon={<ActionInfo />}
+              primaryText="Kitchen remodel"
+              secondaryText="Jan 10, 2014"
+            />
+          </List>
+        );
+        break;
+      }
+    }
+
+    return (
+      <div>
+        {tabs}
+        {body}
+      </div>
+    );
+  }
+
   handleFileBrowserWidthResize(size) {
     const activeEditorType = this.state.files[this.state.activeFileId].type;
     localStorage.setItem(StorageKeys.MASTER_BROWSER_WIDTH, `${size}`);
@@ -580,6 +547,8 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
     const fileBrowser = this.renderFileBrowser();
 
+    const instanceBrowser = this.renderInstanceBrowser();
+
     return (
       <div style={rootStyle}>
         <Layout flow="row" style={styles.content}>
@@ -601,20 +570,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                   </ToolbarGroup>
                 </Toolbar>
                 { /* Object instance browser */}
-                <List subheader="Robot instance list" insetSubheader={true}>
-                  <ListItem
-                    leftAvatar={<Avatar icon={<ActionAssignment />} backgroundColor={Colors.blue500} />}
-                    rightIcon={<ActionInfo />}
-                    primaryText="Vacation itinerary"
-                    secondaryText="Jan 20, 2014"
-                  />
-                  <ListItem
-                    leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={Colors.yellow600} />}
-                    rightIcon={<ActionInfo />}
-                    primaryText="Kitchen remodel"
-                    secondaryText="Jan 10, 2014"
-                  />
-                </List>
+                {instanceBrowser}
               </LayoutContainer>
             </Layout>
           </LayoutContainer>
