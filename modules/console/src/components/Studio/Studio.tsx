@@ -5,6 +5,7 @@ import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import RaisedButton from 'material-ui/lib/raised-button';
 import { Tabs, Tab } from '../Tabs';
+import FontIcon from 'material-ui/lib/font-icon';
 import IconButton from 'material-ui/lib/icon-button';
 import Colors from 'material-ui/lib/styles/colors';
 
@@ -68,6 +69,40 @@ const messages = defineMessages({
     defaultMessage: 'Design',
   },
 });
+
+function getIconName(fileType: string) {
+  switch(fileType) {
+    case 'code': return 'code';
+    case 'design': return 'build';
+    case 'robot': return 'android';
+  }
+  return '';
+}
+
+const fileTypeAvatars = {
+  code: (
+    <Avatar
+      icon={<FontIcon className="material-icons">{getIconName('code')}</FontIcon>}
+      backgroundColor={Colors.green500}
+    />
+  ),
+  design: (
+    <Avatar
+      icon={<FontIcon className="material-icons">{getIconName('design')}</FontIcon>}
+      backgroundColor={Colors.yellow500}
+    />
+  ),
+  robot: (
+    <Avatar
+      icon={<FontIcon className="material-icons">{getIconName('robot')}</FontIcon>}
+      backgroundColor={Colors.blue500}
+    />
+  ),
+};
+
+function getFileTypeAvatar(fileType: string) {
+  return fileTypeAvatars[fileType] || null;
+}
 
 const FILE_CATEROGY_BUTTON_CONTAINER_WIDTH = 60;
 
@@ -446,11 +481,16 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
     const files = Object.keys(this.state.files)
       .map(fileId => this.state.files[fileId])
-      .filter(file => file.type === this.state.fileBrowserTypeFilter)
+      .filter(file => this.state.fileBrowserTypeFilter === 'all' || file.type === this.state.fileBrowserTypeFilter)
+      .sort((lhs, rhs) => {
+        if (lhs.type !== rhs.type) return lhs.type > rhs.type ? 1 : -1;
+        if (lhs.name !== rhs.name) return lhs.name > rhs.name ? 1 : -1;
+        return 0;
+      })
       .map(file => (
         <ListItem
           key={file.id}
-          leftAvatar={<Avatar icon={<ActionAssignment />} backgroundColor={Colors.blue500} />}
+          leftAvatar={getFileTypeAvatar(file.type)}
           primaryText={file.name}
           secondaryText={file.type}
           onTouchTap={() => this.setState({ activeFileId: file.id })}
@@ -579,12 +619,21 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
             <div style={styles.fileCategoryButtonContainer}>
               <IconButton
                 iconClassName="material-icons"
+                tooltip="All"
+                onTouchTap={() => this.toggleFileBrowser('all')}
+                style={styles.fileCategoryButton}
+                tooltipStyles={{ opacity: 1 }}
+              >
+                {'list'}
+              </IconButton>
+              <IconButton
+                iconClassName="material-icons"
                 tooltip="Code"
                 onTouchTap={() => this.toggleFileBrowser('code')}
                 style={styles.fileCategoryButton}
                 tooltipStyles={{ opacity: 1 }}
               >
-                code
+                {getIconName('code')}
               </IconButton>
               <IconButton
                 iconClassName="material-icons"
@@ -593,7 +642,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                 style={styles.fileCategoryButton}
                 tooltipStyles={{ opacity: 1 }}
               >
-                build
+                {getIconName('design')}
               </IconButton>
               <IconButton
                 iconClassName="material-icons"
@@ -602,7 +651,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                 style={styles.fileCategoryButton}
                 tooltipStyles={{ opacity: 1 }}
               >
-                android
+                {getIconName('robot')}
               </IconButton>
             </div>
 
