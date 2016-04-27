@@ -5,7 +5,11 @@ import ZoneView from '../../ZoneView';
 if (__CLIENT__) {
   window['THREE'] = THREE;
   require('three/examples/js/effects/CardboardEffect');
-  require('three/examples/js/controls/DeviceOrientationControls');
+  if (__IS_MOBILE__) {
+    require('three/examples/js/controls/DeviceOrientationControls');
+  } else {
+    require('three/examples/js/controls/MouseControls');
+  }
 }
 
 class CardboardZoneView extends ZoneView {
@@ -16,14 +20,16 @@ class CardboardZoneView extends ZoneView {
   constructor(container: HTMLElement, stateLayer: StateLayer) {
     super(container, stateLayer);
     this.effect = new THREE['CardboardEffect'](this.renderer);
-    this.controls = new THREE['DeviceOrientationControls'](this.camera);
+    if (__IS_MOBILE__) {
+      this.controls = new THREE['DeviceOrientationControls'](this.camera);
+    } else {
+      this.controls = new THREE['MouseControls'](this.camera);
+    }
   }
 
   getCamera() {
     const camera = new THREE.PerspectiveCamera(90, this.container.offsetWidth / this.container.offsetHeight, 0.001, 700);
     // camera.position.set(0, 15, 0);
-    camera.position.set(200, 200, 200);
-    camera['focalLength'] = camera.position.distanceTo( this.scene.position );
     return camera;
   }
 

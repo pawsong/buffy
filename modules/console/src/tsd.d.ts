@@ -6,6 +6,7 @@
 
 declare const __DEV__: boolean;
 declare const __CLIENT__: boolean;
+declare const __IS_MOBILE__: boolean;
 
 declare const CONFIG_DOMAIN: string;
 declare const CONFIG_GAME_SERVER_URL: string;

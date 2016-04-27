@@ -34,6 +34,8 @@ import { baseTheme, muiTheme } from './theme';
 import configureStore from './store';
 import getRoutes from './routes';
 
+const isMobile = require('ismobilejs');
+
 import {
   DELETE_TOKEN,
   LOGIN_SUCCEEDED, LoginSucceededAction,
@@ -206,10 +208,13 @@ app.get('*', async (req, res) => {
     // Delete token because token in store is used only on server
     store.dispatch({ type: DELETE_TOKEN });
 
+    const clientIsMobile = isMobile(req.headers['user-agent']).any;
+
     const html = compiledIndexHtml({
       locale,
       head,
       body,
+      isMobile: clientIsMobile,
       initialState: JSON.stringify(store.getState()),
     });
 
