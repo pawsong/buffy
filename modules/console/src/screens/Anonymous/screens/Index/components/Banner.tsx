@@ -19,7 +19,7 @@ const messages = defineMessages({
   bannerTitle: {
     id: 'landing.banner.title',
     description: 'Landing page banner title',
-    defaultMessage: 'Great physical computing courses without real devices',
+    defaultMessage: 'Buffy the Virtual Robot Platform',
   },
   seeMore: {
     id: 'landing.seeMore',
@@ -28,7 +28,7 @@ const messages = defineMessages({
   },
 });
 
-const backgroundImageUrl = require('file!../assets/banner_bg.png');
+const backgroundImageUrl = require('file!../assets/landing.png');
 
 const styles = {
   buttons: {

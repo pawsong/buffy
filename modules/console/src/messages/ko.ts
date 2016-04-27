@@ -240,9 +240,9 @@ export default {
   /**
    * path: src/screens/Anonymous/screens/Index/components/Banner.json
    * description: Landing page banner title
-   * defaultMessage: Great physical computing courses without real devices
+   * defaultMessage: Buffy the Virtual Robot Platform
    */
-  'landing.banner.title': '교구 없이 진행하는 피지컬 컴퓨팅 수업',
+  'landing.banner.title': '버피: 버추얼 로봇 플랫폼',
 
   /**
    * path: src/screens/Anonymous/screens/Index/components/Banner.json
