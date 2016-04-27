@@ -171,9 +171,9 @@ interface HandlerState {
     yield put(userUpdate(userId, { name }));
   },
 })
-@connect((state: State) => ({
+@(connect((state: State) => ({
   user: state.users.get(state.auth.userid),
-}))
+})) as any)
 @injectIntl
 class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
   fileReader: FileReader;

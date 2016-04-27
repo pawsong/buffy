@@ -1,0 +1,12 @@
+{
+  "ambientDependencies": {
+    "bluebird": "registry:dt/bluebird#2.0.0+20160319051630",
+    "fbemitter": "registry:dt/fbemitter#2.0.0+20151228063024",
+    "invariant": "registry:dt/invariant#2.2.0+20160317120654",
+    "node": "registry:dt/node#4.0.0+20160423143914",
+    "shortid": "registry:dt/shortid#0.0.0+20160316155526"
+  },
+  "dependencies": {
+    "http-errors": "registry:npm/http-errors#1.4.0+20160305200728"
+  }
+}

@@ -167,9 +167,9 @@ const styles = {
     yield put(userUpdate(userId, { username }));
   },
 })
-@connect((state: State) => ({
+@(connect((state: State) => ({
   user: state.users.get(state.auth.userid),
-}))
+})) as any)
 @injectIntl
 class UserInfoDialog extends React.Component<UserInfoDialogProps, UserInfoDialogStates> {
   constructor(props) {

@@ -10,6 +10,8 @@
   "exclude": [
     "lib",
     "node_modules",
+    "typings/main.d.ts",
+    "typings/main",
     ".tsc_out"
   ]
 }

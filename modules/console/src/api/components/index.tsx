@@ -184,7 +184,7 @@ export function connectApi<T>(
       }
     }
 
-    @connect<ConnectApiProps>((state: State, props: ConnectApiOwnProps) => {
+    @(connect((state: State, props: ConnectApiOwnProps) => {
       const specs: ApiSpecDictionary =
         mapCallsToProps ? mapCallsToProps(state, props.parentProps) : {};
 
@@ -206,7 +206,7 @@ export function connectApi<T>(
       const apiDispatchProps = mapApiDispatchProps(dispatch);
       const dispatchProps = mapDispatch(dispatch, props);
       return objectAssign({}, apiDispatchProps, { dispatchProps });
-    })
+    }) as any)
     class ConnectApi extends React.Component<ConnectApiProps, {}> {
       static displayName = `ConnectApi(${getDisplayName(WrappedComponent)})`;
 

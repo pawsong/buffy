@@ -72,7 +72,7 @@ module.exports = function (options) {
       }
 
       const tsResult = gulp.src([
-        'typings/tsd.d.ts',
+        'typings/browser.d.ts',
         'src/**/*.{ts,tsx}',
       ]).pipe(sourcemaps.init())
         .pipe(ts(srcTsProject, undefined, ts.reporter.longReporter()))

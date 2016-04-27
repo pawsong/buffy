@@ -12,16 +12,16 @@
     "bin": "../../node_modules/.bin"
   },
   "scripts": {
-    "prepublish": "npm run install:link && npm run install:tsd && npm run build",
+    "prepublish": "npm run install:link && npm run install:typings && npm run build",
     "install:link": "node ../../tools/link",
-    "install:tsd": "$npm_package_config_bin/tsd install",
+    "install:typings": "$npm_package_config_bin/typings install",
     "clean": "$npm_package_config_bin/rimraf _book build",
     "clean:prod": "$npm_package_config_bin/rimraf _book build/prod",
     "build": "npm run clean:prod && $npm_package_config_bin/gulp build:prod && npm run build:docs",
     "build:docs": "(cd ../../ && npm run docs:build) && $npm_package_config_bin/ncp ../../_book _book",
     "test": "$npm_package_config_bin/gulp test",
     "test:watch": "$npm_package_config_bin/gulp test:watch",
-    "serve": "$npm_package_config_bin/gulp serve:dev:watch",
+    "serve": "$npm_package_config_bin/gulp serve:dev",
     "start": "node $npm_package_start"
   },
   "files": [

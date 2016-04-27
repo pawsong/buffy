@@ -94,12 +94,12 @@ interface ProjectStudioHandlerState {
   return { project };
 })
 @connectApi()
-@connect((state: State) => ({
+@(connect((state: State) => ({
   user: state.users.get(state.auth.userid),
 }), {
   requestLogout,
   push,
-})
+}) as any)
 @saga({
   createAnonProject,
   createUserProject,

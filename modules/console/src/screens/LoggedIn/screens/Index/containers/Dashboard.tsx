@@ -48,11 +48,11 @@ interface DashboardProps extends React.Props<Dashboard> {
   projects: get(`${CONFIG_API_SERVER_URL}/projects/me`),
 }))
 @connectApi()
-@connect((state: State) => {
+@(connect((state: State) => {
   return {
     user: state.users.get(state.auth.userid),
   };
-})
+}) as any)
 @injectIntl
 class Dashboard extends React.Component<DashboardProps, {}> {
   renderProjectList() {

@@ -72,14 +72,14 @@ interface RootProps extends React.Props<RootHandler>, SagaProps {
 @saga({
   init: rootSaga,
 })
-@connect((state: State) => ({
+@(connect((state: State) => ({
   snackbarOpen: state.snackbar.open,
   snackbar: state.snackbar.current,
   loading: state.loading,
 }), {
   pushSnackbar,
   closeSnackbar,
-})
+}) as any)
 class RootHandler extends React.Component<RootProps, {}> {
   componentWillMount() {
     this.props.runSaga(this.props.init);

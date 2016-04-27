@@ -12,6 +12,6 @@
     "src/client.tsx",
     "src/server.tsx",
     "src/tsd.d.ts",
-    "typings/tsd.d.ts"
+    "typings/browser.d.ts"
   ]
 }

@@ -34,12 +34,12 @@ interface LoggedInHandlerProps extends RouteComponentProps<{}, {}> {
   push?: any;
 }
 
-@connect((state: State) => ({
+@(connect((state: State) => ({
   user: state.users.get(state.auth.userid),
 }), {
   requestLogout: requestLogout,
   push,
-})
+}) as any)
 @injectIntl
 class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
   renderLeftToolbarGroup() {

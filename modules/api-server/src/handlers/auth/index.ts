@@ -48,7 +48,7 @@ export const loginWithLocal = wrap(async (req, res) => {
 
   const token = jwt.sign({
     id: user._id,
-  }, conf.jwtSecret);
+  }, conf.jwtSecret, {});
 
   res.cookie('tt' /* tiat token */, token, {
     domain: __DOMAIN__,
@@ -118,7 +118,7 @@ export const loginWithFacebook = wrap(async (req, res) => {
 
   const token = jwt.sign({
     id: user._id,
-  }, conf.jwtSecret);
+  }, conf.jwtSecret, {});
 
   res.cookie('tt' /* tiat token */, token, {
     domain: __DOMAIN__,

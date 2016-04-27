@@ -1,3 +1,4 @@
+import * as Promise from 'bluebird';
 import { RpcParams, RpcResponse } from './base';
 import { SerializedVector3 } from '../classes/Vector3';
 

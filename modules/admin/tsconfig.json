@@ -11,6 +11,6 @@
     "src/app.tsx",
     "src/server.ts",
     "src/tsd.d.ts",
-    "typings/tsd.d.ts"
+    "typings/main.d.ts"
   ]
 }

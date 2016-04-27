@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import * as ndarray from 'ndarray';
+const mapValues = require('lodash/mapValues');
+const findLastIndex = require('lodash/findLastIndex');
 
 import { GridFace } from '../meshers/greedy';
 
@@ -274,7 +276,7 @@ export default class MainCanvas {
       observeEditorState,
     };
 
-    const tools = _.mapValues(toolsFactory, factory => {
+    const tools = mapValues(toolsFactory, factory => {
       const factories = factory instanceof Array ? factory : [factory];
       const instances = factories.map(f => f(services));
 
@@ -289,7 +291,7 @@ export default class MainCanvas {
         };
       });
 
-      const isIntersectableIdx = _.findLastIndex(instances, (instance: {
+      const isIntersectableIdx = findLastIndex(instances, (instance: {
         isIntersectable: boolean;
       }) => instance.isIntersectable);
       tool.isIntersectable = isIntersectableIdx >= 0 ?

@@ -37,8 +37,8 @@ routes(app);
 (async () => {
   mongoose.connect(conf.mongoUri);
 
-  await new Promise((resolve, reject) => {
-    app.listen(conf.apiServerPort, err => err ? reject(err) : resolve());
+  await new Promise<void>((resolve, reject) => {
+    app.listen(conf.apiServerPort, err => err ? reject(err) : resolve(null));
   });
   console.log(`Listening at *:${conf.apiServerPort}`);
 })().catch(err => {

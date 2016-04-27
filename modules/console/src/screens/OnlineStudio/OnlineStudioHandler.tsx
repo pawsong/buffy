@@ -60,12 +60,12 @@ interface OnlineStudioState {
     yield call(stateLayer.rpc.moveMap, { id: mapId });
   },
 })
-@connect((state: State) => ({
+@(connect((state: State) => ({
   user: state.users.get(state.auth.userid),
 }), {
   requestLogout,
   push,
-})
+}) as any)
 class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudioState> {
   stateLayer: StateLayer;
   socket: SocketIOClient.Socket;

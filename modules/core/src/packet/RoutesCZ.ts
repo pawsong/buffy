@@ -1,3 +1,4 @@
+import * as Promise from 'bluebird';
 import * as shortid from 'shortid';
 import * as createError from 'http-errors';
 import Mesh from '../classes/Mesh';

@@ -3,9 +3,6 @@
 // Definitions by: Isman Usoh <http://github.com/isman-usoh>, Noah Shipley <https://github.com/noah79>, Dimitri Rosenberg <https://github.com/rosendi>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
-/// <reference path="../../../typings/redux/redux.d.ts" />
-/// <reference path="../../../typings/react-router/react-router.d.ts"/>
-
 declare namespace ReactRouterRedux {
     import R = Redux;
     import H = HistoryModule;

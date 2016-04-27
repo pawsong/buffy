@@ -3,8 +3,6 @@
 // Definitions by: Daniel Lytkin <https://github.com/aikoven>, Dimitri Rosenberg <https://github.com/rosendi>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
-/// <reference path="../../../typings/redux/redux.d.ts" />
-
 declare module 'redux-saga' {
   export class SagaCancellationException {
   }

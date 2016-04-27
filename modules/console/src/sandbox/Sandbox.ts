@@ -93,7 +93,7 @@ class Runtime {
     this.processes.push(process);
 
     return new Promise<void>((resolve, reject) => {
-      process.on('exit', () => resolve());
+      process.on('exit', () => resolve(null));
     });
   }
 

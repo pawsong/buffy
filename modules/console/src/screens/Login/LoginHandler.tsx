@@ -33,13 +33,13 @@ const messages = defineMessages({
 });
 
 @injectIntl
-@connect<LoginHandlerProps>((state: State) => ({
+@(connect((state: State) => ({
   localLoginErrorMessage: state.auth.localLoginErrorMessage,
   facebookLoginErrorMessage: state.auth.facebookLoginErrorMessage,
 }), {
   requestLocalLogin: requestLocalLogin,
   requestFacebookLogin: requestFacebookLogin,
-})
+}) as any)
 class LoginHandler extends React.Component<LoginHandlerProps, {}> {
   render() {
     return (

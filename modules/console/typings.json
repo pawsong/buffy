@@ -1,0 +1,34 @@
+{
+  "ambientDependencies": {
+    "bluebird": "registry:dt/bluebird#2.0.0+20160319051630",
+    "clean-css": "registry:dt/clean-css#3.4.9+20160316155526",
+    "compression": "registry:dt/compression#0.0.0+20160317120654",
+    "cookie-parser": "registry:dt/cookie-parser#1.3.4+20160316155526",
+    "express": "registry:dt/express#4.0.0+20160317120654",
+    "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160322035842",
+    "fbemitter": "registry:dt/fbemitter#2.0.0+20151228063024",
+    "history": "registry:dt/history#1.8.0+20160316155526",
+    "html-minifier": "registry:dt/html-minifier#1.1.1+20160316155526",
+    "invariant": "registry:dt/invariant#2.2.0+20160317120654",
+    "material-ui": "registry:dt/material-ui#0.14.4+20160412130500",
+    "mime": "registry:dt/mime#0.0.0+20160316155526",
+    "node": "registry:dt/node#4.0.0+20160423143914",
+    "react": "registry:dt/react#0.14.0+20160423065914",
+    "react-dnd": "registry:dt/react-dnd#1.1.4+20160316155526",
+    "react-dom": "registry:dt/react-dom#0.14.0+20160412154040",
+    "react-intl": "registry:dt/react-intl#2.0.0+20160412155000",
+    "react-redux": "registry:dt/react-redux#4.4.0+20160406115600",
+    "react-router": "registry:dt/react-router#2.0.0+20160423062133",
+    "react-router/history": "registry:dt/react-router/history#2.0.0+20160316155526",
+    "redux": "registry:dt/redux#3.3.1+20160326112656",
+    "relateurl": "registry:dt/relateurl#0.2.6+20160316155526",
+    "serve-static": "registry:dt/serve-static#0.0.0+20160317120654",
+    "shortid": "registry:dt/shortid#0.0.0+20160316155526",
+    "socket.io-client": "registry:dt/socket.io-client#1.4.4+20160317120654",
+    "three": "registry:dt/three#0.0.0+20160417141754",
+    "uglify-js": "registry:dt/uglify-js#2.6.1+20160316155526"
+  },
+  "dependencies": {
+    "source-map": "registry:npm/source-map#0.4.0+20160211003958"
+  }
+}

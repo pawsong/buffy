@@ -50,7 +50,7 @@ interface AnonymousHandlerProps extends RouteComponentProps<{}, {}> {
   courses: get(`${CONFIG_API_SERVER_URL}/courses`),
 }))
 @connectApi()
-@connect(null, { push })
+@(connect(null, { push }) as any)
 @injectIntl
 class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
   handleTabChange(value) {
