@@ -1,7 +1,11 @@
 import { Scripts } from '@pasta/core/lib/types';
 import Blockly from './';
+import { Keys, Key } from './constants';
 
-export function convertXmlToCodes(xml: string): Scripts {
+const indexedKeys: { [index: string]: Key } = {};
+Keys.forEach(key => indexedKeys[key.id] = key);
+
+export function compileBlocklyXml(xml: string): Scripts {
   // Create temporary workspace to parse xml string.
   const workspace = new Blockly.Workspace();
   Blockly.JavaScript.init(workspace);
@@ -12,12 +16,28 @@ export function convertXmlToCodes(xml: string): Scripts {
   const scripts: Scripts = {};
 
   workspace.getTopBlocks().forEach(block => {
-    // TODO: Check if top block is an event emitter
-    if (block.type === 'when_run') {
-      if (!scripts[block.type]) scripts[block.type] = [];
+    let event;
 
+    switch(block.type) {
+      case 'when_run': {
+        event = 'when_run';
+        break;
+      }
+      case 'on_keydown': {
+        const keyId = block.getFieldValue('KEY');
+        const key = indexedKeys[keyId];
+
+        if (!key) break;
+
+        event = `keydown_${key.keyCode}`;
+        break;
+      }
+    }
+
+    if (event) {
+      if (!scripts[event]) scripts[event] = [];
       const code = Blockly.JavaScript.blockToCode(block);
-      scripts[block.type].push(code);
+      scripts[event].push(code);
     }
   });
 

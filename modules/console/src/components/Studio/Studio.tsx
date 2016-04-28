@@ -48,7 +48,7 @@ import VoxelEditor, {
   CreateStateOptions as CreateVoxelEditorStateOptions,
 } from '../../components/VoxelEditor';
 
-import { convertXmlToCodes } from '../../blockly/utils';
+import { compileBlocklyXml } from '../../blockly/utils';
 
 import { FileDescriptor, FileType } from './types';
 
@@ -299,7 +299,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   }
 
   handleRun() {
-    const scripts = convertXmlToCodes(this.props.studioState.codeEditorState.blocklyXml);
+    const scripts = compileBlocklyXml(this.props.studioState.codeEditorState.blocklyXml);
     this.props.runSaga(this.props.run, this.sandbox, scripts);
   }
 

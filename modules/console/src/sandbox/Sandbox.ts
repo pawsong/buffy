@@ -79,7 +79,7 @@ class Process {
   }
 }
 
-class Runtime {
+class Sandbox {
   stateLayer: StateLayer;
   processes: Process[];
 
@@ -93,7 +93,8 @@ class Runtime {
     this.processes.push(process);
 
     return new Promise<void>((resolve, reject) => {
-      process.on('exit', () => resolve(null));
+      // TODO: Reject promise when error occurred.
+      // process.on('exit', () => resolve(null));
     });
   }
 
@@ -112,4 +113,4 @@ class Runtime {
   }
 }
 
-export default Runtime;
+export default Sandbox;

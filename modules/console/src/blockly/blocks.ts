@@ -1,4 +1,5 @@
 import Blockly from './';
+import { Keys } from './constants';
 
 function nonnegativeNumberValidator(text) {
   let n = Blockly.FieldTextInput.numberValidator(text);
@@ -25,6 +26,33 @@ Blockly.Blocks['when_run'] = {
 };
 
 Blockly.JavaScript['when_run'] = () => '\n';
+
+/**
+ * on_keydown block
+ */
+
+const keys = Keys.map(key => {
+  return [key.label, key.id];
+});
+
+Blockly.Blocks['on_keydown'] = {
+  // Block to handle event where mouse is clicked
+  helpUrl: '',
+  init: function () {
+    const dropdown = new Blockly.FieldDropdown(keys);
+
+    this.setColour(160);
+    this.appendDummyInput()
+      .appendField('on')
+      .appendField(dropdown, 'KEY')
+      .appendField('key down');
+    this.setPreviousStatement(false);
+    this.setNextStatement(true);
+  },
+  shouldBeGrayedOut: () => false,
+};
+
+Blockly.JavaScript['on_keydown'] = () => '\n';
 
 /**
  * boom block

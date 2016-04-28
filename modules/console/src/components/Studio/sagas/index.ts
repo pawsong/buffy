@@ -30,11 +30,31 @@ function execSandbox(sandbox: Sandbox, scripts: Scripts) {
 
 // Should be cancellable
 export function* runBlocklyWorkspace(sandbox: Sandbox, scripts: Scripts) {
+  const keyState = {};
+  function keyEventListener(e: KeyboardEvent) {
+    keyState[e.keyCode] = e.type === 'keydown';
+  }
+  window.addEventListener('keydown', keyEventListener, false);
+  window.addEventListener('keyup', keyEventListener, false);
+
+  let frameId;
+  function update () {
+    frameId = requestAnimationFrame(update);
+    Object.keys(keyState).forEach(keyCode => {
+      if (keyState[keyCode]) sandbox.emit(`keydown_${keyCode}`);
+    })
+  }
+  frameId = requestAnimationFrame(update);
+
   try {
     yield call(execSandbox, sandbox, scripts);
   } catch(error) {
     if (!isCancelError(error)) console.log('runBlocklyWorkspace', error);
   } finally {
+    cancelAnimationFrame(frameId);
+    window.removeEventListener('keydown', keyEventListener, false);
+    window.removeEventListener('keyup', keyEventListener, false);
+
     sandbox.reset();
   }
 }

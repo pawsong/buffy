@@ -1,5 +1,6 @@
 <xml>
   <block type="when_run"></block>
+  <block type="on_keydown"></block>
   <block type="wait"></block>
   <block type="move"></block>
   <block type="turn"></block>

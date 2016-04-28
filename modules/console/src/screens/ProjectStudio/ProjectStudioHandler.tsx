@@ -17,7 +17,7 @@ import * as StorageKeys from '../../constants/StorageKeys';
 import Studio, { StudioState } from '../../components/Studio';
 import { RobotInstance, ZoneInstance } from '../../components/Studio';
 import { requestLogout } from '../../actions/auth';
-import { convertXmlToCodes } from '../../blockly/utils';
+import { compileBlocklyXml } from '../../blockly/utils';
 
 import ProjectStudioNavbar from './components/ProjectStudioNavbar';
 
@@ -229,7 +229,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     // Code editor
     const { blocklyXml } = this.state.studioState.codeEditorState;
-    const scripts = convertXmlToCodes(blocklyXml);
+    const scripts = compileBlocklyXml(blocklyXml);
 
     // Voxel editor
     const voxels = this.state.studioState.voxelEditorState.voxel.present.data.toJS();
