@@ -22,6 +22,7 @@ const styles = {
 interface OnlineStudioNavbarProps extends React.Props<OnlineStudioNavbar> {
   user: User;
   location: any;
+  onSave: () => any;
   onLogout: () => any;
   onLinkClick: (location: HistoryModule.LocationDescriptor) => any;
   intl?: InjectedIntlProps;
@@ -32,6 +33,12 @@ class OnlineStudioNavbar extends React.Component<OnlineStudioNavbarProps, void> 
   renderLeftToolbarGroup() {
     return (
       <ToolbarGroup float="left" style={{ marginLeft: 25 }}>
+        <FlatButton label={this.props.intl.formatMessage(Messages.save)}
+                    style={styles.button}
+                    onTouchTap={this.props.onSave}
+                    backgroundColor={Colors.pinkA200}
+                    hoverColor={Colors.pinkA100}
+        />
         <FlatButton label={this.props.intl.formatMessage(Messages.gameMode)}
                     style={styles.button}
                     onTouchTap={() => this.props.onLinkClick('/connect/game')}

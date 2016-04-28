@@ -17,6 +17,8 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import ActionInfo from 'material-ui/lib/svg-icons/action/info';
 import AndroidIcon from 'material-ui/lib/svg-icons/action/android';
 
+import FlatButton from 'material-ui/lib/flat-button';
+
 const objectAssign = require('object-assign');
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';
@@ -178,6 +180,7 @@ interface StudioBodyProps extends React.Props<Studio>, SagaProps {
 
   studioState: StudioState;
   onChange: (nextState: StudioState) => any;
+  onOpenFileRequest: (fileType: FileType) => any;
 
   game: React.ReactElement<any>;
 
@@ -299,9 +302,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   }
 
   handleRun() {
-    console.log(this.props.studioState.codeEditorState.blocklyXml);
     const scripts = compileBlocklyXml(this.props.studioState.codeEditorState.blocklyXml);
-    console.log(scripts);
     this.props.runSaga(this.props.run, this.sandbox, scripts);
   }
 
@@ -456,12 +457,25 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
     const files = Object.keys(this.state.files).map(fileId => this.state.files[fileId]);
 
+    const buttons = this.state.fileBrowserTypeFilter === FileType.DESIGN ? (
+      <div style={{ marginTop: 8 }}>
+        <FlatButton
+          label="Open file"
+          style={{ width: '100%' }}
+          onTouchTap={() => this.props.onOpenFileRequest(FileType.DESIGN)}
+        />
+      </div>
+    ) : null;
+
     return (
-      <FileList
-        files={files}
-        filter={this.state.fileBrowserTypeFilter}
-        onFileTouchTap={fileId => this.setState({ activeFileId: fileId })}
-      />
+      <div>
+        {buttons}
+        <FileList
+          files={files}
+          filter={this.state.fileBrowserTypeFilter}
+          onFileTouchTap={fileId => this.setState({ activeFileId: fileId })}
+        />
+      </div>
     );
   }
 
@@ -644,6 +658,7 @@ interface StudioProps extends React.Props<Studio> {
 
   studioState: StudioState;
   onChange: (nextState: StudioState) => any;
+  onOpenFileRequest: (fileType: FileType) => any;
 
   stateLayer: StateLayer;
   game?: React.ReactElement<any>;
@@ -691,6 +706,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
                   robotInstances={this.props.robotInstances}
                   zoneInstances={this.props.zoneInstances}
                   onChange={this.props.onChange}
+                  onOpenFileRequest={this.props.onOpenFileRequest}
                   stateLayer={this.props.stateLayer} style={this.props.style}
                   game={this.props.game || null}
       />

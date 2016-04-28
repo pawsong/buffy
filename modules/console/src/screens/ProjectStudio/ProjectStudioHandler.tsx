@@ -15,6 +15,7 @@ import { User } from '../../reducers/users';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import * as StorageKeys from '../../constants/StorageKeys';
 import Studio, { StudioState } from '../../components/Studio';
+import { FileType } from '../../components/Studio/types';
 import { RobotInstance, ZoneInstance } from '../../components/Studio';
 import { requestLogout } from '../../actions/auth';
 import { compileBlocklyXml } from '../../blockly/utils';
@@ -280,6 +281,10 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     this.setState({ studioState: nextState });
   }
 
+  handleOpenFileRequest(fileType: FileType) {
+    console.log(fileType);
+  }
+
   render() {
     if (!this.state.stateLayerIsRunning) {
       return <div>Loading now...</div>;
@@ -299,6 +304,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
                 zoneInstances={this.zones}
                 studioState={this.state.studioState}
                 onChange={studioState => this.handleStudioStateChange(studioState)}
+                onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}
                 stateLayer={this.stateLayer} style={styles.studio}
         />
       </div>

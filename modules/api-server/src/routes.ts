@@ -12,6 +12,7 @@ import * as courseHandlers from './handlers/course';
 import * as projectHandlers from './handlers/project';
 import * as userHandlers from './handlers/user';
 import * as voxelWorkspaceHandlers from './handlers/voxelWorkspace';
+import * as fileHandlers from './handlers/file';
 
 import * as a from './middlewares/auth';
 
@@ -55,4 +56,9 @@ export default (app: express.Express) => {
   app.put ('/voxel-workspaces/:owner/:name', voxelWorkspaceHandlers.updateVoxelWorkspace);
 
   app.post ('/cdn/signed-url/profile', cdnHandlers.issueS3SignedUrlForProfile);
+
+  app.get ('/files', fileHandlers.getFileList);
+  app.get ('/files/:fileId', fileHandlers.getFile);
+  app.post('/files', fileHandlers.createFile);
+  app.put ('/files/:fileId', fileHandlers.updateFile);
 };

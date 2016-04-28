@@ -5,12 +5,14 @@ import { call } from 'redux-saga/effects';
 import { push } from 'react-router-redux';
 import * as io from 'socket.io-client';
 const update = require('react-addons-update');
+import * as Immutable from 'immutable';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { InitParams } from '@pasta/core/lib/packet/ZC';
 
 import Studio, { StudioState } from '../../components/Studio';
+import { FileType } from '../../components/Studio/types';
 import { RobotInstance, ZoneInstance } from '../../components/Studio';
-import { saga, ImmutableTask, SagaProps, isDone } from '../../saga';
+import { saga, ImmutableTask, SagaProps, request, isDone } from '../../saga';
 import { connectApi, get, ApiCall, ApiDispatchProps } from '../../api';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
@@ -22,6 +24,7 @@ import ContactsButton from './components/ContactsButton';
 import ContactsDialog from './components/ContactsDialog';
 
 import OnlineStudioNavbar from './components/OnlineStudioNavbar';
+import DesignBrowserDialog from './containers/DesignBrowserDialog';
 
 const NAVBAR_HEIGHT = 56;
 
@@ -38,6 +41,8 @@ const styles = {
 interface OnlineStudioProps extends RouteComponentProps<{}, {}>, SagaProps, ApiDispatchProps {
   stateLayer: StateLayer;
   moveMap?: ImmutableTask<void>;
+  createDesign?: ImmutableTask<void>;
+  updateDesign?: ImmutableTask<void>;
   users?: ApiCall<GameUser[]>;
   user?: User;
   requestLogout?: any;
@@ -45,6 +50,7 @@ interface OnlineStudioProps extends RouteComponentProps<{}, {}>, SagaProps, ApiD
 }
 
 interface OnlineStudioState {
+  designBrowserOpen?: boolean;
   initialized?: boolean;
   studioState?: StudioState;
   friendsModalOpened?: boolean;
@@ -58,6 +64,21 @@ interface OnlineStudioState {
 @saga({
   moveMap: function* (stateLayer: StateLayer, mapId: string) {
     yield call(stateLayer.rpc.moveMap, { id: mapId });
+  },
+  createDesign: function* (data: string, callback) {
+    const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/files`, { data });
+    if (response.status !== 200) {
+      // TODO: Error handling
+      return;
+    }
+    callback(response.data);
+  },
+  updateDesign: function* (fileId: string, data: string) {
+    const response = yield call(request.put, `${CONFIG_API_SERVER_URL}/files/${fileId}`, { data });
+    if (response.status !== 200) {
+      // TODO: Error handling
+      return;
+    }
   },
 })
 @(connect((state: State) => ({
@@ -73,6 +94,7 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
   constructor(props) {
     super(props);
     this.state = {
+      designBrowserOpen: false,
       initialized: false,
       friendsModalOpened: false,
       robotInstances: {},
@@ -152,6 +174,10 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
     this.props.runSaga(this.props.moveMap, this.stateLayer, mapId);
   }
 
+  handleOpenFileRequest(fileType: FileType) {
+    this.setState({ designBrowserOpen: true });
+  }
+
   renderGame() {
     return (
       <div>
@@ -165,6 +191,32 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
     );
   }
 
+  handleDesignLoad(file) {
+    const data = JSON.parse(file.data);
+
+    const VOXEL_INIT: 'voxel-editor/VOXEL_INIT' = 'voxel-editor/VOXEL_INIT';
+    const voxel = {
+      historyIndex: 1,
+      past: [],
+      present: {
+        historyIndex: 1,
+        action: VOXEL_INIT,
+        data: Immutable.Map(data),
+      },
+      future: [],
+    }
+
+    this.setState(update(this.state, {
+      studioState: {
+        voxelEditorState: {
+          fileId: { $set: file.id },
+          voxel: { $set: voxel },
+        },
+      },
+      designBrowserOpen: { $set: false },
+    }));
+  }
+
   renderStudio() {
     const game = this.renderGame();
 
@@ -172,15 +224,44 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
     const zones = Object.keys(this.state.zoneInstances).map(id => this.state.zoneInstances[id]);
 
     return (
-      <Studio robotInstances={robots}
-              zoneInstances={zones}
-              studioState={this.state.studioState}
-              onChange={studioState => this.setState({ studioState })}
-              stateLayer={this.stateLayer}
-              style={styles.studio}
-              game={game}
-      />
+      <div>
+        <Studio robotInstances={robots}
+                zoneInstances={zones}
+                studioState={this.state.studioState}
+                onChange={studioState => this.setState({ studioState })}
+                onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}
+                stateLayer={this.stateLayer}
+                style={styles.studio}
+                game={game}
+        />
+        <DesignBrowserDialog
+          open={this.state.designBrowserOpen}
+          onRequestClose={() => this.setState({ designBrowserOpen: false })}
+          onDesignLoad={data => this.handleDesignLoad(data)}
+        />
+      </div>
     );
+  }
+
+  handleSave() {
+    const fileId = this.state.studioState.voxelEditorState.fileId;
+    if (!fileId) {
+      // Create
+      const data = JSON.stringify(this.state.studioState.voxelEditorState.voxel.present.data.toJS());
+      this.props.runSaga(this.props.createDesign, data, file => {
+        this.setState(update(this.state, {
+          studioState: {
+            voxelEditorState: {
+              fileId: { $set: file.id },
+            },
+          },
+        }));
+      });
+    } else {
+      // Update
+      const data = JSON.stringify(this.state.studioState.voxelEditorState.voxel.present.data.toJS());
+      this.props.runSaga(this.props.updateDesign, fileId, data);
+    }
   }
 
   render() {
@@ -190,9 +271,11 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
 
     return (
       <div>
-        <OnlineStudioNavbar location={this.props.location} user={this.props.user}
-                            onLogout={() => this.props.requestLogout()}
-                            onLinkClick={location => this.props.push(location)}
+        <OnlineStudioNavbar
+          location={this.props.location} user={this.props.user}
+          onSave={() => this.handleSave()}
+          onLogout={() => this.props.requestLogout()}
+          onLinkClick={location => this.props.push(location)}
         />
         {studio}
       </div>
