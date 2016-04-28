@@ -96,6 +96,11 @@ const messages = defineMessages({
     description: 'VR mode',
     defaultMessage: 'VR Mode',
   },
+  gameMode: {
+    id: 'gameMode',
+    description: 'Game mode',
+    defaultMessage: 'Game Mode',
+  },
   create: {
     id: 'create.project.button',
     description: 'Create project button label',

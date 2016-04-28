@@ -13,8 +13,10 @@ import ContactHandler from './screens/Contact';
 import GetStartedHandler from './screens/GetStarted';
 import OnlineStudioHandler from './screens/OnlineStudio';
 import OnlineCardboardHandler from './screens/OnlineCardboard';
+import OnlineGameHandler from './screens/OnlineGame';
 import ProjectStudioHandler from './screens/ProjectStudio';
 import ProjectCardboardHandler from './screens/ProjectCardboard';
+import ProjectGameHandler from './screens/ProjectGame';
 import ProfileHandler from './screens/Profile';
 import SettingsHandler from './screens/Settings';
 import NotFoundHandler from './screens/NotFound';
@@ -79,6 +81,18 @@ export default function getRoutes(store: Store) {
         }),
       },
       {
+        path: '/@/:projectId/:revision/game',
+        getComponent: (location, cb) => require.ensure([], require => {
+          cb(null, require<{ default: ProjectGameHandler }>('./screens/ProjectGame').default);
+        }),
+      },
+      {
+        path: '/@:username/:projectId/:revision/game',
+        getComponent: (location, cb) => require.ensure([], require => {
+          cb(null, require<{ default: ProjectGameHandler }>('./screens/ProjectGame').default);
+        }),
+      },
+      {
         path: '/@/:projectId/:revision/vr',
         getComponent: (location, cb) => require.ensure([], require => {
           cb(null, require<{ default: ProjectCardboardHandler }>('./screens/ProjectCardboard').default);
@@ -94,6 +108,12 @@ export default function getRoutes(store: Store) {
         path: '/connect',
         getComponent: (location, cb) => require.ensure([], require => {
           cb(null, require<{ default: OnlineStudioHandler }>('./screens/OnlineStudio').default);
+        }),
+      },
+      {
+        path: '/connect/game',
+        getComponent: (location, cb) => require.ensure([], require => {
+          cb(null, require<{ default: OnlineGameHandler }>('./screens/OnlineGame').default);
         }),
       },
       {

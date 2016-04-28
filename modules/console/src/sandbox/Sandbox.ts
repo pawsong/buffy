@@ -83,9 +83,27 @@ class Sandbox {
   stateLayer: StateLayer;
   processes: Process[];
 
+  private frameId: number;
+  private keyEventListener: (e: KeyboardEvent) => any;
+
   constructor(stateLayer: StateLayer) {
     this.stateLayer = stateLayer;
     this.processes = [];
+
+    const keyState = {};
+    this.keyEventListener = (e: KeyboardEvent) => {
+      keyState[e.keyCode] = e.type === 'keydown';
+    }
+    window.addEventListener('keydown', this.keyEventListener, false);
+    window.addEventListener('keyup', this.keyEventListener, false);
+
+    const update = () => {
+      this.frameId = requestAnimationFrame(update);
+      Object.keys(keyState).forEach(keyCode => {
+        if (keyState[keyCode]) this.emit(`keydown_${keyCode}`);
+      })
+    }
+    this.frameId = requestAnimationFrame(update);
   }
 
   exec(scripts: Scripts): Promise<void> {
@@ -109,6 +127,11 @@ class Sandbox {
 
   destroy() {
     this.reset();
+
+    cancelAnimationFrame(this.frameId);
+    window.removeEventListener('keydown', this.keyEventListener, false);
+    window.removeEventListener('keyup', this.keyEventListener, false);
+
     this.stateLayer = null;
   }
 }

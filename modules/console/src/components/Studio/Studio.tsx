@@ -36,9 +36,9 @@ import { getIconName, getFileTypeLabel } from './utils';
 
 const Radium = require('radium');
 
-import Game, {
+import ZonePreview, {
   GameState,
-} from '../../components/Game';
+} from '../../components/ZonePreview';
 import CodeEditor, {
   CodeEditorState,
   CreateStateOptions as CreateCodeEditorStateOptions,
@@ -299,7 +299,9 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   }
 
   handleRun() {
+    console.log(this.props.studioState.codeEditorState.blocklyXml);
     const scripts = compileBlocklyXml(this.props.studioState.codeEditorState.blocklyXml);
+    console.log(scripts);
     this.props.runSaga(this.props.run, this.sandbox, scripts);
   }
 
@@ -593,13 +595,13 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
           <LayoutContainer size={this.initialGameWidth} onResize={size => this.handleGameWidthResize(size)}>
             <Layout flow="column" style={styles.fillParent}>
               <LayoutContainer size={this.initialGameHeight} onResize={size => this.handleGameHeightResize(size)}>
-                <Game gameState={this.props.studioState.gameState}
+                <ZonePreview gameState={this.props.studioState.gameState}
                       onChange={(gameState => this.handleStateChange({ gameState }))}
                       sizeVersion={this.state.gameSizeVersion}
                       stateLayer={this.props.stateLayer}
                 >
                   {this.props.game}
-                </Game>
+                </ZonePreview>
               </LayoutContainer>
               <LayoutContainer remaining={true}>
                 <Toolbar style={{ backgroundColor: Colors.grey200 }}>
@@ -661,7 +663,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   static creatState(options: CreateStateOptions = {}): StudioState {
     return {
       codeEditorState: CodeEditor.creatState(options.codeEditorState),
-      gameState: Game.createState(),
+      gameState: ZonePreview.createState(),
       voxelEditorState: VoxelEditor.createState(options.voxelEditorState),
     };
   }

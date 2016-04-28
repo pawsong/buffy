@@ -14,7 +14,7 @@ import AnonymousNavbar from '../../../components/AnonymousNavbar';
 const styles = {
   button: {
     color: Colors.white,
-    marginLeft: 50,
+    marginLeft: 25,
     marginRight: 0,
   },
 };
@@ -31,7 +31,13 @@ interface OnlineStudioNavbarProps extends React.Props<OnlineStudioNavbar> {
 class OnlineStudioNavbar extends React.Component<OnlineStudioNavbarProps, void> {
   renderLeftToolbarGroup() {
     return (
-      <ToolbarGroup float="left">
+      <ToolbarGroup float="left" style={{ marginLeft: 25 }}>
+        <FlatButton label={this.props.intl.formatMessage(Messages.gameMode)}
+                    style={styles.button}
+                    onTouchTap={() => this.props.onLinkClick('/connect/game')}
+                    backgroundColor={Colors.pinkA200}
+                    hoverColor={Colors.pinkA100}
+        />
         <FlatButton label={this.props.intl.formatMessage(Messages.vrMode)}
                     style={styles.button}
                     onTouchTap={() => this.props.onLinkClick('/connect/vr')}

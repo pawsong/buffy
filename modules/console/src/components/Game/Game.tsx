@@ -1,73 +1,27 @@
 import * as React from 'react';
+
 import StateLayer from '@pasta/core/lib/StateLayer';
-import { EventSubscription } from 'fbemitter';
+import { Scripts } from '@pasta/core/lib/types';
 
-import MapInfo from './components/MapInfo';
-import Canvas from './components/Canvas';
-import Tools from './components/Tools';
+import GameZoneView from './GameZoneView';
 
-import { ToolType, Color, GameState } from './interface';
-export { GameState };
-
-const objectAssign = require('object-assign');
+import FullscreenPlayer from '../FullscreenPlayer';
 
 interface GameProps extends React.Props<Game> {
-  gameState: GameState;
-  onChange: (gameState: GameState) => any;
   stateLayer: StateLayer;
-  sizeVersion: number; // For resize
+  scripts: Scripts;
+  onStart: () => any;
 }
 
-interface GameOwnState {
-  mapName: string;
-}
-
-class Game extends React.Component<GameProps, GameOwnState> {
-  static createState(): GameState {
-    return {
-      selectedTool: ToolType.move,
-      brushColor: { r: 104, g: 204, b: 202 },
-    };
-  }
-
-  token: EventSubscription;
-
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      mapName: '',
-    };
-  }
-
-  componentDidMount() {
-    this.token = this.props.stateLayer.store.subscribe.resync(() => {
-      this.setState({ mapName: this.props.stateLayer.store.map.id });
-    });
-    this.setState({ mapName: this.props.stateLayer.store.map.id });
-  }
-
-  componentWillUnmount() {
-    this.token.remove();
-  }
-
-  handleChangeState(nextState: GameState) {
-    this.props.onChange(objectAssign({}, this.props.gameState, nextState));
-  }
-
+class Game extends React.Component<GameProps, void> {
   render() {
     return (
-      <div>
-        <MapInfo mapName={this.state.mapName} />
-        <Canvas gameState={this.props.gameState}
-                sizeVersion={this.props.sizeVersion} stateLayer={this.props.stateLayer}
-        />
-        <Tools selectedTool={this.props.gameState.selectedTool}
-               brushColor={this.props.gameState.brushColor}
-               changeTool={selectedTool => this.handleChangeState({ selectedTool })}
-               changeBrushColor={brushColor => this.handleChangeState({ brushColor })}
-        />
-        {this.props.children}
-      </div>
+      <FullscreenPlayer
+        onStart={this.props.onStart}
+        scripts={this.props.scripts}
+        stateLayer={this.props.stateLayer}
+        installZoneView={(element) => new GameZoneView(element, this.props.stateLayer)}
+      />
     );
   }
 }

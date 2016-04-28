@@ -1,3 +1,2 @@
-import Game, { GameState } from './Game';
-export { GameState }
+import Game from './Game';
 export default Game;

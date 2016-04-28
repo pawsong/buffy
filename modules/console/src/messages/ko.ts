@@ -210,6 +210,13 @@ export default {
   'footer.contact': '연락처',
 
   /**
+   * path: src/constants/Messages.json
+   * description: Game mode
+   * defaultMessage: Game Mode
+   */
+  'gameMode': '게임 모드',
+
+  /**
    * path: src/screens/Join/components/JoinForm.json
    * description: Warning message for invalid email
    * defaultMessage: Please enter a valid email
