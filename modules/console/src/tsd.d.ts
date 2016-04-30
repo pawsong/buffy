@@ -13,6 +13,11 @@ declare const CONFIG_GAME_SERVER_URL: string;
 declare const CONFIG_API_SERVER_URL: string;
 declare const CONFIG_FACEBOOK_APP_ID: string;
 
+declare module 'lodash/mapValues' {
+  import _ = require('lodash');
+  export default _.mapValues;
+}
+
 declare module 'http-proxy' {
   const m: any;
   module m {}

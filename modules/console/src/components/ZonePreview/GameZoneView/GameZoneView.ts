@@ -11,58 +11,63 @@ import {
 } from '../Constants';
 
 import {
-  ToolState,
+  GameState,
   GetGameState,
-  ObserveGameState,
-  GameStateListener,
-  GameStateSelector,
-  GameStateObserver,
-} from './interface';
+  ToolType,
+} from '../interface';
 
 import CursorManager from './CursorManager';
-
-import { GameState, ToolType } from '../interface';
-
-import * as tools from './tools';
-import Fsm from './Fsm';
+import createTool, { GameZoneViewTool } from './tools';
 
 class GameZoneView extends ZoneView {
+  stateLayer: StateLayer;
+
   camera: THREE.OrthographicCamera;
   cursorManager: CursorManager;
+  removeListeners: Function;
 
-  private toolsFsm: Fsm<ToolState>;
-  private gameStateListeners: GameStateListener[];
+  tool: GameZoneViewTool;
 
-  constructor(container: HTMLElement, stateLayer: StateLayer, getGameState: GetGameState) {
+  private cachedTools: { [index: string]: GameZoneViewTool };
+
+  // Lazy getter
+  getTool(toolType: ToolType): GameZoneViewTool {
+    const tool = this.cachedTools[toolType];
+    if (tool) return tool;
+
+    return this.cachedTools[toolType] = createTool(toolType, this.stateLayer, this, this.getGameState);
+  }
+
+  constructor(container: HTMLElement, stateLayer: StateLayer, private getGameState: GetGameState) {
     super(container, stateLayer);
+    this.stateLayer = stateLayer;
+
+    this.cachedTools = {};
 
     const raycaster = new THREE.Raycaster();
     this.cursorManager = new CursorManager(container, this.scene, raycaster, this.camera, this.terrainManager);
 
-    this.gameStateListeners = [];
+    this.tool = this.getTool(getGameState().selectedTool);
+    this.tool.onStart();
 
-    const observeGameState: ObserveGameState = (selector: GameStateSelector<any>, observer: GameStateObserver<any>) => {
-      let state;
-
-      const listener = (gameState: GameState) => {
-        const nextState = selector(gameState);
-        if (state !== nextState) {
-          observer(nextState);
-        }
-      };
-      this.gameStateListeners.push(listener);
-
-      listener(getGameState());
-
-      return () => {
-        const index = this.gameStateListeners.indexOf(listener);
-        if (index !== -1) this.gameStateListeners.splice(index, 1);
-      };
+    const onDocumentMouseUp = (event: MouseEvent) => {
+      event.preventDefault();
+      this.tool.onMouseUp({ event });
     };
 
-    this.toolsFsm = new Fsm<ToolState>();
-    Object.keys(tools).forEach(toolName => this.toolsFsm.add(toolName, tools[toolName](this, stateLayer, getGameState, observeGameState)));
-    observeGameState(gameState => gameState.selectedTool, selectedTool => this.toolsFsm.transition(ToolType[selectedTool]));
+    const onDocumentMouseDown = (event: MouseEvent) => {
+      event.preventDefault();
+      this.tool.onMouseDown({ event });
+    };
+
+    // Add event handlers
+    this.renderer.domElement.addEventListener('mousedown', onDocumentMouseDown, false);
+    this.renderer.domElement.addEventListener('mouseup', onDocumentMouseUp, false);
+
+    this.removeListeners = () => {
+      this.renderer.domElement.removeEventListener('mousedown', onDocumentMouseDown, false);
+      this.renderer.domElement.removeEventListener('mouseup', onDocumentMouseUp, false);
+    };
   }
 
   getCamera() {
@@ -100,12 +105,23 @@ class GameZoneView extends ZoneView {
   }
 
   handleChange(gameState: GameState) {
-    this.gameStateListeners.forEach(listener => listener(gameState));
+    if (this.tool.getToolType() !== gameState.selectedTool) {
+      const nextTool = this.getTool(gameState.selectedTool);
+      this.tool.onStop();
+      this.tool = nextTool;
+      this.tool.onStart();
+    }
+
+    this.tool.updateProps(gameState);
   }
 
   destroy() {
     super.destroy();
-    this.toolsFsm.stop();
+    this.removeListeners();
+
+    // Destroy tools
+    Object.keys(this.cachedTools).forEach(toolType => this.cachedTools[toolType].destroy());
+
     this.cursorManager.destroy();
   }
 }

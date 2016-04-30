@@ -11,3 +11,7 @@ export interface GameState {
   selectedTool?: ToolType,
   brushColor?: Color,
 }
+
+export interface GetGameState {
+  (): GameState;
+}

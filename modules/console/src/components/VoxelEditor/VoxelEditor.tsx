@@ -4,7 +4,7 @@ import { findDOMNode } from 'react-dom';
 import * as Immutable from 'immutable';
 
 // OrbitControls patch
-require('./OrbitControls');
+// require('./OrbitControls');
 
 import { DropTarget, DragDropContext } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');

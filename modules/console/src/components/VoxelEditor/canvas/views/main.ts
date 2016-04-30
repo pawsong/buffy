@@ -3,6 +3,14 @@ import * as ndarray from 'ndarray';
 const mapValues = require('lodash/mapValues');
 const findLastIndex = require('lodash/findLastIndex');
 
+import VoxelEditorTool from '../tools/VoxelEditorTool';
+import createTool from '../tools';
+
+if (__CLIENT__) {
+  window['THREE'] = THREE;
+  require('three/examples/js/controls/OrbitControls');
+}
+
 import { GridFace } from '../meshers/greedy';
 
 import vector3ToString from '@pasta/helper/lib/vector3ToString';
@@ -15,23 +23,16 @@ import {
   PLANE_Y_OFFSET,
 } from '../../constants/Pixels';
 
-import { toolsFactory } from '../tools';
-
 import {
   rgbToHex,
   voxelMapToArray,
 } from '../utils';
 
 import {
-  Services,
   ToolType,
   DispatchAction,
   VoxelEditorState,
   GetEditorState,
-  EditorStateListener,
-  EditorStateSelector,
-  EditorStateObserver,
-  ObserveEditorState,
 } from '../../interface';
 
 import CanvasShared from '../shared';
@@ -39,15 +40,6 @@ import CanvasShared from '../shared';
 const size = GRID_SIZE * UNIT_PIXEL;
 
 var radius = 1600, theta = 270, phi = 60;
-
-// Initialize tools
-const handlers = [
-  'onEnter',
-  'onInteract',
-  'onMouseDown',
-  'onMouseUp',
-  'onLeave',
-];
 
 interface PlaneMesh extends THREE.Mesh {
   isPlane: boolean;
@@ -61,12 +53,33 @@ interface CanvasOptions {
   getEditorState: GetEditorState;
 }
 
-export default class MainCanvas {
-  editorStateListeners: EditorStateListener[];
+class MainCanvas {
+  scene: THREE.Scene;
+  controls: any;
+
   frameId: number;
   renderer: THREE.WebGLRenderer;
   onWindowResize: () => any;
   removeListeners: () => any;
+  container: HTMLElement;
+
+  cachedTools: { [index: string]: VoxelEditorTool };
+  handleEditorStateChange: any;
+  dispatchAction: DispatchAction;
+  getState: GetEditorState;
+
+  interact: (event?: MouseEvent) => any;
+
+  // Lazy getter
+  getTool(toolType: ToolType): VoxelEditorTool {
+    const tool = this.cachedTools[toolType];
+    if (tool) return tool;
+
+    return this.cachedTools[toolType] =
+      createTool(toolType, this, this.getState, this.handleEditorStateChange, this.dispatchAction);
+  }
+
+  tool: VoxelEditorTool;
 
   constructor({
     container,
@@ -75,7 +88,14 @@ export default class MainCanvas {
     handleEditorStateChange,
     getEditorState,
   }: CanvasOptions) {
-    const scene = new THREE.Scene();
+    this.dispatchAction = dispatchAction;
+    this.getState = getEditorState;
+
+    this.container = container;
+    this.cachedTools = {};
+    this.handleEditorStateChange = handleEditorStateChange;
+
+    const scene = this.scene = new THREE.Scene();
     const raycaster = new THREE.Raycaster();
 
     // Grid
@@ -218,101 +238,31 @@ export default class MainCanvas {
     camera.position.y =
       radius * Math.sin(phi * Math.PI / 360);
 
-    const controls = new THREE.OrbitControls( camera, renderer.domElement );
+    const controls = this.controls = new THREE.OrbitControls( camera, renderer.domElement );
     controls.maxDistance = 2000;
     controls.enableKeys = false;
 
-    let tool;
-    function getIntersect() {
-      const intersectable = scene.children.filter(tool.isIntersectable);
+    // TODO: Lazy loading.
+    this.tool = this.getTool(getEditorState().selectedTool);
+    this.tool.onStart();
+
+    const getIntersect = () => {
+      const intersectable = scene.children.filter(object => this.tool.isIntersectable(object));
       const intersections = raycaster.intersectObjects(intersectable);
       return intersections[0];
     }
 
-    function interact(event?: any) {
+    const interact = (event?: any) => {
       var intersect = getIntersect();
-
-      tool.onInteract({
-        intersect,
-        event,
-      });
+      this.tool.onInteract({ intersect, event });
     }
+    this.interact = interact;
 
     function render() {
       controls.update();
       canvasShared.cameraPositionStore.update(camera.position);
       renderer.render(scene, camera);
     }
-
-    this.editorStateListeners = [];
-
-    const observeEditorState: ObserveEditorState = (selector: EditorStateSelector<any>, observer: EditorStateObserver<any>) => {
-      let state;
-
-      const listener = (editorState: VoxelEditorState) => {
-        const nextState = selector(editorState);
-        if (state !== nextState) {
-          observer(nextState);
-        }
-      };
-      this.editorStateListeners.push(listener);
-
-      listener(getEditorState());
-
-      return () => {
-        const index = this.editorStateListeners.indexOf(listener);
-        if (index !== -1) this.editorStateListeners.splice(index, 1);
-      };
-    };
-
-    const services: Services = {
-      container,
-      scene,
-      controls,
-      interact,
-      dispatchAction,
-      handleEditorStateChange,
-      getEditorState,
-      observeEditorState,
-    };
-
-    const tools = mapValues(toolsFactory, factory => {
-      const factories = factory instanceof Array ? factory : [factory];
-      const instances = factories.map(f => f(services));
-
-      const tool: any = {};
-      handlers.forEach(handler => {
-        const funcs = instances
-          .filter(inst => inst[handler])
-          .map(inst => inst[handler].bind(inst));
-
-        tool[handler] = (arg) => {
-          funcs.forEach(func => func(arg));
-        };
-      });
-
-      const isIntersectableIdx = findLastIndex(instances, (instance: {
-        isIntersectable: boolean;
-      }) => instance.isIntersectable);
-      tool.isIntersectable = isIntersectableIdx >= 0 ?
-        instances[isIntersectableIdx].isIntersectable :
-        object => object.isVoxel || object.isPlane;
-
-      return tool;
-    });
-
-    const unsubscribe = observeEditorState(editorState => editorState.selectedTool, selectedTool => {
-      if (tool) {
-        tool.onLeave();
-      }
-      tool = tools[selectedTool];
-
-      if (tool) {
-        tool.onEnter();
-      } else {
-        console.error(`Invalid tool type: ${ToolType[selectedTool]}`);
-      }
-    });
 
     this.onWindowResize = () => {
       camera.aspect = container.offsetWidth / container.offsetHeight
@@ -335,25 +285,18 @@ export default class MainCanvas {
       interact(event);
     }
 
-    function onDocumentMouseDown(event) {
+    const onDocumentMouseDown = (event) => {
       event.preventDefault()
 
       const intersect = getIntersect()
-
-      tool.onMouseDown({
-        intersect,
-      });
+      this.tool.onMouseDown({ intersect, event });
     }
 
-    function onDocumentMouseUp(event) {
+    const onDocumentMouseUp = (event) => {
       event.preventDefault();
 
       var intersect = getIntersect();
-
-      tool.onMouseUp({
-        intersect,
-        event,
-      });
+      this.tool.onMouseUp({ intersect, event });
 
       interact(event);
       render()
@@ -384,10 +327,19 @@ export default class MainCanvas {
   }
 
   updateState(nextState: VoxelEditorState) {
-    this.editorStateListeners.forEach(listener => listener(nextState));
+    if (this.tool.getToolType() !== nextState.selectedTool) {
+      const nextTool = this.getTool(nextState.selectedTool);
+      this.tool.onStop();
+      this.tool = nextTool;
+      this.tool.onStart();
+    }
+    this.tool.updateProps(nextState);
   }
 
   destroy() {
+    // Destroy tools
+    Object.keys(this.cachedTools).forEach(toolType => this.cachedTools[toolType].destroy());
+
     this.removeListeners();
     cancelAnimationFrame(this.frameId);
     this.renderer.forceContextLoss();
@@ -395,3 +347,5 @@ export default class MainCanvas {
     this.renderer.domElement = null;
   }
 }
+
+export default MainCanvas;

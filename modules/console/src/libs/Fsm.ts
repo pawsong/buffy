@@ -1,65 +1,76 @@
-import { EventEmitter, EventSubscription } from 'fbemitter';
+type StateName = string;
 
-export interface StateInterface {
-  onEnter: () => any;
-  onLeave: () => any;
+interface Transition {
+  state: string;
+  params?: any;
 }
 
-class Fsm<T extends StateInterface> {
-  current: T;
-  states: { [index: string]: T };
-  emitter: EventEmitter;
+export type HandlerResult = Transition | void;
 
-  constructor() {
-    this.emitter = new EventEmitter();
-    this.states = {};
+interface EventHandler {
+  (data?: any): HandlerResult;
+}
+
+export interface EventHandlers {
+  [index: string]: EventHandler;
+}
+
+class State { // Set of event handlers
+  static EVENT_ENTER = 'enter';
+  static EVENT_LEAVE = 'leave';
+
+  eventHandlers: EventHandlers;
+
+  constructor(eventHandlers: EventHandlers) {
+    this.eventHandlers = eventHandlers;
   }
 
-  on(eventType: string, callback: Function): EventSubscription {
-    return this.emitter.addListener(eventType, callback, this);
+  on(event, data?): Transition | void {
+    const handler = this.eventHandlers[event];
+    if (!handler) return;
+    return handler(data);
+  }
+}
+
+export { State };
+
+interface States {
+  [index: string]: State;
+}
+
+class Fsm {
+  current: State;
+  private states: States;
+
+  constructor(states: States, initialState: string) {
+    this.states = states;
+
+    const state = this.states[initialState];
+    if (!state) throw new Error(`Invalid state: ${initialState}`);
+
+    this.enterState(state);
   }
 
-  add(stateName: string, state: T) {
-    if (this.states[stateName]) {
-      throw new Error(`State ${stateName} already exists`);
+  trigger(event: string, data?: any) {
+    const transition = this.current.on(event, data);
+    if (transition) this.transitionTo(<Transition>transition);
+  }
+
+  private transitionTo(transition: Transition) {
+    const next = this.states[transition.state];
+    if (!next) throw new Error(`Invalid state: ${transition.state}`);
+
+    if (__DEV__) {
+      console.log(`transition from`,  this.current, 'to', next);
     }
-    this.states[stateName] = state;
+
+    this.current.on(State.EVENT_LEAVE);
+    this.enterState(next, transition.params);
   }
 
-  start(stateName: string) {
-    if (this.current) { throw new Error('Fsm is already running'); }
-
-    const state = this.states[stateName];
-    if (!state) { throw new Error(`Cannot find state ${stateName}`); }
-
+  private enterState(state: State, params?: any) {
     this.current = state;
-    this.current.onEnter();
-    this.emitter.emit('start');
-  }
-
-  stop() {
-    if (this.current) {
-      this.current.onLeave();
-      this.current = undefined;
-      this.emitter.emit('stop');
-    }
-  }
-
-  transition(stateName) {
-    const next = this.states[stateName];
-    if (!next) { throw new Error(`Cannot find state ${stateName}`); }
-
-    if (this.current) {
-      this.current.onLeave();
-    }
-
-    this.current = next;
-    this.current.onEnter();
-
-    // this.emitter.emit('transition', {
-    //   from: prev,
-    //   to: this.current._name,
-    // });
+    this.trigger(State.EVENT_ENTER, params);
   }
 }
 

@@ -62,37 +62,6 @@ export interface VoxelEditorState {
 /**
  * State observer
  */
-export interface EditorStateListener {
-  (editorState: VoxelEditorState): any;
-}
-
-export interface EditorStateSelector<T> {
-  (editorState: VoxelEditorState): T;
-}
-
-export interface EditorStateObserver<T> {
-  (state: T): any;
-}
-
-export interface RemoveObserver {
-  (): void;
-}
-
-export interface ObserveEditorState {
-  <T>(selector: EditorStateSelector<T>, listener: EditorStateObserver<T>): RemoveObserver;
-}
-
 export interface GetEditorState {
   (): VoxelEditorState;
-}
-
-export interface Services {
-  container: HTMLElement;
-  scene: THREE.Scene;
-  controls: any;
-  interact: any;
-  dispatchAction: DispatchAction;
-  getEditorState: GetEditorState;
-  handleEditorStateChange: (nextState: VoxelEditorState) => any;
-  observeEditorState: ObserveEditorState;
 }

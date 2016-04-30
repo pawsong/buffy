@@ -1,7 +1,5 @@
 import * as THREE from 'three';
 
-import mesher, { GridFace } from '../meshers/greedy';
-
 export function createVoxelGeometry(vertices: any[], faces: any[]) {
   const geometry = new THREE.Geometry();
 
