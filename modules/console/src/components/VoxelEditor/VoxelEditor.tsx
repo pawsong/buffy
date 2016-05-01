@@ -3,10 +3,7 @@ import { findDOMNode } from 'react-dom';
 
 import * as Immutable from 'immutable';
 
-// OrbitControls patch
-// require('./OrbitControls');
-
-import { DropTarget, DragDropContext } from 'react-dnd';
+import { DropTarget } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
 const update = require('react-addons-update');
 import { EventEmitter, EventSubscription } from 'fbemitter';
@@ -106,7 +103,6 @@ export interface CreateStateOptions {
 }
 
 @injectIntl
-@(DragDropContext<VoxelEditorProps>(HTML5Backend) as any)
 @(DropTarget<VoxelEditorProps>('panel', {
   drop(props, monitor, component: VoxelEditor) {
     const item = monitor.getItem() as {

@@ -19,7 +19,12 @@ import AndroidIcon from 'material-ui/lib/svg-icons/action/android';
 
 import FlatButton from 'material-ui/lib/flat-button';
 
+const update = require('react-addons-update');
 const objectAssign = require('object-assign');
+
+import { DragDropContext } from 'react-dnd';
+const HTML5Backend = require('react-dnd-html5-backend');
+
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';
 
@@ -197,6 +202,17 @@ enum InstanceTabs {
   ZONE,
 };
 
+function getInstanceTabLabel(tabType: InstanceTabs) {
+  switch(tabType) {
+    case InstanceTabs.ROBOT: {
+      return 'Robot';
+    }
+    case InstanceTabs.ZONE: {
+      return 'Zone';
+    }
+  }
+}
+
 interface StudioBodyState {
   gameSizeVersion?: number;
   editorSizeVersion?: number;
@@ -204,9 +220,11 @@ interface StudioBodyState {
 
   files?: { [index: string]: FileDescriptor },
   activeFileId?: string;
+  filesOnTab?: string[];
 
   fileBrowserOpen?: boolean;
   fileBrowserTypeFilter?: FileType;
+  instanceTabs?: InstanceTabs[],
   activeInstanceTab?: InstanceTabs,
 }
 
@@ -215,6 +233,7 @@ interface FileTabsProps extends React.Props<FileTabs> {
   activeFileId: string;
   onFileClick(fileId: string): any;
   onFileClose(fileId: string): any;
+  onTabOrderChange(dragIndex: number, hoverIndex: number): any;
 }
 
 class FileTabs extends React.Component<FileTabsProps, {}> {
@@ -238,6 +257,7 @@ class FileTabs extends React.Component<FileTabsProps, {}> {
       <Tabs
         activeValue={this.props.activeFileId}
         onTabClick={value => this.props.onFileClick(value)}
+        onTabOrderChange={this.props.onTabOrderChange}
       >
         {tabs}
       </Tabs>
@@ -250,6 +270,7 @@ class FileTabs extends React.Component<FileTabsProps, {}> {
   run: runBlocklyWorkspace,
   submitVoxel: submitVoxel,
 })
+@(DragDropContext(HTML5Backend) as any)
 class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   initialTabIndex: number;
   initialGameWidth: number;
@@ -288,9 +309,11 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
           type: FileType.CODE,
         },
       },
+      filesOnTab: ['1', '2', '3', '4'],
       activeFileId: '1',
       fileBrowserOpen: false,
       fileBrowserTypeFilter: FileType.ALL,
+      instanceTabs: [InstanceTabs.ROBOT, InstanceTabs.ZONE],
       activeInstanceTab: InstanceTabs.ROBOT,
     };
 
@@ -393,16 +416,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   }
 
   renderEditor() {
-    const files = Object.keys(this.state.files).map(fileId => this.state.files[fileId]);
-
-    const fileTabs = (
-      <FileTabs
-        files={files}
-        activeFileId={this.state.activeFileId}
-        onFileClick={fileId => this.setState({ activeFileId: fileId })}
-        onFileClose={() => {}}
-      />
-    );
+    const files = this.state.filesOnTab.map(fileId => this.state.files[fileId]);
 
     let editor = null;
     switch(this.state.files[this.state.activeFileId].type) {
@@ -427,6 +441,17 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
           activeFileId={this.state.activeFileId}
           onFileClick={fileId => this.setState({ activeFileId: fileId })}
           onFileClose={() => {}}
+          onTabOrderChange={(dragIndex, hoverIndex) => {
+            const dragId = this.state.filesOnTab[dragIndex];
+            this.setState(update(this.state, {
+              filesOnTab: {
+                $splice: [
+                  [dragIndex, 1],
+                  [hoverIndex, 0, dragId]
+                ],
+              }
+            }));
+          }}
         />
         <div style={styles.addon}>{editor}</div>
       </div>
@@ -512,15 +537,29 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       <Tabs
         activeValue={this.state.activeInstanceTab}
         onTabClick={value => this.setState({ activeInstanceTab: value })}
+        onTabOrderChange={(dragIndex: number, hoverIndex: number) => {
+          const dragId = this.state.instanceTabs[dragIndex];
+          this.setState(update(this.state, {
+            instanceTabs: {
+              $splice: [
+                [dragIndex, 1],
+                [hoverIndex, 0, dragId]
+              ],
+            }
+          }));
+        }}
       >
-        <Tab
-          value={InstanceTabs.ROBOT}
-          label={'Robot'}
-        />
-        <Tab
-          value={InstanceTabs.ZONE}
-          label={'Zone'}
-        />
+        {
+          this.state.instanceTabs.map(tabType => {
+            return (
+              <Tab
+                key={tabType}
+                value={tabType}
+                label={getInstanceTabLabel(tabType)}
+              />
+            );
+          })
+        }
       </Tabs>
     );
 
