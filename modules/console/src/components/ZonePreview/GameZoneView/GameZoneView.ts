@@ -65,6 +65,7 @@ class GameZoneView extends ZoneView {
     this.renderer.domElement.addEventListener('mouseup', onDocumentMouseUp, false);
 
     this.removeListeners = () => {
+      if (!this.renderer.domElement) return;
       this.renderer.domElement.removeEventListener('mousedown', onDocumentMouseDown, false);
       this.renderer.domElement.removeEventListener('mouseup', onDocumentMouseUp, false);
     };

@@ -282,7 +282,11 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   handleOpenFileRequest(fileType: FileType) {
-    console.log(fileType);
+    alert([
+      'Open file in create mode is WIP.',
+      'Please try again in connect mode',
+      '(http://buffy.run/connect).',
+    ].join('\n'));
   }
 
   render() {
