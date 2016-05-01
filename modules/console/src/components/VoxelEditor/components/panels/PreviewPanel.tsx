@@ -1,4 +1,7 @@
 import * as React from 'react';
+const pure = require('recompose/pure').default;
+
+import { findDOMNode } from 'react-dom';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import FlatButton from 'material-ui/lib/flat-button';
 import FontIcon from 'material-ui/lib/font-icon';
@@ -7,12 +10,15 @@ import * as ReactDnd from 'react-dnd';
 const objectAssign = require('object-assign');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
+import PanelType from './PanelType';
+
 import CanvasShared from '../../canvas/shared';
 
 import {
-  wrapPanel,
-  PanelBodyProps,
-} from './Panel';
+  DispatchAction,
+} from '../../interface';
+
+import Panel, { PanelState, MoveToTop } from './Panel';
 
 import initPreview from '../../canvas/views/preview';
 
@@ -51,11 +57,17 @@ class RotateButton extends React.Component<RotateButtonProps, {}> {
   };
 };
 
-interface PreviewPanelProps extends React.Props<PreviewPanel>, PanelBodyProps { }
+interface PreviewPanelProps extends React.Props<PreviewPanel> {
+  panelState: PanelState;
+  moveToTop: MoveToTop;
+  sizeVersion: number;
+  canvasShared: CanvasShared;
+  dispatchAction: DispatchAction;
+  intl?: InjectedIntlProps;
+}
 
-@wrapPanel({
-  title: messages.title,
-})
+@pure
+@injectIntl
 class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
   canvas: any;
 
@@ -64,7 +76,7 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
   };
 
   componentDidMount() {
-    this.canvas = initPreview(this.refs['canvas'], this.props.canvasShared);
+    this.canvas = initPreview(findDOMNode<HTMLElement>(this.refs['canvas']), this.props.canvasShared);
   }
 
   componentWillReceiveProps(nextProps: PreviewPanelProps) {
@@ -81,14 +93,23 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
     const { } = this.props;
 
     return (
-      <div>
-        <div style={{ width: 150, height: 150 }} ref="canvas"></div>
+      <Panel
+        panelType={PanelType.PREVIEW}
+        panelState={this.props.panelState}
+        title={this.props.intl.formatMessage(messages.title)}
+        moveToTop={this.props.moveToTop}
+      >
+        <div
+          style={{ width: 150, height: 150 }}
+          ref={'canvas'}
+        >
+        </div>
         <div>
           <RotateButton onClick={() => this.handleClickRotate('x')}>X</RotateButton>
           <RotateButton onClick={() => this.handleClickRotate('y')}>Y</RotateButton>
           <RotateButton onClick={() => this.handleClickRotate('z')}>Z</RotateButton>
         </div>
-      </div>
+      </Panel>
     );
   };
 };

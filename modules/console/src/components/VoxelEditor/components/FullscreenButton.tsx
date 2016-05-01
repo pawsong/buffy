@@ -23,7 +23,7 @@ class FullscreenButton extends React.Component<FullscreenButtonProps, {}> {
   render() {
     return (
       <IconButton
-        onTouchTap={() => this.props.onTouchTap()}
+        onTouchTap={this.props.onTouchTap}
         tooltipStyles={{ left: 5 }}
         style={styles.root} iconClassName="material-icons" tooltipPosition="bottom-center"
         tooltip={this.props.fullscreen ? 'Fullscreen exit' : 'Fullscreen'}

@@ -1,4 +1,6 @@
 import * as React from 'react';
+const pure = require('recompose/pure').default;
+
 import { findDOMNode } from 'react-dom';
 import * as ReactDnd from 'react-dnd';
 import RaisedButton from 'material-ui/lib/raised-button';
@@ -8,17 +10,14 @@ const objectAssign = require('object-assign');
 import AppBar from 'material-ui/lib/app-bar';
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
+import PanelType from './PanelType';
+
 import {
-  VoxelEditorState,
+  VoxelState,
   DispatchAction,
 } from '../../interface';
 
-import {
-  PanelConstants,
-  PanelStyles,
-  PanelBodyProps,
-  wrapPanel
-} from './Panel';
+import Panel, { PanelState, MoveToTop } from './Panel';
 
 import {
   voxelUndoSeek,
@@ -74,14 +73,19 @@ function getActionMessage(action: string) {
  * Container
  */
 
-interface HistoryPanelProps extends React.Props<HistoryPanel>, PanelBodyProps { }
+interface HistoryPanelProps extends React.Props<HistoryPanel> {
+  panelState: PanelState;
+  moveToTop: MoveToTop;
+  voxel: VoxelState;
+  dispatchAction: DispatchAction;
+  intl?: InjectedIntlProps;
+}
 
-@wrapPanel({
-  title: messages.title,
-})
+@pure
+@injectIntl
 class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
   componentDidUpdate() {
-    if (this.props.editorState.voxel.historyIndex === this.props.editorState.voxel.present.historyIndex) {
+    if (this.props.voxel.historyIndex === this.props.voxel.present.historyIndex) {
       const list = findDOMNode(this.refs['list']);
       list.scrollTop = list.scrollHeight;
     }
@@ -96,7 +100,7 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
   }
 
   render() {
-    const { voxel } = this.props.editorState;
+    const { voxel } = this.props;
 
     const styles = {
       listItem: {
@@ -121,11 +125,16 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
     }));
 
     return (
-      <div>
-        <div ref="list" style={{ height: 200 - PanelStyles.height, overflow: 'scroll'}}>
+      <Panel
+        panelType={PanelType.HISTORY}
+        panelState={this.props.panelState}
+        title={this.props.intl.formatMessage(messages.title)}
+        moveToTop={this.props.moveToTop}
+      >
+        <div ref="list" style={{ height: 180, overflow: 'scroll'}}>
           {listItems}
         </div>
-      </div>
+      </Panel>
     );
   };
 };

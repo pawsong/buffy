@@ -8,12 +8,13 @@ import { DropTarget } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
 const update = require('react-addons-update');
 import { EventEmitter, EventSubscription } from 'fbemitter';
-const mapValues = require('lodash/mapValues');
 const objectAssign = require('object-assign');
 import * as invariant from 'invariant';
 import RaisedButton from 'material-ui/lib/raised-button';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
+import Panel from './components/panels/Panel';
+
 import Messages from '../../constants/Messages';
 
 import * as StorageKeys from '../../constants/StorageKeys';
@@ -29,9 +30,10 @@ import {
   VoxelState,
 } from './interface';
 
-import ToolsPanel from './components/panels/ToolsPanel';
+import { PanelProps } from './components/panels/Panel';
 import HistoryPanel from './components/panels/HistoryPanel';
 import PreviewPanel from './components/panels/PreviewPanel';
+import ToolsPanel from './components/panels/ToolsPanel';
 
 import FullscreenButton from './components/FullscreenButton';
 
@@ -49,9 +51,10 @@ const styles = {
   },
 };
 
+import PanelType from './components/panels/PanelType';
+
 const PANELS = {
   tools: ToolsPanel,
-  // workspace: WorkspacePanel,
   history: HistoryPanel,
   preview: PreviewPanel,
 };
@@ -62,12 +65,12 @@ interface PanelData {
 }
 
 interface PanelState {
-  id: string;
+  // id: string;
   show: boolean;
   top: number;
   left: number;
   order: number;
-  component: React.Component<{}, {}>;
+  // component: React.Component<{}, {}>;
 }
 
 import {
@@ -85,12 +88,11 @@ interface VoxelEditorProps extends React.Props<VoxelEditor> {
   sizeVersion: number;
   onSubmit: (data) => any;
   connectDropTarget?: any;
-  // workspace?: any;
   intl?: InjectedIntlProps;
 }
 
 interface ContainerStates {
-  panels?: PanelState[];
+  panels?: { [index: number]: PanelState },
   fullscreen?: boolean;
 }
 
@@ -98,19 +100,21 @@ export interface CreateStateOptions {
   voxels?: any;
 }
 
-@injectIntl
-@pure
-@(DropTarget<VoxelEditorProps>('panel', {
-  drop(props, monitor, component: VoxelEditor) {
+const panelTarget = {
+  drop(props: VoxelEditorProps, monitor, component: VoxelEditor) {
     const item = monitor.getItem() as {
-      left: number; top: number; id: string;
+      left: number; top: number; panelType: PanelType;
     };
     const delta = monitor.getDifferenceFromInitialOffset();
     const left = Math.round(item.left + delta.x);
     const top = Math.round(item.top + delta.y);
-    component.movePanel(item.id, left, top);
-  }
-}, connect => ({
+    component.movePanel(item.panelType, left, top);
+  },
+};
+
+@pure
+@injectIntl
+@(DropTarget('panel', panelTarget, connect => ({
   connectDropTarget: connect.dropTarget()
 })) as any)
 class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
@@ -123,59 +127,56 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
     super(props);
 
     this.state = {
-      panels: [],
+      panels: {},
       fullscreen: false,
     };
 
     let index = 0;
-    const panels: PanelState[] = mapValues(PANELS, (Component, id) => {
-      let panel = {} as PanelData;
-      const savedPanel = localStorage.getItem(`${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${id}`);
-      if (savedPanel) {
-        try {
-          panel = JSON.parse(savedPanel);
-        } catch(err) {}
-      }
+    Object.keys(PanelType)
+      .map(v => parseInt(v, 10))
+      .filter(v => !isNaN(v))
+      .forEach(type => {
+        const typeName = PanelType[type];
+        let panel = {} as PanelData;
+        const savedPanel = localStorage.getItem(`${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${typeName}`);
+        if (savedPanel) {
+          try {
+            panel = JSON.parse(savedPanel);
+          } catch(err) {}
+        }
 
-      return {
-        id,
-        show: true,
-        top: panel.top || 0,
-        left: panel.left || 0,
-        order: ++index,
-        component: Component,
-      };
-    });
-
-    this.state = {
-      panels,
-      fullscreen: false,
-    };
+        this.state.panels[type] = {
+          show: true,
+          top: panel.top || 0,
+          left: panel.left || 0,
+          order: ++index,
+        };
+      });
   }
 
   handleStateChange(editorState: VoxelEditorState) {
     this.props.onChange(objectAssign({}, this.props.editorState, editorState));
   }
 
-  dispatchVoxelAction(action: Action<any>) {
+  dispatchVoxelAction = (action: Action<any>) => {
     const voxel = voxelReducer(this.props.editorState.voxel, action);
     this.handleStateChange({ voxel });
   }
 
-  movePanel(id, left, top) {
-    const { order } = this.state.panels[id];
-    this.moveToTop(id);
+  movePanel(type: PanelType, left, top) {
+    const { order } = this.state.panels[type];
+    this.moveToTop(type);
     this.setState(update(this.state, {
       panels: {
-        [id]: { $merge: { left, top } },
+        [type]: { $merge: { left, top } },
       },
     }), () => {
-      localStorage.setItem(`${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${id}`, JSON.stringify(this.state.panels[id]));
+      localStorage.setItem(`${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${PanelType[type]}`, JSON.stringify(this.state.panels[type]));
     });
   }
 
-  moveToTop(id: string) {
-    const { order } = this.state.panels[id];
+  moveToTop = (type: PanelType) => {
+    const { order } = this.state.panels[type];
 
     const values = {};
     const panelKeys = Object.keys(this.state.panels);
@@ -185,7 +186,7 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
         values[key] = { $merge: { order: panel.order - 1 } };
       }
     });
-    values[id] = { $merge: { order: panelKeys.length } };
+    values[type] = { $merge: { order: panelKeys.length } };
     this.setState(update(this.state, { panels: values }));
   }
 
@@ -234,25 +235,39 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
     this.canvas.destroy();
   }
 
-  render() {
-    const panels = Object.keys(this.state.panels)
-      .map(key => this.state.panels[key])
-      .filter(panel => panel.show)
-      .sort(panel => panel.order)
-      .map(panel => React.createElement(panel.component, {
-        key: panel.id,
-        id: panel.id,
-        left: panel.left,
-        top: panel.top,
-        zIndex: panel.order,
-        editorState: this.props.editorState,
-        onChange: this.props.onChange,
-        dispatchAction: (action: Action<any>) => this.dispatchVoxelAction(action),
-        canvasShared: this.canvasShared,
-        sizeVersion: this.props.sizeVersion,
-        moveToTop: (id: string) => this.moveToTop(id),
-      }));
+  changePaletteColor = (paletteColor: Color) => this.handleStateChange({ paletteColor });
 
+  selectTool = (selectedTool: ToolType) => this.handleStateChange({ selectedTool });
+
+  renderPanels() {
+    return (
+      <div>
+        <HistoryPanel
+          panelState={this.state.panels[PanelType.HISTORY]}
+          moveToTop={this.moveToTop}
+          voxel={this.props.editorState.voxel}
+          dispatchAction={this.dispatchVoxelAction}
+        />
+        <PreviewPanel
+          panelState={this.state.panels[PanelType.PREVIEW]}
+          moveToTop={this.moveToTop}
+          canvasShared={this.canvasShared}
+          dispatchAction={this.dispatchVoxelAction}
+          sizeVersion={this.props.sizeVersion}
+        />
+        <ToolsPanel
+          panelState={this.state.panels[PanelType.TOOLS]}
+          moveToTop={this.moveToTop}
+          paletteColor={this.props.editorState.paletteColor}
+          selectedTool={this.props.editorState.selectedTool}
+          changePaletteColor={this.changePaletteColor}
+          selectTool={this.selectTool}
+        />
+      </div>
+    );
+  }
+
+  render() {
     const style = this.state.fullscreen ? {
       position: 'fixed',
       top: 0, left: 0, bottom: 0, right: 0,
@@ -280,7 +295,7 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
               onTouchTap={() => this.handleFullscreenButtonClick()}
               fullscreen={this.state.fullscreen}
             />
-            {panels}
+            {this.renderPanels()}
           </div>
         )}
       </div>
