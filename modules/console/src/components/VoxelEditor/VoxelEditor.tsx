@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
+const pure = require('recompose/pure').default;
 
 import * as Immutable from 'immutable';
 
@@ -29,13 +30,8 @@ import {
 } from './interface';
 
 import ToolsPanel from './components/panels/ToolsPanel';
-// import WorkspacePanel from './containers/panels/WorkspacePanel';
 import HistoryPanel from './components/panels/HistoryPanel';
 import PreviewPanel from './components/panels/PreviewPanel';
-
-// import WorkspaceBrowserDialog from './containers/dialogs/WorkspaceBrowserDialog';
-// import SaveDialog from './containers/dialogs/SaveDialog';
-// import NotImplDialog from './containers/dialogs/NotImplDialog';
 
 import FullscreenButton from './components/FullscreenButton';
 
@@ -103,6 +99,7 @@ export interface CreateStateOptions {
 }
 
 @injectIntl
+@pure
 @(DropTarget<VoxelEditorProps>('panel', {
   drop(props, monitor, component: VoxelEditor) {
     const item = monitor.getItem() as {
@@ -224,12 +221,12 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
       this.canvas.resize();
     }
 
-    if (this.props.editorState !== nextProps.editorState) {
-      this.canvas.updateState(nextProps.editorState);
-    }
-
     if (this.props.editorState.voxel !== nextProps.editorState.voxel) {
       this.canvasShared.voxelStateChange(nextProps.editorState.voxel);
+    }
+
+    if (this.props.editorState !== nextProps.editorState) {
+      this.canvas.updateState(nextProps.editorState);
     }
   }
 
@@ -288,10 +285,6 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
         )}
       </div>
     );
-
-    // <WorkspaceBrowserDialog />
-    // <NotImplDialog />
-    // <SaveDialog />
   }
 }
 

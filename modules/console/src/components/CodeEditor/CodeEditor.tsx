@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as invariant from 'invariant';
 const objectAssign = require('object-assign');
+const pure = require('recompose/pure').default;
 
 import Blockly from '../../blockly';
 
@@ -38,12 +39,11 @@ interface CodeEditorProps extends React.Props<CodeEditor> {
 
 export interface CreateStateOptions extends CodeEditorState {}
 
+@pure
 class CodeEditor extends React.Component<CodeEditorProps, void> {
-  workspace: any;
+  static creatState: (options?: CreateStateOptions) => CodeEditorState;
 
-  static creatState(options?: CreateStateOptions): CodeEditorState {
-    return objectAssign({}, defaultEditorState, options);
-  }
+  workspace: any;
 
   constructor(props, context) {
     super(props, context);
@@ -111,6 +111,10 @@ class CodeEditor extends React.Component<CodeEditorProps, void> {
       </div>
     );
   }
+}
+
+CodeEditor.creatState = (options?: CreateStateOptions): CodeEditorState => {
+  return objectAssign({}, defaultEditorState, options);
 }
 
 export default CodeEditor;

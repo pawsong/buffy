@@ -1,4 +1,6 @@
 import * as React from 'react';
+const pure = require('recompose/pure').default;
+
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { EventSubscription } from 'fbemitter';
 
@@ -22,13 +24,9 @@ interface GameOwnState {
   mapName: string;
 }
 
+@pure
 class Game extends React.Component<GameProps, GameOwnState> {
-  static createState(): GameState {
-    return {
-      selectedTool: ToolType.move,
-      brushColor: { r: 104, g: 204, b: 202 },
-    };
-  }
+  static createState: () => GameState;
 
   token: EventSubscription;
 
@@ -70,6 +68,13 @@ class Game extends React.Component<GameProps, GameOwnState> {
       </div>
     );
   }
+}
+
+Game.createState = (): GameState => {
+  return {
+    selectedTool: ToolType.move,
+    brushColor: { r: 104, g: 204, b: 202 },
+  };
 }
 
 export default Game;
