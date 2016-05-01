@@ -290,26 +290,26 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
       files: {
         '1': {
           id: '1',
-          name: 'Code 1',
+          name: 'Code',
           type: FileType.CODE,
         },
         '2': {
           id: '2',
-          name: 'Design 1',
+          name: 'Design',
           type: FileType.DESIGN
         },
-        '3': {
-          id: '3',
-          name: 'Robot 1',
-          type: FileType.ROBOT,
-        },
-        '4': {
-          id: '4',
-          name: 'Code 2',
-          type: FileType.CODE,
-        },
+        // '3': {
+        //   id: '3',
+        //   name: 'Robot 1',
+        //   type: FileType.ROBOT,
+        // },
+        // '4': {
+        //   id: '4',
+        //   name: 'Code 2',
+        //   type: FileType.CODE,
+        // },
       },
-      filesOnTab: ['1', '2', '3', '4'],
+      filesOnTab: ['1', '2'],
       activeFileId: '1',
       fileBrowserOpen: false,
       fileBrowserTypeFilter: FileType.ALL,

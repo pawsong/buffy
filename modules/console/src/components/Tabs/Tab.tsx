@@ -13,7 +13,7 @@ const styles = {
     borderRadius: 0,
     position: 'relative',
     top: 0,
-    maxWidth: '22em',
+    // maxWidth: '22em',
     minWidth: '7em',
     height: '100%',
     padding: 0,
