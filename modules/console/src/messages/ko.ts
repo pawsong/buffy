@@ -525,6 +525,34 @@ export default {
   'voxel-editor.panels.history.title': '히스토리',
 
   /**
+   * path: src/components/VoxelEditor/components/panels/HistoryPanel.json
+   * description: Voxel add history label
+   * defaultMessage: Add voxels
+   */
+  'voxel-editor.panels.history.voxel.add': '블럭 추가',
+
+  /**
+   * path: src/components/VoxelEditor/components/panels/HistoryPanel.json
+   * description: Voxel init history label
+   * defaultMessage: Initialize
+   */
+  'voxel-editor.panels.history.voxel.init': '초기화',
+
+  /**
+   * path: src/components/VoxelEditor/components/panels/HistoryPanel.json
+   * description: Voxel remove history label
+   * defaultMessage: Remove voxels
+   */
+  'voxel-editor.panels.history.voxel.remove': '블럭 제거',
+
+  /**
+   * path: src/components/VoxelEditor/components/panels/HistoryPanel.json
+   * description: Voxel rotate history label
+   * defaultMessage: Rotate voxels
+   */
+  'voxel-editor.panels.history.voxel.rotate': '블럭 회전',
+
+  /**
    * path: src/components/VoxelEditor/components/panels/PreviewPanel.json
    * description: Voxel editor preview panel title
    * defaultMessage: Preview

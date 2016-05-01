@@ -23,6 +23,10 @@ import {
 import {
   voxelUndoSeek,
   voxelRedoSeek,
+  VOXEL_INIT,
+  VOXEL_ADD_BATCH,
+  VOXEL_REMOVE_BATCH,
+  VOXEL_ROTATE,
 } from '../../voxels/actions';
 
 const messages = defineMessages({
@@ -31,7 +35,40 @@ const messages = defineMessages({
     description: 'Voxel editor history panel title',
     defaultMessage: 'History',
   },
+  labelVoxelInit: {
+    id: 'voxel-editor.panels.history.voxel.init',
+    description: 'Voxel init history label',
+    defaultMessage: 'Initialize',
+  },
+  labelVoxelAdd: {
+    id: 'voxel-editor.panels.history.voxel.add',
+    description: 'Voxel add history label',
+    defaultMessage: 'Add voxels',
+  },
+  labelVoxelRemove: {
+    id: 'voxel-editor.panels.history.voxel.remove',
+    description: 'Voxel remove history label',
+    defaultMessage: 'Remove voxels',
+  },
+  labelVoxelRotate: {
+    id: 'voxel-editor.panels.history.voxel.rotate',
+    description: 'Voxel rotate history label',
+    defaultMessage: 'Rotate voxels',
+  },
 });
+
+const ActionMessages = {
+  [VOXEL_INIT]: messages.labelVoxelInit,
+  [VOXEL_ADD_BATCH]: messages.labelVoxelAdd,
+  [VOXEL_REMOVE_BATCH]: messages.labelVoxelRemove,
+  [VOXEL_ROTATE]: messages.labelVoxelRotate,
+};
+
+function getActionMessage(action: string) {
+  const message = ActionMessages[action];
+  if (!message) throw new Error(`Cannot find message for action ${action}`);
+  return message;
+}
 
 /*
  * Container
@@ -70,16 +107,16 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
     const listItems = voxel.past.map(state => {
       return <div style={styles.listItem} key={state.historyIndex}
         onClick={() => this.handleUndoClick(state.historyIndex)}>
-        {state.action}
+        <FormattedMessage {...getActionMessage(state.action)} />
       </div>;
     }).concat([
       <div style={objectAssign({ backgroundColor: '#ccc' }, styles.listItem)} key={voxel.present.historyIndex}>
-        {voxel.present.action}
+        <FormattedMessage {...getActionMessage(voxel.present.action)} />
       </div>
     ]).concat(voxel.future.map(state => {
       return <div style={styles.listItem} key={state.historyIndex}
         onClick={() => this.handleRedoClick(state.historyIndex)}>
-        {state.action}
+        <FormattedMessage {...getActionMessage(state.action)} />
       </div>;
     }));
 
