@@ -28,16 +28,14 @@ export interface Color {
 /**
  * Voxel state
  */
-export interface Position {
-  x: number; y: number; z: number;
-}
+export type Position = [number /* x */, number /* y */, number /* z */];
 
 export interface Voxel {
   position: Position;
   color: Color;
 }
 
-export type Voxels = Immutable.Map<string, Voxel>;
+export type Voxels = Immutable.Map<Immutable.Iterable.Indexed<number> /* Position */, Voxel>;
 
 export interface VoxelSnapshot {
   historyIndex: number;

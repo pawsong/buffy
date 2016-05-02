@@ -34,9 +34,7 @@ class CanvasShared {
   meshStore: SimpleStore<Mesh>;
 
   constructor({ getState }: CanvasSharedOptions) {
-    this.cameraPositionStore = new SimpleStore<Position>({
-      x: 0, y: 0, z: 0,
-    });
+    this.cameraPositionStore = new SimpleStore<Position>([0, 0, 0]);
 
     // Mesh store
     this.meshStore = new SimpleStore<Mesh>({

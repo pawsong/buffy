@@ -81,6 +81,10 @@ interface ProjectStudioHandlerState {
   studioState?: StudioState;
 }
 
+function rgbToHex({ r, g, b }) {
+  return (r << 16) | (g << 8) | b;
+}
+
 /*
  * ProjectStudioHandler component handles various modes to support url change without rerendering.
  *
@@ -187,11 +191,19 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   createStateFromResponse(project: Project): ProjectStudioHandlerState {
+    const voxels = Object.keys(project.voxels).map(key => {
+      const voxel = project.voxels[key];
+      return {
+        position: [voxel.position.x, voxel.position.y, voxel.position.z],
+        color: voxel.color,
+      };
+    });
+
     return {
       initialLocalServer: project.server,
       studioState: Studio.creatState({
         codeEditorState: { blocklyXml: project.blocklyXml },
-        voxelEditorState: { voxels: project.voxels },
+        voxelEditorState: { voxels },
       }),
     };
   }
@@ -236,7 +248,13 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     const scripts = compileBlocklyXml(blocklyXml);
 
     // Voxel editor
-    const voxels = this.state.studioState.voxelEditorState.voxel.present.data.toJS();
+
+    const voxels = this.state.studioState.voxelEditorState.voxel.present.data.toArray().map(voxel => {
+      return {
+        position: voxel.position,
+        color: rgbToHex(voxel.color),
+      };
+    });
 
     const data: ProjectData = {
       scripts,

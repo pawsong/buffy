@@ -14,6 +14,7 @@ import MainCanvas from '../views/main';
 import { SetState } from '../types';
 
 import {
+  Position,
   Color,
   ToolType,
   VoxelEditorState,
@@ -25,8 +26,6 @@ import Voxel, { VoxelMesh } from '../Voxel';
 import {
   voxelAddBatch,
 } from '../../voxels/actions';
-
-import vector3ToString from '@pasta/helper/lib/vector3ToString';
 
 import {
   GRID_SIZE,
@@ -141,48 +140,49 @@ class DrawState extends StateWithBrush {
   onEnter(): HandlerResult {
     this.view.controls.enableRotate = false;
 
-    const absPos = toAbsPos(this.tool.brush.position);
+    const brushPosition = this.tool.brush.position;
+    const absPos = toAbsPos([brushPosition.x, brushPosition.y, brushPosition.z]);
 
     let prev;
     const center = this.addDrawGuideMesh(absPos, null);
 
     prev = center;
-    for (let i = absPos.x - 1; i >= 1; --i) {
-      prev = this.addDrawGuideMesh({
-        x: i, y: absPos.y, z: absPos.z,
-      }, prev);
+    for (let i = absPos[0] - 1; i >= 1; --i) {
+      prev = this.addDrawGuideMesh([
+        i, absPos[1], absPos[2],
+      ], prev);
     }
     prev = center;
-    for (let i = absPos.x + 1; i <= GRID_SIZE; ++i) {
-      prev = this.addDrawGuideMesh({
-        x: i, y: absPos.y, z: absPos.z,
-      }, prev);
-    }
-
-    prev = center;
-    for (let i = absPos.y - 1; i >= 1; --i) {
-      prev = this.addDrawGuideMesh({
-        x: absPos.x, y: i, z: absPos.z,
-      }, prev);
-    }
-    prev = center;
-    for (let i = absPos.y + 1; i <= GRID_SIZE; ++i) {
-      prev = this.addDrawGuideMesh({
-        x: absPos.x, y: i, z: absPos.z,
-      }, prev);
+    for (let i = absPos[0] + 1; i <= GRID_SIZE; ++i) {
+      prev = this.addDrawGuideMesh([
+        i, absPos[1], absPos[2],
+      ], prev);
     }
 
     prev = center;
-    for (let i = absPos.z; i >= 1; --i) {
-      prev = this.addDrawGuideMesh({
-        x: absPos.x, y: absPos.y, z: i,
-      }, prev);
+    for (let i = absPos[1] - 1; i >= 1; --i) {
+      prev = this.addDrawGuideMesh([
+        absPos[0], i, absPos[2],
+      ], prev);
     }
     prev = center;
-    for (let i = absPos.z + 1; i <= GRID_SIZE; ++i) {
-      prev = this.addDrawGuideMesh({
-        x: absPos.x, y: absPos.y, z: i,
-      }, prev);
+    for (let i = absPos[1] + 1; i <= GRID_SIZE; ++i) {
+      prev = this.addDrawGuideMesh([
+        absPos[0], i, absPos[2],
+      ], prev);
+    }
+
+    prev = center;
+    for (let i = absPos[2]; i >= 1; --i) {
+      prev = this.addDrawGuideMesh([
+        absPos[0], absPos[1], i,
+      ], prev);
+    }
+    prev = center;
+    for (let i = absPos[2] + 1; i <= GRID_SIZE; ++i) {
+      prev = this.addDrawGuideMesh([
+        absPos[0], absPos[1], i,
+      ], prev);
     }
 
     center.material.opacity = 0.5;
@@ -220,12 +220,12 @@ class DrawState extends StateWithBrush {
 
       const action = voxelAddBatch(this.selectedMeshes.map(mesh => ({
         color,
-        position: toAbsPos(mesh.position),
+        position: toAbsPos([mesh.position.x, mesh.position.y, mesh.position.z]),
       })));
 
       this.dispatchAction(voxelAddBatch(this.selectedMeshes.map(mesh => ({
         color,
-        position: toAbsPos(mesh.position),
+        position: toAbsPos([mesh.position.x, mesh.position.y, mesh.position.z]),
       }))));
     }
 
@@ -233,7 +233,7 @@ class DrawState extends StateWithBrush {
     return { state: STATE_WAIT };
   }
 
-  addDrawGuideMesh(absPos, prevMesh) {
+  addDrawGuideMesh(absPos: Position, prevMesh) {
     const position = toScreenPos(absPos);
     const material = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,
@@ -245,7 +245,7 @@ class DrawState extends StateWithBrush {
     const mesh: any = new THREE.Mesh(cube, material);
     mesh.visible = true;
     mesh.overdraw = false;
-    mesh.position.copy(position as THREE.Vector3);
+    mesh.position.set(position[0], position[1], position[2]);
     mesh.isDrawGuide = true;
     this.view.scene.add(mesh);
 

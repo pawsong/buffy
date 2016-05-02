@@ -304,9 +304,19 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
 }
 
 VoxelEditor.createState = function VoxelEditor(options: CreateStateOptions = {}): VoxelEditorState {
-  const voxel: VoxelState = options.voxels ? update(initialVoxelState, {
-    present: { data: { $set: Immutable.Map(options.voxels), } },
-  }) : initialVoxelState;
+  let voxel: VoxelState = initialVoxelState;
+
+  if (options.voxels) {
+    const data = Immutable.Map().withMutations(mutable => {
+      options.voxels.forEach(voxel => {
+        mutable.set(Immutable.Iterable(voxel.position), voxel);
+      });
+    });
+
+    voxel = update(initialVoxelState, {
+      present: { data: { $set: data } },
+    });
+  }
 
   return {
     selectedTool: ToolType.brush,

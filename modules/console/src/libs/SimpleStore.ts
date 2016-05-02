@@ -13,7 +13,7 @@ class SimpleStore<T> {
   }
 
   update(data: T) {
-    this.data = objectAssign({}, this.data, data);
+    this.data = data;
     this.listeners.forEach(listener => listener(this.data));
   }
 

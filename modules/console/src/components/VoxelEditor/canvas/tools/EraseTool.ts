@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as Immutable from 'immutable';
 
 import VoxelEditorTool, {
   InitParams,
@@ -14,6 +15,7 @@ import View from '../views/main';
 import { SetState } from '../types';
 
 import {
+  Position,
   ToolType,
   DispatchAction,
 } from '../../interface';
@@ -23,8 +25,6 @@ import Voxel, { VoxelMesh } from '../Voxel';
 import {
   voxelRemoveBatch,
 } from '../../voxels/actions';
-
-import vector3ToString from '@pasta/helper/lib/vector3ToString';
 
 import {
   GRID_SIZE,
@@ -103,6 +103,10 @@ class WaitState extends VoxelEditorToolState<WaitStateProps> {
       z: Math.floor( position.z / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
     });
   }
+
+  onLeave() {
+    this.tool.cursor.hide();
+  }
 }
 
 interface DragStateProps {
@@ -110,7 +114,7 @@ interface DragStateProps {
 }
 
 class DragState extends VoxelEditorToolState<DragStateProps> {
-  selected: {};
+  selected: Immutable.Map<Immutable.Iterable.Indexed<number>, { mesh: THREE.Mesh, position: Position }>;
 
   constructor(
     private view: View,
@@ -125,7 +129,7 @@ class DragState extends VoxelEditorToolState<DragStateProps> {
 
   onEnter(intersect: THREE.Intersection): HandlerResult {
     this.view.controls.enableRotate = false;
-    this.selected = {};
+    this.selected = Immutable.Map<any, any>();
     this.handleInteract(intersect);
   }
 
@@ -134,20 +138,15 @@ class DragState extends VoxelEditorToolState<DragStateProps> {
   }
 
   onMouseUp({ intersect }: MouseUpParams) {
-    const positions = Object.keys(this.selected)
-      .map(key => this.selected[key].position);
-
+    const positions = this.selected.toArray().map(({ position }) => position);
     this.dispatchAction(voxelRemoveBatch(positions));
     return { state: STATE_WAIT };
   }
 
   onLeave() {
     this.view.controls.enableRotate = true;
-    Object.keys(this.selected).forEach(key => {
-      const { position, mesh } = this.selected[key];
-      this.view.scene.remove(mesh);
-    });
-    this.selected = {};
+    this.selected.forEach(({ mesh }) => this.view.scene.remove(mesh));
+    this.selected = Immutable.Map<any, any>();
   }
 
   handleInteract(intersect: THREE.Intersection) {
@@ -155,26 +154,27 @@ class DragState extends VoxelEditorToolState<DragStateProps> {
     if (!intersect.object['isVoxel']) return;
 
     const normal = intersect.face.normal;
-    const position = new THREE.Vector3().subVectors( intersect.point, normal )
+    const position = new THREE.Vector3().subVectors(intersect.point, normal);
 
-    const screenPos = {
-      x: Math.floor( position.x / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-      y: Math.floor( position.y / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-      z: Math.floor( position.z / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-    };
+    const screenPos: Position = [
+      Math.floor( position.x / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
+      Math.floor( position.y / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
+      Math.floor( position.z / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
+    ];
 
-    const key = vector3ToString(screenPos);
-    if (this.selected[key]) { return; }
+    const key = Immutable.Iterable(screenPos);
+
+    if (this.selected.has(key)) return;
 
     const mesh = new THREE.Mesh(cube, cubeMaterial) as VoxelMesh;
-    mesh.position.copy(screenPos as THREE.Vector3);
+    mesh.position.set(screenPos[0], screenPos[1], screenPos[2]);
     mesh.overdraw = false;
     this.view.scene.add(mesh);
 
-    this.selected[key] = {
+    this.selected = this.selected.set(key, {
       position: toAbsPos(screenPos),
-      mesh: mesh,
-    };
+      mesh,
+    });
   }
 }
 

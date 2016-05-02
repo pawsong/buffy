@@ -1,5 +1,7 @@
-import vector3ToString from '@pasta/helper/lib/vector3ToString';
 import * as ndarray from 'ndarray';
+import * as Immutable from 'immutable';
+
+import { Position } from '../interface';
 
 import {
   GRID_SIZE,
@@ -10,7 +12,7 @@ import {
 } from '../constants/Pixels';
 
 export function rgbToHex({ r, g, b }) {
-  return (1 << 24) | (r << 16) | (g << 8) | b;
+  return (1 << 24) /* Used by mesher */ | (r << 16) | (g << 8) | b;
 }
 
 export const voxelMapToArray = (() => {
@@ -27,7 +29,7 @@ export const voxelMapToArray = (() => {
 
   return function (map): ndarray.Ndarray {
     return generate([1, 1, 1], [GRID_SIZE + 1, GRID_SIZE + 1, GRID_SIZE + 1], (i, j, k) => {
-      const key = vector3ToString({ x: i, y: j, z: k });
+      const key = Immutable.Iterable([i, j, k]);
       const v = map.get(key);
       if (!v) { return 0; }
       return rgbToHex(v.color);
@@ -35,18 +37,18 @@ export const voxelMapToArray = (() => {
   };
 })();
 
-export function toAbsPos(screenPos) {
-  return {
-    x: GRID_SIZE / 2 + (screenPos.x + UNIT_PIXEL) / BOX_SIZE,
-    y: (screenPos.y - PLANE_Y_OFFSET + UNIT_PIXEL) / BOX_SIZE,
-    z: GRID_SIZE / 2 + (screenPos.z + UNIT_PIXEL) / BOX_SIZE,
-  };
+export function toAbsPos(screenPos: Position): Position {
+  return [
+    GRID_SIZE / 2 + (screenPos[0] + UNIT_PIXEL) / BOX_SIZE,
+    (screenPos[1] - PLANE_Y_OFFSET + UNIT_PIXEL) / BOX_SIZE,
+    GRID_SIZE / 2 + (screenPos[2] + UNIT_PIXEL) / BOX_SIZE,
+  ];
 }
 
-export function toScreenPos(absPos) {
-  return {
-    x: absPos.x * BOX_SIZE - UNIT_PIXEL - GRID_SIZE / 2 * BOX_SIZE,
-    y: absPos.y * BOX_SIZE - UNIT_PIXEL + PLANE_Y_OFFSET,
-    z: absPos.z * BOX_SIZE - UNIT_PIXEL - GRID_SIZE / 2 * BOX_SIZE,
-  };
+export function toScreenPos(absPos: Position): Position {
+  return [
+    absPos[0] * BOX_SIZE - UNIT_PIXEL - GRID_SIZE / 2 * BOX_SIZE,
+    absPos[1] * BOX_SIZE - UNIT_PIXEL + PLANE_Y_OFFSET,
+    absPos[2] * BOX_SIZE - UNIT_PIXEL - GRID_SIZE / 2 * BOX_SIZE,
+  ];
 }

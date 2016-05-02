@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import * as ndarray from 'ndarray';
 
-import vector3ToString from '@pasta/helper/lib/vector3ToString';
-
 import {
   GRID_SIZE,
   UNIT_PIXEL,
@@ -92,7 +90,7 @@ export default function initPreview(container, canvasShared: CanvasShared) {
   previewCamera.lookAt(scene.position);
 
   canvasShared.cameraPositionStore.listen(position => {
-    previewCamera.position.copy(position as THREE.Vector3).multiplyScalar(0.2);
+    previewCamera.position.set(position[0], position[1], position[2]).multiplyScalar(0.2);
   });
 
   function render() {

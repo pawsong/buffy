@@ -1,6 +1,7 @@
 import * as Immutable from 'immutable';
 
 import {
+  Position,
   Action,
   Voxel,
   Voxels,
@@ -39,7 +40,7 @@ export const initialState: VoxelState = {
   present: {
     historyIndex: 1,
     action: VOXEL_INIT,
-    data: Immutable.Map<string, Voxel>(),
+    data: Immutable.Map<any, any>(),
   },
   future: [],
 }
@@ -151,50 +152,47 @@ const voxelUndoable = reducer => (state: VoxelState = initialState, action: Acti
   }
 };
 
-const rotates = {
-  x: pos => ({ x: pos.x, y: GRID_SIZE + 1 - pos.z, z: pos.y }),
-  y: pos => ({ x: pos.z, y: pos.y, z: GRID_SIZE + 1 - pos.x }),
-  z: pos => ({ x: GRID_SIZE + 1 - pos.y, y: pos.x, z: pos.z }),
+interface RotateFn {
+  (position: Position): Position;
+}
+
+const rotates: { [index: string]: RotateFn } = {
+  x: pos => ([ pos[0],                 GRID_SIZE + 1 - pos[2], pos[1]                 ]),
+  y: pos => ([ pos[2],                 pos[1],                 GRID_SIZE + 1 - pos[0] ]),
+  z: pos => ([ GRID_SIZE + 1 - pos[1], pos[0],                 pos[2]                 ]),
 };
 
 export default voxelUndoable((state: Voxels, action: Action<any>): Voxels => {
   switch (action.type) {
-    case VOXEL_ADD: {
-      const { position, color } = <VoxelAddAction>action;
-      return state.set(vector3ToString(position), {
-        position, color,
-      });
-    }
     case VOXEL_ADD_BATCH: {
       const { voxels } = <VoxelAddBatchAction>action;
+      console.log(voxels);
       return state.withMutations(map => {
         voxels.forEach(voxel => {
           const { position, color } = voxel;
-          map.set(vector3ToString(position), {
+          map.set(Immutable.Iterable(position), {
             position, color,
           });
         });
       });
     }
-    case VOXEL_REMOVE: {
-      const { position } = <VoxelRemoveAction>action;
-      return state.remove(vector3ToString(position));
-    }
     case VOXEL_REMOVE_BATCH: {
       const { positions } = <VoxelRemoveBatchAction>action;
       return state.withMutations(map => {
         positions.forEach(position => {
-          map.remove(vector3ToString(position));
+          map.remove(Immutable.Iterable(position));
         });
       });
     }
     case VOXEL_ROTATE: {
       const { axis } = <VoxelRotateAction>action;
-      const rotate = rotates[axis] || (pos => pos);
-      return Immutable.Map<string, any>().withMutations(map => {
+      const rotate = rotates[axis];
+      if (!rotate) return state;
+
+      return Immutable.Map<Immutable.Iterable.Indexed<number>, Voxel>().withMutations(map => {
         state.forEach(voxel => {
           const position = rotate(voxel.position);
-          map.set(vector3ToString(position), {
+          map.set(Immutable.Iterable(position), {
             position,
             color: voxel.color,
           });

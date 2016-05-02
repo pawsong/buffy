@@ -13,8 +13,6 @@ if (__CLIENT__) {
 
 import { GridFace } from '../meshers/greedy';
 
-import vector3ToString from '@pasta/helper/lib/vector3ToString';
-
 import {
   GRID_SIZE,
   UNIT_PIXEL,
@@ -260,14 +258,14 @@ class MainCanvas {
 
     function render() {
       controls.update();
-      canvasShared.cameraPositionStore.update(camera.position);
+      canvasShared.cameraPositionStore.update([camera.position.x, camera.position.y, camera.position.z]);
       renderer.render(scene, camera);
     }
 
     this.onWindowResize = () => {
       camera.aspect = container.offsetWidth / container.offsetHeight
       camera.updateProjectionMatrix()
-      canvasShared.cameraPositionStore.update(camera.position);
+      canvasShared.cameraPositionStore.update([camera.position.x, camera.position.y, camera.position.z]);
 
       renderer.setSize( container.offsetWidth, container.offsetHeight )
       interact();
