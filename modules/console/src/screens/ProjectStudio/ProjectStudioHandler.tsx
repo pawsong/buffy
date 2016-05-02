@@ -23,6 +23,7 @@ import { compileBlocklyXml } from '../../blockly/utils';
 import ProjectStudioNavbar from './components/ProjectStudioNavbar';
 
 import {
+  loadProject,
   createAnonProject,
   createUserProject,
   updateAnonProject,
@@ -47,6 +48,9 @@ enum ProjectStudioMode {
   USER_EDIT,
 }
 
+interface ProjectMetadata {
+}
+
 interface RouteParams {
   username: string;
   projectId: string;
@@ -61,11 +65,12 @@ function inferProjectStudioMode(params: RouteParams): ProjectStudioMode {
 
 interface ProjectStudioHandlerProps extends RouteComponentProps<RouteParams, RouteParams>, ApiDispatchProps, SagaProps {
   user: User;
+  projectMetadata?: ApiCall<ProjectMetadata>;
+  loadProject?: ImmutableTask<Project>;
   createAnonProject: ImmutableTask<{}>;
   createUserProject: ImmutableTask<{}>;
   updateAnonProject: ImmutableTask<{}>;
   updateUserProject: ImmutableTask<{}>;
-  project?: ApiCall<Project>;
   requestLogout?: () => any;
   push?: (location: HistoryModule.LocationDescriptor) => any;
 }
@@ -88,11 +93,12 @@ interface ProjectStudioHandlerState {
   const type = inferProjectStudioMode(params);
   if (type === ProjectStudioMode.CREATE) return;
 
-  const project = type === ProjectStudioMode.ANON_EDIT
+  // Preload meta info only.
+  const projectMetadata = type === ProjectStudioMode.ANON_EDIT
     ? get(`${CONFIG_API_SERVER_URL}/projects/anonymous/${params.projectId}`)
     : get(`${CONFIG_API_SERVER_URL}/projects/@${params.username}/${params.projectId}`);
 
-  return { project };
+  return { projectMetadata };
 })
 @connectApi()
 @(connect((state: State) => ({
@@ -102,6 +108,7 @@ interface ProjectStudioHandlerState {
   push,
 }) as any)
 @saga({
+  loadProject,
   createAnonProject,
   createUserProject,
   updateAnonProject,
@@ -114,7 +121,6 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   server: LocalServer;
   stateLayer: StateLayer;
   startStateLayerGuard: boolean;
-  startStateLayerReserved: boolean;
 
   robots: RobotInstance[];
   zones: ZoneInstance[];
@@ -124,14 +130,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     this.mode = inferProjectStudioMode(this.props.params);
 
-    if (this.props.project && this.props.project.state === 'fulfilled') {
-      this.state = this.createStateFromResponse(this.props.project.result);
-      this.state.stateLayerIsRunning = false;
-      this.startStateLayerReserved = true;
-    } else {
-      this.state = { stateLayerIsRunning: false };
-      this.startStateLayerReserved = false;
-    }
+    this.state = { stateLayerIsRunning: false };
 
     this.socket = new LocalSocket();
 
@@ -146,6 +145,34 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     });
 
     this.startStateLayerGuard = false;
+  }
+
+  componentDidMount() {
+    if (this.mode === ProjectStudioMode.CREATE) {
+      this.setState(this.createStateFromLocalStorage(), () => this.startStateLayer());
+    } else {
+      const { params } = this.props;
+
+      const projectUrl = this.mode === ProjectStudioMode.ANON_EDIT
+        ? `${CONFIG_API_SERVER_URL}/projects/anonymous/${params.projectId}`
+        : `${CONFIG_API_SERVER_URL}/projects/@${params.username}/${params.projectId}`;
+
+      this.props.runSaga(this.props.loadProject, projectUrl, project => {
+        this.setState(this.createStateFromResponse(project), () => this.startStateLayer());
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.cancelSaga(this.props.loadProject);
+
+    if (this.server) {
+      this.server.destroy();
+      this.server = null;
+    }
+
+    this.stateLayer.destroy();
+    this.stateLayer = null;
   }
 
   createStateFromLocalStorage(): ProjectStudioHandlerState {
@@ -194,34 +221,10 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     this.setState({ stateLayerIsRunning: true });
   }
 
-  componentDidMount() {
-    if (this.startStateLayerReserved) {
-      this.startStateLayer();
-    } else if (this.mode === ProjectStudioMode.CREATE) {
-      this.setState(this.createStateFromLocalStorage(), () => this.startStateLayer());
-    }
-  }
-
   componentWillReceiveProps(nextProps: ProjectStudioHandlerProps) {
     if (this.props.params !== nextProps.params) {
       this.mode = inferProjectStudioMode(nextProps.params);
     }
-
-    if (this.state.stateLayerIsRunning || this.startStateLayerReserved) return;
-
-    if (nextProps.project && nextProps.project.state === 'fulfilled') {
-      this.setState(this.createStateFromResponse(nextProps.project.result), () => this.startStateLayer());
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.server) {
-      this.server.destroy();
-      this.server = null;
-    }
-
-    this.stateLayer.destroy();
-    this.stateLayer = null;
   }
 
   handleSave() {

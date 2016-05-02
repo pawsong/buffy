@@ -4,6 +4,16 @@ import { replace } from 'react-router-redux';
 import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import { request } from '../../../saga';
 
+export function* loadProject(url: string, callback: any) {
+  const response = yield call(request.get, url);
+  if (response.status !== 200) {
+    // TODO: Error handling
+    return;
+  }
+  const { data } = response;
+  callback(data);
+}
+
 export function* createAnonProject(data: any) {
   const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/projects/anonymous`, {
     data,
