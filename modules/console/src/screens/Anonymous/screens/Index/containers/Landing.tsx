@@ -23,6 +23,9 @@ import Footer from '../../../../../components/Footer';
 
 import { preloadApi, connectApi, ApiCall, get } from '../../../../../api';
 
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./Landing.css');
+
 const messages = defineMessages({
   wantToLearnMore: {
     id: 'anon.index.wantToLearnMore',
@@ -76,26 +79,6 @@ const messages = defineMessages({
   },
 });
 
-const styles = {
-  centerWrapper: {
-    textAlign: 'center',
-  },
-  header: {
-    marginTop: 60,
-  },
-  learnMoreWrapper: {
-    backgroundColor: Colors.grey200,
-    marginTop: 60,
-    marginBottom: 60,
-    padding: 80,
-    textAlign: 'center',
-  },
-  learnMoreHeader: {
-    marginTop: 0,
-    marginBottom: 30,
-  },
-};
-
 interface IndexHandlerProps extends React.Props<IndexHandler> {
   courses?: ApiCall<Course[]>;
   intl?: InjectedIntlProps;
@@ -106,6 +89,7 @@ interface IndexHandlerProps extends React.Props<IndexHandler> {
   courses: get(`${CONFIG_API_SERVER_URL}/courses`),
 }))
 @connectApi()
+@withStyles(styles)
 class IndexHandler extends React.Component<IndexHandlerProps, {}> {
   render() {
     return (
@@ -123,20 +107,20 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
           />
         </div>
         <Wrapper>
-          <h1 style={styles.header}>
+          <h1 className={styles.header}>
             <FormattedMessage {...messages.introduceVoxelEditorHeader} />
           </h1>
           <FormattedMessage {...messages.introduceVoxelEditorBody} />
           <p>--- DESIGN EXAMPLE GIF ---</p>
 
-          <h1 style={styles.header}>
+          <h1 className={styles.header}>
             <FormattedMessage {...messages.introduceCodeEditorHeader} />
           </h1>
           <FormattedMessage {...messages.introduceCodeEditorBody} />
           <p>--- CODING EXAMPLE GIF ---</p>
         </Wrapper>
-        <Wrapper style={styles.learnMoreWrapper}>
-          <h1 style={styles.learnMoreHeader}>
+        <Wrapper className={styles.learnMoreWrapper}>
+          <h1 className={styles.learnMoreHeader}>
             <FormattedMessage {...messages.wantToLearnMore} values={{
               service: this.props.intl.formatMessage(Messages.service),
             }} />

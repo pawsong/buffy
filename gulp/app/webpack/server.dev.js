@@ -28,6 +28,14 @@ module.exports = options => ({
     loaders: [
       { test: /\.json$/, loader: 'json-loader' },
       { test: /\.ts(x?)$/, loader: `babel-loader?${babelOptions}!ts-loader` },
+      {
+        test: /\.css$/,
+        loaders: [
+          'isomorphic-style-loader',
+          'css-loader?modules&localIdentName=[name]_[local]_[hash:base64:3]',
+          'postcss-loader',
+        ],
+      },
     ],
   },
   resolve: {
@@ -55,7 +63,7 @@ module.exports = options => ({
     __dirname: false,
   },
 
-  postcss: () => postcss.development,
+  postcss: webpackInst => postcss.development(webpackInst),
 
   devtool: 'source-map',
 });

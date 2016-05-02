@@ -17,21 +17,16 @@ import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import ToolbarSeparator from 'material-ui/lib/toolbar/toolbar-separator';
 import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
 
-import Wrapper from './Wrapper';
-
-const styles = {
-  content: {
-    position: 'fixed',
-    width: '100%',
-    zIndex: 1000,
-  },
-};
+import Wrapper from '../Wrapper';
+const styles = require('./Navbar.css');
 
 interface NavbarProps extends React.Props<Navbar> {
   width?: number | string;
 }
 
+@withStyles(styles)
 class Navbar extends React.Component<NavbarProps, {}> {
   static contextTypes = {
     muiTheme: React.PropTypes.object,
@@ -53,7 +48,7 @@ class Navbar extends React.Component<NavbarProps, {}> {
   render() {
     return (
       <div>
-        <div style={styles.content}>
+        <div className={styles.content}>
           <Wrapper backgroundColor={this.backgroundColor} width={this.props.width}>
             <Toolbar style={this.toolbarStyle}>{this.props.children}</Toolbar>
           </Wrapper>

@@ -1,0 +1,41 @@
+@import '../../styles/variables.css';
+
+.root {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+.content {
+  position: relative;
+  height: 100%;
+  overflow: auto;
+}
+
+.loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+}
+
+.loadingBackground {
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+  background-color: var(--palette-black);
+  opacity: 0.2;
+}
+
+.loadingIndicator {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+}

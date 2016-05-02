@@ -25,35 +25,10 @@ import { userUpdate } from '../../actions/users';
 
 import { saga, SagaProps, ImmutableTask, isRunning, isDone, request, wait } from '../../saga';
 
-const AvatarEditor = require('react-avatar-editor');
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./SettingsHandler.css');
 
-const styles = {
-  nameContainer: {
-    marginTop: 10,
-  },
-  name: {
-    fontSize: 26,
-    lineHeight: '30px',
-  },
-  username: {
-    fontSize: 20,
-    fontStyle: 'normal',
-    fontWeight: 300,
-    lineHeight: '24px',
-    color: Colors.grey500,
-  },
-  fieldLabel: {
-    fontSize: 20,
-    marginTop: 30,
-  },
-  dialogInputLabel: {
-    fontSize: 20,
-  },
-  dialogContent: {
-    width: 500,
-    maxWidth: 'none',
-  },
-};
+const AvatarEditor = require('react-avatar-editor');
 
 const messages = defineMessages({
   profilePicture: {
@@ -175,6 +150,7 @@ interface HandlerState {
   user: state.users.get(state.auth.userid),
 })) as any)
 @injectIntl
+@withStyles(styles)
 class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
   fileReader: FileReader;
 
@@ -264,7 +240,7 @@ class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
         modal={isUploading}
         open={this.state.profilePictureUrl.length > 0 && !isDone(this.props.uploadProfilePicture)}
         onRequestClose={() => this.handleProfilePictureDialogClose()}
-        contentStyle={styles.dialogContent}
+        contentClassName={styles.dialogContent}
       >
         <div style={{ textAlign: 'center' }}>
           <AvatarEditor
@@ -307,7 +283,7 @@ class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
       <Wrapper style={{ marginTop: 15 }}>
         <h1>{this.props.intl.formatMessage(Messages.settings)}</h1>
 
-        <div style={styles.fieldLabel}>{this.props.intl.formatMessage(messages.profilePicture)}</div>
+        <div className={styles.fieldLabel}>{this.props.intl.formatMessage(messages.profilePicture)}</div>
         <div className="row start-xs middle-xs" style={{ marginTop: 20, marginLeft: 0 }}>
           <img src={user.picture} style={{ width: 96, height: 96, marginRight: 15 }} />
           <RaisedButton label={this.props.intl.formatMessage(messages.changeProfilePicture)}
@@ -324,7 +300,7 @@ class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
 
         {this.renderProfilePictureDialog()}
 
-        <div style={styles.fieldLabel}>{this.props.intl.formatMessage(messages.name)}</div>
+        <div className={styles.fieldLabel}>{this.props.intl.formatMessage(messages.name)}</div>
         <TextField
           defaultValue={user.name || ''}
           onChange={e => this.handleNameChange(e.target['value'])}

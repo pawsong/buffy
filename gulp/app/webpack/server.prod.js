@@ -18,5 +18,5 @@ module.exports = options => Object.assign(require('./server.dev')(options), {
     ...(options.plugins || []),
   ],
 
-  postcss: () => postcss.production,
+  postcss: webpackInst => postcss.production(webpackInst),
 });

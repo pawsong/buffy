@@ -16,30 +16,14 @@ import { saga, ImmutableTask, SagaProps, isRunning, isDone } from '../../../saga
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../constants/Messages';
 
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./LoginForm.css');
+
 import Wrapper from '../../../components/Wrapper';
 
 import { localLogin, facebookLogin } from '../sagas';
 
-const styles = {
-  root: {
-    marginTop: 70,
-  },
-  logoContainer: {
-    textDecoration: 'none',
-    textAlign: 'center',
-    marginBottom: 36,
-  },
-  logo: {
-    width: 40,
-    height: 40,
-  },
-  paper: {
-    position: 'relative',
-    padding: 20,
-  },
-  facebookLoginButton: {
-    marginTop: 17,
-  },
+const inlineStyles = {
   progressOverlay: {
     position: 'absolute',
     margin: 0,
@@ -48,31 +32,14 @@ const styles = {
     transform: 'translate(-50%, -50%)',
     zIndex: 1,
   },
-  input: {
-    marginBottom: 10,
+  errorIcon: {
+    top: 6, right: 3,
   },
   loginButton: {
     marginTop: 20,
   },
-  joinContainer: {
-    marginTop: 20,
-    textAlign: 'center',
-  },
-  joinMessage: {
-    color: Colors.lightBlack,
-  },
-  joinLink: {
-    display: 'inline-block',
-    color: Colors.cyan500,
-  },
-  divider: {
-    margin: '20 0',
-  },
-  errorMessage: {
-    marginBottom: 20,
-  },
-  errorIcon: {
-    top: 6, right: 3,
+  facebookLoginButton: {
+    marginTop: 17,
   },
 };
 
@@ -132,6 +99,7 @@ interface LoginResult {
     }
   },
 })
+@withStyles(styles)
 class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
   nextLocationDesc: HistoryModule.LocationDescriptor;
 
@@ -194,15 +162,15 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
     }
 
     return (
-      <div style={styles.root}>
+      <div className={styles.root}>
         <Wrapper width={400}>
-          <div style={styles.logoContainer}>
+          <div className={styles.logoContainer}>
             <Link to="/">
-            <BuffyIcon style={styles.logo}/>
+            <BuffyIcon className={styles.logo}/>
             </Link>
           </div>
-          <Paper style={styles.paper}>
-            {formIsBusy ? <CircularProgress style={styles.progressOverlay} /> : null}
+          <Paper className={styles.paper}>
+            {formIsBusy ? <CircularProgress style={inlineStyles.progressOverlay} /> : null}
 
             <h1>
               {this.props.intl.formatMessage(messages.heading, {
@@ -212,47 +180,47 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
 
             {
               errorMessage ? (
-                <div style={styles.errorMessage}>
-                  <FontIcon className="material-icons" color={Colors.red500} style={styles.errorIcon}>error_outline</FontIcon>
+                <div className={styles.errorMessage}>
+                  <FontIcon className="material-icons" color={Colors.red500} style={inlineStyles.errorIcon}>error_outline</FontIcon>
                   {errorMessage}
                 </div>
               ): null
             }
 
             <form onSubmit={e => this.handleLocalLogin(e)} noValidate={true}>
-              <TextField type="email" style={styles.input} fullWidth={true}
+              <TextField type="email" className={styles.input} fullWidth={true}
                          hintText={this.props.intl.formatMessage(Messages.email)}
                          onChange={e => this.handleEmailChange(e)}
                          disabled={formIsBusy}
               />
-              <TextField type="password" style={styles.input} fullWidth={true}
+              <TextField type="password" className={styles.input} fullWidth={true}
                          hintText={this.props.intl.formatMessage(Messages.password)}
                          onChange={e => this.handlePasswordChange(e)}
                          disabled={formIsBusy}
               />
               <RaisedButton type="submit"
-                            primary={true} fullWidth={true} style={styles.loginButton}
+                            primary={true} fullWidth={true} style={inlineStyles.loginButton}
                             label={this.props.intl.formatMessage(Messages.login)}
                             disabled={formIsBusy}
               />
             </form>
 
             <RaisedButton label={this.props.intl.formatMessage(Messages.facebookLogin)}
-                          style={styles.facebookLoginButton}
+                          style={inlineStyles.facebookLoginButton}
                           onTouchTap={() => this.handleLoginWithFacebook()}
                           backgroundColor={'#3b5998'} labelColor={Colors.white}
                           fullWidth={true}
                           disabled={formIsBusy}
             />
 
-            <div style={styles.joinContainer}>
-              <span style={styles.joinMessage}>{
+            <div className={styles.joinContainer}>
+              <span className={styles.joinMessage}>{
                 this.props.intl.formatMessage(messages.newToService, {
                   service: this.props.intl.formatMessage(Messages.service),
                 })
               } </span>
               <Link to="/join">
-                <span style={styles.joinLink}>
+                <span className={styles.joinLink}>
                   {this.props.intl.formatMessage(Messages.signup)}
                 </span>
               </Link>

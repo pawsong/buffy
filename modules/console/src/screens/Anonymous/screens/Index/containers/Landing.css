@@ -1,0 +1,13 @@
+@import '../../../../../styles/variables.css';
+
+.header {
+  margin-top: 60px;
+}
+
+.learnMoreWrapper {
+  background-color: var(--palette-grey-200);
+  margin-top: 60px;
+  margin-bottom: 60px;
+  padding: 80;
+  text-align: center;
+}

@@ -37,6 +37,7 @@
     "bluebird": "^3.1.1",
     "body-parser": "^1.14.1",
     "cheerio": "^0.20.0",
+    "classnames": "^2.2.5",
     "compression": "^1.6.1",
     "connect-modrewrite": "^0.8.5",
     "cookie-parser": "^1.4.0",
@@ -56,6 +57,7 @@
     "intl": "^1.1.0",
     "invariant": "^2.2.1",
     "ismobilejs": "^0.4.0",
+    "isomorphic-style-loader": "^1.0.0",
     "jsonwebtoken": "^5.4.1",
     "kerberos": "0.0.17",
     "locale": "0.0.21",
@@ -66,7 +68,6 @@
     "ndarray": "^1.0.18",
     "normalizr": "^2.0.0",
     "object-assign": "^4.0.1",
-    "radium": "^0.16.6",
     "react": "^0.14.8",
     "react-addons-create-fragment": "^0.14.3",
     "react-addons-pure-render-mixin": "^0.14.3",
@@ -102,8 +103,10 @@
   },
   "devDependencies": {
     "babel-preset-react-hmre": "^1.1.0",
+    "css-loader": "^0.23.1",
     "eventsource-polyfill": "^0.9.6",
     "lodash.clonedeep": "^4.0.4",
+    "postcss-loader": "^0.9.1",
     "webpack-hot-middleware": "^2.6.4"
   },
   "links": [

@@ -1,0 +1,11 @@
+@import '../../styles/variables.css';
+
+.fieldLabel {
+  font-size: 20;
+  margin-top: 30;
+}
+
+.dialogContent {
+  width: 500;
+  max-width: none;
+}

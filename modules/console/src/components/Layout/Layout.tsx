@@ -1,47 +1,10 @@
 import * as React from 'react';
-const Radium = require('radium');
+import * as classNames from 'classnames';
 
-const styles = {
-  layout: {
-    display: 'flex',
-  },
-  container: {
-    position: 'relative',
-    flex: 1,
-  },
-  divider: {
-    width: '100%',
-    opacity: .2,
-    zIndex: 1,
-    boxSizing: 'border-box',
-    backgroundColor: '#000',
-    backgroundClip: 'padding-box',
-  },
-  dividerHorizontal: {
-    height: '11px',
-    margin: '-5px 0',
-    borderTop: '5px solid rgba(255, 255, 255, 0)',
-    borderBottom: '5px solid rgba(255, 255, 255, 0)',
-    cursor: 'row-resize',
-    width: '100%',
-    ':hover': {
-      borderTop: '5px solid rgba(0, 0, 0, 0.5)',
-      borderBottom: '5px solid rgba(0, 0, 0, 0.5)',
-    },
-  },
-  dividerVertical: {
-    width: '11px',
-    margin: '0 -5px',
-    borderLeft: '5px solid rgba(255, 255, 255, 0)',
-    borderRight: '5px solid rgba(255, 255, 255, 0)',
-    cursor: 'col-resize',
-    height: '100%',
-    ':hover': {
-      borderLeft: '5px solid rgba(0, 0, 0, 0.5)',
-      borderRight: '5px solid rgba(0, 0, 0, 0.5)',
-    },
-  },
-};
+const objectAssign = require('object-assign');
+
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./Layout.css');
 
 function isElementOfType(inst, convenienceConstructor) {
   return (
@@ -57,14 +20,15 @@ function isElementOfType(inst, convenienceConstructor) {
 export interface LayoutProps extends React.Props<Layout> {
   flow: string; // row | column
   style?: Object;
+  className?: string;
 }
 
 export interface LayoutStates {
   [index: string]: number;
 }
 
-@Radium
-export class Layout extends React.Component<LayoutProps, LayoutStates> {
+@withStyles(styles)
+class Layout extends React.Component<LayoutProps, LayoutStates> {
   static propTypes = {
     flow: React.PropTypes.string.isRequired,
   }
@@ -213,13 +177,12 @@ export class Layout extends React.Component<LayoutProps, LayoutStates> {
       );
     }
 
+    const style = objectAssign({ flexFlow: this.props.flow }, this.props.style);
+
     return (
       <div
-        style={[
-          styles.layout,
-          { flexFlow: this.props.flow },
-          this.props.style || {},
-        ]}
+        className={classNames(styles.layout, this.props.className)}
+        style={style}
       >
         {result}
       </div>
@@ -245,7 +208,7 @@ export class LayoutContainer extends React.Component<LayoutContainerProps, {}> {
   }
 
   render() {
-    return <div style={styles.container}>{this.props.children}</div>;
+    return <div className={styles.container}>{this.props.children}</div>;
   };
 }
 
@@ -266,7 +229,6 @@ interface LayoutDividerProps extends React.Props<LayoutDivider> {
   size: number;
 }
 
-@Radium
 class LayoutDivider extends React.Component<LayoutDividerProps, {}> {
   static propTypes = {
     onDrag: React.PropTypes.func.isRequired,
@@ -327,8 +289,10 @@ class LayoutDivider extends React.Component<LayoutDividerProps, {}> {
   }
 
   render() {
-    return <div style={[styles.divider, this.style[this.props.flow]]}
+    return <div className={classNames(styles.divider, this.style[this.props.flow])}
                 onMouseDown={this.handleMouseDown.bind(this)}
                 onTouchStart={this.handleMouseDown.bind(this)}></div>;
   }
 }
+
+export default Layout;

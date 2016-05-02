@@ -36,12 +36,10 @@ import { Sandbox, Scripts } from '../../sandbox';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import { runBlocklyWorkspace, submitVoxel } from './sagas';
 
-import { Layout, LayoutContainer } from '../../components/Layout';
+import Layout, { LayoutContainer } from '../../components/Layout';
 import FileList from './components/FileList';
 
 import { getIconName, getFileTypeLabel } from './utils';
-
-const Radium = require('radium');
 
 import ZonePreview, {
   GameState,
@@ -58,6 +56,9 @@ import VoxelEditor, {
 import { compileBlocklyXml } from '../../blockly/utils';
 
 import { FileDescriptor, FileType } from './types';
+
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./Studio.css');
 
 const messages = defineMessages({
   run: {
@@ -81,84 +82,6 @@ const messages = defineMessages({
     defaultMessage: 'Design',
   },
 });
-
-const FILE_CATEROGY_BUTTON_CONTAINER_WIDTH = 60;
-
-const styles = {
-  root: {
-
-  },
-  profile: {
-    position: 'absolute',
-    top: -4,
-    right: 50,
-    zIndex: 1500,
-  },
-  content: {
-    position: 'absolute',
-    // top: NAVBAR_HEIGHT,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  },
-  fileCategoryButtonContainer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: FILE_CATEROGY_BUTTON_CONTAINER_WIDTH,
-    backgroundColor: Colors.grey200,
-    textAlign: 'center',
-  },
-  fileCategoryButtons: {
-    display: 'flex',
-    flexDirection: 'column-reverse',
-    width: 52,
-    margin: '0 auto',
-  },
-  fileCategoryButton: {
-    margin: 2,
-  },
-  editor: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: FILE_CATEROGY_BUTTON_CONTAINER_WIDTH,
-    right: 0,
-  },
-  addon: {
-    position: 'absolute',
-    top: 33,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  fillParent: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  game: {
-    margin: 'auto',
-    position: 'absolute',
-    top: 0, left: 0, bottom: 0, right: 0,
-    width: '100%',
-    height: '100%',
-    overflow: 'hidden',
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0, left: 0, bottom: 0, right: 0,
-  },
-  overlayInner: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-  },
-};
 
 export interface RobotInstance {
   id: string;
@@ -271,6 +194,7 @@ class FileTabs extends React.Component<FileTabsProps, {}> {
   submitVoxel: submitVoxel,
 })
 @(DragDropContext(HTML5Backend) as any)
+@withStyles(styles)
 class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   initialTabIndex: number;
   initialGameWidth: number;
@@ -453,7 +377,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
             }));
           }}
         />
-        <div style={styles.addon}>{editor}</div>
+        <div className={styles.addon}>{editor}</div>
       </div>
     );
   }
@@ -611,7 +535,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
           iconStyle={{ color: active ? Colors.black : Colors.grey500 }}
           tooltip={getFileTypeLabel(type)}
           onTouchTap={() => this.toggleFileBrowser(type)}
-          style={styles.fileCategoryButton}
+          className={styles.fileCategoryButton}
         >
           {getIconName(type)}
         </IconButton>
@@ -619,8 +543,8 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     })
 
     return (
-      <div style={styles.fileCategoryButtonContainer}>
-        <div style={styles.fileCategoryButtons}>
+      <div className={styles.fileCategoryButtonContainer}>
+        <div className={styles.fileCategoryButtons}>
           {buttons}
         </div>
       </div>
@@ -628,7 +552,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   }
 
   render() {
-    const rootStyle = objectAssign({}, styles.root, this.props.style);
+    const rootStyle = objectAssign({}, this.props.style);
     const controlButton = this.props.run.state === 'running'
       ? <RaisedButton label={this.props.intl.formatMessage(messages.stop)}
                       secondary={true}
@@ -644,9 +568,9 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
     return (
       <div style={rootStyle}>
-        <Layout flow="row" style={styles.content}>
+        <Layout flow="row" className={styles.content}>
           <LayoutContainer size={this.initialGameWidth} onResize={size => this.handleGameWidthResize(size)}>
-            <Layout flow="column" style={styles.fillParent}>
+            <Layout flow="column" className={styles.fillParent}>
               <LayoutContainer size={this.initialGameHeight} onResize={size => this.handleGameHeightResize(size)}>
                 <ZonePreview gameState={this.props.studioState.gameState}
                       onChange={(gameState => this.handleStateChange({ gameState }))}
@@ -670,7 +594,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
           <LayoutContainer remaining={true}>
             {this.renderFileBrowserButtons()}
-            <Layout flow="row" style={styles.editor}>
+            <Layout flow="row" className={styles.editor}>
               <LayoutContainer
                 hide={!this.state.fileBrowserOpen}
                 size={this.initialBrowserWidth}
@@ -679,7 +603,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
                 {this.renderFileBrowser()}
               </LayoutContainer>
               <LayoutContainer remaining={true}>
-                <div style={styles.fillParent}>
+                <div className={styles.fillParent}>
                   {editor}
                 </div>
               </LayoutContainer>

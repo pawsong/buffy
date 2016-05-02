@@ -13,12 +13,10 @@ const getMuiTheme = require('material-ui/lib/styles/getMuiTheme');
 
 import { Provider } from 'react-redux';
 const { ReduxAsyncConnect, loadOnServer } = require('redux-async-connect');
-const { StyleRoot } = require('radium');
 const Hairdresser = require('hairdresser');
 
 import { IntlProvider } from 'react-intl';
 
-import { Provider as HairdresserProvider } from './hairdresser';
 import { Provider as SagaProvider } from './saga';
 
 import * as express from 'express';
@@ -33,6 +31,8 @@ import * as conf from '@pasta/config';
 import { baseTheme, muiTheme } from './theme';
 import configureStore from './store';
 import getRoutes from './routes';
+
+import ContextProvider from './components/ContextProvider';
 
 const isMobile = require('ismobilejs');
 
@@ -75,12 +75,12 @@ function loadLocaleData(locale: string) {
 
 // Prepare compiled index html template
 const indexHtml = __DEV__ ? require('raw!./index.html') : fs.readFileSync(`${__dirname}/index.html`, 'utf8');
+
 const minifiedIndexHtml = minify(indexHtml, {
   collapseWhitespace: true,
   conservativeCollapse: true,
   collapseBooleanAttributes: true,
   removeCommentsFromCDATA: true,
-  minifyCSS: true,
   minifyJS: true,
 });
 const compiledIndexHtml = template(minifiedIndexHtml, {
@@ -187,19 +187,22 @@ app.get('*', async (req, res) => {
 
     const messages = loadLocaleData(locale);
 
+    const css = [];
+    function insertCss(styles) {
+      css.push(styles._getCss());
+    }
+
     const body = renderToString(
       <IntlProvider locale={locale} messages={messages}>
-        <HairdresserProvider hairdresser={hairdresser}>
+        <ContextProvider hairdresser={hairdresser} insertCss={insertCss}>
           <MuiThemeProvider muiTheme={finalMuiTheme}>
             <Provider store={store}>
               <SagaProvider middleware={sagaMiddleware}>
-                <StyleRoot radiumConfig={{ userAgent }}>
-                  <RouterContext {...renderProps} />
-                </StyleRoot>
+                <RouterContext {...renderProps} />
               </SagaProvider>
             </Provider>
           </MuiThemeProvider>
-        </HairdresserProvider>
+        </ContextProvider>
       </IntlProvider>
     );
 
@@ -212,6 +215,7 @@ app.get('*', async (req, res) => {
 
     const html = compiledIndexHtml({
       locale,
+      css: css.join(''),
       head,
       body,
       isMobile: clientIsMobile,

@@ -11,22 +11,8 @@ import Wrapper from '../../components/Wrapper';
 
 import { connectApi, preloadApi, ApiCall, get } from '../../api';
 
-const styles = {
-  nameContainer: {
-    marginTop: 10,
-  },
-  name: {
-    fontSize: 26,
-    lineHeight: '30px',
-  },
-  username: {
-    fontSize: 20,
-    fontStyle: 'normal',
-    fontWeight: 300,
-    lineHeight: '24px',
-    color: Colors.grey500,
-  },
-};
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./ProfileHandler.css');
 
 const messages = defineMessages({
   popularProjects: {
@@ -63,6 +49,7 @@ interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams> {
   projects: get(`${CONFIG_API_SERVER_URL}/projects/@${params.username}`),
 }))
 @connectApi()
+@withStyles(styles)
 class ProfileHandler extends React.Component<HandlerProps, {}> {
   renderUserInfo() {
     if (this.props.user.state !== 'fulfilled') return null;
@@ -73,9 +60,9 @@ class ProfileHandler extends React.Component<HandlerProps, {}> {
         <div style={{ textAlign: 'center' }}>
           <img src={user.picture} style={{ width: '100%' }} />
         </div>
-        <div style={styles.nameContainer}>
-          <div style={styles.name}>{user.name}</div>
-          <div style={styles.username}>@{user.username}</div>
+        <div className={styles.nameContainer}>
+          <div className={styles.name}>{user.name}</div>
+          <div className={styles.username}>@{user.username}</div>
         </div>
       </div>
     );

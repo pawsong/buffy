@@ -1,0 +1,13 @@
+.tabs {
+  margin: 0;
+  display: flex;
+  position: relative;
+  height: 33px;
+  box-shadow: inset 0 -1px 0 #d1d1d2;
+  background: #e5e5e6;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 0;
+  padding-left: 0;
+  list-style: none;
+}

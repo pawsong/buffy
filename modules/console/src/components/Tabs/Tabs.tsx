@@ -4,21 +4,8 @@ const warning = require('warning');
 
 import Tab, { TabProps } from './Tab';
 
-const styles = {
-  tabs: {
-    margin: 0,
-    display: 'flex',
-    position: 'relative',
-    height: 33,
-    boxShadow: 'inset 0 -1px 0 #d1d1d2',
-    background: '#e5e5e6',
-    overflowX: 'auto',
-    overflowY: 'hidden',
-    borderRadius: 0,
-    paddingLeft: 0,
-    listStyle: 'none',
-  },
-};
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./Tabs.css');
 
 function isElementOfType(inst, convenienceConstructor) {
   return (
@@ -33,6 +20,7 @@ interface TabsProps extends React.Props<Tabs> {
   onTabOrderChange: (dragIndex: number, hoverIndex: number) => any;
 }
 
+@withStyles(styles)
 class Tabs extends React.Component<TabsProps, {}> {
   render() {
     const tabs = React.Children.map(this.props.children, (tab: React.ReactElement<TabProps>, index) => {
@@ -58,7 +46,7 @@ class Tabs extends React.Component<TabsProps, {}> {
     });
 
     return (
-      <ul style={styles.tabs}>
+      <ul className={styles.tabs}>
         {tabs}
       </ul>
     );

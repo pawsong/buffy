@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500" rel="stylesheet"" type="text/css">
     {{ Object.keys(styles).forEach(key => { }}<link href="{{- styles[key] }}" rel="stylesheet">{{ }); }}
+    <style id="styleRenderedOnServer" type="text/css">{{= css }}</style>
     {{= head }}
   </head>
   <body>

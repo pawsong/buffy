@@ -13,50 +13,15 @@ import rootSaga from './sagas';
 
 import { EnhancedTitle, Meta } from '../../hairdresser';
 
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./RootHandler.css');
+
 import {
   pushSnackbar, PushSnackbarQuery,
   closeSnackbar,
 } from '../../actions/snackbar';
 
 import UserInfoDialog from './containers/UserInfoDialog';
-
-const styles = {
-  root: {
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-  },
-  content: {
-    position: 'relative',
-    height: '100%',
-    overflow: 'auto',
-  },
-  loadingOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 10000,
-  },
-  loadingBackground: {
-    width: '100%',
-    height: '100%',
-    overflow: 'scroll',
-    backgroundColor: Colors.black,
-    opacity: 0.2,
-  },
-  loadingIndicator: {
-    position: 'absolute',
-    width: '60px',
-    height: '60px',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    margin: 'auto',
-  },
-};
 
 interface RootProps extends React.Props<RootHandler>, SagaProps {
   snackbarOpen?: boolean;
@@ -80,6 +45,7 @@ interface RootProps extends React.Props<RootHandler>, SagaProps {
   pushSnackbar,
   closeSnackbar,
 }) as any)
+@withStyles(styles)
 class RootHandler extends React.Component<RootProps, {}> {
   componentWillMount() {
     this.props.runSaga(this.props.init);
@@ -93,9 +59,9 @@ class RootHandler extends React.Component<RootProps, {}> {
     const title = this.props.intl.formatMessage(Messages.service);
 
     const loadingOverlay = this.props.loading ? (
-      <div style={styles.loadingOverlay}>
-        <div style={styles.loadingBackground} />
-        <div style={styles.loadingIndicator}>
+      <div className={styles.loadingOverlay}>
+        <div className={styles.loadingBackground} />
+        <div className={styles.loadingIndicator}>
           <div className="sk-folding-cube">
             <div className="sk-cube1 sk-cube"></div>
             <div className="sk-cube2 sk-cube"></div>
@@ -107,10 +73,10 @@ class RootHandler extends React.Component<RootProps, {}> {
     ) : null;
 
     return (
-      <div style={styles.root}>
+      <div className={styles.root}>
         <EnhancedTitle>{title}</EnhancedTitle>
         {loadingOverlay}
-        <div style={styles.content}>
+        <div className={styles.content}>
           {this.props.children}
         </div>
         <Snackbar

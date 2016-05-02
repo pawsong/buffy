@@ -1,37 +1,11 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import Colors from 'material-ui/lib/styles/colors';
-const Radium = require('radium');
 const objectAssign = require('object-assign');
 import { DragSource, DropTarget } from 'react-dnd';
 
-const styles = {
-  tab: {
-    flex: 1,
-    borderLeft: '1px solid',
-    borderColor: Colors.grey400,
-    borderRadius: 0,
-    position: 'relative',
-    top: 0,
-    // maxWidth: '22em',
-    minWidth: '7em',
-    height: '100%',
-    padding: 0,
-    margin: 0,
-    backgroundClip: 'content-box',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  tabTitle: {
-    textAlign: 'center',
-    margin: 0,
-    borderBottom: '1px solid transparent',
-    textOverflow: 'clip',
-    userSelect: 'none',
-    cursor: 'default',
-  },
-};
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./Tab.css');
 
 const ITEM_TYPE = 'tab';
 
@@ -112,7 +86,7 @@ export interface TabProps extends React.Props<Tab> {
   moveTab?: (dragIndex, hoverIndex) => any;
 }
 
-@Radium
+@withStyles(styles)
 @(DropTarget(ITEM_TYPE, tabTarget, connect => ({
   connectDropTarget: connect.dropTarget(),
 })) as any)
@@ -125,18 +99,19 @@ class Tab extends React.Component<TabProps, {}> {
     const { isDragging, connectDragSource, connectDropTarget } = this.props;
     const opacity = isDragging ? 0 : 1;
 
-    const style = objectAssign({}, styles.tab, {
+    const style = objectAssign({}, {
       color: this.props.active ? '#282929' : '#939395',
       backgroundColor: this.props.active ? Colors.white : '#e5e5e6',
     }, this.props.style, { opacity });
 
     return connectDragSource(connectDropTarget(
       <li
+        className={styles.tab}
         style={style}
         onClick={this.props.onClick}
       >
         <div
-          style={styles.tabTitle}
+          className={styles.tabTitle}
         >
           {this.props.label}
         </div>

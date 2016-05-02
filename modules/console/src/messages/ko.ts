@@ -196,14 +196,14 @@ export default {
   'facebookLoginFailed': '페이스북으로 로그인할 수 없습니다',
 
   /**
-   * path: src/components/Footer.json
+   * path: src/components/Footer/Footer.json
    * description: About link label
    * defaultMessage: About
    */
   'footer.about': '회사소개',
 
   /**
-   * path: src/components/Footer.json
+   * path: src/components/Footer/Footer.json
    * description: Contact link label
    * defaultMessage: Contact
    */

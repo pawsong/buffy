@@ -62,9 +62,9 @@ declare namespace __MaterialUI {
     containerElement?: React.ReactElement<any>;
   }
 }
-// declare var require: {
-//     // <T>(path: string): T;
-//     // (paths: string[], callback: (...modules: any[]) => void): void;
-//     ensure: (paths: string[], callback: (require: <T>(path: string) => T) => void) => void;
-// };
 
+declare module 'isomorphic-style-loader/lib/withStyles' {
+  const withStyles: (styles: any) => any;
+  module withStyles {}
+  export default withStyles;
+}

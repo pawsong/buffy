@@ -1,0 +1,47 @@
+@import '../../../styles/variables.css';
+
+.root {
+  margin-top: 70px;
+}
+
+.logoContainer {
+  text-decoration: none;
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.logo {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.paper {
+  position: relative;
+  padding: 20px;
+}
+
+.input {
+  margin-bottom: 10px;
+}
+
+.joinContainer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.joinMessage {
+  color: var(--palette-grey-600);
+}
+
+.joinLink {
+  display: inline-block;
+  color: var(--palette-cyan-500);
+}
+
+.divider {
+  margin: 20px 0;
+}
+
+.errorMessage {
+  margin-bottom: 20px;
+}

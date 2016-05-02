@@ -13,11 +13,10 @@ const { Router, RouterContext }  = require('react-router');
 const { ReduxAsyncConnect, loadOnServer } = require('redux-async-connect');
 const MuiThemeProvider = require('material-ui/lib/MuiThemeProvider');
 const getMuiTheme = require('material-ui/lib/styles/getMuiTheme');
-const { StyleRoot } = require('radium');
 const Hairdresser = require('hairdresser');
 import { IntlProvider, addLocaleData } from 'react-intl';
 
-import { Provider as HairdresserProvider } from './hairdresser';
+import ContextProvider from './components/ContextProvider';
 import { Provider as SagaProvider } from './saga';
 
 import { baseTheme, muiTheme } from './theme';
@@ -115,20 +114,24 @@ Promise.all<LocaleData>([
   try {
     render(
       <IntlProvider locale={locale} messages={localeData.messages}>
-        <HairdresserProvider hairdresser={hairdresser}>
+        <ContextProvider hairdresser={hairdresser} insertCss={styles => styles._insertCss()}>
           <MuiThemeProvider muiTheme={finalMuiTheme}>
             <Provider store={store}>
               <SagaProvider middleware={sagaMiddleware}>
                 <Router history={history}
                         onUpdate={onRouterUpdate}
-                        render={props => <StyleRoot><RouterContext {...props} /></StyleRoot>}
+                        render={props => <RouterContext {...props} />}
                 >{routes}</Router>
               </SagaProvider>
             </Provider>
           </MuiThemeProvider>
-        </HairdresserProvider>
+        </ContextProvider>
       </IntlProvider>,
-      document.getElementById('content')
+      document.getElementById('content'),
+      () => {
+        const elem = document.getElementById('styleRenderedOnServer');
+        if (elem) elem.parentNode.removeChild(elem);
+      }
     );
     store.dispatch({ type: EXPIRE_PRELOAD });
   } catch(error) {
