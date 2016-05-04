@@ -79,11 +79,13 @@ export interface TabProps extends React.Props<Tab> {
   index?: number;
   active?: boolean;
   onClick?: () => any;
+  onClose?: () => any;
   style?: React.CSSProperties;
   connectDragSource?: any;
   connectDropTarget?: any;
   isDragging?: boolean;
   moveTab?: (dragIndex, hoverIndex) => any;
+  closable?: boolean;
 }
 
 @withStyles(styles)
@@ -95,6 +97,12 @@ export interface TabProps extends React.Props<Tab> {
   isDragging: monitor.isDragging(),
 })) as any)
 class Tab extends React.Component<TabProps, {}> {
+  handleClose(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.props.onClose();
+  }
+
   render() {
     const { isDragging, connectDragSource, connectDropTarget } = this.props;
     const opacity = isDragging ? 0 : 1;
@@ -115,6 +123,9 @@ class Tab extends React.Component<TabProps, {}> {
         >
           {this.props.label}
         </div>
+        {this.props.closable ? (
+          <div className={styles.tabClose} onClick={e => this.handleClose(e)} />
+        ) : null}
       </li>
     ));
   }

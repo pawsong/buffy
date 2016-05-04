@@ -16,8 +16,10 @@ function isElementOfType(inst, convenienceConstructor) {
 
 interface TabsProps extends React.Props<Tabs> {
   activeValue: any;
-  onTabClick(value: any): any;
+  onTabClick: (value: any) => any;
   onTabOrderChange: (dragIndex: number, hoverIndex: number) => any;
+  closable: boolean;
+  onTabClose?: (value: any) => any;
 }
 
 @withStyles(styles)
@@ -38,8 +40,10 @@ class Tabs extends React.Component<TabsProps, {}> {
         active: tab.props.value === this.props.activeValue,
         value: tab.props.value,
         onClick: () => this.props.onTabClick(tab.props.value),
+        onClose: () => this.props.onTabClose(tab.props.value),
         label: tab.props.label,
         moveTab: this.props.onTabOrderChange,
+        closable: this.props.closable,
       };
 
       return React.cloneElement(tab, props);

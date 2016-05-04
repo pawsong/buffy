@@ -181,6 +181,8 @@ class FileTabs extends React.Component<FileTabsProps, {}> {
         activeValue={this.props.activeFileId}
         onTabClick={value => this.props.onFileClick(value)}
         onTabOrderChange={this.props.onTabOrderChange}
+        closable={true}
+        onTabClose={value => this.props.onFileClose(value)}
       >
         {tabs}
       </Tabs>
@@ -339,22 +341,49 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
     );
   }
 
+  handleFileTabClose(fileId) {
+    const index = this.state.filesOnTab.indexOf(fileId);
+    if (index === -1) return;
+
+    let nextActiveFileId = this.state.activeFileId;
+    if (fileId === this.state.activeFileId) {
+      if (index > 0) {
+        nextActiveFileId = this.state.filesOnTab[index - 1];
+      } else {
+        if (this.state.filesOnTab.length > 1) {
+          nextActiveFileId = this.state.filesOnTab[index + 1];
+        } else {
+          nextActiveFileId = '';
+        }
+      }
+    }
+
+    this.setState(update(this.state, {
+      filesOnTab: { $splice: [[index, 1]] },
+      activeFileId: { $set: nextActiveFileId },
+    }));
+  }
+
   renderEditor() {
     const files = this.state.filesOnTab.map(fileId => this.state.files[fileId]);
+    const file = this.state.files[this.state.activeFileId];
 
     let editor = null;
-    switch(this.state.files[this.state.activeFileId].type) {
-      case FileType.CODE: {
-        editor = this.renderCodeEditor();
-        break;
-      }
-      case FileType.DESIGN: {
-        editor = this.renderDesignEditor();
-        break;
-      }
-      case FileType.ROBOT: {
-        editor = this.renderRobotEditor();
-        break;
+
+    if (file) {
+      switch(file.type) {
+        case FileType.CODE: {
+          editor = this.renderCodeEditor();
+          break;
+        }
+        case FileType.DESIGN: {
+          editor = this.renderDesignEditor();
+          break;
+        }
+        case FileType.ROBOT: {
+          editor = this.renderRobotEditor();
+          break;
+        }
       }
     }
 
@@ -364,7 +393,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
           files={files}
           activeFileId={this.state.activeFileId}
           onFileClick={fileId => this.setState({ activeFileId: fileId })}
-          onFileClose={() => {}}
+          onFileClose={fileId => this.handleFileTabClose(fileId)}
           onTabOrderChange={(dragIndex, hoverIndex) => {
             const dragId = this.state.filesOnTab[dragIndex];
             this.setState(update(this.state, {
@@ -383,8 +412,6 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   }
 
   toggleFileBrowser(fileType: FileType) {
-    const activeEditorType = this.state.files[this.state.activeFileId].type;
-
     if (this.state.fileBrowserTypeFilter === fileType) {
       this.setState({
         fileBrowserOpen: !this.state.fileBrowserOpen,
@@ -399,6 +426,17 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
         editorSizeVersion: this.state.editorSizeVersion + 1
       }));
     }
+  }
+
+  handleFileBrowserItemClick(fileId: string) {
+    let filesOnTab = this.state.filesOnTab;
+    if (filesOnTab.indexOf(fileId) === -1) {
+      filesOnTab = update(filesOnTab, { $push: [fileId] });
+    }
+    this.setState({
+      activeFileId: fileId,
+      filesOnTab,
+    });
   }
 
   renderFileBrowser() {
@@ -422,7 +460,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
         <FileList
           files={files}
           filter={this.state.fileBrowserTypeFilter}
-          onFileTouchTap={fileId => this.setState({ activeFileId: fileId })}
+          onFileTouchTap={fileId => this.handleFileBrowserItemClick(fileId)}
         />
       </div>
     );
@@ -472,6 +510,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
             }
           }));
         }}
+        closable={false}
       >
         {
           this.state.instanceTabs.map(tabType => {
