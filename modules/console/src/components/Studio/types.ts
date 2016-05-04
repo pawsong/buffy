@@ -3,6 +3,7 @@ export enum FileType {
   CODE,
   DESIGN,
   ROBOT,
+  ZONE,
 }
 
 export interface FileDescriptor {

@@ -6,6 +6,7 @@ export function getIconName(fileType: FileType) {
     case FileType.CODE: return 'code';
     case FileType.DESIGN: return 'build';
     case FileType.ROBOT: return 'adb';
+    case FileType.ZONE: return 'layers';
   }
   return '';
 }
@@ -16,6 +17,7 @@ export function getFileTypeLabel(fileType: FileType) {
     case FileType.CODE: return 'Code';
     case FileType.DESIGN: return 'Design';
     case FileType.ROBOT: return 'Robot';
+    case FileType.ZONE: return 'Zone';
   }
   return '';
 }

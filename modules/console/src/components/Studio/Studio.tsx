@@ -558,6 +558,7 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
 
   renderFileBrowserButtons() {
     const types = [
+      FileType.ZONE,
       FileType.ROBOT,
       FileType.DESIGN,
       FileType.CODE,
