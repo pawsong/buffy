@@ -41,6 +41,9 @@ import FileList from './components/FileList';
 
 import { getIconName, getFileTypeLabel } from './utils';
 
+import waitForMount from './components/waitForMount';
+import FileTabs from './components/FileTabs';
+
 import ZonePreview, {
   GameState,
 } from '../../components/ZonePreview';
@@ -102,7 +105,7 @@ export interface StudioState {
   voxelEditorState?: VoxelEditorState;
 }
 
-interface StudioBodyProps extends React.Props<Studio>, SagaProps {
+interface StudioProps extends React.Props<Studio>, SagaProps {
   robotInstances: RobotInstance[];
   zoneInstances: ZoneInstance[];
 
@@ -110,7 +113,7 @@ interface StudioBodyProps extends React.Props<Studio>, SagaProps {
   onChange: (nextState: StudioState) => any;
   onOpenFileRequest: (fileType: FileType) => any;
 
-  game: React.ReactElement<any>;
+  game?: React.ReactElement<any>;
 
   stateLayer: StateLayer;
   style?: React.CSSProperties;
@@ -136,7 +139,7 @@ function getInstanceTabLabel(tabType: InstanceTabs) {
   }
 }
 
-interface StudioBodyState {
+interface StudioOwnState { // UI states
   gameSizeVersion?: number;
   editorSizeVersion?: number;
   activeTab?: string;
@@ -151,45 +154,12 @@ interface StudioBodyState {
   activeInstanceTab?: InstanceTabs,
 }
 
-interface FileTabsProps extends React.Props<FileTabs> {
-  files: FileDescriptor[];
-  activeFileId: string;
-  onFileClick(fileId: string): any;
-  onFileClose(fileId: string): any;
-  onTabOrderChange(dragIndex: number, hoverIndex: number): any;
+interface CreateStateOptions {
+  codeEditorState?: CreateCodeEditorStateOptions;
+  voxelEditorState?: CreateVoxelEditorStateOptions;
 }
 
-class FileTabs extends React.Component<FileTabsProps, {}> {
-  render() {
-    const tabs = this.props.files.map((file, index) => {
-      const style = index === 0 ? {
-        borderLeft: 'none',
-      } : undefined;
-
-      return (
-        <Tab
-          key={file.id}
-          value={file.id}
-          style={style}
-          label={file.name}
-        />
-      );
-    });
-
-    return (
-      <Tabs
-        activeValue={this.props.activeFileId}
-        onTabClick={value => this.props.onFileClick(value)}
-        onTabOrderChange={this.props.onTabOrderChange}
-        closable={true}
-        onTabClose={value => this.props.onFileClose(value)}
-      >
-        {tabs}
-      </Tabs>
-    );
-  }
-}
-
+@waitForMount
 @injectIntl
 @saga({
   run: runBlocklyWorkspace,
@@ -197,7 +167,9 @@ class FileTabs extends React.Component<FileTabsProps, {}> {
 })
 @(DragDropContext(HTML5Backend) as any)
 @withStyles(styles)
-class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
+class Studio extends React.Component<StudioProps, StudioOwnState> {
+  static creatState: (options?: CreateStateOptions) => StudioState;
+
   initialTabIndex: number;
   initialGameWidth: number;
   initialGameHeight: number;
@@ -655,65 +627,11 @@ class StudioBody extends React.Component<StudioBodyProps, StudioBodyState> {
   }
 }
 
-interface StudioProps extends React.Props<Studio> {
-  robotInstances: RobotInstance[];
-  zoneInstances: ZoneInstance[];
-
-  studioState: StudioState;
-  onChange: (nextState: StudioState) => any;
-  onOpenFileRequest: (fileType: FileType) => any;
-
-  stateLayer: StateLayer;
-  game?: React.ReactElement<any>;
-  style?: React.CSSProperties;
-}
-
-interface StudioOwnState {
-  mount?: boolean;
-}
-
-interface CreateStateOptions {
-  codeEditorState?: CreateCodeEditorStateOptions;
-  voxelEditorState?: CreateVoxelEditorStateOptions;
-}
-
-class Studio extends React.Component<StudioProps, StudioOwnState> {
-  static creatState(options: CreateStateOptions = {}): StudioState {
-    return {
-      codeEditorState: CodeEditor.creatState(options.codeEditorState),
-      gameState: ZonePreview.createState(),
-      voxelEditorState: VoxelEditor.createState(options.voxelEditorState),
-    };
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = { mount: false };
-  }
-
-  componentDidMount() {
-    this.setState({ mount: true });
-  }
-
-  componentWillUnmount() {
-    this.setState({ mount: false });
-  }
-
-  render() {
-    if (!this.state.mount) {
-      return <div>Loading...</div>;
-    }
-
-    return (
-      <StudioBody studioState={this.props.studioState}
-                  robotInstances={this.props.robotInstances}
-                  zoneInstances={this.props.zoneInstances}
-                  onChange={this.props.onChange}
-                  onOpenFileRequest={this.props.onOpenFileRequest}
-                  stateLayer={this.props.stateLayer} style={this.props.style}
-                  game={this.props.game || null}
-      />
-    );
+Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
+  return {
+    codeEditorState: CodeEditor.creatState(options.codeEditorState),
+    gameState: ZonePreview.createState(),
+    voxelEditorState: VoxelEditor.createState(options.voxelEditorState),
   };
 }
 
