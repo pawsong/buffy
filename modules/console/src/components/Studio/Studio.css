@@ -1,9 +1,5 @@
 @import '../../styles/variables.css';
 
-:root {
-  --file-category-button-container-width: 60px;
-}
-
 .content {
   position: absolute;
   top: 0;
@@ -11,42 +7,6 @@
   bottom: 0;
   left: 0;
 };
-
-.fileCategoryButtonContainer {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: var(--file-category-button-container-width);
-  background-color: var(--palette-grey-200);
-  text-align: center;
-}
-
-.fileCategoryButtons {
-  display: flex;
-  flex-direction: column-reverse;
-  width: 52px;
-  margin: 0 auto;
-}
-
-.fileCategoryButton {
-  margin: 2px;
-}
-
-.editor {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: var(--file-category-button-container-width);
-  right: 0;
-}
-
-.addon {
-  position: absolute;
-  top: 33px;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
 
 .fillParent {
   position: absolute;

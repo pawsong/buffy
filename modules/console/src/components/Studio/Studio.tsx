@@ -5,19 +5,7 @@ import Toolbar from 'material-ui/lib/toolbar/toolbar';
 import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import RaisedButton from 'material-ui/lib/raised-button';
 import { Tabs, Tab } from '../Tabs';
-import FontIcon from 'material-ui/lib/font-icon';
-import IconButton from 'material-ui/lib/icon-button';
 import Colors from 'material-ui/lib/styles/colors';
-
-import Avatar from 'material-ui/lib/avatar';
-import ActionAssignment from 'material-ui/lib/svg-icons/action/assignment';
-import LayersIcon from 'material-ui/lib/svg-icons/maps/layers';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import ActionInfo from 'material-ui/lib/svg-icons/action/info';
-import AndroidIcon from 'material-ui/lib/svg-icons/action/android';
-
-import FlatButton from 'material-ui/lib/flat-button';
 
 const update = require('react-addons-update');
 const objectAssign = require('object-assign');
@@ -37,12 +25,14 @@ import { saga, SagaProps, ImmutableTask } from '../../saga';
 import { runBlocklyWorkspace, submitVoxel } from './sagas';
 
 import Layout, { LayoutContainer } from '../../components/Layout';
-import FileList from './components/FileList';
+import FileBrowser from './components/FileBrowser';
 
 import { getIconName, getFileTypeLabel } from './utils';
 
 import waitForMount from './components/waitForMount';
 import FileTabs from './components/FileTabs';
+import InstanceBrowser from './components/InstanceBrowser';
+import Editor from './components/Editor';
 
 import ZonePreview, {
   GameState,
@@ -86,18 +76,7 @@ const messages = defineMessages({
   },
 });
 
-export interface RobotInstance {
-  id: string;
-  name: string;
-  mapName: string;
-}
-
-export interface ZoneInstance {
-  id: string;
-  name: string;
-  width: number;
-  depth: number;
-}
+import { RobotInstance, ZoneInstance } from './types';
 
 export interface StudioState {
   codeEditorState?: CodeEditorState;
@@ -125,33 +104,11 @@ interface StudioProps extends React.Props<Studio>, SagaProps {
   submitVoxel?: ImmutableTask<any>;
 }
 
-enum InstanceTabs {
-  ROBOT,
-  ZONE,
-};
-
-function getInstanceTabLabel(tabType: InstanceTabs) {
-  switch(tabType) {
-    case InstanceTabs.ROBOT: {
-      return 'Robot';
-    }
-    case InstanceTabs.ZONE: {
-      return 'Zone';
-    }
-  }
-}
-
 interface StudioOwnState { // UI states
   gameSizeVersion?: number;
   editorSizeVersion?: number;
-  activeTab?: string;
 
   filesOnTab?: string[];
-
-  fileBrowserOpen?: boolean;
-  fileBrowserTypeFilter?: FileType;
-  instanceTabs?: InstanceTabs[],
-  activeInstanceTab?: InstanceTabs,
 }
 
 interface CreateStateOptions {
@@ -184,12 +141,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     this.state = {
       editorSizeVersion: 0,
       gameSizeVersion: 0,
-      activeTab: localStorage.getItem(StorageKeys.MASTER_INITIAL_TAB) || 'code',
       filesOnTab: ['1', '2'],
-      fileBrowserOpen: false,
-      fileBrowserTypeFilter: FileType.ALL,
-      instanceTabs: [InstanceTabs.ROBOT, InstanceTabs.ZONE],
-      activeInstanceTab: InstanceTabs.ROBOT,
     };
 
     this.sandbox = new Sandbox(this.props.stateLayer);
@@ -215,7 +167,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   componentWillMount() {
     this.initialGameWidth = parseInt(localStorage.getItem(StorageKeys.MASTER_GAME_WIDTH_SIZE) || 600, 10);
     this.initialGameHeight = parseInt(localStorage.getItem(StorageKeys.MASTER_GAME_HEIGHT_SIZE) || 480, 10);
-
     this.initialBrowserWidth = parseInt(localStorage.getItem(StorageKeys.MASTER_BROWSER_WIDTH) || 150, 10);
   }
 
@@ -238,56 +189,8 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     });
   }
 
-  onTabChange(value) {
-    this.setState({
-      activeTab: value,
-      editorSizeVersion: this.state.editorSizeVersion + 1,
-    });
-    localStorage.setItem(StorageKeys.MASTER_INITIAL_TAB, value);
-  }
-
   handleStateChange(nextState: StudioState) {
     this.props.onChange(objectAssign({}, this.props.studioState, nextState));
-  }
-
-  renderCodeEditor() {
-    return (
-      <CodeEditor
-        editorState={this.props.studioState.codeEditorState}
-        onChange={codeEditorState => this.handleStateChange({ codeEditorState })}
-        sizeRevision={this.state.editorSizeVersion}
-        readyToRender={true}
-      />
-    );
-  }
-
-  renderDesignEditor() {
-    return (
-      <VoxelEditor
-        editorState={this.props.studioState.voxelEditorState}
-        onChange={voxelEditorState => this.handleStateChange({ voxelEditorState })}
-        sizeVersion={this.state.editorSizeVersion}
-        onSubmit={(data) => this.handleVoxelEditorSubmit(data)}
-      />
-    );
-  }
-
-  renderRobotEditor() {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-        <div style={{  }}>
-          <h1>Robot editor</h1>
-
-          <h2>Codes for this robot</h2>
-          <div>Code list</div>
-          <div>Add button (Open browser)</div>
-
-          <h2>Design for this robot</h2>
-          <div>Preview</div>
-          <div>Select button (Open browser)</div>
-        </div>
-      </div>
-    );
   }
 
   handleFileTabClose(fileId) {
@@ -317,25 +220,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     const files = this.state.filesOnTab.map(fileId => this.props.studioState.files[fileId]);
     const file = this.props.studioState.files[this.props.studioState.activeFileId];
 
-    let editor = null;
-
-    if (file) {
-      switch(file.type) {
-        case FileType.CODE: {
-          editor = this.renderCodeEditor();
-          break;
-        }
-        case FileType.DESIGN: {
-          editor = this.renderDesignEditor();
-          break;
-        }
-        case FileType.ROBOT: {
-          editor = this.renderRobotEditor();
-          break;
-        }
-      }
-    }
-
     return (
       <div>
         <FileTabs
@@ -355,26 +239,15 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
             }));
           }}
         />
-        <div className={styles.addon}>{editor}</div>
+        <Editor
+          codeEditorState={this.props.studioState.codeEditorState}
+          voxelEditorState={this.props.studioState.voxelEditorState}
+          editorSizeRevision={this.state.editorSizeVersion}
+          onStateChange={state => this.handleStateChange(state)}
+          file={file}
+        />
       </div>
     );
-  }
-
-  toggleFileBrowser(fileType: FileType) {
-    if (this.state.fileBrowserTypeFilter === fileType) {
-      this.setState({
-        fileBrowserOpen: !this.state.fileBrowserOpen,
-      }, () => this.setState({
-        editorSizeVersion: this.state.editorSizeVersion + 1,
-      }));
-    } else {
-      this.setState({
-        fileBrowserOpen: true,
-        fileBrowserTypeFilter: fileType,
-      }, () => this.setState({
-        editorSizeVersion: this.state.editorSizeVersion + 1
-      }));
-    }
   }
 
   handleFileBrowserItemClick(fileId: string) {
@@ -386,183 +259,41 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     this.setState({ filesOnTab });
   }
 
-  renderFileBrowser() {
-    if (!this.state.fileBrowserOpen) return null;
-
-    const files = Object.keys(this.props.studioState.files).map(fileId => this.props.studioState.files[fileId]);
-
-    const buttons = this.state.fileBrowserTypeFilter === FileType.DESIGN ? (
-      <div style={{ marginTop: 8 }}>
-        <FlatButton
-          label="Open file"
-          style={{ width: '100%' }}
-          onTouchTap={() => this.props.onOpenFileRequest(FileType.DESIGN)}
-        />
-      </div>
-    ) : null;
-
-    return (
-      <div>
-        {buttons}
-        <FileList
-          files={files}
-          filter={this.state.fileBrowserTypeFilter}
-          onFileTouchTap={fileId => this.handleFileBrowserItemClick(fileId)}
-        />
-      </div>
-    );
-  }
-
-  renderRobotInstanceList() {
-    return this.props.robotInstances.map(inst => {
-      return (
-        <ListItem
-          key={inst.id}
-          leftAvatar={<Avatar icon={<AndroidIcon />} backgroundColor={Colors.blue500} />}
-          rightIcon={<ActionInfo />}
-          primaryText={inst.name}
-          secondaryText={`Map: ${inst.mapName}`}
-        />
-      );
-    });
-  }
-
-  renderZoneInstanceList() {
-    return this.props.zoneInstances.map(inst => {
-      return (
-        <ListItem
-          key={inst.id}
-          leftAvatar={<Avatar icon={<LayersIcon />} backgroundColor={Colors.amber500} />}
-          rightIcon={<ActionInfo />}
-          primaryText={inst.name}
-          secondaryText={`Size: ${inst.width} x ${inst.depth}`}
-        />
-      );
-    });
-  }
-
-  renderInstanceBrowser() {
-    const tabs = (
-      <Tabs
-        activeValue={this.state.activeInstanceTab}
-        onTabClick={value => this.setState({ activeInstanceTab: value })}
-        onTabOrderChange={(dragIndex: number, hoverIndex: number) => {
-          const dragId = this.state.instanceTabs[dragIndex];
-          this.setState(update(this.state, {
-            instanceTabs: {
-              $splice: [
-                [dragIndex, 1],
-                [hoverIndex, 0, dragId]
-              ],
-            }
-          }));
-        }}
-        closable={false}
-      >
-        {
-          this.state.instanceTabs.map(tabType => {
-            return (
-              <Tab
-                key={tabType}
-                value={tabType}
-                label={getInstanceTabLabel(tabType)}
-              />
-            );
-          })
-        }
-      </Tabs>
-    );
-
-    let listItems = null;
-    switch(this.state.activeInstanceTab) {
-      case InstanceTabs.ROBOT: {
-        listItems = this.renderRobotInstanceList();
-        break;
-      }
-      case InstanceTabs.ZONE: {
-        listItems = this.renderZoneInstanceList();
-        break;
-      }
-    }
-
-    return (
-      <div>
-        {tabs}
-        <List>{listItems}</List>
-      </div>
-    );
-  }
-
   handleFileBrowserWidthResize(size) {
-    const activeEditorType = this.props.studioState.files[this.props.studioState.activeFileId].type;
     localStorage.setItem(StorageKeys.MASTER_BROWSER_WIDTH, `${size}`);
-
-    // Resize editor
-    this.setState({
-      editorSizeVersion: this.state.editorSizeVersion + 1,
-    });
+    this.resizeEditor();
   }
 
-  renderFileBrowserButtons() {
-    const types = [
-      FileType.ZONE,
-      FileType.ROBOT,
-      FileType.DESIGN,
-      FileType.CODE,
-      FileType.ALL,
-    ];
-
-    const buttons = types.map(type => {
-      const active = this.state.fileBrowserOpen && this.state.fileBrowserTypeFilter === type;
-
-      return (
-        <IconButton
-          key={type}
-          iconClassName="material-icons"
-          iconStyle={{ color: active ? Colors.black : Colors.grey500 }}
-          tooltip={getFileTypeLabel(type)}
-          onTouchTap={() => this.toggleFileBrowser(type)}
-          className={styles.fileCategoryButton}
-        >
-          {getIconName(type)}
-        </IconButton>
-      );
-    })
-
-    return (
-      <div className={styles.fileCategoryButtonContainer}>
-        <div className={styles.fileCategoryButtons}>
-          {buttons}
-        </div>
-      </div>
-    );
+  resizeEditor() {
+    this.setState({ editorSizeVersion: this.state.editorSizeVersion + 1 });
   }
 
   render() {
-    const rootStyle = objectAssign({}, this.props.style);
     const controlButton = this.props.run.state === 'running'
-      ? <RaisedButton label={this.props.intl.formatMessage(messages.stop)}
-                      secondary={true}
-                      onTouchTap={() => this.handleStop()}
+      ? <RaisedButton
+          label={this.props.intl.formatMessage(messages.stop)}
+          secondary={true}
+          onTouchTap={() => this.handleStop()}
         />
-      : <RaisedButton label={this.props.intl.formatMessage(messages.run)}
-                      primary={true}
-                      onTouchTap={() => this.handleRun()}
+      : <RaisedButton
+          label={this.props.intl.formatMessage(messages.run)}
+          primary={true}
+          onTouchTap={() => this.handleRun()}
         />;
 
     const editor = this.renderEditor();
-    const instanceBrowser = this.renderInstanceBrowser();
 
     return (
-      <div style={rootStyle}>
+      <div style={this.props.style}>
         <Layout flow="row" className={styles.content}>
           <LayoutContainer size={this.initialGameWidth} onResize={size => this.handleGameWidthResize(size)}>
             <Layout flow="column" className={styles.fillParent}>
               <LayoutContainer size={this.initialGameHeight} onResize={size => this.handleGameHeightResize(size)}>
-                <ZonePreview gameState={this.props.studioState.gameState}
-                      onChange={(gameState => this.handleStateChange({ gameState }))}
-                      sizeVersion={this.state.gameSizeVersion}
-                      stateLayer={this.props.stateLayer}
+                <ZonePreview
+                  gameState={this.props.studioState.gameState}
+                  onChange={(gameState => this.handleStateChange({ gameState }))}
+                  sizeVersion={this.state.gameSizeVersion}
+                  stateLayer={this.props.stateLayer}
                 >
                   {this.props.game}
                 </ZonePreview>
@@ -574,27 +305,25 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
                   </ToolbarGroup>
                 </Toolbar>
                 { /* Object instance browser */}
-                {instanceBrowser}
+                <InstanceBrowser
+                  robotInstances={this.props.robotInstances}
+                  zoneInstances={this.props.zoneInstances}
+                />
               </LayoutContainer>
             </Layout>
           </LayoutContainer>
 
           <LayoutContainer remaining={true}>
-            {this.renderFileBrowserButtons()}
-            <Layout flow="row" className={styles.editor}>
-              <LayoutContainer
-                hide={!this.state.fileBrowserOpen}
-                size={this.initialBrowserWidth}
-                onResize={size => this.handleFileBrowserWidthResize(size)}
-              >
-                {this.renderFileBrowser()}
-              </LayoutContainer>
-              <LayoutContainer remaining={true}>
-                <div className={styles.fillParent}>
-                  {editor}
-                </div>
-              </LayoutContainer>
-            </Layout>
+            <FileBrowser
+              onFileClick={fileId => this.handleFileBrowserItemClick(fileId)}
+              files={this.props.studioState.files}
+              initialWidth={this.initialBrowserWidth}
+              onOpenFileRequest={this.props.onOpenFileRequest}
+              onWidthResize={size => this.handleFileBrowserWidthResize(size)}
+              resizeEditor={() => this.resizeEditor()}
+            >
+              {editor}
+            </FileBrowser>
           </LayoutContainer>
         </Layout>
       </div>

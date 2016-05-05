@@ -3,5 +3,5 @@ export { StudioState }
 export default Studio;
 
 // TODO: Move these types
-import { RobotInstance, ZoneInstance } from './Studio';
+import { RobotInstance, ZoneInstance } from './types';
 export { RobotInstance, ZoneInstance }
