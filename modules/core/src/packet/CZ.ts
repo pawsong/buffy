@@ -34,10 +34,12 @@ export interface MoveParams extends RpcParams {
 }
 
 export interface MoveMapParams extends RpcParams {
-  id: string;
+  objectId: string;
+  zoneId: string;
 }
 
 export interface PlayEffectParams extends RpcParams {
+  objectId: string;
   x: number;
   z: number;
   duration: number;
@@ -49,11 +51,13 @@ export interface RotateParams extends RpcParams {
 }
 
 export interface UpdateMeshParams extends RpcParams {
+  objectId: string;
   designId: string;
   mesh: Mesh;
 }
 
 export interface UpdateTerrainParams extends RpcParams {
+  objectId: string;
   x: number;
   z: number;
   color: number;

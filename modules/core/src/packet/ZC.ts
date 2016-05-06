@@ -25,7 +25,6 @@ export const BroadcastEvents = [
   'move',
   'stop',
   'rotate',
-  'create',
   'objectAdded',
   'objectRemoved',
   'playEffect',
@@ -37,7 +36,6 @@ export interface Broadcast {
   move(params: MoveParams): void;
   stop(params: StopParams): void;
   rotate(params: RotateParams): void;
-  create(params: CreateParams): void;
   objectAdded(params: ObjectAddedParams): void;
   objectRemoved(params: ObjectRemovedParams): void;
   playEffect(params: PlayEffectParams): void;
@@ -50,7 +48,6 @@ export interface Listen<T> {
   move(fn: (store: T, params: MoveParams) => any): void;
   stop(fn: (store: T, params: StopParams) => any): void;
   rotate(fn: (store: T, params: RotateParams) => any): void;
-  create(fn: (store: T, params: CreateParams) => any): void;
   objectAdded(fn: (store: T, params: ObjectAddedParams) => any): void;
   objectRemoved(fn: (store: T, params: ObjectRemovedParams) => any): void;
   playEffect(fn: (store: T, params: PlayEffectParams) => any): void;
@@ -60,8 +57,8 @@ export interface Listen<T> {
 
 // Events
 export interface InitParams extends RpcParams {
-  myId: string;
-  map: SerializedGameMap;
+  zones: SerializedGameMap[];
+  objects: SerializedGameObject[];
 }
 
 export interface MoveParams extends RpcParams {
@@ -78,16 +75,6 @@ export interface RotateParams extends RpcParams {
   direction: SerializedVector3;
 }
 
-export interface CreateParams extends RpcParams {
-  id: string;
-  type: string;
-  position: {
-    x: number;
-    z: number;
-  },
-  duration: number;
-}
-
 export interface ObjectAddedParams extends RpcParams {
   object: SerializedGameObject;
 }
@@ -101,6 +88,7 @@ export interface PlayEffectParams extends CZ.PlayEffectParams {
 }
 
 export interface TerrainUpdatedParams extends RpcParams {
+  zoneId: string;
   terrain: SerializedTerrain;
 }
 

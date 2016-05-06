@@ -18,8 +18,8 @@ class CardboardZoneView extends ZoneView {
   camera: THREE.PerspectiveCamera;
   effect: any;
 
-  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager) {
-    super(container, stateLayer, designManager);
+  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, playerId: string) {
+    super(container, stateLayer, designManager, () => ({ playerId }));
     this.effect = new THREE['CardboardEffect'](this.renderer);
     if (__IS_MOBILE__) {
       this.controls = new THREE['DeviceOrientationControls'](this.camera);

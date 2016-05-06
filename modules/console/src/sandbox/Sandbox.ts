@@ -14,10 +14,12 @@ class Process {
   emitter: EventEmitter;
   stateLayer: StateLayer;
   scripts: Scripts;
+  playerId: string;
   running: boolean;
 
-  constructor(stateLayer: StateLayer, scripts: Scripts) {
+  constructor(stateLayer: StateLayer, playerId: string, scripts: Scripts) {
     this.stateLayer = stateLayer;
+    this.playerId = playerId;
     this.scripts = scripts;
     this.running = true;
 
@@ -38,6 +40,7 @@ class Process {
   exec(code: string) {
     const interpreter = new Interpreter(code, (instance, scope) => injectContext(instance, scope, {
       stateLayer: this.stateLayer,
+      playerId: this.playerId,
       interpreter: instance,
     }, () => nextStep()));
 
@@ -106,8 +109,8 @@ class Sandbox {
     this.frameId = requestAnimationFrame(update);
   }
 
-  exec(scripts: Scripts): Promise<void> {
-    const process = new Process(this.stateLayer, scripts);
+  exec(playerId: string, scripts: Scripts): Promise<void> {
+    const process = new Process(this.stateLayer, playerId, scripts);
     this.processes.push(process);
 
     return new Promise<void>((resolve, reject) => {

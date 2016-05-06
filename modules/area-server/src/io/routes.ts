@@ -8,8 +8,8 @@ export default (socket: SocketIO.Socket) => {
   socket['user'] = undefined;
 
   me.send.init({
-    myId: me.id,
-    map: me.map.serialize(),
+    zones: [me.zone.serialize()],
+    objects: me.zone.objects.map(object => object.serialize()),
   });
 
   const routes = new AreaRoutes(me, socket);
@@ -18,7 +18,7 @@ export default (socket: SocketIO.Socket) => {
     routes.destroy();
 
     Sessions.logout(me.id);
-    me.map.removeUser(me);
+    me.zone.removeUser(me);
 
     try {
       await GameUserModel.findByIdAndUpdate(me.id, {

@@ -6,8 +6,8 @@ import LocalSocket from './LocalSocket';
 class LocalRoutes extends RoutesCZ {
   socket: LocalSocket;
 
-  constructor(user: UserGameObject, socket: LocalSocket) {
-    super(user);
+  constructor(users: UserGameObject[], socket: LocalSocket) {
+    super(users);
     this.socket = socket;
 
     this.init();

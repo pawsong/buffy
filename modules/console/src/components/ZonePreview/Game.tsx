@@ -29,7 +29,7 @@ interface GameOwnState {
 
 @pure
 class Game extends React.Component<GameProps, GameOwnState> {
-  static createState: () => GameState;
+  static createState: (playerId: string) => GameState;
 
   token: EventSubscription;
 
@@ -41,10 +41,13 @@ class Game extends React.Component<GameProps, GameOwnState> {
   }
 
   componentDidMount() {
-    this.token = this.props.stateLayer.store.subscribe.resync(() => {
-      this.setState({ mapName: this.props.stateLayer.store.map.id });
-    });
-    this.setState({ mapName: this.props.stateLayer.store.map.id });
+    const onResync = () => {
+      const object = this.props.stateLayer.store.findObject(this.props.gameState.playerId);
+      this.setState({ mapName: object.zone.id });
+    };
+
+    this.token = this.props.stateLayer.store.subscribe.resync(onResync);
+    onResync();
   }
 
   componentWillUnmount() {
@@ -75,8 +78,9 @@ class Game extends React.Component<GameProps, GameOwnState> {
   }
 }
 
-Game.createState = (): GameState => {
+Game.createState = (playerId: string): GameState => {
   return {
+    playerId: playerId,
     selectedTool: ToolType.move,
     brushColor: { r: 104, g: 204, b: 202 },
   };

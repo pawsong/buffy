@@ -90,7 +90,7 @@
     "redux": "^3.1.7",
     "redux-async-connect": "^1.0.0-rc2",
     "redux-ignore": "^1.2.3",
-    "redux-saga": "^0.9.3",
+    "redux-saga": "^0.9.5",
     "request": "^2.65.0",
     "screenfull": "^3.0.0",
     "scriptjs": "^2.5.8",

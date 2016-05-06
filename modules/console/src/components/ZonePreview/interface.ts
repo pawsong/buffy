@@ -8,6 +8,7 @@ export interface Color {
 }
 
 export interface GameState {
+  playerId?: string,
   selectedTool?: ToolType,
   brushColor?: Color,
 }

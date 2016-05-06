@@ -23,7 +23,7 @@ export interface SerializedGameMap {
   width: number;
   depth: number;
   terrains: SerializedTerrain[],
-  objects: SerializedGameObject[],
+  objects: string[],
 }
 
 class GameMap {
@@ -48,10 +48,6 @@ class GameMap {
     });
 
     this.objects = [];
-    data.objects.forEach(serialized => {
-      const obj = new GameObject(serialized);
-      this.objects.push(obj);
-    });
   }
 
   serialize(): SerializedGameMap {
@@ -61,7 +57,7 @@ class GameMap {
       width: this.width,
       depth: this.depth,
       terrains: this.terrains.map(terrain => terrain.serialize()),
-      objects: this.objects.map(obj => obj.serialize()),
+      objects: this.objects.map(obj => obj.id),
     };
   }
 

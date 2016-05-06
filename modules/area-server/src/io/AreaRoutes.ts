@@ -16,7 +16,7 @@ class AreaRoutes extends RoutesCZ {
   private socket: SocketIO.Socket;
 
   constructor(user: UserGameObject, socket: SocketIO.Socket) {
-    super(user);
+    super([user]);
     this.socket = socket;
 
     this.init();
@@ -33,28 +33,30 @@ class AreaRoutes extends RoutesCZ {
   }
 
   async moveMap(params: MoveMapParams) {
+    const user = this.getUser(params.objectId);
+
     // TODO: Validate params.
     // TODO: Check permission.
 
-    const map = await GameMapManager.findOrCreate(params.id);
+    const zone = await GameMapManager.findOrCreate(params.zoneId);
 
-    this.user.map.removeUser(this.user);
+    user.zone.removeUser(user);
 
-    this.user.send.init({
-      myId: this.user.id,
-      map: map.serialize(),
+    user.send.init({
+      zones: [zone.serialize()],
+      objects: zone.objects.map(object => object.serialize()),
     });
 
     // TODO: Move user to map's gate position
-    this.user.map = map;
-    this.user.position.x = 1;
-    this.user.position.z = 1;
-    map.addUser(this.user);
+    user.zone = zone;
+    user.position.x = 1;
+    user.position.z = 1;
+    zone.addUser(user);
   }
 
-  protected async updateTerrainInDB(params: UpdateTerrainParams) {
+  protected async updateTerrainInDB(user: UserGameObject, params: UpdateTerrainParams) {
     await Terrain.findOneAndUpdate({
-      map: this.user.map.id,
+      map: user.zone.id,
       loc: { x: params.x, z: params.z },
     }, {
       color: params.color,

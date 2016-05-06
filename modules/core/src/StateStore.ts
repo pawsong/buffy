@@ -45,8 +45,10 @@ class StateStore {
   emitter: EventEmitter;
   emit: StoreEmit;
 
-  myId: string;
-  map: GameMap;
+  // myId: string;
+  private zones: GameMap[];
+  private indexedZones: { [index: string]: GameMap };
+  objects: { [index: string]: GameObject };
 
   subscribe: StoreListen;
 
@@ -55,41 +57,92 @@ class StateStore {
     this.emit = new Emit(this.emitter);
     this.subscribe = new Subscribe(this.emitter);
 
-    this.myId = '';
-    this.map = null;
+    this.zones = [];
+    this.indexedZones = {};
+    this.objects = {};
   }
 
-  serialize(): ZC.InitParams {
-    return {
-      myId: this.myId,
-      map: this.map.serialize(),
-    };
-  }
 
   deserialize(data: ZC.InitParams) {
-    // Unwatch
-    if (this.map) {
-      this.map.objects.forEach(obj => this.unwatchObject(obj));
-    }
+    const indexedObject = {};
+    data.objects.forEach(object => indexedObject[object.id] = object);
 
-    this.myId = data.myId;
-    this.map = new GameMap(data.map);
-    this.map.objects.forEach(obj => this.watchObject(obj));
+    data.zones.forEach(serialziedZone => {
+      const zone = this.indexedZones[serialziedZone.id];
+      if (zone) {
+        // Replace
+        zone.objects.forEach(object => {
+          this.unwatchObject(object);
+          delete this.objects[object.id];
+        });
+
+        const newZone = new GameMap(serialziedZone);
+        serialziedZone.objects.forEach(objectId => {
+          const object = this.objects[objectId] = new GameObject(indexedObject[objectId], newZone);
+          newZone.addObject(object);
+          this.watchObject(object);
+        });
+
+        const index = this.zones.indexOf(zone);
+        this.zones.splice(index, 1, newZone);
+        this.indexedZones[zone.id] = newZone;
+      } else {
+        // Append
+        const newZone = new GameMap(serialziedZone);
+        serialziedZone.objects.forEach(objectId => {
+          const object = this.objects[objectId] = new GameObject(indexedObject[objectId], newZone);
+          newZone.addObject(object);
+          this.watchObject(object);
+        });
+
+        this.zones.push(newZone);
+        this.indexedZones[newZone.id] = newZone;
+      }
+    });
+
+    // console.log(data);
+
+    // // Unwatch
+    // const indexedData = {};
+    // data.zones.forEach(zone => indexedData[zone.id] = zone);
+    // const zonesToAppend = [];
+
+    // this.zones.forEach((zone, index) => {
+    //   const serialziedZone = indexedData[zone.id];
+    //   if (serialziedZone) {
+    //     zone.objects.forEach(object => this.unwatchObject(object));
+
+    //     const newZone = new GameMap(serialziedZone);
+    //     newZone.objects.forEach(object => this.watchObject(object));
+    //     this.zones.splice(index, 1, newZone);
+    //     this.indexedZones[zone.id] = newZone;
+    //   } else {
+    //     const newZone = new GameMap(serialziedZone);
+    //     newZone.objects.forEach(object => this.watchObject(object));
+    //     zonesToAppend.push(newZone);
+    //   }
+    // });
+    // this.zones.push.apply(this.zones, zonesToAppend);
+    // zonesToAppend.forEach(zone => this.indexedZones[zone.id] = zone);
+
+    // console.log(this.zones);
+    // console.log(zonesToAppend);
   }
 
   update(dt) {
-    if (process.env.NODE_ENV !== 'production') {
-      invariant(this.map, 'Update must be executed after store initialization');
-    }
-    return this.map.update(dt);
+    return this.zones.forEach(zone => zone.update(dt));
   }
 
   on(eventType: string, callback: Function): EventSubscription {
     return this.emitter.addListener(eventType, callback, this);
   }
 
-  getPlayer(): GameObject {
-    return this.map.findObject(this.myId);
+  findObject(objectId: string) {
+    return this.objects[objectId];
+  }
+
+  findZone(zoneId: string) {
+    return this.indexedZones[zoneId];
   }
 
   watchObject(object: GameObject) {
@@ -106,11 +159,13 @@ export default StateStore;
 StateStore.on.init((store, params) => {
   console.warn('resync');
   store.deserialize(params);
-  store.emit.resync();
+
+  const zoneIds = params.zones.map(zone => zone.id);
+  store.emit.resync({ zoneIds });
 });
 
 StateStore.on.move((store, params) => {
-  const object = store.map.findObject(params.id);
+  const object = store.findObject(params.id);
   if (!object) {
     // TODO: Request missing object data to server.
     // Out of sync in this case. We may have to reset all data.
@@ -122,7 +177,7 @@ StateStore.on.move((store, params) => {
 });
 
 StateStore.on.stop((store, params) => {
-  const object = store.map.findObject(params.id);
+  const object = store.findObject(params.id);
   if (!object) {
     // TODO: Request missing object data to server.
     // Out of sync in this case. We may have to reset all data.
@@ -134,7 +189,7 @@ StateStore.on.stop((store, params) => {
 });
 
 StateStore.on.rotate((store, params) => {
-  const object = store.map.findObject(params.id);
+  const object = store.findObject(params.id);
   if (!object) {
     // TODO: Request missing object data to server.
     // Out of sync in this case. We may have to reset all data.
@@ -161,20 +216,29 @@ StateStore.on.playEffect((store, params) => {
 });
 
 StateStore.on.terrainUpdated((store, params) => {
-  const terrain = store.map.updateTerrain(params.terrain);
+  const zone = store.findZone(params.zoneId);
+  const terrain = zone.updateTerrain(params.terrain);
   store.emit.terrainUpdated({ terrain });
 });
 
 StateStore.on.objectAdded((store, params) => {
-  const obj = new GameObject(params.object);
-  store.map.objects.push(obj);
-  store.watchObject(obj);
-  store.emit.objectAdded({ object: obj });
+  const zone = store.findZone(params.object.zone);
+  const object = new GameObject(params.object, zone);
+  object.zone.objects.push(object);
+  store.objects[object.id] = object;
+
+  store.watchObject(object);
+
+  store.emit.objectAdded({ object });
 });
 
 StateStore.on.objectRemoved((store, params) => {
-  const obj = store.map.findObject(params.id);
-  store.unwatchObject(obj);
-  store.map.removeObject(obj);
+  const object = store.findObject(params.id);
+
+  store.unwatchObject(object);
+
+  delete store.objects[object.id];
+  object.zone.removeObject(object);
+
   store.emit.objectRemoved({ id: params.id });
 });

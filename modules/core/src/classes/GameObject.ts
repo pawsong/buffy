@@ -2,11 +2,13 @@ import * as TWEEN from '@pasta/tween.js';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import Vector3 from './Vector3';
 import { SerializedVector3 } from './Vector3';
+import GameMap from './GameMap';
 
 const EPS = 0.000001;
 
 export interface SerializedGameObject {
   id: string;
+  zone: string;
   designId: string;
   position: SerializedVector3;
   tween?: Object;
@@ -20,14 +22,17 @@ export const Events = {
 
 class GameObject {
   id: string;
+  zone: GameMap;
   designId: string;
   position: Vector3;
   tween: TWEEN.Tween;
   direction: Vector3;
   emitter: EventEmitter;
 
-  constructor(data: SerializedGameObject) {
+  constructor(data: SerializedGameObject, zone: GameMap) {
     this.id = data.id;
+    this.zone = zone;
+
     this.designId = data.designId;
 
     this.position = new Vector3(data.position);
@@ -45,6 +50,7 @@ class GameObject {
   serialize(): SerializedGameObject {
     return {
       id: this.id,
+      zone: this.zone.id,
       designId: this.designId,
       position: this.position.serialize(),
       tween: this.tween.serialize(),

@@ -14,6 +14,7 @@ export function rgbToHex({ r, g, b }) {
 }
 
 interface WaitStateProps {
+  playerId: string;
   brushColor: Color;
 }
 
@@ -26,7 +27,10 @@ class WaitState extends GameZoneViewToolState<WaitStateProps> {
   }
 
   mapStateToProps(gameState: GameState): WaitStateProps {
-    return { brushColor: gameState.brushColor };
+    return {
+      playerId: gameState.playerId,
+      brushColor: gameState.brushColor,
+    };
   }
 
   onEnter() {
@@ -42,6 +46,7 @@ class WaitState extends GameZoneViewToolState<WaitStateProps> {
     if (!hit) { return; }
 
     this.stateLayer.rpc.updateTerrain({
+      objectId: this.props.playerId,
       x: position.x,
       z: position.z,
       color: rgbToHex(this.props.brushColor),

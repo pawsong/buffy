@@ -15,16 +15,32 @@ import LocalRoutes from './LocalRoutes';
 import LocalSocket from './LocalSocket';
 
 interface CreateInitialDataOptions {
-  designId;
+  playerId: string;
+  designId: string;
 }
 
 class LocalServer {
   static createInitialData(options: CreateInitialDataOptions): SerializedLocalServer {
-    const userId = shortid.generate();
+    const zoneId = shortid.generate();
 
     // const
     const serializedGameObject: SerializedGameObject = {
-      id: userId,
+      id: options.playerId,
+      zone: zoneId,
+      designId: options.designId,
+      position: {
+        x: 1,
+        y: 0,
+        z: 1,
+      },
+      direction: { x: 0, y: 0, z: 1 },
+    };
+
+    const userId2 = shortid.generate();
+
+    const serializedGameObject2: SerializedGameObject = {
+      id: userId2,
+      zone: zoneId,
       designId: options.designId,
       position: {
         x: 1,
@@ -36,62 +52,48 @@ class LocalServer {
 
     // Initialize data
     const serializedGameMap: SerializedGameMap = {
-      id: shortid.generate(),
+      id: zoneId,
       name: '',
       width: 10,
       depth: 10,
       terrains: [],
-      objects: [serializedGameObject],
+      objects: [serializedGameObject.id, serializedGameObject2.id],
     };
 
     return {
-      myId: userId,
-      maps: [serializedGameMap],
+      zones: [serializedGameMap],
+      objects: [serializedGameObject, serializedGameObject2],
     };
   }
 
   routes: LocalRoutes;
-  myId: string;
   maps: ServerGameMap[];
-  indexedMaps: { [index: string]: ServerGameMap }
-  user: LocalUserGameObject;
+  indexedMaps: { [index: string]: ServerGameMap };
+  users: { [index: string]: LocalUserGameObject };
   updateFrameId: number;
 
   constructor(data: SerializedLocalServer, socket: LocalSocket) {
     invariant(socket, 'Invalid socket');
 
     // Initialize maps and users
-    this.myId = data.myId;
 
+    this.maps = [];
     this.indexedMaps = {};
-    let serializedGameObject: SerializedGameObject;
-    let userMapId: string;
+    this.users = {};
 
-    data.maps.forEach(datum => {
-      let index = findIndex(datum.objects, { id: this.myId });
-
-      if (index === -1) {
-        this.indexedMaps[datum.id] = new ServerGameMap(datum);
-      } else {
-        serializedGameObject = datum.objects[index];
-        userMapId = datum.id;
-
-        this.indexedMaps[datum.id] = new ServerGameMap(update(datum, {
-          objects: { $splice: [[index, 1]] },
-        }));
-      }
+    data.zones.forEach(datum => {
+      const zone = this.indexedMaps[datum.id] = new ServerGameMap(datum);
+      this.maps.push(zone);
     });
 
-    invariant(serializedGameObject && userMapId, 'Cannot find user in maps');
+    data.objects.forEach(serializedObject => {
+      const zone = this.indexedMaps[serializedObject.zone];
+      const user = new LocalUserGameObject(serializedObject, zone, socket);
+      this.users[user.id] = user;
+      zone.addUser(user);
+    });
 
-    const userMap = this.indexedMaps[userMapId];
-    this.user = new LocalUserGameObject(serializedGameObject, userMap, socket);
-    userMap.addUser(this.user);
-
-    this.routes = new LocalRoutes(this.user, socket);
-
-    // Arrayify maps for fast iteration.
-    this.maps = Object.keys(this.indexedMaps).map(id => this.indexedMaps[id]);
+    this.routes = new LocalRoutes(Object.keys(this.users).map(key => this.users[key]), socket);
 
     // Start loop.
     let then = Date.now();
@@ -106,15 +108,15 @@ class LocalServer {
 
   getInitData(): InitParams {
     return {
-      myId: this.myId,
-      map: this.user.map.serialize(),
+      zones: this.maps.map(map => map.serialize()),
+      objects: Object.keys(this.users).map(key => this.users[key].serialize()),
     };
   }
 
   serialize(): SerializedLocalServer {
     return {
-      myId: this.myId,
-      maps: this.maps.map(map => map.serialize()),
+      zones: this.maps.map(map => map.serialize()),
+      objects: Object.keys(this.users).map(key => this.users[key].serialize()),
     };
   }
 

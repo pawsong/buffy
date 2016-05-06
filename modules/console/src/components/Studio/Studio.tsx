@@ -23,7 +23,7 @@ import * as StorageKeys from '../../constants/StorageKeys';
 import { Sandbox, Scripts } from '../../sandbox';
 
 import { saga, SagaProps, ImmutableTask } from '../../saga';
-import { runBlocklyWorkspace } from './sagas';
+import { runBlocklyWorkspace, CompiledCodes } from './sagas';
 
 import DesignManager from '../../DesignManager';
 
@@ -119,6 +119,7 @@ interface CreateStateOptions {
   codeFileId?: string;
   designFileId?: string;
   robotFileId?: string;
+  playerId?: string;
 }
 
 @waitForMount
@@ -162,11 +163,31 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   }
 
   handleRun() {
-    // Collect all scripts to run
-    // Run scripts
+    // Find robots
+    const robotStates = {};
+    this.props.robotInstances.forEach(robotInstance => {
+      robotStates[robotInstance.templateId] = this.props.studioState.files[robotInstance.templateId].state;
+    });
 
-    // const scripts = compileBlocklyXml(this.props.studioState.codeEditorState.blocklyXml);
-    // this.props.runSaga(this.props.run, this.sandbox, scripts);
+    const codesSet = {};
+    Object.keys(robotStates).forEach(robotId => {
+      const robotState = robotStates[robotId];
+      robotState.codes.forEach(code => codesSet[code] = true);
+    });
+
+    const codes: CompiledCodes = {};
+    Object.keys(codesSet).map(codeId => {
+      const codeState = this.props.studioState.files[codeId].state;
+      codes[codeId] = compileBlocklyXml(codeState.blocklyXml);
+    });
+
+    this.props.runSaga(this.props.run, this.sandbox, codes, this.props.robotInstances.map(instance => {
+      const robotState = robotStates[instance.templateId];
+      return {
+        objectId: instance.id,
+        codeIds: robotState.codes,
+      };
+    }));
   }
 
   handleStop() {
@@ -285,6 +306,13 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     this.setState({ editorSizeVersion: this.state.editorSizeVersion + 1 });
   }
 
+  selectPlayer(playerId: string) {
+    console.log(playerId);
+    this.handleStateChange({
+      gameState: objectAssign({}, this.props.studioState.gameState, { playerId }),
+    });
+  }
+
   render() {
     const controlButton = this.props.run.state === 'running'
       ? <RaisedButton
@@ -323,6 +351,8 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
                   </ToolbarGroup>
                 </Toolbar>
                 <InstanceBrowser
+                  gameState={this.props.studioState.gameState}
+                  selectPlayer={objectId => this.selectPlayer(objectId)}
                   robotInstances={this.props.robotInstances}
                   zoneInstances={this.props.zoneInstances}
                 />
@@ -357,7 +387,7 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
   };
 
   return {
-    gameState: ZonePreview.createState(),
+    gameState: ZonePreview.createState(options.playerId),
     files: {
       [codeFileId]: {
         id: codeFileId,

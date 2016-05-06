@@ -22,6 +22,7 @@ import createTool, { GameZoneViewTool } from './tools';
 
 class GameZoneView extends ZoneView {
   stateLayer: StateLayer;
+  state: GameState;
 
   camera: THREE.OrthographicCamera;
   cursorManager: CursorManager;
@@ -40,8 +41,12 @@ class GameZoneView extends ZoneView {
   }
 
   constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, private getGameState: GetGameState) {
-    super(container, stateLayer, designManager);
+    super(container, stateLayer, designManager, () => {
+      const state = getGameState();
+      return { playerId: state.playerId };
+    });
     this.stateLayer = stateLayer;
+    this.state = getGameState();
 
     this.cachedTools = {};
 
@@ -106,15 +111,22 @@ class GameZoneView extends ZoneView {
     this.handleChange(gameState);
   }
 
-  handleChange(gameState: GameState) {
-    if (this.tool.getToolType() !== gameState.selectedTool) {
-      const nextTool = this.getTool(gameState.selectedTool);
+  handleChange(nextState: GameState) {
+    if (this.tool.getToolType() !== nextState.selectedTool) {
+      const nextTool = this.getTool(nextState.selectedTool);
       this.tool.onStop();
       this.tool = nextTool;
       this.tool.onStart();
     }
 
-    this.tool.updateProps(gameState);
+    this.tool.updateProps(nextState);
+
+    if (this.state.playerId !== nextState.playerId) {
+      const object = this.objectManager.objects[nextState.playerId];
+      this.camera.position.copy(object.group.position);
+    }
+
+    this.state = nextState;
   }
 
   destroy() {

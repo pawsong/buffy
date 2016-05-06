@@ -22,16 +22,29 @@ import {
   takeLatest,
 } from '../../../saga';
 
-function execSandbox(sandbox: Sandbox, scripts: Scripts) {
-  const promise = sandbox.exec(scripts);
+interface RunParams {
+  objectId: string;
+  codeIds: string[];
+}
+
+export interface CompiledCodes {
+  [index: string]: Scripts;
+}
+
+function execSandbox(sandbox: Sandbox, codes: CompiledCodes, instances: RunParams[]) {
+  const promise = Promise.all(instances.map(instance => {
+    return Promise.all(instance.codeIds.map(codeId => {
+      return sandbox.exec(instance.objectId, codes[codeId]);
+    }));
+  }));
   sandbox.emit('when_run');
   return promise;
 }
 
 // Should be cancellable
-export function* runBlocklyWorkspace(sandbox: Sandbox, scripts: Scripts) {
+export function* runBlocklyWorkspace(sandbox: Sandbox, codes: CompiledCodes, instances: RunParams[]) {
   try {
-    yield call(execSandbox, sandbox, scripts);
+    yield call(execSandbox, sandbox, codes, instances);
   } catch(error) {
     if (!isCancelError(error)) console.log('runBlocklyWorkspace', error);
   } finally {

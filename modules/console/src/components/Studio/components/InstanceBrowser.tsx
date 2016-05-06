@@ -7,6 +7,7 @@ import LayersIcon from 'material-ui/lib/svg-icons/maps/layers';
 import ActionInfo from 'material-ui/lib/svg-icons/action/info';
 import Colors from 'material-ui/lib/styles/colors';
 const update = require('react-addons-update');
+import { GameState } from '../../ZonePreview';
 import { Tabs, Tab } from '../../Tabs';
 
 enum InstanceTab {
@@ -27,20 +28,6 @@ function getInstanceTabLabel(tabType: InstanceTab) {
   }
 }
 
-function renderRobotInstanceList(robotInstances: RobotInstance[]) {
-  return robotInstances.map(inst => {
-    return (
-      <ListItem
-        key={inst.id}
-        leftAvatar={<Avatar icon={<AndroidIcon />} backgroundColor={Colors.blue500} />}
-        rightIcon={<ActionInfo />}
-        primaryText={inst.name}
-        secondaryText={`Map: ${inst.mapName}`}
-      />
-    );
-  });
-}
-
 function renderZoneInstanceList(zoneInstances: ZoneInstance[]) {
   return zoneInstances.map(inst => {
     return (
@@ -56,6 +43,8 @@ function renderZoneInstanceList(zoneInstances: ZoneInstance[]) {
 }
 
 interface InstanceBrowserProps extends React.Props<any> {
+  gameState: GameState;
+  selectPlayer: (objectId: string) => any;
   robotInstances: RobotInstance[];
   zoneInstances: ZoneInstance[];
 }
@@ -75,6 +64,24 @@ class InstanceBrowser extends React.Component<InstanceBrowserProps, InstanceBrow
       ],
       activeTab: InstanceTab.ROBOT,
     };
+  }
+
+  renderRobotInstanceList(robotInstances: RobotInstance[]) {
+    return robotInstances.map(inst => {
+      const rightIcon = inst.id === this.props.gameState.playerId
+        ? <ActionInfo /> : null;
+
+      return (
+        <ListItem
+          key={inst.id}
+          onTouchTap={() => this.props.selectPlayer(inst.id)}
+          leftAvatar={<Avatar icon={<AndroidIcon />} backgroundColor={Colors.blue500} />}
+          rightIcon={rightIcon}
+          primaryText={inst.name}
+          secondaryText={`Map: ${inst.mapName}`}
+        />
+      );
+    });
   }
 
   render() {
@@ -112,7 +119,7 @@ class InstanceBrowser extends React.Component<InstanceBrowserProps, InstanceBrow
     let listItems = null;
     switch(this.state.activeTab) {
       case InstanceTab.ROBOT: {
-        listItems = renderRobotInstanceList(this.props.robotInstances);
+        listItems = this.renderRobotInstanceList(this.props.robotInstances);
         break;
       }
       case InstanceTab.ZONE: {

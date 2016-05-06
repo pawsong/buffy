@@ -13,8 +13,8 @@ class GameZoneView extends ZoneView {
   private controls: any;
   camera: THREE.PerspectiveCamera;
 
-  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager) {
-    super(container, stateLayer, designManager);
+  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, playerId: string) {
+    super(container, stateLayer, designManager, () => ({ playerId }));
     this.controls = new THREE['MouseControls'](this.camera);
   }
 

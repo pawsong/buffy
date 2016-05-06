@@ -6,11 +6,12 @@ import { defineAsync } from '../base';
 
 export default defineAsync(({
   stateLayer,
+  playerId,
 }) => (angle: number) => {
-  const obj = stateLayer.store.getPlayer();
-  const newDirection = obj.direction.clone().applyAxisAngle({ x: 0, y: 1, z: 0 }, angle / 180 * Math.PI);
+  const object = stateLayer.store.findObject(playerId);
+  const newDirection = object.direction.clone().applyAxisAngle({ x: 0, y: 1, z: 0 }, angle / 180 * Math.PI);
   return stateLayer.rpc.rotate({
-    id: obj.id,
+    id: object.id,
     direction: newDirection.serialize(),
   });
 });

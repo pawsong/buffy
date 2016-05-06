@@ -22,7 +22,7 @@ class Game extends React.Component<GameProps, void> {
         onStart={this.props.onStart}
         scripts={this.props.scripts}
         stateLayer={this.props.stateLayer}
-        installZoneView={(element) => new GameZoneView(element, this.props.stateLayer, this.props.designManager)}
+        installZoneView={(element) => new GameZoneView(element, this.props.stateLayer, this.props.designManager, '')}
       />
     );
   }

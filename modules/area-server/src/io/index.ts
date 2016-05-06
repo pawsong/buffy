@@ -66,7 +66,7 @@ export default (io: SocketIO.Server) => {
       }
 
       const mapId = (userDoc.loc.map as mongoose.Types.ObjectId).toHexString();
-      const map = await GameMapManager.findOrCreate(mapId);
+      const zone = await GameMapManager.findOrCreate(mapId);
 
       let mesh: MeshDocument;
 
@@ -75,6 +75,7 @@ export default (io: SocketIO.Server) => {
 
       const user = new AreaUserGameObject({
         id: userDoc.id,
+        zone: zone.id,
         designId: userDoc.designId,
         position: {
           x: userDoc.loc.pos.x,
@@ -82,8 +83,8 @@ export default (io: SocketIO.Server) => {
           z: userDoc.loc.pos.z,
         },
         direction: userDoc.loc.dir || { x: 0, y: 0, z: 1 },
-      }, map, socket);
-      map.addUser(user);
+      }, zone, socket);
+      zone.addUser(user);
 
       socket['user'] = user;
       next();

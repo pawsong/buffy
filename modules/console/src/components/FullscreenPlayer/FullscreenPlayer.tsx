@@ -136,7 +136,7 @@ class FullscreenPlayer extends React.Component<FullscreenPlayerProps, CardboardS
 
     // Initialize code
     this.sandbox = new Sandbox(this.props.stateLayer);
-    this.sandbox.exec(this.props.scripts);
+    this.sandbox.exec('', this.props.scripts);
     this.sandbox.emit('when_run');
   }
 

@@ -62,8 +62,8 @@ interface OnlineStudioState {
   users: get(`${CONFIG_GAME_SERVER_URL}/friends`),
 }))
 @saga({
-  moveMap: function* (stateLayer: StateLayer, mapId: string) {
-    yield call(stateLayer.rpc.moveMap, { id: mapId });
+  moveMap: function* (stateLayer: StateLayer, zoneId: string) {
+    // yield call(stateLayer.rpc.moveMap, { objectId: stateLayer.store.myId, zoneId });
   },
   createDesign: function* (data: string, callback) {
     const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/files`, { data });
@@ -114,30 +114,30 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
     });
 
     // Try to connect
-    this.socket = io(CONFIG_GAME_SERVER_URL);
-    this.socket.once('init', (params: InitParams) => {
-      this.stateLayer.start(params);
-      this.setState({
-        initialized: true,
-        studioState: Studio.creatState(),
-        robotInstances: {
-          [params.myId]: {
-            id: params.myId,
-            templateId: '',
-            name: this.props.user.name || '(Untitled)',
-            mapName: params.map.name,
-          },
-        },
-        zoneInstances: {
-          [params.map.id]: {
-            id: params.map.id,
-            name: params.map.name,
-            width: params.map.width,
-            depth: params.map.depth,
-          },
-        },
-      });
-    });
+    // this.socket = io(CONFIG_GAME_SERVER_URL);
+    // this.socket.once('init', (params: InitParams) => {
+    //   this.stateLayer.start(params);
+    //   this.setState({
+    //     initialized: true,
+    //     studioState: Studio.creatState(),
+    //     robotInstances: {
+    //       [params.myId]: {
+    //         id: params.myId,
+    //         templateId: '',
+    //         name: this.props.user.name || '(Untitled)',
+    //         mapName: params.map.name,
+    //       },
+    //     },
+    //     zoneInstances: {
+    //       [params.map.id]: {
+    //         id: params.map.id,
+    //         name: params.map.name,
+    //         width: params.map.width,
+    //         depth: params.map.depth,
+    //       },
+    //     },
+    //   });
+    // });
   }
 
   componentWillUnmount() {
@@ -146,19 +146,19 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
   }
 
   componentWillReceiveProps(nextProps: OnlineStudioProps) {
-    if (!isDone(this.props.moveMap) && isDone(nextProps.moveMap)) {
-      this.setState(update(this.state, {
-        robotInstances: {
-          [this.stateLayer.store.myId]: {
-            $set: {
-              id: this.stateLayer.store.myId,
-              name: this.props.user.name || '(Untitled)',
-              mapName: this.stateLayer.store.map.name,
-            },
-          }
-        },
-      }));
-    }
+    // if (!isDone(this.props.moveMap) && isDone(nextProps.moveMap)) {
+    //   this.setState(update(this.state, {
+    //     robotInstances: {
+    //       [this.stateLayer.store.myId]: {
+    //         $set: {
+    //           id: this.stateLayer.store.myId,
+    //           name: this.props.user.name || '(Untitled)',
+    //           mapName: this.stateLayer.store.map.name,
+    //         },
+    //       }
+    //     },
+    //   }));
+    // }
   }
 
   handleContactsButtonClick() {

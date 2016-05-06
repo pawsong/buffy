@@ -1,9 +1,10 @@
 import { SerializedGameMap } from './classes/GameMap';
+import { SerializedGameObject } from './classes/GameObject';
 import { Scripts } from './types';
 
 export interface SerializedLocalServer {
-  myId: string;
-  maps: SerializedGameMap[];
+  zones: SerializedGameMap[];
+  objects: SerializedGameObject[];
 }
 
 export interface ProjectData {

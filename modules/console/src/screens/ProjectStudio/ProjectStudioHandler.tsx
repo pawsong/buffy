@@ -229,11 +229,19 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
   createStateFromLocalStorage(fileIds: string[]): ProjectStudioHandlerState {
     const [codeFileId, designFileId, robotFileId] = fileIds;
+    const playerId = shortid.generate();
+
     const studioState = Studio.creatState({
-      codeFileId, designFileId, robotFileId,
+      codeFileId,
+      designFileId,
+      robotFileId,
+      playerId,
     });
 
-    const initialLocalServer = LocalServer.createInitialData({ designId: designFileId });
+    const initialLocalServer = LocalServer.createInitialData({
+      playerId,
+      designId: designFileId,
+    });
 
     return {
       initialLocalServer,
@@ -289,12 +297,16 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       }
     }
 
-    this.robots = [{
-      id: this.server.user.id,
-      templateId,
-      name: '(Untitled)',
-      mapName: this.server.user.map.name || '(Untitled)',
-    }];
+    this.robots = Object.keys(this.server.users).map(id => {
+      const user = this.server.users[id];
+
+      return {
+        id,
+        templateId,
+        name: '(Untitled)',
+        mapName: user.zone.name || '(Untitled)',
+      };
+    });
 
     this.zones = this.server.maps.map(map => {
       return {
@@ -337,6 +349,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     if (file.type === FileType.DESIGN) {
       const mesh = file.state.voxel.present.mesh;
       this.stateLayer.rpc.updateMesh({
+        objectId: this.state.studioState.gameState.playerId,
         designId: fileId,
         mesh: mesh,
       });

@@ -2,12 +2,15 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 import {
   ToolType,
+  GameState,
 } from '../../interface';
 
 import GameZoneViewTool, { GameZoneViewToolState, GameZoneViewToolStates, InitParams } from './GameZoneViewTool';
 import GameZoneView from '../GameZoneView';
 
-interface WaitStateProps {}
+interface WaitStateProps {
+  playerId: string,
+}
 
 class WaitState extends GameZoneViewToolState<WaitStateProps> {
   constructor(
@@ -15,6 +18,12 @@ class WaitState extends GameZoneViewToolState<WaitStateProps> {
     private stateLayer: StateLayer
   ) {
     super();
+  }
+
+  mapStateToProps(gameState: GameState): WaitStateProps {
+    return {
+      playerId: gameState.playerId,
+    };
   }
 
   onEnter() {
@@ -30,7 +39,7 @@ class WaitState extends GameZoneViewToolState<WaitStateProps> {
     if (!hit) { return; }
 
     this.stateLayer.rpc.move({
-      id: this.stateLayer.store.myId,
+      id: this.props.playerId,
       x: position.x,
       z: position.z,
     });

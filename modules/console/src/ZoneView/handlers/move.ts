@@ -10,7 +10,7 @@ import {
 
 const posToLookAt = new THREE.Vector3();
 
-export default <StoreHandler<ZoneView>>((listen, view, stateLayer) => listen.move(params => {
+export default <StoreHandler<ZoneView>>((listen, view, stateLayer, getState) => listen.move(params => {
   const { group } = view.objectManager.find(params.object.id);
 
   // Move
@@ -25,7 +25,8 @@ export default <StoreHandler<ZoneView>>((listen, view, stateLayer) => listen.mov
   );
   group.lookAt(posToLookAt);
 
-  if (params.object.id === stateLayer.store.myId) {
+  const state = getState();
+  if (params.object.id === state.playerId) {
     view.camera.position.copy(group.position);
   }
 }));

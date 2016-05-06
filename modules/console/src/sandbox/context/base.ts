@@ -3,6 +3,7 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 export interface ApiContext {
   stateLayer: StateLayer;
+  playerId: string;
   interpreter: any;
 }
 

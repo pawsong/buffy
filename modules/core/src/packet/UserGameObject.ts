@@ -17,12 +17,11 @@ export interface Socket {
 }
 
 abstract class UserGameObject extends GameObject {
-  map: ServerGameMap;
   send: Send;
+  zone: ServerGameMap;
 
   constructor(serialized: SerializedGameObject, map: ServerGameMap) {
-    super(serialized);
-    this.map = map;
+    super(serialized, map);
 
     const socket = this.getSocket();
     this.send = new SendImpl((event, params) => socket.emit(event, params));

@@ -13,19 +13,20 @@ const u = new Vector3({ x: 1, y: 0, z: 0 });
 
 export default defineSync(({
   stateLayer,
+  playerId: playerId,
   interpreter,
 }) => (x: number, z: number) => {
-  const obj = stateLayer.store.getPlayer();
-  q.setFromUnitVectors(u, obj.direction);
+  const object = stateLayer.store.findObject(playerId);
+  q.setFromUnitVectors(u, object.direction);
 
   const v = new Vector3({ x, y: 0, z }).applyQuaternion(q);
 
-  const roundedX = Math.round(obj.position.x + v.x);
-  const roundedZ = Math.round(obj.position.z + v.z);
+  const roundedX = Math.round(object.position.x + v.x);
+  const roundedZ = Math.round(object.position.z + v.z);
 
-  const len = stateLayer.store.map.terrains.length;
+  const len = object.zone.terrains.length;
   for (let i = 0; i < len; ++i) {
-    const terrain = stateLayer.store.map.terrains[i];
+    const terrain = object.zone.terrains[i];
     if (terrain.position.x === roundedX && terrain.position.z === roundedZ) {
       return interpreter.createPrimitive(terrain.color);
     }

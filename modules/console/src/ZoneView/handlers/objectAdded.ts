@@ -8,7 +8,7 @@ import {
   PIXEL_UNIT,
 } from '../Constants';
 
-export default <StoreHandler<ZoneView>>((listen, view, stateLayer) => listen.objectAdded(params => {
+export default <StoreHandler<ZoneView>>((listen, view, stateLayer, getState) => listen.objectAdded(params => {
   const { object: obj } = params;
   const object = view.objectManager.create(obj.id, obj.designId);
   object.add(new THREE.Mesh( view.cubeGeometry, view.cubeMaterial ));
@@ -25,7 +25,8 @@ export default <StoreHandler<ZoneView>>((listen, view, stateLayer) => listen.obj
     group.position.z
   ));
 
-  if (obj.id === stateLayer.store.myId) {
+  const state = getState();
+  if (obj.id === state.playerId) {
     view.camera.position.copy(group.position);
   }
 }));

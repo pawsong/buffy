@@ -17,7 +17,7 @@ export const StoreEvents = [
 ];
 
 export interface StoreEmit {
-  resync(): void;
+  resync(params: ResyncParams): void;
   objectAdded(params: ObjectAddedParams): void;
   objectRemoved(params: ObjectRemovedParams): void;
   move(params: MoveParams): void;
@@ -28,7 +28,7 @@ export interface StoreEmit {
 }
 
 export interface StoreListen {
-  resync(fn: () => any): EventSubscription;
+  resync(fn: (params: ResyncParams) => any): EventSubscription;
   objectAdded(fn: (params: ObjectAddedParams) => any): EventSubscription;
   objectRemoved(fn: (params: ObjectRemovedParams) => any): EventSubscription;
   move(fn: (params: MoveParams) => any): EventSubscription;
@@ -39,6 +39,10 @@ export interface StoreListen {
 }
 
 export interface StoreEventParams { }
+
+export interface ResyncParams extends StoreEventParams {
+  zoneIds: string[];
+}
 
 export interface MoveParams extends StoreEventParams {
   object: GameObject;

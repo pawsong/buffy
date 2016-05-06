@@ -1,14 +1,13 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
+import GameObject from '@pasta/core/lib/classes/GameObject';
 
 import DesignManager from '../DesignManager';
 import TerrainManager from './TerrainManager';
 import ObjectManager from './ObjectManager';
 
 import { createEffectManager } from './effects';
-
-interface VrCanvasOptions {
-}
+import { GetZoneViewState } from './interface';
 
 // TODO Support dynamic grid size
 import {
@@ -30,7 +29,7 @@ abstract class ZoneView {
   objectManager: ObjectManager;
   terrainManager: TerrainManager;
   effectManager: any;
-  resyncToStore: () => void;
+  resyncToStore: (object: GameObject) => void;
   cubeGeometry: THREE.Geometry;
   cubeMaterial: THREE.Material;
 
@@ -41,7 +40,7 @@ abstract class ZoneView {
   private frameId: number;
   private tokens: any[];
 
-  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, options: VrCanvasOptions = {}) {
+  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, getState: GetZoneViewState) {
     this.container = container;
 
     const scene = this.scene = new THREE.Scene();
@@ -93,23 +92,23 @@ abstract class ZoneView {
     this.boundHandleWindowResize = this.handleWindowResize.bind(this);
     window.addEventListener('resize', this.boundHandleWindowResize, false);
 
-    const resyncToStore = this.resyncToStore = () => {
-    //   // Clear objects
+    const resyncToStore = this.resyncToStore = (player: GameObject) => {
+      // Clear objects
       objectManager.removeAll();
 
       // Terrains
-      for (let i = 1; i <= stateLayer.store.map.width; ++i) {
-        for (let j = 1; j <= stateLayer.store.map.depth; ++j) {
+      for (let i = 1; i <= player.zone.width; ++i) {
+        for (let j = 1; j <= player.zone.depth; ++j) {
           terrainManager.findAndUpdate(i, j, 0xffffff);
         }
       }
 
-      stateLayer.store.map.terrains.forEach(terrain => {
+      player.zone.terrains.forEach(terrain => {
         terrainManager.findAndUpdate(terrain.position.x, terrain.position.z, terrain.color);
       });
 
       // Objects
-      stateLayer.store.map.objects.forEach(obj => {
+      player.zone.objects.forEach(obj => {
         const object = objectManager.create(obj.id, obj.designId);
         object.add(new THREE.Mesh( geometry, material ));
 
@@ -125,16 +124,18 @@ abstract class ZoneView {
           group.position.z + obj.direction.z
         ));
 
-        if (obj.id === stateLayer.store.myId) {
+        if (obj.id === player.id) {
           camera.position.copy(group.position);
         }
       });
     }
 
     // // Sync view to store data
-    resyncToStore();
+    const { playerId } = getState();
+    const object = stateLayer.store.findObject(playerId);
+    if (object) resyncToStore(object);
 
-    this.tokens = Object.keys(handlers).map(key => handlers[key](stateLayer.store.subscribe, this, stateLayer));
+    this.tokens = Object.keys(handlers).map(key => handlers[key](stateLayer.store.subscribe, this, stateLayer, getState));
 
     // /////////////////////////////////////////////////////////////////////////
     // // FIN

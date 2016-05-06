@@ -7,15 +7,16 @@ import { defineAsync } from '../base';
 
 export default defineAsync(({
   stateLayer,
+  playerId,
 }) => (distance: number) => {
-  const obj = stateLayer.store.getPlayer();
-  const newPos = obj.position.clone().add(obj.direction.clone().multiplyScalar(distance));
+  const object = stateLayer.store.findObject(playerId);
+  const newPos = object.position.clone().add(object.direction.clone().multiplyScalar(distance));
   return stateLayer.rpc.move({
-    id: obj.id,
+    id: object.id,
     x: newPos.x,
     z: newPos.z,
   }).then(() => new Promise(resolve => {
-    const token = obj.onStop(() => {
+    const token = object.onStop(() => {
       // TODO: Check if interrupted or finished
       token.remove();
       resolve();

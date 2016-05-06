@@ -38,11 +38,12 @@ export interface Listener {
 }
 
 export abstract class RoutesCZ implements Rpc {
-  protected user: UserGameObject;
+  protected users: { [index: string]: UserGameObject };
   private destroyFuncs: DestroyFunc[];
 
-  constructor(user: UserGameObject) {
-    this.user = user;
+  constructor(users: UserGameObject[]) {
+    this.users = {};
+    users.forEach(user => this.users[user.id] = user);
   }
 
   protected init() {
@@ -70,12 +71,18 @@ export abstract class RoutesCZ implements Rpc {
 
   protected abstract addListener(event: string, handler: Listener): DestroyFunc;
 
+  protected getUser(id: string): UserGameObject {
+    return this.users[id];
+  }
+
   /* Route handlers */
 
   /**
    * move
    */
   async move(params: MoveParams): Promise<void> {
+    const user = this.getUser(params.id);
+
     if (typeof params.id !== 'string') {
       this.throw(400, 'params.id must be string');
     }
@@ -88,17 +95,17 @@ export abstract class RoutesCZ implements Rpc {
       this.throw(400, 'params.z must be number');
     }
 
-    const dx = this.user.position.x - params.x;
-    const dz = this.user.position.z - params.z;
+    const dx = user.position.x - params.x;
+    const dz = user.position.z - params.z;
     const dist = Math.sqrt(dx * dx + dz * dz);
 
-    this.user.tween
+    user.tween
       .to({ x: params.x, z: params.z }, dist / SPEED) // TODO: Calculate speed
       .start(0);
 
-    this.user.map.broadcast.move({
+    user.zone.broadcast.move({
       id: params.id,
-      tween: this.user.tween.serialize(),
+      tween: user.tween.serialize(),
     });
   }
 
@@ -111,10 +118,12 @@ export abstract class RoutesCZ implements Rpc {
    * playEffect
    */
   async playEffect(params: PlayEffectParams): Promise<void> {
+    const user = this.getUser(params.objectId);
     // TODO: Validate params.
     // TODO: Check permission.
 
-    this.user.map.broadcast.playEffect({
+    user.zone.broadcast.playEffect({
+      objectId: user.id,
       x: params.x,
       z: params.z,
       duration: params.duration,
@@ -125,19 +134,21 @@ export abstract class RoutesCZ implements Rpc {
    * rotate
    */
   async rotate(params: RotateParams): Promise<void> {
+    const user = this.getUser(params.id);
+
     // return async (params) => {
     if (params.direction.x === 0 && params.direction.y === 0 && params.direction.z === 0 ) {
       this.throw(400, 'Invalid vector');
     }
 
-    if (this.user.tween.isPlaying()) this.user.tween.stop();
-    this.user.map.broadcast.stop({ id: params.id });
+    if (user.tween.isPlaying()) user.tween.stop();
+    user.zone.broadcast.stop({ id: params.id });
 
-    this.user.direction.deserialize(params.direction).normalize();
+    user.direction.deserialize(params.direction).normalize();
 
-    this.user.map.broadcast.rotate({
+    user.zone.broadcast.rotate({
       id: params.id,
-      direction: this.user.direction.serialize(),
+      direction: user.direction.serialize(),
     });
   }
 
@@ -145,10 +156,11 @@ export abstract class RoutesCZ implements Rpc {
    * updateMesh
    */
   async updateMesh(params: UpdateMeshParams): Promise<void> {
+    const user = this.getUser(params.objectId);
     // Upsert
 
     // TODO: Save values to DB.
-    this.user.map.broadcast.meshUpdated({
+    user.zone.broadcast.meshUpdated({
       designId: params.designId,
       mesh: params.mesh,
     });
@@ -158,20 +170,23 @@ export abstract class RoutesCZ implements Rpc {
    * updateTerrain
    */
   async updateTerrain(params: UpdateTerrainParams): Promise<void> {
-    await this.updateTerrainInDB(params);
+    const user = this.getUser(params.objectId);
 
-    const terrain = this.user.map.updateTerrain({
+    await this.updateTerrainInDB(user, params);
+
+    const terrain = user.zone.updateTerrain({
       id: shortid.generate(),
       position: { x: params.x, z: params.z },
       color: params.color,
     });
 
-    this.user.map.broadcast.terrainUpdated({
+    user.zone.broadcast.terrainUpdated({
+      zoneId: user.zone.id,
       terrain: terrain.serialize(),
     });
   }
 
-  protected abstract async updateTerrainInDB(params: UpdateTerrainParams): Promise<void>;
+  protected abstract async updateTerrainInDB(user: UserGameObject, params: UpdateTerrainParams): Promise<void>;
 
 }
 
