@@ -85,7 +85,7 @@ interface HistoryPanelProps extends React.Props<HistoryPanel> {
 @injectIntl
 class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
   componentDidUpdate() {
-    if (this.props.voxel.historyIndex === this.props.voxel.present.historyIndex) {
+    if (this.props.voxel.future.length === 0) {
       const list = findDOMNode(this.refs['list']);
       list.scrollTop = list.scrollHeight;
     }
