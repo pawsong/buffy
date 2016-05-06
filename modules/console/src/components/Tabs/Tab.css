@@ -51,7 +51,7 @@
 
   &::before {
     font-family: 'Material Icons';
-    font-weight: normal;
+    font-weight: bold;
     font-style: normal;
     display: inline-block;
     line-height: 1;
@@ -60,7 +60,24 @@
     font-size: 12px;
     width: 12px;
     height: 12px;
-    /*content: "\f081";*/
     content: "close";
+  }
+}
+
+.tabModified {
+  transform: scale(1);
+  transition-duration: .16s;
+  color: var(--palette-cyan-500);
+
+  &::before {
+    font-weight: normal;
+    content: "fiber_manual_record";
+  }
+
+  &:hover {
+    &::before {
+      font-weight: bold;
+      content: "close";
+    }
   }
 }

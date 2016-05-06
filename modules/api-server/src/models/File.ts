@@ -8,24 +8,27 @@ const secrets = [
 const { Schema } = mongoose;
 
 export interface FileDocument extends mongoose.Document {
-  format: string;
-  data: string;
-
-  // meta
+  // Metadata
   owner: mongoose.Types.ObjectId;
   name: string;
   desc: string;
+  createdAt: Date;
+  modifiedAt: Date;
+
+  // Data
+  format: string;
+  bucket: string;
 }
 
 const FileSchema = new Schema({
-  format: String,
-  data: String,
-
   owner: { type: Schema.Types.ObjectId, ref: 'User' },
   name: String,
   desc: String,
   createdAt: { type: Date, default: Date.now },
   modifiedAt: { type: Date, default: Date.now },
+
+  format: String,
+  bucket: String,
 });
 
 // Duplicate the ID field.

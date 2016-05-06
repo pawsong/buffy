@@ -41,6 +41,7 @@ export interface VoxelSnapshot {
   historyIndex: number;
   action: string;
   data: Voxels;
+  mesh: any;
 }
 
 export interface VoxelState {

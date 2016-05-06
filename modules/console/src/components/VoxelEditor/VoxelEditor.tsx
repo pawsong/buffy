@@ -86,7 +86,6 @@ interface VoxelEditorProps extends React.Props<VoxelEditor> {
   editorState: VoxelEditorState;
   onChange: (voxelEditorState: VoxelEditorState) => any;
   sizeVersion: number;
-  onSubmit: (data) => any;
   connectDropTarget?: any;
   intl?: InjectedIntlProps;
 }
@@ -194,12 +193,6 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
     this.setState({ fullscreen: !this.state.fullscreen }, () => this.canvas.resize());
   }
 
-  handleSubmit() {
-    const voxelData = voxelMapToArray(this.props.editorState.voxel.present.data);
-    const result = mesher(voxelData.data, voxelData.shape);
-    this.props.onSubmit(result);
-  }
-
   componentWillMount() {
     this.props.editorState.voxel
     this.canvasShared = new CanvasShared({
@@ -282,15 +275,6 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
         {this.props.connectDropTarget(
           <div style={style}>
             <div style={styles.canvas} ref="canvas"></div>
-            <div style={{ position: 'absolute', top: 15, right: 15 }}>
-              <div>
-                <RaisedButton
-                  label={this.props.intl.formatMessage(Messages.apply)}
-                  primary={true}
-                  onTouchTap={() => this.handleSubmit()}
-                />
-              </div>
-            </div>
             <FullscreenButton
               onTouchTap={() => this.handleFullscreenButtonClick()}
               fullscreen={this.state.fullscreen}

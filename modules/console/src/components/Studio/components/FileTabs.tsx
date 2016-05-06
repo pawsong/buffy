@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Tabs, Tab } from '../../Tabs';
-import { FileDescriptor } from '../types';
+import { FileDescriptor, SourceFile } from '../types';
 
 interface FileTabsProps extends React.Props<FileTabs> {
-  files: FileDescriptor[];
+  files: SourceFile[];
   activeFileId: string;
   onFileClick(fileId: string): any;
   onFileClose(fileId: string): any;
@@ -21,6 +21,7 @@ class FileTabs extends React.Component<FileTabsProps, {}> {
         <Tab
           key={file.id}
           value={file.id}
+          modified={file.modified}
           style={style}
           label={file.name}
         />

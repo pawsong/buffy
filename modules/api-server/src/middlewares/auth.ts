@@ -39,3 +39,19 @@ export const requiresLogin = compose(ejwt({
     return next();
   });
 });
+
+export const checkLogin = compose(ejwt({
+  secret: conf.jwtSecret,
+  getToken: getToken,
+  credentialsRequired: false,
+}), function (req, res, next) {
+  if (!req.user) return next();
+
+  User.findById(req.user.id, (err, user) => {
+    if (err) return next(err);
+    if (!user) return next(createError(403));
+
+    req.userDoc = user;
+    return next();
+  });
+});

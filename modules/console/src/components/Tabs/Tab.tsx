@@ -3,6 +3,7 @@ import { findDOMNode } from 'react-dom';
 import Colors from 'material-ui/lib/styles/colors';
 const objectAssign = require('object-assign');
 import { DragSource, DropTarget } from 'react-dnd';
+import * as classNames from 'classnames';
 
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./Tab.css');
@@ -76,6 +77,7 @@ const tabSource = {
 export interface TabProps extends React.Props<Tab> {
   value: any;
   label: string;
+  modified?: boolean;
   index?: number;
   active?: boolean;
   onClick?: () => any;
@@ -112,6 +114,8 @@ class Tab extends React.Component<TabProps, {}> {
       backgroundColor: this.props.active ? Colors.white : '#e5e5e6',
     }, this.props.style, { opacity });
 
+    const closeClass = this.props.modified ? classNames(styles.tabClose, styles.tabModified) : styles.tabClose;
+
     return connectDragSource(connectDropTarget(
       <li
         className={styles.tab}
@@ -124,7 +128,7 @@ class Tab extends React.Component<TabProps, {}> {
           {this.props.label}
         </div>
         {this.props.closable ? (
-          <div className={styles.tabClose} onClick={e => this.handleClose(e)} />
+          <div className={closeClass} onClick={e => this.handleClose(e)} />
         ) : null}
       </li>
     ));

@@ -123,6 +123,7 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
         robotInstances: {
           [params.myId]: {
             id: params.myId,
+            templateId: '',
             name: this.props.user.name || '(Untitled)',
             mapName: params.map.name,
           },
@@ -244,24 +245,24 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
   }
 
   handleSave() {
-    const fileId = this.state.studioState.voxelEditorState.fileId;
-    if (!fileId) {
-      // Create
-      const data = JSON.stringify(this.state.studioState.voxelEditorState.voxel.present.data.toJS());
-      this.props.runSaga(this.props.createDesign, data, file => {
-        this.setState(update(this.state, {
-          studioState: {
-            voxelEditorState: {
-              fileId: { $set: file.id },
-            },
-          },
-        }));
-      });
-    } else {
-      // Update
-      const data = JSON.stringify(this.state.studioState.voxelEditorState.voxel.present.data.toJS());
-      this.props.runSaga(this.props.updateDesign, fileId, data);
-    }
+    // const fileId = this.state.studioState.voxelEditorState.fileId;
+    // if (!fileId) {
+    //   // Create
+    //   const data = JSON.stringify(this.state.studioState.voxelEditorState.voxel.present.data.toJS());
+    //   this.props.runSaga(this.props.createDesign, data, file => {
+    //     this.setState(update(this.state, {
+    //       studioState: {
+    //         voxelEditorState: {
+    //           fileId: { $set: file.id },
+    //         },
+    //       },
+    //     }));
+    //   });
+    // } else {
+    //   // Update
+    //   const data = JSON.stringify(this.state.studioState.voxelEditorState.voxel.present.data.toJS());
+    //   this.props.runSaga(this.props.updateDesign, fileId, data);
+    // }
   }
 
   render() {

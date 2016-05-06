@@ -46,11 +46,9 @@ class CanvasShared {
   }
 
   voxelStateChange(state: VoxelState) {
-    const voxelData = voxelMapToArray(state.present.data);
+    const { vertices, faces, gridFaces } = state.present.mesh;
 
     const { geometry } = this.meshStore.getState();
-
-    const { vertices, faces, gridFaces } = mesher(voxelData.data, voxelData.shape);
     const nextGeometry = createVoxelGeometry(vertices, faces);
     this.meshStore.update({ geometry: nextGeometry, gridFaces });
 

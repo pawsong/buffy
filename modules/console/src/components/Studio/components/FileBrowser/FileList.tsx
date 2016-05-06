@@ -4,9 +4,12 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import FontIcon from 'material-ui/lib/font-icon';
 import Colors from 'material-ui/lib/styles/colors';
 import Avatar from 'material-ui/lib/avatar';
+import * as classNames from 'classnames';
 
-import { FileDescriptor, FileType } from '../types';
-import { getIconName, getFileTypeLabel } from '../utils';
+import { FileDescriptor, FileType, SourceFile } from '../../types';
+import { getIconName, getFileTypeLabel } from '../../utils';
+
+const styles = require('./FileBrowser.css');
 
 const fileTypeAvatars = {
   [FileType.CODE]: (
@@ -34,10 +37,12 @@ function getFileTypeAvatar(fileType: FileType) {
 }
 
 interface FileListProps extends React.Props<FileList> {
-  files: FileDescriptor[];
+  files: SourceFile[];
   filter: FileType;
   onFileTouchTap: (fileId: string) => any;
 }
+
+const markForModifiedClass = classNames('material-icons', styles.markForModified);
 
 class FileList extends React.Component<FileListProps, {}> {
   render() {
@@ -52,7 +57,9 @@ class FileList extends React.Component<FileListProps, {}> {
         <ListItem
           key={file.id}
           leftAvatar={getFileTypeAvatar(file.type)}
-          primaryText={file.name}
+          primaryText={
+            <span>{file.modified ? <i className={markForModifiedClass}>fiber_manual_record</i> : null}{file.name}</span>
+          }
           secondaryText={getFileTypeLabel(file.type)}
           onTouchTap={() => this.props.onFileTouchTap(file.id)}
         />

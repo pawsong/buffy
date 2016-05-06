@@ -63,7 +63,6 @@ class CodeEditor extends React.Component<CodeEditorProps, void> {
         spacing: 20,
         length: 3,
         colour: '#ccc',
-        snap: true
       },
       trashcan: true,
     });
@@ -73,11 +72,16 @@ class CodeEditor extends React.Component<CodeEditorProps, void> {
     const dom = Blockly.Xml.textToDom(savedXml || initBlock);
     Blockly.Xml.domToWorkspace(dom, this.workspace);
 
-    this.workspace.addChangeListener((e) => {
-      const dom = Blockly.Xml.workspaceToDom(this.workspace);
-      const xml = Blockly.Xml.domToText(dom);
-      this.setEditorState({ blocklyXml: xml });
-    });
+    // Blockly emits events for installation in the next frame.
+    setTimeout(() => {
+      this.workspace.addChangeListener((e) => {
+        if (e.type === 'ui') return;
+
+        const dom = Blockly.Xml.workspaceToDom(this.workspace);
+        const xml = Blockly.Xml.domToText(dom);
+        this.setEditorState({ blocklyXml: xml });
+      });
+    }, 0);
   }
 
   componentDidMount() {

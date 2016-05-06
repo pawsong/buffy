@@ -5,10 +5,10 @@ import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import Colors from 'material-ui/lib/styles/colors';
 const update = require('react-addons-update');
 
-import FileList from '../FileList';
+import FileList from './FileList';
 
 import Layout, { LayoutContainer } from '../../../Layout';
-import { FileType, FileDescriptor } from '../../types';
+import { FileType, FileDescriptor, SourceFile } from '../../types';
 import { getIconName, getFileTypeLabel } from '../../utils';
 
 const styles = require('./FileBrowser.css');
@@ -16,7 +16,7 @@ const styles = require('./FileBrowser.css');
 interface FileBrowserProps extends React.Props<FileBrowser> {
   initialWidth: number;
   onWidthResize: (size: number) => any;
-  files: { [index: string]: FileDescriptor };
+  files: { [index: string]: SourceFile };
   resizeEditor: () => any;
   onOpenFileRequest: (fileType: FileType) => any;
   onFileClick: (fileId: string) => any;

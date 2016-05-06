@@ -8,6 +8,8 @@ import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import { Project, ProjectData, SerializedLocalServer } from '@pasta/core/lib/Project';
 import StateLayer from '@pasta/core/lib/StateLayer';
 
+const update = require('react-addons-update');
+
 import LocalServer, { LocalSocket } from '../../LocalServer';
 import { connectApi, preloadApi, ApiCall, get, ApiDispatchProps } from '../../api';
 import { State } from '../../reducers';
@@ -20,9 +22,16 @@ import { RobotInstance, ZoneInstance } from '../../components/Studio';
 import { requestLogout } from '../../actions/auth';
 import { compileBlocklyXml } from '../../blockly/utils';
 
+import * as Immutable from 'immutable';
+
 import ProjectStudioNavbar from './components/ProjectStudioNavbar';
 
+const msgpack = require('msgpack-lite');
+
 import {
+  issueFileIds,
+  createFile,
+  createFiles,
   loadProject,
   createAnonProject,
   createUserProject,
@@ -63,9 +72,20 @@ function inferProjectStudioMode(params: RouteParams): ProjectStudioMode {
   return ProjectStudioMode.CREATE;
 }
 
+interface WorkingCopy {
+  fileId: string;
+  created: boolean;
+  modified: boolean;
+  type: FileType;
+  data: any;
+}
+
 interface ProjectStudioHandlerProps extends RouteComponentProps<RouteParams, RouteParams>, ApiDispatchProps, SagaProps {
   user: User;
   projectMetadata?: ApiCall<ProjectMetadata>;
+  issueFileIds?: ImmutableTask<{}>;
+  createFile?: ImmutableTask<{}>;
+  createFiles?: ImmutableTask<{}>;
   loadProject?: ImmutableTask<Project>;
   createAnonProject: ImmutableTask<{}>;
   createUserProject: ImmutableTask<{}>;
@@ -79,10 +99,26 @@ interface ProjectStudioHandlerState {
   stateLayerIsRunning?: boolean;
   initialLocalServer?: SerializedLocalServer;
   studioState?: StudioState;
+  // Files
+  // activeFiles
+  workingCopies?: { [index: string]: WorkingCopy };
+  activeWorkingCopyId?: string;
 }
 
 function rgbToHex({ r, g, b }) {
   return (r << 16) | (g << 8) | b;
+}
+
+function updateKey(object, currentKey, nextKey): any {
+  const ret = {};
+  Object.keys(object).forEach(key => {
+    if (currentKey === key) {
+      ret[nextKey] = object[key];
+    } else {
+      ret[key] = object[key];
+    };
+  });
+  return ret;
 }
 
 /*
@@ -112,6 +148,9 @@ function rgbToHex({ r, g, b }) {
   push,
 }) as any)
 @saga({
+  issueFileIds,
+  createFile,
+  createFiles,
   loadProject,
   createAnonProject,
   createUserProject,
@@ -124,7 +163,6 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   socket: LocalSocket;
   server: LocalServer;
   stateLayer: StateLayer;
-  startStateLayerGuard: boolean;
 
   robots: RobotInstance[];
   zones: ZoneInstance[];
@@ -147,13 +185,13 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
         return () => token.remove();
       },
     });
-
-    this.startStateLayerGuard = false;
   }
 
   componentDidMount() {
     if (this.mode === ProjectStudioMode.CREATE) {
-      this.setState(this.createStateFromLocalStorage(), () => this.startStateLayer());
+      this.props.runSaga(this.props.issueFileIds, 4 /* code, design, robot, zone */, fileIds => {
+        this.setState(this.createStateFromLocalStorage(fileIds), () => this.startStateLayer());
+      });
     } else {
       const { params } = this.props;
 
@@ -179,14 +217,10 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     this.stateLayer = null;
   }
 
-  createStateFromLocalStorage(): ProjectStudioHandlerState {
+  createStateFromLocalStorage(fileIds: string[]): ProjectStudioHandlerState {
     return {
       initialLocalServer: LocalServer.createInitialData(),
-      studioState: Studio.creatState({
-        codeEditorState: {
-          blocklyXml: localStorage.getItem(StorageKeys.BLOCKLY_WORKSPACE_CREATE),
-        },
-      }),
+      studioState: Studio.creatState({ fileIds }),
     };
   }
 
@@ -209,14 +243,23 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   startStateLayer() {
-    if (this.startStateLayerGuard) return;
-    this.startStateLayerGuard = true;
-
     this.server = new LocalServer(this.state.initialLocalServer, this.socket);
     this.stateLayer.start(this.server.getInitData());
 
+    let templateId = '';
+    const fileIds = Object.keys(this.state.studioState.files);
+    for (let i = 0; i < fileIds.length; ++i) {
+      const fileId = fileIds[i];
+      const file = this.state.studioState.files[fileId];
+      if (file.type === FileType.ROBOT) {
+        templateId = fileId;
+        break;
+      }
+    }
+
     this.robots = [{
       id: this.server.user.id,
+      templateId,
       name: '(Untitled)',
       mapName: this.server.user.map.name || '(Untitled)',
     }];
@@ -240,49 +283,106 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   handleSave() {
-    // Game
-    const serialized = this.server.serialize();
+    // Create files
+    // const buffer = msgpack.encode(this.state.studioState.codeEditorState.blocklyXml);
+    // this.props.runSaga(this.props.createFiles, [{
+    //   name: 'name',
+    //   format: 'format',
+    //   data: buffer.toArrayBuffer()
+    // }]);
 
-    // Code editor
-    const { blocklyXml } = this.state.studioState.codeEditorState;
-    const scripts = compileBlocklyXml(blocklyXml);
+    const fileId = this.state.studioState.activeFileId;
+    const file = this.state.studioState.files[fileId];
+    if (!file.modified) return;
 
-    // Voxel editor
+    // this.setState(update(this.state, {
+    //   studioState: { workingCopies: { [workingCopyId]: {
+    //     created: { $set: false },
+    //     modified: { $set: false },
+    //   } } },
+    // }));
 
-    const voxels = this.state.studioState.voxelEditorState.voxel.present.data.toArray().map(voxel => {
-      return {
-        position: voxel.position,
-        color: rgbToHex(voxel.color),
-      };
-    });
+    if (file.type === FileType.DESIGN) {
+      const mesh = file.state.voxel.present.mesh;
 
-    const data: ProjectData = {
-      scripts,
-      blocklyXml,
-      server: serialized,
-      voxels,
-    };
-
-    switch (this.mode) {
-      case ProjectStudioMode.CREATE: {
-        if (this.props.user) {
-          this.props.runSaga(this.props.createUserProject, data);
-        } else {
-          this.props.runSaga(this.props.createAnonProject, data);
+      this.robots.forEach(robotInstance => {
+        const robotId = robotInstance.templateId;
+        const robot = this.state.studioState.files[robotId];
+        if (robot.state.design === fileId) {
+          this.stateLayer.rpc.updateMesh({
+            id: robot.id,
+            vertices: mesh.vertices,
+            faces: mesh.faces,
+          });
         }
-        return;
-      }
-      case ProjectStudioMode.ANON_EDIT: {
-        const { projectId } = this.props.routeParams;
-        this.props.runSaga(this.props.updateAnonProject, projectId, data);
-        return;
-      }
-      case ProjectStudioMode.USER_EDIT: {
-        const { username, projectId } = this.props.routeParams;
-        this.props.runSaga(this.props.updateUserProject, username, projectId, data);
-        return;
-      }
+      });
     }
+
+    if (file.created) {
+      // Serialize
+      // const buffer = msgpack.encode(this.state.studioState.codeEditorState.blocklyXml);
+
+      // // Save
+      // this.props.runSaga(this.props.createFile, {
+      //   name: 'name',
+      //   format: 'format',
+      //   data: buffer.toArrayBuffer()
+      // }, fileId => this.setState(update(this.state, {
+      //   workingCopies: {
+      //     [workingCopyId]: {
+      //       fileId: { $set: fileId },
+      //       created: { $set: false },
+      //       modified: { $set: false },
+      //     },
+      //   },
+      // })));
+    } else {
+
+    }
+
+    // // Game
+    // const serialized = this.server.serialize();
+
+    // // Code editor
+    // const { blocklyXml } = this.state.studioState.codeEditorState;
+    // const scripts = compileBlocklyXml(blocklyXml);
+
+    // // Voxel editor
+
+    // const voxels = this.state.studioState.voxelEditorState.voxel.present.data.toArray().map(voxel => {
+    //   return {
+    //     position: voxel.position,
+    //     color: rgbToHex(voxel.color),
+    //   };
+    // });
+
+    // const data: ProjectData = {
+    //   scripts,
+    //   blocklyXml,
+    //   server: serialized,
+    //   voxels,
+    // };
+
+    // switch (this.mode) {
+    //   case ProjectStudioMode.CREATE: {
+    //     if (this.props.user) {
+    //       this.props.runSaga(this.props.createUserProject, data);
+    //     } else {
+    //       this.props.runSaga(this.props.createAnonProject, data);
+    //     }
+    //     return;
+    //   }
+    //   case ProjectStudioMode.ANON_EDIT: {
+    //     const { projectId } = this.props.routeParams;
+    //     this.props.runSaga(this.props.updateAnonProject, projectId, data);
+    //     return;
+    //   }
+    //   case ProjectStudioMode.USER_EDIT: {
+    //     const { username, projectId } = this.props.routeParams;
+    //     this.props.runSaga(this.props.updateUserProject, username, projectId, data);
+    //     return;
+    //   }
+    // }
   }
 
   handleVrModeRequest() {
@@ -294,11 +394,11 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   handleStudioStateChange(nextState: StudioState) {
-    if (this.mode === ProjectStudioMode.CREATE) {
-      if (this.state.studioState.codeEditorState.blocklyXml !== nextState.codeEditorState.blocklyXml) {
-        localStorage.setItem(StorageKeys.BLOCKLY_WORKSPACE_CREATE, nextState.codeEditorState.blocklyXml);
-      }
-    }
+    // if (this.mode === ProjectStudioMode.CREATE) {
+    //   if (this.state.studioState.codeEditorState.blocklyXml !== nextState.codeEditorState.blocklyXml) {
+    //     localStorage.setItem(StorageKeys.BLOCKLY_WORKSPACE_CREATE, nextState.codeEditorState.blocklyXml);
+    //   }
+    // }
     this.setState({ studioState: nextState });
   }
 
@@ -317,20 +417,23 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     return (
       <div>
-        <ProjectStudioNavbar user={this.props.user}
-                             location={this.props.location}
-                             onLogout={() => this.props.requestLogout()}
-                             onSave={() => this.handleSave()}
-                             onLinkClick={location => this.props.push(location)}
-                             vrModeAvaiable={this.mode !== ProjectStudioMode.CREATE}
-                             onVrModeRequest={() => this.handleVrModeRequest()}
+        <ProjectStudioNavbar
+          user={this.props.user}
+          location={this.props.location}
+          onLogout={() => this.props.requestLogout()}
+          onSave={() => this.handleSave()}
+          onLinkClick={location => this.props.push(location)}
+          vrModeAvaiable={this.mode !== ProjectStudioMode.CREATE}
+          onVrModeRequest={() => this.handleVrModeRequest()}
         />
-        <Studio robotInstances={this.robots}
-                zoneInstances={this.zones}
-                studioState={this.state.studioState}
-                onChange={studioState => this.handleStudioStateChange(studioState)}
-                onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}
-                stateLayer={this.stateLayer} style={styles.studio}
+        <Studio
+          robotInstances={this.robots}
+          zoneInstances={this.zones}
+          studioState={this.state.studioState}
+          onChange={studioState => this.handleStudioStateChange(studioState)}
+          onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}
+          stateLayer={this.stateLayer}
+          style={styles.studio}
         />
       </div>
     );

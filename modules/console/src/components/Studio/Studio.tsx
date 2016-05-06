@@ -9,6 +9,7 @@ import Colors from 'material-ui/lib/styles/colors';
 
 const update = require('react-addons-update');
 const objectAssign = require('object-assign');
+import * as shortid from 'shortid';
 
 import { DragDropContext } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
@@ -25,10 +26,10 @@ import { saga, SagaProps, ImmutableTask } from '../../saga';
 import { runBlocklyWorkspace, submitVoxel } from './sagas';
 
 import Layout, { LayoutContainer } from '../../components/Layout';
-import FileBrowser from './components/FileBrowser';
 
 import { getIconName, getFileTypeLabel } from './utils';
 
+import FileBrowser from './components/FileBrowser';
 import waitForMount from './components/waitForMount';
 import FileTabs from './components/FileTabs';
 import InstanceBrowser from './components/InstanceBrowser';
@@ -48,7 +49,7 @@ import VoxelEditor, {
 
 import { compileBlocklyXml } from '../../blockly/utils';
 
-import { FileDescriptor, FileType } from './types';
+import { FileDescriptor, FileType, SourceFile, RobotState } from './types';
 
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./Studio.css');
@@ -79,10 +80,9 @@ const messages = defineMessages({
 import { RobotInstance, ZoneInstance } from './types';
 
 export interface StudioState {
-  codeEditorState?: CodeEditorState;
   gameState?: GameState;
-  voxelEditorState?: VoxelEditorState;
-  files?: { [index: string]: FileDescriptor };
+
+  files?: { [index: string]: SourceFile };
   activeFileId?: string;
 }
 
@@ -114,6 +114,7 @@ interface StudioOwnState { // UI states
 interface CreateStateOptions {
   codeEditorState?: CreateCodeEditorStateOptions;
   voxelEditorState?: CreateVoxelEditorStateOptions;
+  fileIds?: string[];
 }
 
 @waitForMount
@@ -136,12 +137,18 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 
   sandbox: Sandbox;
 
-  constructor(props, context) {
+  constructor(props: StudioProps, context) {
     super(props, context);
+
+    const filesOnTab = Object.keys(props.studioState.files).filter(key => {
+      const file = props.studioState.files[key];
+      return file.created;
+    });
+
     this.state = {
+      filesOnTab,
       editorSizeVersion: 0,
       gameSizeVersion: 0,
-      filesOnTab: ['1', '2'],
     };
 
     this.sandbox = new Sandbox(this.props.stateLayer);
@@ -152,8 +159,11 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   }
 
   handleRun() {
-    const scripts = compileBlocklyXml(this.props.studioState.codeEditorState.blocklyXml);
-    this.props.runSaga(this.props.run, this.sandbox, scripts);
+    // Collect all scripts to run
+    // Run scripts
+
+    // const scripts = compileBlocklyXml(this.props.studioState.codeEditorState.blocklyXml);
+    // this.props.runSaga(this.props.run, this.sandbox, scripts);
   }
 
   handleStop() {
@@ -193,19 +203,19 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     this.props.onChange(objectAssign({}, this.props.studioState, nextState));
   }
 
-  handleFileTabClose(fileId) {
+  handleFileTabClose(fileId: string) {
     const index = this.state.filesOnTab.indexOf(fileId);
     if (index === -1) return;
 
-    let nextActiveFileId = this.props.studioState.activeFileId;
+    let activeFileId = this.props.studioState.activeFileId;
     if (fileId === this.props.studioState.activeFileId) {
       if (index > 0) {
-        nextActiveFileId = this.state.filesOnTab[index - 1];
+        activeFileId = this.state.filesOnTab[index - 1];
       } else {
         if (this.state.filesOnTab.length > 1) {
-          nextActiveFileId = this.state.filesOnTab[index + 1];
+          activeFileId = this.state.filesOnTab[index + 1];
         } else {
-          nextActiveFileId = '';
+          activeFileId = '';
         }
       }
     }
@@ -213,7 +223,16 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     this.setState(update(this.state, {
       filesOnTab: { $splice: [[index, 1]] },
     }));
-    this.handleStateChange({ activeFileId: nextActiveFileId });
+    this.handleStateChange({ activeFileId });
+  }
+
+  handleFileChange(id: string, state: any) {
+    this.props.onChange(update(this.props.studioState, {
+      files: { [id]: {
+        modified: { $set: true },
+        state: { $set: state },
+      } },
+    }));
   }
 
   renderEditor() {
@@ -240,11 +259,10 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           }}
         />
         <Editor
-          codeEditorState={this.props.studioState.codeEditorState}
-          voxelEditorState={this.props.studioState.voxelEditorState}
           editorSizeRevision={this.state.editorSizeVersion}
-          onStateChange={state => this.handleStateChange(state)}
+          onFileChange={(id, state) => this.handleFileChange(id, state)}
           file={file}
+          files={this.props.studioState.files}
         />
       </div>
     );
@@ -304,7 +322,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
                     {controlButton}
                   </ToolbarGroup>
                 </Toolbar>
-                { /* Object instance browser */}
                 <InstanceBrowser
                   robotInstances={this.props.robotInstances}
                   zoneInstances={this.props.zoneInstances}
@@ -332,33 +349,48 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 }
 
 Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
+  const { fileIds } = options;
+
+  const codeFileId = fileIds[0];
+  const designFileId = fileIds[1];
+  const robotFileId = fileIds[2];
+  const robotState: RobotState = {
+    codes: [codeFileId],
+    design: designFileId,
+  };
+
   return {
-    codeEditorState: CodeEditor.creatState(options.codeEditorState),
     gameState: ZonePreview.createState(),
-    voxelEditorState: VoxelEditor.createState(options.voxelEditorState),
     files: {
-      '1': {
-        id: '1',
+      [codeFileId]: {
+        id: codeFileId,
+        created: true,
+        modified: false,
+        readonly: false,
         name: 'Code',
         type: FileType.CODE,
+        state: CodeEditor.creatState(options.codeEditorState),
       },
-      '2': {
-        id: '2',
+      [designFileId]: {
+        id: designFileId,
+        created: true,
+        modified: false,
+        readonly: false,
         name: 'Design',
-        type: FileType.DESIGN
+        type: FileType.DESIGN,
+        state: VoxelEditor.createState(options.voxelEditorState),
       },
-      '3': {
-        id: '3',
-        name: 'Robot 1',
+      [robotFileId]: {
+        id: robotFileId,
+        created: true,
+        modified: false,
+        readonly: false,
+        name: 'Robot',
         type: FileType.ROBOT,
+        state: robotState,
       },
-      // '4': {
-      //   id: '4',
-      //   name: 'Code 2',
-      //   type: FileType.CODE,
-      // },
     },
-    activeFileId: '1',
+    activeFileId: codeFileId,
   };
 }
 

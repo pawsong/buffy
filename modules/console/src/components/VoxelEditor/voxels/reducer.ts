@@ -41,9 +41,13 @@ export const initialState: VoxelState = {
     historyIndex: 1,
     action: VOXEL_INIT,
     data: Immutable.Map<any, any>(),
+    mesh: { vertices: [], faces: [], gridFaces: [] },
   },
   future: [],
 }
+
+import { voxelMapToArray } from '../canvas/utils';
+import mesher from '../canvas/meshers/greedy';
 
 const voxelUndoable = reducer => (state: VoxelState = initialState, action: Action<any>): VoxelState => {
   switch (action.type) {
@@ -128,6 +132,9 @@ const voxelUndoable = reducer => (state: VoxelState = initialState, action: Acti
         return state;
       }
 
+      const voxelData = voxelMapToArray(data);
+      const { vertices, faces, gridFaces } = mesher(voxelData.data, voxelData.shape);
+
       const historyIndex = state.historyIndex + 1;
 
       const past = (
@@ -138,8 +145,9 @@ const voxelUndoable = reducer => (state: VoxelState = initialState, action: Acti
 
       const present: VoxelSnapshot = {
         historyIndex,
-        data,
         action: action.type,
+        data,
+        mesh: { vertices, faces, gridFaces },
       };
 
       return {

@@ -10,7 +10,7 @@ import { FileType } from '../../types';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./Editor.css');
 
-import { FileDescriptor } from '../../types';
+import { FileDescriptor, SourceFile, RobotState } from '../../types';
 
 interface EditorState {
   codeEditorState?: CodeEditorState,
@@ -18,13 +18,10 @@ interface EditorState {
 }
 
 interface EditorProps extends React.Props<Editor> {
-  file: FileDescriptor;
+  file: SourceFile;
+  files: { [index: string]: SourceFile };
   editorSizeRevision: number;
-
-  // TODO: Replace with file body
-  codeEditorState: CodeEditorState;
-  voxelEditorState: VoxelEditorState;
-  onStateChange: (state: EditorState) => any;
+  onFileChange: (fileId: string, state: any) => any;
 }
 
 @withStyles(styles)
@@ -32,8 +29,8 @@ class Editor extends React.Component<EditorProps, any> {
   renderCodeEditor() {
     return (
       <CodeEditor
-        editorState={this.props.codeEditorState}
-        onChange={codeEditorState => this.props.onStateChange({ codeEditorState })}
+        editorState={this.props.file.state}
+        onChange={codeEditorState => this.props.onFileChange(this.props.file.id, codeEditorState)}
         sizeRevision={this.props.editorSizeRevision}
         readyToRender={true}
       />
@@ -43,15 +40,28 @@ class Editor extends React.Component<EditorProps, any> {
   renderDesignEditor() {
     return (
       <VoxelEditor
-        editorState={this.props.voxelEditorState}
-        onChange={voxelEditorState => this.props.onStateChange({ voxelEditorState })}
+        editorState={this.props.file.state}
+        onChange={voxelEditorState => this.props.onFileChange(this.props.file.id, voxelEditorState)}
         sizeVersion={this.props.editorSizeRevision}
-        onSubmit={(data) => (data)}
       />
     );
   }
 
   renderRobotEditor() {
+    const state: RobotState = this.props.file.state;
+    const codes = state.codes.map(id => this.props.files[id]);
+    const design = this.props.files[state.design];
+
+    const codeElement = codes.map(code => {
+      return (
+        <div key={code.id}>{code.name}</div>
+      );
+    })
+
+    const designElement = (
+      <div>{design.name}</div>
+    );
+
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
         <div>
@@ -59,9 +69,11 @@ class Editor extends React.Component<EditorProps, any> {
 
           <h2>Codes for this robot</h2>
           <div>Code list</div>
+          {codeElement}
           <div>Add button (Open browser)</div>
 
           <h2>Design for this robot</h2>
+          {designElement}
           <div>Preview</div>
           <div>Select button (Open browser)</div>
         </div>

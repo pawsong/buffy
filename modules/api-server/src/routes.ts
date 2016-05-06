@@ -57,8 +57,11 @@ export default (app: express.Express) => {
 
   app.post ('/cdn/signed-url/profile', cdnHandlers.issueS3SignedUrlForProfile);
 
+  app.post('/files', fileHandlers.createFile2);
+  app.post('/files/issue-ids', fileHandlers.issueFileIds);
+  app.post('/files/:fileId/issue-update-url', fileHandlers.issueFileUpdateUrl);
+
   app.get ('/files', fileHandlers.getFileList);
   app.get ('/files/:fileId', fileHandlers.getFile);
-  app.post('/files', fileHandlers.createFile);
   app.put ('/files/:fileId', fileHandlers.updateFile);
 };
