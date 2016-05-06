@@ -224,24 +224,26 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
     const robots = Object.keys(this.state.robotInstances).map(id => this.state.robotInstances[id]);
     const zones = Object.keys(this.state.zoneInstances).map(id => this.state.zoneInstances[id]);
 
-    return (
-      <div>
-        <Studio robotInstances={robots}
-                zoneInstances={zones}
-                studioState={this.state.studioState}
-                onChange={studioState => this.setState({ studioState })}
-                onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}
-                stateLayer={this.stateLayer}
-                style={styles.studio}
-                game={game}
-        />
-        <DesignBrowserDialog
-          open={this.state.designBrowserOpen}
-          onRequestClose={() => this.setState({ designBrowserOpen: false })}
-          onDesignLoad={data => this.handleDesignLoad(data)}
-        />
-      </div>
-    );
+    return null;
+
+    // return (
+    //   <div>
+    //     <Studio robotInstances={robots}
+    //             zoneInstances={zones}
+    //             studioState={this.state.studioState}
+    //             onChange={studioState => this.setState({ studioState })}
+    //             onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}
+    //             stateLayer={this.stateLayer}
+    //             style={styles.studio}
+    //             game={game}
+    //     />
+    //     <DesignBrowserDialog
+    //       open={this.state.designBrowserOpen}
+    //       onRequestClose={() => this.setState({ designBrowserOpen: false })}
+    //       onDesignLoad={data => this.handleDesignLoad(data)}
+    //     />
+    //   </div>
+    // );
   }
 
   handleSave() {

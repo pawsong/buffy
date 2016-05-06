@@ -52,24 +52,6 @@ class AreaRoutes extends RoutesCZ {
     map.addUser(this.user);
   }
 
-  protected async updateMeshInDB(params: UpdateMeshParams) {
-    if (this.user.mesh) {
-      await MeshModel.findByIdAndUpdate(this.user.mesh.id, {
-        vertices: params.vertices,
-        faces: params.faces,
-      }).exec();
-    } else {
-      const meshDoc = await MeshModel.create({
-        vertices: params.vertices,
-        faces: params.faces,
-      });
-
-      await GameUserModel.findByIdAndUpdate(this.user.id, {
-        mesh: meshDoc.id,
-      }).exec();
-    }
-  }
-
   protected async updateTerrainInDB(params: UpdateTerrainParams) {
     await Terrain.findOneAndUpdate({
       map: this.user.map.id,

@@ -154,23 +154,7 @@ StateStore.on.rotate((store, params) => {
 });
 
 StateStore.on.meshUpdated((store, params) => {
-  // TODO: Save to store memory
-  const object = store.map.findObject(params.id);
-  if (!object) {
-    // TODO: Request missing object data to server.
-    // Out of sync in this case. We may have to reset all data.
-    console.error('Client and server out of sync!');
-    console.error(`Cannot find object ${params.id}`);
-    return;
-  }
-
-  if (object.mesh) {
-    object.mesh.deserialize(params.mesh);
-  } else {
-    object.mesh = new Mesh(params.mesh);
-  }
-
-  store.emit.meshUpdated({ object });
+  store.emit.meshUpdated(params);
 });
 
 StateStore.on.playEffect((store, params) => {

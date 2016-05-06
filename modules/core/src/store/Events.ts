@@ -3,6 +3,7 @@ import Terrain from '../classes/Terrain';
 import { EventSubscription } from 'fbemitter';
 import Vector3 from '../classes/Vector3';
 import * as ZC from '../packet/ZC';
+import { Mesh } from '../types';
 
 export const StoreEvents = [
   'resync',
@@ -61,7 +62,8 @@ export interface PlayEffectParams extends ZC.PlayEffectParams {
 }
 
 export interface MeshUpdatedParams extends StoreEventParams {
-  object: GameObject;
+  designId: string;
+  mesh: Mesh;
 }
 
 export interface TerrainUpdateParams extends StoreEventParams {

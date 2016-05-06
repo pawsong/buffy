@@ -5,10 +5,12 @@ import { Scripts } from '@pasta/core/lib/types';
 
 import GameZoneView from './GameZoneView';
 
+import DesignManager from '../../DesignManager';
 import FullscreenPlayer from '../FullscreenPlayer';
 
 interface GameProps extends React.Props<Game> {
   stateLayer: StateLayer;
+  designManager: DesignManager;
   scripts: Scripts;
   onStart: () => any;
 }
@@ -20,7 +22,7 @@ class Game extends React.Component<GameProps, void> {
         onStart={this.props.onStart}
         scripts={this.props.scripts}
         stateLayer={this.props.stateLayer}
-        installZoneView={(element) => new GameZoneView(element, this.props.stateLayer)}
+        installZoneView={(element) => new GameZoneView(element, this.props.stateLayer, this.props.designManager)}
       />
     );
   }

@@ -1,8 +1,8 @@
 import { SerializedGameMap } from '../classes/GameMap';
 import { SerializedGameObject } from '../classes/GameObject';
 import { SerializedTerrain } from '../classes/Terrain';
-import { SerializedMesh } from '../classes/Mesh';
 import { SerializedVector3 } from '../classes/Vector3';
+import { Mesh } from '../types';
 import { RpcParams, RpcResponse } from './base';
 import * as CZ from './CZ';
 
@@ -105,8 +105,8 @@ export interface TerrainUpdatedParams extends RpcParams {
 }
 
 export interface MeshUpdatedParams extends RpcParams {
-  id: string;
-  mesh: SerializedMesh;
+  designId: string;
+  mesh: Mesh;
 }
 
 // Responses

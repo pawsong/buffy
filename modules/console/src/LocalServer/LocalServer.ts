@@ -14,19 +14,23 @@ import LocalUserGameObject from './LocalUserGameObject';
 import LocalRoutes from './LocalRoutes';
 import LocalSocket from './LocalSocket';
 
+interface CreateInitialDataOptions {
+  designId;
+}
+
 class LocalServer {
-  static createInitialData(): SerializedLocalServer {
+  static createInitialData(options: CreateInitialDataOptions): SerializedLocalServer {
     const userId = shortid.generate();
 
     // const
     const serializedGameObject: SerializedGameObject = {
       id: userId,
+      designId: options.designId,
       position: {
         x: 1,
         y: 0,
         z: 1,
       },
-      mesh: null,
       direction: { x: 0, y: 0, z: 1 },
     };
 

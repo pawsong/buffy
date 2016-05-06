@@ -10,7 +10,7 @@ import {
 
 export default <StoreHandler<ZoneView>>((listen, view, stateLayer) => listen.objectAdded(params => {
   const { object: obj } = params;
-  const object = view.objectManager.create(obj.id);
+  const object = view.objectManager.create(obj.id, obj.designId);
   object.add(new THREE.Mesh( view.cubeGeometry, view.cubeMaterial ));
 
   const { group } = object;
@@ -24,10 +24,6 @@ export default <StoreHandler<ZoneView>>((listen, view, stateLayer) => listen.obj
     group.position.y,
     group.position.z
   ));
-
-  if (obj.mesh) {
-    object.changeMesh(obj.mesh);
-  }
 
   if (obj.id === stateLayer.store.myId) {
     view.camera.position.copy(group.position);

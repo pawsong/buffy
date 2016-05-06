@@ -39,14 +39,3 @@ export function* runBlocklyWorkspace(sandbox: Sandbox, scripts: Scripts) {
   }
 }
 
-export function* submitVoxel(stateLayer: StateLayer, data: any) {
-  yield call(stateLayer.rpc.updateMesh, {
-    id: stateLayer.store.myId,
-    vertices: data.vertices,
-    faces: data.faces,
-  });
-
-  yield put(pushSnackbar({
-    message: 'Mesh updated',
-  }));
-};

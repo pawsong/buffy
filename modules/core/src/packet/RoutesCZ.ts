@@ -1,7 +1,6 @@
 import * as Promise from 'bluebird';
 import * as shortid from 'shortid';
 import * as createError from 'http-errors';
-import Mesh from '../classes/Mesh';
 
 import {
   Rpc,
@@ -146,31 +145,14 @@ export abstract class RoutesCZ implements Rpc {
    * updateMesh
    */
   async updateMesh(params: UpdateMeshParams): Promise<void> {
-    await this.updateMeshInDB(params);
-
     // Upsert
-    if (this.user.mesh) {
-      this.user.mesh.deserialize({
-        id: this.user.mesh.id,
-        vertices: params.vertices,
-        faces: params.faces,
-      });
-    } else {
-      this.user.mesh = new Mesh({
-        id: 'my-mesh',
-        vertices: params.vertices,
-        faces: params.faces,
-      });
-    }
 
     // TODO: Save values to DB.
     this.user.map.broadcast.meshUpdated({
-      id: this.user.id,
-      mesh: this.user.mesh.serialize(),
+      designId: params.designId,
+      mesh: params.mesh,
     });
   }
-
-  protected abstract async updateMeshInDB(params: UpdateMeshParams): Promise<void>;
 
   /**
    * updateTerrain

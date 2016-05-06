@@ -58,13 +58,15 @@ class OnlineGameHandler extends React.Component<HandlerProps, HandlerState> {
   }
 
   render() {
-    return (
-      <Game
-        stateLayer={this.stateLayer}
-        onStart={() => this.handleStart()}
-        scripts={this.state.scripts}
-      />
-    );
+    return null;
+
+    // return (
+    //   <Game
+    //     stateLayer={this.stateLayer}
+    //     onStart={() => this.handleStart()}
+    //     scripts={this.state.scripts}
+    //   />
+    // );
   }
 }
 

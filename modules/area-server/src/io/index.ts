@@ -69,26 +69,19 @@ export default (io: SocketIO.Server) => {
       const map = await GameMapManager.findOrCreate(mapId);
 
       let mesh: MeshDocument;
-      if (userDoc.mesh) {
-        mesh = await MeshModel.findById(userDoc.mesh.toHexString()).exec();
-      }
 
       // Prevent duplicate session.
       Sessions.login(userId, socket);
 
       const user = new AreaUserGameObject({
         id: userDoc.id,
+        designId: userDoc.designId,
         position: {
           x: userDoc.loc.pos.x,
           y: userDoc.loc.pos.y || 0,
           z: userDoc.loc.pos.z,
         },
         direction: userDoc.loc.dir || { x: 0, y: 0, z: 1 },
-        mesh: mesh ? {
-          id: mesh.id,
-          vertices: mesh.vertices,
-          faces: mesh.faces,
-        } : null,
       }, map, socket);
       map.addUser(user);
 

@@ -45,6 +45,7 @@
     "express": "^4.13.3",
     "express-jwt": "^3.1.0",
     "fbemitter": "^2.0.1",
+    "fbjs": "^0.8.2",
     "flexboxgrid": "^6.3.0",
     "gm": "^1.21.1",
     "hairdresser": "^0.1.6",

@@ -11,6 +11,7 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 const update = require('react-addons-update');
 
 import LocalServer, { LocalSocket } from '../../LocalServer';
+import DesignManager from '../../DesignManager';
 import { connectApi, preloadApi, ApiCall, get, ApiDispatchProps } from '../../api';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
@@ -167,6 +168,8 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   robots: RobotInstance[];
   zones: ZoneInstance[];
 
+  designManager: DesignManager;
+
   constructor(props) {
     super(props);
 
@@ -188,9 +191,11 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   componentDidMount() {
+    this.designManager = new DesignManager();
+
     if (this.mode === ProjectStudioMode.CREATE) {
       this.props.runSaga(this.props.issueFileIds, 4 /* code, design, robot, zone */, fileIds => {
-        this.setState(this.createStateFromLocalStorage(fileIds), () => this.startStateLayer());
+        this.setState(this.createStateFromLocalStorage(fileIds), () => this.initStudio());
       });
     } else {
       const { params } = this.props;
@@ -200,7 +205,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
         : `${CONFIG_API_SERVER_URL}/projects/@${params.username}/${params.projectId}`;
 
       this.props.runSaga(this.props.loadProject, projectUrl, project => {
-        this.setState(this.createStateFromResponse(project), () => this.startStateLayer());
+        this.setState(this.createStateFromResponse(project), () => this.initStudio());
       });
     }
   }
@@ -215,12 +220,24 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     this.stateLayer.destroy();
     this.stateLayer = null;
+
+    if (this.designManager) {
+      this.designManager.dispose();
+      this.designManager = null;
+    }
   }
 
   createStateFromLocalStorage(fileIds: string[]): ProjectStudioHandlerState {
+    const [codeFileId, designFileId, robotFileId] = fileIds;
+    const studioState = Studio.creatState({
+      codeFileId, designFileId, robotFileId,
+    });
+
+    const initialLocalServer = LocalServer.createInitialData({ designId: designFileId });
+
     return {
-      initialLocalServer: LocalServer.createInitialData(),
-      studioState: Studio.creatState({ fileIds }),
+      initialLocalServer,
+      studioState,
     };
   }
 
@@ -240,6 +257,21 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
         voxelEditorState: { voxels },
       }),
     };
+  }
+
+  initStudio() {
+    const { files } = this.state.studioState;
+
+    Object.keys(files)
+      .map(key => files[key])
+      .filter(file => file.type === FileType.DESIGN)
+      .forEach(file => {
+        const loader = this.designManager.getOrCreateLoader(file.id);
+        loader.preventGarbageCollection();
+        loader.loadFromMemory(file.id, file.state.voxel.present.mesh);
+      });
+
+    this.startStateLayer();
   }
 
   startStateLayer() {
@@ -304,17 +336,9 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     if (file.type === FileType.DESIGN) {
       const mesh = file.state.voxel.present.mesh;
-
-      this.robots.forEach(robotInstance => {
-        const robotId = robotInstance.templateId;
-        const robot = this.state.studioState.files[robotId];
-        if (robot.state.design === fileId) {
-          this.stateLayer.rpc.updateMesh({
-            id: robot.id,
-            vertices: mesh.vertices,
-            faces: mesh.faces,
-          });
-        }
+      this.stateLayer.rpc.updateMesh({
+        designId: fileId,
+        mesh: mesh,
       });
     }
 
@@ -433,6 +457,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
           onChange={studioState => this.handleStudioStateChange(studioState)}
           onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}
           stateLayer={this.stateLayer}
+          designManager={this.designManager}
           style={styles.studio}
         />
       </div>

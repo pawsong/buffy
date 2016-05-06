@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
+import DesignManager from '../../../DesignManager';
 import ZoneView from '../../../ZoneView';
 
 import {
@@ -38,8 +39,8 @@ class GameZoneView extends ZoneView {
     return this.cachedTools[toolType] = createTool(toolType, this.stateLayer, this, this.getGameState);
   }
 
-  constructor(container: HTMLElement, stateLayer: StateLayer, private getGameState: GetGameState) {
-    super(container, stateLayer);
+  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, private getGameState: GetGameState) {
+    super(container, stateLayer, designManager);
     this.stateLayer = stateLayer;
 
     this.cachedTools = {};

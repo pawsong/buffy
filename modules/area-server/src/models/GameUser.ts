@@ -25,7 +25,7 @@ export interface GameUserDocument extends mongoose.Document {
       z: number;
     }
   }
-  mesh: mongoose.Types.ObjectId;
+  designId: string;
 }
 
 const GameUserSchema = new Schema({
@@ -44,7 +44,7 @@ const GameUserSchema = new Schema({
       z: Number,
     }
   },
-  mesh: { type: Schema.Types.ObjectId, ref: 'Mesh' },
+  designId: { type: String },
 });
 
 // Duplicate the ID field.

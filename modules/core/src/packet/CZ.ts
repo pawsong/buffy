@@ -1,6 +1,7 @@
 import * as Promise from 'bluebird';
 import { RpcParams, RpcResponse } from './base';
 import { SerializedVector3 } from '../classes/Vector3';
+import { Mesh } from '../types';
 
 export interface RpcMethod<T, U> {
   (params: T): Promise<U>;
@@ -48,9 +49,8 @@ export interface RotateParams extends RpcParams {
 }
 
 export interface UpdateMeshParams extends RpcParams {
-  id: string;
-  vertices: any[];
-  faces: any[];
+  designId: string;
+  mesh: Mesh;
 }
 
 export interface UpdateTerrainParams extends RpcParams {

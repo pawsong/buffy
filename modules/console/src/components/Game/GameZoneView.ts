@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
+import DesignManager from '../../DesignManager';
 import ZoneView from '../../ZoneView';
 
 if (__CLIENT__) {
@@ -12,8 +13,8 @@ class GameZoneView extends ZoneView {
   private controls: any;
   camera: THREE.PerspectiveCamera;
 
-  constructor(container: HTMLElement, stateLayer: StateLayer) {
-    super(container, stateLayer);
+  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager) {
+    super(container, stateLayer, designManager);
     this.controls = new THREE['MouseControls'](this.camera);
   }
 

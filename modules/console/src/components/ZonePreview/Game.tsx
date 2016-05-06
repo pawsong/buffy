@@ -4,6 +4,8 @@ const pure = require('recompose/pure').default;
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { EventSubscription } from 'fbemitter';
 
+import DesignManager from '../../DesignManager';
+
 import MapInfo from './components/MapInfo';
 import Canvas from './components/Canvas';
 import Tools from './components/Tools';
@@ -17,6 +19,7 @@ interface GameProps extends React.Props<Game> {
   gameState: GameState;
   onChange: (gameState: GameState) => any;
   stateLayer: StateLayer;
+  designManager: DesignManager;
   sizeVersion: number; // For resize
 }
 
@@ -57,7 +60,9 @@ class Game extends React.Component<GameProps, GameOwnState> {
       <div>
         <MapInfo mapName={this.state.mapName} />
         <Canvas gameState={this.props.gameState}
-                sizeVersion={this.props.sizeVersion} stateLayer={this.props.stateLayer}
+                sizeVersion={this.props.sizeVersion}
+                stateLayer={this.props.stateLayer}
+                designManager={this.props.designManager}
         />
         <Tools selectedTool={this.props.gameState.selectedTool}
                brushColor={this.props.gameState.brushColor}

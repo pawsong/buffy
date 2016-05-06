@@ -57,12 +57,13 @@ class OnlineCardboardHandler extends React.Component<OnlineCardboardHandlerProps
   }
 
   render() {
-    return (
-      <Cardboard stateLayer={this.stateLayer}
-                 onStart={() => this.handleStart()}
-                 scripts={this.state.scripts}
-      />
-    );
+    return null;
+    // return (
+    //   <Cardboard stateLayer={this.stateLayer}
+    //              onStart={() => this.handleStart()}
+    //              scripts={this.state.scripts}
+    //   />
+    // );
   }
 }
 

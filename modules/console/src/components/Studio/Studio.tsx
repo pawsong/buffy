@@ -23,7 +23,9 @@ import * as StorageKeys from '../../constants/StorageKeys';
 import { Sandbox, Scripts } from '../../sandbox';
 
 import { saga, SagaProps, ImmutableTask } from '../../saga';
-import { runBlocklyWorkspace, submitVoxel } from './sagas';
+import { runBlocklyWorkspace } from './sagas';
+
+import DesignManager from '../../DesignManager';
 
 import Layout, { LayoutContainer } from '../../components/Layout';
 
@@ -97,11 +99,11 @@ interface StudioProps extends React.Props<Studio>, SagaProps {
   game?: React.ReactElement<any>;
 
   stateLayer: StateLayer;
+  designManager: DesignManager;
   style?: React.CSSProperties;
   intl?: InjectedIntlProps;
   root?: ImmutableTask<any>;
   run?: ImmutableTask<any>;
-  submitVoxel?: ImmutableTask<any>;
 }
 
 interface StudioOwnState { // UI states
@@ -114,14 +116,15 @@ interface StudioOwnState { // UI states
 interface CreateStateOptions {
   codeEditorState?: CreateCodeEditorStateOptions;
   voxelEditorState?: CreateVoxelEditorStateOptions;
-  fileIds?: string[];
+  codeFileId?: string;
+  designFileId?: string;
+  robotFileId?: string;
 }
 
 @waitForMount
 @injectIntl
 @saga({
   run: runBlocklyWorkspace,
-  submitVoxel: submitVoxel,
 })
 @(DragDropContext(HTML5Backend) as any)
 @withStyles(styles)
@@ -168,10 +171,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 
   handleStop() {
     this.props.cancelSaga(this.props.run);
-  }
-
-  handleVoxelEditorSubmit(data) {
-    this.props.runSaga(this.props.submitVoxel, this.props.stateLayer, data);
   }
 
   componentWillMount() {
@@ -312,6 +311,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
                   onChange={(gameState => this.handleStateChange({ gameState }))}
                   sizeVersion={this.state.gameSizeVersion}
                   stateLayer={this.props.stateLayer}
+                  designManager={this.props.designManager}
                 >
                   {this.props.game}
                 </ZonePreview>
@@ -349,11 +349,8 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 }
 
 Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
-  const { fileIds } = options;
+  const { codeFileId, designFileId, robotFileId } = options;
 
-  const codeFileId = fileIds[0];
-  const designFileId = fileIds[1];
-  const robotFileId = fileIds[2];
   const robotState: RobotState = {
     codes: [codeFileId],
     design: designFileId,

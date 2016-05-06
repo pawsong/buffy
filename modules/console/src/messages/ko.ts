@@ -567,18 +567,12 @@ export default {
   'voxel-editor.panels.tools.title': '도구상자',
 
   /**
-   * path: src/components/FullscreenPlayer/FullscreenPlayer.json
-   * description: VR Start button label
-   * defaultMessage: Start
-   */
-  'vr.start': '시작하기',
-
-  /**
    * path: src/constants/Messages.json
    * description: VR mode
    * defaultMessage: VR Mode
    */
   'vrMode': 'VR 모드',
 
+/* [Warning] Message not in use */ 'vr.start': '시작하기',
 /* [Warning] Message not in use */ 'voxel-editor.panels.workspace.title': '워크스페이스',
 }

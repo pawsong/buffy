@@ -1,7 +1,5 @@
 import * as TWEEN from '@pasta/tween.js';
 import { EventEmitter, EventSubscription } from 'fbemitter';
-import Mesh from './Mesh';
-import { SerializedMesh } from './Mesh';
 import Vector3 from './Vector3';
 import { SerializedVector3 } from './Vector3';
 
@@ -9,8 +7,8 @@ const EPS = 0.000001;
 
 export interface SerializedGameObject {
   id: string;
+  designId: string;
   position: SerializedVector3;
-  mesh: SerializedMesh;
   tween?: Object;
   direction: SerializedVector3;
 }
@@ -22,24 +20,21 @@ export const Events = {
 
 class GameObject {
   id: string;
+  designId: string;
   position: Vector3;
   tween: TWEEN.Tween;
-  mesh: Mesh;
   direction: Vector3;
   emitter: EventEmitter;
 
   constructor(data: SerializedGameObject) {
     this.id = data.id;
+    this.designId = data.designId;
 
     this.position = new Vector3(data.position);
 
     this.tween = new TWEEN.Tween(this.position);
     if (data.tween) {
       this.tween.deserialize(data.tween);
-    }
-
-    if (data.mesh) {
-      this.mesh = new Mesh(data.mesh);
     }
 
     this.direction = new Vector3(data.direction);
@@ -50,8 +45,8 @@ class GameObject {
   serialize(): SerializedGameObject {
     return {
       id: this.id,
+      designId: this.designId,
       position: this.position.serialize(),
-      mesh: this.mesh ? this.mesh.serialize() : null,
       tween: this.tween.serialize(),
       direction: this.direction.serialize(),
     };

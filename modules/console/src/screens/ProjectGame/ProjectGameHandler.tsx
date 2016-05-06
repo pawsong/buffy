@@ -78,12 +78,14 @@ class ProjectGameHandler extends React.Component<HandlerProps, void> {
     const project = this.props.project.state === 'fulfilled' ? this.props.project.result : null;
     const scripts: Scripts = project ? project.scripts : null;
 
-    return (
-      <Cardboard stateLayer={this.stateLayer}
-                 onStart={() => this.handleStart()}
-                 scripts={scripts}
-      />
-    );
+    return null;
+
+    // return (
+    //   <Cardboard stateLayer={this.stateLayer}
+    //              onStart={() => this.handleStart()}
+    //              scripts={scripts}
+    //   />
+    // );
   }
 }
 

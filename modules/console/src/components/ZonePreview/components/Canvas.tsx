@@ -2,12 +2,15 @@ import * as React from 'react';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
 
+import DesignManager from '../../../DesignManager';
+
 import GameZoneView from '../GameZoneView';
 import { GameState } from '../interface';
 
 interface CanvasProps extends React.Props<Canvas> {
   sizeVersion: number;
   stateLayer: StateLayer;
+  designManager: DesignManager;
   gameState: GameState;
 }
 
@@ -32,6 +35,7 @@ class Canvas extends React.Component<CanvasProps, {}> {
     this.canvas = new GameZoneView(
       this.refs['canvas'] as HTMLElement,
       this.props.stateLayer,
+      this.props.designManager,
       () => this.props.gameState
     );
   }

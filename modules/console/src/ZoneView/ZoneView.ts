@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 
+import DesignManager from '../DesignManager';
 import TerrainManager from './TerrainManager';
 import ObjectManager from './ObjectManager';
 
@@ -25,6 +26,7 @@ abstract class ZoneView {
   scene: THREE.Scene;
   camera: THREE.Camera;
   renderer: THREE.WebGLRenderer;
+  designManager: DesignManager;
   objectManager: ObjectManager;
   terrainManager: TerrainManager;
   effectManager: any;
@@ -39,14 +41,15 @@ abstract class ZoneView {
   private frameId: number;
   private tokens: any[];
 
-  constructor(container: HTMLElement, stateLayer: StateLayer, options: VrCanvasOptions = {}) {
+  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, options: VrCanvasOptions = {}) {
     this.container = container;
 
     const scene = this.scene = new THREE.Scene();
     const camera = this.camera = this.getCamera();
     scene.add(camera);
 
-    const objectManager = this.objectManager = new ObjectManager(scene);
+    this.designManager = designManager;
+    const objectManager = this.objectManager = new ObjectManager(scene, designManager);
     const terrainManager = this.terrainManager = new TerrainManager(scene);
     const effectManager = this.effectManager = createEffectManager(scene);
 
@@ -107,7 +110,7 @@ abstract class ZoneView {
 
       // Objects
       stateLayer.store.map.objects.forEach(obj => {
-        const object = objectManager.create(obj.id);
+        const object = objectManager.create(obj.id, obj.designId);
         object.add(new THREE.Mesh( geometry, material ));
 
         const { group } = object;
@@ -121,10 +124,6 @@ abstract class ZoneView {
           group.position.y + obj.direction.y,
           group.position.z + obj.direction.z
         ));
-
-        if (obj.mesh) {
-          object.changeMesh(obj.mesh);
-        }
 
         if (obj.id === stateLayer.store.myId) {
           camera.position.copy(group.position);

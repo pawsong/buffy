@@ -21,7 +21,6 @@ class LocalRoutes extends RoutesCZ {
   }
 
   async moveMap() {}
-  async updateMeshInDB() {}
   async updateTerrainInDB() {}
 
   destroy() {
