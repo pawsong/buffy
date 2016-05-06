@@ -12,6 +12,10 @@ SendEvents.forEach(event => {
   };
 });
 
+export interface Socket {
+  emit(event: string, params: Object): any;
+}
+
 abstract class UserGameObject extends GameObject {
   map: ServerGameMap;
   send: Send;
@@ -19,10 +23,13 @@ abstract class UserGameObject extends GameObject {
   constructor(serialized: SerializedGameObject, map: ServerGameMap) {
     super(serialized);
     this.map = map;
-    this.send = new SendImpl((event, params) => this.emit(event, params));
+
+    const socket = this.getSocket();
+    this.send = new SendImpl((event, params) => socket.emit(event, params));
   }
 
-  abstract emit(event: string, params: Object);
+  abstract getSocket(): Socket;
+  abstract getSocketId(): string;
 }
 
 export default UserGameObject;

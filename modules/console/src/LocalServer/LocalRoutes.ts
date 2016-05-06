@@ -14,7 +14,7 @@ class LocalRoutes extends RoutesCZ {
   }
 
   protected addListener(event: string, listener: Listener): DestroyFunc {
-    const token = this.socket.addEventFromClientListener(event, ({ params, ackFn }) => {
+    const token = this.socket.addListener(event, ({ params, ackFn }) => {
       listener(params, ackFn);
     });
     return () => token.remove();

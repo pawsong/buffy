@@ -20,22 +20,22 @@ class LocalSocket {
     this.scEmitter = new EventEmitter();
   }
 
-  // API for client
-  emit(event: string, params: Object, ackFn: AckFn) {
-    this.csEmitter.emit(event, <ParamsFromClientToServer>{ params, ackFn });
-  }
-
-  addListener(event: string, fn: Function) {
-    return this.scEmitter.addListener(event, fn);
-  }
-
   // API for server
-  emitFromServerToClient(event: string, params: Object) {
+  emit(event: string, params: Object) {
     this.scEmitter.emit(event, params);
   }
 
-  addEventFromClientListener(event: string, fn: EventFromClientListener) {
+  addListener(event: string, fn: EventFromClientListener) {
     return this.csEmitter.addListener(event, (params: ParamsFromClientToServer) => fn(params));
+  }
+
+  // API for client
+  emitFromClientToServer(event: string, params: Object, ackFn: AckFn) {
+    this.csEmitter.emit(event, <ParamsFromClientToServer>{ params, ackFn });
+  }
+
+  addEventFromServerListener(event: string, fn: Function) {
+    return this.scEmitter.addListener(event, fn);
   }
 }
 

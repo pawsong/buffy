@@ -47,6 +47,7 @@ export class SmartObject {
 
   changeMesh(geometry: THREE.Geometry) {
     this.reset();
+    if (geometry.vertices.length === 0 || geometry.faces.length === 0) return;
 
     // Create surface mesh
     const material = new THREE.MeshLambertMaterial({

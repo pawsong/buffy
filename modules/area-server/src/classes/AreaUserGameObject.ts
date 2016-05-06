@@ -13,6 +13,14 @@ class AreaUserGameObject extends UserGameObject {
   emit(event: string, params: Object) {
     this.socket.emit(event, params);
   }
+
+  getSocket() {
+    return this.socket;
+  }
+
+  getSocketId() {
+    return this.socket.id;
+  }
 }
 
 export default AreaUserGameObject;

@@ -181,10 +181,10 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     this.stateLayer = new StateLayer({
       emit: (event, params, cb) => {
-        this.socket.emit(event, params, cb);
+        this.socket.emitFromClientToServer(event, params, cb);
       },
       listen: (event, handler) => {
-        const token = this.socket.addListener(event, handler);
+        const token = this.socket.addEventFromServerListener(event, handler);
         return () => token.remove();
       },
     });
