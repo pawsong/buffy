@@ -10,7 +10,7 @@ import * as ReactDnd from 'react-dnd';
 const objectAssign = require('object-assign');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
-import PanelType from './PanelType';
+import Panel from '../../../Panel';
 
 import { VoxelEditorState } from '../../interface';
 
@@ -19,8 +19,6 @@ import CanvasShared from '../../canvas/shared';
 import {
   DispatchAction,
 } from '../../interface';
-
-import Panel, { PanelState, MoveToTop } from './Panel';
 
 import PreviewView from '../../canvas/views/preview';
 
@@ -62,8 +60,6 @@ class RotateButton extends React.Component<RotateButtonProps, {}> {
 interface PreviewPanelProps extends React.Props<PreviewPanel> {
   fileId: string;
   focus: boolean;
-  panelState: PanelState;
-  moveToTop: MoveToTop;
   sizeVersion: number;
   canvasShared: CanvasShared;
   dispatchAction: DispatchAction;
@@ -71,9 +67,10 @@ interface PreviewPanelProps extends React.Props<PreviewPanel> {
   intl?: InjectedIntlProps;
 }
 
-@pure
 @injectIntl
 class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
+  static PANEL_ID: string;
+
   view: PreviewView;
 
   handleClickRotate(axis) {
@@ -114,10 +111,8 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
 
     return (
       <Panel
-        panelType={PanelType.PREVIEW}
-        panelState={this.props.panelState}
+        panelId={PreviewPanel.PANEL_ID}
         title={this.props.intl.formatMessage(messages.title)}
-        moveToTop={this.props.moveToTop}
       >
         <div
           style={{ width: 150, height: 150 }}
@@ -133,5 +128,7 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
     );
   };
 };
+
+PreviewPanel.PANEL_ID = 'preview';
 
 export default PreviewPanel;

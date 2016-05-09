@@ -10,15 +10,13 @@ import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 
 import rgbToHex from '../../../../utils/rgbToHex';
 import hexToRgb from '../../../../utils/hexToRgb';
 
-import PanelType from './PanelType';
+import Panel from '../../../Panel';
 
 import ClickAwayListener from '../../../ClickAwayListener';
 
 import * as Tools from '../../constants/Tools';
 
 import { VoxelEditorState, ToolType, Color } from '../../interface';
-
-import Panel, { PanelState, MoveToTop } from './Panel';
 
 const styles = {
   color: {
@@ -70,14 +68,10 @@ const messages = defineMessages({
 });
 
 interface ToolsPanelProps extends React.Props<ToolsPanel> {
-  panelState: PanelState;
-
   selectedTool: ToolType;
   paletteColor: Color;
   selectTool: (tool: ToolType) => any;
   changePaletteColor: (color: Color) => any;
-
-  moveToTop: MoveToTop;
 
   intl?: InjectedIntlProps;
 }
@@ -86,9 +80,10 @@ interface ToolsPanelState {
   displayColorPicker: boolean;
 }
 
-@pure
 @injectIntl
 class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
+  static PANEL_ID: string;
+
   readyToOpenColorPicker: boolean;
 
   constructor(props) {
@@ -131,9 +126,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
 
     return (
       <Panel
-        panelType={PanelType.TOOLS}
-        panelState={this.props.panelState}
-        moveToTop={this.props.moveToTop}
+        panelId={ToolsPanel.PANEL_ID}
         title={this.props.intl.formatMessage(messages.title)}
       >
         <div style={styles.iconRow}>
@@ -200,5 +193,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
     );
   };
 };
+
+ToolsPanel.PANEL_ID = 'tools';
 
 export default ToolsPanel;

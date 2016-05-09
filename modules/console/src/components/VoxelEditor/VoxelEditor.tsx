@@ -13,11 +13,12 @@ import * as invariant from 'invariant';
 import RaisedButton from 'material-ui/lib/raised-button';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-import Panel from './components/panels/Panel';
 
 import Messages from '../../constants/Messages';
 
 import * as StorageKeys from '../../constants/StorageKeys';
+
+import { connectTarget } from '../Panel';
 
 import mesher from './canvas/meshers/greedy';
 
@@ -30,7 +31,6 @@ import {
   VoxelState,
 } from './interface';
 
-import { PanelProps } from './components/panels/Panel';
 import HistoryPanel from './components/panels/HistoryPanel';
 import PreviewPanel from './components/panels/PreviewPanel';
 import ToolsPanel from './components/panels/ToolsPanel';
@@ -51,28 +51,6 @@ const styles = {
   },
 };
 
-import PanelType from './components/panels/PanelType';
-
-const PANELS = {
-  tools: ToolsPanel,
-  history: HistoryPanel,
-  preview: PreviewPanel,
-};
-
-interface PanelData {
-  top: number;
-  left: number;
-}
-
-interface PanelState {
-  // id: string;
-  show: boolean;
-  top: number;
-  left: number;
-  order: number;
-  // component: React.Component<{}, {}>;
-}
-
 import {
   Action,
   ToolType,
@@ -87,12 +65,10 @@ interface VoxelEditorProps extends React.Props<VoxelEditor> {
   onChange: (fileId: string, voxelEditorState: VoxelEditorState) => any;
   sizeVersion: number;
   focus: boolean;
-  connectDropTarget?: any;
   intl?: InjectedIntlProps;
 }
 
 interface ContainerStates {
-  panels?: { [index: number]: PanelState },
   fullscreen?: boolean;
 }
 
@@ -100,23 +76,13 @@ export interface CreateStateOptions {
   voxels?: any;
 }
 
-const panelTarget = {
-  drop(props: VoxelEditorProps, monitor, component: VoxelEditor) {
-    const item = monitor.getItem() as {
-      left: number; top: number; panelType: PanelType;
-    };
-    const delta = monitor.getDifferenceFromInitialOffset();
-    const left = Math.round(item.left + delta.x);
-    const top = Math.round(item.top + delta.y);
-    component.movePanel(item.panelType, left, top);
-  },
-};
-
 @pure
 @injectIntl
-@(DropTarget('panel', panelTarget, connect => ({
-  connectDropTarget: connect.dropTarget()
-})) as any)
+@connectTarget([
+  HistoryPanel.PANEL_ID,
+  PreviewPanel.PANEL_ID,
+  ToolsPanel.PANEL_ID,
+], panelId => `${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${panelId}`)
 class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   static createState: (fileId: string, options?: CreateStateOptions) => VoxelEditorState;
 
@@ -127,31 +93,8 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
     super(props);
 
     this.state = {
-      panels: {},
       fullscreen: false,
     };
-
-    let index = 0;
-    Object.keys(PanelType)
-      .map(v => parseInt(v, 10))
-      .filter(v => !isNaN(v))
-      .forEach(type => {
-        const typeName = PanelType[type];
-        let panel = {} as PanelData;
-        const savedPanel = localStorage.getItem(`${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${typeName}`);
-        if (savedPanel) {
-          try {
-            panel = JSON.parse(savedPanel);
-          } catch(err) {}
-        }
-
-        this.state.panels[type] = {
-          show: true,
-          top: panel.top || 0,
-          left: panel.left || 0,
-          order: ++index,
-        };
-      });
   }
 
   handleStateChange(editorState: VoxelEditorState) {
@@ -163,39 +106,11 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
     this.handleStateChange({ voxel });
   }
 
-  movePanel(type: PanelType, left, top) {
-    const { order } = this.state.panels[type];
-    this.moveToTop(type);
-    this.setState(update(this.state, {
-      panels: {
-        [type]: { $merge: { left, top } },
-      },
-    }), () => {
-      localStorage.setItem(`${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${PanelType[type]}`, JSON.stringify(this.state.panels[type]));
-    });
-  }
-
-  moveToTop = (type: PanelType) => {
-    const { order } = this.state.panels[type];
-
-    const values = {};
-    const panelKeys = Object.keys(this.state.panels);
-    panelKeys.forEach(key => {
-      const panel = this.state.panels[key];
-      if (panel.order > order) {
-        values[key] = { $merge: { order: panel.order - 1 } };
-      }
-    });
-    values[type] = { $merge: { order: panelKeys.length } };
-    this.setState(update(this.state, { panels: values }));
-  }
-
   handleFullscreenButtonClick() {
     this.setState({ fullscreen: !this.state.fullscreen }, () => this.canvas.resize());
   }
 
   componentWillMount() {
-    this.props.editorState.voxel
     this.canvasShared = new CanvasShared({
       getState: () => this.props.editorState.voxel,
     });
@@ -237,8 +152,6 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
     return (
       <div>
         <HistoryPanel
-          panelState={this.state.panels[PanelType.HISTORY]}
-          moveToTop={this.moveToTop}
           voxel={this.props.editorState.voxel}
           dispatchAction={this.dispatchVoxelAction}
         />
@@ -246,15 +159,11 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
           fileId={this.props.editorState.fileId}
           focus={this.props.focus}
           onChange={this.props.onChange}
-          panelState={this.state.panels[PanelType.PREVIEW]}
-          moveToTop={this.moveToTop}
           canvasShared={this.canvasShared}
           dispatchAction={this.dispatchVoxelAction}
           sizeVersion={this.props.sizeVersion}
         />
         <ToolsPanel
-          panelState={this.state.panels[PanelType.TOOLS]}
-          moveToTop={this.moveToTop}
           paletteColor={this.props.editorState.paletteColor}
           selectedTool={this.props.editorState.selectedTool}
           changePaletteColor={this.changePaletteColor}
@@ -275,17 +184,13 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
     };
 
     return (
-      <div>
-        {this.props.connectDropTarget(
-          <div style={style}>
-            <div style={styles.canvas} ref="canvas"></div>
-            <FullscreenButton
-              onTouchTap={() => this.handleFullscreenButtonClick()}
-              fullscreen={this.state.fullscreen}
-            />
-            {this.renderPanels()}
-          </div>
-        )}
+      <div style={style}>
+        <div style={styles.canvas} ref="canvas"></div>
+        <FullscreenButton
+          onTouchTap={() => this.handleFullscreenButtonClick()}
+          fullscreen={this.state.fullscreen}
+        />
+        {this.renderPanels()}
       </div>
     );
   }

@@ -10,14 +10,12 @@ const objectAssign = require('object-assign');
 import AppBar from 'material-ui/lib/app-bar';
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
-import PanelType from './PanelType';
+import Panel from '../../../Panel';
 
 import {
   VoxelState,
   DispatchAction,
 } from '../../interface';
-
-import Panel, { PanelState, MoveToTop } from './Panel';
 
 import {
   voxelUndoSeek,
@@ -74,16 +72,15 @@ function getActionMessage(action: string) {
  */
 
 interface HistoryPanelProps extends React.Props<HistoryPanel> {
-  panelState: PanelState;
-  moveToTop: MoveToTop;
   voxel: VoxelState;
   dispatchAction: DispatchAction;
   intl?: InjectedIntlProps;
 }
 
-@pure
 @injectIntl
 class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
+  static PANEL_ID: string;
+
   componentDidUpdate() {
     if (this.props.voxel.future.length === 0) {
       const list = findDOMNode(this.refs['list']);
@@ -126,10 +123,8 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
 
     return (
       <Panel
-        panelType={PanelType.HISTORY}
-        panelState={this.props.panelState}
+        panelId={HistoryPanel.PANEL_ID}
         title={this.props.intl.formatMessage(messages.title)}
-        moveToTop={this.props.moveToTop}
       >
         <div ref="list" style={{ height: 180, overflow: 'scroll'}}>
           {listItems}
@@ -138,5 +133,7 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
     );
   };
 };
+
+HistoryPanel.PANEL_ID = 'history';
 
 export default HistoryPanel;
