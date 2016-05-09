@@ -10,8 +10,8 @@ export function getIconName(fileType: FileType) {
   switch(fileType) {
     case FileType.ALL: return 'list';
     case FileType.CODE: return 'code';
-    case FileType.DESIGN: return 'build';
-    case FileType.ROBOT: return 'adb';
+    case FileType.DESIGN: return 'brush';
+    case FileType.ROBOT: return 'event_note';
     case FileType.ZONE: return 'layers';
   }
   return '';
@@ -89,7 +89,7 @@ export function getFileTypeAvatar(fileType: FileType, options: FileTypeAvatarOpt
         <Avatar
           size={size}
           icon={getFileTypeIcon(fileType, fontStyle)}
-          backgroundColor={Colors.yellow500}
+          backgroundColor={Colors.pinkA200}
         />
       );
     }
