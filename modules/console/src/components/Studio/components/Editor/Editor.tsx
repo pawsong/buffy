@@ -2,9 +2,9 @@ import * as React from 'react';
 const update = require('react-addons-update');
 
 import FileTabs from '../FileTabs';
-import CodeEditor, { CodeEditorState } from '../../../../components/CodeEditor';
-import VoxelEditor, { VoxelEditorState } from '../../../../components/VoxelEditor';
-import RobotEditor, { RobotEditorState } from '../../../../components/RobotEditor';
+import CodeEditor from '../../../../components/CodeEditor';
+import VoxelEditor from '../../../../components/VoxelEditor';
+import RecipeEditor from '../../../../components/RecipeEditor';
 
 import { FileType } from '../../types';
 
@@ -12,11 +12,6 @@ import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./Editor.css');
 
 import { FileDescriptor, SourceFile, RobotState } from '../../types';
-
-interface EditorState {
-  codeEditorState?: CodeEditorState,
-  voxelEditorState?: VoxelEditorState,
-}
 
 interface EditorProps extends React.Props<Editor> {
   file: SourceFile;
@@ -50,9 +45,9 @@ class Editor extends React.Component<EditorProps, any> {
     );
   }
 
-  renderRobotEditor() {
+  renderRecipeEditor() {
     return (
-      <RobotEditor
+      <RecipeEditor
         editorState={this.props.file.state}
         onChange={editorState => this.props.onFileChange(this.props.file.id, editorState)}
         files={this.props.files}
@@ -74,7 +69,7 @@ class Editor extends React.Component<EditorProps, any> {
           break;
         }
         case FileType.ROBOT: {
-          editor = this.renderRobotEditor();
+          editor = this.renderRecipeEditor();
           break;
         }
       }

@@ -412,7 +412,7 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
       created: true,
       modified: false,
       readonly: false,
-      name: 'Robot',
+      name: 'Recipe',
       type: FileType.ROBOT,
       state: robotState,
     },

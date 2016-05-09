@@ -22,7 +22,7 @@ export function getFileTypeLabel(fileType: FileType) {
     case FileType.ALL: return 'All';
     case FileType.CODE: return 'Code';
     case FileType.DESIGN: return 'Design';
-    case FileType.ROBOT: return 'Robot';
+    case FileType.ROBOT: return 'Recipe';
     case FileType.ZONE: return 'Zone';
   }
   return '';
