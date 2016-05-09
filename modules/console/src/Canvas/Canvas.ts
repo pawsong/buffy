@@ -71,6 +71,9 @@ abstract class Canvas {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
 
+    // Eliminate ghost bottom margin
+    renderer.domElement.style.verticalAlign = 'bottom';
+
     container.appendChild(renderer.domElement);
 
     camera.lookAt(scene.position);
