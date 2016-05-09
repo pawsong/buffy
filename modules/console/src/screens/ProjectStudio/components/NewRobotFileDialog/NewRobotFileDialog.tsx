@@ -186,6 +186,10 @@ class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
     return { title: null, body, actions };
   }
 
+  handleLoadDesignTabChange(v: any) {
+    this.setState({ design: '', designSource: v })
+  }
+
   renderLoadDesign(): StepSpec {
     const tiles = Object.keys(this.props.files).map(key => this.props.files[key])
       .filter(file => file.type === FileType.DESIGN)
@@ -215,7 +219,7 @@ class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
       <Tabs
         tabItemContainerStyle={{ backgroundColor: 'white', marginTop: 24 }}
         value={this.state.designSource}
-        onChange={(v) => this.setState({ designSource: v })}
+        onChange={(v) => this.handleLoadDesignTabChange(v)}
       >
         <Tab label="files in project" className={styles.tab}  value={DesignSource.PROJECT}/>
         <Tab label="my design files" className={styles.tab}  value={DesignSource.MY_DRIVE} />
