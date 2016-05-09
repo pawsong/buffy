@@ -48,6 +48,9 @@ import VoxelEditor, {
   VoxelEditorState,
   CreateStateOptions as CreateVoxelEditorStateOptions,
 } from '../../components/VoxelEditor';
+import MapEditor, {
+  MapEditorState,
+} from '../../components/MapEditor';
 
 import { compileBlocklyXml } from '../../blockly/utils';
 
@@ -120,6 +123,7 @@ interface CreateStateOptions {
   codeFileId?: string;
   designFileId?: string;
   robotFileId?: string;
+  mapFileId?: string;
   playerId?: string;
 }
 
@@ -285,6 +289,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           file={file}
           files={this.props.studioState.files}
           focus={this.props.editorFocus}
+          designManager={this.props.designManager}
         />
       </div>
     );
@@ -381,7 +386,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 }
 
 Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
-  const { codeFileId, designFileId, robotFileId } = options;
+  const { codeFileId, designFileId, robotFileId, mapFileId } = options;
 
   const robotState: RobotState = {
     codes: [codeFileId],
@@ -415,6 +420,15 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
       name: 'Recipe',
       type: FileType.ROBOT,
       state: robotState,
+    },
+    [mapFileId]: {
+      id: mapFileId,
+      created: true,
+      modified: false,
+      readonly: false,
+      name: 'Map',
+      type: FileType.ZONE,
+      state: MapEditor.createState(mapFileId),
     },
   };
 

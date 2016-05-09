@@ -23,8 +23,6 @@ abstract class ZoneView extends Canvas {
   effectManager: any;
   resyncToStore: (object: GameObject) => void;
 
-  protected abstract getCamera(): THREE.Camera;
-
   private tokens: any[];
 
   constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, getState: GetZoneViewState) {

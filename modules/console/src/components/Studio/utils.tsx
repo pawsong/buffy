@@ -23,7 +23,7 @@ export function getFileTypeLabel(fileType: FileType) {
     case FileType.CODE: return 'Code';
     case FileType.DESIGN: return 'Design';
     case FileType.ROBOT: return 'Recipe';
-    case FileType.ZONE: return 'Zone';
+    case FileType.ZONE: return 'Map';
   }
   return '';
 }
@@ -52,6 +52,13 @@ export function getFileTypeIcon(fileType: FileType, style: React.CSSProperties =
       return (
         <FontIcon className="material-icons" style={style}>
           {getIconName(FileType.ROBOT)}
+        </FontIcon>
+      );
+    }
+    case FileType.ZONE: {
+      return (
+        <FontIcon className="material-icons" style={style}>
+          {getIconName(FileType.ZONE)}
         </FontIcon>
       );
     }
@@ -99,6 +106,15 @@ export function getFileTypeAvatar(fileType: FileType, options: FileTypeAvatarOpt
           size={size}
           icon={getFileTypeIcon(fileType, fontStyle)}
           backgroundColor={Colors.blue500}
+        />
+      );
+    }
+    case FileType.ZONE: {
+      return (
+        <Avatar
+          size={size}
+          icon={getFileTypeIcon(fileType, fontStyle)}
+          backgroundColor={Colors.amber500}
         />
       );
     }

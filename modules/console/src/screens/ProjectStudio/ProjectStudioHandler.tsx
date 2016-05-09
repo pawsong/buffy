@@ -241,11 +241,13 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     const codeFileId = generateObjectId();
     const designFileId = generateObjectId();
     const robotFileId = generateObjectId();
+    const mapFileId = generateObjectId();
 
     const studioState = Studio.creatState({
       codeFileId,
       designFileId,
       robotFileId,
+      mapFileId,
       playerId,
     });
 

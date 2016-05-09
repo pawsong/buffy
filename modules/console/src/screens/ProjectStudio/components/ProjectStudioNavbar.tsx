@@ -20,7 +20,7 @@ import { FileType } from '../../../components/Studio/types';
 
 import CodeEditor, { CodeEditorState } from '../../../components/CodeEditor';
 import VoxelEditor, { VoxelEditorState } from '../../../components/VoxelEditor';
-import RobotEditor, { RobotEditorState } from '../../../components/RobotEditor';
+import RecipeEditor, { RecipeEditorState } from '../../../components/RecipeEditor';
 
 import generateObjectId from '../../../utils/generateObjectId';
 
@@ -104,6 +104,7 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
     this.props.onNewFile([{
       id: fileId,
       type: type,
+      modified: false,
       data,
     }]);
   }

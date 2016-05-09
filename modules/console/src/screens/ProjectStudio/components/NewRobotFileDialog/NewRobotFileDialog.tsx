@@ -25,9 +25,9 @@ import generateObjectId from '../../../../utils/generateObjectId';
 import { SourceFileDB } from '../../../../components/Studio/types';
 import { FileType } from '../../../../components/Studio/types';
 
-import CodeEditor, { CodeEditorState } from '../../../../components/CodeEditor';
-import VoxelEditor, { VoxelEditorState } from '../../../../components/VoxelEditor';
-import RobotEditor, { RobotEditorState } from '../../../../components/RobotEditor';
+import CodeEditor from '../../../../components/CodeEditor';
+import VoxelEditor from '../../../../components/VoxelEditor';
+import RecipeEditor from '../../../../components/RecipeEditor';
 
 import { NewFileSpec } from '../../types';
 
@@ -102,6 +102,7 @@ class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
       specs.push({
         id: designId,
         type: FileType.DESIGN,
+        modified: true,
         data: VoxelEditor.createState(designId),
       });
     } else {
@@ -111,7 +112,8 @@ class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
     specs.push({
       id: generateObjectId(),
       type: FileType.ROBOT,
-      data: RobotEditor.createState({
+      modified: true,
+      data: RecipeEditor.createState({
         design: designId,
         codes: [],
       }),
