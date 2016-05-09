@@ -9,6 +9,7 @@ const EPS = 0.000001;
 export interface SerializedGameObject {
   id: string;
   zone: string;
+  robot: string;
   designId: string;
   position: SerializedVector3;
   tween?: Object;
@@ -23,6 +24,7 @@ export const Events = {
 class GameObject {
   id: string;
   zone: GameMap;
+  robot: string;
   designId: string;
   position: Vector3;
   tween: TWEEN.Tween;
@@ -33,6 +35,7 @@ class GameObject {
     this.id = data.id;
     this.zone = zone;
 
+    this.robot = data.robot;
     this.designId = data.designId;
 
     this.position = new Vector3(data.position);
@@ -50,6 +53,7 @@ class GameObject {
   serialize(): SerializedGameObject {
     return {
       id: this.id,
+      robot: this.robot,
       zone: this.zone.id,
       designId: this.designId,
       position: this.position.serialize(),

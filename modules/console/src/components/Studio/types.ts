@@ -22,6 +22,10 @@ export interface SourceFile {
   state: any;
 }
 
+export interface SourceFileDB {
+  [index: string]: SourceFile;
+}
+
 export interface RobotState {
   codes: string[];
   design: string;

@@ -86,6 +86,7 @@ export interface StudioState {
 
   files?: { [index: string]: SourceFile };
   activeFileId?: string;
+  filesOnTab?: string[];
 }
 
 interface StudioProps extends React.Props<Studio>, SagaProps {
@@ -95,6 +96,8 @@ interface StudioProps extends React.Props<Studio>, SagaProps {
   studioState: StudioState;
   onChange: (nextState: StudioState) => any;
   onOpenFileRequest: (fileType: FileType) => any;
+
+  editorFocus: boolean;
 
   game?: React.ReactElement<any>;
 
@@ -109,8 +112,6 @@ interface StudioProps extends React.Props<Studio>, SagaProps {
 interface StudioOwnState { // UI states
   gameSizeVersion?: number;
   editorSizeVersion?: number;
-
-  filesOnTab?: string[];
 }
 
 interface CreateStateOptions {
@@ -144,13 +145,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   constructor(props: StudioProps, context) {
     super(props, context);
 
-    const filesOnTab = Object.keys(props.studioState.files).filter(key => {
-      const file = props.studioState.files[key];
-      return file.created;
-    });
-
     this.state = {
-      filesOnTab,
       editorSizeVersion: 0,
       gameSizeVersion: 0,
     };
@@ -224,39 +219,55 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   }
 
   handleFileTabClose(fileId: string) {
-    const index = this.state.filesOnTab.indexOf(fileId);
+    const index = this.props.studioState.filesOnTab.indexOf(fileId);
     if (index === -1) return;
 
     let activeFileId = this.props.studioState.activeFileId;
     if (fileId === this.props.studioState.activeFileId) {
       if (index > 0) {
-        activeFileId = this.state.filesOnTab[index - 1];
+        activeFileId = this.props.studioState.filesOnTab[index - 1];
       } else {
-        if (this.state.filesOnTab.length > 1) {
-          activeFileId = this.state.filesOnTab[index + 1];
+        if (this.props.studioState.filesOnTab.length > 1) {
+          activeFileId = this.props.studioState.filesOnTab[index + 1];
         } else {
           activeFileId = '';
         }
       }
     }
 
-    this.setState(update(this.state, {
-      filesOnTab: { $splice: [[index, 1]] },
-    }));
-    this.handleStateChange({ activeFileId });
+    const filesOnTab = update(this.props.studioState.filesOnTab, { $splice: [[index, 1]] });
+    this.handleStateChange({
+      filesOnTab,
+      activeFileId,
+    });
   }
 
   handleFileChange(id: string, state: any) {
+    const file = this.props.studioState.files[id];
+    const modified = file.modified || file.state !== state;
+
     this.props.onChange(update(this.props.studioState, {
       files: { [id]: {
-        modified: { $set: true },
-        state: { $set: state },
+        modified: { $set: modified },
+        state: { $merge: state },
       } },
     }));
   }
 
+  handleFileTabOrderChange(dragIndex, hoverIndex) {
+    const dragId = this.props.studioState.filesOnTab[dragIndex];
+    this.handleStateChange({
+      filesOnTab: update(this.props.studioState.filesOnTab, {
+        $splice: [
+          [dragIndex, 1],
+          [hoverIndex, 0, dragId],
+        ],
+      }),
+    });
+  }
+
   renderEditor() {
-    const files = this.state.filesOnTab.map(fileId => this.props.studioState.files[fileId]);
+    const files = this.props.studioState.filesOnTab.map(fileId => this.props.studioState.files[fileId]);
     const file = this.props.studioState.files[this.props.studioState.activeFileId];
 
     return (
@@ -266,35 +277,28 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           activeFileId={this.props.studioState.activeFileId}
           onFileClick={fileId => this.handleStateChange({ activeFileId: fileId })}
           onFileClose={fileId => this.handleFileTabClose(fileId)}
-          onTabOrderChange={(dragIndex, hoverIndex) => {
-            const dragId = this.state.filesOnTab[dragIndex];
-            this.setState(update(this.state, {
-              filesOnTab: {
-                $splice: [
-                  [dragIndex, 1],
-                  [hoverIndex, 0, dragId]
-                ],
-              }
-            }));
-          }}
+          onTabOrderChange={(dragIndex, hoverIndex) => this.handleFileTabOrderChange(dragIndex, hoverIndex)}
         />
         <Editor
           editorSizeRevision={this.state.editorSizeVersion}
           onFileChange={(id, state) => this.handleFileChange(id, state)}
           file={file}
           files={this.props.studioState.files}
+          focus={this.props.editorFocus}
         />
       </div>
     );
   }
 
   handleFileBrowserItemClick(fileId: string) {
-    let filesOnTab = this.state.filesOnTab;
+    let { filesOnTab } = this.props.studioState;
     if (filesOnTab.indexOf(fileId) === -1) {
       filesOnTab = update(filesOnTab, { $push: [fileId] });
     }
-    this.handleStateChange({ activeFileId: fileId });
-    this.setState({ filesOnTab });
+    this.handleStateChange({
+      filesOnTab,
+      activeFileId: fileId,
+    });
   }
 
   handleFileBrowserWidthResize(size) {
@@ -307,7 +311,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   }
 
   selectPlayer(playerId: string) {
-    console.log(playerId);
     this.handleStateChange({
       gameState: objectAssign({}, this.props.studioState.gameState, { playerId }),
     });
@@ -332,6 +335,18 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
       <div style={this.props.style}>
         <Layout flow="row" className={styles.content}>
           <LayoutContainer size={this.initialGameWidth} onResize={size => this.handleGameWidthResize(size)}>
+            <FileBrowser
+              onFileClick={fileId => this.handleFileBrowserItemClick(fileId)}
+              files={this.props.studioState.files}
+              initialWidth={this.initialBrowserWidth}
+              onOpenFileRequest={this.props.onOpenFileRequest}
+              onWidthResize={size => this.handleFileBrowserWidthResize(size)}
+              resizeEditor={() => this.resizeEditor()}
+            >
+              {editor}
+            </FileBrowser>
+          </LayoutContainer>
+          <LayoutContainer remaining={true}>
             <Layout flow="column" className={styles.fillParent}>
               <LayoutContainer size={this.initialGameHeight} onResize={size => this.handleGameHeightResize(size)}>
                 <ZonePreview
@@ -359,19 +374,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
               </LayoutContainer>
             </Layout>
           </LayoutContainer>
-
-          <LayoutContainer remaining={true}>
-            <FileBrowser
-              onFileClick={fileId => this.handleFileBrowserItemClick(fileId)}
-              files={this.props.studioState.files}
-              initialWidth={this.initialBrowserWidth}
-              onOpenFileRequest={this.props.onOpenFileRequest}
-              onWidthResize={size => this.handleFileBrowserWidthResize(size)}
-              resizeEditor={() => this.resizeEditor()}
-            >
-              {editor}
-            </FileBrowser>
-          </LayoutContainer>
         </Layout>
       </div>
     );
@@ -386,38 +388,43 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
     design: designFileId,
   };
 
+  const files: { [idnex: string]: SourceFile } = {
+    [designFileId]: {
+      id: designFileId,
+      created: true,
+      modified: false,
+      readonly: false,
+      name: 'Design',
+      type: FileType.DESIGN,
+      state: VoxelEditor.createState(designFileId, options.voxelEditorState),
+    },
+    [codeFileId]: {
+      id: codeFileId,
+      created: true,
+      modified: false,
+      readonly: false,
+      name: 'Code',
+      type: FileType.CODE,
+      state: CodeEditor.creatState(codeFileId, options.codeEditorState),
+    },
+    [robotFileId]: {
+      id: robotFileId,
+      created: true,
+      modified: false,
+      readonly: false,
+      name: 'Robot',
+      type: FileType.ROBOT,
+      state: robotState,
+    },
+  };
+
+  const filesOnTab = Object.keys(files).filter(key => files[key].created);
+
   return {
     gameState: ZonePreview.createState(options.playerId),
-    files: {
-      [codeFileId]: {
-        id: codeFileId,
-        created: true,
-        modified: false,
-        readonly: false,
-        name: 'Code',
-        type: FileType.CODE,
-        state: CodeEditor.creatState(options.codeEditorState),
-      },
-      [designFileId]: {
-        id: designFileId,
-        created: true,
-        modified: false,
-        readonly: false,
-        name: 'Design',
-        type: FileType.DESIGN,
-        state: VoxelEditor.createState(options.voxelEditorState),
-      },
-      [robotFileId]: {
-        id: robotFileId,
-        created: true,
-        modified: false,
-        readonly: false,
-        name: 'Robot',
-        type: FileType.ROBOT,
-        state: robotState,
-      },
-    },
-    activeFileId: codeFileId,
+    files,
+    activeFileId: designFileId,
+    filesOnTab,
   };
 }
 

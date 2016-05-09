@@ -21,6 +21,10 @@
     transform: scale(1);
     transition-duration: .16s;
   }
+
+  &:first-child {
+    border-width: 0;
+  }
 }
 
 .tabTitle {

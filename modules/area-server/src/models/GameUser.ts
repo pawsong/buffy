@@ -26,6 +26,7 @@ export interface GameUserDocument extends mongoose.Document {
     }
   }
   designId: string;
+  robot: string;
 }
 
 const GameUserSchema = new Schema({
@@ -45,6 +46,7 @@ const GameUserSchema = new Schema({
     }
   },
   designId: { type: String },
+  robot: { type: String },
 });
 
 // Duplicate the ID field.

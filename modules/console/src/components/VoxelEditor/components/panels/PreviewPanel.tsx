@@ -12,6 +12,8 @@ import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 
 
 import PanelType from './PanelType';
 
+import { VoxelEditorState } from '../../interface';
+
 import CanvasShared from '../../canvas/shared';
 
 import {
@@ -20,7 +22,7 @@ import {
 
 import Panel, { PanelState, MoveToTop } from './Panel';
 
-import initPreview from '../../canvas/views/preview';
+import PreviewView from '../../canvas/views/preview';
 
 import { voxelRotate } from '../../voxels/actions';
 
@@ -58,35 +60,53 @@ class RotateButton extends React.Component<RotateButtonProps, {}> {
 };
 
 interface PreviewPanelProps extends React.Props<PreviewPanel> {
+  fileId: string;
+  focus: boolean;
   panelState: PanelState;
   moveToTop: MoveToTop;
   sizeVersion: number;
   canvasShared: CanvasShared;
   dispatchAction: DispatchAction;
+  onChange: (fileId: string, voxelEditorState: VoxelEditorState) => any;
   intl?: InjectedIntlProps;
 }
 
 @pure
 @injectIntl
 class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
-  canvas: any;
+  view: PreviewView;
 
   handleClickRotate(axis) {
     this.props.dispatchAction(voxelRotate(axis));
   };
 
   componentDidMount() {
-    this.canvas = initPreview(findDOMNode<HTMLElement>(this.refs['canvas']), this.props.canvasShared);
+    this.view = new PreviewView({
+      container: findDOMNode<HTMLElement>(this.refs['canvas']),
+      canvasShared: this.props.canvasShared,
+    });
   }
 
   componentWillReceiveProps(nextProps: PreviewPanelProps) {
     if (this.props.sizeVersion !== nextProps.sizeVersion) {
-      this.canvas.resize();
+      this.view.resize();
     }
+
+    const fileChanged = this.props.fileId !== nextProps.fileId;
+    const unfocused = this.props.focus === true && nextProps.focus === false;
+
+    if (fileChanged || unfocused) this.updateDataUrl();
+  }
+
+  updateDataUrl() {
+    const canvasElement = this.view.renderer.domElement;
+    const url = canvasElement.toDataURL();
+    this.props.onChange(this.props.fileId, { image: { url }});
   }
 
   componentWillUnmount() {
-    this.canvas.destroy();
+    this.updateDataUrl();
+    this.view.destroy();
   }
 
   render() {

@@ -94,6 +94,14 @@ class ObjectManager {
     return this.objects[id];
   }
 
+  changeDesign(id: string, designId: string) {
+    const object = this.find(id);
+    if (!object) return;
+    this.designManager.unwatch(object.designId, object.watcher);
+    object.designId = designId;
+    this.designManager.watch(object.designId, object.watcher);
+  }
+
   remove(id: string) {
     const object = this.objects[id];
     invariant(object, `Object ${id} does not exist`);

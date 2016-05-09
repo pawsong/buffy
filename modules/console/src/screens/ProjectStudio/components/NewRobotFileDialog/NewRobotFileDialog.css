@@ -1,0 +1,14 @@
+@import '../../../../styles/variables.css';
+
+.title {
+  margin: 0;
+  padding: 24px 24px 0 24px;
+  color: var(--palette-grey-900);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+}
+
+.tab {
+  color: var(--palette-grey-900) !important;
+}

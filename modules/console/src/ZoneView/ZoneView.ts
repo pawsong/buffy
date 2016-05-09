@@ -160,10 +160,12 @@ abstract class ZoneView {
   }
 
   destroy() {
+    // Release event handlers
     cancelAnimationFrame(this.frameId);
     window.removeEventListener('resize', this.boundHandleWindowResize, false);
     this.tokens.forEach(token => token.remove());
 
+    // Dispose webgl resources
     this.terrainManager.destroy();
     this.renderer.forceContextLoss();
     this.renderer.context = null;

@@ -173,7 +173,7 @@ class DesignManager {
   dispose() {
     Object.keys(this.loaders).forEach(designId => {
       const loader = this.loaders[designId];
-      invariant(!loader.watcherExists(), `loader ${designId} has watchers on dispose`);
+      // invariant(!loader.watcherExists(), `loader ${designId} has watchers on dispose`);
       loader.dispose();
     });
     this.loaders = {};

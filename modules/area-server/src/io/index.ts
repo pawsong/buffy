@@ -75,6 +75,7 @@ export default (io: SocketIO.Server) => {
 
       const user = new AreaUserGameObject({
         id: userDoc.id,
+        robot: userDoc.robot,
         zone: zone.id,
         designId: userDoc.designId,
         position: {

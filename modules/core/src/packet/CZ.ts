@@ -14,6 +14,7 @@ export const Methods = [
   'rotate',
   'updateMesh',
   'updateTerrain',
+  'updateRobot',
 ];
 
 // RPC
@@ -24,6 +25,7 @@ export interface Rpc {
   rotate: RpcMethod<RotateParams, void>;
   updateMesh: RpcMethod<UpdateMeshParams, void>;
   updateTerrain: RpcMethod<UpdateTerrainParams, void>;
+  updateRobot: RpcMethod<UpdateRobotParams, void>;
 }
 
 // Payload
@@ -63,3 +65,8 @@ export interface UpdateTerrainParams extends RpcParams {
   color: number;
 }
 
+export interface UpdateRobotParams extends RpcParams {
+  objectId: string;
+  robot: string;
+  design: string;
+}

@@ -329,6 +329,13 @@ export default {
   'navbar.accountinfo.username': '{username}으로 로그인',
 
   /**
+   * path: src/screens/ProjectStudio/components/ProjectStudioNavbar.json
+   * description: New file
+   * defaultMessage: New file
+   */
+  'new.file': '새 파일',
+
+  /**
    * path: src/constants/Messages.json
    * description: Password
    * defaultMessage: Password

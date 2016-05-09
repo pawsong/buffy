@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Tabs, Tab } from '../../Tabs';
 import { FileDescriptor, SourceFile } from '../types';
+import { getFileTypeIcon } from '../utils';
 
 interface FileTabsProps extends React.Props<FileTabs> {
   files: SourceFile[];
@@ -10,20 +11,32 @@ interface FileTabsProps extends React.Props<FileTabs> {
   onTabOrderChange(dragIndex: number, hoverIndex: number): any;
 }
 
+const styles = {
+  fontIcon: {
+    fontSize: 14,
+    color: 'inherit',
+    marginRight: 4,
+  },
+  labelContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+};
+
 class FileTabs extends React.Component<FileTabsProps, {}> {
   render() {
     const tabs = this.props.files.map((file, index) => {
-      const style = index === 0 ? {
-        borderLeft: 'none',
-      } : undefined;
-
       return (
         <Tab
           key={file.id}
           value={file.id}
           modified={file.modified}
-          style={style}
-          label={file.name}
+          label={
+            <span style={styles.labelContainer}>
+              {getFileTypeIcon(file.type, styles.fontIcon)}
+              {file.name || '(Untitled)'}
+            </span>
+          }
         />
       );
     });

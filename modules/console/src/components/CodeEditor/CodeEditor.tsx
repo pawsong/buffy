@@ -23,25 +23,24 @@ const styles = {
 };
 
 export interface CodeEditorState {
+  fileId?: string;
   blocklyXml?: string;
 }
 
-const defaultEditorState: CodeEditorState = {
-  blocklyXml: initBlock,
-};
-
 interface CodeEditorProps extends React.Props<CodeEditor> {
   editorState: CodeEditorState;
-  onChange: (state: CodeEditorState) => any;
+  onChange: (fileId: string, state: CodeEditorState) => any;
   sizeRevision: number;
   readyToRender: boolean;
 }
 
-export interface CreateStateOptions extends CodeEditorState {}
+export interface CreateStateOptions extends CodeEditorState {
+  blocklyXml?: string;
+}
 
 @pure
 class CodeEditor extends React.Component<CodeEditorProps, void> {
-  static creatState: (options?: CreateStateOptions) => CodeEditorState;
+  static creatState: (fileId: string, options?: CreateStateOptions) => CodeEditorState;
 
   workspace: any;
 
@@ -51,7 +50,7 @@ class CodeEditor extends React.Component<CodeEditorProps, void> {
   }
 
   setEditorState(nextState: CodeEditorState) {
-    this.props.onChange(objectAssign({}, this.props.editorState, nextState));
+    this.props.onChange(this.props.editorState.fileId, nextState);
   }
 
   injectWorkspace() {
@@ -95,6 +94,12 @@ class CodeEditor extends React.Component<CodeEditorProps, void> {
       if (this.props.sizeRevision !== nextProps.sizeRevision) {
         Blockly.svgResize(this.workspace);
       }
+
+      if (this.props.editorState.fileId !== nextProps.editorState.fileId) {
+        const dom = Blockly.Xml.textToDom(nextProps.editorState.blocklyXml);
+        this.workspace.clear();
+        Blockly.Xml.domToWorkspace(dom, this.workspace);
+      }
       return;
     }
 
@@ -117,8 +122,11 @@ class CodeEditor extends React.Component<CodeEditorProps, void> {
   }
 }
 
-CodeEditor.creatState = (options?: CreateStateOptions): CodeEditorState => {
-  return objectAssign({}, defaultEditorState, options);
+CodeEditor.creatState = (fileId: string, options: CreateStateOptions = {}): CodeEditorState => {
+  return {
+    fileId,
+    blocklyXml: options.blocklyXml || initBlock,
+  };
 }
 
 export default CodeEditor;

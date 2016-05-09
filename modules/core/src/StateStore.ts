@@ -242,3 +242,19 @@ StateStore.on.objectRemoved((store, params) => {
 
   store.emit.objectRemoved({ id: params.id });
 });
+
+StateStore.on.robotUpdated((store, params) => {
+  const objects: GameObject[] = [];
+
+  Object.keys(store.objects)
+    .map(key => store.objects[key])
+    .filter(object => object.robot === params.robot)
+    .forEach(object => {
+      object.designId = params.design;
+      objects.push(object);
+    });
+
+  store.emit.designChanged({
+    objects,
+  });
+});

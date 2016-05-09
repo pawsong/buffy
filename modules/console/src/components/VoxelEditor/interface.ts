@@ -53,6 +53,7 @@ export interface VoxelState {
 
 export interface VoxelEditorState {
   fileId?: string;
+  image?: { url: string };
   selectedTool?: ToolType;
   paletteColor?: Color;
   voxel?: VoxelState;

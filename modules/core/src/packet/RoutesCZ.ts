@@ -11,6 +11,7 @@ import {
   RotateParams,
   UpdateMeshParams,
   UpdateTerrainParams,
+  UpdateRobotParams,
 } from './CZ';
 
 import UserGameObject from './UserGameObject';
@@ -188,6 +189,16 @@ export abstract class RoutesCZ implements Rpc {
 
   protected abstract async updateTerrainInDB(user: UserGameObject, params: UpdateTerrainParams): Promise<void>;
 
+  /**
+   * updateRobot
+   */
+  async updateRobot(params: UpdateRobotParams): Promise<void> {
+    const user = this.getUser(params.objectId);
+    user.zone.broadcast.robotUpdated({
+      robot: params.robot,
+      design: params.design,
+    });
+  }
 }
 
 export default RoutesCZ;

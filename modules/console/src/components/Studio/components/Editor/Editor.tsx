@@ -4,6 +4,7 @@ const update = require('react-addons-update');
 import FileTabs from '../FileTabs';
 import CodeEditor, { CodeEditorState } from '../../../../components/CodeEditor';
 import VoxelEditor, { VoxelEditorState } from '../../../../components/VoxelEditor';
+import RobotEditor, { RobotEditorState } from '../../../../components/RobotEditor';
 
 import { FileType } from '../../types';
 
@@ -20,6 +21,7 @@ interface EditorState {
 interface EditorProps extends React.Props<Editor> {
   file: SourceFile;
   files: { [index: string]: SourceFile };
+  focus: boolean;
   editorSizeRevision: number;
   onFileChange: (fileId: string, state: any) => any;
 }
@@ -30,7 +32,7 @@ class Editor extends React.Component<EditorProps, any> {
     return (
       <CodeEditor
         editorState={this.props.file.state}
-        onChange={codeEditorState => this.props.onFileChange(this.props.file.id, codeEditorState)}
+        onChange={this.props.onFileChange}
         sizeRevision={this.props.editorSizeRevision}
         readyToRender={true}
       />
@@ -41,43 +43,20 @@ class Editor extends React.Component<EditorProps, any> {
     return (
       <VoxelEditor
         editorState={this.props.file.state}
-        onChange={voxelEditorState => this.props.onFileChange(this.props.file.id, voxelEditorState)}
+        onChange={this.props.onFileChange}
+        focus={this.props.focus}
         sizeVersion={this.props.editorSizeRevision}
       />
     );
   }
 
   renderRobotEditor() {
-    const state: RobotState = this.props.file.state;
-    const codes = state.codes.map(id => this.props.files[id]);
-    const design = this.props.files[state.design];
-
-    const codeElement = codes.map(code => {
-      return (
-        <div key={code.id}>{code.name}</div>
-      );
-    })
-
-    const designElement = (
-      <div>{design.name}</div>
-    );
-
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-        <div>
-          <h1>Robot editor</h1>
-
-          <h2>Codes for this robot</h2>
-          <div>Code list</div>
-          {codeElement}
-          <div>Add button (Open browser)</div>
-
-          <h2>Design for this robot</h2>
-          {designElement}
-          <div>Preview</div>
-          <div>Select button (Open browser)</div>
-        </div>
-      </div>
+      <RobotEditor
+        editorState={this.props.file.state}
+        onChange={editorState => this.props.onFileChange(this.props.file.id, editorState)}
+        files={this.props.files}
+      />
     );
   }
 

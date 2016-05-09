@@ -76,7 +76,7 @@ const tabSource = {
 
 export interface TabProps extends React.Props<Tab> {
   value: any;
-  label: string;
+  label: string | React.ReactElement<any>;
   modified?: boolean;
   index?: number;
   active?: boolean;

@@ -9,6 +9,7 @@ import { Project, ProjectData, SerializedLocalServer } from '@pasta/core/lib/Pro
 import StateLayer from '@pasta/core/lib/StateLayer';
 
 const update = require('react-addons-update');
+const objectAssign = require('object-assign');
 
 import LocalServer, { LocalSocket } from '../../LocalServer';
 import DesignManager from '../../DesignManager';
@@ -18,19 +19,25 @@ import { User } from '../../reducers/users';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import * as StorageKeys from '../../constants/StorageKeys';
 import Studio, { StudioState } from '../../components/Studio';
-import { FileType } from '../../components/Studio/types';
+import { FileType, SourceFile } from '../../components/Studio/types';
 import { RobotInstance, ZoneInstance } from '../../components/Studio';
 import { requestLogout } from '../../actions/auth';
 import { compileBlocklyXml } from '../../blockly/utils';
 
+import { NewFileSpec } from './types';
+
 import * as Immutable from 'immutable';
 
 import ProjectStudioNavbar from './components/ProjectStudioNavbar';
+import NewRobotFileDialog from './components/NewRobotFileDialog';
+
+import { RobotEditorState } from '../../components/RobotEditor';
+
+import generateObjectId from '../../utils/generateObjectId';
 
 const msgpack = require('msgpack-lite');
 
 import {
-  issueFileIds,
   createFile,
   createFiles,
   loadProject,
@@ -84,7 +91,6 @@ interface WorkingCopy {
 interface ProjectStudioHandlerProps extends RouteComponentProps<RouteParams, RouteParams>, ApiDispatchProps, SagaProps {
   user: User;
   projectMetadata?: ApiCall<ProjectMetadata>;
-  issueFileIds?: ImmutableTask<{}>;
   createFile?: ImmutableTask<{}>;
   createFiles?: ImmutableTask<{}>;
   loadProject?: ImmutableTask<Project>;
@@ -104,6 +110,8 @@ interface ProjectStudioHandlerState {
   // activeFiles
   workingCopies?: { [index: string]: WorkingCopy };
   activeWorkingCopyId?: string;
+
+  newFileDialogOpen?: boolean;
 }
 
 function rgbToHex({ r, g, b }) {
@@ -149,7 +157,6 @@ function updateKey(object, currentKey, nextKey): any {
   push,
 }) as any)
 @saga({
-  issueFileIds,
   createFile,
   createFiles,
   loadProject,
@@ -175,7 +182,10 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     this.mode = inferProjectStudioMode(this.props.params);
 
-    this.state = { stateLayerIsRunning: false };
+    this.state = {
+      stateLayerIsRunning: false,
+      newFileDialogOpen: false,
+    };
 
     this.socket = new LocalSocket();
 
@@ -194,9 +204,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     this.designManager = new DesignManager();
 
     if (this.mode === ProjectStudioMode.CREATE) {
-      this.props.runSaga(this.props.issueFileIds, 4 /* code, design, robot, zone */, fileIds => {
-        this.setState(this.createStateFromLocalStorage(fileIds), () => this.initStudio());
-      });
+      this.setState(this.createStateFromLocalStorage(), () => this.initStudio());
     } else {
       const { params } = this.props;
 
@@ -227,9 +235,12 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     }
   }
 
-  createStateFromLocalStorage(fileIds: string[]): ProjectStudioHandlerState {
-    const [codeFileId, designFileId, robotFileId] = fileIds;
+  createStateFromLocalStorage(): ProjectStudioHandlerState {
     const playerId = shortid.generate();
+
+    const codeFileId = generateObjectId();
+    const designFileId = generateObjectId();
+    const robotFileId = generateObjectId();
 
     const studioState = Studio.creatState({
       codeFileId,
@@ -240,6 +251,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     const initialLocalServer = LocalServer.createInitialData({
       playerId,
+      robot: robotFileId,
       designId: designFileId,
     });
 
@@ -346,13 +358,23 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     //   } } },
     // }));
 
-    if (file.type === FileType.DESIGN) {
-      const mesh = file.state.voxel.present.mesh;
-      this.stateLayer.rpc.updateMesh({
-        objectId: this.state.studioState.gameState.playerId,
-        designId: fileId,
-        mesh: mesh,
-      });
+    switch(file.type) {
+      case FileType.DESIGN: {
+        const mesh = file.state.voxel.present.mesh;
+        this.stateLayer.rpc.updateMesh({
+          objectId: this.state.studioState.gameState.playerId,
+          designId: fileId,
+          mesh: mesh,
+        });
+      }
+      case FileType.ROBOT: {
+        const state: RobotEditorState = file.state;
+        this.stateLayer.rpc.updateRobot({
+          objectId: this.state.studioState.gameState.playerId,
+          robot: file.id,
+          design: state.design,
+        });
+      }
     }
 
     if (file.created) {
@@ -447,6 +469,40 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     ].join('\n'));
   }
 
+  handleNewFileDialogOpen() {
+    this.setState({ newFileDialogOpen: true });
+  }
+
+  handleNewFile(specs: NewFileSpec[]) {
+    const files: { [index: string]: SourceFile } = {};
+    specs.forEach((spec, index) => {
+      const file: SourceFile = files[spec.id] = {
+        id: spec.id,
+        name: '',
+        type: spec.type,
+        created: true,
+        modified: false,
+        readonly: false,
+        state: spec.data,
+      };
+
+      if (spec.type === FileType.DESIGN) {
+        const loader = this.designManager.getOrCreateLoader(file.id);
+        loader.preventGarbageCollection();
+        loader.loadFromMemory(file.id, file.state.voxel.present.mesh);
+      }
+    });
+
+    this.setState({
+      studioState: update(this.state.studioState, {
+        files: { $merge: files },
+        filesOnTab: { $push: specs.map(spec => spec.id) },
+        activeFileId: { $set: specs[specs.length - 1].id },
+      }),
+      newFileDialogOpen: false,
+    });
+  }
+
   render() {
     if (!this.state.stateLayerIsRunning) {
       return <div>Loading now...</div>;
@@ -458,6 +514,8 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
           user={this.props.user}
           location={this.props.location}
           onLogout={() => this.props.requestLogout()}
+          onNewFile={specs => this.handleNewFile(specs)}
+          onCreateNewRobotFile={() => this.setState({ newFileDialogOpen: true })}
           onSave={() => this.handleSave()}
           onLinkClick={location => this.props.push(location)}
           vrModeAvaiable={this.mode !== ProjectStudioMode.CREATE}
@@ -472,6 +530,13 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
           stateLayer={this.stateLayer}
           designManager={this.designManager}
           style={styles.studio}
+          editorFocus={!this.state.newFileDialogOpen}
+        />
+        <NewRobotFileDialog
+          files={this.state.studioState.files}
+          open={this.state.newFileDialogOpen}
+          onClose={() => this.setState({ newFileDialogOpen: false })}
+          onSubmit={specs => this.handleNewFile(specs)}
         />
       </div>
     );

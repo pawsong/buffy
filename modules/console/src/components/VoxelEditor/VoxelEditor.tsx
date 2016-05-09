@@ -84,8 +84,9 @@ export { VoxelEditorState };
 
 interface VoxelEditorProps extends React.Props<VoxelEditor> {
   editorState: VoxelEditorState;
-  onChange: (voxelEditorState: VoxelEditorState) => any;
+  onChange: (fileId: string, voxelEditorState: VoxelEditorState) => any;
   sizeVersion: number;
+  focus: boolean;
   connectDropTarget?: any;
   intl?: InjectedIntlProps;
 }
@@ -117,7 +118,7 @@ const panelTarget = {
   connectDropTarget: connect.dropTarget()
 })) as any)
 class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
-  static createState: (options?: CreateStateOptions) => VoxelEditorState;
+  static createState: (fileId: string, options?: CreateStateOptions) => VoxelEditorState;
 
   canvasShared: CanvasShared;
   canvas: MainCanvas;
@@ -154,7 +155,7 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   }
 
   handleStateChange(editorState: VoxelEditorState) {
-    this.props.onChange(objectAssign({}, this.props.editorState, editorState));
+    this.props.onChange(this.props.editorState.fileId, editorState);
   }
 
   dispatchVoxelAction = (action: Action<any>) => {
@@ -242,6 +243,9 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
           dispatchAction={this.dispatchVoxelAction}
         />
         <PreviewPanel
+          fileId={this.props.editorState.fileId}
+          focus={this.props.focus}
+          onChange={this.props.onChange}
           panelState={this.state.panels[PanelType.PREVIEW]}
           moveToTop={this.moveToTop}
           canvasShared={this.canvasShared}
@@ -287,7 +291,7 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   }
 }
 
-VoxelEditor.createState = function VoxelEditor(options: CreateStateOptions = {}): VoxelEditorState {
+VoxelEditor.createState = function VoxelEditor(fileId: string, options: CreateStateOptions = {}): VoxelEditorState {
   let voxel: VoxelState = initialVoxelState;
 
   if (options.voxels) {
@@ -303,9 +307,11 @@ VoxelEditor.createState = function VoxelEditor(options: CreateStateOptions = {})
   }
 
   return {
+    fileId,
     selectedTool: ToolType.brush,
     paletteColor: { r: 104, g: 204, b: 202 },
     voxel,
+    image: { url: '' },
   };
 }
 

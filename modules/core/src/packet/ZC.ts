@@ -30,6 +30,7 @@ export const BroadcastEvents = [
   'playEffect',
   'terrainUpdated',
   'meshUpdated',
+  'robotUpdated',
 ];
 
 export interface Broadcast {
@@ -41,6 +42,7 @@ export interface Broadcast {
   playEffect(params: PlayEffectParams): void;
   terrainUpdated(params: TerrainUpdatedParams): void;
   meshUpdated(params: MeshUpdatedParams): void;
+  robotUpdated(params: RobotUpdatedParams): void;
 }
 
 export interface Listen<T> {
@@ -53,6 +55,7 @@ export interface Listen<T> {
   playEffect(fn: (store: T, params: PlayEffectParams) => any): void;
   terrainUpdated(fn: (store: T, params: TerrainUpdatedParams) => any): void;
   meshUpdated(fn: (store: T, params: MeshUpdatedParams) => any): void;
+  robotUpdated(fn: (store: T, params: RobotUpdatedParams) => any): void;
 }
 
 // Events
@@ -95,6 +98,11 @@ export interface TerrainUpdatedParams extends RpcParams {
 export interface MeshUpdatedParams extends RpcParams {
   designId: string;
   mesh: Mesh;
+}
+
+export interface RobotUpdatedParams extends RpcParams {
+  robot: string;
+  design: string;
 }
 
 // Responses

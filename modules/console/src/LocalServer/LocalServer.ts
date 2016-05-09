@@ -16,6 +16,7 @@ import LocalSocket from './LocalSocket';
 
 interface CreateInitialDataOptions {
   playerId: string;
+  robot: string;
   designId: string;
 }
 
@@ -27,6 +28,7 @@ class LocalServer {
     const serializedGameObject: SerializedGameObject = {
       id: options.playerId,
       zone: zoneId,
+      robot: options.robot,
       designId: options.designId,
       position: {
         x: 1,
@@ -41,6 +43,7 @@ class LocalServer {
     const serializedGameObject2: SerializedGameObject = {
       id: userId2,
       zone: zoneId,
+      robot: options.robot,
       designId: options.designId,
       position: {
         x: 1,

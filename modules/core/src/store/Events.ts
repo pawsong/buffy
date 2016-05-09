@@ -14,6 +14,7 @@ export const StoreEvents = [
   'playEffect',
   'terrainUpdated',
   'meshUpdated',
+  'designChanged',
 ];
 
 export interface StoreEmit {
@@ -25,6 +26,7 @@ export interface StoreEmit {
   playEffect(params: PlayEffectParams): void;
   meshUpdated(params: MeshUpdatedParams): void;
   terrainUpdated(params: TerrainUpdateParams): void;
+  designChanged(params: DesignChangedParams): void;
 }
 
 export interface StoreListen {
@@ -36,6 +38,7 @@ export interface StoreListen {
   playEffect(fn: (params: PlayEffectParams) => any): EventSubscription;
   meshUpdated(fn: (params: MeshUpdatedParams) => any): EventSubscription;
   terrainUpdated(fn: (params: TerrainUpdateParams) => any): EventSubscription;
+  designChanged(fn: (params: DesignChangedParams) => any): EventSubscription;
 }
 
 export interface StoreEventParams { }
@@ -72,4 +75,8 @@ export interface MeshUpdatedParams extends StoreEventParams {
 
 export interface TerrainUpdateParams extends StoreEventParams {
   terrain: Terrain;
+}
+
+export interface DesignChangedParams extends StoreEventParams {
+  objects: GameObject[];
 }

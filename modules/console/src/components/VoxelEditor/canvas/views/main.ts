@@ -218,7 +218,9 @@ class MainCanvas {
     // INITIALIZE
     /////////////////////////////////////////////////////////////
 
-    const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+    });
     renderer.setClearColor( 0xffffff );
     renderer.setSize( container.offsetWidth, container.offsetHeight )
 

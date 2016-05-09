@@ -21,3 +21,6 @@ export { resync };
 
 import terrainUpdated from './terrainUpdated';
 export { terrainUpdated };
+
+import designChanged from './designChanged';
+export { designChanged };

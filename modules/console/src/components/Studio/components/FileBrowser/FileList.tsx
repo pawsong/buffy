@@ -7,34 +7,9 @@ import Avatar from 'material-ui/lib/avatar';
 import * as classNames from 'classnames';
 
 import { FileDescriptor, FileType, SourceFile } from '../../types';
-import { getIconName, getFileTypeLabel } from '../../utils';
+import { getIconName, getFileTypeLabel, getFileTypeAvatar } from '../../utils';
 
 const styles = require('./FileBrowser.css');
-
-const fileTypeAvatars = {
-  [FileType.CODE]: (
-    <Avatar
-      icon={<FontIcon className="material-icons">{getIconName(FileType.CODE)}</FontIcon>}
-      backgroundColor={Colors.green500}
-    />
-  ),
-  [FileType.DESIGN]: (
-    <Avatar
-      icon={<FontIcon className="material-icons">{getIconName(FileType.DESIGN)}</FontIcon>}
-      backgroundColor={Colors.yellow500}
-    />
-  ),
-  [FileType.ROBOT]: (
-    <Avatar
-      icon={<FontIcon className="material-icons">{getIconName(FileType.ROBOT)}</FontIcon>}
-      backgroundColor={Colors.blue500}
-    />
-  ),
-};
-
-function getFileTypeAvatar(fileType: FileType) {
-  return fileTypeAvatars[fileType] || null;
-}
 
 interface FileListProps extends React.Props<FileList> {
   files: SourceFile[];
@@ -58,7 +33,10 @@ class FileList extends React.Component<FileListProps, {}> {
           key={file.id}
           leftAvatar={getFileTypeAvatar(file.type)}
           primaryText={
-            <span>{file.modified ? <i className={markForModifiedClass}>fiber_manual_record</i> : null}{file.name}</span>
+            <span>
+              {file.modified ? <i className={markForModifiedClass}>fiber_manual_record</i> : null}
+              {file.name || '(Untitled)'}
+            </span>
           }
           secondaryText={getFileTypeLabel(file.type)}
           onTouchTap={() => this.props.onFileTouchTap(file.id)}
