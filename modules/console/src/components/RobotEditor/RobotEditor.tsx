@@ -81,6 +81,7 @@ class RobotEditor extends React.Component<RobotEditorProps, void> {
           </SelectField>
 
           <div>Preview</div>
+          <img src={design.state.image.url} />
           <div>Select button (Open browser)</div>
         </div>
       </div>
