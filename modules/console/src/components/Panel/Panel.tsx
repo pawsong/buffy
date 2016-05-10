@@ -57,18 +57,6 @@ interface PanelState {
  * Target
  */
 
-const panelTarget = {
-  drop(props, monitor, component) {
-    const { panelId } = monitor.getItem() as PanelItem;
-    const state = component.state.panels[panelId];
-
-    const delta = monitor.getDifferenceFromInitialOffset();
-    const left = Math.round(state.left + delta.x);
-    const top = Math.round(state.top + delta.y);
-    component.movePanel(panelId, left, top);
-  },
-};
-
 interface TargetState {
   panels: { [index: string]: PanelState }
 }
@@ -81,13 +69,33 @@ interface ConnectTargetOptions {
   panelTypes: string;
   panelIds: string[];
   mapIdToLocalStorageKey: (panelId: string) => string;
+  limitTop?: number;
 }
 
-export function connectTarget({
-  panelTypes,
-  panelIds,
-  mapIdToLocalStorageKey,
-}: ConnectTargetOptions) {
+export function connectTarget(options: ConnectTargetOptions) {
+  const {
+    panelTypes,
+    panelIds,
+    mapIdToLocalStorageKey,
+  } = options;
+
+  const limitTop = options.limitTop || 0;
+
+  const panelTarget = {
+    drop(props, monitor, component) {
+      const { panelId } = monitor.getItem() as PanelItem;
+      const state = component.state.panels[panelId];
+
+      const delta = monitor.getDifferenceFromInitialOffset();
+      const left = Math.round(state.left + delta.x);
+      const top = Math.round(state.top + delta.y);
+
+      if (limitTop > top) return;
+
+      component.movePanel(panelId, left, top);
+    },
+  };
+
   const panelIdsLength = panelIds.length;
 
   return function wrapWithConnect(WrappedComponent) {
