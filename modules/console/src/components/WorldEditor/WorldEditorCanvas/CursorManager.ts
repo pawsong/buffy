@@ -1,20 +1,22 @@
 import * as THREE from 'three';
-import TerrainManager from '../../../Canvas/TerrainManager';
+import TerrainManager from '../../../canvas/Canvas/TerrainManager';
 import {
   BOX_SIZE,
   PIXEL_UNIT,
 } from '../Constants';
 
+import WorldEditorCanvas from './WorldEditorCanvas';
+
 class CursorManager {
-  container: HTMLElement;
-  scene: THREE.Scene;
+  canvas: WorldEditorCanvas;
+
   cursorMesh: THREE.Mesh;
   onMouseMove: EventListener;
 
-  constructor(container: HTMLElement, scene: THREE.Scene, raycaster: THREE.Raycaster,
-              camera: THREE.Camera, terrainManager: TerrainManager) {
-    this.container = container;
-    this.scene = scene;
+  constructor(canvas: WorldEditorCanvas) {
+    this.canvas = canvas;
+
+    const raycaster = new THREE.Raycaster();
 
     const cursorGeometry = new THREE.PlaneBufferGeometry( BOX_SIZE, BOX_SIZE );
     cursorGeometry.rotateX(- Math.PI / 2);
@@ -33,11 +35,11 @@ class CursorManager {
       event.preventDefault();
 
       raycaster.setFromCamera({
-        x: (event['offsetX'] / container.offsetWidth) * 2 - 1,
-        y: -(event['offsetY'] / container.offsetHeight) * 2 + 1,
-      }, camera);
+        x: (event['offsetX'] / canvas.container.offsetWidth) * 2 - 1,
+        y: -(event['offsetY'] / canvas.container.offsetHeight) * 2 + 1,
+      }, canvas.camera);
 
-      const intersects = raycaster.intersectObjects(terrainManager.terrains);
+      const intersects = raycaster.intersectObjects(canvas.terrainManager.terrains);
       if (intersects.length === 0) {
         this.cursorMesh.visible = false;
         return;
@@ -78,13 +80,13 @@ class CursorManager {
 
   start() {
     this.cursorMesh.material['color'].setHex(0xff0000);
-    this.scene.add(this.cursorMesh);
-    this.container.addEventListener('mousemove', this.onMouseMove, false);
+    this.canvas.scene.add(this.cursorMesh);
+    this.canvas.container.addEventListener('mousemove', this.onMouseMove, false);
   }
 
   stop() {
-    this.scene.remove(this.cursorMesh);
-    this.container.removeEventListener('mousemove', this.onMouseMove, false);
+    this.canvas.scene.remove(this.cursorMesh);
+    this.canvas.container.removeEventListener('mousemove', this.onMouseMove, false);
   }
 
   destroy() {

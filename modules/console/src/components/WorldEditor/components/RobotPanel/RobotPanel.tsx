@@ -4,11 +4,15 @@ import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
+import * as classNames from 'classnames';
 
-import { connectSource } from '../../Panel';
-import { PanelTypes, Panels } from '../panel';
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./RobotPanel.css');
 
-import { RobotInstance, SourceFileDB } from '../../Studio/types';
+import { connectSource } from '../../../Panel';
+import { PanelTypes, Panels } from '../../panel';
+
+import { RobotInstance, SourceFileDB } from '../../../Studio/types';
 
 const messages = defineMessages({
   title: {
@@ -18,9 +22,12 @@ const messages = defineMessages({
   },
 });
 
+const markForModifiedClass = classNames('material-icons', styles.markForModified);
+
 interface RobotPanelProps extends React.Props<RobotPanel> {
   robots: RobotInstance[];
   files: SourceFileDB;
+  playerId: string;
   onPlayerChange: (robotId: string) => any;
 }
 
@@ -29,6 +36,7 @@ interface RobotPanelProps extends React.Props<RobotPanel> {
   panelId: Panels.robot,
   title: messages.title,
 })
+@withStyles(styles)
 class RobotPanel extends React.Component<RobotPanelProps, void> {
   static PANEL_ID: string;
 
@@ -41,7 +49,12 @@ class RobotPanel extends React.Component<RobotPanelProps, void> {
         <ListItem
           key={robot.id}
           leftAvatar={<Avatar src={design.state.image.url} />}
-          primaryText={robot.name}
+          primaryText={
+            <span>
+              {this.props.playerId === robot.id ? <i className={markForModifiedClass}>fiber_manual_record</i> : null}
+              {robot.name || '(Untitled)'}
+            </span>
+          }
           secondaryText={recipe.name}
           onTouchTap={() => this.props.onPlayerChange(robot.id)}
         />

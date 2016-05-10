@@ -581,7 +581,7 @@ export default {
   'vrMode': 'VR 모드',
 
   /**
-   * path: src/components/WorldEditor/components/RobotPanel.json
+   * path: src/components/WorldEditor/components/RobotPanel/RobotPanel.json
    * description: World editor robot panel title
    * defaultMessage: Robots
    */

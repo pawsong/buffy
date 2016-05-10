@@ -3,7 +3,7 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 import GameObject from '@pasta/core/lib/classes/GameObject';
 
 import Canvas from '../Canvas';
-import DesignManager from '../DesignManager';
+import DesignManager from '../../DesignManager';
 
 import { createEffectManager } from './effects';
 import { GetZoneViewState } from './interface';
@@ -15,7 +15,7 @@ import {
   BOX_SIZE,
   MINI_PIXEL_SIZE,
   GRID_SIZE,
-} from './Constants';
+} from '../Constants';
 
 import * as handlers from './handlers';
 
@@ -23,14 +23,23 @@ interface Position {
   x: number; y: number; z: number;
 }
 
-abstract class ZoneView extends Canvas {
+abstract class ZoneCanvas extends Canvas {
   effectManager: any;
   resyncToStore: (object: GameObject) => void;
 
-  private tokens: any[];
+  protected stateLayer: StateLayer;
 
-  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, getState: GetZoneViewState) {
+  private tokens: any[];
+  private getZoneViewState;
+
+  constructor(container: HTMLElement, designManager: DesignManager, stateLayer: StateLayer, getState: GetZoneViewState) {
     super(container, designManager);
+    this.stateLayer = stateLayer;
+    this.getZoneViewState = getState;
+  }
+
+  init() {
+    super.init();
 
     this.effectManager = createEffectManager(this.scene);
 
@@ -77,11 +86,12 @@ abstract class ZoneView extends Canvas {
     }
 
     // // Sync view to store data
-    const { playerId } = getState();
-    const object = stateLayer.store.findObject(playerId);
+    const { playerId } = this.getZoneViewState();
+    const object = this.stateLayer.store.findObject(playerId);
     if (object) this.resyncToStore(object);
 
-    this.tokens = Object.keys(handlers).map(key => handlers[key](stateLayer.store.subscribe, this, stateLayer, getState));
+    this.tokens = Object.keys(handlers).map(key => handlers[key](
+      this.stateLayer.store.subscribe, this, this.stateLayer, this.getZoneViewState));
   }
 
   setCameraPosition(pos: Position) {
@@ -98,4 +108,4 @@ abstract class ZoneView extends Canvas {
   }
 }
 
-export default ZoneView;
+export default ZoneCanvas;

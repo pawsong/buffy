@@ -1,0 +1,7 @@
+@import '../../../../styles/variables.css';
+
+.markForModified {
+  color: var(--palette-cyan-500);
+  font-size: 10px;
+  margin-right: 2px;
+}

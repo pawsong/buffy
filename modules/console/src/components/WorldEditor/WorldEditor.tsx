@@ -23,6 +23,7 @@ import {
   Color,
   WorldEditorState,
   EditorMode,
+  CameraMode,
 } from './types';
 export { WorldEditorState };
 
@@ -104,6 +105,7 @@ class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
         <RobotPanel
           robots={this.props.robots}
           files={this.props.files}
+          playerId={this.props.editorState.playerId}
           onPlayerChange={playerId => this.handleChangeState({ playerId })}
         />
         <ZonePanel
@@ -118,6 +120,7 @@ class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
 WorldEditor.createState = (playerId: string): WorldEditorState => {
   return {
     mode: EditorMode.EDIT,
+    cameraMode: CameraMode.ORHTOGRAPHIC,
     playerId: playerId,
     selectedTool: ToolType.move,
     brushColor: { r: 104, g: 204, b: 202 },

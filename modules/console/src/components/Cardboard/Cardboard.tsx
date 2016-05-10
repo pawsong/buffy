@@ -4,7 +4,7 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 import { Scripts } from '@pasta/core/lib/types';
 import DesignManager from '../../DesignManager';
 
-import CardboardZoneView from './CardboardZoneView';
+import CardboardZoneCanvas from './CardboardZoneCanvas';
 
 import FullscreenPlayer from '../FullscreenPlayer';
 
@@ -22,7 +22,7 @@ class Cardboard extends React.Component<CardboardProps, void> {
         onStart={this.props.onStart}
         scripts={this.props.scripts}
         stateLayer={this.props.stateLayer}
-        installZoneView={(element) => new CardboardZoneView(element, this.props.stateLayer, this.props.designManager, '')}
+        installZoneView={(element) => new CardboardZoneCanvas(element, this.props.stateLayer, this.props.designManager, '')}
       />
     );
   }

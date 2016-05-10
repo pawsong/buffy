@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import GameObject from '@pasta/core/lib/classes/GameObject';
 
-import DesignManager from '../DesignManager';
+import DesignManager from '../../DesignManager';
 import TerrainManager from './TerrainManager';
 import ObjectManager from './ObjectManager';
 
@@ -12,7 +12,7 @@ import {
   BOX_SIZE,
   MINI_PIXEL_SIZE,
   GRID_SIZE,
-} from './Constants';
+} from '../Constants';
 
 abstract class Canvas {
   container: HTMLElement;
@@ -25,7 +25,7 @@ abstract class Canvas {
   cubeGeometry: THREE.Geometry;
   cubeMaterial: THREE.Material;
 
-  protected abstract getCamera(): THREE.Camera;
+  protected abstract initCamera(): THREE.Camera;
   protected abstract handleWindowResize();
 
   private boundHandleWindowResize: () => any;
@@ -33,13 +33,13 @@ abstract class Canvas {
 
   constructor(container: HTMLElement, designManager: DesignManager) {
     this.container = container;
-
-    const scene = this.scene = new THREE.Scene();
-    const camera = this.camera = this.getCamera();
-    scene.add(camera);
-
     this.designManager = designManager;
-    const objectManager = this.objectManager = new ObjectManager(scene, designManager);
+  }
+
+  init() {
+    const scene = this.scene = new THREE.Scene();
+
+    const objectManager = this.objectManager = new ObjectManager(scene, this.designManager);
     const terrainManager = this.terrainManager = new TerrainManager(scene);
 
     const planeGeo = new THREE.PlaneBufferGeometry( 2 * GRID_SIZE, 2 * GRID_SIZE );
@@ -67,15 +67,17 @@ abstract class Canvas {
     scene.add(light);
 
     const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(container.offsetWidth, container.offsetHeight);
+    renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
 
     // Eliminate ghost bottom margin
     renderer.domElement.style.verticalAlign = 'bottom';
 
-    container.appendChild(renderer.domElement);
+    this.container.appendChild(renderer.domElement);
 
+    const camera = this.camera = this.initCamera();
+    scene.add(camera);
     camera.lookAt(scene.position);
 
     // /////////////////////////////////////////////////////////////////////////

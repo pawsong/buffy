@@ -57,13 +57,13 @@ class ModeSwitch extends React.Component<ModeSwitchProps, {}> {
     return (
       <div style={styles.wrapper}>
         <ModeRadioButton
-          label="Edit"
+          label="Edit Mode"
           icon={ModeEdit}
           selected={this.props.mode === EditorMode.EDIT}
           onTouchTap={() => this.props.onModeChange(EditorMode.EDIT)}
         />
         <ModeRadioButton
-          label="Play"
+          label="Play Mode"
           icon={PlayArrow}
           selected={this.props.mode === EditorMode.PLAY}
           onTouchTap={() => this.props.onModeChange(EditorMode.PLAY)}

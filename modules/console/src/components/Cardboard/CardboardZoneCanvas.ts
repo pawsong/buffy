@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import DesignManager from '../../DesignManager';
-import ZoneView from '../../ZoneView';
+import ZoneCanvas from '../../canvas/ZoneCanvas';
 
 if (__CLIENT__) {
   window['THREE'] = THREE;
@@ -13,13 +13,13 @@ if (__CLIENT__) {
   }
 }
 
-class CardboardZoneView extends ZoneView {
+class CardboardZoneCanvas extends ZoneCanvas {
   private controls: any;
   camera: THREE.PerspectiveCamera;
   effect: any;
 
   constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, playerId: string) {
-    super(container, stateLayer, designManager, () => ({ playerId }));
+    super(container, designManager, stateLayer, () => ({ playerId }));
     this.effect = new THREE['CardboardEffect'](this.renderer);
     if (__IS_MOBILE__) {
       this.controls = new THREE['DeviceOrientationControls'](this.camera);
@@ -28,7 +28,7 @@ class CardboardZoneView extends ZoneView {
     }
   }
 
-  getCamera() {
+  initCamera() {
     const camera = new THREE.PerspectiveCamera(90, this.container.offsetWidth / this.container.offsetHeight, 0.001, 700);
     // camera.position.set(0, 15, 0);
     return camera;
@@ -55,4 +55,4 @@ class CardboardZoneView extends ZoneView {
   }
 }
 
-export default CardboardZoneView;
+export default CardboardZoneCanvas;

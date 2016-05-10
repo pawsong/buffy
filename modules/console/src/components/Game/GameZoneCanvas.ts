@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import DesignManager from '../../DesignManager';
-import ZoneView from '../../ZoneView';
+import ZoneCanvas from '../../canvas/ZoneCanvas';
 
 if (__CLIENT__) {
   window['THREE'] = THREE;
@@ -9,16 +9,16 @@ if (__CLIENT__) {
   require('three/examples/js/controls/MouseControls');
 }
 
-class GameZoneView extends ZoneView {
+class GameZoneCanvas extends ZoneCanvas {
   private controls: any;
   camera: THREE.PerspectiveCamera;
 
   constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, playerId: string) {
-    super(container, stateLayer, designManager, () => ({ playerId }));
+    super(container, designManager, stateLayer, () => ({ playerId }));
     this.controls = new THREE['MouseControls'](this.camera);
   }
 
-  getCamera() {
+  initCamera() {
     const camera = new THREE.PerspectiveCamera(90, this.container.offsetWidth / this.container.offsetHeight, 0.001, 700);
     // camera.position.set(0, 15, 0);
     return camera;
@@ -44,4 +44,4 @@ class GameZoneView extends ZoneView {
   }
 }
 
-export default GameZoneView;
+export default GameZoneCanvas;

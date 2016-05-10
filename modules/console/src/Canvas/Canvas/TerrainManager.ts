@@ -3,7 +3,7 @@ import Terrain from '@pasta/core/lib/classes/Terrain';
 import {
   BOX_SIZE,
   PIXEL_UNIT,
-} from './Constants';
+} from '../Constants';
 
 class TerrainManager {
   scene: THREE.Scene;

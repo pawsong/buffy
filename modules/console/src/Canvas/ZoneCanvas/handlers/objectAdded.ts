@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { StoreHandler } from '../interface';
-import ZoneView from '../ZoneView';
+import ZoneCanvas from '../ZoneCanvas';
 
 import {
   BOX_SIZE,
   PIXEL_UNIT,
-} from '../Constants';
+} from '../../Constants';
 
-export default <StoreHandler<ZoneView>>((listen, view, stateLayer, getState) => listen.objectAdded(params => {
+export default <StoreHandler<ZoneCanvas>>((listen, view, stateLayer, getState) => listen.objectAdded(params => {
   const { object: obj } = params;
   const object = view.objectManager.create(obj.id, obj.designId);
   object.add(new THREE.Mesh( view.cubeGeometry, view.cubeMaterial ));

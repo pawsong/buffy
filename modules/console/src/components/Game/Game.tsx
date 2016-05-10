@@ -3,7 +3,7 @@ import * as React from 'react';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Scripts } from '@pasta/core/lib/types';
 
-import GameZoneView from './GameZoneView';
+import GameZoneCanvas from './GameZoneCanvas';
 
 import DesignManager from '../../DesignManager';
 import FullscreenPlayer from '../FullscreenPlayer';
@@ -22,7 +22,7 @@ class Game extends React.Component<GameProps, void> {
         onStart={this.props.onStart}
         scripts={this.props.scripts}
         stateLayer={this.props.stateLayer}
-        installZoneView={(element) => new GameZoneView(element, this.props.stateLayer, this.props.designManager, '')}
+        installZoneView={(element) => new GameZoneCanvas(element, this.props.stateLayer, this.props.designManager, '')}
       />
     );
   }

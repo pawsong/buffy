@@ -34,10 +34,11 @@ class Canvas extends React.Component<CanvasProps, {}> {
   componentDidMount() {
     this.canvas = new WorldEditorCanvas(
       this.refs['canvas'] as HTMLElement,
-      this.props.stateLayer,
       this.props.designManager,
+      this.props.stateLayer,
       () => this.props.editorState
     );
+    this.canvas.init();
   }
 
   componentWillReceiveProps(nextProps: CanvasProps) {

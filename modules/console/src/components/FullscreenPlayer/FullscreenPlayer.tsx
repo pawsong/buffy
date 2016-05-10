@@ -13,7 +13,7 @@ import { Scripts } from '@pasta/core/lib/types';
 
 import Colors from 'material-ui/lib/styles/colors';
 
-import ZoneView from '../../ZoneView';
+import ZoneCanvas from '../../canvas/ZoneCanvas';
 
 import { Sandbox } from '../../sandbox';
 
@@ -65,7 +65,7 @@ const messages = defineMessages({
 });
 
 interface FullscreenPlayerProps extends React.Props<FullscreenPlayer> {
-  installZoneView: (element: HTMLElement) => ZoneView;
+  installZoneView: (element: HTMLElement) => ZoneCanvas;
   stateLayer: StateLayer;
   scripts: Scripts;
   onStart: () => any;
@@ -93,7 +93,7 @@ class FullscreenPlayer extends React.Component<FullscreenPlayerProps, CardboardS
   sandbox: Sandbox;
 
   listenFullscreenEvent: Function;
-  zoneView: ZoneView;
+  zoneView: ZoneCanvas;
 
   constructor(props, context) {
     super(props, context);
@@ -148,11 +148,12 @@ class FullscreenPlayer extends React.Component<FullscreenPlayerProps, CardboardS
     return (
       <div style={styles.readyContainer}>
         <div style={styles.readyContent}>
-          <RaisedButton label={this.props.intl.formatMessage(messages.start)}
-                        labelStyle={styles.buttonLabel}
-                        disabled={!this.props.scripts}
-                        primary={true}
-                        onTouchTap={() => this.handleStartButtonClick()}
+          <RaisedButton
+            label={this.props.intl.formatMessage(messages.start)}
+            labelStyle={styles.buttonLabel}
+            disabled={!this.props.scripts}
+            primary={true}
+            onTouchTap={() => this.handleStartButtonClick()}
           />
         </div>
       </div>
@@ -166,13 +167,14 @@ class FullscreenPlayer extends React.Component<FullscreenPlayerProps, CardboardS
 
     return (
       <div>
-        <IconButton style={fullscreenButtonStyle}
-                    iconStyle={{ color: Colors.white }}
-                    tooltipStyles={styles.fullscreenButtonTooltip}
-                    onTouchTap={() => this.handleFullscreenButtonClick()}
-                    iconClassName="material-icons"
-                    tooltipPosition="bottom-center"
-                    tooltip="Fullscreen"
+        <IconButton
+          style={fullscreenButtonStyle}
+          iconStyle={{ color: Colors.white }}
+          tooltipStyles={styles.fullscreenButtonTooltip}
+          onTouchTap={() => this.handleFullscreenButtonClick()}
+          iconClassName="material-icons"
+          tooltipPosition="bottom-center"
+          tooltip="Fullscreen"
         >
           fullscreen
         </IconButton>

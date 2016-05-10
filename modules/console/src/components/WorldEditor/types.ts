@@ -3,6 +3,11 @@ export enum EditorMode {
   PLAY,
 }
 
+export enum CameraMode {
+  ORHTOGRAPHIC,
+  PERSPECTIVE,
+}
+
 export enum ToolType {
   move,
   editTerrain,
@@ -14,6 +19,7 @@ export interface Color {
 
 export interface WorldEditorState {
   mode?: EditorMode;
+  cameraMode?: CameraMode;
   playerId?: string;
   selectedTool?: ToolType;
   brushColor?: Color;

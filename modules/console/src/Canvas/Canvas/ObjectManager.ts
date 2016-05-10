@@ -3,8 +3,8 @@ const invariant = require('fbjs/lib/invariant');
 import {
   MINI_PIXEL_SIZE,
   PIXEL_NUM,
-} from './Constants';
-import DesignManager, { LoaderWatcher } from '../DesignManager';
+} from '../Constants';
+import DesignManager, { LoaderWatcher } from '../../DesignManager';
 
 interface Resources {
   material?: THREE.Material;
