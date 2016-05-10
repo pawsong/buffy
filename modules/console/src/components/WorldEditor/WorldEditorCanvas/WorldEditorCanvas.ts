@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
+const objectAssign = require('object-assign');
 import DesignManager from '../../../DesignManager';
 import ZoneView from '../../../ZoneView';
 
@@ -15,22 +16,28 @@ import {
   WorldEditorState,
   GetState,
   ToolType,
+  EditorMode,
 } from '../types';
 
 import CursorManager from './CursorManager';
 import createTool, { WorldEditorCanvasTool } from './tools';
 
-class WorldEditorCanvas extends ZoneView {
-  stateLayer: StateLayer;
-  state: WorldEditorState;
+interface Position {
+  x: number; y: number; z: number;
+}
 
+class WorldEditorCanvas extends ZoneView {
   camera: THREE.OrthographicCamera;
   cursorManager: CursorManager;
   removeListeners: Function;
-
   tool: WorldEditorCanvasTool;
 
+  protected stateLayer: StateLayer;
+  protected state: WorldEditorState;
+
+  private controls: any;
   private cachedTools: { [index: string]: WorldEditorCanvasTool };
+  private setCameraPositionImpl(pos: Position) {}
 
   // Lazy getter
   getTool(toolType: ToolType): WorldEditorCanvasTool {
@@ -45,8 +52,20 @@ class WorldEditorCanvas extends ZoneView {
       const state = getGameState();
       return { playerId: state.playerId };
     });
-    this.stateLayer = stateLayer;
+
     this.state = getGameState();
+
+    this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+  	this.controls.mouseButtons = objectAssign({}, this.controls.mouseButtons, {
+      ORBIT: THREE.MOUSE.RIGHT,
+      PAN: THREE.MOUSE.LEFT,
+    });
+    this.controls.maxDistance = 2000;
+    this.controls.enableKeys = false;
+    this.controls.enableRotate = false;
+    this.controls.enabled = this.state.mode === EditorMode.EDIT;
+
+    this.stateLayer = stateLayer;
 
     this.cachedTools = {};
 
@@ -75,6 +94,16 @@ class WorldEditorCanvas extends ZoneView {
       this.renderer.domElement.removeEventListener('mousedown', onDocumentMouseDown, false);
       this.renderer.domElement.removeEventListener('mouseup', onDocumentMouseUp, false);
     };
+
+    this.setCameraPositionImpl = this.setCameraPositionInIsometricView;
+  }
+
+  private setCameraPositionInIsometricView = (pos) => {
+    this.controls.target.set(
+      pos.x - PIXEL_UNIT,
+      pos.y - PIXEL_UNIT,
+      pos.z - PIXEL_UNIT
+    );
   }
 
   getCamera() {
@@ -104,11 +133,17 @@ class WorldEditorCanvas extends ZoneView {
 
   render(dt = 0) {
     super.render(dt);
+    this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }
 
   onChange(gameState: WorldEditorState) {
     this.handleChange(gameState);
+  }
+
+  setCameraPosition(pos: Position) {
+    super.setCameraPosition(pos);
+    this.setCameraPositionImpl(pos);
   }
 
   handleChange(nextState: WorldEditorState) {
@@ -123,8 +158,12 @@ class WorldEditorCanvas extends ZoneView {
 
     if (this.state.playerId !== nextState.playerId) {
       const object = this.objectManager.objects[nextState.playerId];
-      this.camera.position.copy(object.group.position);
+      this.setCameraPosition(object.group.position);
     }
+
+    // if (this.state.mode !== nextState.mode) {
+    //   this.controls.enabled = nextState.mode === EditorMode.EDIT;
+    // }
 
     this.state = nextState;
   }

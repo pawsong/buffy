@@ -13,6 +13,9 @@ const posToLookAt = new THREE.Vector3();
 export default <StoreHandler<ZoneView>>((listen, view, stateLayer, getState) => listen.move(params => {
   const { group } = view.objectManager.find(params.object.id);
 
+  const oldPosX = group.position.x;
+  const oldPosZ = group.position.z;
+
   // Move
   group.position.x = BOX_SIZE * params.object.position.x - PIXEL_UNIT;
   group.position.z = BOX_SIZE * params.object.position.z - PIXEL_UNIT;
@@ -26,7 +29,15 @@ export default <StoreHandler<ZoneView>>((listen, view, stateLayer, getState) => 
   group.lookAt(posToLookAt);
 
   const state = getState();
+
   if (params.object.id === state.playerId) {
-    view.camera.position.copy(group.position);
+    const deltaX = group.position.x - oldPosX;
+    const deltaZ = group.position.z - oldPosZ;
+
+    view.setCameraPosition({
+      x: view.camera.position.x + deltaX,
+      y: view.camera.position.y,
+      z: view.camera.position.z + deltaZ,
+    });
   }
 }));

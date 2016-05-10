@@ -19,6 +19,10 @@ import {
 
 import * as handlers from './handlers';
 
+interface Position {
+  x: number; y: number; z: number;
+}
+
 abstract class ZoneView extends Canvas {
   effectManager: any;
   resyncToStore: (object: GameObject) => void;
@@ -67,7 +71,7 @@ abstract class ZoneView extends Canvas {
         ));
 
         if (obj.id === player.id) {
-          this.camera.position.copy(group.position);
+          this.setCameraPosition(group.position);
         }
       });
     }
@@ -78,6 +82,10 @@ abstract class ZoneView extends Canvas {
     if (object) this.resyncToStore(object);
 
     this.tokens = Object.keys(handlers).map(key => handlers[key](stateLayer.store.subscribe, this, stateLayer, getState));
+  }
+
+  setCameraPosition(pos: Position) {
+    this.camera.position.set(pos.x, pos.y, pos.z);
   }
 
   render(dt = 0) {

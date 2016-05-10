@@ -27,6 +27,6 @@ export default <StoreHandler<ZoneView>>((listen, view, stateLayer, getState) => 
 
   const state = getState();
   if (obj.id === state.playerId) {
-    view.camera.position.copy(group.position);
+    view.setCameraPosition(group.position);
   }
 }));
