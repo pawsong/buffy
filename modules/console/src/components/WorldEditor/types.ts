@@ -1,3 +1,8 @@
+export enum EditorMode {
+  EDIT,
+  PLAY,
+}
+
 export enum ToolType {
   move,
   editTerrain,
@@ -8,9 +13,10 @@ export interface Color {
 }
 
 export interface WorldEditorState {
-  playerId?: string,
-  selectedTool?: ToolType,
-  brushColor?: Color,
+  mode?: EditorMode;
+  playerId?: string;
+  selectedTool?: ToolType;
+  brushColor?: Color;
 }
 
 export interface GetState {

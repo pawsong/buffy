@@ -6,6 +6,7 @@ import { EventSubscription } from 'fbemitter';
 
 import DesignManager from '../../DesignManager';
 
+import ModeSwitch from './components/ModeSwitch';
 import MapInfo from './components/MapInfo';
 import Canvas from './components/Canvas';
 import Tools from './components/Tools';
@@ -17,7 +18,12 @@ import { PanelTypes, Panels } from './panel';
 
 import { RobotInstance, ZoneInstance, SourceFileDB } from '../Studio/types';
 
-import { ToolType, Color, WorldEditorState } from './types';
+import {
+  ToolType,
+  Color,
+  WorldEditorState,
+  EditorMode,
+} from './types';
 export { WorldEditorState };
 
 const objectAssign = require('object-assign');
@@ -85,6 +91,10 @@ class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
           stateLayer={this.props.stateLayer}
           designManager={this.props.designManager}
         />
+        <ModeSwitch
+          mode={this.props.editorState.mode}
+          onModeChange={mode => this.handleChangeState({ mode })}
+        />
         <Tools
           selectedTool={this.props.editorState.selectedTool}
           brushColor={this.props.editorState.brushColor}
@@ -107,6 +117,7 @@ class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
 
 WorldEditor.createState = (playerId: string): WorldEditorState => {
   return {
+    mode: EditorMode.EDIT,
     playerId: playerId,
     selectedTool: ToolType.move,
     brushColor: { r: 104, g: 204, b: 202 },
