@@ -1,3 +1,2 @@
-import Panel, { connectTarget } from './Panel';
-export default Panel;
-export { connectTarget }
+import { connectTarget, connectSource } from './Panel';
+export { connectTarget, connectSource }

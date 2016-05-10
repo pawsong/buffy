@@ -580,6 +580,22 @@ export default {
    */
   'vrMode': 'VR 모드',
 
+  /**
+   * path: src/components/WorldEditor/components/RobotPanel.json
+   * description: World editor robot panel title
+   * defaultMessage: Robots
+   */
+  'worldeditor.panels.robot.title': '로봇',
+
+  /**
+   * path: src/components/WorldEditor/components/ZonePanel.json
+   * description: World editor zone panel title
+   * defaultMessage: Zones
+   */
+  'worldeditor.panels.zone.title': '지역',
+
+/* [Warning] Message not in use */ 'worldeditor.panels.robot.id': '',
+/* [Warning] Message not in use */ 'worldeditor.panels.zone.id': '',
 /* [Warning] Message not in use */ 'vr.start': '시작하기',
 /* [Warning] Message not in use */ 'voxel-editor.panels.workspace.title': '워크스페이스',
 }

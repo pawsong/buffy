@@ -1,7 +1,17 @@
 import * as React from 'react';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
-import Panel from '../../Panel';
+import { connectSource } from '../../Panel';
+import { PanelTypes, Panels } from '../panel';
+
+import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
+const messages = defineMessages({
+  title: {
+    id: 'worldeditor.panels.zone.title',
+    description: 'World editor zone panel title',
+    defaultMessage: 'Zones',
+  },
+});
 
 const PANEL_ID = 'zone';
 import { ZoneInstance, SourceFileDB } from '../../Studio/types';
@@ -10,6 +20,11 @@ interface ZonePanelProps extends React.Props<ZonePanel> {
   zones: ZoneInstance[];
 }
 
+@connectSource({
+  panelTypes: PanelTypes,
+  panelId: Panels.zone,
+  title: messages.title,
+})
 class ZonePanel extends React.Component<ZonePanelProps, void> {
   static PANEL_ID: string;
 
@@ -24,14 +39,9 @@ class ZonePanel extends React.Component<ZonePanelProps, void> {
     });
 
     return (
-      <Panel
-        panelId={PANEL_ID}
-        title={'Zones'}
-      >
-        <List>
-          {listItems}
-        </List>
-      </Panel>
+      <List>
+        {listItems}
+      </List>
     );
   }
 }

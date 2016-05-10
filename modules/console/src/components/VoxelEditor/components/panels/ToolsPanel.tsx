@@ -10,7 +10,12 @@ import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 
 import rgbToHex from '../../../../utils/rgbToHex';
 import hexToRgb from '../../../../utils/hexToRgb';
 
-import Panel from '../../../Panel';
+import { connectSource } from '../../../Panel';
+
+import {
+  PanelTypes,
+  Panels,
+} from '../../panel';
 
 import ClickAwayListener from '../../../ClickAwayListener';
 
@@ -80,10 +85,13 @@ interface ToolsPanelState {
   displayColorPicker: boolean;
 }
 
+@connectSource({
+  panelTypes: PanelTypes,
+  panelId: Panels.tools,
+  title: messages.title,
+})
 @injectIntl
 class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
-  static PANEL_ID: string;
-
   readyToOpenColorPicker: boolean;
 
   constructor(props) {
@@ -125,10 +133,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
     const hex = rgbToHex(paletteColor);
 
     return (
-      <Panel
-        panelId={ToolsPanel.PANEL_ID}
-        title={this.props.intl.formatMessage(messages.title)}
-      >
+      <div>
         <div style={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.brush)}
@@ -166,10 +171,10 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             colorize
           </IconButton>
           <ClickAwayListener style={styles.iconButtonRight}
-                             onClickAway={() => this.handleColorPickerClickAway()}
+                              onClickAway={() => this.handleColorPickerClickAway()}
           >
             <div style={styles.swatch} onMouseDown={() => this.handleColorPickerMouseDown()}
-                                       onMouseUp={() => this.handleColorPickerMouseUp()}
+                                        onMouseUp={() => this.handleColorPickerMouseUp()}
             >
               <div style={objectAssign({
                 backgroundColor: `rgb(${paletteColor.r}, ${paletteColor.g}, ${paletteColor.b})`,
@@ -180,20 +185,18 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             {this.state.displayColorPicker ? (
               <ClickAwayListener onClickAway={() => this.handleColorPickerClose()}>
                 <ColorPicker hex={hex}
-                             height="100%"
-                             position="right"
-                             display={this.state.displayColorPicker}
-                             onChange={value => this.props.changePaletteColor(value.rgb) }
+                              height="100%"
+                              position="right"
+                              display={this.state.displayColorPicker}
+                              onChange={value => this.props.changePaletteColor(value.rgb) }
                 />
               </ClickAwayListener>
             ) : null}
           </div>
         </div>
-      </Panel>
+      </div>
     );
   };
 };
-
-ToolsPanel.PANEL_ID = 'tools';
 
 export default ToolsPanel;

@@ -10,7 +10,12 @@ const objectAssign = require('object-assign');
 import AppBar from 'material-ui/lib/app-bar';
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
-import Panel from '../../../Panel';
+import { connectSource } from '../../../Panel';
+
+import {
+  PanelTypes,
+  Panels,
+} from '../../panel';
 
 import {
   VoxelState,
@@ -77,10 +82,13 @@ interface HistoryPanelProps extends React.Props<HistoryPanel> {
   intl?: InjectedIntlProps;
 }
 
+@connectSource({
+  panelTypes: PanelTypes,
+  panelId: Panels.history,
+  title: messages.title,
+})
 @injectIntl
 class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
-  static PANEL_ID: string;
-
   componentDidUpdate() {
     if (this.props.voxel.future.length === 0) {
       const list = findDOMNode(this.refs['list']);
@@ -122,18 +130,11 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
     }));
 
     return (
-      <Panel
-        panelId={HistoryPanel.PANEL_ID}
-        title={this.props.intl.formatMessage(messages.title)}
-      >
-        <div ref="list" style={{ height: 180, overflow: 'scroll'}}>
-          {listItems}
-        </div>
-      </Panel>
+      <div ref="list" style={{ height: 180, overflow: 'scroll'}}>
+        {listItems}
+      </div>
     );
   };
 };
-
-HistoryPanel.PANEL_ID = 'history';
 
 export default HistoryPanel;

@@ -3,10 +3,20 @@ import Avatar from 'material-ui/lib/avatar';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 
-import Panel from '../../Panel';
+import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
+
+import { connectSource } from '../../Panel';
+import { PanelTypes, Panels } from '../panel';
+
 import { RobotInstance, SourceFileDB } from '../../Studio/types';
 
-const PANEL_ID = 'robot';
+const messages = defineMessages({
+  title: {
+    id: 'worldeditor.panels.robot.title',
+    description: 'World editor robot panel title',
+    defaultMessage: 'Robots',
+  },
+});
 
 interface RobotPanelProps extends React.Props<RobotPanel> {
   robots: RobotInstance[];
@@ -14,6 +24,11 @@ interface RobotPanelProps extends React.Props<RobotPanel> {
   onPlayerChange: (robotId: string) => any;
 }
 
+@connectSource({
+  panelTypes: PanelTypes,
+  panelId: Panels.robot,
+  title: messages.title,
+})
 class RobotPanel extends React.Component<RobotPanelProps, void> {
   static PANEL_ID: string;
 
@@ -34,16 +49,9 @@ class RobotPanel extends React.Component<RobotPanelProps, void> {
     });
 
     return (
-      <Panel
-        panelId={PANEL_ID}
-        title={'Robots'}
-      >
-        <List>{listItems}</List>
-      </Panel>
+      <List>{listItems}</List>
     );
   }
 }
-
-RobotPanel.PANEL_ID = PANEL_ID;
 
 export default RobotPanel;

@@ -13,6 +13,8 @@ import ZonePanel from './components/ZonePanel';
 import RobotPanel from './components/RobotPanel';
 
 import { connectTarget } from '../Panel';
+import { PanelTypes, Panels } from './panel';
+
 import { RobotInstance, ZoneInstance, SourceFileDB } from '../Studio/types';
 
 import { ToolType, Color, WorldEditorState } from './types';
@@ -38,10 +40,11 @@ interface GameOwnState {
 }
 
 @pure
-@connectTarget([
-  RobotPanel.PANEL_ID,
-  ZonePanel.PANEL_ID,
-], panelId => `worldeditor.panel.${panelId}`)
+@connectTarget({
+  panelTypes: PanelTypes,
+  panelIds: Object.keys(Panels).map(key => Panels[key]),
+  mapIdToLocalStorageKey: panelId => `worldeditor.panel.${panelId}`,
+})
 class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
   static createState: (playerId: string) => WorldEditorState;
 

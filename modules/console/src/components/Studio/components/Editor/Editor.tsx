@@ -7,7 +7,6 @@ import FileTabs from '../FileTabs';
 import CodeEditor from '../../../../components/CodeEditor';
 import VoxelEditor from '../../../../components/VoxelEditor';
 import RecipeEditor from '../../../../components/RecipeEditor';
-import MapEditor from '../../../../components/MapEditor';
 
 import { FileType } from '../../types';
 
@@ -59,18 +58,6 @@ class Editor extends React.Component<EditorProps, any> {
     );
   }
 
-  renderMapEditor() {
-    return (
-      <MapEditor
-        editorState={this.props.file.state}
-        onChange={this.props.onFileChange}
-        designManager={this.props.designManager}
-        sizeRevision={this.props.editorSizeRevision}
-        files={this.props.files}
-      />
-    );
-  }
-
   render() {
     let editor = null;
 
@@ -87,9 +74,6 @@ class Editor extends React.Component<EditorProps, any> {
         case FileType.ROBOT: {
           editor = this.renderRecipeEditor();
           break;
-        }
-        case FileType.ZONE: {
-          editor = this.renderMapEditor();
         }
       }
     }

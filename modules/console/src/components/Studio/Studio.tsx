@@ -48,9 +48,6 @@ import VoxelEditor, {
   VoxelEditorState,
   CreateStateOptions as CreateVoxelEditorStateOptions,
 } from '../../components/VoxelEditor';
-import MapEditor, {
-  MapEditorState,
-} from '../../components/MapEditor';
 
 import { compileBlocklyXml } from '../../blockly/utils';
 

@@ -10,7 +10,12 @@ import * as ReactDnd from 'react-dnd';
 const objectAssign = require('object-assign');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
-import Panel from '../../../Panel';
+import { connectSource } from '../../../Panel';
+
+import {
+  PanelTypes,
+  Panels,
+} from '../../panel';
 
 import { VoxelEditorState } from '../../interface';
 
@@ -67,10 +72,13 @@ interface PreviewPanelProps extends React.Props<PreviewPanel> {
   intl?: InjectedIntlProps;
 }
 
+@connectSource({
+  panelTypes: PanelTypes,
+  panelId: Panels.preview,
+  title: messages.title,
+})
 @injectIntl
 class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
-  static PANEL_ID: string;
-
   view: PreviewView;
 
   handleClickRotate(axis) {
@@ -110,10 +118,7 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
     const { } = this.props;
 
     return (
-      <Panel
-        panelId={PreviewPanel.PANEL_ID}
-        title={this.props.intl.formatMessage(messages.title)}
-      >
+      <div>
         <div
           style={{ width: 150, height: 150 }}
           ref={'canvas'}
@@ -124,11 +129,9 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
           <RotateButton onClick={() => this.handleClickRotate('y')}>Y</RotateButton>
           <RotateButton onClick={() => this.handleClickRotate('z')}>Z</RotateButton>
         </div>
-      </Panel>
+      </div>
     );
   };
 };
-
-PreviewPanel.PANEL_ID = 'preview';
 
 export default PreviewPanel;

@@ -58,6 +58,11 @@ import {
   VoxelEditorState,
 } from './interface';
 
+import {
+  PanelTypes,
+  Panels,
+} from './panel';
+
 export { VoxelEditorState };
 
 interface VoxelEditorProps extends React.Props<VoxelEditor> {
@@ -78,11 +83,11 @@ export interface CreateStateOptions {
 
 @pure
 @injectIntl
-@connectTarget([
-  HistoryPanel.PANEL_ID,
-  PreviewPanel.PANEL_ID,
-  ToolsPanel.PANEL_ID,
-], panelId => `${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${panelId}`)
+@connectTarget({
+  panelTypes: PanelTypes,
+  panelIds: Object.keys(Panels).map(key => Panels[key]),
+  mapIdToLocalStorageKey: panelId => `${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${panelId}`,
+})
 class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   static createState: (fileId: string, options?: CreateStateOptions) => VoxelEditorState;
 

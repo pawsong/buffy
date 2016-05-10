@@ -13,6 +13,8 @@ import AppBar from 'material-ui/lib/app-bar';
 import Paper from 'material-ui/lib/paper';
 import Colors from 'material-ui/lib/styles/colors';
 
+import { FormattedMessage } from 'react-intl';
+
 const hoistStatics = require('hoist-non-react-statics');
 const update = require('react-addons-update');
 const objectAssign = require('object-assign');
@@ -71,17 +73,25 @@ interface TargetState {
   panels: { [index: string]: PanelState }
 }
 
-const PANEL_TYPES = 'panel';
-
 interface TargetProps {
   connectDropTarget: any;
 }
 
-export function connectTarget(panelIds: string[], mapIdToLocalStorageKey: (panelId: string) => string) {
+interface ConnectTargetOptions {
+  panelTypes: string;
+  panelIds: string[];
+  mapIdToLocalStorageKey: (panelId: string) => string;
+}
+
+export function connectTarget({
+  panelTypes,
+  panelIds,
+  mapIdToLocalStorageKey,
+}: ConnectTargetOptions) {
   const panelIdsLength = panelIds.length;
 
   return function wrapWithConnect(WrappedComponent) {
-    @(DropTarget(PANEL_TYPES, panelTarget, connect => ({
+    @(DropTarget(panelTypes, panelTarget, connect => ({
       connectDropTarget: connect.dropTarget()
     })) as any)
     class Connect extends React.Component<TargetProps, TargetState> {
@@ -159,81 +169,92 @@ export function connectTarget(panelIds: string[], mapIdToLocalStorageKey: (panel
 /*
  * Source
  */
-interface PanelProps extends React.Props<Panel> {
+interface PanelProps extends React.Props<any> {
+  connectDragPreview: ConnectDragPreview;
+  connectDragSource: ConnectDragSource;
+  isDragging: boolean;
+}
+
+interface ConnectSourceOptions {
+  panelTypes: string;
   panelId: string;
-  title: string;
-
-  connectDragPreview?: ConnectDragPreview;
-  connectDragSource?: ConnectDragSource;
-  isDragging?: boolean;
+  title: FormattedMessage.MessageDescriptor;
 }
 
-const panelSource = {
-  beginDrag(props): PanelItem {
-    return { panelId: props.panelId };
-  },
-};
+export function connectSource({
+  panelTypes,
+  panelId,
+  title,
+}: ConnectSourceOptions) {
+  const panelSource = {
+    beginDrag(props): PanelItem {
+      return { panelId };
+    },
+  };
 
-@(DragSource(PANEL_TYPES, panelSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  connectDragPreview: connect.dragPreview(),
-  isDragging: monitor.isDragging(),
-})) as any)
-class Panel extends React.Component<PanelProps, {}> {
-  static contextTypes = {
-    muiTheme: React.PropTypes.object.isRequired,
-    panelStates: React.PropTypes.object.isRequired,
-    movePanelToTop: React.PropTypes.func.isRequired,
-  } as any;
+  return function wrapWithConnect(WrappedComponent) {
+    @(DragSource(panelTypes, panelSource, (connect, monitor) => ({
+      connectDragSource: connect.dragSource(),
+      connectDragPreview: connect.dragPreview(),
+      isDragging: monitor.isDragging(),
+    })) as any)
+    class ConnectPanelSource extends React.Component<PanelProps, {}> {
+      static contextTypes = {
+        muiTheme: React.PropTypes.object.isRequired,
+        panelStates: React.PropTypes.object.isRequired,
+        movePanelToTop: React.PropTypes.func.isRequired,
+      } as any;
 
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object,
-  } as any
+      static childContextTypes = {
+        muiTheme: React.PropTypes.object,
+      } as any
 
-  static createState: () => PanelState;
+      muiTheme: Styles.MuiTheme;
 
-  muiTheme: Styles.MuiTheme;
+      constructor(props, context) {
+        super(props, context);
+        this.muiTheme = update(this.context['muiTheme'], {
+          appBar: { height: { $set: styles.height } },
+        });
+      }
 
-  constructor(props, context) {
-    super(props, context);
-    this.muiTheme = update(this.context['muiTheme'], {
-      appBar: { height: { $set: styles.height } },
-    });
-  }
+      getChildContext() {
+        return { muiTheme: this.muiTheme };
+      }
 
-  getChildContext() {
-    return { muiTheme: this.muiTheme };
-  }
+      moveToTop = () => this.context['movePanelToTop'](panelId);
 
-  moveToTop = () => this.context['movePanelToTop'](this.props.panelId);
+      render() {
+        const { left, top, order } = this.context['panelStates'][panelId];
+        const { connectDragPreview, connectDragSource, isDragging } = this.props;
 
-  render() {
-    const { left, top, order } = this.context['panelStates'][this.props.panelId];
-    const { connectDragPreview, connectDragSource, isDragging } = this.props;
+        const opacity = isDragging ? DRAGGING_OPACITY : 1;
+        const previewStyle = objectAssign({ zIndex: order, left, top, opacity }, styles.root);
 
-    const opacity = isDragging ? DRAGGING_OPACITY : 1;
-    const previewStyle = objectAssign({ zIndex: order, left, top, opacity }, styles.root);
+        const element = React.createElement(WrappedComponent, this.props);
 
-    return connectDragPreview(
-      <div style={previewStyle} onClick={this.moveToTop}>
-        <Paper style={styles.paper}>
-          {connectDragSource(
-            <div>
-              <AppBar
-                style={styles.handle}
-                title={this.props.title}
-                titleStyle={styles.handleLabel}
-                iconElementLeft={
-                  <FontIcon className="material-icons" style={styles.handleIcon} color={Colors.white}>menu</FontIcon>
-                }
-              />
-            </div>
-          )}
-          {this.props.children}
-        </Paper>
-      </div>
-    );
+        return connectDragPreview(
+          <div style={previewStyle} onClick={this.moveToTop}>
+            <Paper style={styles.paper}>
+              {connectDragSource(
+                <div>
+                  <AppBar
+                    style={styles.handle}
+                    title={<FormattedMessage {...title}/>}
+                    titleStyle={styles.handleLabel}
+                    iconElementLeft={
+                      <FontIcon className="material-icons" style={styles.handleIcon} color={Colors.white}>menu</FontIcon>
+                    }
+                  />
+                </div>
+              )}
+              {element}
+            </Paper>
+          </div>
+        );
+      }
+    }
+
+    return hoistStatics(ConnectPanelSource, WrappedComponent);
   }
 }
-
-export default Panel;
