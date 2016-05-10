@@ -7,12 +7,12 @@ export interface Color {
   r: number; g: number; b: number;
 }
 
-export interface GameState {
+export interface WorldEditorState {
   playerId?: string,
   selectedTool?: ToolType,
   brushColor?: Color,
 }
 
-export interface GetGameState {
-  (): GameState;
+export interface GetState {
+  (): WorldEditorState;
 }

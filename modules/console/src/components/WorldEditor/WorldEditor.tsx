@@ -10,14 +10,14 @@ import MapInfo from './components/MapInfo';
 import Canvas from './components/Canvas';
 import Tools from './components/Tools';
 
-import { ToolType, Color, GameState } from './interface';
-export { GameState };
+import { ToolType, Color, WorldEditorState } from './types';
+export { WorldEditorState };
 
 const objectAssign = require('object-assign');
 
-interface GameProps extends React.Props<Game> {
-  gameState: GameState;
-  onChange: (gameState: GameState) => any;
+interface WorldEditorProps extends React.Props<WorldEditor> {
+  editorState: WorldEditorState;
+  onChange: (gameState: WorldEditorState) => any;
   stateLayer: StateLayer;
   designManager: DesignManager;
   sizeVersion: number; // For resize
@@ -28,8 +28,8 @@ interface GameOwnState {
 }
 
 @pure
-class Game extends React.Component<GameProps, GameOwnState> {
-  static createState: (playerId: string) => GameState;
+class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
+  static createState: (playerId: string) => WorldEditorState;
 
   token: EventSubscription;
 
@@ -42,7 +42,7 @@ class Game extends React.Component<GameProps, GameOwnState> {
 
   componentDidMount() {
     const onResync = () => {
-      const object = this.props.stateLayer.store.findObject(this.props.gameState.playerId);
+      const object = this.props.stateLayer.store.findObject(this.props.editorState.playerId);
       this.setState({ mapName: object.zone.id });
     };
 
@@ -54,23 +54,25 @@ class Game extends React.Component<GameProps, GameOwnState> {
     this.token.remove();
   }
 
-  handleChangeState(nextState: GameState) {
-    this.props.onChange(objectAssign({}, this.props.gameState, nextState));
+  handleChangeState(nextState: WorldEditorState) {
+    this.props.onChange(objectAssign({}, this.props.editorState, nextState));
   }
 
   render() {
     return (
       <div>
         <MapInfo mapName={this.state.mapName} />
-        <Canvas gameState={this.props.gameState}
-                sizeVersion={this.props.sizeVersion}
-                stateLayer={this.props.stateLayer}
-                designManager={this.props.designManager}
+        <Canvas
+          editorState={this.props.editorState}
+          sizeVersion={this.props.sizeVersion}
+          stateLayer={this.props.stateLayer}
+          designManager={this.props.designManager}
         />
-        <Tools selectedTool={this.props.gameState.selectedTool}
-               brushColor={this.props.gameState.brushColor}
-               changeTool={selectedTool => this.handleChangeState({ selectedTool })}
-               changeBrushColor={brushColor => this.handleChangeState({ brushColor })}
+        <Tools
+          selectedTool={this.props.editorState.selectedTool}
+          brushColor={this.props.editorState.brushColor}
+          changeTool={selectedTool => this.handleChangeState({ selectedTool })}
+          changeBrushColor={brushColor => this.handleChangeState({ brushColor })}
         />
         {this.props.children}
       </div>
@@ -78,7 +80,7 @@ class Game extends React.Component<GameProps, GameOwnState> {
   }
 }
 
-Game.createState = (playerId: string): GameState => {
+WorldEditor.createState = (playerId: string): WorldEditorState => {
   return {
     playerId: playerId,
     selectedTool: ToolType.move,
@@ -86,4 +88,4 @@ Game.createState = (playerId: string): GameState => {
   };
 }
 
-export default Game;
+export default WorldEditor;

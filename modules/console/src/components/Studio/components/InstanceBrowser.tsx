@@ -7,7 +7,7 @@ import LayersIcon from 'material-ui/lib/svg-icons/maps/layers';
 import ActionInfo from 'material-ui/lib/svg-icons/action/info';
 import Colors from 'material-ui/lib/styles/colors';
 const update = require('react-addons-update');
-import { GameState } from '../../ZonePreview';
+import { WorldEditorState } from '../../WorldEditor';
 import { Tabs, Tab } from '../../Tabs';
 
 enum InstanceTab {
@@ -43,7 +43,7 @@ function renderZoneInstanceList(zoneInstances: ZoneInstance[]) {
 }
 
 interface InstanceBrowserProps extends React.Props<any> {
-  gameState: GameState;
+  gameState: WorldEditorState;
   selectPlayer: (objectId: string) => any;
   robotInstances: RobotInstance[];
   zoneInstances: ZoneInstance[];

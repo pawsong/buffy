@@ -31,7 +31,7 @@ import * as Immutable from 'immutable';
 import ProjectStudioNavbar from './components/ProjectStudioNavbar';
 import NewRobotFileDialog from './components/NewRobotFileDialog';
 
-import { RobotEditorState } from '../../components/RobotEditor';
+import { RecipeEditorState } from '../../components/RecipeEditor';
 
 import generateObjectId from '../../utils/generateObjectId';
 
@@ -364,15 +364,15 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       case FileType.DESIGN: {
         const mesh = file.state.voxel.present.mesh;
         this.stateLayer.rpc.updateMesh({
-          objectId: this.state.studioState.gameState.playerId,
+          objectId: this.state.studioState.worldEditorState.playerId,
           designId: fileId,
           mesh: mesh,
         });
       }
       case FileType.ROBOT: {
-        const state: RobotEditorState = file.state;
+        const state: RecipeEditorState = file.state;
         this.stateLayer.rpc.updateRobot({
-          objectId: this.state.studioState.gameState.playerId,
+          objectId: this.state.studioState.worldEditorState.playerId,
           robot: file.id,
           design: state.design,
         });

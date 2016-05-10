@@ -37,9 +37,9 @@ import FileTabs from './components/FileTabs';
 import InstanceBrowser from './components/InstanceBrowser';
 import Editor from './components/Editor';
 
-import ZonePreview, {
-  GameState,
-} from '../../components/ZonePreview';
+import WorldEditor, {
+  WorldEditorState,
+} from '../../components/WorldEditor';
 import CodeEditor, {
   CodeEditorState,
   CreateStateOptions as CreateCodeEditorStateOptions,
@@ -85,7 +85,7 @@ const messages = defineMessages({
 import { RobotInstance, ZoneInstance } from './types';
 
 export interface StudioState {
-  gameState?: GameState;
+  worldEditorState?: WorldEditorState;
 
   files?: { [index: string]: SourceFile };
   activeFileId?: string;
@@ -317,7 +317,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 
   selectPlayer(playerId: string) {
     this.handleStateChange({
-      gameState: objectAssign({}, this.props.studioState.gameState, { playerId }),
+      worldEditorState: objectAssign({}, this.props.studioState.worldEditorState, { playerId }),
     });
   }
 
@@ -352,32 +352,15 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
             </FileBrowser>
           </LayoutContainer>
           <LayoutContainer remaining={true}>
-            <Layout flow="column" className={styles.fillParent}>
-              <LayoutContainer size={this.initialGameHeight} onResize={size => this.handleGameHeightResize(size)}>
-                <ZonePreview
-                  gameState={this.props.studioState.gameState}
-                  onChange={(gameState => this.handleStateChange({ gameState }))}
-                  sizeVersion={this.state.gameSizeVersion}
-                  stateLayer={this.props.stateLayer}
-                  designManager={this.props.designManager}
-                >
-                  {this.props.game}
-                </ZonePreview>
-              </LayoutContainer>
-              <LayoutContainer remaining={true}>
-                <Toolbar style={{ backgroundColor: Colors.grey200 }}>
-                  <ToolbarGroup key={0} float="right">
-                    {controlButton}
-                  </ToolbarGroup>
-                </Toolbar>
-                <InstanceBrowser
-                  gameState={this.props.studioState.gameState}
-                  selectPlayer={objectId => this.selectPlayer(objectId)}
-                  robotInstances={this.props.robotInstances}
-                  zoneInstances={this.props.zoneInstances}
-                />
-              </LayoutContainer>
-            </Layout>
+            <WorldEditor
+              editorState={this.props.studioState.worldEditorState}
+              onChange={(worldEditorState => this.handleStateChange({ worldEditorState }))}
+              sizeVersion={this.state.gameSizeVersion}
+              stateLayer={this.props.stateLayer}
+              designManager={this.props.designManager}
+            >
+              {this.props.game}
+            </WorldEditor>
           </LayoutContainer>
         </Layout>
       </div>
@@ -386,7 +369,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 }
 
 Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
-  const { codeFileId, designFileId, robotFileId, mapFileId } = options;
+  const { codeFileId, designFileId, robotFileId } = options;
 
   const robotState: RobotState = {
     codes: [codeFileId],
@@ -421,21 +404,12 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
       type: FileType.ROBOT,
       state: robotState,
     },
-    [mapFileId]: {
-      id: mapFileId,
-      created: true,
-      modified: false,
-      readonly: false,
-      name: 'Map',
-      type: FileType.ZONE,
-      state: MapEditor.createState(mapFileId),
-    },
   };
 
   const filesOnTab = Object.keys(files).filter(key => files[key].created);
 
   return {
-    gameState: ZonePreview.createState(options.playerId),
+    worldEditorState: WorldEditor.createState(options.playerId),
     files,
     activeFileId: designFileId,
     filesOnTab,

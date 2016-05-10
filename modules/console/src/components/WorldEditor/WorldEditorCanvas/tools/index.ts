@@ -2,13 +2,13 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 import {
   ToolType,
-  GetGameState,
-} from '../../interface';
+  GetState,
+} from '../../types';
 
-import GameZoneView from '../GameZoneView';
+import WorldEditorCanvas from '../WorldEditorCanvas';
 
-import GameZoneViewTool from './GameZoneViewTool';
-export { GameZoneViewTool }
+import WorldEditorCanvasTool from './WorldEditorCanvasTool';
+export { WorldEditorCanvasTool }
 
 import MoveTool from './MoveTool';
 import EditTerrainTool from './EditTerrainTool';
@@ -16,9 +16,9 @@ import EditTerrainTool from './EditTerrainTool';
 export default function createTool(
   toolType: ToolType,
   stateLayer: StateLayer,
-  view: GameZoneView,
-  getState: GetGameState
-): GameZoneViewTool {
+  view: WorldEditorCanvas,
+  getState: GetState
+): WorldEditorCanvasTool {
   switch(toolType) {
     case ToolType.move: {
       return new MoveTool({ view, stateLayer }, getState);

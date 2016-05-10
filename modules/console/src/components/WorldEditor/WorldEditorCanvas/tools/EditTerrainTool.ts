@@ -2,12 +2,16 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 import {
   Color,
-  GameState,
+  WorldEditorState,
   ToolType,
-} from '../../interface';
+} from '../../types';
 
-import GameZoneViewTool, { GameZoneViewToolState, GameZoneViewToolStates, InitParams } from './GameZoneViewTool';
-import GameZoneView from '../GameZoneView';
+import WorldEditorCanvasTool, {
+  WorldEditorCanvsToolState,
+  WorldEditorCanvsToolStates,
+  InitParams,
+} from './WorldEditorCanvasTool';
+import WorldEditorCanvas from '../WorldEditorCanvas';
 
 export function rgbToHex({ r, g, b }) {
   return (1 << 24) | (r << 16) | (g << 8) | b;
@@ -18,15 +22,15 @@ interface WaitStateProps {
   brushColor: Color;
 }
 
-class WaitState extends GameZoneViewToolState<WaitStateProps> {
+class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   constructor(
-    private view: GameZoneView,
+    private view: WorldEditorCanvas,
     private stateLayer: StateLayer
   ) {
     super();
   }
 
-  mapStateToProps(gameState: GameState): WaitStateProps {
+  mapStateToProps(gameState: WorldEditorState): WaitStateProps {
     return {
       playerId: gameState.playerId,
       brushColor: gameState.brushColor,
@@ -58,13 +62,13 @@ class WaitState extends GameZoneViewToolState<WaitStateProps> {
   }
 }
 
-class EditTerrainTool extends GameZoneViewTool {
+class EditTerrainTool extends WorldEditorCanvasTool {
   getToolType() { return ToolType.editTerrain; }
 
   init({ view, stateLayer }: InitParams) {
     const wait = new WaitState(view, stateLayer);
 
-    return <GameZoneViewToolStates>{
+    return <WorldEditorCanvsToolStates>{
       wait,
     };
   }

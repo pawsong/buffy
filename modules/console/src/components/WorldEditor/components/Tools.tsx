@@ -8,7 +8,7 @@ const { default: ColorPicker }  = require('react-color/lib/components/compact/Co
 const objectAssign = require('object-assign');
 import ClickAwayListener from '../../ClickAwayListener';
 
-import { ToolType, Color } from '../interface';
+import { ToolType, Color } from '../types';
 
 const styles = {
   wrapper: {
@@ -68,20 +68,22 @@ class ColorPickerTool extends React.Component<ColorPickerToolProps, ColorPickerT
 
     return (
       <div style={styles.colorContainer}>
-        <IconButton style={styles.tool}
-                    onMouseDown={() => this.handleTouchStart()}
-                    onMouseUp={() => this.handleTouchEnd()}
-                    tooltipPosition="bottom-center"
-                    tooltip="Color picker"
+        <IconButton
+          style={styles.tool}
+          onMouseDown={() => this.handleTouchStart()}
+          onMouseUp={() => this.handleTouchEnd()}
+          tooltipPosition="bottom-center"
+          tooltip="Color picker"
         >
           <Palette color={`rgb(${color.r}, ${color.g}, ${color.b})`}/>
         </IconButton>
         { this.state.open ? (
           <ClickAwayListener style={styles.colorPicker} onClickAway={() => this.handleColorPickerClickAway()}>
-            <ColorPicker position="right"
-                         color={color}
-                         display={this.state.open}
-                         onChange={color => this.props.onClick(color)}
+            <ColorPicker
+              position="right"
+              color={color}
+              display={this.state.open}
+              onChange={color => this.props.onClick(color)}
             />
           </ClickAwayListener>
         ) : null}
@@ -111,10 +113,11 @@ class Tool extends React.Component<ToolProps, {}> {
     });
 
     return (
-        <IconButton style={style}
-                    onTouchTap={() => this.props.changeTool(this.props.type)}
-                    tooltipPosition="bottom-center"
-                    tooltip={this.props.label}
+        <IconButton
+          style={style}
+          onTouchTap={() => this.props.changeTool(this.props.type)}
+          tooltipPosition="bottom-center"
+          tooltip={this.props.label}
         >{icon}</IconButton>
     );
   }
@@ -133,20 +136,23 @@ class Tools extends React.Component<ToolsProps, {}> {
 
     return (
       <div style={styles.wrapper}>
-        <Tool label="Move"
-              icon={NearMe}
-              type={ToolType.move}
-              selectedTool={selectedTool}
-              changeTool={this.props.changeTool}
+        <Tool
+          label="Move"
+          icon={NearMe}
+          type={ToolType.move}
+          selectedTool={selectedTool}
+          changeTool={this.props.changeTool}
         />
-        <Tool label="Edit terrain"
-              icon={Terrain}
-              type={ToolType.editTerrain}
-              selectedTool={selectedTool}
-              changeTool={this.props.changeTool}
+        <Tool
+          label="Edit terrain"
+          icon={Terrain}
+          type={ToolType.editTerrain}
+          selectedTool={selectedTool}
+          changeTool={this.props.changeTool}
         />
-        <ColorPickerTool color={this.props.brushColor}
-                        onClick={color => this.props.changeBrushColor(color.rgb)}
+        <ColorPickerTool
+          color={this.props.brushColor}
+          onClick={color => this.props.changeBrushColor(color.rgb)}
         />
       </div>
     );

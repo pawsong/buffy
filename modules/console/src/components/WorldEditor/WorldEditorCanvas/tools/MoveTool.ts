@@ -2,25 +2,29 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 import {
   ToolType,
-  GameState,
-} from '../../interface';
+  WorldEditorState,
+} from '../../types';
 
-import GameZoneViewTool, { GameZoneViewToolState, GameZoneViewToolStates, InitParams } from './GameZoneViewTool';
-import GameZoneView from '../GameZoneView';
+import WorldEditorCanvasTool, {
+  WorldEditorCanvsToolState,
+  WorldEditorCanvsToolStates,
+  InitParams,
+} from './WorldEditorCanvasTool';
+import WorldEditorCanvas from '../WorldEditorCanvas';
 
 interface WaitStateProps {
   playerId: string,
 }
 
-class WaitState extends GameZoneViewToolState<WaitStateProps> {
+class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   constructor(
-    private view: GameZoneView,
+    private view: WorldEditorCanvas,
     private stateLayer: StateLayer
   ) {
     super();
   }
 
-  mapStateToProps(gameState: GameState): WaitStateProps {
+  mapStateToProps(gameState: WorldEditorState): WaitStateProps {
     return {
       playerId: gameState.playerId,
     };
@@ -48,13 +52,13 @@ class WaitState extends GameZoneViewToolState<WaitStateProps> {
   render() {}
 }
 
-class MoveTool extends GameZoneViewTool {
+class MoveTool extends WorldEditorCanvasTool {
   getToolType() { return ToolType.move; }
 
   init({ view, stateLayer }: InitParams) {
     const wait = new WaitState(view, stateLayer);
 
-    return <GameZoneViewToolStates>{
+    return <WorldEditorCanvsToolStates>{
       wait,
     };
   }

@@ -4,14 +4,14 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 import DesignManager from '../../../DesignManager';
 
-import GameZoneView from '../GameZoneView';
-import { GameState } from '../interface';
+import WorldEditorCanvas from '../WorldEditorCanvas';
+import { WorldEditorState } from '../types';
 
 interface CanvasProps extends React.Props<Canvas> {
   sizeVersion: number;
   stateLayer: StateLayer;
   designManager: DesignManager;
-  gameState: GameState;
+  editorState: WorldEditorState;
 }
 
 const styles = {
@@ -29,14 +29,14 @@ class Canvas extends React.Component<CanvasProps, {}> {
     store: React.PropTypes.any.isRequired,
   }
 
-  canvas: GameZoneView;
+  canvas: WorldEditorCanvas;
 
   componentDidMount() {
-    this.canvas = new GameZoneView(
+    this.canvas = new WorldEditorCanvas(
       this.refs['canvas'] as HTMLElement,
       this.props.stateLayer,
       this.props.designManager,
-      () => this.props.gameState
+      () => this.props.editorState
     );
   }
 
@@ -45,8 +45,8 @@ class Canvas extends React.Component<CanvasProps, {}> {
       this.canvas.resize();
     }
 
-    if (this.props.gameState !== nextProps.gameState) {
-      this.canvas.onChange(nextProps.gameState);
+    if (this.props.editorState !== nextProps.editorState) {
+      this.canvas.onChange(nextProps.editorState);
     }
   }
 

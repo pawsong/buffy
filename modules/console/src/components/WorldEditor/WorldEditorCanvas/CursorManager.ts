@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import TerrainManager from '../../../ZoneView/TerrainManager';
+import TerrainManager from '../../../Canvas/TerrainManager';
 import {
   BOX_SIZE,
   PIXEL_UNIT,

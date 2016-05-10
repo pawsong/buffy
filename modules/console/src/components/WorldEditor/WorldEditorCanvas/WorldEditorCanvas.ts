@@ -12,35 +12,35 @@ import {
 } from '../Constants';
 
 import {
-  GameState,
-  GetGameState,
+  WorldEditorState,
+  GetState,
   ToolType,
-} from '../interface';
+} from '../types';
 
 import CursorManager from './CursorManager';
-import createTool, { GameZoneViewTool } from './tools';
+import createTool, { WorldEditorCanvasTool } from './tools';
 
-class GameZoneView extends ZoneView {
+class WorldEditorCanvas extends ZoneView {
   stateLayer: StateLayer;
-  state: GameState;
+  state: WorldEditorState;
 
   camera: THREE.OrthographicCamera;
   cursorManager: CursorManager;
   removeListeners: Function;
 
-  tool: GameZoneViewTool;
+  tool: WorldEditorCanvasTool;
 
-  private cachedTools: { [index: string]: GameZoneViewTool };
+  private cachedTools: { [index: string]: WorldEditorCanvasTool };
 
   // Lazy getter
-  getTool(toolType: ToolType): GameZoneViewTool {
+  getTool(toolType: ToolType): WorldEditorCanvasTool {
     const tool = this.cachedTools[toolType];
     if (tool) return tool;
 
     return this.cachedTools[toolType] = createTool(toolType, this.stateLayer, this, this.getGameState);
   }
 
-  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, private getGameState: GetGameState) {
+  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, private getGameState: GetState) {
     super(container, stateLayer, designManager, () => {
       const state = getGameState();
       return { playerId: state.playerId };
@@ -107,11 +107,11 @@ class GameZoneView extends ZoneView {
     this.renderer.render(this.scene, this.camera);
   }
 
-  onChange(gameState: GameState) {
+  onChange(gameState: WorldEditorState) {
     this.handleChange(gameState);
   }
 
-  handleChange(nextState: GameState) {
+  handleChange(nextState: WorldEditorState) {
     if (this.tool.getToolType() !== nextState.selectedTool) {
       const nextTool = this.getTool(nextState.selectedTool);
       this.tool.onStop();
@@ -140,4 +140,4 @@ class GameZoneView extends ZoneView {
   }
 }
 
-export default GameZoneView;
+export default WorldEditorCanvas;
