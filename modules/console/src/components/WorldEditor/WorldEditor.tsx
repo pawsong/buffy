@@ -9,6 +9,11 @@ import DesignManager from '../../DesignManager';
 import MapInfo from './components/MapInfo';
 import Canvas from './components/Canvas';
 import Tools from './components/Tools';
+import ZonePanel from './components/ZonePanel';
+import RobotPanel from './components/RobotPanel';
+
+import { connectTarget } from '../Panel';
+import { RobotInstance, ZoneInstance, SourceFileDB } from '../Studio/types';
 
 import { ToolType, Color, WorldEditorState } from './types';
 export { WorldEditorState };
@@ -21,6 +26,11 @@ interface WorldEditorProps extends React.Props<WorldEditor> {
   stateLayer: StateLayer;
   designManager: DesignManager;
   sizeVersion: number; // For resize
+
+  robots: RobotInstance[];
+  zones: ZoneInstance[];
+
+  files: SourceFileDB;
 }
 
 interface GameOwnState {
@@ -28,6 +38,10 @@ interface GameOwnState {
 }
 
 @pure
+@connectTarget([
+  RobotPanel.PANEL_ID,
+  ZonePanel.PANEL_ID,
+], panelId => `worldeditor.panel.${panelId}`)
 class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
   static createState: (playerId: string) => WorldEditorState;
 
@@ -73,6 +87,14 @@ class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
           brushColor={this.props.editorState.brushColor}
           changeTool={selectedTool => this.handleChangeState({ selectedTool })}
           changeBrushColor={brushColor => this.handleChangeState({ brushColor })}
+        />
+        <RobotPanel
+          robots={this.props.robots}
+          files={this.props.files}
+          onPlayerChange={playerId => this.handleChangeState({ playerId })}
+        />
+        <ZonePanel
+          zones={this.props.zones}
         />
         {this.props.children}
       </div>

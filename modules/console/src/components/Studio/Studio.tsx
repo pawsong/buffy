@@ -358,6 +358,9 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
               sizeVersion={this.state.gameSizeVersion}
               stateLayer={this.props.stateLayer}
               designManager={this.props.designManager}
+              files={this.props.studioState.files}
+              robots={this.props.robotInstances}
+              zones={this.props.zoneInstances}
             >
               {this.props.game}
             </WorldEditor>
