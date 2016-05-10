@@ -1,7 +1,15 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import DesignManager from '../../DesignManager';
+import { RecipeEditorState } from '../RecipeEditor';
+import { SourceFileDB } from '../Studio/types';
+
 import MapCanvas from './MapCanvas';
+
+import { connectTarget } from '../Panel';
+
+import ToolsPanel from './containers/ToolsPanel';
+import RecipePanel from './containers/RecipePanel';
 
 const styles = {
   root: {
@@ -22,8 +30,13 @@ interface MapEditorProps {
   onChange: (fileId: string, editorState: MapEditorState) => void;
   designManager: DesignManager;
   sizeRevision: number;
+  files: SourceFileDB;
 }
 
+@connectTarget([
+  RecipePanel.PANEL_ID,
+  ToolsPanel.PANEL_ID,
+], panelId => `MapEditor.panel.${panelId}`)
 class MapEditor extends React.Component<MapEditorProps, void> {
   static createState: (fileId: string) => MapEditorState;
 
@@ -47,7 +60,15 @@ class MapEditor extends React.Component<MapEditorProps, void> {
   }
 
   render() {
-    return <div style={styles.root} ref="canvas"></div>;
+    return (
+      <div>
+        <div style={styles.root} ref="canvas" />
+        <RecipePanel
+          files={this.props.files}
+        />
+        <ToolsPanel />
+      </div>
+    );
   }
 }
 

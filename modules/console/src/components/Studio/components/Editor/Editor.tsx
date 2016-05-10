@@ -66,6 +66,7 @@ class Editor extends React.Component<EditorProps, any> {
         onChange={this.props.onFileChange}
         designManager={this.props.designManager}
         sizeRevision={this.props.editorSizeRevision}
+        files={this.props.files}
       />
     );
   }
