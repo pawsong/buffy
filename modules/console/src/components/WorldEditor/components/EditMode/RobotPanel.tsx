@@ -6,8 +6,7 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 import * as classNames from 'classnames';
 
-import withStyles from 'isomorphic-style-loader/lib/withStyles';
-const styles = require('./RobotPanel.css');
+const styles = require('./EditMode.css');
 
 import { connectSource } from '../../../Panel';
 import { PanelTypes, Panels } from '../../panel';
@@ -36,7 +35,6 @@ interface RobotPanelProps extends React.Props<RobotPanel> {
   panelId: Panels.robot,
   title: messages.title,
 })
-@withStyles(styles)
 class RobotPanel extends React.Component<RobotPanelProps, void> {
   static PANEL_ID: string;
 

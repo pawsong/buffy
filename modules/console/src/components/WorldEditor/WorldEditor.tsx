@@ -2,7 +2,6 @@ import * as React from 'react';
 const pure = require('recompose/pure').default;
 
 import StateLayer from '@pasta/core/lib/StateLayer';
-import { EventSubscription } from 'fbemitter';
 const objectAssign = require('object-assign');
 
 import DesignManager from '../../DesignManager';
@@ -10,13 +9,11 @@ import DesignManager from '../../DesignManager';
 import { connectTarget } from '../Panel';
 import { PanelTypes, Panels } from './panel';
 
-import ModeSwitch from './components/ModeSwitch';
 import MapInfo from './components/MapInfo';
 import Canvas from './components/Canvas';
-import Tools from './components/Tools';
-import ZonePanel from './components/ZonePanel';
-import RobotPanel from './components/RobotPanel';
-import Editor from './components/Editor';
+import EditMode from './components/EditMode';
+import PlayMode from './components/PlayMode';
+
 import WorldEditorToolbar from './components/WorldEditorToolbar';
 
 import { RobotInstance, ZoneInstance, SourceFileDB } from '../Studio/types';
@@ -28,6 +25,7 @@ import {
   Color,
   WorldEditorState,
   EditorMode,
+  PlayModeState,
   CameraMode,
 } from './types';
 
@@ -46,10 +44,6 @@ interface WorldEditorProps extends React.Props<WorldEditor> {
   files: SourceFileDB;
 }
 
-interface GameOwnState {
-  mapName: string;
-}
-
 const styles = {
   canvasContainer: {
     position: 'absolute',
@@ -60,6 +54,10 @@ const styles = {
   },
 };
 
+interface WorldEditorOwnState {
+  canvasElement: HTMLElement;
+}
+
 @pure
 @connectTarget({
   panelTypes: PanelTypes,
@@ -67,48 +65,45 @@ const styles = {
   mapIdToLocalStorageKey: panelId => `worldeditor.panel.${panelId}`,
   limitTop: TOOLBAR_HEIGHT,
 })
-class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
+class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState> {
   static createState: (playerId: string) => WorldEditorState;
-
-  token: EventSubscription;
 
   constructor(props, context) {
     super(props, context);
     this.state = {
-      mapName: '',
+      canvasElement: null,
     };
-  }
-
-  componentDidMount() {
-    const onResync = () => {
-      const object = this.props.stateLayer.store.findObject(this.props.editorState.playerId);
-      this.setState({ mapName: object.zone.id });
-    };
-
-    this.token = this.props.stateLayer.store.subscribe.resync(onResync);
-    onResync();
-  }
-
-  componentWillUnmount() {
-    this.token.remove();
   }
 
   handleChangeState(nextState: WorldEditorState) {
     this.props.onChange(objectAssign({}, this.props.editorState, nextState));
   }
 
-  renderEditor() {
-    if (this.props.editorState.mode !== EditorMode.EDIT) return null;
+  renderContent() {
+    switch(this.props.editorState.mode) {
+      case EditorMode.EDIT: {
+        return (
+          <EditMode
+            editorState={this.props.editorState}
+            onChange={state => this.handleChangeState(state)}
+            robots={this.props.robots}
+            zones={this.props.zones}
+            files={this.props.files}
+          />
+        );
+      }
+      case EditorMode.PLAY: {
+        return (
+          <PlayMode
+            canvasElement={this.state.canvasElement}
+            playModeState={this.props.editorState.playMode}
+            onChange={state => this.handleChangeState(state)}
+          />
+        );
+      }
+    }
 
-    return (
-      <Editor
-        editorState={this.props.editorState}
-        onChange={state => this.handleChangeState(state)}
-        robots={this.props.robots}
-        zones={this.props.zones}
-        files={this.props.files}
-      />
-    );
+    return null;
   }
 
   render() {
@@ -121,11 +116,13 @@ class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
         <div style={styles.canvasContainer}>
           <Canvas
             editorState={this.props.editorState}
+            onChange={state => this.handleChangeState(state)}
             sizeVersion={this.props.sizeVersion}
             stateLayer={this.props.stateLayer}
             designManager={this.props.designManager}
+            registerElement={canvasElement => this.setState({ canvasElement })}
           />
-          {this.renderEditor()}
+          {this.renderContent()}
         </div>
       </div>
     );
@@ -135,6 +132,7 @@ class WorldEditor extends React.Component<WorldEditorProps, GameOwnState> {
 WorldEditor.createState = (playerId: string): WorldEditorState => {
   return {
     mode: EditorMode.EDIT,
+    playMode: PlayModeState.READY,
     cameraMode: CameraMode.ORHTOGRAPHIC,
     playerId: playerId,
     selectedTool: ToolType.move,

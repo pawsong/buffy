@@ -77,7 +77,6 @@ abstract class Canvas {
     this.container.appendChild(renderer.domElement);
 
     const camera = this.camera = this.initCamera();
-    scene.add(camera);
     camera.lookAt(scene.position);
 
     // /////////////////////////////////////////////////////////////////////////

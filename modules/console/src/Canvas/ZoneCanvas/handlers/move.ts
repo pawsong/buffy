@@ -34,10 +34,10 @@ export default <StoreHandler<ZoneCanvas>>((listen, view, stateLayer, getState) =
     const deltaX = group.position.x - oldPosX;
     const deltaZ = group.position.z - oldPosZ;
 
-    view.setCameraPosition({
-      x: view.camera.position.x + deltaX,
-      y: view.camera.position.y,
-      z: view.camera.position.z + deltaZ,
+    view.addCameraPosition({
+      x: group.position.x - oldPosX,
+      y: 0,
+      z: group.position.z - oldPosZ,
     });
   }
 }));

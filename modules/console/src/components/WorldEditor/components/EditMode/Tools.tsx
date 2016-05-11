@@ -6,9 +6,9 @@ const NearMe = require('material-ui/lib/svg-icons/maps/near-me');
 const Palette = require('material-ui/lib/svg-icons/image/palette');
 const { default: ColorPicker }  = require('react-color/lib/components/compact/Compact');
 const objectAssign = require('object-assign');
-import ClickAwayListener from '../../ClickAwayListener';
+import ClickAwayListener from '../../../ClickAwayListener';
 
-import { ToolType, Color } from '../types';
+import { ToolType, Color } from '../../types';
 
 const styles = {
   wrapper: {

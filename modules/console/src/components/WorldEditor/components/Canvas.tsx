@@ -4,14 +4,16 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 import DesignManager from '../../../DesignManager';
 
-import WorldEditorCanvas from '../WorldEditorCanvas';
-import { WorldEditorState } from '../types';
+import { WorldEditorCanvas } from '../canvas';
+import { WorldEditorState, EditorMode, PlayModeState } from '../types';
 
 interface CanvasProps extends React.Props<Canvas> {
   sizeVersion: number;
   stateLayer: StateLayer;
   designManager: DesignManager;
   editorState: WorldEditorState;
+  onChange: (state: WorldEditorState) => any;
+  registerElement: (element: HTMLElement) => any;
 }
 
 const styles = {
@@ -25,11 +27,9 @@ const styles = {
 };
 
 class Canvas extends React.Component<CanvasProps, {}> {
-  static contextTypes = {
-    store: React.PropTypes.any.isRequired,
-  }
-
   canvas: WorldEditorCanvas;
+
+  pointerlockchange: () => any;
 
   componentDidMount() {
     this.canvas = new WorldEditorCanvas(
@@ -39,6 +39,38 @@ class Canvas extends React.Component<CanvasProps, {}> {
       () => this.props.editorState
     );
     this.canvas.init();
+
+    const canvasElement = this.canvas.renderer.domElement;
+
+    this.pointerlockchange = () => {
+      if (this.props.editorState.mode !== EditorMode.PLAY) return;
+
+      if (
+           document.pointerLockElement === canvasElement
+        || document['mozPointerLockElement'] === canvasElement
+        || document['webkitPointerLockElement'] === canvasElement
+      ) {
+        // DO NOTHING
+      } else {
+        if (this.props.editorState.playMode !== PlayModeState.READY) {
+          this.props.onChange({ playMode: PlayModeState.READY });
+        }
+      }
+    };
+
+    document.addEventListener('pointerlockchange', this.pointerlockchange, false);
+    document.addEventListener('mozpointerlockchange', this.pointerlockchange, false);
+    document.addEventListener('webkitpointerlockchange', this.pointerlockchange, false);
+
+    this.props.registerElement(this.canvas.renderer.domElement);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('pointerlockchange', this.pointerlockchange, false);
+    document.removeEventListener('mozpointerlockchange', this.pointerlockchange, false);
+    document.removeEventListener('webkitpointerlockchange', this.pointerlockchange, false);
+
+    this.canvas.destroy();
   }
 
   componentWillReceiveProps(nextProps: CanvasProps) {
@@ -49,10 +81,6 @@ class Canvas extends React.Component<CanvasProps, {}> {
     if (this.props.editorState !== nextProps.editorState) {
       this.canvas.onChange(nextProps.editorState);
     }
-  }
-
-  componentWillUnmount() {
-    this.canvas.destroy();
   }
 
   render() {

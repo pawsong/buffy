@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { WorldEditorState } from '../../types';
-import ModeSwitch from '../ModeSwitch';
+import ModeSwitch from './ModeSwitch';
 
 import { TOOLBAR_HEIGHT } from '../../Constants';
 
@@ -26,7 +26,7 @@ const WorldEditorToolbar: React.StatelessComponent<WorldEditorToolbarProps> = pr
     <div style={styles.toolbarContainer}>
       <ModeSwitch
         mode={props.editorState.mode}
-        onModeChange={mode => props.onChange({ mode })}
+        onChange={props.onChange}
       />
     </div>
   );

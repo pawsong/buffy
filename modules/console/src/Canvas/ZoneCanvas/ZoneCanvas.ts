@@ -94,6 +94,10 @@ abstract class ZoneCanvas extends Canvas {
       this.stateLayer.store.subscribe, this, this.stateLayer, this.getZoneViewState));
   }
 
+  addCameraPosition(pos: Position) {
+    this.camera.position.add(<THREE.Vector3>(pos));
+  }
+
   setCameraPosition(pos: Position) {
     this.camera.position.set(pos.x, pos.y, pos.z);
   }

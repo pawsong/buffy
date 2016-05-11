@@ -64,7 +64,7 @@ declare namespace __MaterialUI {
 }
 
 declare module 'isomorphic-style-loader/lib/withStyles' {
-  const withStyles: (styles: any) => any;
+  const withStyles: (styles: any) => <T>(Component: T) => T;
   module withStyles {}
   export default withStyles;
 }

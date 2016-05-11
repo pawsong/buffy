@@ -1,0 +1,32 @@
+@import '../../../../styles/variables.css';
+
+/*--palette-cyan-300: rgb(77, 208, 225);*/
+/*--palette-cyan-700: rgb(0, 151, 167);*/
+
+.pane {
+  position: absolute;
+  top: 62px;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--palette-white);
+  font-size: 30px;
+  opacity: 0.7;
+  background-color: rgba(0, 151, 167, 0.5);
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.leftPane {
+  left: 0;
+  right: 50%;
+}
+
+.rightPane {
+  left: 50%;
+  right: 0;
+}

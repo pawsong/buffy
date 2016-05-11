@@ -4,7 +4,12 @@ const ModeEdit = require('material-ui/lib/svg-icons/editor/mode-edit');
 const PlayArrow = require('material-ui/lib/svg-icons/av/play-arrow');
 const objectAssign = require('object-assign');
 
-import { EditorMode } from '../types';
+import {
+  EditorMode,
+  PlayModeState,
+  CameraMode,
+  WorldEditorState,
+} from '../../types';
 
 const styles = {
   tool: {
@@ -42,7 +47,7 @@ const ModeRadioButton: React.StatelessComponent<ModeRadioButtonProps> = props =>
 
 interface ModeSwitchProps {
   mode: EditorMode;
-  onModeChange: (mode: EditorMode) => any;
+  onChange: (mode: WorldEditorState) => any;
 }
 
 const ModeSwitch: React.StatelessComponent<ModeSwitchProps> = props => {
@@ -52,13 +57,19 @@ const ModeSwitch: React.StatelessComponent<ModeSwitchProps> = props => {
         label="Edit Mode"
         icon={ModeEdit}
         selected={props.mode === EditorMode.EDIT}
-        onTouchTap={() => props.onModeChange(EditorMode.EDIT)}
+        onTouchTap={() => props.onChange({
+          mode: EditorMode.EDIT,
+          cameraMode: CameraMode.ORHTOGRAPHIC,
+        })}
       />
       <ModeRadioButton
         label="Play Mode"
         icon={PlayArrow}
         selected={props.mode === EditorMode.PLAY}
-        onTouchTap={() => props.onModeChange(EditorMode.PLAY)}
+        onTouchTap={() => props.onChange({
+          mode: EditorMode.PLAY,
+          playMode: PlayModeState.READY,
+        })}
       />
     </div>
   );

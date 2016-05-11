@@ -1,8 +1,8 @@
 import * as React from 'react';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
-import { connectSource } from '../../Panel';
-import { PanelTypes, Panels } from '../panel';
+import { connectSource } from '../../../Panel';
+import { PanelTypes, Panels } from '../../panel';
 
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 const messages = defineMessages({
@@ -14,7 +14,7 @@ const messages = defineMessages({
 });
 
 const PANEL_ID = 'zone';
-import { ZoneInstance, SourceFileDB } from '../../Studio/types';
+import { ZoneInstance, SourceFileDB } from '../../../Studio/types';
 
 interface ZonePanelProps extends React.Props<ZonePanel> {
   zones: ZoneInstance[];
