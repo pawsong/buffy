@@ -18,7 +18,8 @@ const styles = {
 
 interface WorldEditorToolbarProps {
   editorState: WorldEditorState;
-  onChange: (state: WorldEditorState) => any;
+  onEnterEditMode: () => any;
+  onEnterPlayMode: () => any;
 }
 
 const WorldEditorToolbar: React.StatelessComponent<WorldEditorToolbarProps> = props => {
@@ -26,7 +27,8 @@ const WorldEditorToolbar: React.StatelessComponent<WorldEditorToolbarProps> = pr
     <div style={styles.toolbarContainer}>
       <ModeSwitch
         mode={props.editorState.mode}
-        onChange={props.onChange}
+        onEnterEditMode={props.onEnterEditMode}
+        onEnterPlayMode={props.onEnterPlayMode}
       />
     </div>
   );

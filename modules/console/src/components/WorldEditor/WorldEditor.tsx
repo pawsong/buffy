@@ -75,7 +75,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
     };
   }
 
-  handleChangeState(nextState: WorldEditorState) {
+  handleChangeState = (nextState: WorldEditorState) => {
     this.props.onChange(objectAssign({}, this.props.editorState, nextState));
   }
 
@@ -85,7 +85,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
         return (
           <EditMode
             editorState={this.props.editorState}
-            onChange={state => this.handleChangeState(state)}
+            onChange={this.handleChangeState}
             robots={this.props.robots}
             zones={this.props.zones}
             files={this.props.files}
@@ -97,7 +97,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
           <PlayMode
             canvasElement={this.state.canvasElement}
             playModeState={this.props.editorState.playMode}
-            onChange={state => this.handleChangeState(state)}
+            onChange={this.handleChangeState}
           />
         );
       }
@@ -106,17 +106,32 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
     return null;
   }
 
+  handleEnterEditMode = () => {
+    this.handleChangeState({
+      mode: EditorMode.EDIT,
+      cameraMode: CameraMode.ORHTOGRAPHIC,
+    });
+  }
+
+  handleEnterPlayMode = () => {
+    this.handleChangeState({
+      mode: EditorMode.PLAY,
+      playMode: PlayModeState.READY,
+    });
+  }
+
   render() {
     return (
       <div>
         <WorldEditorToolbar
           editorState={this.props.editorState}
-          onChange={state => this.handleChangeState(state)}
+          onEnterEditMode={this.handleEnterEditMode}
+          onEnterPlayMode={this.handleEnterPlayMode}
         />
         <div style={styles.canvasContainer}>
           <Canvas
             editorState={this.props.editorState}
-            onChange={state => this.handleChangeState(state)}
+            onChange={this.handleChangeState}
             sizeVersion={this.props.sizeVersion}
             stateLayer={this.props.stateLayer}
             designManager={this.props.designManager}

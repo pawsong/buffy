@@ -47,7 +47,8 @@ const ModeRadioButton: React.StatelessComponent<ModeRadioButtonProps> = props =>
 
 interface ModeSwitchProps {
   mode: EditorMode;
-  onChange: (mode: WorldEditorState) => any;
+  onEnterEditMode: () => any;
+  onEnterPlayMode: () => any;
 }
 
 const ModeSwitch: React.StatelessComponent<ModeSwitchProps> = props => {
@@ -57,19 +58,13 @@ const ModeSwitch: React.StatelessComponent<ModeSwitchProps> = props => {
         label="Edit Mode"
         icon={ModeEdit}
         selected={props.mode === EditorMode.EDIT}
-        onTouchTap={() => props.onChange({
-          mode: EditorMode.EDIT,
-          cameraMode: CameraMode.ORHTOGRAPHIC,
-        })}
+        onTouchTap={props.onEnterEditMode}
       />
       <ModeRadioButton
         label="Play Mode"
         icon={PlayArrow}
         selected={props.mode === EditorMode.PLAY}
-        onTouchTap={() => props.onChange({
-          mode: EditorMode.PLAY,
-          playMode: PlayModeState.READY,
-        })}
+        onTouchTap={props.onEnterPlayMode}
       />
     </div>
   );
