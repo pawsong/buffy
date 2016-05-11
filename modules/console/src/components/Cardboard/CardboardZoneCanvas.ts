@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
-import DesignManager from '../../DesignManager';
+import DesignManager from '../../canvas/DesignManager';
 import ZoneCanvas from '../../canvas/ZoneCanvas';
 
 if (__CLIENT__) {

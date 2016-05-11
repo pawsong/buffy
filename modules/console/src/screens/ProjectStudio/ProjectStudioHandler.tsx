@@ -12,7 +12,7 @@ const update = require('react-addons-update');
 const objectAssign = require('object-assign');
 
 import LocalServer, { LocalSocket } from '../../LocalServer';
-import DesignManager from '../../DesignManager';
+import DesignManager from '../../canvas/DesignManager';
 import { connectApi, preloadApi, ApiCall, get, ApiDispatchProps } from '../../api';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';

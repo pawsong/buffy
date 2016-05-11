@@ -1,7 +1,7 @@
 import * as React from 'react';
 const update = require('react-addons-update');
 
-import DesignManager from '../../../../DesignManager';
+import DesignManager from '../../../../canvas/DesignManager';
 
 import FileTabs from '../FileTabs';
 import CodeEditor from '../../../../components/CodeEditor';

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 const objectAssign = require('object-assign');
-import DesignManager from '../../../DesignManager';
+import DesignManager from '../../../canvas/DesignManager';
 import ZoneCanvas from '../../../canvas/ZoneCanvas';
 
 import {

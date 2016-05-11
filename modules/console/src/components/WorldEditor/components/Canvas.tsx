@@ -2,7 +2,7 @@ import * as React from 'react';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
 
-import DesignManager from '../../../DesignManager';
+import DesignManager from '../../../canvas/DesignManager';
 
 import { WorldEditorCanvas } from '../canvas';
 import { WorldEditorState, EditorMode, PlayModeState } from '../types';

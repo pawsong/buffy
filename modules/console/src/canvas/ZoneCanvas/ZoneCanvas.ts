@@ -3,7 +3,7 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 import GameObject from '@pasta/core/lib/classes/GameObject';
 
 import Canvas from '../Canvas';
-import DesignManager from '../../DesignManager';
+import DesignManager from '../../canvas/DesignManager';
 
 import { createEffectManager } from './effects';
 import { GetZoneViewState } from './interface';

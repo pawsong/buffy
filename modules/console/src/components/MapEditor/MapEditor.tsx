@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
-import DesignManager from '../../DesignManager';
+import DesignManager from '../../canvas/DesignManager';
 import { RecipeEditorState } from '../RecipeEditor';
 import { SourceFileDB } from '../Studio/types';
 

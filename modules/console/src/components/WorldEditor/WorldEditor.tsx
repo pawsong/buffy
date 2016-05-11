@@ -4,7 +4,7 @@ const pure = require('recompose/pure').default;
 import StateLayer from '@pasta/core/lib/StateLayer';
 const objectAssign = require('object-assign');
 
-import DesignManager from '../../DesignManager';
+import DesignManager from '../../canvas/DesignManager';
 
 import { connectTarget } from '../Panel';
 import { PanelTypes, Panels } from './panel';

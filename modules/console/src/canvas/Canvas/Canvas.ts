@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import GameObject from '@pasta/core/lib/classes/GameObject';
 
-import DesignManager from '../../DesignManager';
+import DesignManager from '../../canvas/DesignManager';
 import TerrainManager from './TerrainManager';
 import ObjectManager from './ObjectManager';
 

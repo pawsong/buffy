@@ -4,7 +4,7 @@ import {
   MINI_PIXEL_SIZE,
   PIXEL_NUM,
 } from '../Constants';
-import DesignManager, { LoaderWatcher } from '../../DesignManager';
+import DesignManager, { LoaderWatcher } from '../../canvas/DesignManager';
 
 interface Resources {
   material?: THREE.Material;

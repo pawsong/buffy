@@ -25,7 +25,7 @@ import { Sandbox, Scripts } from '../../sandbox';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import { runBlocklyWorkspace, CompiledCodes } from './sagas';
 
-import DesignManager from '../../DesignManager';
+import DesignManager from '../../canvas/DesignManager';
 
 import Layout, { LayoutContainer } from '../../components/Layout';
 

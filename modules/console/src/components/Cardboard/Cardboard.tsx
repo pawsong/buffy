@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Scripts } from '@pasta/core/lib/types';
-import DesignManager from '../../DesignManager';
+import DesignManager from '../../canvas/DesignManager';
 
 import CardboardZoneCanvas from './CardboardZoneCanvas';
 

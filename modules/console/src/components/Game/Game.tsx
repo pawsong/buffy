@@ -5,7 +5,7 @@ import { Scripts } from '@pasta/core/lib/types';
 
 import GameZoneCanvas from './GameZoneCanvas';
 
-import DesignManager from '../../DesignManager';
+import DesignManager from '../../canvas/DesignManager';
 import FullscreenPlayer from '../FullscreenPlayer';
 
 interface GameProps extends React.Props<Game> {
