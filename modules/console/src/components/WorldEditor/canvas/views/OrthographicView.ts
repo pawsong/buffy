@@ -15,7 +15,11 @@ class OrthographicView implements View {
   camera: THREE.OrthographicCamera;
   controls: any;
 
+  private direction: THREE.Vector3;
+
   constructor(private container: HTMLElement, renderer: THREE.WebGLRenderer, private scene: THREE.Scene) {
+    this.direction = new THREE.Vector3();
+
     // Init camera
     const camera = new THREE.OrthographicCamera(
       this.container.offsetWidth / -2,
@@ -27,6 +31,7 @@ class OrthographicView implements View {
     camera.position.x = 1;
     camera.position.y = 1;
     camera.position.z = 1;
+    camera.lookAt(scene.position);
 
     this.camera = camera;
 
@@ -42,6 +47,8 @@ class OrthographicView implements View {
     controls.enabled = true;
 
     this.controls = controls;
+
+    this.setPosition({ x: 1, y: 1, z: 1 });
   }
 
   onEnter() {
@@ -61,13 +68,9 @@ class OrthographicView implements View {
   }
 
   setPosition(pos: Position): void {
+    this.camera.getWorldDirection(this.direction);
     this.camera.position.set(pos.x, pos.y, pos.z);
-
-    this.controls.target.set(
-      pos.x - PIXEL_UNIT,
-      pos.y - PIXEL_UNIT,
-      pos.z - PIXEL_UNIT
-    );
+    this.controls.target.copy(this.camera.position).add(this.direction);
   }
 
   onUpdate(): void {

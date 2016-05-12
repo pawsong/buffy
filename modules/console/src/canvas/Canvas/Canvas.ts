@@ -66,21 +66,19 @@ abstract class Canvas {
     scene.add(ambientLight);
 
     const light = new THREE.DirectionalLight(0xffffff);
+    light.position.set(8, 16, 12);
+    light.position.multiplyScalar( PIXEL_SCALE );
 
-    light.position.set( 50, 200, 100 );
-    light.position.multiplyScalar( 1.3 );
     light.castShadow = true;
     light.shadow.mapSize.width = 1024;
     light.shadow.mapSize.height = 1024;
-    var d = 300;
+    const d = 15 * PIXEL_SCALE;
     light.shadow.camera['left'] = - d;
     light.shadow.camera['right'] = d;
     light.shadow.camera['top'] = d;
     light.shadow.camera['bottom'] = - d;
-    light.shadow.camera['far'] = 1000;
+    light.shadow.camera['far'] = 2000;
 
-    // light.position.set(5, 3, 4);
-    // light.position.normalize();
     scene.add(light);
 
     const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: true });
