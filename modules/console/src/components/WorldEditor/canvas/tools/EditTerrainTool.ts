@@ -1,4 +1,12 @@
+import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
+
+import { Position } from '@pasta/core/lib/types';
+
+import {
+  PIXEL_SCALE,
+  PIXEL_SCALE_HALF,
+} from '../../../../canvas/Constants';
 
 import {
   Color,
@@ -23,11 +31,15 @@ interface WaitStateProps {
 }
 
 class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
+  cursorOffset: Position;
+
   constructor(
     private view: WorldEditorCanvas,
     private stateLayer: StateLayer
   ) {
     super();
+
+    this.cursorOffset = [PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF];
   }
 
   mapStateToProps(gameState: WorldEditorState): WaitStateProps {
@@ -38,7 +50,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   }
 
   onEnter() {
-    this.view.cursorManager.start();
+    this.view.cursorManager.start(this.view.cubeGeometry, this.cursorOffset);
   }
 
   onLeave() {

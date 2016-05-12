@@ -1,9 +1,15 @@
 import StateLayer from '@pasta/core/lib/StateLayer';
+import { Position } from '@pasta/core/lib/types';
 
 import {
   ToolType,
   WorldEditorState,
 } from '../../types';
+
+import {
+  PIXEL_SCALE,
+  PIXEL_SCALE_HALF,
+} from '../../../../canvas/Constants';
 
 import WorldEditorCanvasTool, {
   WorldEditorCanvsToolState,
@@ -17,11 +23,20 @@ interface WaitStateProps {
 }
 
 class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
+  cursorGeometry: THREE.Geometry;
+  cursorOffset: Position;
+
   constructor(
     private view: WorldEditorCanvas,
     private stateLayer: StateLayer
   ) {
     super();
+
+    this.cursorGeometry = new THREE.PlaneGeometry(1, 1);
+    this.cursorGeometry.scale(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    this.cursorGeometry.rotateX(- Math.PI / 2);
+
+    this.cursorOffset = [PIXEL_SCALE_HALF, 0, PIXEL_SCALE_HALF];
   }
 
   mapStateToProps(gameState: WorldEditorState): WaitStateProps {
@@ -31,7 +46,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   }
 
   onEnter() {
-    this.view.cursorManager.start();
+    this.view.cursorManager.start(this.cursorGeometry, this.cursorOffset);
   }
 
   onLeave() {
