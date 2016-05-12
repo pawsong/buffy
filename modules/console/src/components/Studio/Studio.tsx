@@ -34,7 +34,6 @@ import { getIconName, getFileTypeLabel } from './utils';
 import FileBrowser from './components/FileBrowser';
 import waitForMount from './components/waitForMount';
 import FileTabs from './components/FileTabs';
-import InstanceBrowser from './components/InstanceBrowser';
 import Editor from './components/Editor';
 
 import WorldEditor, {
@@ -79,20 +78,14 @@ const messages = defineMessages({
   },
 });
 
-import { RobotInstance, ZoneInstance } from './types';
-
 export interface StudioState {
-  worldEditorState?: WorldEditorState;
-
   files?: { [index: string]: SourceFile };
   activeFileId?: string;
   filesOnTab?: string[];
+  worldId?: string;
 }
 
 interface StudioProps extends React.Props<Studio>, SagaProps {
-  robotInstances: RobotInstance[];
-  zoneInstances: ZoneInstance[];
-
   studioState: StudioState;
   onChange: (nextState: StudioState) => any;
   onOpenFileRequest: (fileType: FileType) => any;
@@ -120,7 +113,7 @@ interface CreateStateOptions {
   codeFileId?: string;
   designFileId?: string;
   robotFileId?: string;
-  mapFileId?: string;
+  worldFileId?: string;
   playerId?: string;
 }
 
@@ -158,32 +151,32 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     this.props.cancelSaga(this.props.run);
   }
 
-  handleRun() {
-    // Find robots
-    const robotStates = {};
-    this.props.robotInstances.forEach(robotInstance => {
-      robotStates[robotInstance.templateId] = this.props.studioState.files[robotInstance.templateId].state;
-    });
+  handleRun() { // TODO: Move into world editor
+    // // Find robots
+    // const robotStates = {};
+    // this.props.robotInstances.forEach(robotInstance => {
+    //   robotStates[robotInstance.templateId] = this.props.studioState.files[robotInstance.templateId].state;
+    // });
 
-    const codesSet = {};
-    Object.keys(robotStates).forEach(robotId => {
-      const robotState = robotStates[robotId];
-      robotState.codes.forEach(code => codesSet[code] = true);
-    });
+    // const codesSet = {};
+    // Object.keys(robotStates).forEach(robotId => {
+    //   const robotState = robotStates[robotId];
+    //   robotState.codes.forEach(code => codesSet[code] = true);
+    // });
 
-    const codes: CompiledCodes = {};
-    Object.keys(codesSet).map(codeId => {
-      const codeState = this.props.studioState.files[codeId].state;
-      codes[codeId] = compileBlocklyXml(codeState.blocklyXml);
-    });
+    // const codes: CompiledCodes = {};
+    // Object.keys(codesSet).map(codeId => {
+    //   const codeState = this.props.studioState.files[codeId].state;
+    //   codes[codeId] = compileBlocklyXml(codeState.blocklyXml);
+    // });
 
-    this.props.runSaga(this.props.run, this.sandbox, codes, this.props.robotInstances.map(instance => {
-      const robotState = robotStates[instance.templateId];
-      return {
-        objectId: instance.id,
-        codeIds: robotState.codes,
-      };
-    }));
+    // this.props.runSaga(this.props.run, this.sandbox, codes, this.props.robotInstances.map(instance => {
+    //   const robotState = robotStates[instance.templateId];
+    //   return {
+    //     objectId: instance.id,
+    //     codeIds: robotState.codes,
+    //   };
+    // }));
   }
 
   handleStop() {
@@ -312,12 +305,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     this.setState({ editorSizeVersion: this.state.editorSizeVersion + 1 });
   }
 
-  selectPlayer(playerId: string) {
-    this.handleStateChange({
-      worldEditorState: objectAssign({}, this.props.studioState.worldEditorState, { playerId }),
-    });
-  }
-
   render() {
     const controlButton = this.props.run.state === 'running'
       ? <RaisedButton
@@ -350,14 +337,12 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           </LayoutContainer>
           <LayoutContainer remaining={true}>
             <WorldEditor
-              editorState={this.props.studioState.worldEditorState}
-              onChange={(worldEditorState => this.handleStateChange({ worldEditorState }))}
+              editorState={this.props.studioState.files[this.props.studioState.worldId].state}
+              onFileChange={(id, state) => this.handleFileChange(id, state)}
               sizeVersion={this.state.gameSizeVersion}
               stateLayer={this.props.stateLayer}
               designManager={this.props.designManager}
               files={this.props.studioState.files}
-              robots={this.props.robotInstances}
-              zones={this.props.zoneInstances}
             >
               {this.props.game}
             </WorldEditor>
@@ -369,7 +354,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 }
 
 Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
-  const { codeFileId, designFileId, robotFileId } = options;
+  const { codeFileId, designFileId, robotFileId, worldFileId } = options;
 
   const robotState: RobotState = {
     codes: [codeFileId],
@@ -404,15 +389,26 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
       type: FileType.ROBOT,
       state: robotState,
     },
+    [worldFileId]: {
+      id: worldFileId,
+      created: true,
+      modified: false,
+      readonly: false,
+      name: 'World',
+      type: FileType.WORLD,
+      state: WorldEditor.createState(worldFileId, {
+        recipe: robotFileId,
+      }),
+    },
   };
 
   const filesOnTab = Object.keys(files).filter(key => files[key].created);
 
   return {
-    worldEditorState: WorldEditor.createState(options.playerId),
     files,
     activeFileId: designFileId,
     filesOnTab,
+    worldId: worldFileId,
   };
 }
 

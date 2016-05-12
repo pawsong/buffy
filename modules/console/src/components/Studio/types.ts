@@ -3,7 +3,7 @@ export enum FileType {
   CODE,
   DESIGN,
   ROBOT,
-  ZONE,
+  WORLD,
 }
 
 export interface FileDescriptor {
@@ -29,18 +29,4 @@ export interface SourceFileDB {
 export interface RobotState {
   codes: string[];
   design: string;
-}
-
-export interface RobotInstance {
-  id: string;
-  name: string;
-  mapName: string;
-  templateId: string;
-}
-
-export interface ZoneInstance {
-  id: string;
-  name: string;
-  width: number;
-  depth: number;
 }

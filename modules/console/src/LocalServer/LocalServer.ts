@@ -14,6 +14,10 @@ import LocalUserGameObject from './LocalUserGameObject';
 import LocalRoutes from './LocalRoutes';
 import LocalSocket from './LocalSocket';
 
+import { RecipeEditorState } from '../components/RecipeEditor';
+import { WorldEditorState } from '../components/WorldEditor';
+import { SourceFileDB } from '../components/Studio/types';
+
 interface CreateInitialDataOptions {
   playerId: string;
   robot: string;
@@ -75,8 +79,11 @@ class LocalServer {
   users: { [index: string]: LocalUserGameObject };
   updateFrameId: number;
 
-  constructor(data: SerializedLocalServer, socket: LocalSocket) {
+  constructor(files: SourceFileDB, worldId: string, socket: LocalSocket) {
     invariant(socket, 'Invalid socket');
+
+    const worldFile = files[worldId];
+    const world: WorldEditorState = worldFile.state;
 
     // Initialize maps and users
 
@@ -84,14 +91,39 @@ class LocalServer {
     this.indexedMaps = {};
     this.users = {};
 
-    data.zones.forEach(datum => {
-      const zone = this.indexedMaps[datum.id] = new ServerGameMap(datum);
+    world.zones.forEach(zoneState => {
+      const zone = this.indexedMaps[zoneState.id] = new ServerGameMap({
+        id: zoneState.id,
+        name: zoneState.name,
+        width: zoneState.size[0],
+        depth: zoneState.size[2],
+        terrains: [],
+        objects: [],
+      });
       this.maps.push(zone);
     });
 
-    data.objects.forEach(serializedObject => {
-      const zone = this.indexedMaps[serializedObject.zone];
-      const user = new LocalUserGameObject(serializedObject, zone, socket);
+    world.robots.forEach(robotState => {
+      const recipeFile = files[robotState.recipe];
+      const recipe: RecipeEditorState = recipeFile.state;
+
+      const zone = this.indexedMaps[robotState.zone];
+      const user = new LocalUserGameObject({
+        id: robotState.id,
+        zone: robotState.zone,
+        robot: robotState.recipe,
+        designId: recipe.design,
+        position: {
+          x: robotState.position[0],
+          y: robotState.position[1],
+          z: robotState.position[2],
+        },
+        direction: {
+          x: robotState.direction[0],
+          y: robotState.direction[1],
+          z: robotState.direction[2],
+        },
+      }, zone, socket);
       this.users[user.id] = user;
       zone.addUser(user);
     });

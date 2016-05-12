@@ -11,7 +11,9 @@ const styles = require('./EditMode.css');
 import { connectSource } from '../../../Panel';
 import { PanelTypes, Panels } from '../../panel';
 
-import { RobotInstance, SourceFileDB } from '../../../Studio/types';
+import { SourceFileDB } from '../../../Studio/types';
+
+import { Robot } from '../../types';
 
 const messages = defineMessages({
   title: {
@@ -24,7 +26,7 @@ const messages = defineMessages({
 const markForModifiedClass = classNames('material-icons', styles.markForModified);
 
 interface RobotPanelProps extends React.Props<RobotPanel> {
-  robots: RobotInstance[];
+  robots: Robot[];
   files: SourceFileDB;
   playerId: string;
   onPlayerChange: (robotId: string) => any;
@@ -40,7 +42,7 @@ class RobotPanel extends React.Component<RobotPanelProps, void> {
 
   render() {
     const listItems = this.props.robots.map(robot => {
-      const recipe = this.props.files[robot.templateId];
+      const recipe = this.props.files[robot.recipe];
       const design = this.props.files[recipe.state.design];
 
       return (

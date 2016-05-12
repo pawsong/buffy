@@ -16,9 +16,11 @@ import PlayMode from './components/PlayMode';
 
 import WorldEditorToolbar from './components/WorldEditorToolbar';
 
-import { RobotInstance, ZoneInstance, SourceFileDB } from '../Studio/types';
+import { SourceFileDB } from '../Studio/types';
 
 import { TOOLBAR_HEIGHT } from './Constants';
+
+import generateObjectId from '../../utils/generateObjectId';
 
 import {
   ToolType,
@@ -27,20 +29,18 @@ import {
   EditorMode,
   PlayModeState,
   CameraMode,
+  Robot,
+  Zone,
 } from './types';
 
 export { WorldEditorState };
 
 interface WorldEditorProps extends React.Props<WorldEditor> {
   editorState: WorldEditorState;
-  onChange: (gameState: WorldEditorState) => any;
+  onFileChange: (id: string, state: WorldEditorState) => any;
   stateLayer: StateLayer;
   designManager: DesignManager;
   sizeVersion: number; // For resize
-
-  robots: RobotInstance[];
-  zones: ZoneInstance[];
-
   files: SourceFileDB;
 }
 
@@ -58,6 +58,10 @@ interface WorldEditorOwnState {
   canvasElement: HTMLElement;
 }
 
+interface CreateStateOptions {
+  recipe: string;
+}
+
 @pure
 @connectTarget({
   panelTypes: PanelTypes,
@@ -66,7 +70,7 @@ interface WorldEditorOwnState {
   limitTop: TOOLBAR_HEIGHT,
 })
 class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState> {
-  static createState: (playerId: string) => WorldEditorState;
+  static createState: (fileId: string, options: CreateStateOptions) => WorldEditorState;
 
   constructor(props, context) {
     super(props, context);
@@ -76,7 +80,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
   }
 
   handleChangeState = (nextState: WorldEditorState) => {
-    this.props.onChange(objectAssign({}, this.props.editorState, nextState));
+    this.props.onFileChange(this.props.editorState.fileId, nextState);
   }
 
   renderContent() {
@@ -86,8 +90,6 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
           <EditMode
             editorState={this.props.editorState}
             onChange={this.handleChangeState}
-            robots={this.props.robots}
-            zones={this.props.zones}
             files={this.props.files}
           />
         );
@@ -144,14 +146,48 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
   }
 }
 
-WorldEditor.createState = (playerId: string): WorldEditorState => {
+WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEditorState => {
+  const zoneId = generateObjectId();
+
+  const robotId1 = generateObjectId();
+
+  const robot1: Robot = {
+    id: robotId1,
+    name: 'Robot 1',
+    zone: zoneId,
+    recipe: options.recipe,
+    position: [3, 4, 3],
+    direction: [0, 0, 1],
+  };
+
+  const robotId2 = generateObjectId();
+
+  const robot2: Robot = {
+    id: robotId2,
+    name: 'Robot 2',
+    zone: zoneId,
+    recipe: options.recipe,
+    position: [2, 4, 6],
+    direction: [0, 0, 1],
+  };
+
+  // Initialize data
+  const zone: Zone = {
+    id: zoneId,
+    name: 'Zone',
+    size: [16, 16, 16],
+  };
+
   return {
+    fileId,
     mode: EditorMode.EDIT,
     playMode: PlayModeState.READY,
     cameraMode: CameraMode.ORHTOGRAPHIC,
-    playerId: playerId,
+    playerId: robot1.id,
     selectedTool: ToolType.move,
     brushColor: { r: 104, g: 204, b: 202 },
+    robots: [robot1, robot2],
+    zones: [zone],
   };
 }
 

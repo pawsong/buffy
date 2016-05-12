@@ -80,9 +80,10 @@ class WorldEditorCanvas extends ZoneCanvas {
         nextView = this.cachedViews[CameraMode.PERSPECTIVE]
         break;
       }
+      default: {
+        throw new Error(`Invalid camera mode: ${cameraMode}`);
+      }
     }
-
-    if (!nextView) return;
 
     if (this.view) this.view.onLeave();
 
@@ -103,9 +104,9 @@ class WorldEditorCanvas extends ZoneCanvas {
   }
 
   init () {
-    super.init();
-
     this.state = this.getGameState();
+
+    super.init();
 
     this.cursorManager = new CursorManager(this);
 
@@ -134,7 +135,7 @@ class WorldEditorCanvas extends ZoneCanvas {
   }
 
   initCamera(): THREE.Camera {
-    this.applyCameraMode(this.getGameState().cameraMode);
+    this.applyCameraMode(this.state.cameraMode);
     return this.view.camera;
   }
 

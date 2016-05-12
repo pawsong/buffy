@@ -20,7 +20,7 @@ import { saga, SagaProps, ImmutableTask } from '../../saga';
 import * as StorageKeys from '../../constants/StorageKeys';
 import Studio, { StudioState } from '../../components/Studio';
 import { FileType, SourceFile } from '../../components/Studio/types';
-import { RobotInstance, ZoneInstance } from '../../components/Studio';
+import { WorldEditorState } from '../../components/WorldEditor';
 import { requestLogout } from '../../actions/auth';
 import { compileBlocklyXml } from '../../blockly/utils';
 
@@ -172,9 +172,6 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   server: LocalServer;
   stateLayer: StateLayer;
 
-  robots: RobotInstance[];
-  zones: ZoneInstance[];
-
   designManager: DesignManager;
 
   constructor(props) {
@@ -241,13 +238,13 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     const codeFileId = generateObjectId();
     const designFileId = generateObjectId();
     const robotFileId = generateObjectId();
-    const mapFileId = generateObjectId();
+    const worldFileId = generateObjectId();
 
     const studioState = Studio.creatState({
       codeFileId,
       designFileId,
       robotFileId,
-      mapFileId,
+      worldFileId,
       playerId,
     });
 
@@ -297,40 +294,8 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   startStateLayer() {
-    this.server = new LocalServer(this.state.initialLocalServer, this.socket);
+    this.server = new LocalServer(this.state.studioState.files, this.state.studioState.worldId, this.socket);
     this.stateLayer.start(this.server.getInitData());
-
-    let templateId = '';
-    const fileIds = Object.keys(this.state.studioState.files);
-    for (let i = 0; i < fileIds.length; ++i) {
-      const fileId = fileIds[i];
-      const file = this.state.studioState.files[fileId];
-      if (file.type === FileType.ROBOT) {
-        templateId = fileId;
-        break;
-      }
-    }
-
-    this.robots = Object.keys(this.server.users).map(id => {
-      const user = this.server.users[id];
-
-      return {
-        id,
-        templateId,
-        name: '(Untitled)',
-        mapName: user.zone.name || '(Untitled)',
-      };
-    });
-
-    this.zones = this.server.maps.map(map => {
-      return {
-        id: map.id,
-        name: map.name || '(Untitled)',
-        width: map.width,
-        depth: map.depth,
-      };
-    });
-
     this.setState({ stateLayerIsRunning: true });
   }
 
@@ -353,6 +318,9 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     const file = this.state.studioState.files[fileId];
     if (!file.modified) return;
 
+    const worldFile = this.state.studioState.files[this.state.studioState.worldId];
+    const world: WorldEditorState = worldFile.state;
+
     // this.setState(update(this.state, {
     //   studioState: { workingCopies: { [workingCopyId]: {
     //     created: { $set: false },
@@ -364,7 +332,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       case FileType.DESIGN: {
         const mesh = file.state.voxel.present.mesh;
         this.stateLayer.rpc.updateMesh({
-          objectId: this.state.studioState.worldEditorState.playerId,
+          objectId: world.playerId,
           designId: fileId,
           mesh: mesh,
         });
@@ -372,7 +340,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       case FileType.ROBOT: {
         const state: RecipeEditorState = file.state;
         this.stateLayer.rpc.updateRobot({
-          objectId: this.state.studioState.worldEditorState.playerId,
+          objectId: world.playerId,
           robot: file.id,
           design: state.design,
         });
@@ -524,8 +492,6 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
           onVrModeRequest={() => this.handleVrModeRequest()}
         />
         <Studio
-          robotInstances={this.robots}
-          zoneInstances={this.zones}
           studioState={this.state.studioState}
           onChange={studioState => this.handleStudioStateChange(studioState)}
           onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}

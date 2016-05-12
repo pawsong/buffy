@@ -11,7 +11,6 @@ import { InitParams } from '@pasta/core/lib/packet/ZC';
 
 import Studio, { StudioState } from '../../components/Studio';
 import { FileType } from '../../components/Studio/types';
-import { RobotInstance, ZoneInstance } from '../../components/Studio';
 import { saga, ImmutableTask, SagaProps, request, isDone } from '../../saga';
 import { connectApi, get, ApiCall, ApiDispatchProps } from '../../api';
 import { State } from '../../reducers';
@@ -54,8 +53,6 @@ interface OnlineStudioState {
   initialized?: boolean;
   studioState?: StudioState;
   friendsModalOpened?: boolean;
-  robotInstances?: { [index: string]: RobotInstance };
-  zoneInstances?: { [index: string]: ZoneInstance };
 }
 
 @connectApi(() => ({
@@ -97,8 +94,6 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
       designBrowserOpen: false,
       initialized: false,
       friendsModalOpened: false,
-      robotInstances: {},
-      zoneInstances: {},
     };
   }
 
@@ -221,8 +216,8 @@ class OnlineStudioHandler extends React.Component<OnlineStudioProps, OnlineStudi
   renderStudio() {
     const game = this.renderGame();
 
-    const robots = Object.keys(this.state.robotInstances).map(id => this.state.robotInstances[id]);
-    const zones = Object.keys(this.state.zoneInstances).map(id => this.state.zoneInstances[id]);
+    // const robots = Object.keys(this.state.robotInstances).map(id => this.state.robotInstances[id]);
+    // const zones = Object.keys(this.state.zoneInstances).map(id => this.state.zoneInstances[id]);
 
     return null;
 

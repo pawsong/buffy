@@ -14,10 +14,12 @@ const messages = defineMessages({
 });
 
 const PANEL_ID = 'zone';
-import { ZoneInstance, SourceFileDB } from '../../../Studio/types';
+import { SourceFileDB } from '../../../Studio/types';
+
+import { Zone } from '../../types';
 
 interface ZonePanelProps extends React.Props<ZonePanel> {
-  zones: ZoneInstance[];
+  zones: Zone[];
 }
 
 @connectSource({

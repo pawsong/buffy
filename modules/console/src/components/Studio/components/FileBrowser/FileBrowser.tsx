@@ -52,7 +52,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowserState> {
 
   renderFileBrowserButtons() {
     const types = [
-      FileType.ZONE,
+      FileType.WORLD,
       FileType.ROBOT,
       FileType.DESIGN,
       FileType.CODE,

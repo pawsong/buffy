@@ -8,6 +8,7 @@ export interface Mesh {
 }
 
 export type Position = [number /* x */, number /* y */, number /* z */];
+export type Direction = [number /* x */, number /* y */, number /* z */];
 
 export interface Color {
   r: number; g: number; b: number;
