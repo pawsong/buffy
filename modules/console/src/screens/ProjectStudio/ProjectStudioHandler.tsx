@@ -104,7 +104,6 @@ interface ProjectStudioHandlerProps extends RouteComponentProps<RouteParams, Rou
 
 interface ProjectStudioHandlerState {
   stateLayerIsRunning?: boolean;
-  initialLocalServer?: SerializedLocalServer;
   studioState?: StudioState;
   // Files
   // activeFiles
@@ -248,14 +247,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       playerId,
     });
 
-    const initialLocalServer = LocalServer.createInitialData({
-      playerId,
-      robot: robotFileId,
-      designId: designFileId,
-    });
-
     return {
-      initialLocalServer,
       studioState,
     };
   }
@@ -270,7 +262,6 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     });
 
     return {
-      initialLocalServer: project.server,
       studioState: Studio.creatState({
         codeEditorState: { blocklyXml: project.blocklyXml },
         voxelEditorState: { voxels },

@@ -48,22 +48,7 @@ abstract class ZoneCanvas extends Canvas {
   init() {
     super.init();
 
-    this.chunk = new Chunk(this.scene, 16);
-
-    for (let y = 1; y <= 2; ++y) {
-      for (let x = 1; x <= 16; ++x) {
-        for (let z = 1; z <= 16; ++z) {
-          this.chunk.findAndUpdate([x, y, z], { r: 100, g: 100, b: 0 });
-        }
-      }
-    }
-    for (let x = 1; x <= 16; ++x) {
-      for (let z = 1; z <= 16; ++z) {
-        this.chunk.findAndUpdate([x, 3, z], { r: 0, g: 100, b: 0 });
-      }
-    }
-
-    const geometry = this.chunk.update();
+    this.chunk = new Chunk(this.scene);
 
     this.effectManager = createEffectManager(this.scene);
 
@@ -75,16 +60,8 @@ abstract class ZoneCanvas extends Canvas {
       // Clear objects
       this.objectManager.removeAll();
 
-      // Terrains
-      // for (let i = 1; i <= player.zone.width; ++i) {
-      //   for (let j = 1; j <= player.zone.depth; ++j) {
-      //     this.terrainManager.findAndUpdate(i, j, 0xffffff);
-      //   }
-      // }
-
-      // player.zone.terrains.forEach(terrain => {
-      //   this.terrainManager.findAndUpdate(terrain.position.x, terrain.position.z, terrain.color);
-      // });
+      this.chunk.setData(player.zone.blocks);
+      this.chunk.update();
 
       // Objects
       player.zone.objects.forEach(obj => {

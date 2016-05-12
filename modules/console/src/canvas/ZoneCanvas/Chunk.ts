@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as ndarray from 'ndarray';
+import { Ndarray } from 'ndarray';
 import mesher from '../meshers/greedy';
 // const compileMesher = require('greedy-mesher');
 
@@ -25,21 +25,19 @@ class Chunk {
 
   private scene: THREE.Scene;
   private material: THREE.Material;
-  private data: any;
-  private dims: any;
+  private data: Ndarray;
 
-  constructor(scene: THREE.Scene, chunkSize: number) {
+  constructor(scene: THREE.Scene) {
     this.scene = scene;
 
     this.material = new THREE.MeshLambertMaterial({
       color: 0xffffff,
       vertexColors: THREE.VertexColors,
     });
+  }
 
-    this.dims = [chunkSize, chunkSize, chunkSize];
-    this.data = ndarray(new Uint32Array(this.dims[2] * this.dims[1] * this.dims[0]), this.dims);
-
-    // TODO: Init data here
+  setData(data: Ndarray) {
+    this.data = data;
   }
 
   findAndUpdate(pos: Position, color: Color) {

@@ -25,54 +25,6 @@ interface CreateInitialDataOptions {
 }
 
 class LocalServer {
-  static createInitialData(options: CreateInitialDataOptions): SerializedLocalServer {
-    const zoneId = shortid.generate();
-
-    // const
-    const serializedGameObject: SerializedGameObject = {
-      id: options.playerId,
-      zone: zoneId,
-      robot: options.robot,
-      designId: options.designId,
-      position: {
-        x: 3,
-        y: 4,
-        z: 3,
-      },
-      direction: { x: 0, y: 0, z: 1 },
-    };
-
-    const userId2 = shortid.generate();
-
-    const serializedGameObject2: SerializedGameObject = {
-      id: userId2,
-      zone: zoneId,
-      robot: options.robot,
-      designId: options.designId,
-      position: {
-        x: 2,
-        y: 4,
-        z: 6,
-      },
-      direction: { x: 0, y: 0, z: 1 },
-    };
-
-    // Initialize data
-    const serializedGameMap: SerializedGameMap = {
-      id: zoneId,
-      name: '',
-      width: 16,
-      depth: 16,
-      terrains: [],
-      objects: [serializedGameObject.id, serializedGameObject2.id],
-    };
-
-    return {
-      zones: [serializedGameMap],
-      objects: [serializedGameObject, serializedGameObject2],
-    };
-  }
-
   routes: LocalRoutes;
   maps: ServerGameMap[];
   indexedMaps: { [index: string]: ServerGameMap };
@@ -92,11 +44,15 @@ class LocalServer {
     this.users = {};
 
     world.zones.forEach(zoneState => {
+      const blocks: Int32Array = zoneState.blocks.data;
+
       const zone = this.indexedMaps[zoneState.id] = new ServerGameMap({
         id: zoneState.id,
         name: zoneState.name,
         width: zoneState.size[0],
         depth: zoneState.size[2],
+        size: zoneState.size,
+        blocks: blocks.slice().buffer, // Copy buffer to preserve original state in file.
         terrains: [],
         objects: [],
       });

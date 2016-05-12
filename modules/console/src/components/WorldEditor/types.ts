@@ -1,4 +1,5 @@
 import * as Immutable from 'immutable';
+import { Ndarray } from 'ndarray';
 import {
   Position,
   Direction,
@@ -62,6 +63,7 @@ export interface Robot {
 export interface Zone {
   id: string;
   name: string;
-  size: [number /* width */, number /* height */, number /* depth */]
+  size: [number /* width */, number /* height */, number /* depth */];
+  blocks: Ndarray;
   // blocks: Blocks;
 }

@@ -1,3 +1,5 @@
+const ndarray = require('ndarray');
+
 import Terrain from './Terrain';
 import { SerializedTerrain } from './Terrain';
 import GameObject from './GameObject';
@@ -22,8 +24,10 @@ export interface SerializedGameMap {
   name: string;
   width: number;
   depth: number;
-  terrains: SerializedTerrain[],
-  objects: string[],
+  terrains: SerializedTerrain[];
+  objects: string[];
+  size: [number, number, number];
+  blocks: ArrayBuffer;
 }
 
 class GameMap {
@@ -34,6 +38,9 @@ class GameMap {
 
   terrains: Terrain[];
   objects: GameObject[];
+
+  size: [number, number, number];
+  blocks: any; // ndarray
 
   constructor(data: SerializedGameMap) {
     this.id = data.id;
@@ -48,6 +55,9 @@ class GameMap {
     });
 
     this.objects = [];
+
+    this.size = data.size;
+    this.blocks = ndarray(new Int32Array(data.blocks), this.size);
   }
 
   serialize(): SerializedGameMap {
@@ -58,6 +68,8 @@ class GameMap {
       depth: this.depth,
       terrains: this.terrains.map(terrain => terrain.serialize()),
       objects: this.objects.map(obj => obj.id),
+      blocks: this.blocks.data.buffer,
+      size: this.size,
     };
   }
 

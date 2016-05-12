@@ -4,6 +4,8 @@ const pure = require('recompose/pure').default;
 import StateLayer from '@pasta/core/lib/StateLayer';
 const objectAssign = require('object-assign');
 
+import * as ndarray from 'ndarray';
+
 import DesignManager from '../../canvas/DesignManager';
 
 import { connectTarget } from '../Panel';
@@ -146,6 +148,10 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
   }
 }
 
+function rgbToHex({ r, g, b }) {
+  return (1 << 24) /* Used by mesher */ | (r << 16) | (g << 8) | b;
+}
+
 WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEditorState => {
   const zoneId = generateObjectId();
 
@@ -172,11 +178,24 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
   };
 
   // Initialize data
+  const size: [number, number, number] = [16, 16, 16];
   const zone: Zone = {
     id: zoneId,
     name: 'Zone',
-    size: [16, 16, 16],
+    size,
+    blocks: ndarray(new Int32Array(size[0] * size[1] * size[2]), size),
   };
+
+  const soilColor = rgbToHex({ r: 100, g: 100, b: 0 });
+  const grassColor = rgbToHex({ r: 0, g: 100, b: 0 });
+
+  for (let x = 0; x < size[0]; ++x) {
+    for (let z = 0; z < size[2]; ++z) {
+      let y;
+      for (y = 0; y < 2; ++y) zone.blocks.set(x, y, z, soilColor);
+      zone.blocks.set(x, y, z, grassColor);
+    }
+  }
 
   return {
     fileId,
