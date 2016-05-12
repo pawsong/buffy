@@ -3,7 +3,9 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 import GameObject from '@pasta/core/lib/classes/GameObject';
 
 import Canvas from '../Canvas';
-import DesignManager from '../../canvas/DesignManager';
+import DesignManager from '../DesignManager';
+
+import Chunk from './Chunk';
 
 import { createEffectManager } from './effects';
 import { GetZoneViewState } from './interface';
@@ -15,6 +17,8 @@ import {
   BOX_SIZE,
   MINI_PIXEL_SIZE,
   GRID_SIZE,
+  PIXEL_SCALE,
+  PIXEL_SCALE_HALF,
 } from '../Constants';
 
 import * as handlers from './handlers';
@@ -26,6 +30,9 @@ interface Position {
 abstract class ZoneCanvas extends Canvas {
   effectManager: any;
   resyncToStore: (object: GameObject) => void;
+
+  // TODO: Support multiple chunks.
+  chunk: Chunk;
 
   protected stateLayer: StateLayer;
 
@@ -41,6 +48,23 @@ abstract class ZoneCanvas extends Canvas {
   init() {
     super.init();
 
+    this.chunk = new Chunk(this.scene, 16);
+
+    for (let y = 1; y <= 2; ++y) {
+      for (let x = 1; x <= 16; ++x) {
+        for (let z = 1; z <= 16; ++z) {
+          this.chunk.findAndUpdate([x, y, z], { r: 100, g: 100, b: 0 });
+        }
+      }
+    }
+    for (let x = 1; x <= 16; ++x) {
+      for (let z = 1; z <= 16; ++z) {
+        this.chunk.findAndUpdate([x, 3, z], { r: 0, g: 100, b: 0 });
+      }
+    }
+
+    const geometry = this.chunk.update();
+
     this.effectManager = createEffectManager(this.scene);
 
     // /////////////////////////////////////////////////////////////////////////
@@ -52,26 +76,29 @@ abstract class ZoneCanvas extends Canvas {
       this.objectManager.removeAll();
 
       // Terrains
-      for (let i = 1; i <= player.zone.width; ++i) {
-        for (let j = 1; j <= player.zone.depth; ++j) {
-          this.terrainManager.findAndUpdate(i, j, 0xffffff);
-        }
-      }
+      // for (let i = 1; i <= player.zone.width; ++i) {
+      //   for (let j = 1; j <= player.zone.depth; ++j) {
+      //     this.terrainManager.findAndUpdate(i, j, 0xffffff);
+      //   }
+      // }
 
-      player.zone.terrains.forEach(terrain => {
-        this.terrainManager.findAndUpdate(terrain.position.x, terrain.position.z, terrain.color);
-      });
+      // player.zone.terrains.forEach(terrain => {
+      //   this.terrainManager.findAndUpdate(terrain.position.x, terrain.position.z, terrain.color);
+      // });
 
       // Objects
       player.zone.objects.forEach(obj => {
         const object = this.objectManager.create(obj.id, obj.designId);
-        object.add(new THREE.Mesh(this.cubeGeometry , this.cubeMaterial));
+        const mesh = new THREE.Mesh(this.cubeGeometry , this.cubeMaterial);
+				mesh.castShadow = true;
+
+        object.add(mesh);
 
         const { group } = object;
 
-        group.position.x = BOX_SIZE * obj.position.x -PIXEL_UNIT;
-        group.position.z = BOX_SIZE * obj.position.z -PIXEL_UNIT;
-        group.position.y = PIXEL_UNIT;
+        group.position.x = obj.position.x * PIXEL_SCALE - PIXEL_SCALE_HALF;
+        group.position.y = obj.position.y * PIXEL_SCALE - PIXEL_SCALE_HALF;
+        group.position.z = obj.position.x * PIXEL_SCALE - PIXEL_SCALE_HALF;
 
         group.lookAt(new THREE.Vector3(
           group.position.x + obj.direction.x,

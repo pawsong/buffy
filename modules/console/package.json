@@ -49,6 +49,7 @@
     "fbjs": "^0.8.2",
     "flexboxgrid": "^6.3.0",
     "gm": "^1.21.1",
+    "greedy-mesher": "^1.0.3",
     "hairdresser": "^0.1.6",
     "history": "^2.0.1",
     "hoist-non-react-statics": "^1.0.5",

@@ -12,6 +12,7 @@ import {
   BOX_SIZE,
   MINI_PIXEL_SIZE,
   GRID_SIZE,
+  PIXEL_SCALE,
 } from '../Constants';
 
 abstract class Canvas {
@@ -38,6 +39,7 @@ abstract class Canvas {
 
   init() {
     const scene = this.scene = new THREE.Scene();
+    scene.fog = new THREE.Fog( 0xcce0ff, 500, 10000 );
 
     const objectManager = this.objectManager = new ObjectManager(scene, this.designManager);
     const terrainManager = this.terrainManager = new TerrainManager(scene);
@@ -51,7 +53,9 @@ abstract class Canvas {
     scene.add( plane );
 
     // Cubes
-    const geometry = this.cubeGeometry = new THREE.BoxGeometry( BOX_SIZE, BOX_SIZE, BOX_SIZE );
+    const geometry = this.cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+    geometry.scale(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+
     const material = this.cubeMaterial = new THREE.MeshLambertMaterial({
       color: 0xffffff,
       overdraw: 0.5,
@@ -62,14 +66,28 @@ abstract class Canvas {
     scene.add(ambientLight);
 
     const light = new THREE.DirectionalLight(0xffffff);
-    light.position.set(5, 3, 4);
-    light.position.normalize();
+
+    light.position.set( 50, 200, 100 );
+    light.position.multiplyScalar( 1.3 );
+    light.castShadow = true;
+    light.shadow.mapSize.width = 1024;
+    light.shadow.mapSize.height = 1024;
+    var d = 300;
+    light.shadow.camera['left'] = - d;
+    light.shadow.camera['right'] = d;
+    light.shadow.camera['top'] = d;
+    light.shadow.camera['bottom'] = - d;
+    light.shadow.camera['far'] = 1000;
+
+    // light.position.set(5, 3, 4);
+    // light.position.normalize();
     scene.add(light);
 
     const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
     renderer.shadowMap.enabled = true;
+    renderer.setClearColor( scene.fog.color );
 
     // Eliminate ghost bottom margin
     renderer.domElement.style.verticalAlign = 'bottom';

@@ -3,8 +3,11 @@ const invariant = require('fbjs/lib/invariant');
 import {
   MINI_PIXEL_SIZE,
   PIXEL_NUM,
+  PIXEL_SCALE,
+  DESIGN_SCALE,
+  PIXEL_SCALE_HALF,
 } from '../Constants';
-import DesignManager, { LoaderWatcher } from '../../canvas/DesignManager';
+import DesignManager, { LoaderWatcher } from '../DesignManager';
 
 interface Resources {
   material?: THREE.Material;
@@ -56,10 +59,12 @@ export class SmartObject {
     });
     const surfacemesh = new THREE.Mesh(geometry, material);
     // surfacemesh.doubleSided = false;
-    surfacemesh.position.x = MINI_PIXEL_SIZE * - PIXEL_NUM / 2.0;
-    surfacemesh.position.y = MINI_PIXEL_SIZE * - PIXEL_NUM / 2.0;
-    surfacemesh.position.z = MINI_PIXEL_SIZE * - PIXEL_NUM / 2.0;
-    surfacemesh.scale.set(MINI_PIXEL_SIZE, MINI_PIXEL_SIZE, MINI_PIXEL_SIZE);
+    surfacemesh.position.x = - PIXEL_SCALE_HALF;
+    surfacemesh.position.y = - PIXEL_SCALE_HALF;
+    surfacemesh.position.z = - PIXEL_SCALE_HALF;
+
+    surfacemesh.scale.set(DESIGN_SCALE, DESIGN_SCALE, DESIGN_SCALE);
+    surfacemesh.castShadow = true;
 
     this.add(surfacemesh, { material });
   }

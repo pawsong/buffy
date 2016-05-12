@@ -1,3 +1,5 @@
+import * as Immutable from 'immutable';
+
 export enum EditorMode {
   EDIT,
   PLAY,
@@ -33,4 +35,26 @@ export interface WorldEditorState {
 
 export interface GetState {
   (): WorldEditorState;
+}
+
+export interface Robot {
+  id: string;
+  name: string;
+  zone: string;
+  recipe: string;
+}
+
+interface Block {
+  color: Color;
+}
+
+export type Blocks = Immutable.Map<Immutable.Iterable.Indexed<number> /* Position */, Block>;
+
+export interface Zone {
+  id: string;
+  name: string;
+  width: number;
+  height: number;
+  depth: number;
+  blocks: Blocks;
 }

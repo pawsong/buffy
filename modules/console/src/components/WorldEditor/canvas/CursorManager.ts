@@ -3,9 +3,13 @@ import TerrainManager from '../../../canvas/Canvas/TerrainManager';
 import {
   BOX_SIZE,
   PIXEL_UNIT,
-} from '../Constants';
+  PIXEL_SCALE,
+  PIXEL_SCALE_HALF,
+} from '../../../canvas/Constants';
 
 import WorldEditorCanvas from './WorldEditorCanvas';
+
+const yUnit = new THREE.Vector3(0, 1, 0);
 
 class CursorManager {
   canvas: WorldEditorCanvas;
@@ -18,7 +22,8 @@ class CursorManager {
 
     const raycaster = new THREE.Raycaster();
 
-    const cursorGeometry = new THREE.PlaneBufferGeometry( BOX_SIZE, BOX_SIZE );
+    const cursorGeometry = new THREE.PlaneBufferGeometry(1, 1);
+    cursorGeometry.scale(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
     cursorGeometry.rotateX(- Math.PI / 2);
 
     const cursorMaterial = new THREE.MeshBasicMaterial({
@@ -34,29 +39,30 @@ class CursorManager {
     this.onMouseMove = event => {
       event.preventDefault();
 
+      this.cursorMesh.visible = false;
+
       raycaster.setFromCamera({
         x: (event['offsetX'] / canvas.container.offsetWidth) * 2 - 1,
         y: -(event['offsetY'] / canvas.container.offsetHeight) * 2 + 1,
       }, canvas.camera);
 
-      const intersects = raycaster.intersectObjects(canvas.terrainManager.terrains);
-      if (intersects.length === 0) {
-        this.cursorMesh.visible = false;
-        return;
-      }
+      const intersects = raycaster.intersectObjects([canvas.chunk.mesh]);
+
+      if (intersects.length === 0) return;
+
+      const intersect = intersects[0];
+      if (yUnit.dot(intersect.face.normal) === 0) return;
 
       this.cursorMesh.visible = true;
 
-      const intersect = intersects[0];
-
       this.cursorMesh.position.copy(intersect.point).add(intersect.face.normal);
       this.cursorMesh.position
-        .divideScalar(BOX_SIZE)
+        .divideScalar(PIXEL_SCALE)
         .floor()
-        .multiplyScalar(BOX_SIZE)
-        .addScalar(PIXEL_UNIT);
+        .multiplyScalar(PIXEL_SCALE);
 
-      this.cursorMesh.position.y = 0;
+      this.cursorMesh.position.x += PIXEL_SCALE_HALF;
+      this.cursorMesh.position.z += PIXEL_SCALE_HALF;
     }
 
     this.cursorMesh.visible = false;
@@ -64,7 +70,7 @@ class CursorManager {
 
   getPosition() {
     const position = new THREE.Vector3().copy(this.cursorMesh.position)
-      .divideScalar(BOX_SIZE)
+      .divideScalar(PIXEL_SCALE)
       .floor()
       .addScalar(1);
 

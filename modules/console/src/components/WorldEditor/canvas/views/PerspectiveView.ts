@@ -6,7 +6,9 @@ import {
   BOX_SIZE,
   MINI_PIXEL_SIZE,
   GRID_SIZE,
-} from '../../Constants';
+  PIXEL_SCALE,
+  PIXEL_SCALE_HALF,
+} from '../../../../canvas/Constants';
 
 import View, { Position } from './View';
 
@@ -35,7 +37,7 @@ class PerspectiveView implements View {
       0.001,
       700
     );
-    camera.position.set(0, 15, 0);
+    // camera.position.set(PIXEL_SCALE, 3 * PIXEL_SCALE + PIXEL_SCALE_HALF, PIXEL_SCALE);
     this.camera = camera;
 
     // Init controls
@@ -44,6 +46,7 @@ class PerspectiveView implements View {
     this.controls.enabled = true;
 
     this.controlObject = controls.getObject();
+    this.controlObject.position.set(PIXEL_SCALE, 3 * PIXEL_SCALE + PIXEL_SCALE_HALF, PIXEL_SCALE);
 
     this.boundHandleKeyDown =  this.handleKeyDown.bind(this);
     this.boundHandleKeyUp = this.handleKeyUp.bind(this);
@@ -123,7 +126,7 @@ class PerspectiveView implements View {
 
       this.velocity.x -= this.velocity.x * 10.0 * delta;
       this.velocity.z -= this.velocity.z * 10.0 * delta;
-      this.velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+      // this.velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
       if (this.moveForward) this.velocity.z -= 400.0 * delta;
       if (this.moveBackward) this.velocity.z += 400.0 * delta;
@@ -131,13 +134,13 @@ class PerspectiveView implements View {
       if (this.moveRight) this.velocity.x += 400.0 * delta;
 
       this.controlObject.translateX( this.velocity.x * delta );
-      this.controlObject.translateY( this.velocity.y * delta );
+      // this.controlObject.translateY( this.velocity.y * delta );
       this.controlObject.translateZ( this.velocity.z * delta );
 
-      if (this.controlObject.position.y < 10) {
-        this.velocity.y = 0;
-        this.controlObject.position.y = 10;
-      }
+      // if (this.controlObject.position.y < 10) {
+      //   this.velocity.y = 0;
+      //   this.controlObject.position.y = 10;
+      // }
 
       this.prevTime = time;
   }

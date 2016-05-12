@@ -18,15 +18,15 @@ class OrthographicView implements View {
   constructor(private container: HTMLElement, renderer: THREE.WebGLRenderer, private scene: THREE.Scene) {
     // Init camera
     const camera = new THREE.OrthographicCamera(
-      this.container.offsetWidth / - 2,
-      this.container.offsetWidth / 2,
-      this.container.offsetHeight / 2,
-      this.container.offsetHeight / - 2,
-      - GRID_SIZE, 2 * GRID_SIZE
+      this.container.offsetWidth / -2,
+      this.container.offsetWidth / +2,
+      this.container.offsetHeight / -2,
+      this.container.offsetHeight / +2,
+      - 2000, 5000
     );
-    camera.position.x = 200;
-    camera.position.y = 200;
-    camera.position.z = 200;
+    camera.position.x = 1;
+    camera.position.y = 1;
+    camera.position.z = 1;
 
     this.camera = camera;
 
@@ -38,7 +38,7 @@ class OrthographicView implements View {
     });
     controls.maxDistance = 2000;
     controls.enableKeys = false;
-    controls.enableRotate = false;
+    // controls.enableRotate = false;
     controls.enabled = true;
 
     this.controls = controls;

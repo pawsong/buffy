@@ -31,9 +31,9 @@ class LocalServer {
       robot: options.robot,
       designId: options.designId,
       position: {
-        x: 1,
-        y: 0,
-        z: 1,
+        x: 3,
+        y: 4,
+        z: 3,
       },
       direction: { x: 0, y: 0, z: 1 },
     };
@@ -46,9 +46,9 @@ class LocalServer {
       robot: options.robot,
       designId: options.designId,
       position: {
-        x: 1,
-        y: 0,
-        z: 1,
+        x: 2,
+        y: 4,
+        z: 6,
       },
       direction: { x: 0, y: 0, z: 1 },
     };
@@ -57,8 +57,8 @@ class LocalServer {
     const serializedGameMap: SerializedGameMap = {
       id: zoneId,
       name: '',
-      width: 10,
-      depth: 10,
+      width: 16,
+      depth: 16,
       terrains: [],
       objects: [serializedGameObject.id, serializedGameObject2.id],
     };
