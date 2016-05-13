@@ -53,7 +53,14 @@ interface ModeSwitchProps {
 
 const ModeSwitch: React.StatelessComponent<ModeSwitchProps> = props => {
   return (
-    <div style={{ marginLeft: 7 }}>
+    <div style={{
+      position: 'absolute',
+      margin: 'auto',
+      height: 48,
+      top: 0,
+      bottom: 0,
+      right: 7,
+    }}>
       <ModeRadioButton
         label="Edit Mode"
         icon={ModeEdit}
