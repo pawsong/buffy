@@ -79,6 +79,7 @@ class Chunk {
     const surfacemesh = new THREE.Mesh(geometry, this.material);
     // surfacemesh.doubleSided = false;
     surfacemesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    surfacemesh.castShadow = true;
     surfacemesh.receiveShadow = true;
 
     if (this.mesh) this.scene.remove(this.mesh);
