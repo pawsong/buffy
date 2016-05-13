@@ -71,7 +71,7 @@ class ProjectGameHandler extends React.Component<HandlerProps, void> {
     const { server } = this.props.project.result;
 
     // this.server = new LocalServer(server, this.socket);
-    this.stateLayer.start(this.server.getInitData());
+    // this.stateLayer.start(this.server.getInitData());
   }
 
   render() {

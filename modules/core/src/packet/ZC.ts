@@ -33,6 +33,8 @@ export const BroadcastEvents = [
   'robotUpdated',
 ];
 
+export const Events = SendEvents.concat(BroadcastEvents);
+
 export interface Broadcast {
   move(params: MoveParams): void;
   stop(params: StopParams): void;
@@ -45,17 +47,8 @@ export interface Broadcast {
   robotUpdated(params: RobotUpdatedParams): void;
 }
 
-export interface Listen<T> {
-  init(fn: (store: T, params: InitParams) => any): void;
-  move(fn: (store: T, params: MoveParams) => any): void;
-  stop(fn: (store: T, params: StopParams) => any): void;
-  rotate(fn: (store: T, params: RotateParams) => any): void;
-  objectAdded(fn: (store: T, params: ObjectAddedParams) => any): void;
-  objectRemoved(fn: (store: T, params: ObjectRemovedParams) => any): void;
-  playEffect(fn: (store: T, params: PlayEffectParams) => any): void;
-  terrainUpdated(fn: (store: T, params: TerrainUpdatedParams) => any): void;
-  meshUpdated(fn: (store: T, params: MeshUpdatedParams) => any): void;
-  robotUpdated(fn: (store: T, params: RobotUpdatedParams) => any): void;
+export interface Listen extends Send, Broadcast {
+
 }
 
 // Events

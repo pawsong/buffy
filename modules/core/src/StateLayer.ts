@@ -4,6 +4,7 @@ import { CZ, ZC } from './packet';
 import { RpcResponse } from './packet/base';
 
 import StateStore from './StateStore';
+import StoreRoutes from './store/StoreRoutes';
 
 interface UpdateHandler {
   (dt: number): any;
@@ -17,6 +18,7 @@ export interface StateLayerOptions {
   emit: (e: string, params: any, cb?: (res: RpcResponse) => any) => void;
   listen: (e: string, handler: Function) => DestroyFunc;
   update?: (onUpdate: (dt: number) => any) => DestroyFunc;
+  store?: StateStore;
 }
 
 class StateLayer {
@@ -57,17 +59,13 @@ class StateLayer {
     });
 
     // Create Store Instance
-    this.store = new StateStore();
+    this.store = options.store || new StateStore();
   }
 
-  start(params: ZC.InitParams) {
-    this.store.deserialize(params);
-
+  start(routes: StoreRoutes) {
     // Start listening server
-    this._destroyFuncs = Object.keys(StateStore.Routes).map(event => {
-      return this.options.listen(event, (params) => {
-        StateStore.Routes[event](this.store, params);
-      });
+    this._destroyFuncs = ZC.Events.map(event => {
+      return this.options.listen(event, (params) => routes[event](params))
     });
 
     // Start client-side update

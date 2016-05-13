@@ -31,37 +31,24 @@ export interface Handlers {
 }
 
 class StateStore {
-  static Routes: Handlers = {};
-  static on = (() => {
-    const On = {} as ZC.Listen<StateStore>;
-    ZC.SendEvents.concat(ZC.BroadcastEvents).forEach(event => {
-      On[event] = function(handler) {
-        StateStore.Routes[event] = handler;
-      };
-    });
-    return On;
-  })();
-
   emitter: EventEmitter;
   emit: StoreEmit;
 
-  // myId: string;
-  private zones: GameMap[];
-  private indexedZones: { [index: string]: GameMap };
-  objects: { [index: string]: GameObject };
-
   subscribe: StoreListen;
 
-  constructor() {
-    this.emitter = new EventEmitter();
-    this.emit = new Emit(this.emitter);
-    this.subscribe = new Subscribe(this.emitter);
+  zones: GameMap[];
+  indexedZones: { [index: string]: GameMap };
+  objects: { [index: string]: GameObject };
 
+  constructor() {
     this.zones = [];
     this.indexedZones = {};
     this.objects = {};
-  }
 
+    this.emitter = new EventEmitter();
+    this.emit = new Emit(this.emitter);
+    this.subscribe = new Subscribe(this.emitter);
+  }
 
   deserialize(data: ZC.InitParams) {
     const indexedObject = {};
@@ -99,34 +86,6 @@ class StateStore {
         this.indexedZones[newZone.id] = newZone;
       }
     });
-
-    // console.log(data);
-
-    // // Unwatch
-    // const indexedData = {};
-    // data.zones.forEach(zone => indexedData[zone.id] = zone);
-    // const zonesToAppend = [];
-
-    // this.zones.forEach((zone, index) => {
-    //   const serialziedZone = indexedData[zone.id];
-    //   if (serialziedZone) {
-    //     zone.objects.forEach(object => this.unwatchObject(object));
-
-    //     const newZone = new GameMap(serialziedZone);
-    //     newZone.objects.forEach(object => this.watchObject(object));
-    //     this.zones.splice(index, 1, newZone);
-    //     this.indexedZones[zone.id] = newZone;
-    //   } else {
-    //     const newZone = new GameMap(serialziedZone);
-    //     newZone.objects.forEach(object => this.watchObject(object));
-    //     zonesToAppend.push(newZone);
-    //   }
-    // });
-    // this.zones.push.apply(this.zones, zonesToAppend);
-    // zonesToAppend.forEach(zone => this.indexedZones[zone.id] = zone);
-
-    // console.log(this.zones);
-    // console.log(zonesToAppend);
   }
 
   update(dt) {
@@ -155,106 +114,3 @@ class StateStore {
 }
 
 export default StateStore;
-
-StateStore.on.init((store, params) => {
-  console.warn('resync');
-  store.deserialize(params);
-
-  const zoneIds = params.zones.map(zone => zone.id);
-  store.emit.resync({ zoneIds });
-});
-
-StateStore.on.move((store, params) => {
-  const object = store.findObject(params.id);
-  if (!object) {
-    // TODO: Request missing object data to server.
-    // Out of sync in this case. We may have to reset all data.
-    console.error('Client and server out of sync!');
-    console.error(`Cannot find object ${params.id}`);
-    return;
-  }
-  object.tween.deserialize(params.tween);
-});
-
-StateStore.on.stop((store, params) => {
-  const object = store.findObject(params.id);
-  if (!object) {
-    // TODO: Request missing object data to server.
-    // Out of sync in this case. We may have to reset all data.
-    console.error('Client and server out of sync!');
-    console.error(`Cannot find object ${params.id}`);
-    return;
-  }
-  object.tween.stop();
-});
-
-StateStore.on.rotate((store, params) => {
-  const object = store.findObject(params.id);
-  if (!object) {
-    // TODO: Request missing object data to server.
-    // Out of sync in this case. We may have to reset all data.
-    console.error('Client and server out of sync!');
-    console.error(`Cannot find object ${params.id}`);
-    return;
-  }
-
-  // TODO: Perform rotation during multiple frames
-  object.direction.deserialize(params.direction);
-
-  store.emit.rotate({
-    object,
-    direction: object.direction,
-  });
-});
-
-StateStore.on.meshUpdated((store, params) => {
-  store.emit.meshUpdated(params);
-});
-
-StateStore.on.playEffect((store, params) => {
-  store.emit.playEffect(params);
-});
-
-StateStore.on.terrainUpdated((store, params) => {
-  const zone = store.findZone(params.zoneId);
-  const terrain = zone.updateTerrain(params.terrain);
-  store.emit.terrainUpdated({ terrain });
-});
-
-StateStore.on.objectAdded((store, params) => {
-  const zone = store.findZone(params.object.zone);
-  const object = new GameObject(params.object, zone);
-  object.zone.objects.push(object);
-  store.objects[object.id] = object;
-
-  store.watchObject(object);
-
-  store.emit.objectAdded({ object });
-});
-
-StateStore.on.objectRemoved((store, params) => {
-  const object = store.findObject(params.id);
-
-  store.unwatchObject(object);
-
-  delete store.objects[object.id];
-  object.zone.removeObject(object);
-
-  store.emit.objectRemoved({ id: params.id });
-});
-
-StateStore.on.robotUpdated((store, params) => {
-  const objects: GameObject[] = [];
-
-  Object.keys(store.objects)
-    .map(key => store.objects[key])
-    .filter(object => object.robot === params.robot)
-    .forEach(object => {
-      object.designId = params.design;
-      objects.push(object);
-    });
-
-  store.emit.designChanged({
-    objects,
-  });
-});

@@ -10,6 +10,8 @@ import { SerializedGameObject } from '@pasta/core/lib/classes/GameObject';
 import { InitParams } from '@pasta/core/lib/packet/ZC';
 import { SerializedLocalServer } from '@pasta/core/lib/Project';
 
+import StateStore from '@pasta/core/lib/StateStore';
+
 import LocalUserGameObject from './LocalUserGameObject';
 import LocalRoutes from './LocalRoutes';
 import LocalSocket from './LocalSocket';
@@ -24,14 +26,18 @@ interface CreateInitialDataOptions {
   designId: string;
 }
 
-class LocalServer {
+class LocalServer extends StateStore {
   routes: LocalRoutes;
-  maps: ServerGameMap[];
-  indexedMaps: { [index: string]: ServerGameMap };
-  users: { [index: string]: LocalUserGameObject };
+
+  zones: ServerGameMap[];
+  indexedZones: { [index: string]: ServerGameMap };
+  objects: { [index: string]: LocalUserGameObject };
+
   updateFrameId: number;
 
   constructor(files: SourceFileDB, worldId: string, socket: LocalSocket) {
+    super();
+
     invariant(socket, 'Invalid socket');
 
     const worldFile = files[worldId];
@@ -39,14 +45,10 @@ class LocalServer {
 
     // Initialize maps and users
 
-    this.maps = [];
-    this.indexedMaps = {};
-    this.users = {};
-
     Object.keys(world.zones).map(id => world.zones[id]).forEach(zoneState => {
       const blocks: Int32Array = zoneState.blocks.data;
 
-      const zone = this.indexedMaps[zoneState.id] = new ServerGameMap({
+      const zone = this.indexedZones[zoneState.id] = new ServerGameMap({
         id: zoneState.id,
         name: zoneState.name,
         width: zoneState.size[0],
@@ -56,14 +58,14 @@ class LocalServer {
         terrains: [],
         objects: [],
       });
-      this.maps.push(zone);
+      this.zones.push(zone);
     });
 
     Object.keys(world.robots).map(id => world.robots[id]).forEach(robotState => {
       const recipeFile = files[robotState.recipe];
       const recipe: RecipeEditorState = recipeFile.state;
 
-      const zone = this.indexedMaps[robotState.zone];
+      const zone = this.indexedZones[robotState.zone];
       const user = new LocalUserGameObject({
         id: robotState.id,
         zone: robotState.zone,
@@ -80,18 +82,18 @@ class LocalServer {
           z: robotState.direction[2],
         },
       }, zone, socket);
-      this.users[user.id] = user;
+      this.objects[user.id] = user;
       zone.addUser(user);
     });
 
-    this.routes = new LocalRoutes(Object.keys(this.users).map(key => this.users[key]), socket);
+    this.routes = new LocalRoutes(Object.keys(this.objects).map(key => this.objects[key]), socket);
 
     // Start loop.
     let then = Date.now();
     const updateMaps = () => {
       this.updateFrameId = requestAnimationFrame(updateMaps);
       const now = Date.now();
-      this.maps.forEach(map => map.update(now - then));
+      this.zones.forEach(map => map.update(now - then));
       then = now;
     };
     updateMaps();
@@ -99,15 +101,15 @@ class LocalServer {
 
   getInitData(): InitParams {
     return {
-      zones: this.maps.map(map => map.serialize()),
-      objects: Object.keys(this.users).map(key => this.users[key].serialize()),
+      zones: this.zones.map(map => map.serialize()),
+      objects: Object.keys(this.objects).map(key => this.objects[key].serialize()),
     };
   }
 
   serialize(): SerializedLocalServer {
     return {
-      zones: this.maps.map(map => map.serialize()),
-      objects: Object.keys(this.users).map(key => this.users[key].serialize()),
+      zones: this.zones.map(map => map.serialize()),
+      objects: Object.keys(this.objects).map(key => this.objects[key].serialize()),
     };
   }
 

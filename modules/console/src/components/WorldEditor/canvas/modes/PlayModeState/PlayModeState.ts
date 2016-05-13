@@ -35,11 +35,23 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
 
   handleEnter() {
     super.handleEnter();
+
+    // TODO: Filter objects on current active map.
+    Object.keys(this.stateLayer.store.objects).forEach(key => {
+      const object = this.stateLayer.store.objects[key];
+      this.stateLayer.store.watchObject(object);
+    })
     this.canvas.connectToStateStore(this.stateLayer.store);
   }
 
   handleLeave() {
     super.handleLeave();
+
+    // TODO: Think about nicer api for unwatching...
+    Object.keys(this.stateLayer.store.objects).forEach(key => {
+      const object = this.stateLayer.store.objects[key];
+      this.stateLayer.store.unwatchObject(object);
+    })
     this.canvas.disconnectFromStateStore();
   }
 }

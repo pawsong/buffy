@@ -54,10 +54,7 @@ abstract class ZoneCanvas extends Canvas {
 
   connectToStateStore(store: StateStore) {
     this.disconnectFromStateStore();
-
-    const { playerId } = this.getZoneViewState();
-    const object = store.findObject(playerId);
-    if (object) this.resyncToStateStore(store);
+    this.resyncToStateStore(store);
 
     this.tokens = Object.keys(handlers).map(key => {
       const handler: StoreHandler<ZoneCanvas> = handlers[key];

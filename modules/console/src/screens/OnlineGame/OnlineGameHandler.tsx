@@ -43,7 +43,7 @@ class OnlineGameHandler extends React.Component<HandlerProps, HandlerState> {
   componentDidMount() {
     this.socket = io(CONFIG_GAME_SERVER_URL);
     this.socket.once('init', (params: InitParams) => {
-      this.stateLayer.start(params);
+      // this.stateLayer.start(params);
       this.setState({ scripts: defaultScripts });
     });
   }

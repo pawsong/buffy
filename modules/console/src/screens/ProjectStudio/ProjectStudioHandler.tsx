@@ -35,6 +35,8 @@ import { RecipeEditorState } from '../../components/RecipeEditor';
 
 import generateObjectId from '../../utils/generateObjectId';
 
+import PureStoreRoutes from '@pasta/core/lib/store/PureStoreRoutes';
+
 const msgpack = require('msgpack-lite');
 
 import {
@@ -184,16 +186,6 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     };
 
     this.socket = new LocalSocket();
-
-    this.stateLayer = new StateLayer({
-      emit: (event, params, cb) => {
-        this.socket.emitFromClientToServer(event, params, cb);
-      },
-      listen: (event, handler) => {
-        const token = this.socket.addEventFromServerListener(event, handler);
-        return () => token.remove();
-      },
-    });
   }
 
   componentDidMount() {
@@ -285,8 +277,24 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   startStateLayer() {
+    // Share memory bewteen LocalServer and StateStore
     this.server = new LocalServer(this.state.studioState.files, this.state.studioState.worldId, this.socket);
-    this.stateLayer.start(this.server.getInitData());
+
+    this.stateLayer = new StateLayer({
+      store: this.server,
+      emit: (event, params, cb) => {
+        this.socket.emitFromClientToServer(event, params, cb);
+      },
+      listen: (event, handler) => {
+        const token = this.socket.addEventFromServerListener(event, handler);
+        return () => token.remove();
+      },
+      update: () => () => {}, // Actual update will be performed in local server.
+    });
+
+    const routes = new PureStoreRoutes(this.stateLayer.store);
+    this.stateLayer.start(routes);
+
     this.setState({ stateLayerIsRunning: true });
   }
 
