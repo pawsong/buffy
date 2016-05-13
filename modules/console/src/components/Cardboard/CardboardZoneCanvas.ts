@@ -18,15 +18,15 @@ class CardboardZoneCanvas extends ZoneCanvas {
   camera: THREE.PerspectiveCamera;
   effect: any;
 
-  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, playerId: string) {
-    super(container, designManager, stateLayer, () => ({ playerId }));
-    this.effect = new THREE['CardboardEffect'](this.renderer);
-    if (__IS_MOBILE__) {
-      this.controls = new THREE['DeviceOrientationControls'](this.camera);
-    } else {
-      this.controls = new THREE['MouseControls'](this.camera);
-    }
-  }
+  // constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, playerId: string) {
+  //   super(container, designManager, stateLayer, () => ({ playerId }));
+  //   this.effect = new THREE['CardboardEffect'](this.renderer);
+  //   if (__IS_MOBILE__) {
+  //     this.controls = new THREE['DeviceOrientationControls'](this.camera);
+  //   } else {
+  //     this.controls = new THREE['MouseControls'](this.camera);
+  //   }
+  // }
 
   initCamera() {
     const camera = new THREE.PerspectiveCamera(90, this.container.offsetWidth / this.container.offsetHeight, 0.001, 700);

@@ -8,10 +8,14 @@ import {
   PIXEL_UNIT,
 } from '../../Constants';
 
-export default <StoreHandler<ZoneCanvas>>((listen, view, stateLayer, getState) => listen.objectAdded(params => {
+export default <StoreHandler<ZoneCanvas>>(({
+  store,
+  canvas,
+  getState,
+}) => store.subscribe.objectAdded(params => {
   const { object: obj } = params;
-  const object = view.objectManager.create(obj.id, obj.designId);
-  object.add(new THREE.Mesh( view.cubeGeometry, view.cubeMaterial ));
+  const object = canvas.objectManager.create(obj.id, obj.designId);
+  object.add(new THREE.Mesh( canvas.cubeGeometry, canvas.cubeMaterial ));
 
   const { group } = object;
 
@@ -27,6 +31,6 @@ export default <StoreHandler<ZoneCanvas>>((listen, view, stateLayer, getState) =
 
   const state = getState();
   if (obj.id === state.playerId) {
-    view.setCameraPosition(group.position);
+    canvas.setCameraPosition(group.position);
   }
 }));

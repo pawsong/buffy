@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
+import StateStore from '@pasta/core/lib/StateStore';
 import GameObject from '@pasta/core/lib/classes/GameObject';
 
 import Canvas from '../Canvas';
@@ -9,6 +10,8 @@ import Chunk from './Chunk';
 
 import { createEffectManager } from './effects';
 import { GetZoneViewState } from './interface';
+
+import { StoreHandler } from './interface';
 
 // TODO Support dynamic grid size
 import {
@@ -29,19 +32,16 @@ interface Position {
 
 abstract class ZoneCanvas extends Canvas {
   effectManager: any;
-  resyncToStore: (object: GameObject) => void;
+  resyncToStore: () => void;
 
   // TODO: Support multiple chunks.
   chunk: Chunk;
 
-  protected stateLayer: StateLayer;
-
   private tokens: any[];
-  private getZoneViewState;
+  private getZoneViewState: GetZoneViewState;
 
-  constructor(container: HTMLElement, designManager: DesignManager, stateLayer: StateLayer, getState: GetZoneViewState) {
+  constructor(container: HTMLElement, designManager: DesignManager, getState: GetZoneViewState) {
     super(container, designManager);
-    this.stateLayer = stateLayer;
     this.getZoneViewState = getState;
   }
 
@@ -49,53 +49,60 @@ abstract class ZoneCanvas extends Canvas {
     super.init();
 
     this.chunk = new Chunk(this.scene);
-
     this.effectManager = createEffectManager(this.scene);
+  }
 
-    // /////////////////////////////////////////////////////////////////////////
-    // // Add event listeners
-    // /////////////////////////////////////////////////////////////////////////
-
-    this.resyncToStore = (player: GameObject) => {
-      // Clear objects
-      this.objectManager.removeAll();
-
-      this.chunk.setData(player.zone.blocks);
-      this.chunk.update();
-
-      // Objects
-      player.zone.objects.forEach(obj => {
-        const object = this.objectManager.create(obj.id, obj.designId);
-        const mesh = new THREE.Mesh(this.cubeGeometry , this.cubeMaterial);
-				mesh.castShadow = true;
-
-        object.add(mesh);
-
-        const { group } = object;
-
-        group.position.x = obj.position.x * PIXEL_SCALE - PIXEL_SCALE_HALF;
-        group.position.y = obj.position.y * PIXEL_SCALE - PIXEL_SCALE_HALF;
-        group.position.z = obj.position.x * PIXEL_SCALE - PIXEL_SCALE_HALF;
-
-        group.lookAt(new THREE.Vector3(
-          group.position.x + obj.direction.x,
-          group.position.y + obj.direction.y,
-          group.position.z + obj.direction.z
-        ));
-
-        if (obj.id === player.id) {
-          this.setCameraPosition(group.position);
-        }
-      });
-    }
-
-    // // Sync view to store data
+  connect(store: StateStore) {
     const { playerId } = this.getZoneViewState();
-    const object = this.stateLayer.store.findObject(playerId);
-    if (object) this.resyncToStore(object);
+    const object = store.findObject(playerId);
+    if (object) this.resyncToStateStore(store);
 
-    this.tokens = Object.keys(handlers).map(key => handlers[key](
-      this.stateLayer.store.subscribe, this, this.stateLayer, this.getZoneViewState));
+    this.tokens = Object.keys(handlers).map(key => {
+      const handler: StoreHandler<ZoneCanvas> = handlers[key];
+
+      handler({
+        canvas: this,
+        store: store,
+        getState: this.getZoneViewState,
+      })
+    });
+  }
+
+  resyncToStateStore(store: StateStore) {
+    const state = this.getZoneViewState();
+    const player = store.findObject(state.playerId);
+    if (!player) return;
+
+    // Clear objects
+    this.objectManager.removeAll();
+
+    this.chunk.setData(player.zone.blocks);
+    this.chunk.update();
+
+    // Objects
+    player.zone.objects.forEach(obj => {
+      const object = this.objectManager.create(obj.id, obj.designId);
+      const mesh = new THREE.Mesh(this.cubeGeometry , this.cubeMaterial);
+      mesh.castShadow = true;
+
+      object.add(mesh);
+
+      const { group } = object;
+
+      group.position.x = obj.position.x * PIXEL_SCALE - PIXEL_SCALE_HALF;
+      group.position.y = obj.position.y * PIXEL_SCALE - PIXEL_SCALE_HALF;
+      group.position.z = obj.position.x * PIXEL_SCALE - PIXEL_SCALE_HALF;
+
+      group.lookAt(new THREE.Vector3(
+        group.position.x + obj.direction.x,
+        group.position.y + obj.direction.y,
+        group.position.z + obj.direction.z
+      ));
+
+      if (obj.id === player.id) {
+        this.setCameraPosition(group.position);
+      }
+    });
   }
 
   addCameraPosition(pos: Position) {

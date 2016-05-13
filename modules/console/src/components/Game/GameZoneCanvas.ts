@@ -13,10 +13,10 @@ class GameZoneCanvas extends ZoneCanvas {
   private controls: any;
   camera: THREE.PerspectiveCamera;
 
-  constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, playerId: string) {
-    super(container, designManager, stateLayer, () => ({ playerId }));
-    this.controls = new THREE['MouseControls'](this.camera);
-  }
+  // constructor(container: HTMLElement, stateLayer: StateLayer, designManager: DesignManager, playerId: string) {
+  //   super(container, designManager, stateLayer, () => ({ playerId }));
+  //   this.controls = new THREE['MouseControls'](this.camera);
+  // }
 
   initCamera() {
     const camera = new THREE.PerspectiveCamera(90, this.container.offsetWidth / this.container.offsetHeight, 0.001, 700);

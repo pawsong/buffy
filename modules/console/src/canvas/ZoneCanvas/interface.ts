@@ -1,5 +1,6 @@
 import { EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
+import StateStore from '@pasta/core/lib/StateStore';
 import { StoreListen } from '@pasta/core/lib/store/Events';
 
 export interface ZoneViewState {
@@ -10,6 +11,12 @@ export interface GetZoneViewState {
   (): ZoneViewState;
 }
 
+interface StoreHandlerParams<T> {
+  store: StateStore;
+  canvas: T;
+  getState: GetZoneViewState;
+}
+
 export interface StoreHandler<T> {
-  (listen: StoreListen, view: T, stateLayer: StateLayer, getState: GetZoneViewState): EventSubscription;
+  (params: StoreHandlerParams<T>): EventSubscription;
 }

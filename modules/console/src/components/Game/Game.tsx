@@ -17,14 +17,15 @@ interface GameProps extends React.Props<Game> {
 
 class Game extends React.Component<GameProps, void> {
   render() {
-    return (
-      <FullscreenPlayer
-        onStart={this.props.onStart}
-        scripts={this.props.scripts}
-        stateLayer={this.props.stateLayer}
-        installZoneView={(element) => new GameZoneCanvas(element, this.props.stateLayer, this.props.designManager, '')}
-      />
-    );
+    return null;
+    // return (
+    //   <FullscreenPlayer
+    //     onStart={this.props.onStart}
+    //     scripts={this.props.scripts}
+    //     stateLayer={this.props.stateLayer}
+    //     installZoneView={(element) => new GameZoneCanvas(element, this.props.stateLayer, this.props.designManager, '')}
+    //   />
+    // );
   }
 }
 

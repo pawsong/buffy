@@ -17,14 +17,15 @@ interface CardboardProps extends React.Props<Cardboard> {
 
 class Cardboard extends React.Component<CardboardProps, void> {
   render() {
-    return (
-      <FullscreenPlayer
-        onStart={this.props.onStart}
-        scripts={this.props.scripts}
-        stateLayer={this.props.stateLayer}
-        installZoneView={(element) => new CardboardZoneCanvas(element, this.props.stateLayer, this.props.designManager, '')}
-      />
-    );
+    return null;
+    // return (
+    //   <FullscreenPlayer
+    //     onStart={this.props.onStart}
+    //     scripts={this.props.scripts}
+    //     stateLayer={this.props.stateLayer}
+    //     installZoneView={(element) => new CardboardZoneCanvas(element, this.props.stateLayer, this.props.designManager, '')}
+    //   />
+    // );
   }
 }
 

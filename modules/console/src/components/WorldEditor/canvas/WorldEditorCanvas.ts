@@ -62,13 +62,16 @@ class WorldEditorCanvas extends ZoneCanvas {
   private view: View;
   private cachedViews: { [index: string]: View };
 
+  private stateLayer: StateLayer;
+
   constructor(container: HTMLElement, designManager: DesignManager, stateLayer: StateLayer, private getGameState: GetState) {
-    super(container, designManager, stateLayer, () => {
+    super(container, designManager, () => {
       const state = getGameState();
       return { playerId: state.playerId };
     });
 
     this.cachedViews = {};
+    this.stateLayer = stateLayer;
   }
 
   private applyCameraMode(cameraMode: CameraMode) {
@@ -147,6 +150,8 @@ class WorldEditorCanvas extends ZoneCanvas {
       [EditorMode[EditorMode.EDIT]]: this.editModeState,
       [EditorMode[EditorMode.PLAY]]: this.playModeState,
     }, EditorMode[this.state.mode]);
+
+    this.connect(this.stateLayer.store);
   }
 
   initCamera(): THREE.Camera {

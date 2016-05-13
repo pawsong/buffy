@@ -10,8 +10,12 @@ import {
 
 const posToLookAt = new THREE.Vector3();
 
-export default <StoreHandler<ZoneCanvas>>((listen, view, stateLayer, getState) => listen.move(params => {
-  const { group } = view.objectManager.find(params.object.id);
+export default <StoreHandler<ZoneCanvas>>(({
+  store,
+  canvas,
+  getState,
+}) => store.subscribe.move(params => {
+  const { group } = canvas.objectManager.find(params.object.id);
 
   const oldPosX = group.position.x;
   const oldPosZ = group.position.z;
@@ -34,7 +38,7 @@ export default <StoreHandler<ZoneCanvas>>((listen, view, stateLayer, getState) =
     const deltaX = group.position.x - oldPosX;
     const deltaZ = group.position.z - oldPosZ;
 
-    view.addCameraPosition({
+    canvas.addCameraPosition({
       x: group.position.x - oldPosX,
       y: 0,
       z: group.position.z - oldPosZ,
