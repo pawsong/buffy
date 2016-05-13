@@ -43,7 +43,7 @@ class LocalServer {
     this.indexedMaps = {};
     this.users = {};
 
-    world.zones.forEach(zoneState => {
+    Object.keys(world.zones).map(id => world.zones[id]).forEach(zoneState => {
       const blocks: Int32Array = zoneState.blocks.data;
 
       const zone = this.indexedMaps[zoneState.id] = new ServerGameMap({
@@ -59,7 +59,7 @@ class LocalServer {
       this.maps.push(zone);
     });
 
-    world.robots.forEach(robotState => {
+    Object.keys(world.robots).map(id => world.robots[id]).forEach(robotState => {
       const recipeFile = files[robotState.recipe];
       const recipe: RecipeEditorState = recipeFile.state;
 

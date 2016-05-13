@@ -41,7 +41,8 @@ class Chunk {
   }
 
   findAndUpdate(pos: Position, color: Color) {
-    this.data.set(pos[0] - 1, pos[1] - 1, pos[2] - 1, rgbToHex(color));
+    // TODO: Make order right.
+    this.data.set(pos[2] - 1, pos[1] - 1, pos[0] - 1, rgbToHex(color));
   }
 
   update() {
@@ -79,7 +80,6 @@ class Chunk {
     // surfacemesh.doubleSided = false;
     surfacemesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
     surfacemesh.receiveShadow = true;
-
 
     if (this.mesh) this.scene.remove(this.mesh);
 

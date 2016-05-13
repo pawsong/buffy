@@ -26,7 +26,7 @@ const messages = defineMessages({
 const markForModifiedClass = classNames('material-icons', styles.markForModified);
 
 interface RobotPanelProps extends React.Props<RobotPanel> {
-  robots: Robot[];
+  robots: { [index: string]: Robot };
   files: SourceFileDB;
   playerId: string;
   onPlayerChange: (robotId: string) => any;
@@ -41,7 +41,7 @@ class RobotPanel extends React.Component<RobotPanelProps, void> {
   static PANEL_ID: string;
 
   render() {
-    const listItems = this.props.robots.map(robot => {
+    const listItems = Object.keys(this.props.robots).map(id => this.props.robots[id]).map(robot => {
       const recipe = this.props.files[robot.recipe];
       const design = this.props.files[recipe.state.design];
 

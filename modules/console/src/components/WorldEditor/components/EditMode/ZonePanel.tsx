@@ -19,7 +19,7 @@ import { SourceFileDB } from '../../../Studio/types';
 import { Zone } from '../../types';
 
 interface ZonePanelProps extends React.Props<ZonePanel> {
-  zones: Zone[];
+  zones: { [index: string]: Zone };
 }
 
 @connectSource({
@@ -31,7 +31,7 @@ class ZonePanel extends React.Component<ZonePanelProps, void> {
   static PANEL_ID: string;
 
   render() {
-    const listItems = this.props.zones.map(zone => {
+    const listItems = Object.keys(this.props.zones).map(id => this.props.zones[id]).map(zone => {
       return (
         <ListItem
           key={zone.id}

@@ -48,7 +48,12 @@ class OrthographicView implements View {
 
     this.controls = controls;
 
-    this.setPosition({ x: 1, y: 1, z: 1 });
+    // TODO: Calculate position from parameter.
+    this.setPosition({
+      x: 8 * BOX_SIZE,
+      y: 8 * BOX_SIZE,
+      z: 8 * BOX_SIZE,
+    });
   }
 
   onEnter() {

@@ -141,6 +141,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
             stateLayer={this.props.stateLayer}
             designManager={this.props.designManager}
             registerElement={canvasElement => this.setState({ canvasElement })}
+            files={this.props.files}
           />
           {this.renderContent()}
         </div>
@@ -207,8 +208,14 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
     editTool: EditToolType.move,
     playTool: PlayToolType.move,
     brushColor: { r: 104, g: 204, b: 202 },
-    robots: [robot1, robot2],
-    zones: [zone],
+    robots: {
+      [robot1.id]: robot1,
+      [robot2.id]: robot2,
+    },
+    zones: {
+      [zone.id]: zone,
+    },
+    activeZoneId: zone.id,
   };
 }
 

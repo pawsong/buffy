@@ -1,5 +1,9 @@
 import {
+  SourceFileDB,
+} from '../../../../../Studio/types';
+import {
   EditToolType,
+  GetState,
 } from '../../../../types';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';

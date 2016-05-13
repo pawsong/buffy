@@ -52,7 +52,9 @@ abstract class ZoneCanvas extends Canvas {
     this.effectManager = createEffectManager(this.scene);
   }
 
-  connect(store: StateStore) {
+  connectToStateStore(store: StateStore) {
+    this.disconnectFromStateStore();
+
     const { playerId } = this.getZoneViewState();
     const object = store.findObject(playerId);
     if (object) this.resyncToStateStore(store);
@@ -60,12 +62,19 @@ abstract class ZoneCanvas extends Canvas {
     this.tokens = Object.keys(handlers).map(key => {
       const handler: StoreHandler<ZoneCanvas> = handlers[key];
 
-      handler({
+      return handler({
         canvas: this,
         store: store,
         getState: this.getZoneViewState,
       })
     });
+  }
+
+  disconnectFromStateStore() {
+    if (!this.tokens) return;
+
+    this.tokens.forEach(token => token.remove());
+    this.tokens = null;
   }
 
   resyncToStateStore(store: StateStore) {
@@ -118,7 +127,7 @@ abstract class ZoneCanvas extends Canvas {
   }
 
   destroy() {
-    this.tokens.forEach(token => token.remove());
+    this.disconnectFromStateStore();
     super.destroy();
   }
 }

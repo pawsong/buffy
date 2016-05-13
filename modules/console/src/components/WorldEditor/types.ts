@@ -42,8 +42,9 @@ export interface WorldEditorState {
   editTool?: EditToolType;
   playTool?: PlayToolType;
   brushColor?: Color;
-  robots?: Robot[];
-  zones?: Zone[];
+  robots?: { [index: string]: Robot };
+  zones?: { [index: string]: Zone };
+  activeZoneId?: string;
 }
 
 export interface GetState {
@@ -59,16 +60,9 @@ export interface Robot {
   direction: Direction;
 }
 
-// interface Block {
-//   color: Color;
-// }
-
-// export type Blocks = Immutable.Map<Immutable.Iterable.Indexed<number> /* Position */, Block>;
-
 export interface Zone {
   id: string;
   name: string;
   size: [number /* width */, number /* height */, number /* depth */];
   blocks: Ndarray;
-  // blocks: Blocks;
 }

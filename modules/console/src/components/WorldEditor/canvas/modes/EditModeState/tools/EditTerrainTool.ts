@@ -35,8 +35,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   cursorOffset: Position;
 
   constructor(
-    private view: WorldEditorCanvas
-    // private stateLayer: StateLayer
+    private canvas: WorldEditorCanvas
   ) {
     super();
 
@@ -51,18 +50,25 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   }
 
   onEnter() {
-    this.view.cursorManager.start(this.view.cubeGeometry, this.cursorOffset);
+    this.canvas.cursorManager.start(this.canvas.cubeGeometry, this.cursorOffset);
   }
 
   onLeave() {
-    this.view.cursorManager.stop();
+    this.canvas.cursorManager.stop();
   }
 
   onMouseDown() {
-    const { hit, position } = this.view.cursorManager.getPosition();
+    const { hit, position } = this.canvas.cursorManager.getPosition();
     if (!hit) { return; }
 
     console.log(position);
+
+    this.canvas.chunk.findAndUpdate([
+      position.x,
+      position.y,
+      position.z,
+    ], this.props.brushColor);
+    this.canvas.chunk.update();
 
     // this.stateLayer.rpc.updateTerrain({
     //   objectId: this.props.playerId,
@@ -73,7 +79,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   }
 
   render() {
-    this.view.cursorManager.setColor(rgbToHex(this.props.brushColor));
+    this.canvas.cursorManager.setColor(rgbToHex(this.props.brushColor));
   }
 }
 

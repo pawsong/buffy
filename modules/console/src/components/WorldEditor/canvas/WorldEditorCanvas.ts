@@ -5,6 +5,10 @@ import DesignManager from '../../../canvas/DesignManager';
 import ZoneCanvas from '../../../canvas/ZoneCanvas';
 import Fsm from '../../../libs/Fsm';
 import {
+  SourceFileDB,
+} from '../../Studio/types';
+
+import {
   Events as ModeEvents,
   EditModeState,
   PlayModeState,
@@ -43,6 +47,14 @@ interface Position {
   x: number; y: number; z: number;
 }
 
+interface WorldEditorCanvasOptions {
+  container: HTMLElement;
+  designManager: DesignManager;
+  stateLayer: StateLayer;
+  getState: GetState;
+  getFiles: () => SourceFileDB;
+}
+
 /*
  * WorldEditorCanvas can be connected to following data sources:
  *   - file (in edit mode)
@@ -63,15 +75,25 @@ class WorldEditorCanvas extends ZoneCanvas {
   private cachedViews: { [index: string]: View };
 
   private stateLayer: StateLayer;
+  private getGameState: GetState;
+  private getFiles: () => SourceFileDB;
 
-  constructor(container: HTMLElement, designManager: DesignManager, stateLayer: StateLayer, private getGameState: GetState) {
+  constructor({
+    container,
+    designManager,
+    stateLayer,
+    getState,
+    getFiles,
+  }: WorldEditorCanvasOptions) {
     super(container, designManager, () => {
-      const state = getGameState();
+      const state = getState();
       return { playerId: state.playerId };
     });
 
     this.cachedViews = {};
     this.stateLayer = stateLayer;
+    this.getGameState = getState;
+    this.getFiles = getFiles;
   }
 
   private applyCameraMode(cameraMode: CameraMode) {
@@ -137,7 +159,7 @@ class WorldEditorCanvas extends ZoneCanvas {
     // Initialize modes
     this.editModeState = new EditModeState(this.getGameState, {
       view: this,
-    });
+    }, this.getFiles);
     this.editModeState.init();
 
     this.playModeState = new PlayModeState(this.getGameState, {
@@ -150,8 +172,6 @@ class WorldEditorCanvas extends ZoneCanvas {
       [EditorMode[EditorMode.EDIT]]: this.editModeState,
       [EditorMode[EditorMode.PLAY]]: this.playModeState,
     }, EditorMode[this.state.mode]);
-
-    this.connect(this.stateLayer.store);
   }
 
   initCamera(): THREE.Camera {

@@ -2,6 +2,8 @@ import * as React from 'react';
 import { EventEmitter, EventSubscription } from 'fbemitter';
 import StateLayer from '@pasta/core/lib/StateLayer';
 
+import { SourceFileDB } from '../../Studio/types';
+
 import DesignManager from '../../../canvas/DesignManager';
 
 import { WorldEditorCanvas } from '../canvas';
@@ -14,6 +16,7 @@ interface CanvasProps extends React.Props<Canvas> {
   editorState: WorldEditorState;
   onChange: (state: WorldEditorState) => any;
   registerElement: (element: HTMLElement) => any;
+  files: SourceFileDB;
 }
 
 const styles = {
@@ -32,12 +35,13 @@ class Canvas extends React.Component<CanvasProps, {}> {
   pointerlockchange: () => any;
 
   componentDidMount() {
-    this.canvas = new WorldEditorCanvas(
-      this.refs['canvas'] as HTMLElement,
-      this.props.designManager,
-      this.props.stateLayer,
-      () => this.props.editorState
-    );
+    this.canvas = new WorldEditorCanvas({
+      container: this.refs['canvas'] as HTMLElement,
+      designManager: this.props.designManager,
+      stateLayer: this.props.stateLayer,
+      getState: () => this.props.editorState,
+      getFiles: () => this.props.files,
+    });
     this.canvas.init();
 
     const canvasElement = this.canvas.renderer.domElement;

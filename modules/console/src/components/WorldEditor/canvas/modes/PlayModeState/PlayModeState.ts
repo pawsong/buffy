@@ -32,6 +32,16 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
       stateLayer: this.stateLayer,
     });
   }
+
+  handleEnter() {
+    super.handleEnter();
+    this.canvas.connectToStateStore(this.stateLayer.store);
+  }
+
+  handleLeave() {
+    super.handleLeave();
+    this.canvas.disconnectFromStateStore();
+  }
 }
 
 export default PlayModeState;
