@@ -3,12 +3,6 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 const objectAssign = require('object-assign');
 import DesignManager from '../../../canvas/DesignManager';
 import ZoneCanvas from '../../../canvas/ZoneCanvas';
-import Fsm from '../../../libs/Fsm';
-import {
-  Events as ModeEvents,
-  EditModeState,
-  PlayModeState,
-} from './modes';
 
 import {
   PIXEL_NUM,
@@ -21,11 +15,13 @@ import {
 import {
   WorldEditorState,
   GetState,
+  ToolType,
   EditorMode,
   CameraMode,
 } from '../types';
 
 import CursorManager from './CursorManager';
+import createTool, { WorldEditorCanvasTool } from './tools';
 
 if (__CLIENT__) {
   window['THREE'] = THREE;
@@ -43,21 +39,15 @@ interface Position {
   x: number; y: number; z: number;
 }
 
-/*
- * WorldEditorCanvas can be connected to following data sources:
- *   - file (in edit mode)
- *   - stateLayer (in play mode)
- */
 class WorldEditorCanvas extends ZoneCanvas {
   cursorManager: CursorManager;
   removeListeners: Function;
-
-  // Mode fsm & states
-  editModeState: EditModeState;
-  playModeState: PlayModeState;
-  modeFsm: Fsm;
+  tool: WorldEditorCanvasTool;
 
   protected state: WorldEditorState;
+
+  private controls: any;
+  private cachedTools: { [index: string]: WorldEditorCanvasTool };
 
   private view: View;
   private cachedViews: { [index: string]: View };
@@ -68,6 +58,7 @@ class WorldEditorCanvas extends ZoneCanvas {
       return { playerId: state.playerId };
     });
 
+    this.cachedTools = {};
     this.cachedViews = {};
   }
 
@@ -104,6 +95,14 @@ class WorldEditorCanvas extends ZoneCanvas {
     this.view.onUpdate();
   }
 
+  // Lazy getter
+  getTool(toolType: ToolType): WorldEditorCanvasTool {
+    const tool = this.cachedTools[toolType];
+    if (tool) return tool;
+
+    return this.cachedTools[toolType] = createTool(toolType, this.stateLayer, this, this.getGameState);
+  }
+
   init () {
     this.state = this.getGameState();
 
@@ -111,14 +110,17 @@ class WorldEditorCanvas extends ZoneCanvas {
 
     this.cursorManager = new CursorManager(this);
 
+    this.tool = this.getTool(this.state.selectedTool);
+    this.tool.onStart();
+
     const onDocumentMouseUp = (event: MouseEvent) => {
       event.preventDefault();
-      this.modeFsm.trigger(ModeEvents.MOUSE_UP, event);
+      this.tool.onMouseUp({ event });
     };
 
     const onDocumentMouseDown = (event: MouseEvent) => {
       event.preventDefault();
-      this.modeFsm.trigger(ModeEvents.MOUSE_DOWN, event);
+      this.tool.onMouseDown({ event });
     };
 
     // Add event handlers
@@ -130,23 +132,6 @@ class WorldEditorCanvas extends ZoneCanvas {
       this.renderer.domElement.removeEventListener('mousedown', onDocumentMouseDown, false);
       this.renderer.domElement.removeEventListener('mouseup', onDocumentMouseUp, false);
     };
-
-    // Initialize modes
-    this.editModeState = new EditModeState(this.getGameState, {
-      view: this,
-    });
-    this.editModeState.init();
-
-    this.playModeState = new PlayModeState(this.getGameState, {
-      view: this,
-      stateLayer: this.stateLayer,
-    });
-    this.playModeState.init();
-
-    this.modeFsm = new Fsm({
-      [EditorMode[EditorMode.EDIT]]: this.editModeState,
-      [EditorMode[EditorMode.PLAY]]: this.playModeState,
-    }, EditorMode[this.state.mode]);
   }
 
   initCamera(): THREE.Camera {
@@ -178,11 +163,14 @@ class WorldEditorCanvas extends ZoneCanvas {
   }
 
   handleChange(nextState: WorldEditorState) {
-    if (this.state.mode !== nextState.mode) {
-      this.modeFsm.trigger(ModeEvents.CHANGE_MODE, nextState.mode);
+    if (this.tool.getToolType() !== nextState.selectedTool) {
+      const nextTool = this.getTool(nextState.selectedTool);
+      this.tool.onStop();
+      this.tool = nextTool;
+      this.tool.onStart();
     }
 
-    this.modeFsm.trigger(ModeEvents.CHANGE_STATE, nextState);
+    this.tool.updateProps(nextState);
 
     if (this.state.playerId !== nextState.playerId) {
       const object = this.objectManager.objects[nextState.playerId];
@@ -197,13 +185,13 @@ class WorldEditorCanvas extends ZoneCanvas {
   }
 
   destroy() {
-    this.editModeState.destroy();
-    this.playModeState.destroy();
-
     this.removeListeners();
 
     // Destroy views
     Object.keys(this.cachedViews).forEach(key => this.cachedViews[key].onDispose());
+
+    // Destroy tools
+    Object.keys(this.cachedTools).forEach(key => this.cachedTools[key].destroy());
 
     this.cursorManager.destroy();
 

@@ -1,36 +1,31 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
-
 import { Position } from '@pasta/core/lib/types';
+
+import {
+  PlayToolType,
+  WorldEditorState,
+} from '../../../../types';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../../canvas/Constants';
-
-import {
-  Color,
-  WorldEditorState,
-  ToolType,
-} from '../../types';
+} from '../../../../../../canvas/Constants';
 
 import WorldEditorCanvasTool, {
   WorldEditorCanvsToolState,
   WorldEditorCanvsToolStates,
-  InitParams,
-} from './WorldEditorCanvasTool';
-import WorldEditorCanvas from '../WorldEditorCanvas';
+} from '../../WorldEditorCanvasTool';
+import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
-export function rgbToHex({ r, g, b }) {
-  return (1 << 24) | (r << 16) | (g << 8) | b;
-}
+import PlayModeTool, { InitParams } from './PlayModeTool';
 
 interface WaitStateProps {
-  playerId: string;
-  brushColor: Color;
+  playerId: string,
 }
 
 class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
+  cursorGeometry: THREE.Geometry;
   cursorOffset: Position;
 
   constructor(
@@ -39,18 +34,21 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   ) {
     super();
 
-    this.cursorOffset = [PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF];
+    this.cursorGeometry = new THREE.PlaneGeometry(1, 1);
+    this.cursorGeometry.scale(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    this.cursorGeometry.rotateX(- Math.PI / 2);
+
+    this.cursorOffset = [PIXEL_SCALE_HALF, 0, PIXEL_SCALE_HALF];
   }
 
   mapStateToProps(gameState: WorldEditorState): WaitStateProps {
     return {
       playerId: gameState.playerId,
-      brushColor: gameState.brushColor,
     };
   }
 
   onEnter() {
-    this.view.cursorManager.start(this.view.cubeGeometry, this.cursorOffset);
+    this.view.cursorManager.start(this.cursorGeometry, this.cursorOffset);
   }
 
   onLeave() {
@@ -61,21 +59,18 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     const { hit, position } = this.view.cursorManager.getPosition();
     if (!hit) { return; }
 
-    this.stateLayer.rpc.updateTerrain({
-      objectId: this.props.playerId,
+    this.stateLayer.rpc.move({
+      id: this.props.playerId,
       x: position.x,
       z: position.z,
-      color: rgbToHex(this.props.brushColor),
     });
   }
 
-  render() {
-    this.view.cursorManager.setColor(rgbToHex(this.props.brushColor));
-  }
+  render() {}
 }
 
-class EditTerrainTool extends WorldEditorCanvasTool {
-  getToolType() { return ToolType.editTerrain; }
+class MoveTool extends PlayModeTool {
+  getToolType() { return PlayToolType.move; }
 
   init({ view, stateLayer }: InitParams) {
     const wait = new WaitState(view, stateLayer);
@@ -88,4 +83,4 @@ class EditTerrainTool extends WorldEditorCanvasTool {
   destroy() {}
 }
 
-export default EditTerrainTool;
+export default MoveTool;

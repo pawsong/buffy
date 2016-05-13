@@ -28,9 +28,9 @@ class EditMode extends React.Component<EditModeProps, {}> {
     return (
       <div>
         <Tools
-          selectedTool={this.props.editorState.selectedTool}
+          selectedTool={this.props.editorState.editTool}
           brushColor={this.props.editorState.brushColor}
-          changeTool={selectedTool => this.props.onChange({ selectedTool })}
+          changeTool={editTool => this.props.onChange({ editTool })}
           changeBrushColor={brushColor => this.props.onChange({ brushColor })}
         />
         <RobotPanel

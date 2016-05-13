@@ -3,7 +3,6 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 import WorldEditorCanvas from '../WorldEditorCanvas';
 
 import {
-  ToolType,
   WorldEditorState,
 } from '../../types';
 
@@ -45,12 +44,7 @@ interface WorldEditorCanvsToolStates {
 
 export { WorldEditorCanvsToolState, WorldEditorCanvsToolStates }
 
-export interface InitParams {
-  view: WorldEditorCanvas;
-  stateLayer: StateLayer;
-}
-
-abstract class WorldEditorCanvasTool extends Tool<WorldEditorState, ToolType, InitParams> {
+abstract class WorldEditorCanvasTool<T, U> extends Tool<WorldEditorState, T, U> {
   isIntersectable(object) {
     return (<WorldEditorCanvsToolState<any>>this.fsm.current).isIntersectable(object);
   }

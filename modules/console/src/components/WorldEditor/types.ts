@@ -20,9 +20,13 @@ export enum CameraMode {
   PERSPECTIVE,
 }
 
-export enum ToolType {
+export enum EditToolType {
   move,
   editTerrain,
+}
+
+export enum PlayToolType {
+  move,
 }
 
 export interface Color {
@@ -35,7 +39,8 @@ export interface WorldEditorState {
   playMode?: PlayModeState;
   cameraMode?: CameraMode;
   playerId?: string;
-  selectedTool?: ToolType;
+  editTool?: EditToolType;
+  playTool?: PlayToolType;
   brushColor?: Color;
   robots?: Robot[];
   zones?: Zone[];

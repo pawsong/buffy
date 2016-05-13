@@ -25,7 +25,8 @@ import { TOOLBAR_HEIGHT } from './Constants';
 import generateObjectId from '../../utils/generateObjectId';
 
 import {
-  ToolType,
+  EditToolType,
+  PlayToolType,
   Color,
   WorldEditorState,
   EditorMode,
@@ -203,7 +204,8 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
     playMode: PlayModeState.READY,
     cameraMode: CameraMode.ORHTOGRAPHIC,
     playerId: robot1.id,
-    selectedTool: ToolType.move,
+    editTool: EditToolType.move,
+    playTool: PlayToolType.move,
     brushColor: { r: 104, g: 204, b: 202 },
     robots: [robot1, robot2],
     zones: [zone],

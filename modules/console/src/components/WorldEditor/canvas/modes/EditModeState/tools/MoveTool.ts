@@ -1,22 +1,24 @@
+import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Position } from '@pasta/core/lib/types';
 
 import {
-  ToolType,
+  EditToolType,
   WorldEditorState,
-} from '../../types';
+} from '../../../../types';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../../canvas/Constants';
+} from '../../../../../../canvas/Constants';
 
 import WorldEditorCanvasTool, {
   WorldEditorCanvsToolState,
   WorldEditorCanvsToolStates,
-  InitParams,
-} from './WorldEditorCanvasTool';
-import WorldEditorCanvas from '../WorldEditorCanvas';
+} from '../../WorldEditorCanvasTool';
+import WorldEditorCanvas from '../../../WorldEditorCanvas';
+
+import EditModeTool, { InitParams } from './EditModeTool';
 
 interface WaitStateProps {
   playerId: string,
@@ -27,8 +29,8 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   cursorOffset: Position;
 
   constructor(
-    private view: WorldEditorCanvas,
-    private stateLayer: StateLayer
+    private view: WorldEditorCanvas
+    // private stateLayer: StateLayer
   ) {
     super();
 
@@ -57,21 +59,23 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     const { hit, position } = this.view.cursorManager.getPosition();
     if (!hit) { return; }
 
-    this.stateLayer.rpc.move({
-      id: this.props.playerId,
-      x: position.x,
-      z: position.z,
-    });
+    console.log(position);
+
+    // this.stateLayer.rpc.move({
+    //   id: this.props.playerId,
+    //   x: position.x,
+    //   z: position.z,
+    // });
   }
 
   render() {}
 }
 
-class MoveTool extends WorldEditorCanvasTool {
-  getToolType() { return ToolType.move; }
+class MoveTool extends EditModeTool {
+  getToolType() { return EditToolType.move; }
 
-  init({ view, stateLayer }: InitParams) {
-    const wait = new WaitState(view, stateLayer);
+  init({ view }: InitParams) {
+    const wait = new WaitState(view);
 
     return <WorldEditorCanvsToolStates>{
       wait,

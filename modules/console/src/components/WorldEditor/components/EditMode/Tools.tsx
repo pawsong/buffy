@@ -8,7 +8,7 @@ const { default: ColorPicker }  = require('react-color/lib/components/compact/Co
 const objectAssign = require('object-assign');
 import ClickAwayListener from '../../../ClickAwayListener';
 
-import { ToolType, Color } from '../../types';
+import { EditToolType, Color } from '../../types';
 
 const styles = {
   wrapper: {
@@ -94,10 +94,10 @@ class ColorPickerTool extends React.Component<ColorPickerToolProps, ColorPickerT
 
 interface ToolProps extends React.Props<Tool> {
   label: string;
-  type: ToolType;
+  type: EditToolType;
   icon: any;
-  selectedTool: ToolType;
-  changeTool: (tool: ToolType) => any;
+  selectedTool: EditToolType;
+  changeTool: (tool: EditToolType) => any;
 }
 
 class Tool extends React.Component<ToolProps, {}> {
@@ -124,9 +124,9 @@ class Tool extends React.Component<ToolProps, {}> {
 }
 
 interface ToolsProps extends React.Props<Tools> {
-  selectedTool: ToolType;
+  selectedTool: EditToolType;
   brushColor: Color;
-  changeTool: (tool: ToolType) => any;
+  changeTool: (tool: EditToolType) => any;
   changeBrushColor: (color: Color) => any;
 }
 
@@ -139,14 +139,14 @@ class Tools extends React.Component<ToolsProps, {}> {
         <Tool
           label="Move"
           icon={NearMe}
-          type={ToolType.move}
+          type={EditToolType.move}
           selectedTool={selectedTool}
           changeTool={this.props.changeTool}
         />
         <Tool
           label="Edit terrain"
           icon={Terrain}
-          type={ToolType.editTerrain}
+          type={EditToolType.editTerrain}
           selectedTool={selectedTool}
           changeTool={this.props.changeTool}
         />
