@@ -1,13 +1,13 @@
 import { EventEmitter } from 'fbemitter';
-import RoutesCZ, { Listener, DestroyFunc } from '@pasta/core/lib/packet/RoutesCZ';
+import RoutesCZ, { Listener, DestroyFunc, UserGetter } from '@pasta/core/lib/packet/RoutesCZ';
 import UserGameObject from '@pasta/core/lib/packet/UserGameObject';
 import LocalSocket from './LocalSocket';
 
 class LocalRoutes extends RoutesCZ {
   socket: LocalSocket;
 
-  constructor(users: UserGameObject[], socket: LocalSocket) {
-    super(users);
+  constructor(userGetter: UserGetter, socket: LocalSocket) {
+    super(userGetter);
     this.socket = socket;
 
     this.init();

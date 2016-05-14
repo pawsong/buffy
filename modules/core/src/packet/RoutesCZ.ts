@@ -38,13 +38,18 @@ export interface Listener {
   (params: Object, fn: AckFn): any;
 }
 
+export interface UserGetter {
+  (id: string): UserGameObject;
+}
+
 export abstract class RoutesCZ implements Rpc {
   protected users: { [index: string]: UserGameObject };
   private destroyFuncs: DestroyFunc[];
 
-  constructor(users: UserGameObject[]) {
-    this.users = {};
-    users.forEach(user => this.users[user.id] = user);
+  private userGetter: UserGetter;
+
+  constructor(userGetter: UserGetter) {
+    this.userGetter = userGetter;
   }
 
   protected init() {
@@ -73,7 +78,7 @@ export abstract class RoutesCZ implements Rpc {
   protected abstract addListener(event: string, handler: Listener): DestroyFunc;
 
   protected getUser(id: string): UserGameObject {
-    return this.users[id];
+    return this.userGetter(id);
   }
 
   /* Route handlers */
