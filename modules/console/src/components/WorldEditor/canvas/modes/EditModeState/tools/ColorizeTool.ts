@@ -43,6 +43,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
 
   onEnter() {
     this.view.cursorManager.start({
+      getInteractables: () => this.view.objectManager.object3Ds.concat(this.view.chunk.mesh),
       onInteract: (params) => this.handleInteract(params),
       onTouchTap: (params) => this.handleTouchTap(params),
     });

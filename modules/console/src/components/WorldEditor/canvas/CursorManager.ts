@@ -16,7 +16,7 @@ export interface CursorEventParams {
 }
 
 interface StartOptions {
-  getIntractables?: () => THREE.Object3D[];
+  getInteractables?: () => THREE.Object3D[];
   onInteract?: (params: CursorEventParams) => any;
   onTouchTap?: (params: CursorEventParams) => any;
   cursorGeometry?: THREE.Geometry;
@@ -62,7 +62,7 @@ class CursorManager {
   }
 
   start({
-    getIntractables,
+    getInteractables,
     onInteract,
     onTouchTap,
     cursorGeometry,
@@ -71,7 +71,7 @@ class CursorManager {
     getCursorOffset,
     hitTest,
   } : StartOptions) {
-    this.getIntractables = getIntractables || (() => [this.canvas.chunk.mesh]);
+    this.getIntractables = getInteractables || (() => [this.canvas.chunk.mesh]);
     this.onInteract = onInteract || (({ intersect }) => this.handleInteract(intersect));
     this.onTouchTap = onTouchTap || (() => {});
     this.hitTest = hitTest || (() => true);

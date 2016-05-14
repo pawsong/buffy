@@ -20,8 +20,10 @@ export class SmartObject {
   designId: string;
   watcher: LoaderWatcher;
   materials: THREE.Material[];
+  manager: ObjectManager;
 
-  constructor(group: THREE.Object3D, designId: string) {
+  constructor(manager: ObjectManager, group: THREE.Object3D, designId: string) {
+    this.manager = manager;
     this.group = group;
     this.designId = designId;
     this.watcher = geometry => this.changeMesh(geometry);
@@ -30,15 +32,23 @@ export class SmartObject {
 
   add(mesh: THREE.Mesh, resources?: Resources) {
     this.group.add(mesh);
+    this.manager.object3Ds.push(mesh);
+
     if (!resources) { return; }
 
     if (resources.material) this.materials.push(resources.material);
   }
 
+  remove(mesh: THREE.Object3D) {
+    this.group.remove(mesh);
+    const index = this.manager.object3Ds.indexOf(mesh);
+    if (index !== -1) this.manager.object3Ds.splice(index, 1);
+  }
+
   reset() {
     for (let i = this.group.children.length - 1; i >= 0; --i) {
       const child = this.group.children[i];
-      this.group.remove(child);
+      this.remove(child);
     }
     this.dispose();
   }
@@ -73,11 +83,14 @@ export class SmartObject {
 class ObjectManager {
   scene: THREE.Scene;
   objects: { [index: string]: SmartObject };
+  object3Ds: THREE.Object3D[];
+
   designManager: DesignManager;
 
   constructor(scene: THREE.Scene, designManager: DesignManager) {
     this.scene = scene;
     this.objects = {};
+    this.object3Ds = [];
     this.designManager = designManager;
   }
 
@@ -87,9 +100,8 @@ class ObjectManager {
     const group = new THREE.Group();
     this.scene.add(group);
 
-    const object = new SmartObject(group, designId);
+    const object = new SmartObject(this, group, designId);
     this.objects[id] = object;
-
     this.designManager.watch(designId, object.watcher);
 
     return object;
@@ -110,6 +122,7 @@ class ObjectManager {
   remove(id: string) {
     const object = this.objects[id];
     invariant(object, `Object ${id} does not exist`);
+
     this.scene.remove(object.group);
     object.reset();
 
