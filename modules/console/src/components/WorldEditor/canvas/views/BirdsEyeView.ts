@@ -11,8 +11,10 @@ import {
 
 import View, { Position } from './View';
 
-class OrthographicView implements View {
-  camera: THREE.OrthographicCamera;
+const radius = 1600, theta = 270, phi = 60;
+
+class BirdsEyeView implements View {
+  camera: THREE.PerspectiveCamera;
   controls: any;
 
   private direction: THREE.Vector3;
@@ -21,17 +23,12 @@ class OrthographicView implements View {
     this.direction = new THREE.Vector3();
 
     // Init camera
-    const camera = new THREE.OrthographicCamera(
-      this.container.offsetWidth / -2,
-      this.container.offsetWidth / +2,
-      this.container.offsetHeight / -2,
-      this.container.offsetHeight / +2,
-      - 2000, 5000
+    const camera = new THREE.PerspectiveCamera(
+      40, container.offsetWidth / container.offsetHeight, 1, 10000
     );
-    camera.position.x = 1;
-    camera.position.y = 1;
-    camera.position.z = 1;
-    camera.lookAt(scene.position);
+    camera.position.x = radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360);
+    camera.position.z = radius * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360);
+    camera.position.y = radius * Math.sin(phi * Math.PI / 360);
 
     this.camera = camera;
 
@@ -41,9 +38,10 @@ class OrthographicView implements View {
       ORBIT: THREE.MOUSE.RIGHT,
       PAN: THREE.MOUSE.LEFT,
     });
-    controls.maxDistance = 2000;
+    controls.minDistance = 300;
+    controls.maxDistance = 3000;
+	  controls.zoomSpeed = 1.0;
     controls.enableKeys = false;
-    // controls.enableRotate = false;
     controls.enabled = true;
 
     this.controls = controls;
@@ -83,10 +81,7 @@ class OrthographicView implements View {
   }
 
   onResize(): void {
-    this.camera.left = this.container.offsetWidth / - 2;
-    this.camera.right = this.container.offsetWidth / 2;
-    this.camera.top = this.container.offsetHeight / 2;
-    this.camera.bottom = this.container.offsetHeight / - 2;
+    this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
     this.camera.updateProjectionMatrix();
   }
 
@@ -95,4 +90,4 @@ class OrthographicView implements View {
   }
 }
 
-export default OrthographicView;
+export default BirdsEyeView;

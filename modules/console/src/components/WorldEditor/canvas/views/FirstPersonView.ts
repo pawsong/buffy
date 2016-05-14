@@ -12,7 +12,7 @@ import {
 
 import View, { Position } from './View';
 
-class PerspectiveView implements View {
+class FirstPersonView implements View {
   camera: THREE.PerspectiveCamera;
   controls: any;
 
@@ -156,4 +156,4 @@ class PerspectiveView implements View {
   }
 }
 
-export default PerspectiveView;
+export default FirstPersonView;

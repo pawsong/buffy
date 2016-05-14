@@ -16,8 +16,8 @@ export enum PlayModeState {
 }
 
 export enum CameraMode {
-  ORHTOGRAPHIC,
-  PERSPECTIVE,
+  BIRDS_EYE,
+  FIRST_PERSON,
 }
 
 export enum EditToolType {

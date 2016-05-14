@@ -1,9 +1,9 @@
 import View from './View';
-import OrthographicView from './OrthographicView';
-import PerspectiveView from './PerspectiveView';
+import BirdsEyeView from './BirdsEyeView';
+import FirstPersonView from './FirstPersonView';
 
 export {
   View,
-  OrthographicView,
-  PerspectiveView,
+  BirdsEyeView,
+  FirstPersonView,
 }

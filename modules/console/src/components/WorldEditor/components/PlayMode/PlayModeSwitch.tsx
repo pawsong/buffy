@@ -19,7 +19,7 @@ function handlePerspectiveModeRequest(props: PlayModeSwitchProps) {
   requestPointerLock(props.canvasElement);
 
   props.onChange({
-    cameraMode: CameraMode.PERSPECTIVE,
+    cameraMode: CameraMode.FIRST_PERSON,
     playMode: PlayModeState.PLAY,
   });
 }
@@ -32,19 +32,19 @@ const PlayModeSwitch: React.StatelessComponent<PlayModeSwitchProps> = props => (
     <div
       className={leftPaneClass}
       onMouseEnter={() => props.onChange({
-        cameraMode: CameraMode.ORHTOGRAPHIC,
+        cameraMode: CameraMode.BIRDS_EYE,
       })}
       onClick={() => props.onChange({
-        cameraMode: CameraMode.ORHTOGRAPHIC,
+        cameraMode: CameraMode.BIRDS_EYE,
         playMode: PlayModeState.PLAY,
       })}
     >
-      <div>Fixed view</div>
+      <div>Bird's eye view</div>
     </div>
     <div
       className={rightPaneClass}
       onMouseEnter={() => props.onChange({
-        cameraMode: CameraMode.PERSPECTIVE,
+        cameraMode: CameraMode.FIRST_PERSON,
       })}
       onClick={() => handlePerspectiveModeRequest(props)}
     >

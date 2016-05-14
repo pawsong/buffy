@@ -114,7 +114,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
   handleEnterEditMode = () => {
     this.handleChangeState({
       mode: EditorMode.EDIT,
-      cameraMode: CameraMode.ORHTOGRAPHIC,
+      cameraMode: CameraMode.BIRDS_EYE,
     });
   }
 
@@ -203,7 +203,7 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
     fileId,
     mode: EditorMode.EDIT,
     playMode: PlayModeState.READY,
-    cameraMode: CameraMode.ORHTOGRAPHIC,
+    cameraMode: CameraMode.BIRDS_EYE,
     playerId: robot1.id,
     editTool: EditToolType.addBlock,
     playTool: PlayToolType.move,

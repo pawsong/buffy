@@ -39,8 +39,8 @@ if (__CLIENT__) {
 
 import {
   View,
-  OrthographicView,
-  PerspectiveView,
+  FirstPersonView,
+  BirdsEyeView,
 } from './views';
 
 interface Position {
@@ -104,18 +104,18 @@ class WorldEditorCanvas extends ZoneCanvas {
     let nextView: View;
 
     switch(cameraMode) {
-      case CameraMode.ORHTOGRAPHIC: {
-        if (!this.cachedViews[CameraMode.ORHTOGRAPHIC]) {
-          this.cachedViews[CameraMode.ORHTOGRAPHIC] = new OrthographicView(this.container, this.renderer, this.scene);
+      case CameraMode.BIRDS_EYE: {
+        if (!this.cachedViews[CameraMode.BIRDS_EYE]) {
+          this.cachedViews[CameraMode.BIRDS_EYE] = new BirdsEyeView(this.container, this.renderer, this.scene);
         }
-        nextView = this.cachedViews[CameraMode.ORHTOGRAPHIC];
+        nextView = this.cachedViews[CameraMode.BIRDS_EYE];
         break;
       }
-      case CameraMode.PERSPECTIVE: {
-        if (!this.cachedViews[CameraMode.PERSPECTIVE]) {
-          this.cachedViews[CameraMode.PERSPECTIVE] = new PerspectiveView(this.container, this.renderer, this.scene);
+      case CameraMode.FIRST_PERSON: {
+        if (!this.cachedViews[CameraMode.FIRST_PERSON]) {
+          this.cachedViews[CameraMode.FIRST_PERSON] = new FirstPersonView(this.container, this.renderer, this.scene);
         }
-        nextView = this.cachedViews[CameraMode.PERSPECTIVE]
+        nextView = this.cachedViews[CameraMode.FIRST_PERSON]
         break;
       }
       default: {
