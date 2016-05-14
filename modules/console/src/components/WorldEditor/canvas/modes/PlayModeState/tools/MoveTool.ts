@@ -20,6 +20,8 @@ import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
 import PlayModeTool, { InitParams } from './PlayModeTool';
 
+const yUnit = new THREE.Vector3(0, 1, 0);
+
 interface WaitStateProps {
   playerId: string,
 }
@@ -48,7 +50,11 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   }
 
   onEnter() {
-    this.view.cursorManager.start(this.cursorGeometry, this.cursorOffset);
+    this.view.cursorManager.start({
+      cursorGeometry: this.cursorGeometry,
+      cursorOffset: this.cursorOffset,
+      hitTest: intersect => yUnit.dot(intersect.face.normal) !== 0,
+    });
   }
 
   onLeave() {

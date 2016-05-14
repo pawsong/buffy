@@ -40,6 +40,7 @@ class Canvas extends React.Component<CanvasProps, {}> {
       designManager: this.props.designManager,
       stateLayer: this.props.stateLayer,
       getState: () => this.props.editorState,
+      setEditorState: this.props.onChange,
       getFiles: () => this.props.files,
     });
     this.canvas.init();

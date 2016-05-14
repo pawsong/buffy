@@ -50,7 +50,10 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   }
 
   onEnter() {
-    this.canvas.cursorManager.start(this.canvas.cubeGeometry, this.cursorOffset);
+    this.canvas.cursorManager.start({
+      cursorGeometry: this.canvas.cubeGeometry,
+      cursorOffset: this.cursorOffset,
+    });
   }
 
   onLeave() {
@@ -61,21 +64,15 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     const { hit, position } = this.canvas.cursorManager.getPosition();
     if (!hit) { return; }
 
-    console.log(position);
-
+    // TODO: Refactoring
+    // This is bad... this is possible because view directly accesses data memory space.
+    // But we have to explicitly get memory address from data variable.
     this.canvas.chunk.findAndUpdate([
       position.x,
       position.y,
       position.z,
     ], this.props.brushColor);
     this.canvas.chunk.update();
-
-    // this.stateLayer.rpc.updateTerrain({
-    //   objectId: this.props.playerId,
-    //   x: position.x,
-    //   z: position.z,
-    //   color: rgbToHex(this.props.brushColor),
-    // });
   }
 
   render() {
@@ -83,8 +80,8 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   }
 }
 
-class EditTerrainTool extends EditModeTool{
-  getToolType() { return EditToolType.editTerrain; }
+class AddBlockTool extends EditModeTool{
+  getToolType() { return EditToolType.addBlock; }
 
   init({ view }: InitParams) {
     const wait = new WaitState(view);
@@ -97,4 +94,4 @@ class EditTerrainTool extends EditModeTool{
   destroy() {}
 }
 
-export default EditTerrainTool;
+export default AddBlockTool;

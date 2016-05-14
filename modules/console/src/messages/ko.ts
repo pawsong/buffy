@@ -588,6 +588,13 @@ export default {
   'worldeditor.panels.robot.title': '로봇',
 
   /**
+   * path: src/components/WorldEditor/components/EditMode/ToolsPanel.json
+   * description: WorldEditor tools panel title
+   * defaultMessage: Tools
+   */
+  'worldeditor.panels.tools.title': '도구상자',
+
+  /**
    * path: src/components/WorldEditor/components/EditMode/ZonePanel.json
    * description: World editor zone panel title
    * defaultMessage: Zones

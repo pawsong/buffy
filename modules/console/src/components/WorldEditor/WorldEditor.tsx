@@ -205,7 +205,7 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
     playMode: PlayModeState.READY,
     cameraMode: CameraMode.ORHTOGRAPHIC,
     playerId: robot1.id,
-    editTool: EditToolType.move,
+    editTool: EditToolType.addBlock,
     playTool: PlayToolType.move,
     brushColor: { r: 104, g: 204, b: 202 },
     robots: {

@@ -21,8 +21,9 @@ export enum CameraMode {
 }
 
 export enum EditToolType {
-  move,
-  editTerrain,
+  addBlock,
+  eraseBlock,
+  colorize,
 }
 
 export enum PlayToolType {

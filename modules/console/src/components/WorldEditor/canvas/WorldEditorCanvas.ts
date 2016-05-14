@@ -52,6 +52,7 @@ interface WorldEditorCanvasOptions {
   designManager: DesignManager;
   stateLayer: StateLayer;
   getState: GetState;
+  setEditorState: (editorState: WorldEditorState) => any;
   getFiles: () => SourceFileDB;
 }
 
@@ -76,6 +77,7 @@ class WorldEditorCanvas extends ZoneCanvas {
 
   private stateLayer: StateLayer;
   private getGameState: GetState;
+  private setEditorState: (editorState: WorldEditorState) => any;
   private getFiles: () => SourceFileDB;
 
   constructor({
@@ -83,6 +85,7 @@ class WorldEditorCanvas extends ZoneCanvas {
     designManager,
     stateLayer,
     getState,
+    setEditorState,
     getFiles,
   }: WorldEditorCanvasOptions) {
     super(container, designManager, () => {
@@ -94,6 +97,7 @@ class WorldEditorCanvas extends ZoneCanvas {
     this.stateLayer = stateLayer;
     this.getGameState = getState;
     this.getFiles = getFiles;
+    this.setEditorState = setEditorState;
   }
 
   private applyCameraMode(cameraMode: CameraMode) {
@@ -159,6 +163,7 @@ class WorldEditorCanvas extends ZoneCanvas {
     // Initialize modes
     this.editModeState = new EditModeState(this.getGameState, {
       view: this,
+      setEditorState: this.setEditorState,
     }, this.getFiles);
     this.editModeState.init();
 

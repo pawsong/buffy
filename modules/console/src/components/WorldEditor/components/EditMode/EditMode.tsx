@@ -12,9 +12,9 @@ import { PanelTypes, Panels } from '../../panel';
 
 import { SourceFileDB } from '../../../Studio/types';
 
-import Tools from './Tools';
 import RobotPanel from './RobotPanel';
 import ZonePanel from './ZonePanel';
+import ToolsPanel from './ToolsPanel';
 
 interface EditModeProps extends React.Props<EditMode> {
   editorState: WorldEditorState;
@@ -27,12 +27,6 @@ class EditMode extends React.Component<EditModeProps, {}> {
   render() {
     return (
       <div>
-        <Tools
-          selectedTool={this.props.editorState.editTool}
-          brushColor={this.props.editorState.brushColor}
-          changeTool={editTool => this.props.onChange({ editTool })}
-          changeBrushColor={brushColor => this.props.onChange({ brushColor })}
-        />
         <RobotPanel
           robots={this.props.editorState.robots}
           files={this.props.files}
@@ -41,6 +35,12 @@ class EditMode extends React.Component<EditModeProps, {}> {
         />
         <ZonePanel
           zones={this.props.editorState.zones}
+        />
+        <ToolsPanel
+          changePaletteColor={brushColor => this.props.onChange({ brushColor })}
+          paletteColor={this.props.editorState.brushColor}
+          selectedTool={this.props.editorState.editTool}
+          selectTool={editTool => this.props.onChange({ editTool })}
         />
       </div>
     );

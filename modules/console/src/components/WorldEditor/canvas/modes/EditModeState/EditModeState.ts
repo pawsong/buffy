@@ -19,13 +19,13 @@ import {
 } from '../../../../../canvas/Constants';
 
 class EditModeState extends ModeState<EditToolType, InitParams> {
-  canvas: WorldEditorCanvas;
   getFiles: () => SourceFileDB;
+  initParams: InitParams;
 
   constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB) {
     super(getState, initParams);
-    this.canvas = initParams.view;
     this.getFiles = getFiles;
+    this.initParams = initParams;
   }
 
   getToolType(editorState: WorldEditorState): EditToolType {
@@ -34,20 +34,20 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
   // Lazy getter
   createTool(toolType: EditToolType): EditModeTool {
-    return createTool(toolType, this.getState, {
-      view: this.canvas,
-    });
+    return createTool(toolType, this.getState, this.initParams);
   }
 
   handleEnter() {
-    this.canvas.objectManager.removeAll();
+    const canvas = this.initParams.view;
+
+    canvas.objectManager.removeAll();
 
     // Connect to file store
     const state = this.getState();
     const zone = state.zones[state.activeZoneId];
 
-    this.canvas.chunk.setData(zone.blocks);
-    this.canvas.chunk.update();
+    canvas.chunk.setData(zone.blocks);
+    canvas.chunk.update();
 
     const files = this.getFiles();
 
@@ -56,7 +56,7 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
       const recipeFile =  files[robot.recipe];
       const recipe: RecipeEditorState = recipeFile.state;
 
-      const object = this.canvas.objectManager.create(robot.id, recipe.design);
+      const object = canvas.objectManager.create(robot.id, recipe.design);
       // const mesh = new THREE.Mesh(this.canvas.cubeGeometry , this.canvas.cubeMaterial);
       // mesh.castShadow = true;
 

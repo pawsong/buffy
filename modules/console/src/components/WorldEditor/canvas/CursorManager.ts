@@ -10,16 +10,37 @@ import {
 
 import WorldEditorCanvas from './WorldEditorCanvas';
 
-const yUnit = new THREE.Vector3(0, 1, 0);
+export interface CursorEventParams {
+  event: MouseEvent;
+  intersect: THREE.Intersection;
+}
+
+interface StartOptions {
+  getIntractables?: () => THREE.Object3D[];
+  onInteract?: (params: CursorEventParams) => any;
+  onTouchTap?: (params: CursorEventParams) => any;
+  cursorGeometry?: THREE.Geometry;
+  cursorMaterial?: THREE.Material;
+  cursorOffset?: Position;
+  getCursorOffset?: (normal: THREE.Vector3) => THREE.Vector3;
+  hitTest?: (intersect: THREE.Intersection) => boolean;
+}
 
 class CursorManager {
   cursorMesh: THREE.Mesh;
   material: THREE.Material;
   offset: THREE.Vector3;
+  hitTest: (intersect: THREE.Intersection) => boolean;
 
   private canvas: WorldEditorCanvas;
   private raycaster: THREE.Raycaster;
-  private boundOnMouseEevent: (e: MouseEvent) => any;
+  private boundOnMouseMove: (e: MouseEvent) => any;
+  private boundOnMouseUp: (e: MouseEvent) => any;
+
+  private getIntractables: () => THREE.Object3D[];
+  private onInteract: (params: CursorEventParams) => any;
+  private onTouchTap: (params: CursorEventParams) => any;
+  private getCursorOffset: (normal: THREE.Vector3) => THREE.Vector3;
 
   constructor(canvas: WorldEditorCanvas) {
     this.offset = new THREE.Vector3();
@@ -36,25 +57,87 @@ class CursorManager {
       polygonOffsetFactor: -0.1,
     });
 
-    this.boundOnMouseEevent = this.onMouseMove.bind(this);
+    this.boundOnMouseMove = this.onMouseMove.bind(this);
+    this.boundOnMouseUp = this.onMouseUp.bind(this);
   }
 
-  onMouseMove(event: MouseEvent) {
-    event.preventDefault();
+  start({
+    getIntractables,
+    onInteract,
+    onTouchTap,
+    cursorGeometry,
+    cursorMaterial,
+    cursorOffset,
+    getCursorOffset,
+    hitTest,
+  } : StartOptions) {
+    this.getIntractables = getIntractables || (() => [this.canvas.chunk.mesh]);
+    this.onInteract = onInteract || (({ intersect }) => this.handleInteract(intersect));
+    this.onTouchTap = onTouchTap || (() => {});
+    this.hitTest = hitTest || (() => true);
 
-    this.cursorMesh.visible = false;
+    if (cursorGeometry) {
+      this.cursorMesh = new THREE.Mesh(cursorGeometry, cursorMaterial || this.material);
+      this.canvas.scene.add(this.cursorMesh);
+    } else {
+      this.cursorMesh = new THREE.Mesh();
+    }
 
+    if (cursorOffset) {
+      const offset = new THREE.Vector3(cursorOffset[0], cursorOffset[1], cursorOffset[2]);
+      this.getCursorOffset = () => offset;
+    } else if (getCursorOffset) {
+      this.getCursorOffset = getCursorOffset;
+    } else {
+      const offset = new THREE.Vector3();
+      this.getCursorOffset = () => offset;
+    }
+
+    this.canvas.container.addEventListener('mousemove', this.boundOnMouseMove, false);
+    this.canvas.container.addEventListener('mouseup', this.boundOnMouseUp, false);
+  }
+
+  stop() {
+    this.getIntractables = null;
+    this.onInteract = null;
+    this.onTouchTap = null;
+    this.getCursorOffset = null;
+
+    this.canvas.scene.remove(this.cursorMesh);
+    this.cursorMesh = null;
+
+    this.canvas.container.removeEventListener('mousemove', this.boundOnMouseMove, false);
+    this.canvas.container.removeEventListener('mouseup', this.boundOnMouseUp, false);
+  }
+
+  private getIntersect(event: MouseEvent) {
     this.raycaster.setFromCamera({
       x: (event.offsetX / this.canvas.container.offsetWidth) * 2 - 1,
       y: -(event.offsetY / this.canvas.container.offsetHeight) * 2 + 1,
     }, this.canvas.camera);
 
-    const intersects = this.raycaster.intersectObjects([this.canvas.chunk.mesh]);
+    const intersects = this.raycaster.intersectObjects(this.getIntractables());
+    return intersects[0];
+  }
 
-    if (intersects.length === 0) return;
+  onMouseMove(event: MouseEvent) {
+    event.preventDefault();
+    this.cursorMesh.visible = false;
+    const intersect = this.getIntersect(event);
+    this.onInteract({ event, intersect });
+  }
 
-    const intersect = intersects[0];
-    if (yUnit.dot(intersect.face.normal) === 0) return;
+  onMouseUp(event: MouseEvent) {
+    event.preventDefault();
+    const intersect = this.getIntersect(event);
+
+    // TODO: Touch device support.
+    this.onTouchTap({ event, intersect });
+  }
+
+  handleInteract(intersect: THREE.Intersection) {
+    if (!intersect) return;
+    if (!this.hitTest(intersect)) return;
 
     this.cursorMesh.visible = true;
 
@@ -63,7 +146,7 @@ class CursorManager {
       .divideScalar(PIXEL_SCALE)
       .floor()
       .multiplyScalar(PIXEL_SCALE)
-      .add(this.offset);
+      .add(this.getCursorOffset(intersect.face.normal));
   }
 
   getPosition() {
@@ -79,27 +162,12 @@ class CursorManager {
   }
 
   setColor(color: number) {
-    this.cursorMesh.material['color'].setHex(color);
-  }
-
-  start(geometry: THREE.Geometry, offset: Position) {
-    this.cursorMesh = new THREE.Mesh(geometry, this.material);
-    this.offset.set(offset[0], offset[1], offset[2]);
-
-    this.cursorMesh.material['color'].setHex(0xff0000);
-    this.canvas.scene.add(this.cursorMesh);
-    this.canvas.container.addEventListener('mousemove', this.boundOnMouseEevent, false);
-  }
-
-  stop() {
-    this.canvas.scene.remove(this.cursorMesh);
-    this.canvas.container.removeEventListener('mousemove', this.boundOnMouseEevent, false);
+    this.material['color'].setHex(color);
   }
 
   destroy() {
     this.stop();
-    this.cursorMesh.geometry.dispose();
-    this.cursorMesh.material.dispose();
+    this.material.dispose();
   }
 }
 
