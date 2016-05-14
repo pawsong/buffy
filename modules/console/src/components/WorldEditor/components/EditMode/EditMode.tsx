@@ -13,7 +13,6 @@ import { PanelTypes, Panels } from '../../panel';
 import { SourceFileDB } from '../../../Studio/types';
 
 import RobotPanel from './RobotPanel';
-import ZonePanel from './ZonePanel';
 import ToolsPanel from './ToolsPanel';
 
 interface EditModeProps extends React.Props<EditMode> {
@@ -32,9 +31,6 @@ class EditMode extends React.Component<EditModeProps, {}> {
           files={this.props.files}
           playerId={this.props.editorState.playerId}
           onPlayerChange={playerId => this.props.onChange({ playerId })}
-        />
-        <ZonePanel
-          zones={this.props.editorState.zones}
         />
         <ToolsPanel
           changePaletteColor={brushColor => this.props.onChange({ brushColor })}
