@@ -57,10 +57,10 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
       const recipe: RecipeEditorState = recipeFile.state;
 
       const object = this.canvas.objectManager.create(robot.id, recipe.design);
-      const mesh = new THREE.Mesh(this.canvas.cubeGeometry , this.canvas.cubeMaterial);
-      mesh.castShadow = true;
+      // const mesh = new THREE.Mesh(this.canvas.cubeGeometry , this.canvas.cubeMaterial);
+      // mesh.castShadow = true;
 
-      object.add(mesh);
+      // object.add(mesh);
 
       const { group } = object;
 

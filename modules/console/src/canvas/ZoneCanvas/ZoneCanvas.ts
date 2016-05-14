@@ -88,10 +88,10 @@ abstract class ZoneCanvas extends Canvas {
     // Objects
     player.zone.objects.forEach(obj => {
       const object = this.objectManager.create(obj.id, obj.designId);
-      const mesh = new THREE.Mesh(this.cubeGeometry , this.cubeMaterial);
-      mesh.castShadow = true;
+      // const mesh = new THREE.Mesh(this.cubeGeometry , this.cubeMaterial);
+      // mesh.castShadow = true;
 
-      object.add(mesh);
+      // object.add(mesh);
 
       const { group } = object;
 

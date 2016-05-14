@@ -270,7 +270,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       .forEach(file => {
         const loader = this.designManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
-        loader.loadFromMemory(file.id, file.state.voxel.present.mesh);
+        loader.loadFromMemory(file.state.voxel.present.mesh);
       });
 
     this.startStateLayer();
@@ -330,11 +330,14 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     switch(file.type) {
       case FileType.DESIGN: {
         const mesh = file.state.voxel.present.mesh;
-        this.stateLayer.rpc.updateMesh({
-          objectId: world.playerId,
-          designId: fileId,
-          mesh: mesh,
-        });
+        const loader = this.designManager.getLoader(fileId);
+        loader.loadFromMemory(mesh);
+        // this.stateLayer.rpc.updateMesh({
+        //   objectId: world.playerId,
+        //   designId: fileId,
+        //   mesh: mesh,
+        // });
+        break;
       }
       case FileType.ROBOT: {
         const state: RecipeEditorState = file.state;
@@ -343,6 +346,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
           robot: file.id,
           design: state.design,
         });
+        break;
       }
     }
 
@@ -458,7 +462,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       if (spec.type === FileType.DESIGN) {
         const loader = this.designManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
-        loader.loadFromMemory(file.id, file.state.voxel.present.mesh);
+        loader.loadFromMemory(file.state.voxel.present.mesh);
       }
     });
 

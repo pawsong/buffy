@@ -116,7 +116,7 @@ class DesignLoader {
     this.xhr.send();
   }
 
-  loadFromMemory(designId: string, mesh: Mesh) {
+  loadFromMemory(mesh: Mesh) {
     if (this.xhr) {
       this.xhr.abort();
       this.xhr = null;
