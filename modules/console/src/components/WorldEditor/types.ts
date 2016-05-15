@@ -44,6 +44,7 @@ export enum EditToolType {
   ADD_BLOCK,
   REMOVE_BLOCK,
   COLORIZE,
+  ADD_ROBOT,
 }
 
 export interface Color {
@@ -73,6 +74,8 @@ export interface EditModeState {
   robots: { [index: string]: Robot };
   zones: { [index: string]: Zone };
   activeZoneId: string;
+  addRobotRecipeId: string;
+  toolToRestore: EditToolType;
 }
 
 export enum PlayState {

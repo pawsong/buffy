@@ -7,6 +7,7 @@ const objectAssign = require('object-assign');
 
 import {
   EditModeState,
+  EditToolType,
   Robot,
 } from '../types';
 
@@ -15,6 +16,8 @@ import {
   CHANGE_EDIT_TOOL, ChangeEditToolAction,
   CHANGE_PALETTE_COLOR, ChangePaletteColorAction,
   CHANGE_ACTIVE_ZONE, ChangeActiveZoneAction,
+  REQUEST_ADD_ROBOT, RequestAddRobotAction,
+  ADD_ROBOT, AddRobotAction,
   REMOVE_ROBOT, RemoveRobotAction,
 } from '../actions';
 
@@ -31,6 +34,25 @@ export function editModeReducer(state: EditModeState, action: Action<any>): Edit
     case CHANGE_ACTIVE_ZONE: {
       const { zoneId } = <ChangeActiveZoneAction>action;
       return objectAssign({}, state, { activeZoneId: zoneId });
+    }
+    case REQUEST_ADD_ROBOT: {
+      const { recipeId } = <RequestAddRobotAction>action;
+      return Object.assign({}, state, {
+        tool: EditToolType.ADD_ROBOT,
+        toolToRestore: state.tool,
+        addRobotRecipeId: recipeId,
+      });
+    }
+    case ADD_ROBOT: {
+      const { robot } = <AddRobotAction>action;
+      const robots = Object.assign({}, state.robots);
+      robots[robot.id] = robot;
+      return Object.assign({}, state, {
+        robots,
+        tool: state.toolToRestore,
+        toolToRestore: EditToolType.ADD_BLOCK,
+        addRobotRecipeId: '',
+      });
     }
     case REMOVE_ROBOT: {
       const { robotId } = <RemoveRobotAction>action;

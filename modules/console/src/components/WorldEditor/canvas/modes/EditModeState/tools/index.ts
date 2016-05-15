@@ -13,6 +13,7 @@ export { EditModeTool, InitParams }
 import AddBlockTool from './AddBlockTool';
 import EraseBlockTool from './EraseBlockTool';
 import ColorizeTool from './ColorizeTool';
+import AddRobotTool from './AddRobotTool';
 
 export default function createTool(
   toolType: EditToolType,
@@ -28,6 +29,9 @@ export default function createTool(
     }
     case EditToolType.REMOVE_BLOCK: {
       return new EraseBlockTool(params, getState);
+    }
+    case EditToolType.ADD_ROBOT: {
+      return new AddRobotTool(params, getState);
     }
   }
 

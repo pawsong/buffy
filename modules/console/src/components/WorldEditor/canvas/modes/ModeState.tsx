@@ -24,7 +24,7 @@ abstract class ModeState<T, U> extends State {
       [CHANGE_MODE]: (mode: EditorMode) => ({ state: EditorMode[mode] }),
       [State.EVENT_ENTER]: () => this.handleEnter(),
       [State.EVENT_LEAVE]: () => this.handleLeave(),
-      [CHANGE_STATE]: (nextState: WorldEditorState) => this.handleStateChange(nextState),
+      [CHANGE_STATE]: (state: WorldEditorState) => this.handleStateChange(state),
       [MOUSE_DOWN]: (event: MouseEvent) => this.handleMouseDown(event),
       [MOUSE_UP]: (event: MouseEvent) => this.handleMouseUp(event),
     });
@@ -50,8 +50,8 @@ abstract class ModeState<T, U> extends State {
     this.tool.onStop();
   }
 
-  handleStateChange(nextState: WorldEditorState) {
-    const toolType = this.getToolType(nextState);
+  handleStateChange(state: WorldEditorState) {
+    const toolType = this.getToolType(state);
 
     if (this.tool.getToolType() !== toolType) {
       const nextTool = this.getOrCreateTool(toolType);
@@ -60,7 +60,7 @@ abstract class ModeState<T, U> extends State {
       this.tool.onStart();
     }
 
-    this.tool.updateProps(nextState);
+    this.tool.updateProps(state);
   }
 
   handleMouseDown(event: MouseEvent) {

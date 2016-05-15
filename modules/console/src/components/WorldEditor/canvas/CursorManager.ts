@@ -22,6 +22,7 @@ interface StartOptions {
   cursorGeometry?: THREE.Geometry;
   cursorMaterial?: THREE.Material;
   cursorOffset?: Position;
+  cursorScale?: number;
   getCursorOffset?: (normal: THREE.Vector3) => THREE.Vector3;
   hitTest?: (intersect: THREE.Intersection) => boolean;
 }
@@ -68,6 +69,7 @@ class CursorManager {
     cursorGeometry,
     cursorMaterial,
     cursorOffset,
+    cursorScale,
     getCursorOffset,
     hitTest,
   } : StartOptions) {
@@ -81,6 +83,10 @@ class CursorManager {
       this.canvas.scene.add(this.cursorMesh);
     } else {
       this.cursorMesh = new THREE.Mesh();
+    }
+
+    if (cursorScale) {
+      this.cursorMesh.scale.set(cursorScale, cursorScale, cursorScale);
     }
 
     if (cursorOffset) {
@@ -110,6 +116,18 @@ class CursorManager {
     this.canvas.container.removeEventListener('mouseup', this.boundOnMouseUp, false);
   }
 
+  changeGeometry(geometry: THREE.Geometry) {
+    // Create new mesh that inherits properties from current mesh.
+    const newMesh = new THREE.Mesh(geometry, this.cursorMesh.material);
+    newMesh.visible = this.cursorMesh.visible;
+    newMesh.position.copy(this.cursorMesh.position);
+
+    // Swap mesh
+    this.canvas.scene.remove(this.cursorMesh);
+    this.canvas.scene.add(newMesh);
+    this.cursorMesh = newMesh;
+  }
+
   private getIntersect(event: MouseEvent) {
     this.raycaster.setFromCamera({
       x: (event.offsetX / this.canvas.container.offsetWidth) * 2 - 1,
@@ -122,6 +140,10 @@ class CursorManager {
 
   onMouseMove(event: MouseEvent) {
     event.preventDefault();
+    this.handleMouseMove(event);
+  }
+
+  handleMouseMove(event: MouseEvent) {
     this.cursorMesh.visible = false;
     const intersect = this.getIntersect(event);
     this.onInteract({ event, intersect });
@@ -133,6 +155,9 @@ class CursorManager {
 
     // TODO: Touch device support.
     this.onTouchTap({ event, intersect });
+
+    // Test interact again.
+    this.handleMouseMove(event);
   }
 
   handleInteract(intersect: THREE.Intersection) {

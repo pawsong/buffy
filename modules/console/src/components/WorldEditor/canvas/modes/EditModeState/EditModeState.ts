@@ -4,6 +4,7 @@ import {
 import { RecipeEditorState } from '../../../../RecipeEditor';
 
 import {
+  Robot,
   Action,
   ViewMode,
   WorldEditorState,
@@ -15,6 +16,7 @@ import {
 } from '../../../types';
 
 import {
+  ADD_ROBOT, AddRobotAction,
   REMOVE_ROBOT, RemoveRobotAction,
 } from '../../../actions';
 
@@ -50,6 +52,31 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
     return createTool(toolType, this.getState, this.initParams);
   }
 
+  addRobot(robot: Robot, files: SourceFileDB) {
+    const canvas = this.initParams.view;
+
+    const recipeFile = files[robot.recipe];
+    const recipe: RecipeEditorState = recipeFile.state;
+
+    const object = this.initParams.view.objectManager.create(robot.id, recipe.design);
+    // const mesh = new THREE.Mesh(this.canvas.cubeGeometry , this.canvas.cubeMaterial);
+    // mesh.castShadow = true;
+
+    // object.add(mesh);
+
+    const { group } = object;
+
+    group.position.x = robot.position[0] * PIXEL_SCALE - PIXEL_SCALE_HALF;
+    group.position.y = robot.position[1] * PIXEL_SCALE - PIXEL_SCALE_HALF;
+    group.position.z = robot.position[2] * PIXEL_SCALE - PIXEL_SCALE_HALF;
+
+    group.lookAt(new THREE.Vector3(
+      group.position.x + robot.direction[0],
+      group.position.y + robot.direction[1],
+      group.position.z + robot.direction[2]
+    ));
+  }
+
   handleEnter() {
     const canvas = this.initParams.view;
 
@@ -66,26 +93,7 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
     Object.keys(state.editMode.robots).forEach(id => {
       const robot = state.editMode.robots[id];
-      const recipeFile =  files[robot.recipe];
-      const recipe: RecipeEditorState = recipeFile.state;
-
-      const object = canvas.objectManager.create(robot.id, recipe.design);
-      // const mesh = new THREE.Mesh(this.canvas.cubeGeometry , this.canvas.cubeMaterial);
-      // mesh.castShadow = true;
-
-      // object.add(mesh);
-
-      const { group } = object;
-
-      group.position.x = robot.position[0] * PIXEL_SCALE - PIXEL_SCALE_HALF;
-      group.position.y = robot.position[1] * PIXEL_SCALE - PIXEL_SCALE_HALF;
-      group.position.z = robot.position[2] * PIXEL_SCALE - PIXEL_SCALE_HALF;
-
-      group.lookAt(new THREE.Vector3(
-        group.position.x + robot.direction[0],
-        group.position.y + robot.direction[1],
-        group.position.z + robot.direction[2]
-      ));
+      this.addRobot(robot, files);
     });
 
     canvas.applyCameraMode(ViewMode.BIRDS_EYE);
@@ -102,6 +110,12 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
   handleActionDispatch(action: Action<any>) {
     switch(action.type) {
+      case ADD_ROBOT: {
+        const { robot } = <AddRobotAction>action;
+        const files = this.getFiles();
+        this.addRobot(robot, files);
+        return;
+      }
       case REMOVE_ROBOT: {
         const { robotId } = <RemoveRobotAction>action;
         this.initParams.view.objectManager.remove(robotId);

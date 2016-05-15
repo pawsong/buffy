@@ -5,6 +5,7 @@ import {
   PlayToolType,
   ViewMode,
   PlayState,
+  Robot,
 } from '../types';
 
 export interface Action<T> {
@@ -62,6 +63,28 @@ export function changeActiveZone(zoneId: string): ChangeActiveZoneAction {
   return {
     type: CHANGE_ACTIVE_ZONE,
     zoneId,
+  };
+}
+
+export const REQUEST_ADD_ROBOT: 'REQUEST_ADD_ROBOT' = 'REQUEST_ADD_ROBOT';
+export interface RequestAddRobotAction extends Action<typeof REQUEST_ADD_ROBOT> {
+  recipeId: string;
+}
+export function requestAddRobot(recipeId: string): RequestAddRobotAction {
+  return {
+    type: REQUEST_ADD_ROBOT,
+    recipeId,
+  };
+}
+
+export const ADD_ROBOT: 'ADD_ROBOT' = 'ADD_ROBOT';
+export interface AddRobotAction extends Action<typeof ADD_ROBOT> {
+  robot: Robot;
+}
+export function addRobot(robot: Robot): AddRobotAction {
+  return {
+    type: ADD_ROBOT,
+    robot,
   };
 }
 

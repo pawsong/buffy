@@ -98,8 +98,11 @@ class Canvas extends React.Component<CanvasProps, {}> {
       this.canvas.resize();
     }
 
-    if (this.props.editorState !== nextProps.editorState) {
-      this.canvas.onChange(nextProps.editorState);
+  }
+
+  componentDidUpdate(prevProps: CanvasProps) {
+    if (prevProps.editorState !== this.props.editorState) {
+      this.canvas.onChange(this.props.editorState);
     }
   }
 

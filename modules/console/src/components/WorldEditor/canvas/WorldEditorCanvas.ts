@@ -178,7 +178,10 @@ class WorldEditorCanvas extends ZoneCanvas {
     // Initialize modes
     this.editModeState = new EditModeState(this.getGameState, {
       view: this,
+      getState: this.getGameState,
+      getFiles: this.getFiles,
       dispatchAction: this.dispatchAction,
+      designManager: this.designManager,
     }, this.getFiles, this.subscribeAction);
     this.editModeState.init();
 
@@ -234,8 +237,8 @@ class WorldEditorCanvas extends ZoneCanvas {
     this.view.setPosition(pos);
   }
 
-  handleChange(nextState: WorldEditorState) {
-    this.modeFsm.trigger(ModeEvents.CHANGE_STATE, nextState);
+  handleChange(state: WorldEditorState) {
+    this.modeFsm.trigger(ModeEvents.CHANGE_STATE, state);
 
     // if (this.state.editMode.playerId !== nextState.editMode.playerId) {
     //   const object = this.objectManager.objects[nextState.editMode.playerId];
@@ -246,7 +249,7 @@ class WorldEditorCanvas extends ZoneCanvas {
     //   this.applyCameraMode(nextState.playMode.viewMode);
     // }
 
-    this.state = nextState;
+    this.state = state;
   }
 
   destroy() {

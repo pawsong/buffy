@@ -236,6 +236,8 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
       },
       activeZoneId: zone.id,
       paletteColor: { r: 104, g: 204, b: 202 },
+      addRobotRecipeId: '',
+      toolToRestore: EditToolType.ADD_BLOCK,
     },
     playMode: {
       state: PlayState.READY,
