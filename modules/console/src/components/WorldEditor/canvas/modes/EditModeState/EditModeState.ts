@@ -4,10 +4,20 @@ import {
 import { RecipeEditorState } from '../../../../RecipeEditor';
 
 import {
+  Action,
+  ViewMode,
   WorldEditorState,
   EditToolType,
   GetState,
+  DispatchAction,
+  SubscribeAction,
+  UnsubscribeAction,
 } from '../../../types';
+
+import {
+  REMOVE_ROBOT, RemoveRobotAction,
+} from '../../../actions';
+
 import WorldEditorCanvas from '../../WorldEditorCanvas';
 import createTool, { EditModeTool, InitParams } from './tools';
 
@@ -21,15 +31,18 @@ import {
 class EditModeState extends ModeState<EditToolType, InitParams> {
   getFiles: () => SourceFileDB;
   initParams: InitParams;
+  subscribeAction: SubscribeAction;
+  unsubscribeAction: UnsubscribeAction;
 
-  constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB) {
+  constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB, subscribeAction: SubscribeAction) {
     super(getState, initParams);
     this.getFiles = getFiles;
     this.initParams = initParams;
+    this.subscribeAction = subscribeAction;
   }
 
   getToolType(editorState: WorldEditorState): EditToolType {
-    return editorState.editTool;
+    return editorState.editMode.tool;
   }
 
   // Lazy getter
@@ -44,15 +57,15 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
     // Connect to file store
     const state = this.getState();
-    const zone = state.zones[state.activeZoneId];
+    const zone = state.editMode.zones[state.editMode.activeZoneId];
 
     canvas.chunk.setData(zone.blocks);
     canvas.chunk.update();
 
     const files = this.getFiles();
 
-    Object.keys(state.robots).forEach(id => {
-      const robot = state.robots[id];
+    Object.keys(state.editMode.robots).forEach(id => {
+      const robot = state.editMode.robots[id];
       const recipeFile =  files[robot.recipe];
       const recipe: RecipeEditorState = recipeFile.state;
 
@@ -75,7 +88,26 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
       ));
     });
 
+    canvas.applyCameraMode(ViewMode.BIRDS_EYE);
+
+    this.unsubscribeAction = this.subscribeAction(action => this.handleActionDispatch(action));
+
     super.handleEnter();
+  }
+
+  handleLeave() {
+    super.handleLeave();
+    this.unsubscribeAction();
+  }
+
+  handleActionDispatch(action: Action<any>) {
+    switch(action.type) {
+      case REMOVE_ROBOT: {
+        const { robotId } = <RemoveRobotAction>action;
+        this.initParams.view.objectManager.remove(robotId);
+        return;
+      }
+    }
   }
 }
 

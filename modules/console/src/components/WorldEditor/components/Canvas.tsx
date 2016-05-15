@@ -7,16 +7,30 @@ import { SourceFileDB } from '../../Studio/types';
 import DesignManager from '../../../canvas/DesignManager';
 
 import { WorldEditorCanvas } from '../canvas';
-import { WorldEditorState, EditorMode, PlayModeState } from '../types';
+
+import {
+  Action,
+  PlayState,
+  WorldEditorState,
+  EditorMode,
+  PlayModeState,
+  DispatchAction,
+  SubscribeAction,
+} from '../types';
+
+import {
+  changePlayState,
+} from '../actions';
 
 interface CanvasProps extends React.Props<Canvas> {
   sizeVersion: number;
   stateLayer: StateLayer;
   designManager: DesignManager;
   editorState: WorldEditorState;
-  onChange: (state: WorldEditorState) => any;
+  dispatchAction: DispatchAction;
   registerElement: (element: HTMLElement) => any;
   files: SourceFileDB;
+  subscribeAction: SubscribeAction;
 }
 
 const styles = {
@@ -40,7 +54,8 @@ class Canvas extends React.Component<CanvasProps, {}> {
       designManager: this.props.designManager,
       stateLayer: this.props.stateLayer,
       getState: () => this.props.editorState,
-      setEditorState: this.props.onChange,
+      dispatchAction: this.props.dispatchAction,
+      subscribeAction: this.props.subscribeAction,
       getFiles: () => this.props.files,
     });
     this.canvas.init();
@@ -48,7 +63,7 @@ class Canvas extends React.Component<CanvasProps, {}> {
     const canvasElement = this.canvas.renderer.domElement;
 
     this.pointerlockchange = () => {
-      if (this.props.editorState.mode !== EditorMode.PLAY) return;
+      if (this.props.editorState.common.mode !== EditorMode.PLAY) return;
 
       if (
            document.pointerLockElement === canvasElement
@@ -57,8 +72,8 @@ class Canvas extends React.Component<CanvasProps, {}> {
       ) {
         // DO NOTHING
       } else {
-        if (this.props.editorState.playMode !== PlayModeState.READY) {
-          this.props.onChange({ playMode: PlayModeState.READY });
+        if (this.props.editorState.playMode.state !== PlayState.READY) {
+          this.props.dispatchAction(changePlayState(PlayState.READY));
         }
       }
     };

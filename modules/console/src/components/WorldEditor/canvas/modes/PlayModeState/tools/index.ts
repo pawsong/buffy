@@ -18,7 +18,7 @@ export default function createTool(
   params: InitParams
 ): PlayModeTool {
   switch(toolType) {
-    case PlayToolType.move: {
+    case PlayToolType.MOVE: {
       return new MoveTool(params, getState);
     }
   }

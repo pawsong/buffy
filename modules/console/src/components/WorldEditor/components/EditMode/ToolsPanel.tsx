@@ -138,8 +138,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
       <div>
         <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool(EditToolType.addBlock)}
-            style={this.getIconButtonStyle(styles.iconButton, EditToolType.addBlock)}
+            onTouchTap={() => this.props.selectTool(EditToolType.ADD_BLOCK)}
+            style={this.getIconButtonStyle(styles.iconButton, EditToolType.ADD_BLOCK)}
             tooltipStyles={styles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
@@ -148,8 +148,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             brush
           </IconButton>
           <IconButton
-            onTouchTap={() => this.props.selectTool(EditToolType.eraseBlock)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, EditToolType.eraseBlock)}
+            onTouchTap={() => this.props.selectTool(EditToolType.REMOVE_BLOCK)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, EditToolType.REMOVE_BLOCK)}
             iconStyle={{
               transform: 'rotate(45deg)',
             }}
@@ -163,8 +163,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         </div>
         <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool(EditToolType.colorize)}
-            style={this.getIconButtonStyle(styles.iconButton, EditToolType.colorize)}
+            onTouchTap={() => this.props.selectTool(EditToolType.COLORIZE)}
+            style={this.getIconButtonStyle(styles.iconButton, EditToolType.COLORIZE)}
             tooltipStyles={styles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"

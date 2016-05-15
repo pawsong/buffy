@@ -4,7 +4,7 @@ import {
 import {
   WorldEditorState,
   EditToolType,
-  GetState,
+  DispatchAction,
 } from '../../../../types';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
@@ -13,7 +13,7 @@ import WorldEditorCanvasTool from '../../WorldEditorCanvasTool';
 
 export interface InitParams {
   view: WorldEditorCanvas;
-  setEditorState: (editorState: WorldEditorState) => any;
+  dispatchAction: DispatchAction;
 }
 
 abstract class EditModeTool extends WorldEditorCanvasTool<EditToolType, InitParams> {}

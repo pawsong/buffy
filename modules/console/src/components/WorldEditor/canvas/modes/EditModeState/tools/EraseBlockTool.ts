@@ -72,7 +72,7 @@ class EraseBlockTool extends EditModeTool {
   cursorGeometry: THREE.Geometry;
   cursorMaterial: THREE.Material;
 
-  getToolType() { return EditToolType.eraseBlock; }
+  getToolType() { return EditToolType.REMOVE_BLOCK; }
 
   init({ view }: InitParams) {
     this.cursorGeometry = new THREE.CubeGeometry(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);

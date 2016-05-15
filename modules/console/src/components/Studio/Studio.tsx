@@ -248,6 +248,18 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     }));
   }
 
+  handleFileChange2(id: string, state: any) {
+    const file = this.props.studioState.files[id];
+    const modified = file.modified || file.state !== state;
+
+    this.props.onChange(update(this.props.studioState, {
+      files: { [id]: {
+        modified: { $set: modified },
+        state: { $set: state },
+      } },
+    }));
+  }
+
   handleFileTabOrderChange(dragIndex, hoverIndex) {
     const dragId = this.props.studioState.filesOnTab[dragIndex];
     this.handleStateChange({
@@ -338,7 +350,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           <LayoutContainer remaining={true}>
             <WorldEditor
               editorState={this.props.studioState.files[this.props.studioState.worldId].state}
-              onFileChange={(id, state) => this.handleFileChange(id, state)}
+              onChange={state => this.handleFileChange2(state.common.fileId, state)}
               sizeVersion={this.state.gameSizeVersion}
               stateLayer={this.props.stateLayer}
               designManager={this.props.designManager}

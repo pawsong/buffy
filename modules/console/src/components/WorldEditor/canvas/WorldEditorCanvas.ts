@@ -9,6 +9,10 @@ import {
 } from '../../Studio/types';
 
 import {
+  CHANGE_EDITOR_MODE, ChangeEditorModeAction,
+} from '../actions';
+
+import {
   Events as ModeEvents,
   EditModeState,
   PlayModeState,
@@ -23,10 +27,15 @@ import {
 } from '../Constants';
 
 import {
+  Action,
   WorldEditorState,
+  DispatchAction,
   GetState,
   EditorMode,
-  CameraMode,
+  ViewMode,
+  ActionListener,
+  SubscribeAction,
+  UnsubscribeAction,
 } from '../types';
 
 import CursorManager from './CursorManager';
@@ -52,7 +61,8 @@ interface WorldEditorCanvasOptions {
   designManager: DesignManager;
   stateLayer: StateLayer;
   getState: GetState;
-  setEditorState: (editorState: WorldEditorState) => any;
+  dispatchAction: DispatchAction;
+  subscribeAction: SubscribeAction;
   getFiles: () => SourceFileDB;
 }
 
@@ -77,49 +87,54 @@ class WorldEditorCanvas extends ZoneCanvas {
 
   private stateLayer: StateLayer;
   private getGameState: GetState;
-  private setEditorState: (editorState: WorldEditorState) => any;
+  private dispatchAction: DispatchAction;
   private getFiles: () => SourceFileDB;
+
+  private subscribeAction: SubscribeAction;
+  private unsubscribeAction: UnsubscribeAction;
 
   constructor({
     container,
     designManager,
     stateLayer,
     getState,
-    setEditorState,
+    dispatchAction,
+    subscribeAction,
     getFiles,
   }: WorldEditorCanvasOptions) {
     super(container, designManager, () => {
       const state = getState();
-      return { playerId: state.playerId };
+      return { playerId: state.editMode.playerId };
     });
 
     this.cachedViews = {};
     this.stateLayer = stateLayer;
     this.getGameState = getState;
     this.getFiles = getFiles;
-    this.setEditorState = setEditorState;
+    this.dispatchAction = dispatchAction;
+    this.subscribeAction = subscribeAction;
   }
 
-  private applyCameraMode(cameraMode: CameraMode) {
+  applyCameraMode(viewMode: ViewMode) {
     let nextView: View;
 
-    switch(cameraMode) {
-      case CameraMode.BIRDS_EYE: {
-        if (!this.cachedViews[CameraMode.BIRDS_EYE]) {
-          this.cachedViews[CameraMode.BIRDS_EYE] = new BirdsEyeView(this.container, this.renderer, this.scene);
+    switch(viewMode) {
+      case ViewMode.BIRDS_EYE: {
+        if (!this.cachedViews[ViewMode.BIRDS_EYE]) {
+          this.cachedViews[ViewMode.BIRDS_EYE] = new BirdsEyeView(this.container, this.renderer, this.scene);
         }
-        nextView = this.cachedViews[CameraMode.BIRDS_EYE];
+        nextView = this.cachedViews[ViewMode.BIRDS_EYE];
         break;
       }
-      case CameraMode.FIRST_PERSON: {
-        if (!this.cachedViews[CameraMode.FIRST_PERSON]) {
-          this.cachedViews[CameraMode.FIRST_PERSON] = new FirstPersonView(this.container, this.renderer, this.scene);
+      case ViewMode.FIRST_PERSON: {
+        if (!this.cachedViews[ViewMode.FIRST_PERSON]) {
+          this.cachedViews[ViewMode.FIRST_PERSON] = new FirstPersonView(this.container, this.renderer, this.scene);
         }
-        nextView = this.cachedViews[CameraMode.FIRST_PERSON]
+        nextView = this.cachedViews[ViewMode.FIRST_PERSON]
         break;
       }
       default: {
-        throw new Error(`Invalid camera mode: ${cameraMode}`);
+        throw new Error(`Invalid camera mode: ${viewMode}`);
       }
     }
 
@@ -163,24 +178,36 @@ class WorldEditorCanvas extends ZoneCanvas {
     // Initialize modes
     this.editModeState = new EditModeState(this.getGameState, {
       view: this,
-      setEditorState: this.setEditorState,
-    }, this.getFiles);
+      dispatchAction: this.dispatchAction,
+    }, this.getFiles, this.subscribeAction);
     this.editModeState.init();
 
     this.playModeState = new PlayModeState(this.getGameState, {
       view: this,
       stateLayer: this.stateLayer,
-    }, this.getFiles);
+    }, this.getFiles, this.subscribeAction);
     this.playModeState.init();
 
     this.modeFsm = new Fsm({
       [EditorMode[EditorMode.EDIT]]: this.editModeState,
       [EditorMode[EditorMode.PLAY]]: this.playModeState,
-    }, EditorMode[this.state.mode]);
+    }, EditorMode[this.state.editMode.tool]);
+
+    this.unsubscribeAction = this.subscribeAction(action => this.handleActionDispatch(action));
+  }
+
+  handleActionDispatch(action: Action<any>) {
+    switch(action.type) {
+      case CHANGE_EDITOR_MODE: {
+        const { mode } = <ChangeEditorModeAction>action;
+        this.modeFsm.trigger(ModeEvents.CHANGE_MODE, mode);
+        return;
+      }
+    }
   }
 
   initCamera(): THREE.Camera {
-    this.applyCameraMode(this.state.cameraMode);
+    this.applyCameraMode(this.state.playMode.viewMode);
     return this.view.camera;
   }
 
@@ -208,25 +235,23 @@ class WorldEditorCanvas extends ZoneCanvas {
   }
 
   handleChange(nextState: WorldEditorState) {
-    if (this.state.mode !== nextState.mode) {
-      this.modeFsm.trigger(ModeEvents.CHANGE_MODE, nextState.mode);
-    }
-
     this.modeFsm.trigger(ModeEvents.CHANGE_STATE, nextState);
 
-    if (this.state.playerId !== nextState.playerId) {
-      const object = this.objectManager.objects[nextState.playerId];
-      this.setCameraPosition(object.group.position);
-    }
+    // if (this.state.editMode.playerId !== nextState.editMode.playerId) {
+    //   const object = this.objectManager.objects[nextState.editMode.playerId];
+    //   this.setCameraPosition(object.group.position);
+    // }
 
-    if (this.state.cameraMode !== nextState.cameraMode) {
-      this.applyCameraMode(nextState.cameraMode);
-    }
+    // if (this.state.playMode.viewMode !== nextState.playMode.viewMode) {
+    //   this.applyCameraMode(nextState.playMode.viewMode);
+    // }
 
     this.state = nextState;
   }
 
   destroy() {
+    this.unsubscribeAction();
+
     this.editModeState.destroy();
     this.playModeState.destroy();
 

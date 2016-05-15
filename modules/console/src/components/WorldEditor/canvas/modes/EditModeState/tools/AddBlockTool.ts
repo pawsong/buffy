@@ -44,8 +44,8 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
 
   mapStateToProps(gameState: WorldEditorState): WaitStateProps {
     return {
-      playerId: gameState.playerId,
-      brushColor: gameState.brushColor,
+      playerId: gameState.editMode.playerId,
+      brushColor: gameState.editMode.paletteColor,
     };
   }
 
@@ -81,7 +81,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
 }
 
 class AddBlockTool extends EditModeTool{
-  getToolType() { return EditToolType.addBlock; }
+  getToolType() { return EditToolType.ADD_BLOCK; }
 
   init({ view }: InitParams) {
     const wait = new WaitState(view);

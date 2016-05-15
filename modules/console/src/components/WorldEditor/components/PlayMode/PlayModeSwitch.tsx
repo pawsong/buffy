@@ -3,25 +3,23 @@ import * as React from 'react';
 const styles = require('./PlayMode.css');
 const classNames = require('classnames');
 
-import { WorldEditorState, PlayModeState, CameraMode } from '../../types';
+import {
+  WorldEditorState,
+  PlayModeState,
+  CameraMode,
+  ViewMode,
+  PlayState,
+} from '../../types';
 
 interface PlayModeSwitchProps {
   canvasElement: HTMLElement;
-  onChange: (state: WorldEditorState) => any;
+  onViewModeChange: (viewMode: ViewMode) => any;
+  onPlayStart: () => any;
 }
 
 function requestPointerLock(element: HTMLElement) {
   const api = element.requestPointerLock || element['mozRequestPointerLock'] || element['webkitRequestPointerLock'];
   api.apply(element);
-}
-
-function handlePerspectiveModeRequest(props: PlayModeSwitchProps) {
-  requestPointerLock(props.canvasElement);
-
-  props.onChange({
-    cameraMode: CameraMode.FIRST_PERSON,
-    playMode: PlayModeState.PLAY,
-  });
 }
 
 const leftPaneClass = classNames(styles.pane, styles.leftPane);
@@ -31,22 +29,18 @@ const PlayModeSwitch: React.StatelessComponent<PlayModeSwitchProps> = props => (
   <div>
     <div
       className={leftPaneClass}
-      onMouseEnter={() => props.onChange({
-        cameraMode: CameraMode.BIRDS_EYE,
-      })}
-      onClick={() => props.onChange({
-        cameraMode: CameraMode.BIRDS_EYE,
-        playMode: PlayModeState.PLAY,
-      })}
+      onMouseEnter={() => props.onViewModeChange(ViewMode.BIRDS_EYE)}
+      onClick={props.onPlayStart}
     >
       <div>Bird's eye view</div>
     </div>
     <div
       className={rightPaneClass}
-      onMouseEnter={() => props.onChange({
-        cameraMode: CameraMode.FIRST_PERSON,
-      })}
-      onClick={() => handlePerspectiveModeRequest(props)}
+      onMouseEnter={() => props.onViewModeChange(ViewMode.FIRST_PERSON)}
+      onClick={() => {
+        requestPointerLock(props.canvasElement);
+        props.onPlayStart();
+      }}
     >
       <div>Third person view</div>
     </div>

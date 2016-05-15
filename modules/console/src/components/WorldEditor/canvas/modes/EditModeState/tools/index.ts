@@ -20,13 +20,13 @@ export default function createTool(
   params: InitParams
 ): EditModeTool {
   switch(toolType) {
-    case EditToolType.addBlock: {
+    case EditToolType.ADD_BLOCK: {
       return new AddBlockTool(params, getState);
     }
-    case EditToolType.colorize: {
+    case EditToolType.COLORIZE: {
       return new ColorizeTool(params, getState);
     }
-    case EditToolType.eraseBlock: {
+    case EditToolType.REMOVE_BLOCK: {
       return new EraseBlockTool(params, getState);
     }
   }

@@ -6,6 +6,10 @@ const objectAssign = require('object-assign');
 
 import * as ndarray from 'ndarray';
 
+import {
+  changeEditorMode,
+} from './actions';
+
 import DesignManager from '../../canvas/DesignManager';
 
 import { connectTarget } from '../Panel';
@@ -25,6 +29,8 @@ import { TOOLBAR_HEIGHT } from './Constants';
 import generateObjectId from '../../utils/generateObjectId';
 
 import {
+  PlayState,
+  ViewMode,
   EditToolType,
   PlayToolType,
   Color,
@@ -34,13 +40,19 @@ import {
   CameraMode,
   Robot,
   Zone,
+  Action,
+  DispatchAction,
+  ActionListener,
+  SubscribeAction,
 } from './types';
+
+import { rootReducer } from './reducers';
 
 export { WorldEditorState };
 
 interface WorldEditorProps extends React.Props<WorldEditor> {
   editorState: WorldEditorState;
-  onFileChange: (id: string, state: WorldEditorState) => any;
+  onChange: (state: WorldEditorState) => any;
   stateLayer: StateLayer;
   designManager: DesignManager;
   sizeVersion: number; // For resize
@@ -75,24 +87,37 @@ interface CreateStateOptions {
 class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState> {
   static createState: (fileId: string, options: CreateStateOptions) => WorldEditorState;
 
+  actionListeners: ActionListener[];
+
   constructor(props, context) {
     super(props, context);
     this.state = {
       canvasElement: null,
     };
+    this.actionListeners = [];
   }
 
-  handleChangeState = (nextState: WorldEditorState) => {
-    this.props.onFileChange(this.props.editorState.fileId, nextState);
+  subscribeAction: SubscribeAction = (listener) => {
+    this.actionListeners.push(listener);
+    return () => {
+      const index = this.actionListeners.indexOf(listener);
+      if (index !== -1) this.actionListeners.splice(index, 1);
+    };
+  }
+
+  dispatchAction = (action: Action<any>) => {
+    const nextState = rootReducer(this.props.editorState, action);
+    this.actionListeners.forEach(listener => listener(action));
+    this.props.onChange(nextState);
   }
 
   renderContent() {
-    switch(this.props.editorState.mode) {
+    switch(this.props.editorState.common.mode) {
       case EditorMode.EDIT: {
         return (
           <EditMode
             editorState={this.props.editorState}
-            onChange={this.handleChangeState}
+            dispatchAction={this.dispatchAction}
             files={this.props.files}
           />
         );
@@ -102,7 +127,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
           <PlayMode
             canvasElement={this.state.canvasElement}
             playModeState={this.props.editorState.playMode}
-            onChange={this.handleChangeState}
+            dispatchAction={this.dispatchAction}
           />
         );
       }
@@ -112,17 +137,11 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
   }
 
   handleEnterEditMode = () => {
-    this.handleChangeState({
-      mode: EditorMode.EDIT,
-      cameraMode: CameraMode.BIRDS_EYE,
-    });
+    this.dispatchAction(changeEditorMode(EditorMode.EDIT));
   }
 
   handleEnterPlayMode = () => {
-    this.handleChangeState({
-      mode: EditorMode.PLAY,
-      playMode: PlayModeState.READY,
-    });
+    this.dispatchAction(changeEditorMode(EditorMode.PLAY));
   }
 
   render() {
@@ -136,7 +155,8 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
         <div style={styles.canvasContainer}>
           <Canvas
             editorState={this.props.editorState}
-            onChange={this.handleChangeState}
+            dispatchAction={this.dispatchAction}
+            subscribeAction={this.subscribeAction}
             sizeVersion={this.props.sizeVersion}
             stateLayer={this.props.stateLayer}
             designManager={this.props.designManager}
@@ -200,22 +220,28 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
   }
 
   return {
-    fileId,
-    mode: EditorMode.EDIT,
-    playMode: PlayModeState.READY,
-    cameraMode: CameraMode.BIRDS_EYE,
-    playerId: robot1.id,
-    editTool: EditToolType.addBlock,
-    playTool: PlayToolType.move,
-    brushColor: { r: 104, g: 204, b: 202 },
-    robots: {
-      [robot1.id]: robot1,
-      [robot2.id]: robot2,
+    common: {
+      fileId,
+      mode: EditorMode.EDIT,
     },
-    zones: {
-      [zone.id]: zone,
+    editMode: {
+      tool: EditToolType.ADD_BLOCK,
+      playerId: robot1.id,
+      robots: {
+        [robot1.id]: robot1,
+        [robot2.id]: robot2,
+      },
+      zones: {
+        [zone.id]: zone,
+      },
+      activeZoneId: zone.id,
+      paletteColor: { r: 104, g: 204, b: 202 },
     },
-    activeZoneId: zone.id,
+    playMode: {
+      state: PlayState.READY,
+      tool: PlayToolType.MOVE,
+      viewMode: ViewMode.BIRDS_EYE,
+    },
   };
 }
 

@@ -342,7 +342,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       case FileType.ROBOT: {
         const state: RecipeEditorState = file.state;
         this.stateLayer.rpc.updateRobot({
-          objectId: world.playerId,
+          objectId: world.editMode.playerId,
           robot: file.id,
           design: state.design,
         });

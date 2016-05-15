@@ -4,7 +4,12 @@ import { Position } from '@pasta/core/lib/types';
 import {
   EditToolType,
   WorldEditorState,
+  DispatchAction,
 } from '../../../../types';
+
+import {
+  changePaletteColor,
+} from '../../../../actions';
 
 import {
   PIXEL_SCALE,
@@ -67,9 +72,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     if (!intersect) return;
 
     const { face } = intersect;
-    this.tool.setEditorState({
-      brushColor: multiplyColor(face.color),
-    });
+    this.tool.dispatchAction(changePaletteColor(multiplyColor(face.color)));
   }
 
   render() {}
@@ -77,12 +80,12 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
 
 class ColorizeTool extends EditModeTool {
   colorTooltip: HTMLElement;
-  setEditorState: (editorState: WorldEditorState) => any;
+  dispatchAction: DispatchAction;
 
-  getToolType() { return EditToolType.colorize; }
+  getToolType() { return EditToolType.COLORIZE; }
 
-  init({ view, setEditorState }: InitParams) {
-    this.setEditorState = setEditorState;
+  init({ view, dispatchAction }: InitParams) {
+    this.dispatchAction = dispatchAction;
 
     this.colorTooltip = document.createElement("div");
     this.colorTooltip.style.position = 'absolute';

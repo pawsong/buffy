@@ -26,7 +26,7 @@ const WorldEditorToolbar: React.StatelessComponent<WorldEditorToolbarProps> = pr
   return (
     <div style={styles.toolbarContainer}>
       <ModeSwitch
-        mode={props.editorState.mode}
+        mode={props.editorState.common.mode}
         onEnterEditMode={props.onEnterEditMode}
         onEnterPlayMode={props.onEnterPlayMode}
       />

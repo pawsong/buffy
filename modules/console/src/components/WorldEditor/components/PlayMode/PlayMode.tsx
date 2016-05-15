@@ -3,7 +3,18 @@ import * as React from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./PlayMode.css');
 
-import { WorldEditorState, PlayModeState } from '../../types';
+import {
+  changePlayState,
+  changePlayViewMode,
+} from '../../actions';
+
+import {
+  WorldEditorState,
+  PlayState,
+  ViewMode,
+  PlayModeState,
+  DispatchAction,
+} from '../../types';
 import { TOOLBAR_HEIGHT } from '../../Constants';
 
 import PlayModeSwitch from './PlayModeSwitch';
@@ -11,7 +22,7 @@ import PlayModeSwitch from './PlayModeSwitch';
 interface PlayModeProps extends React.Props<PlayMode> {
   canvasElement: HTMLElement;
   playModeState: PlayModeState;
-  onChange: (state: WorldEditorState) => any;
+  dispatchAction: DispatchAction;
 }
 
 const inlineStyles = {
@@ -26,10 +37,18 @@ const inlineStyles = {
 
 @withStyles(styles)
 class PlayMode extends React.Component<PlayModeProps, {}> {
+  handleViewModeChange(viewMode: ViewMode) {
+    this.props.dispatchAction(changePlayViewMode(viewMode));
+  }
+
+  handlePlayStateChange(playState: PlayState) {
+    this.props.dispatchAction(changePlayState(playState));
+  }
+
   handleKeyDown = (event: KeyboardEvent) => {
     switch(event.keyCode) {
       case 27: {
-        this.props.onChange({ playMode: PlayModeState.READY });
+        this.handlePlayStateChange(PlayState.READY);
         break;
       }
     }
@@ -44,11 +63,12 @@ class PlayMode extends React.Component<PlayModeProps, {}> {
   }
 
   render() {
-    const blocker = this.props.playModeState === PlayModeState.READY? (
+    const blocker = this.props.playModeState.state === PlayState.READY ? (
       <div style={inlineStyles.blocker}>
         <PlayModeSwitch
           canvasElement={this.props.canvasElement}
-          onChange={this.props.onChange}
+          onViewModeChange={viewMode => this.handleViewModeChange(viewMode)}
+          onPlayStart={() => this.handlePlayStateChange(PlayState.PLAY)}
         />
       </div>
     ) : null;

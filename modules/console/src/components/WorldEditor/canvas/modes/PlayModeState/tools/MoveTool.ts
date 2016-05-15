@@ -45,7 +45,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
 
   mapStateToProps(gameState: WorldEditorState): WaitStateProps {
     return {
-      playerId: gameState.playerId,
+      playerId: gameState.editMode.playerId,
     };
   }
 
@@ -76,7 +76,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
 }
 
 class MoveTool extends PlayModeTool {
-  getToolType() { return PlayToolType.move; }
+  getToolType() { return PlayToolType.MOVE; }
 
   init({ view, stateLayer }: InitParams) {
     const wait = new WaitState(view, stateLayer);
