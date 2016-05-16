@@ -21,8 +21,8 @@ import {
   RecipeEditorState,
 } from '../../../../RecipeEditor';
 import {
-  VoxelEditorState,
-} from '../../../../VoxelEditor';
+  ModelEditorState,
+} from '../../../../ModelEditor';
 
 interface AddRobotDialogProps extends React.Props<AddRobotDialog> {
   open: boolean;
@@ -69,7 +69,7 @@ class AddRobotDialog extends React.Component<AddRobotDialogProps, AddRobotDialog
         const recipe: RecipeEditorState = recipeFile.state;
 
         const designFile = this.props.files[recipe.design];
-        const design: VoxelEditorState = designFile.state;
+        const design: ModelEditorState = designFile.state;
 
         const onTouchTap = () => this.setState({ robotId: file.id });
 

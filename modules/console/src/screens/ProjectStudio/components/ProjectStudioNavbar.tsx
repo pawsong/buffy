@@ -19,7 +19,7 @@ import { getFileTypeAvatar } from '../../../components/Studio/utils';
 import { FileType } from '../../../components/Studio/types';
 
 import CodeEditor, { CodeEditorState } from '../../../components/CodeEditor';
-import VoxelEditor, { VoxelEditorState } from '../../../components/VoxelEditor';
+import ModelEditor, { ModelEditorState } from '../../../components/ModelEditor';
 import RecipeEditor, { RecipeEditorState } from '../../../components/RecipeEditor';
 
 import generateObjectId from '../../../utils/generateObjectId';
@@ -92,8 +92,8 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
         data = CodeEditor.creatState(fileId);
         break;
       }
-      case FileType.DESIGN: {
-        data = VoxelEditor.createState(fileId);
+      case FileType.MODEL: {
+        data = ModelEditor.createState(fileId);
         break;
       }
       default: {
@@ -112,7 +112,7 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
   renderNewFileMenu() {
     if (!this.state.newFileMenuOpen) return null;
 
-    const items = [FileType.DESIGN, FileType.CODE, FileType.ROBOT].map(type => {
+    const items = [FileType.MODEL, FileType.CODE, FileType.ROBOT].map(type => {
       return (
         <ListItem
           key={type}

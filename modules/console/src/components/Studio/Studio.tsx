@@ -38,10 +38,10 @@ import CodeEditor, {
   CodeEditorState,
   CreateStateOptions as CreateCodeEditorStateOptions,
 } from '../../components/CodeEditor';
-import VoxelEditor, {
-  VoxelEditorState,
+import ModelEditor, {
+  ModelEditorState,
   CreateStateOptions as CreateVoxelEditorStateOptions,
-} from '../../components/VoxelEditor';
+} from '../../components/ModelEditor';
 
 import { compileBlocklyXml } from '../../blockly/utils';
 
@@ -317,9 +317,9 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
       created: true,
       modified: false,
       readonly: false,
-      name: 'Design',
-      type: FileType.DESIGN,
-      state: VoxelEditor.createState(designFileId, options.voxelEditorState),
+      name: 'Model',
+      type: FileType.MODEL,
+      state: ModelEditor.createState(designFileId, options.voxelEditorState),
     },
     [codeFileId]: {
       id: codeFileId,

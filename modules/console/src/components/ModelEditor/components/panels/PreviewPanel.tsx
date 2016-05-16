@@ -17,13 +17,13 @@ import {
   Panels,
 } from '../../panel';
 
-import { VoxelEditorState } from '../../interface';
+import { ModelEditorState } from '../../types';
 
 import CanvasShared from '../../canvas/shared';
 
 import {
   DispatchAction,
-} from '../../interface';
+} from '../../types';
 
 import PreviewView from '../../canvas/views/preview';
 
@@ -68,7 +68,7 @@ interface PreviewPanelProps extends React.Props<PreviewPanel> {
   sizeVersion: number;
   canvasShared: CanvasShared;
   dispatchAction: DispatchAction;
-  onChange: (fileId: string, voxelEditorState: VoxelEditorState) => any;
+  onChange: (fileId: string, voxelEditorState: ModelEditorState) => any;
   intl?: InjectedIntlProps;
 }
 

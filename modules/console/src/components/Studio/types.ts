@@ -1,7 +1,7 @@
 export enum FileType {
   ALL,
   CODE,
-  DESIGN,
+  MODEL,
   ROBOT,
   WORLD,
 }

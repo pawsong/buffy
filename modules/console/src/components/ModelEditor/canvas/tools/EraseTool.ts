@@ -18,7 +18,7 @@ import {
   Position,
   ToolType,
   DispatchAction,
-} from '../../interface';
+} from '../../types';
 
 import Voxel, { VoxelMesh } from '../Voxel';
 

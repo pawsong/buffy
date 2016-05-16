@@ -51,7 +51,7 @@ export interface VoxelState {
   future: VoxelSnapshot[];
 }
 
-export interface VoxelEditorState {
+export interface ModelEditorState {
   fileId?: string;
   image?: { url: string };
   selectedTool?: ToolType;
@@ -63,5 +63,5 @@ export interface VoxelEditorState {
  * State observer
  */
 export interface GetEditorState {
-  (): VoxelEditorState;
+  (): ModelEditorState;
 }

@@ -532,49 +532,49 @@ export default {
   'username.unknown.error': '사용자 이름이 올바르지 않습니다.',
 
   /**
-   * path: src/components/VoxelEditor/components/panels/HistoryPanel.json
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel editor history panel title
    * defaultMessage: History
    */
   'voxel-editor.panels.history.title': '히스토리',
 
   /**
-   * path: src/components/VoxelEditor/components/panels/HistoryPanel.json
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel add history label
    * defaultMessage: Add voxels
    */
   'voxel-editor.panels.history.voxel.add': '블럭 추가',
 
   /**
-   * path: src/components/VoxelEditor/components/panels/HistoryPanel.json
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel init history label
    * defaultMessage: Initialize
    */
   'voxel-editor.panels.history.voxel.init': '초기화',
 
   /**
-   * path: src/components/VoxelEditor/components/panels/HistoryPanel.json
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel remove history label
    * defaultMessage: Remove voxels
    */
   'voxel-editor.panels.history.voxel.remove': '블럭 제거',
 
   /**
-   * path: src/components/VoxelEditor/components/panels/HistoryPanel.json
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel rotate history label
    * defaultMessage: Rotate voxels
    */
   'voxel-editor.panels.history.voxel.rotate': '블럭 회전',
 
   /**
-   * path: src/components/VoxelEditor/components/panels/PreviewPanel.json
+   * path: src/components/ModelEditor/components/panels/PreviewPanel.json
    * description: Voxel editor preview panel title
    * defaultMessage: Preview
    */
   'voxel-editor.panels.preview.title': '프리뷰',
 
   /**
-   * path: src/components/VoxelEditor/components/panels/ToolsPanel.json
+   * path: src/components/ModelEditor/components/panels/ToolsPanel.json
    * description: Voxel editor tools panel title
    * defaultMessage: Tools
    */
@@ -601,13 +601,7 @@ export default {
    */
   'worldeditor.panels.tools.title': '도구상자',
 
-  /**
-   * path: src/components/WorldEditor/components/EditMode/ZonePanel.json
-   * description: World editor zone panel title
-   * defaultMessage: Zones
-   */
-  'worldeditor.panels.zone.title': '지역',
-
+/* [Warning] Message not in use */ 'worldeditor.panels.zone.title': '지역',
 /* [Warning] Message not in use */ 'worldeditor.panels.robot.id': '',
 /* [Warning] Message not in use */ 'worldeditor.panels.zone.id': '',
 /* [Warning] Message not in use */ 'vr.start': '시작하기',

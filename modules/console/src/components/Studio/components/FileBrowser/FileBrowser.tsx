@@ -54,7 +54,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowserState> {
     const types = [
       FileType.WORLD,
       FileType.ROBOT,
-      FileType.DESIGN,
+      FileType.MODEL,
       FileType.CODE,
       FileType.ALL,
     ];
@@ -90,12 +90,12 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowserState> {
 
     const files = Object.keys(this.props.files).map(fileId => this.props.files[fileId]);
 
-    const buttons = this.state.fileBrowserTypeFilter === FileType.DESIGN ? (
+    const buttons = this.state.fileBrowserTypeFilter === FileType.MODEL ? (
       <div style={{ marginTop: 8 }}>
         <FlatButton
           label="Open file"
           style={{ width: '100%' }}
-          onTouchTap={() => this.props.onOpenFileRequest(FileType.DESIGN)}
+          onTouchTap={() => this.props.onOpenFileRequest(FileType.MODEL)}
         />
       </div>
     ) : null;

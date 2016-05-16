@@ -29,7 +29,11 @@ import {
 
 import {
   VoxelState,
-} from './interface';
+  Action,
+  ToolType,
+  Color,
+  ModelEditorState,
+} from './types';
 
 import HistoryPanel from './components/panels/HistoryPanel';
 import PreviewPanel from './components/panels/PreviewPanel';
@@ -52,22 +56,15 @@ const styles = {
 };
 
 import {
-  Action,
-  ToolType,
-  Color,
-  VoxelEditorState,
-} from './interface';
-
-import {
   PanelTypes,
   Panels,
 } from './panel';
 
-export { VoxelEditorState };
+export { ModelEditorState };
 
-interface VoxelEditorProps extends React.Props<VoxelEditor> {
-  editorState: VoxelEditorState;
-  onChange: (fileId: string, voxelEditorState: VoxelEditorState) => any;
+interface ModelEditorProps extends React.Props<ModelEditor> {
+  editorState: ModelEditorState;
+  onChange: (fileId: string, voxelEditorState: ModelEditorState) => any;
   sizeVersion: number;
   focus: boolean;
   intl?: InjectedIntlProps;
@@ -88,8 +85,8 @@ export interface CreateStateOptions {
   panelIds: Object.keys(Panels).map(key => Panels[key]),
   mapIdToLocalStorageKey: panelId => `${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${panelId}`,
 })
-class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
-  static createState: (fileId: string, options?: CreateStateOptions) => VoxelEditorState;
+class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
+  static createState: (fileId: string, options?: CreateStateOptions) => ModelEditorState;
 
   canvasShared: CanvasShared;
   canvas: MainCanvas;
@@ -102,7 +99,7 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
     };
   }
 
-  handleStateChange(editorState: VoxelEditorState) {
+  handleStateChange(editorState: ModelEditorState) {
     this.props.onChange(this.props.editorState.fileId, editorState);
   }
 
@@ -126,12 +123,12 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
       canvasShared: this.canvasShared,
       dispatchAction: action => this.dispatchVoxelAction(action),
-      handleEditorStateChange: (nextState: VoxelEditorState) => this.handleStateChange(nextState),
+      handleEditorStateChange: (nextState: ModelEditorState) => this.handleStateChange(nextState),
       getEditorState: () => this.props.editorState,
     });
   }
 
-  componentWillReceiveProps(nextProps: VoxelEditorProps) {
+  componentWillReceiveProps(nextProps: ModelEditorProps) {
     if (nextProps.sizeVersion !== this.props.sizeVersion) {
       this.canvas.resize();
     }
@@ -201,7 +198,7 @@ class VoxelEditor extends React.Component<VoxelEditorProps, ContainerStates> {
   }
 }
 
-VoxelEditor.createState = function VoxelEditor(fileId: string, options: CreateStateOptions = {}): VoxelEditorState {
+ModelEditor.createState = function VoxelEditor(fileId: string, options: CreateStateOptions = {}): ModelEditorState {
   let voxel: VoxelState = initialVoxelState;
 
   if (options.voxels) {
@@ -225,4 +222,4 @@ VoxelEditor.createState = function VoxelEditor(fileId: string, options: CreateSt
   };
 }
 
-export default VoxelEditor;
+export default ModelEditor;

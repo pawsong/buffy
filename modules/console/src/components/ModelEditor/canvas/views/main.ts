@@ -29,9 +29,9 @@ import {
 import {
   ToolType,
   DispatchAction,
-  VoxelEditorState,
+  ModelEditorState,
   GetEditorState,
-} from '../../interface';
+} from '../../types';
 
 import CanvasShared from '../shared';
 
@@ -47,7 +47,7 @@ interface CanvasOptions {
   container: HTMLElement;
   canvasShared: CanvasShared;
   dispatchAction: DispatchAction;
-  handleEditorStateChange: (nextState: VoxelEditorState) => any;
+  handleEditorStateChange: (nextState: ModelEditorState) => any;
   getEditorState: GetEditorState;
 }
 
@@ -326,7 +326,7 @@ class MainCanvas {
     this.onWindowResize();
   }
 
-  updateState(nextState: VoxelEditorState) {
+  updateState(nextState: ModelEditorState) {
     if (this.tool.getToolType() !== nextState.selectedTool) {
       const nextTool = this.getTool(nextState.selectedTool);
       this.tool.onStop();

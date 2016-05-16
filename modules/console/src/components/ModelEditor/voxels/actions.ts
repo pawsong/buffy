@@ -3,7 +3,7 @@ import {
   Color,
   Position,
   Voxel,
-} from '../interface';
+} from '../types';
 
 export const VOXEL_INIT: 'voxel-editor/VOXEL_INIT' = 'voxel-editor/VOXEL_INIT';
 export interface VoxelInitAction extends Action<typeof VOXEL_INIT> {

@@ -5,7 +5,7 @@ import DesignManager from '../../../../canvas/DesignManager';
 
 import FileTabs from '../FileTabs';
 import CodeEditor from '../../../../components/CodeEditor';
-import VoxelEditor from '../../../../components/VoxelEditor';
+import ModelEditor from '../../../../components/ModelEditor';
 import RecipeEditor from '../../../../components/RecipeEditor';
 
 import { FileType } from '../../types';
@@ -39,7 +39,7 @@ class Editor extends React.Component<EditorProps, any> {
 
   renderDesignEditor() {
     return (
-      <VoxelEditor
+      <ModelEditor
         editorState={this.props.file.state}
         onChange={this.props.onFileChange}
         focus={this.props.focus}
@@ -67,7 +67,7 @@ class Editor extends React.Component<EditorProps, any> {
           editor = this.renderCodeEditor();
           break;
         }
-        case FileType.DESIGN: {
+        case FileType.MODEL: {
           editor = this.renderDesignEditor();
           break;
         }

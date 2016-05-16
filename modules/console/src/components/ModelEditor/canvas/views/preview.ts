@@ -11,7 +11,7 @@ import {
 
 import CanvasShared from '../shared';
 
-import { VoxelEditorState } from '../../interface';
+import { ModelEditorState } from '../../types';
 
 const size = GRID_SIZE * UNIT_PIXEL;
 
@@ -131,7 +131,7 @@ class PreviewView {
     this.onWindowResize();
   }
 
-  updateState(nextState: VoxelEditorState) {
+  updateState(nextState: ModelEditorState) {
   }
 
   destroy() {

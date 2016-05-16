@@ -4,7 +4,7 @@ import { Ndarray } from 'ndarray';
 import {
   Position,
   VoxelState,
-} from '../../interface';
+} from '../../types';
 
 import { createVoxelGeometry } from './mesh';
 

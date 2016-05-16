@@ -13,7 +13,7 @@ import {
   ToolType,
   GetEditorState,
   DispatchAction,
-} from '../../interface';
+} from '../../types';
 
 const COLOR_TOOLTIP_RADIUS = 20;
 

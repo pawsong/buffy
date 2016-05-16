@@ -20,7 +20,7 @@ import {
 import {
   VoxelState,
   DispatchAction,
-} from '../../interface';
+} from '../../types';
 
 import {
   voxelUndoSeek,

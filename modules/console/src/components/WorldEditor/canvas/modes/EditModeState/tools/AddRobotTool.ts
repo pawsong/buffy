@@ -16,7 +16,6 @@ import {
   SourceFileDB,
 } from '../../../../../Studio/types';
 import { RecipeEditorState } from '../../../../../RecipeEditor';
-import { VoxelEditorState } from '../../../../../VoxelEditor';
 
 import {
   Color,

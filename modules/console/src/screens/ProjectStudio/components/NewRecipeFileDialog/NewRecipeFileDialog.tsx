@@ -18,7 +18,7 @@ import RadioButton from 'material-ui/lib/radio-button';
 import RadioButtonGroup from 'material-ui/lib/radio-button-group';
 
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
-const styles = require('./NewRobotFileDialog.css');
+const styles = require('./NewRecipeFileDialog.css');
 
 import generateObjectId from '../../../../utils/generateObjectId';
 
@@ -26,7 +26,7 @@ import { SourceFileDB } from '../../../../components/Studio/types';
 import { FileType } from '../../../../components/Studio/types';
 
 import CodeEditor from '../../../../components/CodeEditor';
-import VoxelEditor from '../../../../components/VoxelEditor';
+import ModelEditor from '../../../../components/ModelEditor';
 import RecipeEditor from '../../../../components/RecipeEditor';
 
 import { NewFileSpec } from '../../types';
@@ -101,9 +101,9 @@ class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
       designId = generateObjectId();
       specs.push({
         id: designId,
-        type: FileType.DESIGN,
+        type: FileType.MODEL,
         modified: true,
-        data: VoxelEditor.createState(designId),
+        data: ModelEditor.createState(designId),
       });
     } else {
       designId = this.state.design;
@@ -139,7 +139,7 @@ class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
   renderDesignCreateOrLoad(): StepSpec {
     const designFiles = Object.keys(this.props.files)
       .map(id => this.props.files[id])
-      .filter(file => file.type === FileType.DESIGN)
+      .filter(file => file.type === FileType.MODEL)
       .map(file => ({
         value: file.id,
         name: file.name,
@@ -194,7 +194,7 @@ class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
 
   renderLoadDesign(): StepSpec {
     const tiles = Object.keys(this.props.files).map(key => this.props.files[key])
-      .filter(file => file.type === FileType.DESIGN)
+      .filter(file => file.type === FileType.MODEL)
       .map(file => {
         const onTouchTap = () => this.setState({ design: file.id });
 

@@ -17,9 +17,9 @@ import {
   Position,
   Color,
   ToolType,
-  VoxelEditorState,
+  ModelEditorState,
   DispatchAction,
-} from '../../interface';
+} from '../../types';
 
 import Voxel, { VoxelMesh } from '../Voxel';
 
@@ -69,7 +69,7 @@ class StateWithBrush extends VoxelEditorToolState<StateWithBrushProps> {
     this.tool = tool;
   }
 
-  mapStateToProps(appState: VoxelEditorState): StateWithBrushProps {
+  mapStateToProps(appState: ModelEditorState): StateWithBrushProps {
     return { paletteColor: appState.paletteColor };
   }
 

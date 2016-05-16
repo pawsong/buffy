@@ -1,7 +1,7 @@
 import * as ndarray from 'ndarray';
 import * as Immutable from 'immutable';
 
-import { Position } from '../interface';
+import { Position } from '../types';
 
 import {
   GRID_SIZE,

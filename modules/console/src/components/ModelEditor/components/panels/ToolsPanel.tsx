@@ -21,7 +21,7 @@ import ClickAwayListener from '../../../ClickAwayListener';
 
 import * as Tools from '../../constants/Tools';
 
-import { VoxelEditorState, ToolType, Color } from '../../interface';
+import { ToolType, Color } from '../../types';
 
 const styles = {
   color: {

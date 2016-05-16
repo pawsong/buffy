@@ -3,9 +3,9 @@ import MainCanvas from '../views/main';
 
 import {
   ToolType,
-  VoxelEditorState,
+  ModelEditorState,
   DispatchAction,
-} from '../../interface';
+} from '../../types';
 
 import { SetState } from '../types';
 
@@ -31,7 +31,7 @@ export interface MouseDownParams {
   event: MouseEvent;
 }
 
-abstract class VoxelEditorToolState<T> extends ToolState<T, VoxelEditorState> {
+abstract class VoxelEditorToolState<T> extends ToolState<T, ModelEditorState> {
   static EVENT_INTERACT = 'interact';
   static EVENT_MOUSEUP = 'mouseup';
   static EVENT_MOUSEDOWN = 'mousedown';
@@ -64,7 +64,7 @@ export interface InitParams {
   dispatchAction: DispatchAction;
 }
 
-abstract class VoxelEditorTool extends Tool<VoxelEditorState, ToolType, InitParams> {
+abstract class VoxelEditorTool extends Tool<ModelEditorState, ToolType, InitParams> {
   isIntersectable(object) {
     return (<VoxelEditorToolState<any>>this.fsm.current).isIntersectable(object);
   }

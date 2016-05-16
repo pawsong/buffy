@@ -29,7 +29,7 @@ import { NewFileSpec } from './types';
 import * as Immutable from 'immutable';
 
 import ProjectStudioNavbar from './components/ProjectStudioNavbar';
-import NewRobotFileDialog from './components/NewRobotFileDialog';
+import NewRecipeFileDialog from './components/NewRecipeFileDialog';
 
 import { RecipeEditorState } from '../../components/RecipeEditor';
 
@@ -266,7 +266,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     Object.keys(files)
       .map(key => files[key])
-      .filter(file => file.type === FileType.DESIGN)
+      .filter(file => file.type === FileType.MODEL)
       .forEach(file => {
         const loader = this.designManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
@@ -328,7 +328,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     // }));
 
     switch(file.type) {
-      case FileType.DESIGN: {
+      case FileType.MODEL: {
         const mesh = file.state.voxel.present.mesh;
         const loader = this.designManager.getLoader(fileId);
         loader.loadFromMemory(mesh);
@@ -459,7 +459,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
         state: spec.data,
       };
 
-      if (spec.type === FileType.DESIGN) {
+      if (spec.type === FileType.MODEL) {
         const loader = this.designManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
         loader.loadFromMemory(file.state.voxel.present.mesh);
@@ -503,7 +503,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
           style={styles.studio}
           editorFocus={!this.state.newFileDialogOpen}
         />
-        <NewRobotFileDialog
+        <NewRecipeFileDialog
           files={this.state.studioState.files}
           open={this.state.newFileDialogOpen}
           onClose={() => this.setState({ newFileDialogOpen: false })}

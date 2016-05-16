@@ -2,7 +2,7 @@ import {
   ToolType,
   DispatchAction,
   GetEditorState,
-} from '../../interface';
+} from '../../types';
 
 import View from '../views/main';
 

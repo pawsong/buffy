@@ -7,7 +7,7 @@ import {
   Voxels,
   VoxelState,
   VoxelSnapshot,
-} from '../interface';
+} from '../types';
 
 import {
   VOXEL_INIT, VoxelInitAction,
