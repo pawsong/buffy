@@ -51,9 +51,9 @@ class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
                     backgroundColor={Colors.pinkA200}
                     hoverColor={Colors.pinkA100}
         />
-        <FlatButton label={this.props.intl.formatMessage(Messages.connect)}
+        <FlatButton label={this.props.intl.formatMessage(Messages.explore)}
                     style={styles.button}
-                    onTouchTap={() => this.props.push('/connect')}
+                    onTouchTap={() => this.props.push('/explore')}
                     backgroundColor={Colors.pinkA200}
                     hoverColor={Colors.pinkA100}
         />

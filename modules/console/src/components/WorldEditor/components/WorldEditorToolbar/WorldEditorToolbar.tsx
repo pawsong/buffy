@@ -9,6 +9,12 @@ import ModeSwitch from './ModeSwitch';
 
 import { TOOLBAR_HEIGHT } from '../../Constants';
 
+// --palette-cyan-100: rgb(178, 235, 242);
+// --palette-cyan-200: rgb(128, 222, 234);
+// --palette-cyan-300: rgb(77, 208, 225);
+// --palette-cyan-400: rgb(38, 198, 218);
+// --palette-cyan-500: rgb(0, 188, 212);
+
 const styles = {
   toolbarContainer: {
     position: 'absolute',
@@ -17,7 +23,7 @@ const styles = {
     width: '100%',
     height: TOOLBAR_HEIGHT,
     zIndex: 1,
-    backgroundColor: 'rgba(121,121,121,0.7)',
+    backgroundColor: 'rgba(128, 222, 234, 0.6)',
   },
 };
 
@@ -29,8 +35,8 @@ interface WorldEditorToolbarProps {
   onEnterPlayMode: () => any;
 }
 
-// --palette-cyan-400: rgb(38, 198, 218);
-// --palette-pink-400: rgb(236, 64, 122);
+// --palette-cyan-500: rgb(0, 188, 212);
+// --palette-pink-A200: rgb(255, 64, 129);
 const WorldEditorToolbar: React.StatelessComponent<WorldEditorToolbarProps> = props => {
   let button = null;
 
@@ -43,8 +49,8 @@ const WorldEditorToolbar: React.StatelessComponent<WorldEditorToolbarProps> = pr
           labelStyle={{
             color: 'white',
           }}
-          backgroundColor={`rgba(236, 64, 122, 0.5)`}
-          hoverColor={`rgba(236, 64, 122, 0.9)`}
+          backgroundColor={`rgba(255, 64, 129, 0.6)`}
+          hoverColor={`rgba(255, 64, 129, 0.9)`}
           onTouchTap={props.onScriptStop}
         />
       );
@@ -56,8 +62,8 @@ const WorldEditorToolbar: React.StatelessComponent<WorldEditorToolbarProps> = pr
           labelStyle={{
             color: 'white',
           }}
-          backgroundColor={`rgba(38, 198, 218, 0.5)`}
-          hoverColor={`rgba(38, 198, 218, 0.9)`}
+          backgroundColor={`rgba(0, 188, 212, 0.6)`}
+          hoverColor={`rgba(0, 188, 212, 0.9)`}
           onTouchTap={props.onScriptRun}
         />
       );

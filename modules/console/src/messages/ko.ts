@@ -183,6 +183,13 @@ export default {
 
   /**
    * path: src/constants/Messages.json
+   * description: Explore files button label
+   * defaultMessage: Explore
+   */
+  'explore.project.button': '찾아보기',
+
+  /**
+   * path: src/constants/Messages.json
    * description: Facebook login button label
    * defaultMessage: Login with facebook
    */

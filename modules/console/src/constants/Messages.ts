@@ -106,6 +106,11 @@ const messages = defineMessages({
     description: 'Create project button label',
     defaultMessage: 'Create',
   },
+  explore: {
+    id: 'explore.project.button',
+    description: 'Explore files button label',
+    defaultMessage: 'Explore',
+  },
   connect: {
     id: 'connect.to.area.server',
     description: 'Connect to online service button label',

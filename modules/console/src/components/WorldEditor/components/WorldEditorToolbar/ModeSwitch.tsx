@@ -13,7 +13,7 @@ import {
 
 const styles = {
   tool: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
 };
 
@@ -24,16 +24,17 @@ interface ModeRadioButtonProps {
   onTouchTap: () => any;
 }
 
-// --palette-cyan-400: rgb(38, 198, 218);
+// --palette-cyan-500: rgb(0, 188, 212);
+// --palette-pink-A200: rgb(255, 64, 129);
 const ModeRadioButton: React.StatelessComponent<ModeRadioButtonProps> = props => {
   const icon = React.createElement(props.icon, {
     color: '#ffffff',
   });
 
   const style = objectAssign({}, styles.tool, props.selected ? {
-    backgroundColor: `rgba(38, 198, 218, 0.5)`,
+    backgroundColor: `rgba(0, 188, 212, 0.6)`,
   } : {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   });
 
   return (

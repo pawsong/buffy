@@ -87,17 +87,19 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
         </ToolbarGroup>
         {leftToolbarGroup}
         <ToolbarGroup float="right">
-          <FlatButton label={this.props.intl.formatMessage(Messages.login)}
-                      style={styles.button}
-                      onTouchTap={() => this.props.dispatch(push({
-                        pathname: '/login',
-                        query: {
-                          n: JSON.stringify({
-                            p: this.props.location.pathname,
-                            q: this.props.location.query,
-                          }),
-                        },
-                      }))}
+          <FlatButton
+            label={this.props.intl.formatMessage(Messages.login)}
+            style={styles.button}
+            hoverColor={Colors.cyan700}
+            onTouchTap={() => this.props.dispatch(push({
+              pathname: '/login',
+              query: {
+                n: JSON.stringify({
+                  p: this.props.location.pathname,
+                  q: this.props.location.query,
+                }),
+              },
+            }))}
           />
           <FlatButton label={this.props.intl.formatMessage(Messages.signup)}
                       style={styles.button}
