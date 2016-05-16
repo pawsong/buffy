@@ -46,9 +46,9 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
   }
 
   onMouseDown() {
-    const { hit, position } = this.canvas.cursorManager.getPosition();
-    if (!hit) { return; }
-    console.log(position);
+    // const { hit, position } = this.canvas.cursorManager.getPosition();
+    // if (!hit) { return; }
+    // console.log(position);
   }
 
   render() {}

@@ -80,6 +80,8 @@ class WorldEditorCanvas extends ZoneCanvas {
   playModeState: PlayModeState;
   modeFsm: Fsm;
 
+  advertisingBoardMesh: THREE.Mesh;
+
   protected state: WorldEditorState;
 
   private view: View;
@@ -121,7 +123,7 @@ class WorldEditorCanvas extends ZoneCanvas {
     switch(viewMode) {
       case ViewMode.BIRDS_EYE: {
         if (!this.cachedViews[ViewMode.BIRDS_EYE]) {
-          this.cachedViews[ViewMode.BIRDS_EYE] = new BirdsEyeView(this.container, this.renderer, this.scene);
+          this.cachedViews[ViewMode.BIRDS_EYE] = new BirdsEyeView(this.container, this.renderer, this.scene, this);
         }
         nextView = this.cachedViews[ViewMode.BIRDS_EYE];
         break;
@@ -151,7 +153,23 @@ class WorldEditorCanvas extends ZoneCanvas {
   init () {
     this.state = this.getGameState();
 
+    const advertisingBoardGeometry = new THREE.PlaneGeometry(16 * BOX_SIZE, 12 * BOX_SIZE);
+    advertisingBoardGeometry.rotateY( - Math.PI / 2 );
+    const advertisingBoardMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffff00,
+      side: THREE.DoubleSide,
+      transparent: true,
+    });
+    this.advertisingBoardMesh = new THREE.Mesh( advertisingBoardGeometry, advertisingBoardMaterial );
+    this.advertisingBoardMesh.position.set(
+      (16 + 2) * BOX_SIZE,
+      (8 + 2) * BOX_SIZE,
+      8 * BOX_SIZE
+    );
+
     super.init();
+
+    this.scene.add(this.advertisingBoardMesh);
 
     this.cursorManager = new CursorManager(this);
 
