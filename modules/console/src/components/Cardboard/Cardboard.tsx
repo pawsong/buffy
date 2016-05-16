@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Scripts } from '@pasta/core/lib/types';
-import DesignManager from '../../canvas/DesignManager';
 
 import CardboardZoneCanvas from './CardboardZoneCanvas';
 
@@ -10,7 +9,7 @@ import FullscreenPlayer from '../FullscreenPlayer';
 
 interface CardboardProps extends React.Props<Cardboard> {
   stateLayer: StateLayer;
-  designManager: DesignManager;
+  // designManager: DesignManager;
   scripts: Scripts;
   onStart: () => any;
 }

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Mesh } from '@pasta/core/lib/types';
 
 function createFaceVertexUv(vertices: any[], i: number) {
   const vs = [
@@ -73,7 +74,7 @@ function createFaceVertexUv(vertices: any[], i: number) {
   }
 }
 
-export function createGeometryFromMesh(vertices: any[], faces: any[]) {
+export function createGeometryFromMesh({ vertices, faces }: Mesh) {
   const geometry = new THREE.Geometry();
 
   geometry.vertices.length = 0;

@@ -7,7 +7,7 @@ import {
   DESIGN_SCALE,
   PIXEL_SCALE_HALF,
 } from '../Constants';
-import DesignManager, { LoaderWatcher } from '../DesignManager';
+import ModelManager, { LoaderWatcher } from '../ModelManager';
 
 interface Resources {
   material?: THREE.Material;
@@ -85,13 +85,13 @@ class ObjectManager {
   objects: { [index: string]: SmartObject };
   object3Ds: THREE.Object3D[];
 
-  designManager: DesignManager;
+  modelManager: ModelManager;
 
-  constructor(scene: THREE.Scene, designManager: DesignManager) {
+  constructor(scene: THREE.Scene, modelManager: ModelManager) {
     this.scene = scene;
     this.objects = {};
     this.object3Ds = [];
-    this.designManager = designManager;
+    this.modelManager = modelManager;
   }
 
   create(id: string, designId: string): SmartObject {
@@ -102,7 +102,7 @@ class ObjectManager {
 
     const object = new SmartObject(this, group, designId);
     this.objects[id] = object;
-    this.designManager.watch(designId, object.watcher);
+    this.modelManager.watch(designId, object.watcher);
 
     return object;
   }
@@ -114,9 +114,9 @@ class ObjectManager {
   changeDesign(id: string, designId: string) {
     const object = this.find(id);
     if (!object) return;
-    this.designManager.unwatch(object.designId, object.watcher);
+    this.modelManager.unwatch(object.designId, object.watcher);
     object.designId = designId;
-    this.designManager.watch(object.designId, object.watcher);
+    this.modelManager.watch(object.designId, object.watcher);
   }
 
   remove(id: string) {
@@ -126,7 +126,7 @@ class ObjectManager {
     this.scene.remove(object.group);
     object.reset();
 
-    this.designManager.unwatch(object.designId, object.watcher);
+    this.modelManager.unwatch(object.designId, object.watcher);
 
     delete this.objects[id];
   }

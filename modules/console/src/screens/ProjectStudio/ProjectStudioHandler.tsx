@@ -12,7 +12,7 @@ const update = require('react-addons-update');
 const objectAssign = require('object-assign');
 
 import LocalServer, { LocalSocket } from '../../LocalServer';
-import DesignManager from '../../canvas/DesignManager';
+import ModelManager from '../../canvas/ModelManager';
 import { connectApi, preloadApi, ApiCall, get, ApiDispatchProps } from '../../api';
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
@@ -173,7 +173,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   server: LocalServer;
   stateLayer: StateLayer;
 
-  designManager: DesignManager;
+  modelManager: ModelManager;
 
   constructor(props) {
     super(props);
@@ -189,7 +189,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   componentDidMount() {
-    this.designManager = new DesignManager();
+    this.modelManager = new ModelManager();
 
     if (this.mode === ProjectStudioMode.CREATE) {
       this.setState(this.createStateFromLocalStorage(), () => this.initStudio());
@@ -217,9 +217,9 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     this.stateLayer.destroy();
     this.stateLayer = null;
 
-    if (this.designManager) {
-      this.designManager.dispose();
-      this.designManager = null;
+    if (this.modelManager) {
+      this.modelManager.dispose();
+      this.modelManager = null;
     }
   }
 
@@ -268,7 +268,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       .map(key => files[key])
       .filter(file => file.type === FileType.MODEL)
       .forEach(file => {
-        const loader = this.designManager.getOrCreateLoader(file.id);
+        const loader = this.modelManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
         loader.loadFromMemory(file.state.voxel.present.mesh);
       });
@@ -330,7 +330,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     switch(file.type) {
       case FileType.MODEL: {
         const mesh = file.state.voxel.present.mesh;
-        const loader = this.designManager.getLoader(fileId);
+        const loader = this.modelManager.getLoader(fileId);
         loader.loadFromMemory(mesh);
         // this.stateLayer.rpc.updateMesh({
         //   objectId: world.playerId,
@@ -460,7 +460,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       };
 
       if (spec.type === FileType.MODEL) {
-        const loader = this.designManager.getOrCreateLoader(file.id);
+        const loader = this.modelManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
         loader.loadFromMemory(file.state.voxel.present.mesh);
       }
@@ -499,7 +499,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
           onChange={(studioState, callback) => this.handleStudioStateChange(studioState, callback)}
           onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}
           stateLayer={this.stateLayer}
-          designManager={this.designManager}
+          modelManager={this.modelManager}
           style={styles.studio}
           editorFocus={!this.state.newFileDialogOpen}
         />

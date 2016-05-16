@@ -20,7 +20,7 @@ import Messages from '../../constants/Messages';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import * as StorageKeys from '../../constants/StorageKeys';
 
-import DesignManager from '../../canvas/DesignManager';
+import ModelManager from '../../canvas/ModelManager';
 
 import Layout, { LayoutContainer } from '../../components/Layout';
 
@@ -90,7 +90,7 @@ interface StudioProps extends React.Props<Studio> {
   game?: React.ReactElement<any>;
 
   stateLayer: StateLayer;
-  designManager: DesignManager;
+  modelManager: ModelManager;
   style?: React.CSSProperties;
   intl?: InjectedIntlProps;
 }
@@ -241,7 +241,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           file={file}
           files={this.props.studioState.files}
           focus={this.props.editorFocus}
-          designManager={this.props.designManager}
         />
       </div>
     );
@@ -291,7 +290,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
               onChange={(state, callback) => this.handleFileChange2(state.common.fileId, state, callback)}
               sizeVersion={this.state.gameSizeVersion}
               stateLayer={this.props.stateLayer}
-              designManager={this.props.designManager}
+              modelManager={this.props.modelManager}
               files={this.props.studioState.files}
             >
               {this.props.game}

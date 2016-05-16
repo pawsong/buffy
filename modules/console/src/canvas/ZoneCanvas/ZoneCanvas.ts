@@ -4,7 +4,7 @@ import StateStore from '@pasta/core/lib/StateStore';
 import GameObject from '@pasta/core/lib/classes/GameObject';
 
 import Canvas from '../Canvas';
-import DesignManager from '../DesignManager';
+import ModelManager from '../ModelManager';
 
 import Chunk from './Chunk';
 
@@ -40,8 +40,8 @@ abstract class ZoneCanvas extends Canvas {
   private tokens: any[];
   private getZoneViewState: GetZoneViewState;
 
-  constructor(container: HTMLElement, designManager: DesignManager, getState: GetZoneViewState) {
-    super(container, designManager);
+  constructor(container: HTMLElement, modelManager: ModelManager, getState: GetZoneViewState) {
+    super(container, modelManager);
     this.getZoneViewState = getState;
   }
 

@@ -6,9 +6,7 @@ import {
   VoxelState,
 } from '../../types';
 
-import { createVoxelGeometry } from './mesh';
-
-import mesher from '../meshers/greedy';
+import { createGeometryFromMesh } from '../../../../canvas/utils';
 
 import { SimpleStore } from '../../../../libs';
 
@@ -40,10 +38,10 @@ class CanvasShared {
   }
 
   voxelStateChange(state: VoxelState) {
-    const { vertices, faces, gridFaces } = state.present.mesh;
+    const mesh = state.present.mesh;
 
     const { geometry } = this.meshStore.getState();
-    const nextGeometry = createVoxelGeometry(vertices, faces);
+    const nextGeometry = createGeometryFromMesh(mesh);
     this.meshStore.update({ geometry: nextGeometry });
 
     // Prevent memory leak

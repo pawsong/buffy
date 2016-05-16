@@ -1,4 +1,4 @@
-import DesignManager from '../../../../../../canvas/DesignManager';
+import ModelManager from '../../../../../../canvas/ModelManager';
 import {
   SourceFileDB,
 } from '../../../../../Studio/types';
@@ -18,7 +18,7 @@ export interface InitParams {
   getState: GetState;
   getFiles: () => SourceFileDB;
   dispatchAction: DispatchAction;
-  designManager: DesignManager;
+  modelManager: ModelManager;
 }
 
 abstract class EditModeTool extends WorldEditorCanvasTool<EditToolType, InitParams> {}

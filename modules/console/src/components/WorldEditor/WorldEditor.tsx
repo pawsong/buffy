@@ -13,7 +13,7 @@ import {
 } from './actions';
 
 import { Sandbox, Scripts } from '../../sandbox';
-import DesignManager from '../../canvas/DesignManager';
+import ModelManager from '../../canvas/ModelManager';
 
 import { RecipeEditorState } from '../RecipeEditor';
 
@@ -64,7 +64,7 @@ interface WorldEditorProps extends React.Props<WorldEditor>, SagaProps {
   editorState: WorldEditorState;
   onChange: (state: WorldEditorState, callback?: () => any) => any;
   stateLayer: StateLayer;
-  designManager: DesignManager;
+  modelManager: ModelManager;
   sizeVersion: number; // For resize
   files: SourceFileDB;
   run?: ImmutableTask<any>;
@@ -221,7 +221,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
             subscribeAction={this.subscribeAction}
             sizeVersion={this.props.sizeVersion}
             stateLayer={this.props.stateLayer}
-            designManager={this.props.designManager}
+            modelManager={this.props.modelManager}
             registerElement={canvasElement => this.setState({ canvasElement })}
             files={this.props.files}
           />

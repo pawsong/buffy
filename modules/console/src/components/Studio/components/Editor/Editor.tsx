@@ -1,8 +1,6 @@
 import * as React from 'react';
 const update = require('react-addons-update');
 
-import DesignManager from '../../../../canvas/DesignManager';
-
 import FileTabs from '../FileTabs';
 import CodeEditor from '../../../../components/CodeEditor';
 import ModelEditor from '../../../../components/ModelEditor';
@@ -21,7 +19,6 @@ interface EditorProps extends React.Props<Editor> {
   focus: boolean;
   editorSizeRevision: number;
   onFileChange: (fileId: string, state: any) => any;
-  designManager: DesignManager;
 }
 
 @withStyles(styles)

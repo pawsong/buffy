@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Ndarray } from 'ndarray';
 import mesher from '../meshers/greedy';
+import { createGeometryFromMesh } from '../utils';
 // const compileMesher = require('greedy-mesher');
 
 import { Position, Color } from '@pasta/core/lib/types';
@@ -26,6 +27,7 @@ class Chunk {
   private scene: THREE.Scene;
   private material: THREE.Material;
   private data: Ndarray;
+  private geometry: THREE.Geometry;
 
   constructor(scene: THREE.Scene) {
     this.scene = scene;
@@ -51,48 +53,26 @@ class Chunk {
   }
 
   update() {
-    const { vertices, faces } = mesher(this.data.data, this.data.shape);
+    if (this.mesh) this.scene.remove(this.mesh);
+    if (this.geometry) this.geometry.dispose();
 
-    const geometry = new THREE.Geometry();
-
-    geometry.vertices.length = 0;
-    geometry.faces.length = 0;
-
-    for(var i = 0; i < vertices.length; ++i) {
-      const q = vertices[i];
-      geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
-    }
-
-    for(var i = 0; i < faces.length; ++i) {
-      const q = faces[i];
-      const f = new THREE.Face3(q[0], q[1], q[2]);
-      f.color = new THREE.Color(q[3]);
-      f.vertexColors = [f.color,f.color,f.color];
-      geometry.faces.push(f);
-    }
-
-    geometry.computeFaceNormals();
-
-    geometry.verticesNeedUpdate = true;
-    geometry.elementsNeedUpdate = true;
-    geometry.normalsNeedUpdate = true;
-
-    geometry.computeBoundingBox();
-    geometry.computeBoundingSphere();
+    const mesh = mesher(this.data.data, this.data.shape);
+    this.geometry = createGeometryFromMesh(mesh);
 
     // Create surface mesh
-    const surfacemesh = new THREE.Mesh(geometry, this.material);
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
     // surfacemesh.doubleSided = false;
-    surfacemesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
-    surfacemesh.castShadow = true;
-    surfacemesh.receiveShadow = true;
+    this.mesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    this.mesh.castShadow = true;
+    this.mesh.receiveShadow = true;
 
-    if (this.mesh) this.scene.remove(this.mesh);
-
-    this.mesh = surfacemesh;
     this.scene.add(this.mesh);
 
-    return geometry;
+    return this.geometry;
+  }
+
+  dispose() {
+    // TODO: Implement
   }
 }
 

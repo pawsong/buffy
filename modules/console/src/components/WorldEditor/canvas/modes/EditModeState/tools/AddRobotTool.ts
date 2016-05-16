@@ -9,7 +9,7 @@ import {
   PIXEL_SCALE_HALF,
   DESIGN_SCALE,
 } from '../../../../../../canvas/Constants';
-import DesignManager from '../../../../../../canvas/DesignManager';
+import ModelManager from '../../../../../../canvas/ModelManager';
 
 import {
   SourceFile,
@@ -59,7 +59,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     private getState: GetState,
     private getFiles: () => SourceFileDB,
     private dispatchAction: DispatchAction,
-    private designManager: DesignManager
+    private modelManager: ModelManager
   ) {
     super();
 
@@ -88,11 +88,11 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     const files = this.getFiles();
     this.recipeFile = files[addRobotRecipeId];
 
-    this.designManager.watch(this.recipeFile.state.design, this.designWatcher);
+    this.modelManager.watch(this.recipeFile.state.design, this.designWatcher);
   }
 
   onLeave() {
-    this.designManager.unwatch(this.recipeFile.state.design, this.designWatcher);
+    this.modelManager.unwatch(this.recipeFile.state.design, this.designWatcher);
     this.canvas.cursorManager.stop();
     this.recipeFile = null;
   }
@@ -121,7 +121,7 @@ class AddRobotTool extends EditModeTool{
 
   cursorMaterial: THREE.Material;
 
-  init({ view, getState, getFiles, dispatchAction, designManager }: InitParams) {
+  init({ view, getState, getFiles, dispatchAction, modelManager }: InitParams) {
     this.cursorMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,
       opacity: 0.5,
@@ -130,7 +130,7 @@ class AddRobotTool extends EditModeTool{
       polygonOffsetFactor: -0.1,
     });
 
-    const wait = new WaitState(this.cursorMaterial, view, getState, getFiles, dispatchAction, designManager);
+    const wait = new WaitState(this.cursorMaterial, view, getState, getFiles, dispatchAction, modelManager);
 
     return <WorldEditorCanvsToolStates>{
       wait,

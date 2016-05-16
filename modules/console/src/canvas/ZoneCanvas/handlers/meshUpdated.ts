@@ -6,6 +6,6 @@ export default <StoreHandler<ZoneCanvas>>(({
   store,
   canvas,
 }) => store.subscribe.meshUpdated(params => {
-  const loader = canvas.designManager.getLoader(params.designId);
+  const loader = canvas.modelManager.getLoader(params.designId);
   loader.loadFromMemory(params.mesh);
 }));

@@ -98,9 +98,7 @@ return function(volume, dims) {
           vertices.push([x[0]+du[0]+dv[0], x[1]+du[1]+dv[1], x[2]+du[2]+dv[2]]);
           vertices.push([x[0]      +dv[0], x[1]      +dv[1], x[2]      +dv[2]]);
 
-          // faces.push([vertex_count, vertex_count+1, vertex_count+2, vertex_count+3, c]);
-          faces.push([vertex_count, vertex_count+1, vertex_count+2, c]);
-          faces.push([vertex_count, vertex_count+2, vertex_count+3, c]);
+          faces.push([vertex_count, vertex_count+1, vertex_count+2, vertex_count+3, c]);
 
           //Zero-out mask
           for(l=0; l<h; ++l)

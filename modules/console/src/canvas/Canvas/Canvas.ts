@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import GameObject from '@pasta/core/lib/classes/GameObject';
 
-import DesignManager from '../../canvas/DesignManager';
+import ModelManager from '../../canvas/ModelManager';
 import TerrainManager from './TerrainManager';
 import ObjectManager from './ObjectManager';
 
@@ -20,7 +20,7 @@ abstract class Canvas {
   scene: THREE.Scene;
   camera: THREE.Camera;
   renderer: THREE.WebGLRenderer;
-  designManager: DesignManager;
+  modelManager: ModelManager;
   objectManager: ObjectManager;
   terrainManager: TerrainManager;
   cubeGeometry: THREE.Geometry;
@@ -32,16 +32,16 @@ abstract class Canvas {
   private boundHandleWindowResize: () => any;
   private frameId: number;
 
-  constructor(container: HTMLElement, designManager: DesignManager) {
+  constructor(container: HTMLElement, modelManager: ModelManager) {
     this.container = container;
-    this.designManager = designManager;
+    this.modelManager = modelManager;
   }
 
   init() {
     const scene = this.scene = new THREE.Scene();
     scene.fog = new THREE.Fog( 0xcce0ff, 500, 10000 );
 
-    const objectManager = this.objectManager = new ObjectManager(scene, this.designManager);
+    const objectManager = this.objectManager = new ObjectManager(scene, this.modelManager);
     const terrainManager = this.terrainManager = new TerrainManager(scene);
 
     const planeGeo = new THREE.PlaneBufferGeometry( 2 * GRID_SIZE, 2 * GRID_SIZE );

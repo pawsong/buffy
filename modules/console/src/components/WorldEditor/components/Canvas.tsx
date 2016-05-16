@@ -4,7 +4,7 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 import { SourceFileDB } from '../../Studio/types';
 
-import DesignManager from '../../../canvas/DesignManager';
+import ModelManager from '../../../canvas/ModelManager';
 
 import { WorldEditorCanvas } from '../canvas';
 
@@ -25,7 +25,7 @@ import {
 interface CanvasProps extends React.Props<Canvas> {
   sizeVersion: number;
   stateLayer: StateLayer;
-  designManager: DesignManager;
+  modelManager: ModelManager;
   editorState: WorldEditorState;
   dispatchAction: DispatchAction;
   registerElement: (element: HTMLElement) => any;
@@ -51,7 +51,7 @@ class Canvas extends React.Component<CanvasProps, {}> {
   componentDidMount() {
     this.canvas = new WorldEditorCanvas({
       container: this.refs['canvas'] as HTMLElement,
-      designManager: this.props.designManager,
+      modelManager: this.props.modelManager,
       stateLayer: this.props.stateLayer,
       getState: () => this.props.editorState,
       dispatchAction: this.props.dispatchAction,

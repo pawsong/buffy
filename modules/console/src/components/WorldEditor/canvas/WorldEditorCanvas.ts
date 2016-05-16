@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 const objectAssign = require('object-assign');
-import DesignManager from '../../../canvas/DesignManager';
+import ModelManager from '../../../canvas/ModelManager';
 import ZoneCanvas from '../../../canvas/ZoneCanvas';
 import Fsm from '../../../libs/Fsm';
 import {
@@ -58,7 +58,7 @@ interface Position {
 
 interface WorldEditorCanvasOptions {
   container: HTMLElement;
-  designManager: DesignManager;
+  modelManager: ModelManager;
   stateLayer: StateLayer;
   getState: GetState;
   dispatchAction: DispatchAction;
@@ -97,14 +97,14 @@ class WorldEditorCanvas extends ZoneCanvas {
 
   constructor({
     container,
-    designManager,
+    modelManager,
     stateLayer,
     getState,
     dispatchAction,
     subscribeAction,
     getFiles,
   }: WorldEditorCanvasOptions) {
-    super(container, designManager, () => {
+    super(container, modelManager, () => {
       const state = getState();
       return { playerId: state.editMode.playerId };
     });
@@ -249,7 +249,7 @@ class WorldEditorCanvas extends ZoneCanvas {
       getState: this.getGameState,
       getFiles: this.getFiles,
       dispatchAction: this.dispatchAction,
-      designManager: this.designManager,
+      modelManager: this.modelManager,
     }, this.getFiles, this.subscribeAction, this.stateLayer);
     this.editModeState.init();
 

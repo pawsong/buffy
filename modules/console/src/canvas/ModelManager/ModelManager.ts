@@ -2,38 +2,7 @@ import * as THREE from 'three';
 const invariant = require('fbjs/lib/invariant');
 import { Mesh } from '@pasta/core/lib/types';
 
-function createGeometryFromMesh(mesh: Mesh) {
-  const geometry = new THREE.Geometry();
-
-  geometry.vertices.length = 0;
-  geometry.faces.length = 0;
-
-  const verticesLen = mesh.vertices.length;
-  for(let i = 0; i < verticesLen; ++i) {
-    const q = mesh.vertices[i];
-    geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
-  }
-
-  const facesLen = mesh.faces.length;
-  for(let i = 0; i < facesLen; ++i) {
-    const q = mesh.faces[i];
-    const f = new THREE.Face3(q[0], q[1], q[2]);
-    f.color = new THREE.Color(q[3]);
-    f.vertexColors = [f.color,f.color,f.color];
-    geometry.faces.push(f);
-  }
-
-  geometry.computeFaceNormals()
-
-  geometry.verticesNeedUpdate = true;
-  geometry.elementsNeedUpdate = true;
-  geometry.normalsNeedUpdate = true;
-
-  geometry.computeBoundingBox();
-  geometry.computeBoundingSphere();
-
-  return geometry;
-}
+import { createGeometryFromMesh } from '../utils';
 
 enum LoaderState {
   INIT,

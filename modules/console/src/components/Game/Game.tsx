@@ -5,12 +5,12 @@ import { Scripts } from '@pasta/core/lib/types';
 
 import GameZoneCanvas from './GameZoneCanvas';
 
-import DesignManager from '../../canvas/DesignManager';
+import ModelManager from '../../canvas/ModelManager';
 import FullscreenPlayer from '../FullscreenPlayer';
 
 interface GameProps extends React.Props<Game> {
   stateLayer: StateLayer;
-  designManager: DesignManager;
+  modelManager: ModelManager;
   scripts: Scripts;
   onStart: () => any;
 }
