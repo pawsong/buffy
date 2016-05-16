@@ -88,16 +88,3 @@ export const issueFileUpdateUrl = compose(checkLogin, wrap(async (req, res) => {
 
   return res.send({ signedUrl, contentType });
 }));
-
-export const issueFileIds = wrap(async (req, res) => {
-  const { count } = req.body;
-  if (count > 10) {
-    return res.send(400);
-  }
-
-  const ids = [];
-  for (let i = 0; i < count; ++i) {
-    ids.push(new FileModel()._id);
-  }
-  res.send(ids);
-});
