@@ -14,18 +14,18 @@ import WorldEditorCanvas from '../WorldEditorCanvas';
 
 const radius = 1600, theta = 270, phi = 60;
 
-const xUnit = new THREE.Vector3(1, 0, 0);
 const yUnit = new THREE.Vector3(0, 1, 0);
-const zUnit = new THREE.Vector3(0, 0, 1);
 
 class BirdsEyeView implements View {
   camera: THREE.PerspectiveCamera;
   controls: any;
 
   private direction: THREE.Vector3;
+  private cameraDirection: THREE.Vector3;
 
   constructor(private container: HTMLElement, renderer: THREE.WebGLRenderer, private scene: THREE.Scene, private canvas: WorldEditorCanvas) {
     this.direction = new THREE.Vector3();
+    this.cameraDirection = new THREE.Vector3();
 
     // Init camera
     const camera = new THREE.PerspectiveCamera(
@@ -84,14 +84,19 @@ class BirdsEyeView implements View {
 
   onUpdate(): void {
     this.controls.update();
-    const direction = this.camera.getWorldDirection();
-    const dot = zUnit.dot(direction);
-    if (dot < 0) {
-      this.canvas.advertisingBoardMesh.visible = true;
-      this.canvas.advertisingBoardMesh.material.opacity = -dot;
-    } else {
-      this.canvas.advertisingBoardMesh.visible = false;
-    }
+
+    this.camera.getWorldDirection(this.cameraDirection);
+    this.cameraDirection.applyAxisAngle(yUnit, Math.PI / 4);
+
+    this.canvas.advertisingBoards.forEach(mesh => {
+      const dotValue = this.cameraDirection.dot(mesh['__WORLD_DIRECTION__']);
+      if (dotValue < 0) {
+        mesh.visible = true;
+        mesh.material.opacity = - dotValue * dotValue * dotValue;
+      } else {
+        mesh.visible = false;
+      }
+    });
   }
 
   onResize(): void {

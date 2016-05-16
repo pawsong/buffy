@@ -80,7 +80,7 @@ class WorldEditorCanvas extends ZoneCanvas {
   playModeState: PlayModeState;
   modeFsm: Fsm;
 
-  advertisingBoardMesh: THREE.Mesh;
+  advertisingBoards: THREE.Mesh[];
 
   protected state: WorldEditorState;
 
@@ -115,6 +115,7 @@ class WorldEditorCanvas extends ZoneCanvas {
     this.getFiles = getFiles;
     this.dispatchAction = dispatchAction;
     this.subscribeAction = subscribeAction;
+    this.advertisingBoards = [];
   }
 
   applyCameraMode(viewMode: ViewMode) {
@@ -155,21 +156,70 @@ class WorldEditorCanvas extends ZoneCanvas {
 
     const advertisingBoardGeometry = new THREE.PlaneGeometry(16 * BOX_SIZE, 12 * BOX_SIZE);
     advertisingBoardGeometry.rotateY( - Math.PI / 2 );
-    const advertisingBoardMaterial = new THREE.MeshBasicMaterial({
+
+    const advertisingBoard1Material = new THREE.MeshBasicMaterial({
       color: 0xffff00,
       side: THREE.DoubleSide,
       transparent: true,
     });
-    this.advertisingBoardMesh = new THREE.Mesh( advertisingBoardGeometry, advertisingBoardMaterial );
-    this.advertisingBoardMesh.position.set(
+    const advertisingBoard1 = new THREE.Mesh( advertisingBoardGeometry, advertisingBoard1Material );
+    advertisingBoard1.position.set(
+      (0 - 2) * BOX_SIZE,
+      (8 + 2) * BOX_SIZE,
+      8 * BOX_SIZE
+    );
+    advertisingBoard1.rotateY( Math.PI );
+    advertisingBoard1['__WORLD_DIRECTION__'] = advertisingBoard1.getWorldDirection();
+    this.advertisingBoards.push(advertisingBoard1);
+
+    const advertisingBoard2Material = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      side: THREE.DoubleSide,
+      transparent: true,
+    });
+    const advertisingBoard2 = new THREE.Mesh( advertisingBoardGeometry, advertisingBoard2Material );
+    advertisingBoard2.rotateY( Math.PI / 2 );
+    advertisingBoard2.position.set(
+      8 * BOX_SIZE,
+      (8 + 2) * BOX_SIZE,
+      (0 - 2) * BOX_SIZE
+    );
+    advertisingBoard2['__WORLD_DIRECTION__'] = advertisingBoard2.getWorldDirection();
+    this.advertisingBoards.push(advertisingBoard2);
+
+    const advertisingBoard3Material = new THREE.MeshBasicMaterial({
+      color: 0x00ff00,
+      side: THREE.DoubleSide,
+      transparent: true,
+    });
+    const advertisingBoard3 = new THREE.Mesh( advertisingBoardGeometry, advertisingBoard3Material );
+
+    advertisingBoard3.position.set(
       (16 + 2) * BOX_SIZE,
       (8 + 2) * BOX_SIZE,
       8 * BOX_SIZE
     );
+    advertisingBoard3['__WORLD_DIRECTION__'] = advertisingBoard3.getWorldDirection();
+    this.advertisingBoards.push(advertisingBoard3);
+
+    const advertisingBoard4Material = new THREE.MeshBasicMaterial({
+      color: 0x0000ff,
+      side: THREE.DoubleSide,
+      transparent: true,
+    });
+    const advertisingBoard4 = new THREE.Mesh( advertisingBoardGeometry, advertisingBoard4Material );
+    advertisingBoard4.rotateY( 3 * Math.PI / 2 );
+    advertisingBoard4.position.set(
+      8 * BOX_SIZE,
+      (8 + 2) * BOX_SIZE,
+      (16 + 2) * BOX_SIZE
+    );
+    advertisingBoard4['__WORLD_DIRECTION__'] = advertisingBoard4.getWorldDirection();
+    this.advertisingBoards.push(advertisingBoard4);
 
     super.init();
 
-    this.scene.add(this.advertisingBoardMesh);
+    this.advertisingBoards.forEach(board => this.scene.add(board));
 
     this.cursorManager = new CursorManager(this);
 
