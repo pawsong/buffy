@@ -119,7 +119,7 @@ const voxelUndoable = reducer => (state: VoxelState, action: Action<any>): Voxel
         return state;
       }
 
-      const { vertices, faces, gridFaces } = mesher(data.data, data.shape);
+      const { vertices, faces } = mesher(data.data, data.shape);
 
       const historyIndex = state.historyIndex + 1;
 
@@ -133,7 +133,7 @@ const voxelUndoable = reducer => (state: VoxelState, action: Action<any>): Voxel
         historyIndex,
         action: action.type,
         data,
-        mesh: { vertices, faces, gridFaces },
+        mesh: { vertices, faces },
       };
 
       return {

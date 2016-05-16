@@ -11,8 +11,6 @@ if (__CLIENT__) {
   require('three/examples/js/controls/OrbitControls');
 }
 
-import { GridFace } from '../meshers/greedy';
-
 import {
   GRID_SIZE,
   UNIT_PIXEL,
@@ -49,6 +47,10 @@ interface CanvasOptions {
   handleEditorStateChange: (nextState: ModelEditorState) => any;
   getEditorState: GetEditorState;
 }
+
+
+const gridVertexShader = require('raw!./grid.vert');
+const gridFragmentShader = require('raw!./grid.frag');
 
 class MainCanvas {
   scene: THREE.Scene;
@@ -132,85 +134,41 @@ class MainCanvas {
       scene.add(axisHelper);
     }
 
-    let surfacemesh;
-    canvasShared.meshStore.listen(({ geometry, gridFaces }) => {
+    const modelMaterial = new THREE.ShaderMaterial({
+      uniforms: {},
+      vertexShader: gridVertexShader,
+      fragmentShader: gridFragmentShader,
+    });
+    modelMaterial.extensions.derivatives = true;
+
+    let surfacemesh: THREE.Mesh;
+    let bufferGeometry: THREE.BufferGeometry;
+    canvasShared.meshStore.listen(({ geometry }) => {
       if (surfacemesh) {
         // TODO: dispose geometry and material
-        scene.remove(surfacemesh.edges);
         scene.remove(surfacemesh);
         surfacemesh = undefined;
       }
 
+      if (bufferGeometry) bufferGeometry.dispose();
+
       if (geometry.vertices.length === 0) return;
 
-      // Create surface mesh
-      var material  = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        vertexColors: THREE.VertexColors,
-        shading: THREE.FlatShading,
-      });
-      surfacemesh = new THREE.Mesh( geometry, material );
-      surfacemesh.isVoxel = true;
-      surfacemesh.doubleSided = false;
+      // Create geometry
+      bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
+
+      // Create mesh
+      surfacemesh = new THREE.Mesh(bufferGeometry, modelMaterial);
+      surfacemesh['isVoxel'] = true;
+      surfacemesh['doubleSided'] = false;
+
       surfacemesh.position.x = BOX_SIZE * -GRID_SIZE / 2.0;
       surfacemesh.position.y = BOX_SIZE * -GRID_SIZE / 2.0 - PLANE_Y_OFFSET;
       surfacemesh.position.z = BOX_SIZE * -GRID_SIZE / 2.0;
+
       surfacemesh.scale.set(BOX_SIZE, BOX_SIZE, BOX_SIZE);
+
       scene.add(surfacemesh);
-
-      surfacemesh.edges = new THREE.EdgesHelper(surfacemesh, 0x000000);
-      scene.add(surfacemesh.edges);
-
-      gridFaces.forEach(gridFace => {
-        const gridGeometry = new THREE.Geometry();
-        const vertices = [];
-
-        const { d, c } = gridFace;
-        const u = (d+1)%3;
-        const v = (d+2)%3;
-
-        for (let i = 1; i < gridFace.w; ++i) {
-          const vertex0 = new Array(3);
-          vertex0[d] = gridFace.origin[d];
-          vertex0[u] = gridFace.origin[u] + i;
-          vertex0[v] = gridFace.origin[v];
-
-          const vertex1 = new Array(3);
-          vertex1[d] = gridFace.origin[d];
-          vertex1[u] = gridFace.origin[u] + i;
-          vertex1[v] = gridFace.origin[v] + gridFace.h;
-
-          gridGeometry.vertices.push(new THREE.Vector3(vertex0[0], vertex0[1], vertex0[2]));
-          gridGeometry.vertices.push(new THREE.Vector3(vertex1[0], vertex1[1], vertex1[2]));
-        }
-
-        for (let i = 1; i < gridFace.h; ++i) {
-          const vertex0 = new Array(3);
-          vertex0[d] = gridFace.origin[d];
-          vertex0[u] = gridFace.origin[u];
-          vertex0[v] = gridFace.origin[v] + i;
-
-          const vertex1 = new Array(3);
-          vertex1[d] = gridFace.origin[d];
-          vertex1[u] = gridFace.origin[u] + gridFace.w;
-          vertex1[v] = gridFace.origin[v] + i;
-
-          gridGeometry.vertices.push(new THREE.Vector3(vertex0[0], vertex0[1], vertex0[2]));
-          gridGeometry.vertices.push(new THREE.Vector3(vertex1[0], vertex1[1], vertex1[2]));
-        }
-
-        const r = (c >> 16) & 0xff;  // extract red
-        const g = (c >>  8) & 0xff;  // extract green
-        const b = (c >>  0) & 0xff;  // extract blue
-
-        const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
-        const color = luma < 40 ? 0xffffff : 0x000000;
-
-        const line = new THREE.LineSegments(gridGeometry, new THREE.LineBasicMaterial({
-          color, linewidth: 1,
-        }));
-        surfacemesh.add(line);
-      });
     });
 
     /////////////////////////////////////////////////////////////
@@ -220,6 +178,7 @@ class MainCanvas {
     const renderer = this.renderer = new THREE.WebGLRenderer({
       antialias: true,
     });
+
     renderer.setClearColor( 0xffffff );
     renderer.setSize( container.offsetWidth, container.offsetHeight )
 

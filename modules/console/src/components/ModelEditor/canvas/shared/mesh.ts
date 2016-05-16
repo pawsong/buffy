@@ -1,32 +1,121 @@
 import * as THREE from 'three';
 
+import {
+  GRID_SIZE,
+  UNIT_PIXEL,
+  BOX_SIZE,
+  DIMENSIONS,
+  PLANE_Y_OFFSET,
+} from '../../constants/Pixels';
+
+function createFaceVertexUv(vertices: any[], i: number) {
+  const vs = [
+    vertices[i*4+0],
+    vertices[i*4+1],
+    vertices[i*4+2],
+    vertices[i*4+3],
+  ]
+
+  const spans = {
+    x0: vs[0][0] - vs[1][0],
+    x1: vs[1][0] - vs[2][0],
+    y0: vs[0][1] - vs[1][1],
+    y1: vs[1][1] - vs[2][1],
+    z0: vs[0][2] - vs[1][2],
+    z1: vs[1][2] - vs[2][2],
+  }
+
+  const size = {
+    x: Math.max(Math.abs(spans.x0), Math.abs(spans.x1)),
+    y: Math.max(Math.abs(spans.y0), Math.abs(spans.y1)),
+    z: Math.max(Math.abs(spans.z0), Math.abs(spans.z1)),
+  }
+
+  let width;
+  let height;
+
+  if (size.x === 0) {
+    if (spans.y0 > spans.y1) {
+      width = size.y;
+      height = size.z;
+    } else {
+      width = size.z;
+      height = size.y;
+    }
+  }
+
+  if (size.y === 0) {
+    if (spans.x0 > spans.x1) {
+      width = size.x;
+      height = size.z;
+    } else {
+      width = size.z;
+      height = size.x;
+    }
+  }
+
+  if (size.z === 0) {
+    if (spans.x0 > spans.x1) {
+      width = size.x;
+      height = size.y;
+    } else {
+      width = size.y;
+      height = size.x;
+    }
+  }
+
+  if ((size.z === 0 && spans.x0 < spans.x1) || (size.x === 0 && spans.y0 > spans.y1)) {
+    return [
+      new THREE.Vector2(height, 0),
+      new THREE.Vector2(0, 0),
+      new THREE.Vector2(0, width),
+      new THREE.Vector2(height, width),
+    ];
+  } else {
+    return [
+      new THREE.Vector2(0, 0),
+      new THREE.Vector2(0, height),
+      new THREE.Vector2(width, height),
+      new THREE.Vector2(width, 0),
+    ];
+  }
+}
+
 export function createVoxelGeometry(vertices: any[], faces: any[]) {
   const geometry = new THREE.Geometry();
 
   geometry.vertices.length = 0;
   geometry.faces.length = 0;
 
-  for(var i = 0; i < vertices.length; ++i) {
+  for(let i = 0, l = vertices.length; i < l; ++i) {
     const q = vertices[i];
     geometry.vertices.push(new THREE.Vector3(q[0], q[1], q[2]));
   }
 
-  for(var i = 0; i < faces.length; ++i) {
+  for(let i = 0, l = faces.length; i < l; ++i) {
     const q = faces[i];
-    const f = new THREE.Face3(q[0], q[1], q[2]);
-    f.color = new THREE.Color(q[3]);
-    f.vertexColors = [f.color,f.color,f.color];
+
+    const uv = createFaceVertexUv(vertices, i);
+
+    const f = new THREE.Face3(q[0], q[1], q[3]);
+    f.color = new THREE.Color(q[4]);
     geometry.faces.push(f);
+    geometry.faceVertexUvs[0].push([uv[0], uv[1], uv[3]]);
+
+    const g = new THREE.Face3(q[1], q[2], q[3]);
+    g.color = new THREE.Color(q[4]);
+    geometry.faces.push(g);
+    geometry.faceVertexUvs[0].push([uv[1], uv[2], uv[3]]);
   }
 
-  geometry.computeFaceNormals()
+  geometry.computeFaceNormals();
 
-  geometry.verticesNeedUpdate = true
-  geometry.elementsNeedUpdate = true
-  geometry.normalsNeedUpdate = true
+  geometry.verticesNeedUpdate = true;
+  geometry.elementsNeedUpdate = true;
+  geometry.normalsNeedUpdate = true;
 
-  geometry.computeBoundingBox()
-  geometry.computeBoundingSphere()
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
 
   return geometry;
 }

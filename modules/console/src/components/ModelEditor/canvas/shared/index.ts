@@ -8,13 +8,12 @@ import {
 
 import { createVoxelGeometry } from './mesh';
 
-import mesher, { GridFace } from '../meshers/greedy';
+import mesher from '../meshers/greedy';
 
 import { SimpleStore } from '../../../../libs';
 
 interface Mesh {
   geometry: THREE.Geometry;
-  gridFaces: GridFace[];
 }
 
 interface CanvasSharedOptions {
@@ -35,7 +34,6 @@ class CanvasShared {
     // Mesh store
     this.meshStore = new SimpleStore<Mesh>({
       geometry: null,
-      gridFaces: [],
     });
 
     this.voxelStateChange(getState());
@@ -46,7 +44,7 @@ class CanvasShared {
 
     const { geometry } = this.meshStore.getState();
     const nextGeometry = createVoxelGeometry(vertices, faces);
-    this.meshStore.update({ geometry: nextGeometry, gridFaces });
+    this.meshStore.update({ geometry: nextGeometry });
 
     // Prevent memory leak
     if (geometry) geometry.dispose();

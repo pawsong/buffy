@@ -1,11 +1,3 @@
-export interface GridFace {
-  origin: any;
-  d: number;
-  w: number;
-  h: number;
-  c: number;
-}
-
 var GreedyMesh = (function() {
   //Cache buffer internally
   var mask = new Int32Array(4096);
@@ -15,8 +7,6 @@ var GreedyMesh = (function() {
       , dimsX = dims[0]
       , dimsY = dims[1]
       , dimsXY = dimsX * dimsY;
-
-    const gridFaces: GridFace[] = [];
 
     //Sweep over 3-axes
       for(var d=0; d<3; ++d) {
@@ -100,15 +90,7 @@ var GreedyMesh = (function() {
             vertices.push([x[0]+du[0],       x[1]+du[1],       x[2]+du[2]      ]);
             vertices.push([x[0]+du[0]+dv[0], x[1]+du[1]+dv[1], x[2]+du[2]+dv[2]]);
             vertices.push([x[0]      +dv[0], x[1]      +dv[1], x[2]      +dv[2]]);
-            faces.push([vertex_count, vertex_count+1, vertex_count+2, c]);
-            faces.push([vertex_count, vertex_count+2, vertex_count+3, c]);
-
-            if (w > 1 || h > 1) {
-              gridFaces.push({
-                origin: [x[0], x[1], x[2]],
-                d, w, h, c,
-              });
-            }
+            faces.push([vertex_count, vertex_count+1, vertex_count+2, vertex_count+3, c]);
 
             //Zero-out mask
             W = n + w;
@@ -124,7 +106,7 @@ var GreedyMesh = (function() {
           }
         }
       }
-      return { vertices, faces, gridFaces };
+      return { vertices, faces };
   }
 })();
 
