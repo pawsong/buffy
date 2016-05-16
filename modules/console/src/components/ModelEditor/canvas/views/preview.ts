@@ -32,10 +32,10 @@ class PreviewView {
     const scene = new THREE.Scene();
 
     const previewCamera = new THREE.OrthographicCamera(
-      container.offsetWidth / - 2,
-      container.offsetWidth / 2,
-      container.offsetHeight / 2,
-      container.offsetHeight / - 2,
+      container.clientWidth / - 2,
+      container.clientWidth / 2,
+      container.clientHeight / 2,
+      container.clientHeight / - 2,
       -500, 1000
     );
     // previewCamera.position.copy(camera.position).multiplyScalar(0.1);
@@ -48,13 +48,13 @@ class PreviewView {
       antialias: true,
       preserveDrawingBuffer: true,
     });
-    renderer.setClearColor( 0x101010 );
-    renderer.setSize(container.offsetWidth, container.offsetHeight);
+    renderer.setClearColor( 0xffffff );
+    renderer.setSize(container.clientWidth, container.clientHeight);
 
     // Hide ghost bottom margin
     renderer.domElement.style['vertical-align'] = 'bottom';
     renderer.domElement.style.position = 'relative';
-    container.appendChild(renderer.domElement)
+    container.appendChild(renderer.domElement);
 
     var ambientLight = new THREE.AmbientLight(0x666666);
     scene.add(ambientLight);
@@ -108,13 +108,13 @@ class PreviewView {
     }
 
     this.onWindowResize = () => {
-      previewCamera.left = container.offsetWidth / - 2;
-      previewCamera.right = container.offsetWidth / 2;
-      previewCamera.top = container.offsetHeight / 2;
-      previewCamera.bottom = container.offsetHeight / - 2;
+      previewCamera.left = container.clientWidth / - 2;
+      previewCamera.right = container.clientWidth / 2;
+      previewCamera.top = container.clientHeight / 2;
+      previewCamera.bottom = container.clientHeight / - 2;
       previewCamera.updateProjectionMatrix();
 
-      renderer.setSize(container.offsetWidth, container.offsetHeight);
+      renderer.setSize(container.clientWidth, container.clientHeight);
     }
 
     // Add event handlers

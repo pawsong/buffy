@@ -120,7 +120,12 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
     return (
       <div>
         <div
-          style={{ width: 150, height: 150 }}
+          style={{
+            width: 150,
+            height: 150,
+            border: '1px solid #BFBFBF',
+            borderRadius: 2,
+          }}
           ref={'canvas'}
         >
         </div>
