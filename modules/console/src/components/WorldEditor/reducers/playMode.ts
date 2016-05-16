@@ -31,7 +31,7 @@ export function playModeReducer(state: PlayModeState, action: Action<any>): Play
     }
     case CHANGE_PLAY_STATE: {
       const { playState } = <ChangePlayStateAction>action;
-      return objectAssign({}, state, { state });
+      return objectAssign({}, state, { state: playState });
     }
   }
   return state;
