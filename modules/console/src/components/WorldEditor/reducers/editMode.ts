@@ -50,7 +50,7 @@ export function editModeReducer(state: EditModeState, action: Action<any>): Edit
       return Object.assign({}, state, {
         robots,
         tool: state.toolToRestore,
-        toolToRestore: EditToolType.ADD_BLOCK,
+        toolToRestore: EditToolType.MOVE,
         addRobotRecipeId: '',
       });
     }

@@ -10,6 +10,7 @@ import WorldEditorCanvas from '../../../WorldEditorCanvas';
 import EditModeTool, { InitParams } from './EditModeTool';
 export { EditModeTool, InitParams }
 
+import MoveTool from './MoveTool';
 import AddBlockTool from './AddBlockTool';
 import EraseBlockTool from './EraseBlockTool';
 import ColorizeTool from './ColorizeTool';
@@ -21,6 +22,9 @@ export default function createTool(
   params: InitParams
 ): EditModeTool {
   switch(toolType) {
+    case EditToolType.MOVE: {
+      return new MoveTool(params, getState);
+    }
     case EditToolType.ADD_BLOCK: {
       return new AddBlockTool(params, getState);
     }
