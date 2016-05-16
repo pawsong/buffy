@@ -14,6 +14,8 @@ import RaisedButton from 'material-ui/lib/raised-button';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 
+import * as ndarray from 'ndarray';
+
 import Messages from '../../constants/Messages';
 
 import * as StorageKeys from '../../constants/StorageKeys';
@@ -24,7 +26,6 @@ import mesher from './canvas/meshers/greedy';
 
 import {
   rgbToHex,
-  voxelMapToArray,
 } from './canvas/utils';
 
 import {
@@ -44,9 +45,10 @@ import FullscreenButton from './components/FullscreenButton';
 import CanvasShared from './canvas/shared';
 import MainCanvas from './canvas/views/main';
 
-import voxelReducer, {
-  initialState as initialVoxelState,
-} from './voxels/reducer';
+import voxelReducer from './voxels/reducer';
+import {
+  VOXEL_INIT,
+} from './voxels/actions';
 
 const styles = {
   canvas: {
@@ -199,25 +201,36 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 }
 
 ModelEditor.createState = function VoxelEditor(fileId: string, options: CreateStateOptions = {}): ModelEditorState {
-  let voxel: VoxelState = initialVoxelState;
+  // let voxel: VoxelState = initialVoxelState;
 
-  if (options.voxels) {
-    const data = Immutable.Map().withMutations(mutable => {
-      options.voxels.forEach(voxel => {
-        mutable.set(Immutable.Iterable(voxel.position), voxel);
-      });
-    });
+  // if (options.voxels) {
+  //   const data = Immutable.Map().withMutations(mutable => {
+  //     options.voxels.forEach(voxel => {
+  //       mutable.set(Immutable.Iterable(voxel.position), voxel);
+  //     });
+  //   });
 
-    voxel = update(initialVoxelState, {
-      present: { data: { $set: data } },
-    });
-  }
+  //   voxel = update(initialVoxelState, {
+  //     present: { data: { $set: data } },
+  //   });
+  // }
+  const data = ndarray(new Int32Array(16 * 16 * 16), [16, 16, 16]);
 
   return {
     fileId,
     selectedTool: ToolType.brush,
     paletteColor: { r: 104, g: 204, b: 202 },
-    voxel,
+    voxel: {
+      historyIndex: 1,
+      past: [],
+      present: {
+        historyIndex: 1,
+        action: VOXEL_INIT,
+        data: data,
+        mesh: { vertices: [], faces: [], gridFaces: [] },
+      },
+      future: [],
+    },
     image: { url: '' },
   };
 }

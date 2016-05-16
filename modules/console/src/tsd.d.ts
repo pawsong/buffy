@@ -39,6 +39,7 @@ declare module 'ndarray' {
       stride: any;
       offset: any;
       set(...args): any;
+      get(...args): any;
     }
   }
 

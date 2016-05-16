@@ -8,10 +8,6 @@ import {
 
 import { createVoxelGeometry } from './mesh';
 
-import {
-  voxelMapToArray,
-} from '../utils';
-
 import mesher, { GridFace } from '../meshers/greedy';
 
 import { SimpleStore } from '../../../../libs';

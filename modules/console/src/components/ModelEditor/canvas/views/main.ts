@@ -23,7 +23,6 @@ import {
 
 import {
   rgbToHex,
-  voxelMapToArray,
 } from '../utils';
 
 import {

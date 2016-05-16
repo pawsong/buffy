@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Ndarray } from 'ndarray';
 
 /**
  * Flux
@@ -35,12 +36,10 @@ export interface Voxel {
   color: Color;
 }
 
-export type Voxels = Immutable.Map<Immutable.Iterable.Indexed<number> /* Position */, Voxel>;
-
 export interface VoxelSnapshot {
   historyIndex: number;
   action: string;
-  data: Voxels;
+  data: Ndarray;
   mesh: any;
 }
 
