@@ -200,7 +200,7 @@ class WorldEditorCanvas extends ZoneCanvas {
       getFiles: this.getFiles,
       dispatchAction: this.dispatchAction,
       designManager: this.designManager,
-    }, this.getFiles, this.subscribeAction);
+    }, this.getFiles, this.subscribeAction, this.stateLayer);
     this.editModeState.init();
 
     this.playModeState = new PlayModeState(this.getGameState, {

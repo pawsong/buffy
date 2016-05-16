@@ -8,9 +8,14 @@ import * as ndarray from 'ndarray';
 
 import {
   changeEditorMode,
+  runScript,
+  stopScript,
 } from './actions';
 
+import { Sandbox, Scripts } from '../../sandbox';
 import DesignManager from '../../canvas/DesignManager';
+
+import { RecipeEditorState } from '../RecipeEditor';
 
 import { connectTarget } from '../Panel';
 import { PanelTypes, Panels } from './panel';
@@ -27,6 +32,11 @@ import { SourceFileDB } from '../Studio/types';
 import { TOOLBAR_HEIGHT } from './Constants';
 
 import generateObjectId from '../../utils/generateObjectId';
+
+import { saga, SagaProps, ImmutableTask } from '../../saga';
+import { runBlocklyWorkspace, CompiledCodes } from './sagas';
+
+import { compileBlocklyXml } from '../../blockly/utils';
 
 import {
   PlayState,
@@ -50,13 +60,14 @@ import { rootReducer } from './reducers';
 
 export { WorldEditorState };
 
-interface WorldEditorProps extends React.Props<WorldEditor> {
+interface WorldEditorProps extends React.Props<WorldEditor>, SagaProps {
   editorState: WorldEditorState;
-  onChange: (state: WorldEditorState) => any;
+  onChange: (state: WorldEditorState, callback?: () => any) => any;
   stateLayer: StateLayer;
   designManager: DesignManager;
   sizeVersion: number; // For resize
   files: SourceFileDB;
+  run?: ImmutableTask<any>;
 }
 
 const styles = {
@@ -84,17 +95,24 @@ interface CreateStateOptions {
   mapIdToLocalStorageKey: panelId => `worldeditor.panel.${panelId}`,
   limitTop: TOOLBAR_HEIGHT,
 })
+@saga({
+  run: runBlocklyWorkspace,
+})
 class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState> {
   static createState: (fileId: string, options: CreateStateOptions) => WorldEditorState;
 
   actionListeners: ActionListener[];
 
-  constructor(props, context) {
+  private sandbox: Sandbox;
+
+  constructor(props: WorldEditorProps, context) {
     super(props, context);
     this.state = {
       canvasElement: null,
     };
     this.actionListeners = [];
+
+    this.sandbox = new Sandbox(props.stateLayer);
   }
 
   subscribeAction: SubscribeAction = (listener) => {
@@ -105,10 +123,10 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
     };
   }
 
-  dispatchAction = (action: Action<any>) => {
+  dispatchAction = (action: Action<any>, callback?: () => any) => {
     const nextState = rootReducer(this.props.editorState, action);
     this.actionListeners.forEach(listener => listener(action));
-    this.props.onChange(nextState);
+    this.props.onChange(nextState, callback);
   }
 
   renderContent() {
@@ -144,6 +162,48 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
     this.dispatchAction(changeEditorMode(EditorMode.PLAY));
   }
 
+  handleScriptRun = () => {
+    console.log('run!');
+    this.dispatchAction(runScript(), () => {
+      console.log('dispatched');
+
+      const robots = Object.keys(this.props.editorState.editMode.robots).map(robotId => {
+        return this.props.editorState.editMode.robots[robotId];
+      });
+
+      // Find robots
+      const recipes: { [index: string]: RecipeEditorState } = {};
+      robots.forEach(robot => {
+        recipes[robot.recipe] = this.props.files[robot.recipe].state;
+      });
+
+      const codesSet = {};
+      Object.keys(recipes).forEach(robotId => {
+        const robotState = recipes[robotId];
+        robotState.codes.forEach(code => codesSet[code] = true);
+      });
+
+      const codes: CompiledCodes = {};
+      Object.keys(codesSet).map(codeId => {
+        const codeState = this.props.files[codeId].state;
+        codes[codeId] = compileBlocklyXml(codeState.blocklyXml);
+      });
+
+      this.props.runSaga(this.props.run, this.sandbox, codes, robots.map(instance => {
+        const recipe = recipes[instance.recipe];
+        return {
+          objectId: instance.id,
+          codeIds: recipe.codes,
+        };
+      }));
+    });
+  }
+
+  handleScriptStop = () => {
+    this.props.cancelSaga(this.props.run);
+    this.dispatchAction(stopScript());
+  }
+
   render() {
     return (
       <div>
@@ -151,6 +211,8 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
           editorState={this.props.editorState}
           onEnterEditMode={this.handleEnterEditMode}
           onEnterPlayMode={this.handleEnterPlayMode}
+          onScriptRun={this.handleScriptRun}
+          onScriptStop={this.handleScriptStop}
         />
         <div style={styles.canvasContainer}>
           <Canvas
@@ -238,6 +300,7 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
       paletteColor: { r: 104, g: 204, b: 202 },
       addRobotRecipeId: '',
       toolToRestore: EditToolType.MOVE,
+      scriptIsRunning: false,
     },
     playMode: {
       state: PlayState.READY,

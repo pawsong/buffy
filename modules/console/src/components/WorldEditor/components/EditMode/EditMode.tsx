@@ -66,6 +66,8 @@ class EditMode extends React.Component<EditModeProps, EditModeState> {
   }
 
   render() {
+    if (this.props.editorState.editMode.scriptIsRunning === true) return null;
+
     return (
       <div>
         <RobotPanel

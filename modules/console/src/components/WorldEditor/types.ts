@@ -77,6 +77,7 @@ export interface EditModeState {
   activeZoneId: string;
   addRobotRecipeId: string;
   toolToRestore: EditToolType;
+  scriptIsRunning: boolean;
 }
 
 export enum PlayState {

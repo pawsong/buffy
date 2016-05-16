@@ -18,12 +18,7 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 import Messages from '../../constants/Messages';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
-import Blockly from '../../blockly';
 import * as StorageKeys from '../../constants/StorageKeys';
-import { Sandbox, Scripts } from '../../sandbox';
-
-import { saga, SagaProps, ImmutableTask } from '../../saga';
-import { runBlocklyWorkspace, CompiledCodes } from './sagas';
 
 import DesignManager from '../../canvas/DesignManager';
 
@@ -85,9 +80,9 @@ export interface StudioState {
   worldId?: string;
 }
 
-interface StudioProps extends React.Props<Studio>, SagaProps {
+interface StudioProps extends React.Props<Studio> {
   studioState: StudioState;
-  onChange: (nextState: StudioState) => any;
+  onChange: (nextState: StudioState, callback?: any) => any;
   onOpenFileRequest: (fileType: FileType) => any;
 
   editorFocus: boolean;
@@ -98,8 +93,6 @@ interface StudioProps extends React.Props<Studio>, SagaProps {
   designManager: DesignManager;
   style?: React.CSSProperties;
   intl?: InjectedIntlProps;
-  root?: ImmutableTask<any>;
-  run?: ImmutableTask<any>;
 }
 
 interface StudioOwnState { // UI states
@@ -119,9 +112,6 @@ interface CreateStateOptions {
 
 @waitForMount
 @injectIntl
-@saga({
-  run: runBlocklyWorkspace,
-})
 @(DragDropContext(HTML5Backend) as any)
 @withStyles(styles)
 class Studio extends React.Component<StudioProps, StudioOwnState> {
@@ -134,8 +124,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 
   activeTabName: string;
 
-  sandbox: Sandbox;
-
   constructor(props: StudioProps, context) {
     super(props, context);
 
@@ -143,44 +131,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
       editorSizeVersion: 0,
       gameSizeVersion: 0,
     };
-
-    this.sandbox = new Sandbox(this.props.stateLayer);
-  }
-
-  componentWillUnmount() {
-    this.props.cancelSaga(this.props.run);
-  }
-
-  handleRun() { // TODO: Move into world editor
-    // // Find robots
-    // const robotStates = {};
-    // this.props.robotInstances.forEach(robotInstance => {
-    //   robotStates[robotInstance.templateId] = this.props.studioState.files[robotInstance.templateId].state;
-    // });
-
-    // const codesSet = {};
-    // Object.keys(robotStates).forEach(robotId => {
-    //   const robotState = robotStates[robotId];
-    //   robotState.codes.forEach(code => codesSet[code] = true);
-    // });
-
-    // const codes: CompiledCodes = {};
-    // Object.keys(codesSet).map(codeId => {
-    //   const codeState = this.props.studioState.files[codeId].state;
-    //   codes[codeId] = compileBlocklyXml(codeState.blocklyXml);
-    // });
-
-    // this.props.runSaga(this.props.run, this.sandbox, codes, this.props.robotInstances.map(instance => {
-    //   const robotState = robotStates[instance.templateId];
-    //   return {
-    //     objectId: instance.id,
-    //     codeIds: robotState.codes,
-    //   };
-    // }));
-  }
-
-  handleStop() {
-    this.props.cancelSaga(this.props.run);
   }
 
   componentWillMount() {
@@ -248,7 +198,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     }));
   }
 
-  handleFileChange2(id: string, state: any) {
+  handleFileChange2(id: string, state: any, callback?: Function) {
     const file = this.props.studioState.files[id];
     const modified = file.modified || file.state !== state;
 
@@ -257,7 +207,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
         modified: { $set: modified },
         state: { $set: state },
       } },
-    }));
+    }), callback);
   }
 
   handleFileTabOrderChange(dragIndex, hoverIndex) {
@@ -318,18 +268,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   }
 
   render() {
-    const controlButton = this.props.run.state === 'running'
-      ? <RaisedButton
-          label={this.props.intl.formatMessage(messages.stop)}
-          secondary={true}
-          onTouchTap={() => this.handleStop()}
-        />
-      : <RaisedButton
-          label={this.props.intl.formatMessage(messages.run)}
-          primary={true}
-          onTouchTap={() => this.handleRun()}
-        />;
-
     const editor = this.renderEditor();
 
     return (
@@ -350,7 +288,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           <LayoutContainer remaining={true}>
             <WorldEditor
               editorState={this.props.studioState.files[this.props.studioState.worldId].state}
-              onChange={state => this.handleFileChange2(state.common.fileId, state)}
+              onChange={(state, callback) => this.handleFileChange2(state.common.fileId, state, callback)}
               sizeVersion={this.state.gameSizeVersion}
               stateLayer={this.props.stateLayer}
               designManager={this.props.designManager}

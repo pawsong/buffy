@@ -19,6 +19,8 @@ import {
   REQUEST_ADD_ROBOT, RequestAddRobotAction,
   ADD_ROBOT, AddRobotAction,
   REMOVE_ROBOT, RemoveRobotAction,
+  RUN_SCRIPT, RunScriptAction,
+  STOP_SCRIPT, StopScriptAction,
 } from '../actions';
 
 export function editModeReducer(state: EditModeState, action: Action<any>): EditModeState {
@@ -64,6 +66,12 @@ export function editModeReducer(state: EditModeState, action: Action<any>): Edit
       });
 
       return objectAssign({}, state, { robots });
+    }
+    case RUN_SCRIPT: {
+      return objectAssign({}, state, { scriptIsRunning: true });
+    }
+    case STOP_SCRIPT: {
+      return objectAssign({}, state, { scriptIsRunning: false });
     }
   }
   return state;

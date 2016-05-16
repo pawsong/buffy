@@ -76,9 +76,10 @@ class BirdsEyeView implements View {
   }
 
   setPosition(pos: Position): void {
-    this.camera.getWorldDirection(this.direction);
-    this.camera.position.set(pos.x, pos.y, pos.z);
-    this.controls.target.copy(this.camera.position).add(this.direction);
+    console.log(pos);
+    // this.camera.getWorldDirection(this.direction);
+    // this.camera.position.set(pos.x, pos.y, pos.z);
+    // this.controls.target.copy(this.camera.position).add(this.direction);
   }
 
   onUpdate(): void {

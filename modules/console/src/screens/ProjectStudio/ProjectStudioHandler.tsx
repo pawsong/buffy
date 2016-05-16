@@ -425,13 +425,13 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     }
   }
 
-  handleStudioStateChange(nextState: StudioState) {
+  handleStudioStateChange(nextState: StudioState, callback?: () => any) {
     // if (this.mode === ProjectStudioMode.CREATE) {
     //   if (this.state.studioState.codeEditorState.blocklyXml !== nextState.codeEditorState.blocklyXml) {
     //     localStorage.setItem(StorageKeys.BLOCKLY_WORKSPACE_CREATE, nextState.codeEditorState.blocklyXml);
     //   }
     // }
-    this.setState({ studioState: nextState });
+    this.setState({ studioState: nextState }, callback);
   }
 
   handleOpenFileRequest(fileType: FileType) {
@@ -496,7 +496,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
         />
         <Studio
           studioState={this.state.studioState}
-          onChange={studioState => this.handleStudioStateChange(studioState)}
+          onChange={(studioState, callback) => this.handleStudioStateChange(studioState, callback)}
           onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}
           stateLayer={this.stateLayer}
           designManager={this.designManager}

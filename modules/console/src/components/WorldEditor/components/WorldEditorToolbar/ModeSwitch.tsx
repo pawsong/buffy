@@ -24,13 +24,14 @@ interface ModeRadioButtonProps {
   onTouchTap: () => any;
 }
 
+// --palette-cyan-400: rgb(38, 198, 218);
 const ModeRadioButton: React.StatelessComponent<ModeRadioButtonProps> = props => {
   const icon = React.createElement(props.icon, {
     color: '#ffffff',
   });
 
   const style = objectAssign({}, styles.tool, props.selected ? {
-    backgroundColor: `rgba(${22}, ${165}, ${165}, 0.5)`,
+    backgroundColor: `rgba(38, 198, 218, 0.5)`,
   } : {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   });

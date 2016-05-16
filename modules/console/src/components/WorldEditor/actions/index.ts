@@ -99,6 +99,24 @@ export function removeRobot(robotId: string): RemoveRobotAction {
   };
 }
 
+export const RUN_SCRIPT: 'RUN_SCRIPT' = 'RUN_SCRIPT';
+export interface RunScriptAction extends Action<typeof RUN_SCRIPT> {
+}
+export function runScript(): RunScriptAction {
+  return {
+    type: RUN_SCRIPT,
+  };
+}
+
+export const STOP_SCRIPT: 'STOP_SCRIPT' = 'STOP_SCRIPT';
+export interface StopScriptAction extends Action<typeof STOP_SCRIPT> {
+}
+export function stopScript(): StopScriptAction {
+  return {
+    type: STOP_SCRIPT,
+  };
+}
+
 /*
  * actions for play mode state
  */

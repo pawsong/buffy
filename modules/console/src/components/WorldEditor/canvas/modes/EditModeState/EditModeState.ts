@@ -1,3 +1,5 @@
+import StateLayer from '@pasta/core/lib/StateLayer';
+import LocalServer from '../../../../../LocalServer';
 import {
   SourceFileDB,
 } from '../../../../Studio/types';
@@ -18,6 +20,8 @@ import {
 import {
   ADD_ROBOT, AddRobotAction,
   REMOVE_ROBOT, RemoveRobotAction,
+  RUN_SCRIPT,
+  STOP_SCRIPT,
 } from '../../../actions';
 
 import WorldEditorCanvas from '../../WorldEditorCanvas';
@@ -36,11 +40,14 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
   subscribeAction: SubscribeAction;
   unsubscribeAction: UnsubscribeAction;
 
-  constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB, subscribeAction: SubscribeAction) {
+  private stateLayer: StateLayer;
+
+  constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB, subscribeAction: SubscribeAction, stateLayer: StateLayer) {
     super(getState, initParams);
     this.getFiles = getFiles;
     this.initParams = initParams;
     this.subscribeAction = subscribeAction;
+    this.stateLayer = stateLayer;
   }
 
   getToolType(editorState: WorldEditorState): EditToolType {
@@ -78,6 +85,23 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
   }
 
   handleEnter() {
+    this.syncCanvasToFileState();
+
+    this.initParams.view.applyCameraMode(ViewMode.BIRDS_EYE);
+
+    this.unsubscribeAction = this.subscribeAction(action => this.handleActionDispatch(action));
+
+    super.handleEnter();
+  }
+
+  handleLeave() {
+    this.stopScript();
+
+    super.handleLeave();
+    this.unsubscribeAction();
+  }
+
+  syncCanvasToFileState() {
     const canvas = this.initParams.view;
 
     canvas.objectManager.removeAll();
@@ -95,17 +119,42 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
       const robot = state.editMode.robots[id];
       this.addRobot(robot, files);
     });
-
-    canvas.applyCameraMode(ViewMode.BIRDS_EYE);
-
-    this.unsubscribeAction = this.subscribeAction(action => this.handleActionDispatch(action));
-
-    super.handleEnter();
   }
 
-  handleLeave() {
-    super.handleLeave();
-    this.unsubscribeAction();
+  startScript() {
+    const canvas = this.initParams.view;
+
+    const files = this.getFiles();
+    const { zones, robots, playerId } = this.getState().editMode;
+
+    const server = <LocalServer>this.stateLayer.store;
+    server.initialize(files, zones, robots);
+    server.start();
+
+    // Init view
+
+    // TODO: Filter objects on current active map.
+    Object.keys(this.stateLayer.store.objects).forEach(key => {
+      const object = this.stateLayer.store.objects[key];
+      this.stateLayer.store.watchObject(object);
+    })
+    canvas.connectToStateStore(this.stateLayer.store);
+  }
+
+  stopScript() {
+    const canvas = this.initParams.view;
+
+    const server = <LocalServer>this.stateLayer.store;
+    server.stop();
+
+    // TODO: Think about nicer api for unwatching...
+    Object.keys(this.stateLayer.store.objects).forEach(key => {
+      const object = this.stateLayer.store.objects[key];
+      this.stateLayer.store.unwatchObject(object);
+    })
+    canvas.disconnectFromStateStore();
+
+    this.syncCanvasToFileState();
   }
 
   handleActionDispatch(action: Action<any>) {
@@ -119,6 +168,14 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
       case REMOVE_ROBOT: {
         const { robotId } = <RemoveRobotAction>action;
         this.initParams.view.objectManager.remove(robotId);
+        return;
+      }
+      case RUN_SCRIPT: {
+        this.startScript();
+        return;
+      }
+      case STOP_SCRIPT: {
+        this.stopScript();
         return;
       }
     }
