@@ -10,6 +10,7 @@ import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../../../../../../canvas/Constants';
+import { CursorEventParams } from '../../../../../../canvas/CursorManager';
 
 import WorldEditorCanvasTool, {
   WorldEditorCanvsToolState,
@@ -18,8 +19,6 @@ import WorldEditorCanvasTool, {
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
 import EditModeTool, { InitParams } from './EditModeTool';
-
-import { CursorEventParams } from '../../../CursorManager';
 
 interface WaitStateProps {}
 
@@ -35,6 +34,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     const offset = new THREE.Vector3();
 
     this.canvas.cursorManager.start({
+      getInteractables: () => [this.canvas.chunk.mesh],
       cursorGeometry: this.tool.cursorGeometry,
       cursorMaterial: this.tool.cursorMaterial,
       getCursorOffset: normal => offset.set(

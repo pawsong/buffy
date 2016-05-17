@@ -51,6 +51,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
 
   onEnter() {
     this.canvas.cursorManager.start({
+      getInteractables: () => [this.canvas.chunk.mesh],
       cursorGeometry: this.canvas.cubeGeometry,
       cursorOffset: this.cursorOffset,
     });

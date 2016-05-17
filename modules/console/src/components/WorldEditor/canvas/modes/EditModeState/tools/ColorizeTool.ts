@@ -15,6 +15,7 @@ import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../../../../../../canvas/Constants';
+import { CursorEventParams } from '../../../../../../canvas/CursorManager';
 
 import WorldEditorCanvasTool, {
   WorldEditorCanvsToolState,
@@ -23,8 +24,6 @@ import WorldEditorCanvasTool, {
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
 import EditModeTool, { InitParams } from './EditModeTool';
-
-import { CursorEventParams } from '../../../CursorManager';
 
 const COLOR_TOOLTIP_RADIUS = 20;
 

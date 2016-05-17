@@ -38,7 +38,7 @@ import {
   UnsubscribeAction,
 } from '../types';
 
-import CursorManager from './CursorManager';
+import CursorManager from '../../../canvas/CursorManager';
 
 if (__CLIENT__) {
   window['THREE'] = THREE;
@@ -307,16 +307,6 @@ class WorldEditorCanvas extends ZoneCanvas {
 
   handleChange(state: WorldEditorState) {
     this.modeFsm.trigger(ModeEvents.CHANGE_STATE, state);
-
-    // if (this.state.editMode.playerId !== nextState.editMode.playerId) {
-    //   const object = this.objectManager.objects[nextState.editMode.playerId];
-    //   this.setCameraPosition(object.group.position);
-    // }
-
-    // if (this.state.playMode.viewMode !== nextState.playMode.viewMode) {
-    //   this.applyCameraMode(nextState.playMode.viewMode);
-    // }
-
     this.state = state;
   }
 

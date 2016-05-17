@@ -1,14 +1,12 @@
 import * as THREE from 'three';
 import { Position } from '@pasta/core/lib/types';
-import TerrainManager from '../../../canvas/Canvas/TerrainManager';
+import Canvas from '../Canvas';
 import {
   BOX_SIZE,
   PIXEL_UNIT,
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../canvas/Constants';
-
-import WorldEditorCanvas from './WorldEditorCanvas';
+} from '../Constants';
 
 export interface CursorEventParams {
   event: MouseEvent;
@@ -33,7 +31,7 @@ class CursorManager {
   offset: THREE.Vector3;
   hitTest: (intersect: THREE.Intersection) => boolean;
 
-  private canvas: WorldEditorCanvas;
+  private canvas: Canvas;
   private raycaster: THREE.Raycaster;
   private boundOnMouseMove: (e: MouseEvent) => any;
   private boundOnMouseUp: (e: MouseEvent) => any;
@@ -43,7 +41,7 @@ class CursorManager {
   private onTouchTap: (params: CursorEventParams) => any;
   private getCursorOffset: (normal: THREE.Vector3) => THREE.Vector3;
 
-  constructor(canvas: WorldEditorCanvas) {
+  constructor(canvas: Canvas) {
     this.offset = new THREE.Vector3();
 
     this.canvas = canvas;
@@ -73,7 +71,7 @@ class CursorManager {
     getCursorOffset,
     hitTest,
   } : StartOptions) {
-    this.getIntractables = getInteractables || (() => [this.canvas.chunk.mesh]);
+    this.getIntractables = getInteractables || (() => []);
     this.onInteract = onInteract || (({ intersect }) => this.handleInteract(intersect));
     this.onTouchTap = onTouchTap || (() => {});
     this.hitTest = hitTest || (() => true);

@@ -67,6 +67,7 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     this.designWatcher = geometry => {
       this.canvas.cursorManager.stop();
       this.canvas.cursorManager.start({
+        getInteractables: () => [this.canvas.chunk.mesh],
         cursorGeometry: geometry,
         cursorMaterial: cursorMaterial,
         cursorScale: DESIGN_SCALE,
