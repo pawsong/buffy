@@ -134,6 +134,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
       case EditorMode.EDIT: {
         return (
           <EditMode
+            modelManager={this.props.modelManager}
             editorState={this.props.editorState}
             dispatchAction={this.dispatchAction}
             files={this.props.files}

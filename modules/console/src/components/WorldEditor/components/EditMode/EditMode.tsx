@@ -29,10 +29,13 @@ import { Robot } from '../../types';
 import RobotPanel from './RobotPanel';
 import ToolsPanel from './ToolsPanel';
 
+import ModelManager from '../../../../canvas/ModelManager';
+
 interface EditModeProps extends React.Props<EditMode> {
   editorState: WorldEditorState;
   dispatchAction: DispatchAction;
   files: SourceFileDB;
+  modelManager: ModelManager;
 }
 
 interface EditModeState {
@@ -71,6 +74,7 @@ class EditMode extends React.Component<EditModeProps, EditModeState> {
     return (
       <div>
         <RobotPanel
+          modelManager={this.props.modelManager}
           robots={this.props.editorState.editMode.robots}
           files={this.props.files}
           playerId={this.props.editorState.editMode.playerId}
@@ -85,6 +89,7 @@ class EditMode extends React.Component<EditModeProps, EditModeState> {
           selectTool={editTool => this.handleToolChange(editTool)}
         />
         <AddRobotDialog
+          modelManager={this.props.modelManager}
           open={this.state.addRobotDialogOpen}
           onRequestClose={() => this.setState({ addRobotDialogOpen: false })}
           files={this.props.files}

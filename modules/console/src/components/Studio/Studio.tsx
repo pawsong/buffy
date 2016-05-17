@@ -240,6 +240,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           onFileChange={(id, state) => this.handleFileChange(id, state)}
           file={file}
           files={this.props.studioState.files}
+          modelManager={this.props.modelManager}
           focus={this.props.editorFocus}
         />
       </div>

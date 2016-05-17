@@ -24,7 +24,9 @@ import {
   ModelEditorState,
 } from '../../../../ModelEditor';
 
-interface AddRobotDialogProps extends React.Props<AddRobotDialog> {
+import { receiveThumbnails, ReceiveThumbnailsProps } from '../../../../../canvas/ModelManager';
+
+interface AddRobotDialogProps extends React.Props<AddRobotDialog>, ReceiveThumbnailsProps {
   open: boolean;
   onRequestClose: () => any;
   onSubmit: (robotId: string) => any;
@@ -43,6 +45,7 @@ interface AddRobotDialogState {
 }
 
 @withStyles(styles)
+@receiveThumbnails()
 class AddRobotDialog extends React.Component<AddRobotDialogProps, AddRobotDialogState> {
   constructor(props) {
     super(props);
@@ -68,8 +71,7 @@ class AddRobotDialog extends React.Component<AddRobotDialogProps, AddRobotDialog
         const recipeFile = this.props.files[file.id];
         const recipe: RecipeEditorState = recipeFile.state;
 
-        const designFile = this.props.files[recipe.design];
-        const design: ModelEditorState = designFile.state;
+        const thumbnail = this.props.modelThumbnails.get(recipe.design);
 
         const onTouchTap = () => this.setState({ robotId: file.id });
 
@@ -87,7 +89,7 @@ class AddRobotDialog extends React.Component<AddRobotDialogProps, AddRobotDialog
             style={style}
             onTouchTap={onTouchTap}
           >
-            <img src={design.image ? design.image.url : ''} />
+            <img src={thumbnail} />
           </GridTile>
         )
       });

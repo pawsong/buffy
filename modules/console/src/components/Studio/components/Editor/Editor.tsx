@@ -2,9 +2,9 @@ import * as React from 'react';
 const update = require('react-addons-update');
 
 import FileTabs from '../FileTabs';
-import CodeEditor from '../../../../components/CodeEditor';
-import ModelEditor from '../../../../components/ModelEditor';
-import RecipeEditor from '../../../../components/RecipeEditor';
+import CodeEditor from '../../../CodeEditor';
+import ModelEditor from '../../../ModelEditor';
+import RecipeEditor from '../../../RecipeEditor';
 
 import { FileType } from '../../types';
 
@@ -13,9 +13,12 @@ const styles = require('./Editor.css');
 
 import { FileDescriptor, SourceFile, RobotState } from '../../types';
 
+import ModelManager from '../../../../canvas/ModelManager';
+
 interface EditorProps extends React.Props<Editor> {
   file: SourceFile;
   files: { [index: string]: SourceFile };
+  modelManager: ModelManager;
   focus: boolean;
   editorSizeRevision: number;
   onFileChange: (fileId: string, state: any) => any;
@@ -48,6 +51,7 @@ class Editor extends React.Component<EditorProps, any> {
   renderRecipeEditor() {
     return (
       <RecipeEditor
+        modelManager={this.props.modelManager}
         editorState={this.props.file.state}
         onChange={editorState => this.props.onFileChange(this.props.file.id, editorState)}
         files={this.props.files}

@@ -63,7 +63,6 @@ class RotateButton extends React.Component<RotateButtonProps, {}> {
 };
 
 interface PreviewPanelProps extends React.Props<PreviewPanel> {
-  fileId: string;
   focus: boolean;
   sizeVersion: number;
   canvasShared: CanvasShared;
@@ -96,21 +95,9 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
     if (this.props.sizeVersion !== nextProps.sizeVersion) {
       this.view.resize();
     }
-
-    const fileChanged = this.props.fileId !== nextProps.fileId;
-    const unfocused = this.props.focus === true && nextProps.focus === false;
-
-    if (fileChanged || unfocused) this.updateDataUrl();
-  }
-
-  updateDataUrl() {
-    const canvasElement = this.view.renderer.domElement;
-    const url = canvasElement.toDataURL();
-    this.props.onChange(this.props.fileId, { image: { url }});
   }
 
   componentWillUnmount() {
-    this.updateDataUrl();
     this.view.destroy();
   }
 

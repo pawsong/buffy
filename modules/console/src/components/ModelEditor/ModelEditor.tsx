@@ -160,7 +160,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           dispatchAction={this.dispatchVoxelAction}
         />
         <PreviewPanel
-          fileId={this.props.editorState.fileId}
           focus={this.props.focus}
           onChange={this.props.onChange}
           canvasShared={this.canvasShared}
@@ -231,7 +230,6 @@ ModelEditor.createState = function VoxelEditor(fileId: string, options: CreateSt
       },
       future: [],
     },
-    image: { url: '' },
   };
 }
 

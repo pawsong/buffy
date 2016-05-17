@@ -29,9 +29,11 @@ import CodeEditor from '../../../../components/CodeEditor';
 import ModelEditor from '../../../../components/ModelEditor';
 import RecipeEditor from '../../../../components/RecipeEditor';
 
+import { receiveThumbnails, ReceiveThumbnailsProps } from '../../../../canvas/ModelManager';
+
 import { NewFileSpec } from '../../types';
 
-interface NewFileDialogProps extends React.Props<NewFileDialog> {
+interface NewFileDialogProps extends React.Props<NewFileDialog>, ReceiveThumbnailsProps {
   files: SourceFileDB;
   open: boolean;
   onClose: () => any;
@@ -83,6 +85,7 @@ enum ActionButtonKeys {
 }
 
 @withStyles(styles)
+@receiveThumbnails()
 class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
   constructor(props) {
     super(props);
@@ -205,6 +208,8 @@ class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
           style.margin = '6px';
         }
 
+        const thumbnail = this.props.modelThumbnails.get(file.id);
+
         return (
           <GridTile
             key={file.id}
@@ -212,7 +217,7 @@ class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
             style={style}
             onTouchTap={onTouchTap}
           >
-            <img src={file.state.image.url} />
+            <img src={thumbnail} />
           </GridTile>
         )
       });

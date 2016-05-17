@@ -22,7 +22,6 @@ interface PreviewViewOptions {
 
 class PreviewView {
   renderer: THREE.WebGLRenderer;
-  frameId: number;
   onWindowResize: () => any;
 
   constructor({
@@ -94,12 +93,15 @@ class PreviewView {
       ).multiplyScalar(0.1);
       //surfacemesh.scale.set(BOX_SIZE, BOX_SIZE, BOX_SIZE);
       scene.add(surfacemesh);
+
+      render();
     });
 
     previewCamera.lookAt(scene.position);
 
     canvasShared.cameraPositionStore.listen(position => {
       previewCamera.position.set(position[0], position[1], position[2]).multiplyScalar(0.2);
+      render();
     });
 
     function render() {
@@ -120,11 +122,6 @@ class PreviewView {
     // Add event handlers
     window.addEventListener('resize', this.onWindowResize, false);
 
-    const animate = () => {
-      this.frameId = requestAnimationFrame( animate );
-      render();
-    };
-    animate();
   }
 
   resize() {
@@ -136,7 +133,6 @@ class PreviewView {
 
   destroy() {
     window.removeEventListener('resize', this.onWindowResize, false);
-    cancelAnimationFrame(this.frameId);
     this.renderer.forceContextLoss();
     this.renderer.context = null;
     this.renderer.domElement = null;

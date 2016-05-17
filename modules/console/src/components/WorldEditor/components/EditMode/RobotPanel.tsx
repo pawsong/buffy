@@ -22,6 +22,8 @@ import { SourceFileDB } from '../../../Studio/types';
 
 import { Robot } from '../../types';
 
+import { receiveThumbnails, ReceiveThumbnailsProps } from '../../../../canvas/ModelManager';
+
 const messages = defineMessages({
   title: {
     id: 'worldeditor.panels.robot.title',
@@ -38,7 +40,7 @@ const iconButtonElement = (
 
 const markForModifiedClass = classNames('material-icons', styles.markForModified);
 
-interface RobotPanelProps extends React.Props<RobotPanel> {
+interface RobotPanelProps extends React.Props<RobotPanel>, ReceiveThumbnailsProps {
   robots: { [index: string]: Robot };
   files: SourceFileDB;
   playerId: string;
@@ -52,13 +54,14 @@ interface RobotPanelProps extends React.Props<RobotPanel> {
   panelId: Panels.robot,
   title: messages.title,
 })
+@receiveThumbnails()
 class RobotPanel extends React.Component<RobotPanelProps, void> {
   static PANEL_ID: string;
 
   render() {
     const listItems = Object.keys(this.props.robots).map(id => this.props.robots[id]).map(robot => {
       const recipe = this.props.files[robot.recipe];
-      const design = this.props.files[recipe.state.design];
+      const thumbnail = this.props.modelThumbnails.get(recipe.state.design);
 
       const rightIconMenu = (
         <IconMenu iconButtonElement={iconButtonElement}>
@@ -69,7 +72,7 @@ class RobotPanel extends React.Component<RobotPanelProps, void> {
       return (
         <ListItem
           key={robot.id}
-          leftAvatar={<Avatar src={design.state.image.url} />}
+          leftAvatar={<Avatar src={thumbnail} />}
           rightIconButton={rightIconMenu}
           primaryText={
             <span>

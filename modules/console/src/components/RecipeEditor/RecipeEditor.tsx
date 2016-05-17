@@ -6,6 +6,8 @@ import MenuItem from 'material-ui/lib/menus/menu-item';
 import RaisedButton from 'material-ui/lib/raised-button';
 const objectAssign = require('object-assign');
 
+import { receiveThumbnails, ReceiveThumbnailsProps } from '../../canvas/ModelManager';
+
 import { SourceFile, FileType } from '../Studio/types';
 
 const styles = {
@@ -19,7 +21,7 @@ export interface RecipeEditorState {
   design?: string;
 }
 
-interface RobotEditorProps extends React.Props<RecipeEditor> {
+interface RobotEditorProps extends React.Props<RecipeEditor>, ReceiveThumbnailsProps {
   files: { [index: string]: SourceFile };
   editorState: RecipeEditorState;
   onChange: (editorState: RecipeEditorState) => any;
@@ -30,6 +32,7 @@ interface CreateStateOptions {
   design: string;
 }
 
+@receiveThumbnails()
 class RecipeEditor extends React.Component<RobotEditorProps, void> {
   static createState: (options: CreateStateOptions) => RecipeEditorState;
 
@@ -42,13 +45,13 @@ class RecipeEditor extends React.Component<RobotEditorProps, void> {
   }
 
   renderDesign() {
-    const design = this.props.files[this.props.editorState.design];
+    const thumbnail = this.props.modelThumbnails.get(this.props.editorState.design);
 
     return (
       <div>
         <h2>Design</h2>
         <div>
-          <img src={design.state.image.url} />
+          <img src={thumbnail} />
         </div>
         <div>
           <RaisedButton

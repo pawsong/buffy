@@ -504,6 +504,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
           editorFocus={!this.state.newFileDialogOpen}
         />
         <NewRecipeFileDialog
+          modelManager={this.modelManager}
           files={this.state.studioState.files}
           open={this.state.newFileDialogOpen}
           onClose={() => this.setState({ newFileDialogOpen: false })}
