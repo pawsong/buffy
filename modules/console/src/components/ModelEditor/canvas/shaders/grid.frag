@@ -1,5 +1,7 @@
 precision highp float;
 
+uniform float opacity;
+
 varying vec2 vUV;
 varying vec3 vColor;
 
@@ -20,5 +22,5 @@ void main(void) {
 
     float c = clamp(x + y, 0.0, 0.4) - 1.0;
 
-    gl_FragColor = vec4(vColor.rgb * -c, 1.0);
+    gl_FragColor = vec4(vColor.rgb * -c, opacity);
 }

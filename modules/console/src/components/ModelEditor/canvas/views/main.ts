@@ -30,6 +30,8 @@ import {
   GetEditorState,
 } from '../../types';
 
+import CursorManager from '../../../../canvas/CursorManager';
+
 import CanvasShared from '../shared';
 
 const size = GRID_SIZE * UNIT_PIXEL;
@@ -48,9 +50,8 @@ interface CanvasOptions {
   getEditorState: GetEditorState;
 }
 
-
-const gridVertexShader = require('raw!./grid.vert');
-const gridFragmentShader = require('raw!./grid.frag');
+const gridVertexShader = require('raw!../shaders/grid.vert');
+const gridFragmentShader = require('raw!../shaders/grid.frag');
 
 class MainCanvas {
   scene: THREE.Scene;
@@ -135,7 +136,7 @@ class MainCanvas {
     }
 
     const modelMaterial = new THREE.ShaderMaterial({
-      uniforms: {},
+      uniforms: { opacity: { type: 'f', value: 1.0 } },
       vertexShader: gridVertexShader,
       fragmentShader: gridFragmentShader,
     });
