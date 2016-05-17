@@ -7,63 +7,89 @@ import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../../../../../../canvas/Constants';
+import Cursor from '../../../../../../canvas/Cursor';
 
 import {
   Color,
   WorldEditorState,
   EditToolType,
+  GetState,
+  Action,
+  SubscribeAction,
+  UnsubscribeAction,
 } from '../../../../types';
 
-import WorldEditorCanvasTool, {
-  WorldEditorCanvsToolState,
-  WorldEditorCanvsToolStates,
-} from '../../WorldEditorCanvasTool';
+import {
+  CHANGE_PALETTE_COLOR, ChangePaletteColorAction,
+} from '../../../../actions';
+
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
-import EditModeTool, { InitParams } from './EditModeTool';
+import EditModeTool, {
+  InitParams,
+  ToolState,
+} from './EditModeTool';
 
 export function rgbToHex({ r, g, b }) {
   return (1 << 24) | (r << 16) | (g << 8) | b;
 }
 
-interface WaitStateProps {
-  playerId: string;
-  brushColor: Color;
-}
-
-class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
-  cursorOffset: Position;
+class WaitState extends ToolState {
+  cursor: Cursor;
+  cursorMaterial: THREE.MeshBasicMaterial;
+  unsubscribeAction: UnsubscribeAction;
 
   constructor(
-    private canvas: WorldEditorCanvas
+    private canvas: WorldEditorCanvas,
+    private getState: GetState,
+    private subscribeAction: SubscribeAction
   ) {
     super();
 
-    this.cursorOffset = [PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF];
-  }
+    this.cursorMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      opacity: 0.5,
+      transparent: true,
+      polygonOffset: true,
+      polygonOffsetFactor: -0.1,
+    });
 
-  mapStateToProps(gameState: WorldEditorState): WaitStateProps {
-    return {
-      playerId: gameState.editMode.playerId,
-      brushColor: gameState.editMode.paletteColor,
-    };
-  }
-
-  onEnter() {
-    this.canvas.cursorManager.start({
+    this.cursor = new Cursor(canvas, {
+      geometry: this.canvas.cubeGeometry,
+      material: this.cursorMaterial,
       getInteractables: () => [this.canvas.chunk.mesh],
-      cursorGeometry: this.canvas.cubeGeometry,
-      cursorOffset: this.cursorOffset,
+      offset: [PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF],
+      onMouseUp: () => this.handleMouseUp(),
     });
   }
 
-  onLeave() {
-    this.canvas.cursorManager.stop();
+  setCursorColor({ r, g, b }: Color) {
+    this.cursorMaterial.color.setRGB(r / 0xff, g / 0xff, b / 0xff);
   }
 
-  onMouseDown() {
-    const { hit, position } = this.canvas.cursorManager.getPosition();
-    if (!hit) { return; }
+  onEnter() {
+    this.unsubscribeAction = this.subscribeAction(this.handleActionDispatch);
+
+    const { editMode: { paletteColor } } = this.getState();
+    this.setCursorColor(paletteColor);
+
+    this.cursor.start();
+  }
+
+  handleActionDispatch = (action: Action<any>) => {
+    switch (action.type) {
+      case CHANGE_PALETTE_COLOR: {
+        const { color } = <ChangePaletteColorAction>action;
+        this.setCursorColor(color);
+      }
+    }
+  }
+
+  handleMouseUp() {
+    const position = this.cursor.getPosition();
+    if (!position) { return; }
+
+    const { editMode: { paletteColor } } = this.getState();
 
     // TODO: Refactoring
     // This is bad... this is possible because view directly accesses data memory space.
@@ -72,22 +98,25 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
       position.x,
       position.y,
       position.z,
-    ], this.props.brushColor);
+    ], paletteColor);
     this.canvas.chunk.update();
   }
 
-  render() {
-    this.canvas.cursorManager.setColor(rgbToHex(this.props.brushColor));
+  onLeave() {
+    this.unsubscribeAction();
+    this.unsubscribeAction = null;
+
+    this.cursor.stop();
   }
 }
 
 class AddBlockTool extends EditModeTool{
   getToolType() { return EditToolType.ADD_BLOCK; }
 
-  init({ view }: InitParams) {
-    const wait = new WaitState(view);
+  init({ view, getState, subscribeAction }: InitParams) {
+    const wait = new WaitState(view, getState, subscribeAction);
 
-    return <WorldEditorCanvsToolStates>{
+    return {
       wait,
     };
   }

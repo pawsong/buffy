@@ -38,8 +38,6 @@ import {
   UnsubscribeAction,
 } from '../types';
 
-import CursorManager from '../../../canvas/CursorManager';
-
 if (__CLIENT__) {
   window['THREE'] = THREE;
   require('three/examples/js/controls/OrbitControls');
@@ -72,9 +70,6 @@ interface WorldEditorCanvasOptions {
  *   - stateLayer (in play mode)
  */
 class WorldEditorCanvas extends ZoneCanvas {
-  cursorManager: CursorManager;
-  removeListeners: Function;
-
   // Mode fsm & states
   editModeState: EditModeState;
   playModeState: PlayModeState;
@@ -218,30 +213,10 @@ class WorldEditorCanvas extends ZoneCanvas {
     this.advertisingBoards.push(advertisingBoard4);
 
     super.init();
+    this.scene.fog = new THREE.Fog( 0xcce0ff, 500, 10000 );
+    this.renderer.setClearColor(this.scene.fog.color);
 
     this.advertisingBoards.forEach(board => this.scene.add(board));
-
-    this.cursorManager = new CursorManager(this);
-
-    const onDocumentMouseUp = (event: MouseEvent) => {
-      event.preventDefault();
-      this.modeFsm.trigger(ModeEvents.MOUSE_UP, event);
-    };
-
-    const onDocumentMouseDown = (event: MouseEvent) => {
-      event.preventDefault();
-      this.modeFsm.trigger(ModeEvents.MOUSE_DOWN, event);
-    };
-
-    // Add event handlers
-    this.renderer.domElement.addEventListener('mousedown', onDocumentMouseDown, false);
-    this.renderer.domElement.addEventListener('mouseup', onDocumentMouseUp, false);
-
-    this.removeListeners = () => {
-      if (!this.renderer.domElement) return;
-      this.renderer.domElement.removeEventListener('mousedown', onDocumentMouseDown, false);
-      this.renderer.domElement.removeEventListener('mouseup', onDocumentMouseUp, false);
-    };
 
     // Initialize modes
     this.editModeState = new EditModeState(this.getGameState, {
@@ -250,12 +225,14 @@ class WorldEditorCanvas extends ZoneCanvas {
       getFiles: this.getFiles,
       dispatchAction: this.dispatchAction,
       modelManager: this.modelManager,
+      subscribeAction: this.subscribeAction,
     }, this.getFiles, this.subscribeAction, this.stateLayer);
     this.editModeState.init();
 
     this.playModeState = new PlayModeState(this.getGameState, {
       view: this,
       stateLayer: this.stateLayer,
+      getState: this.getGameState,
     }, this.getFiles, this.subscribeAction);
     this.playModeState.init();
 
@@ -315,8 +292,6 @@ class WorldEditorCanvas extends ZoneCanvas {
 
     this.editModeState.destroy();
     this.playModeState.destroy();
-
-    this.removeListeners();
 
     // Destroy views
     Object.keys(this.cachedViews).forEach(key => this.cachedViews[key].onDispose());

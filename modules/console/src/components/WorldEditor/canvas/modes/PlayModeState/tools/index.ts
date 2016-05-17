@@ -19,7 +19,7 @@ export default function createTool(
 ): PlayModeTool {
   switch(toolType) {
     case PlayToolType.MOVE: {
-      return new MoveTool(params, getState);
+      return new MoveTool(params);
     }
   }
 

@@ -14,13 +14,12 @@ import {
   EditToolType,
 } from '../../../../types';
 
-import WorldEditorCanvasTool, {
-  WorldEditorCanvsToolState,
-  WorldEditorCanvsToolStates,
-} from '../../WorldEditorCanvasTool';
-import WorldEditorCanvas from '../../../WorldEditorCanvas';
+import EditModeTool, {
+  InitParams,
+  ToolState,
+} from './EditModeTool';
 
-import EditModeTool, { InitParams } from './EditModeTool';
+import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
 export function rgbToHex({ r, g, b }) {
   return (1 << 24) | (r << 16) | (g << 8) | b;
@@ -28,7 +27,7 @@ export function rgbToHex({ r, g, b }) {
 
 interface WaitStateProps {}
 
-class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
+class WaitState extends ToolState {
   cursorOffset: Position;
 
   constructor(
@@ -50,8 +49,6 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     // if (!hit) { return; }
     // console.log(position);
   }
-
-  render() {}
 }
 
 class MoveTool extends EditModeTool{
@@ -60,7 +57,7 @@ class MoveTool extends EditModeTool{
   init({ view }: InitParams) {
     const wait = new WaitState(view);
 
-    return <WorldEditorCanvsToolStates>{
+    return {
       wait,
     };
   }

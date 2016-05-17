@@ -6,6 +6,8 @@ import ZoneCanvas from '../ZoneCanvas';
 import {
   BOX_SIZE,
   PIXEL_UNIT,
+  PIXEL_SCALE,
+  PIXEL_SCALE_HALF,
 } from '../../Constants';
 
 const posToLookAt = new THREE.Vector3();
@@ -21,8 +23,8 @@ export default <StoreHandler<ZoneCanvas>>(({
   const oldPosZ = group.position.z;
 
   // Move
-  group.position.x = BOX_SIZE * params.object.position.x - PIXEL_UNIT;
-  group.position.z = BOX_SIZE * params.object.position.z - PIXEL_UNIT;
+  group.position.x = params.object.position.x * PIXEL_SCALE + PIXEL_SCALE_HALF;
+  group.position.z = params.object.position.z * PIXEL_SCALE + PIXEL_SCALE_HALF;
 
   // Rotate
   posToLookAt.set(

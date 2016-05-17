@@ -1,19 +1,22 @@
-import VoxelEditorTool, {
+import ModelEditorTool, {
   InitParams,
-  VoxelEditorToolState,
-  VoxelEditorToolStates,
-  InteractParams,
-  MouseUpParams,
-} from './VoxelEditorTool';
+  ToolState,
+} from './ModelEditorTool';
 
-import View from '../views/main';
+import ModelEditorCanvas from '../ModelEditorCanvas';
 import { SetState } from '../types';
+
+import {
+  changePaletteColor,
+} from '../../actions';
 
 import {
   ToolType,
   GetEditorState,
   DispatchAction,
 } from '../../types';
+
+import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
 
 const COLOR_TOOLTIP_RADIUS = 20;
 
@@ -25,53 +28,58 @@ function multiplyColor({ r, g, b }) {
   };
 }
 
-interface WaitStateProps {
+class WaitState extends ToolState {
+  cursor: Cursor;
 
-}
-
-class WaitState extends VoxelEditorToolState<WaitStateProps> {
   constructor(
-    private tool: ColorPickerTool,
-    private setEditorState: SetState
+    private tool: ColorizeTool,
+    private canvas: ModelEditorCanvas,
+    private dispatchAction: DispatchAction
   ) {
     super();
+    this.cursor = new Cursor(canvas, {
+      visible: false,
+      getInteractables: () => [canvas.modelMesh],
+      onInteract: params => this.handleInteract(params),
+      onMiss: params => this.handleMiss(params),
+      onTouchTap: params => this.handleTouchTap(params),
+    });
   }
 
-  render() {}
-
-  isIntersectable(object) {
-    return object.isVoxel;
+  onEnter() {
+    this.cursor.start();
   }
 
-  onInteract({ intersect, event }: InteractParams) {
+  onLeave() {
+    this.cursor.stop();
     this.tool.hideTooltip();
+  }
 
-    if (!intersect) return;
-    if (!intersect.object['isVoxel']) return;
+  handleMiss({ event, intersect }: CursorEventParams) {
+    this.tool.hideTooltip();
+  }
 
+  handleInteract({ event, intersect }: CursorEventParams) {
     const { face } = intersect;
     this.tool.showTooltip(event.offsetX, event.offsetY, multiplyColor(face.color));
   }
 
-  onMouseUp({ intersect }: MouseUpParams) {
+  handleTouchTap({ event, intersect }: CursorEventParams) {
     if (!intersect) return;
-    if (!intersect.object['isVoxel']) return;
 
     const { face } = intersect;
-    this.setEditorState({ paletteColor: multiplyColor(face.color) });
-  }
-
-  onLeave() {
-    this.tool.hideTooltip();
+    this.dispatchAction(changePaletteColor(multiplyColor(face.color)));
   }
 }
 
-class ColorPickerTool extends VoxelEditorTool {
+class ColorizeTool extends ModelEditorTool {
   colorTooltip: HTMLElement;
 
   getToolType(): ToolType { return ToolType.colorize; }
 
   init(params: InitParams) {
+    params.dispatchAction;
+
     this.colorTooltip = document.createElement("div");
     this.colorTooltip.style.position = 'absolute';
     this.colorTooltip.style.display = 'none';
@@ -80,11 +88,11 @@ class ColorPickerTool extends VoxelEditorTool {
     this.colorTooltip.style['border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
     this.colorTooltip.style['-moz-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
     this.colorTooltip.style['-webkit-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
-    params.view.container.appendChild(this.colorTooltip);
+    params.canvas.container.appendChild(this.colorTooltip);
 
-    const wait = new WaitState(this, params.setState);
+    const wait = new WaitState(this, params.canvas, params.dispatchAction);
 
-    return <VoxelEditorToolStates>{
+    return {
       wait,
     };
   }
@@ -107,4 +115,4 @@ class ColorPickerTool extends VoxelEditorTool {
   }
 }
 
-export default ColorPickerTool;
+export default ColorizeTool;

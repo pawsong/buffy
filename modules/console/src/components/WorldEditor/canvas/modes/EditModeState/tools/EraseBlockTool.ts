@@ -10,34 +10,33 @@ import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../../../../../../canvas/Constants';
+import Cursor from '../../../../../../canvas/Cursor';
 import { CursorEventParams } from '../../../../../../canvas/CursorManager';
 
-import WorldEditorCanvasTool, {
-  WorldEditorCanvsToolState,
-  WorldEditorCanvsToolStates,
-} from '../../WorldEditorCanvasTool';
-import WorldEditorCanvas from '../../../WorldEditorCanvas';
+import EditModeTool, {
+  InitParams,
+  ToolState,
+} from './EditModeTool';
 
-import EditModeTool, { InitParams } from './EditModeTool';
+import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
 interface WaitStateProps {}
 
-class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
+class WaitState extends ToolState {
+  cursor: Cursor;
   constructor(
     private tool: EraseBlockTool,
     private canvas: WorldEditorCanvas
   ) {
     super();
-  }
 
-  onEnter() {
     const offset = new THREE.Vector3();
 
-    this.canvas.cursorManager.start({
+    this.cursor = new Cursor(canvas, {
+      geometry: this.tool.cursorGeometry,
+      material: this.tool.cursorMaterial,
       getInteractables: () => [this.canvas.chunk.mesh],
-      cursorGeometry: this.tool.cursorGeometry,
-      cursorMaterial: this.tool.cursorMaterial,
-      getCursorOffset: normal => offset.set(
+      getOffset: normal => offset.set(
         PIXEL_SCALE_HALF * (1 - 2 * normal.x),
         PIXEL_SCALE_HALF * (1 - 2 * normal.y),
         PIXEL_SCALE_HALF * (1 - 2 * normal.z)
@@ -46,13 +45,17 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     });
   }
 
+  onEnter() {
+    this.cursor.start();
+  }
+
   onLeave() {
-    this.canvas.cursorManager.stop();
+    this.cursor.stop();
   }
 
   handleTouchTap({ event, intersect }: CursorEventParams) {
-    const { hit, position } = this.canvas.cursorManager.getPosition();
-    if (!hit) return;
+    const position = this.cursor.getPosition();
+    if (!position) return;
 
     // TODO: Refactoring
     // This is bad... this is possible because view directly accesses data memory space.
@@ -64,8 +67,6 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     ]);
     this.canvas.chunk.update();
   }
-
-  render() {}
 }
 
 class EraseBlockTool extends EditModeTool {
@@ -86,7 +87,7 @@ class EraseBlockTool extends EditModeTool {
 
     const wait = new WaitState(this, view);
 
-    return <WorldEditorCanvsToolStates>{
+    return {
       wait,
     };
   }

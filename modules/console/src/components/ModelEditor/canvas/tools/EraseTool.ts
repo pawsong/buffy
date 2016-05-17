@@ -1,17 +1,18 @@
 import * as THREE from 'three';
 import * as Immutable from 'immutable';
 
-import VoxelEditorTool, {
-  InitParams,
-  HandlerResult,
-  VoxelEditorToolState,
-  VoxelEditorToolStates,
-  InteractParams,
-  MouseUpParams,
-  MouseDownParams,
-} from './VoxelEditorTool';
+import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
+import {
+  PIXEL_SCALE,
+  PIXEL_SCALE_HALF,
+} from '../../../../canvas/Constants';
 
-import View from '../views/main';
+import ModelEditorTool, {
+  InitParams,
+  ToolState,
+} from './ModelEditorTool';
+
+import ModelEditorCanvas from '../ModelEditorCanvas';
 import { SetState } from '../types';
 
 import {
@@ -24,7 +25,7 @@ import Voxel, { VoxelMesh } from '../Voxel';
 
 import {
   voxelRemoveBatch,
-} from '../../voxels/actions';
+} from '../../actions';
 
 import {
   GRID_SIZE,
@@ -48,149 +49,155 @@ const cubeMaterial = new THREE.MeshBasicMaterial({
   polygonOffsetFactor: -0.1,
 });
 
-const STATE_WAIT = VoxelEditorToolState.STATE_WAIT;
+const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
 const STATE_ROTATE = 'rotate';
 
-interface RotateStateProps {
-
+class RotateState extends ToolState {
+  handleMouseUp = () => this.transitionTo(STATE_WAIT)
+  onEnter() { document.addEventListener('mouseup', this.handleMouseUp, false); }
+  onLeave() { document.removeEventListener('mouseup', this.handleMouseUp, false); }
 }
 
-class RotateState extends VoxelEditorToolState<RotateStateProps> {
-  onMouseUp(): HandlerResult {
-    return { state: STATE_WAIT };
-  }
-  render() {}
-}
+class WaitState extends ToolState {
+  cursor: Cursor;
 
-interface WaitStateProps {
-
-}
-
-class WaitState extends VoxelEditorToolState<WaitStateProps> {
   constructor(
-    private tool: EraseTool
+    private tool: EraseTool,
+    private canvas: ModelEditorCanvas
   ) {
     super();
+    const offset = new THREE.Vector3();
+
+    this.cursor = new Cursor(canvas, {
+      getInteractables: () => [this.canvas.modelMesh],
+      geometry: this.canvas.cubeGeometry,
+      material: this.tool.translucentMaterial,
+      getOffset: normal => offset.set(
+        PIXEL_SCALE_HALF * (1 - 2 * normal.x),
+        PIXEL_SCALE_HALF * (1 - 2 * normal.y),
+        PIXEL_SCALE_HALF * (1 - 2 * normal.z)
+      ),
+      onMouseDown: params => this.handleMouseDown(params),
+    });
   }
 
-  render() {}
-
-  isIntersectable(object) {
-    return object.isVoxel;
+  onEnter(event?: MouseEvent) {
+    this.cursor.start(event);
   }
 
-  onMouseDown({ intersect }: MouseDownParams): HandlerResult {
+  handleMouseDown({ event, intersect }: CursorEventParams) {
     if (intersect) {
-      return { state: STATE_DRAG, params: intersect };
+      this.transitionTo(STATE_DRAG, event);
     } else {
-      return { state: STATE_ROTATE };
+      this.transitionTo(STATE_ROTATE);
     }
   }
 
-  onInteract({ intersect }: InteractParams) {
-    this.tool.cursor.hide();
-
-    if (!intersect) return;
-    if (!intersect.object['isVoxel']) return;
-
-    const normal = intersect.face.normal;
-    const position = new THREE.Vector3().subVectors( intersect.point, normal )
-
-    this.tool.cursor.move({
-      x: Math.floor( position.x / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-      y: Math.floor( position.y / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-      z: Math.floor( position.z / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-    });
-  }
-
   onLeave() {
-    this.tool.cursor.hide();
+    this.cursor.stop();
   }
 }
 
-interface DragStateProps {
+class DragState extends ToolState {
+  cursor: Cursor;
 
-}
+  selectedGeometry: THREE.Geometry;
+  selectedVoxels: { [index: string]: { mesh: THREE.Mesh, position: Position } };
 
-class DragState extends VoxelEditorToolState<DragStateProps> {
-  selected: Immutable.Map<Immutable.Iterable.Indexed<number>, { mesh: THREE.Mesh, position: Position }>;
+  private position: THREE.Vector3;
 
   constructor(
-    private view: View,
+    private tool: EraseTool,
+    private canvas: ModelEditorCanvas,
     private dispatchAction: DispatchAction
-  ) { super(); }
+  ) {
+    super();
+    this.position = new THREE.Vector3();
 
-  render() {}
+    const offset = new THREE.Vector3();
 
-  isIntersectable(object) {
-    return object.isVoxel;
+    this.selectedGeometry = new THREE.BoxGeometry(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    this.selectedGeometry.translate(PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF);
+
+    this.cursor = new Cursor(canvas, {
+      visible: false,
+      getOffset: normal => offset.set(
+        PIXEL_SCALE_HALF * (1 - 2 * normal.x),
+        PIXEL_SCALE_HALF * (1 - 2 * normal.y),
+        PIXEL_SCALE_HALF * (1 - 2 * normal.z)
+      ),
+      getInteractables: () => [this.canvas.modelMesh],
+      onInteract: params => this.handleInteract(params),
+      onMouseUp: params => this.handleMouseUp(params),
+    });
   }
 
-  onEnter(intersect: THREE.Intersection): HandlerResult {
-    this.view.controls.enableRotate = false;
-    this.selected = Immutable.Map<any, any>();
-    this.handleInteract(intersect);
+  onEnter(event: MouseEvent) {
+    this.canvas.controls.enableRotate = false;
+
+    this.selectedVoxels = {};
+    this.cursor.start(event);
   }
 
-  onInteract({ intersect }: InteractParams) {
-    this.handleInteract(intersect);
+  handleInteract({ intersect }: CursorEventParams) {
+    const position = this.cursor.getPosition();
+    if (!position) return;
+
+    const key = [position.x, position.y, position.z].join('|');
+    if (this.selectedVoxels[key]) return;
+
+    const mesh = new THREE.Mesh(this.selectedGeometry, this.tool.translucentMaterial);
+    mesh.position.copy(position).multiplyScalar(PIXEL_SCALE);
+    // mesh.overdraw = false;
+    this.canvas.scene.add(mesh);
+
+    this.selectedVoxels[key] = {
+      position: [position.x, position.y, position.z],
+      mesh,
+    };
   }
 
-  onMouseUp({ intersect }: MouseUpParams) {
-    const positions = this.selected.toArray().map(({ position }) => position);
+  handleMouseUp({ event }: CursorEventParams) {
+    const positions = Object.keys(this.selectedVoxels)
+      .map(key => this.selectedVoxels[key].position);
+    console.log(positions);
     this.dispatchAction(voxelRemoveBatch(positions));
-    return { state: STATE_WAIT };
+    this.transitionTo(STATE_WAIT, event);
   }
 
   onLeave() {
-    this.view.controls.enableRotate = true;
-    this.selected.forEach(({ mesh }) => this.view.scene.remove(mesh));
-    this.selected = Immutable.Map<any, any>();
-  }
+    this.canvas.controls.enableRotate = true;
 
-  handleInteract(intersect: THREE.Intersection) {
-    if (!intersect) return;
-    if (!intersect.object['isVoxel']) return;
+    this.cursor.stop();
 
-    const normal = intersect.face.normal;
-    const position = new THREE.Vector3().subVectors(intersect.point, normal);
-
-    const screenPos: Position = [
-      Math.floor( position.x / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-      Math.floor( position.y / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-      Math.floor( position.z / (UNIT_PIXEL * 2) ) * UNIT_PIXEL * 2 + UNIT_PIXEL,
-    ];
-
-    const key = Immutable.Iterable(screenPos);
-
-    if (this.selected.has(key)) return;
-
-    const mesh = new THREE.Mesh(cube, cubeMaterial) as VoxelMesh;
-    mesh.position.set(screenPos[0], screenPos[1], screenPos[2]);
-    mesh.overdraw = false;
-    this.view.scene.add(mesh);
-
-    this.selected = this.selected.set(key, {
-      position: toAbsPos(screenPos),
-      mesh,
+    Object.keys(this.selectedVoxels).forEach(key => {
+      const { mesh } = this.selectedVoxels[key];
+      this.canvas.scene.remove(mesh);
     });
+    this.selectedVoxels = null;
   }
 }
 
-class EraseTool extends VoxelEditorTool {
-  cursor: Voxel;
+class EraseTool extends ModelEditorTool {
+  translucentMaterial: THREE.Material;
 
   getToolType(): ToolType { return ToolType.erase; }
 
   init(params: InitParams) {
-    this.cursor = new Voxel(params.view.scene);
+    this.translucentMaterial = new THREE.MeshBasicMaterial({
+      vertexColors: THREE.VertexColors,
+      opacity: 0.5,
+      transparent: true,
+      polygonOffset: true,
+      polygonOffsetFactor: -0.1,
+    });
 
-    const wait = new WaitState(this);
+    const wait = new WaitState(this, params.canvas);
     const rotate = new RotateState();
-    const drag = new DragState(params.view, params.dispatchAction);
+    const drag = new DragState(this, params.canvas, params.dispatchAction);
 
-    return <VoxelEditorToolStates>{
+    return {
       [STATE_WAIT]: wait,
       [STATE_DRAG]: drag,
       [STATE_ROTATE]: rotate,

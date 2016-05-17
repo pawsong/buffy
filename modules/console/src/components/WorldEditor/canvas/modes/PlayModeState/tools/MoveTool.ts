@@ -5,34 +5,35 @@ import { Position } from '@pasta/core/lib/types';
 import {
   PlayToolType,
   WorldEditorState,
+  GetState,
 } from '../../../../types';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../../../../../../canvas/Constants';
+import Cursor from '../../../../../../canvas/Cursor';
 
-import WorldEditorCanvasTool, {
-  WorldEditorCanvsToolState,
-  WorldEditorCanvsToolStates,
-} from '../../WorldEditorCanvasTool';
+import PlayModeTool, {
+  InitParams,
+  ToolState,
+} from './PlayModeTool';
+
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
-
-import PlayModeTool, { InitParams } from './PlayModeTool';
 
 const yUnit = new THREE.Vector3(0, 1, 0);
 
-interface WaitStateProps {
-  playerId: string,
-}
-
-class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
+class WaitState extends ToolState {
   cursorGeometry: THREE.Geometry;
+  cursorMaterial: THREE.MeshBasicMaterial;
+
   cursorOffset: Position;
+  cursor: Cursor;
 
   constructor(
-    private view: WorldEditorCanvas,
-    private stateLayer: StateLayer
+    private canvas: WorldEditorCanvas,
+    private stateLayer: StateLayer,
+    private getState: GetState
   ) {
     super();
 
@@ -41,47 +42,54 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     this.cursorGeometry.rotateX(- Math.PI / 2);
 
     this.cursorOffset = [PIXEL_SCALE_HALF, 0, PIXEL_SCALE_HALF];
-  }
 
-  mapStateToProps(gameState: WorldEditorState): WaitStateProps {
-    return {
-      playerId: gameState.editMode.playerId,
-    };
-  }
+    this.cursorMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      opacity: 0.5,
+      transparent: true,
+      polygonOffset: true,
+      polygonOffsetFactor: -0.1,
+    });
 
-  onEnter() {
-    this.view.cursorManager.start({
-      cursorGeometry: this.cursorGeometry,
-      cursorOffset: this.cursorOffset,
+    this.cursor = new Cursor(canvas, {
+      geometry: this.cursorGeometry,
+      material: this.cursorMaterial,
+      offset: this.cursorOffset,
+      getInteractables: () => [this.canvas.chunk.mesh],
       hitTest: intersect => yUnit.dot(intersect.face.normal) !== 0,
+      onTouchTap: () => this.handleMouseDown(),
     });
   }
 
-  onLeave() {
-    this.view.cursorManager.stop();
+  onEnter() {
+    this.cursor.start();
   }
 
-  onMouseDown() {
-    const { hit, position } = this.view.cursorManager.getPosition();
-    if (!hit) { return; }
+  onLeave() {
+    this.cursor.stop();
+  }
+
+  handleMouseDown() {
+    const position = this.cursor.getPosition();
+    if (!position) return;
+
+    const { editMode: { playerId } } = this.getState();
 
     this.stateLayer.rpc.move({
-      id: this.props.playerId,
+      id: playerId,
       x: position.x,
       z: position.z,
     });
   }
-
-  render() {}
 }
 
 class MoveTool extends PlayModeTool {
   getToolType() { return PlayToolType.MOVE; }
 
-  init({ view, stateLayer }: InitParams) {
-    const wait = new WaitState(view, stateLayer);
+  init({ view, stateLayer, getState }: InitParams) {
+    const wait = new WaitState(view, stateLayer, getState);
 
-    return <WorldEditorCanvsToolStates>{
+    return {
       wait,
     };
   }

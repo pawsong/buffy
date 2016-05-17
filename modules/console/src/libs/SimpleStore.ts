@@ -22,6 +22,11 @@ class SimpleStore<T> {
     listener(this.data);
   }
 
+  unlisten(listener: StoreListener<T>) {
+    const index = this.listeners.indexOf(listener);
+    if (index !== -1) this.listeners.splice(index, 1);
+  }
+
   removeAllListeners() {
     this.listeners = [];
   }

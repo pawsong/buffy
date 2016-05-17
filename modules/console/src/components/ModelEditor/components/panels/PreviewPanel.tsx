@@ -19,7 +19,7 @@ import {
 
 import { ModelEditorState } from '../../types';
 
-import CanvasShared from '../../canvas/shared';
+import Stores from '../../canvas/stores';
 
 import {
   DispatchAction,
@@ -27,7 +27,7 @@ import {
 
 import PreviewView from '../../canvas/views/preview';
 
-import { voxelRotate } from '../../voxels/actions';
+import { voxelRotate } from '../../actions';
 
 const messages = defineMessages({
   title: {
@@ -65,9 +65,8 @@ class RotateButton extends React.Component<RotateButtonProps, {}> {
 interface PreviewPanelProps extends React.Props<PreviewPanel> {
   focus: boolean;
   sizeVersion: number;
-  canvasShared: CanvasShared;
+  stores: Stores;
   dispatchAction: DispatchAction;
-  onChange: (fileId: string, voxelEditorState: ModelEditorState) => any;
   intl?: InjectedIntlProps;
 }
 
@@ -87,7 +86,7 @@ class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
   componentDidMount() {
     this.view = new PreviewView({
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
-      canvasShared: this.props.canvasShared,
+      stores: this.props.stores,
     });
   }
 

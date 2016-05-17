@@ -26,6 +26,10 @@ interface EditorProps extends React.Props<Editor> {
 
 @withStyles(styles)
 class Editor extends React.Component<EditorProps, any> {
+  handleFileStateChange = (nextState: any) => {
+    this.props.onFileChange(this.props.file.id, nextState);
+  }
+
   renderCodeEditor() {
     return (
       <CodeEditor
@@ -41,7 +45,7 @@ class Editor extends React.Component<EditorProps, any> {
     return (
       <ModelEditor
         editorState={this.props.file.state}
-        onChange={this.props.onFileChange}
+        onChange={this.handleFileStateChange}
         focus={this.props.focus}
         sizeVersion={this.props.editorSizeRevision}
       />

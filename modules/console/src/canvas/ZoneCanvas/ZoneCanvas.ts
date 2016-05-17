@@ -5,6 +5,7 @@ import GameObject from '@pasta/core/lib/classes/GameObject';
 
 import Canvas from '../Canvas';
 import ModelManager from '../ModelManager';
+import ObjectManager from './ObjectManager';
 
 import Chunk from './Chunk';
 
@@ -37,16 +38,21 @@ abstract class ZoneCanvas extends Canvas {
   // TODO: Support multiple chunks.
   chunk: Chunk;
 
+  objectManager: ObjectManager;
+  modelManager: ModelManager;
+
   private tokens: any[];
   private getZoneViewState: GetZoneViewState;
 
   constructor(container: HTMLElement, modelManager: ModelManager, getState: GetZoneViewState) {
-    super(container, modelManager);
+    super(container);
+    this.modelManager = modelManager;
     this.getZoneViewState = getState;
   }
 
   init() {
     super.init();
+    const objectManager = this.objectManager = new ObjectManager(this.scene, this.modelManager);
 
     this.chunk = new Chunk(this.scene);
     this.effectManager = createEffectManager(this.scene);

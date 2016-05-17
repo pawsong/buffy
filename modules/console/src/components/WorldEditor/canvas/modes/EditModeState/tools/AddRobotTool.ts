@@ -29,13 +29,12 @@ import {
   addRobot,
 } from '../../../../actions';
 
-import WorldEditorCanvasTool, {
-  WorldEditorCanvsToolState,
-  WorldEditorCanvsToolStates,
-} from '../../WorldEditorCanvasTool';
-import WorldEditorCanvas from '../../../WorldEditorCanvas';
+import EditModeTool, {
+  InitParams,
+  ToolState,
+} from './EditModeTool';
 
-import EditModeTool, { InitParams } from './EditModeTool';
+import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
 export function rgbToHex({ r, g, b }) {
   return (1 << 24) | (r << 16) | (g << 8) | b;
@@ -47,7 +46,7 @@ interface WaitStateProps {
   recipeId: string;
 }
 
-class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
+class WaitState extends ToolState {
   cursorOffset: Position;
 
   recipeFile: SourceFile;
@@ -113,8 +112,6 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
       direction: [0, 0, 1],
     }));
   }
-
-  render() {}
 }
 
 class AddRobotTool extends EditModeTool{
@@ -133,7 +130,7 @@ class AddRobotTool extends EditModeTool{
 
     const wait = new WaitState(this.cursorMaterial, view, getState, getFiles, dispatchAction, modelManager);
 
-    return <WorldEditorCanvsToolStates>{
+    return {
       wait,
     };
   }

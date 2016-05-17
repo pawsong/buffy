@@ -3,6 +3,8 @@ import {
   Color,
   Position,
   Voxel,
+  Volumn,
+  ToolType,
 } from '../types';
 
 export const VOXEL_INIT: 'voxel-editor/VOXEL_INIT' = 'voxel-editor/VOXEL_INIT';
@@ -55,12 +57,14 @@ export interface VoxelAddAction extends Action<typeof VOXEL_ADD> {
 
 export const VOXEL_ADD_BATCH: 'voxel-editor/VOXEL_ADD_BATCH' = 'voxel-editor/VOXEL_ADD_BATCH';
 export interface VoxelAddBatchAction extends Action<typeof VOXEL_ADD_BATCH> {
-  voxels: Voxel[];
+  volumn: Volumn;
+  color: Color;
 }
-export function voxelAddBatch(voxels: Voxel[]): VoxelAddBatchAction {
+export function voxelAddBatch(volumn: Volumn, color: Color): VoxelAddBatchAction {
   return {
     type: VOXEL_ADD_BATCH,
-    voxels,
+    volumn,
+    color,
   };
 }
 
@@ -107,5 +111,30 @@ export function updateWorkspace(query: UpdateWorkspaceBrowserQuery): UpdateWorks
   return {
     type: UPDATE_WORKSPACE,
     query,
+  };
+}
+
+/*
+ * actions for common state
+ */
+export const CHANGE_TOOL: 'CHANGE_TOOL' = 'CHANGE_TOOL';
+export interface ChangeToolAction extends Action<typeof CHANGE_TOOL> {
+  tool: ToolType;
+}
+export function changeTool(tool: ToolType) {
+  return {
+    type: CHANGE_TOOL,
+    tool,
+  };
+}
+
+export const CHANGE_PALETTE_COLOR: 'CHANGE_PALETTE_COLOR' = 'CHANGE_PALETTE_COLOR';
+export interface ChangePaletteColorAction extends Action<typeof CHANGE_PALETTE_COLOR> {
+  color: Color;
+}
+export function changePaletteColor(color: Color) {
+  return {
+    type: CHANGE_PALETTE_COLOR,
+    color,
   };
 }

@@ -24,6 +24,8 @@ import { connectTarget } from '../Panel';
 
 import mesher from './canvas/meshers/greedy';
 
+import Stores from './canvas/stores';
+
 import {
   rgbToHex,
 } from './canvas/utils';
@@ -34,7 +36,15 @@ import {
   ToolType,
   Color,
   ModelEditorState,
+  ActionListener,
+  SubscribeAction,
+  UnsubscribeAction,
 } from './types';
+
+import {
+  changeTool,
+  changePaletteColor,
+} from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
 import PreviewPanel from './components/panels/PreviewPanel';
@@ -42,13 +52,9 @@ import ToolsPanel from './components/panels/ToolsPanel';
 
 import FullscreenButton from './components/FullscreenButton';
 
-import CanvasShared from './canvas/shared';
-import MainCanvas from './canvas/views/main';
+import ModelEditorCanvas from './canvas/ModelEditorCanvas';
 
-import voxelReducer from './voxels/reducer';
-import {
-  VOXEL_INIT,
-} from './voxels/actions';
+import rootReducer from './reducers';
 
 const styles = {
   canvas: {
@@ -66,7 +72,7 @@ export { ModelEditorState };
 
 interface ModelEditorProps extends React.Props<ModelEditor> {
   editorState: ModelEditorState;
-  onChange: (fileId: string, voxelEditorState: ModelEditorState) => any;
+  onChange: (voxelEditorState: ModelEditorState) => any;
   sizeVersion: number;
   focus: boolean;
   intl?: InjectedIntlProps;
@@ -90,11 +96,13 @@ export interface CreateStateOptions {
 class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static createState: (fileId: string, options?: CreateStateOptions) => ModelEditorState;
 
-  canvasShared: CanvasShared;
-  canvas: MainCanvas;
+  stores: Stores;
+  canvas: ModelEditorCanvas;
 
   constructor(props) {
     super(props);
+
+    this.actionListeners = [];
 
     this.state = {
       fullscreen: false,
@@ -102,12 +110,25 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 
   handleStateChange(editorState: ModelEditorState) {
-    this.props.onChange(this.props.editorState.fileId, editorState);
+    this.props.onChange(editorState);
   }
 
-  dispatchVoxelAction = (action: Action<any>) => {
-    const voxel = voxelReducer(this.props.editorState.voxel, action);
-    this.handleStateChange({ voxel });
+  actionListeners: ActionListener[];
+
+  subscribeAction: SubscribeAction = (listener) => {
+    this.actionListeners.push(listener);
+    return () => {
+      const index = this.actionListeners.indexOf(listener);
+      if (index !== -1) this.actionListeners.splice(index, 1);
+    };
+  }
+
+  dispatchAction = (action: Action<any>, callback?: () => any) => {
+    const nextState = rootReducer(this.props.editorState, action);
+    this.actionListeners.forEach(listener => listener(action));
+
+    // TODO: Support callback
+    this.props.onChange(nextState);
   }
 
   handleFullscreenButtonClick() {
@@ -115,19 +136,18 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 
   componentWillMount() {
-    this.canvasShared = new CanvasShared({
-      getState: () => this.props.editorState.voxel,
-    });
+    this.stores = new Stores(this.props.editorState.voxel);
   }
 
   componentDidMount() {
-    this.canvas = new MainCanvas({
+    this.canvas = new ModelEditorCanvas({
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
-      canvasShared: this.canvasShared,
-      dispatchAction: action => this.dispatchVoxelAction(action),
-      handleEditorStateChange: (nextState: ModelEditorState) => this.handleStateChange(nextState),
+      stores: this.stores,
+      dispatchAction: this.dispatchAction,
+      subscribeAction: this.subscribeAction,
       getEditorState: () => this.props.editorState,
     });
+    this.canvas.init();
   }
 
   componentWillReceiveProps(nextProps: ModelEditorProps) {
@@ -136,7 +156,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     }
 
     if (this.props.editorState.voxel !== nextProps.editorState.voxel) {
-      this.canvasShared.voxelStateChange(nextProps.editorState.voxel);
+      this.stores.voxelStateChange(nextProps.editorState.voxel);
     }
 
     if (this.props.editorState !== nextProps.editorState) {
@@ -146,29 +166,28 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
   componentWillUnmount() {
     this.canvas.destroy();
+    this.stores.destroy();
   }
 
-  changePaletteColor = (paletteColor: Color) => this.handleStateChange({ paletteColor });
-
-  selectTool = (selectedTool: ToolType) => this.handleStateChange({ selectedTool });
+  selectTool = (selectedTool: ToolType) => this.dispatchAction(changeTool(selectedTool));
+  changePaletteColor = (paletteColor: Color) => this.dispatchAction(changePaletteColor(paletteColor));
 
   renderPanels() {
     return (
       <div>
         <HistoryPanel
           voxel={this.props.editorState.voxel}
-          dispatchAction={this.dispatchVoxelAction}
+          dispatchAction={this.dispatchAction}
         />
         <PreviewPanel
           focus={this.props.focus}
-          onChange={this.props.onChange}
-          canvasShared={this.canvasShared}
-          dispatchAction={this.dispatchVoxelAction}
+          stores={this.stores}
+          dispatchAction={this.dispatchAction}
           sizeVersion={this.props.sizeVersion}
         />
         <ToolsPanel
-          paletteColor={this.props.editorState.paletteColor}
-          selectedTool={this.props.editorState.selectedTool}
+          paletteColor={this.props.editorState.common.paletteColor}
+          selectedTool={this.props.editorState.common.selectedTool}
           changePaletteColor={this.changePaletteColor}
           selectTool={this.selectTool}
         />
@@ -199,7 +218,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 }
 
-ModelEditor.createState = function VoxelEditor(fileId: string, options: CreateStateOptions = {}): ModelEditorState {
+ModelEditor.createState = function VoxelEditor(options: CreateStateOptions = {}): ModelEditorState {
   // let voxel: VoxelState = initialVoxelState;
 
   // if (options.voxels) {
@@ -213,24 +232,9 @@ ModelEditor.createState = function VoxelEditor(fileId: string, options: CreateSt
   //     present: { data: { $set: data } },
   //   });
   // }
-  const data = ndarray(new Int32Array(16 * 16 * 16), [16, 16, 16]);
 
-  return {
-    fileId,
-    selectedTool: ToolType.brush,
-    paletteColor: { r: 104, g: 204, b: 202 },
-    voxel: {
-      historyIndex: 1,
-      past: [],
-      present: {
-        historyIndex: 1,
-        action: VOXEL_INIT,
-        data: data,
-        mesh: { vertices: [], faces: [], gridFaces: [] },
-      },
-      future: [],
-    },
-  };
+  const initialState = rootReducer({}, { type: '' });
+  return Object.assign(initialState);
 }
 
 export default ModelEditor;

@@ -1,10 +1,6 @@
 import * as THREE from 'three';
 import GameObject from '@pasta/core/lib/classes/GameObject';
 
-import ModelManager from '../../canvas/ModelManager';
-import TerrainManager from './TerrainManager';
-import ObjectManager from './ObjectManager';
-
 // TODO Support dynamic grid size
 import {
   PIXEL_NUM,
@@ -15,16 +11,16 @@ import {
   PIXEL_SCALE,
 } from '../Constants';
 
+import CursorManager from '../CursorManager';
+
 abstract class Canvas {
   container: HTMLElement;
   scene: THREE.Scene;
   camera: THREE.Camera;
   renderer: THREE.WebGLRenderer;
-  modelManager: ModelManager;
-  objectManager: ObjectManager;
-  terrainManager: TerrainManager;
   cubeGeometry: THREE.Geometry;
   cubeMaterial: THREE.Material;
+  cursorManager: CursorManager;
 
   protected abstract initCamera(): THREE.Camera;
   protected abstract handleWindowResize();
@@ -32,17 +28,14 @@ abstract class Canvas {
   private boundHandleWindowResize: () => any;
   private frameId: number;
 
-  constructor(container: HTMLElement, modelManager: ModelManager) {
+  constructor(container: HTMLElement) {
     this.container = container;
-    this.modelManager = modelManager;
   }
 
   init() {
     const scene = this.scene = new THREE.Scene();
-    scene.fog = new THREE.Fog( 0xcce0ff, 500, 10000 );
 
-    const objectManager = this.objectManager = new ObjectManager(scene, this.modelManager);
-    const terrainManager = this.terrainManager = new TerrainManager(scene);
+    this.cursorManager = new CursorManager(this);
 
     const planeGeo = new THREE.PlaneBufferGeometry( 2 * GRID_SIZE, 2 * GRID_SIZE );
     planeGeo.rotateX( - Math.PI / 2 );
@@ -85,7 +78,6 @@ abstract class Canvas {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
     renderer.shadowMap.enabled = true;
-    renderer.setClearColor( scene.fog.color );
 
     // Eliminate ghost bottom margin
     renderer.domElement.style.verticalAlign = 'bottom';
@@ -130,7 +122,6 @@ abstract class Canvas {
     window.removeEventListener('resize', this.boundHandleWindowResize, false);
 
     // Dispose webgl resources
-    this.terrainManager.destroy();
     this.renderer.forceContextLoss();
     this.renderer.context = null;
     this.renderer.domElement = null;

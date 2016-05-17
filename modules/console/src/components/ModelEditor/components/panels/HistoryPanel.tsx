@@ -29,7 +29,7 @@ import {
   VOXEL_ADD_BATCH,
   VOXEL_REMOVE_BATCH,
   VOXEL_ROTATE,
-} from '../../voxels/actions';
+} from '../../actions';
 
 const messages = defineMessages({
   title: {

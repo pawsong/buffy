@@ -9,7 +9,7 @@ import {
   PLANE_Y_OFFSET,
 } from '../../constants/Pixels';
 
-import CanvasShared from '../shared';
+import Stores from '../stores';
 
 import { ModelEditorState } from '../../types';
 
@@ -17,7 +17,7 @@ const size = GRID_SIZE * UNIT_PIXEL;
 
 interface PreviewViewOptions {
   container: HTMLElement;
-  canvasShared: CanvasShared;
+  stores: Stores;
 }
 
 class PreviewView {
@@ -26,7 +26,7 @@ class PreviewView {
 
   constructor({
     container,
-    canvasShared,
+    stores,
   }: PreviewViewOptions) {
     const scene = new THREE.Scene();
 
@@ -64,7 +64,7 @@ class PreviewView {
     scene.add(light);
 
     let surfacemesh;
-    canvasShared.meshStore.listen(({ geometry }) => {
+    stores.meshStore.listen((geometry) => {
       if (surfacemesh) {
         // TODO: dispose geometry and material
         scene.remove(surfacemesh);
@@ -99,7 +99,7 @@ class PreviewView {
 
     previewCamera.lookAt(scene.position);
 
-    canvasShared.cameraPositionStore.listen(position => {
+    stores.cameraPositionStore.listen(position => {
       previewCamera.position.set(position[0], position[1], position[2]).multiplyScalar(0.2);
       render();
     });

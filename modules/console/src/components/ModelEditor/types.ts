@@ -13,6 +13,18 @@ export interface DispatchAction {
   <T>(action: Action<T>): any;
 }
 
+export interface ActionListener {
+  <T>(action: Action<T>): any;
+}
+
+export interface UnsubscribeAction {
+  (): void;
+}
+
+export interface SubscribeAction {
+  (listener: ActionListener): UnsubscribeAction;
+}
+
 /**
  *
  */
@@ -36,6 +48,12 @@ export interface Voxel {
   color: Color;
 }
 
+export type Volumn = [
+  number /* minX */, number /* maxX */,
+  number /* minY */, number /* maxY */,
+  number /* minZ */, number /* maxZ */
+]
+
 export interface VoxelSnapshot {
   historyIndex: number;
   action: string;
@@ -50,10 +68,13 @@ export interface VoxelState {
   future: VoxelSnapshot[];
 }
 
+export interface CommonState {
+  selectedTool: ToolType;
+  paletteColor: Color;
+}
+
 export interface ModelEditorState {
-  fileId?: string;
-  selectedTool?: ToolType;
-  paletteColor?: Color;
+  common?: CommonState;
   voxel?: VoxelState;
 }
 

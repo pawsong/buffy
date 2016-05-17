@@ -7,6 +7,7 @@ import {
   Voxel,
   VoxelState,
   VoxelSnapshot,
+  Volumn,
 } from '../types';
 
 import {
@@ -22,11 +23,15 @@ import {
   VOXEL_REMOVE_BATCH, VoxelRemoveBatchAction,
   VOXEL_ROTATE, VoxelRotateAction,
   SET_WORKSPACE, SetWorkspaceAction,
-} from './actions';
+} from '../actions';
 
 import {
   GRID_SIZE,
 } from '../constants/Pixels';
+
+import {
+  DESIGN_IMG_SIZE,
+} from '../../../canvas/Constants';
 
 const objectAssign = require('object-assign');
 const findIndex = require('lodash/findIndex');
@@ -34,9 +39,25 @@ import vector3ToString from '@pasta/helper/lib/vector3ToString';
 
 const MAX_HISTORY_LEN = 20;
 
-import mesher from '../canvas/meshers/greedy';
+import mesher from '../../../canvas/meshers/greedy';
 
-const voxelUndoable = reducer => (state: VoxelState, action: Action<any>): VoxelState => {
+const data = ndarray(new Int32Array(16 * 16 * 16), [16, 16, 16]);
+data.set(0,1,1, 1 << 24 | 0xff << 8);
+data.set(1,1,1, 1 << 24 | 0xff << 8);
+
+const initialState: VoxelState = {
+  historyIndex: 1,
+  past: [],
+  present: {
+    historyIndex: 1,
+    action: VOXEL_INIT,
+    data: data,
+    mesh: mesher(data.data, data.shape),
+  },
+  future: [],
+};
+
+const voxelUndoable = reducer => (state = initialState, action: Action<any>): VoxelState => {
   switch (action.type) {
     case VOXEL_UNDO: {
       const past = state.past.slice(0, state.past.length - 1);
@@ -146,30 +167,36 @@ const voxelUndoable = reducer => (state: VoxelState, action: Action<any>): Voxel
   }
 };
 
-interface RotateFn {
-  (position: Position): Position;
-}
-
 export function rgbToHex({ r, g, b }) {
   return (1 << 24) /* Used by mesher */ | (r << 16) | (g << 8) | b;
 }
 
+type Shape = [number /* width */, number /* height */, number /* depth */];
+
+interface RotateFn {
+  (shape: Shape, position: Position): Position;
+}
+
 const rotates: { [index: string]: RotateFn } = {
-  x: pos => ([ pos[0],                 GRID_SIZE + 1 - pos[2], pos[1]                 ]),
-  y: pos => ([ pos[2],                 pos[1],                 GRID_SIZE + 1 - pos[0] ]),
-  z: pos => ([ GRID_SIZE + 1 - pos[1], pos[0],                 pos[2]                 ]),
+  x: (shape, pos) => ([ pos[0],            shape[2] - pos[2], pos[1]            ]),
+  y: (shape, pos) => ([ pos[2],            pos[1],            shape[0] - pos[0] ]),
+  z: (shape, pos) => ([ shape[1] - pos[1], pos[0],            pos[2]            ]),
 };
 
 export default voxelUndoable((state: ndarray.Ndarray, action: Action<any>): ndarray.Ndarray => {
   switch (action.type) {
     case VOXEL_ADD_BATCH: {
-      const { voxels } = <VoxelAddBatchAction>action;
-
+      const { volumn, color } = <VoxelAddBatchAction>action;
+      const c = rgbToHex(color);
       const nextState = ndarray(state.data.slice(), state.shape);
-      voxels.forEach(voxel => {
-        const { position, color } = voxel;
-        nextState.set(position[2] - 1, position[1] - 1, position[0] - 1, rgbToHex(color));
-      });
+
+      for (let i = volumn[0]; i <= volumn[1]; ++i) {
+        for (let j = volumn[2]; j <= volumn[3]; ++j) {
+          for (let k = volumn[4]; k <= volumn[5]; ++k) {
+            nextState.set(k, j, i, c);
+          }
+        }
+      }
       return nextState;
     }
     case VOXEL_REMOVE_BATCH: {
@@ -177,7 +204,7 @@ export default voxelUndoable((state: ndarray.Ndarray, action: Action<any>): ndar
 
       const nextState = ndarray(state.data.slice(), state.shape);
       positions.forEach(position => {
-        nextState.set(position[2] - 1, position[1] - 1, position[0] - 1, 0);
+        nextState.set(position[2], position[1], position[0], 0);
       });
       return nextState;
     }
@@ -191,13 +218,16 @@ export default voxelUndoable((state: ndarray.Ndarray, action: Action<any>): ndar
       const zLen = state.shape[2];
       const nextState = ndarray(new Int32Array(xLen * yLen * zLen), state.shape);
 
+      // TODO: Support user define shape
+      const shape: Shape = [ DESIGN_IMG_SIZE, DESIGN_IMG_SIZE, DESIGN_IMG_SIZE ];
+
       for (let i = 0; i < xLen; ++i) {
         for (let j = 0; j < yLen; ++j) {
           for (let k = 0; k < zLen; ++k) {
             const c = state.get(i, j, k);
             if (c === 0) continue;
-            const pos = rotate([i + 1, j + 1, k + 1]);
-            nextState.set(pos[0] - 1, pos[1] - 1, pos[2] - 1, c);
+            const pos = rotate(shape, [i, j, k]);
+            nextState.set(pos[0], pos[1], pos[2], c);
           }
         }
       }

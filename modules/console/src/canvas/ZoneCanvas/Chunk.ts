@@ -44,12 +44,12 @@ class Chunk {
 
   remove(pos: Position) {
     // TODO: Make order right.
-    this.data.set(pos[2] - 1, pos[1] - 1, pos[0] - 1, 0);
+    this.data.set(pos[2], pos[1], pos[0], 0);
   }
 
   findAndUpdate(pos: Position, color: Color) {
     // TODO: Make order right.
-    this.data.set(pos[2] - 1, pos[1] - 1, pos[0] - 1, rgbToHex(color));
+    this.data.set(pos[2], pos[1], pos[0], rgbToHex(color));
   }
 
   update() {

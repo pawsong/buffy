@@ -23,19 +23,19 @@ export default function createTool(
 ): EditModeTool {
   switch(toolType) {
     case EditToolType.MOVE: {
-      return new MoveTool(params, getState);
+      return new MoveTool(params);
     }
     case EditToolType.ADD_BLOCK: {
-      return new AddBlockTool(params, getState);
+      return new AddBlockTool(params);
     }
     case EditToolType.COLORIZE: {
-      return new ColorizeTool(params, getState);
+      return new ColorizeTool(params);
     }
     case EditToolType.REMOVE_BLOCK: {
-      return new EraseBlockTool(params, getState);
+      return new EraseBlockTool(params);
     }
     case EditToolType.ADD_ROBOT: {
-      return new AddRobotTool(params, getState);
+      return new AddRobotTool(params);
     }
   }
 

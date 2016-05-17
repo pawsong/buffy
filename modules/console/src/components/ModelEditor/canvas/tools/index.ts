@@ -1,33 +1,34 @@
 import {
   ToolType,
   DispatchAction,
+  SubscribeAction,
   GetEditorState,
 } from '../../types';
 
-import View from '../views/main';
+import ModelEditorCanvas from '../ModelEditorCanvas';
 
-import VoxelEditorTool from './VoxelEditorTool';
+import ModelEditorTool from './ModelEditorTool';
 
 import BrushTool from './BrushTool';
-import ColorPickerTool from './ColorPickerTool';
+import ColorizeTool from './ColorizeTool';
 import EraseTool from './EraseTool';
 
 export default function createTool(
   toolType: ToolType,
-  view: View,
+  canvas: ModelEditorCanvas,
   getState: GetEditorState,
-  setState: any,
-  dispatchAction: DispatchAction
-): VoxelEditorTool {
+  dispatchAction: DispatchAction,
+  subscribeAction: SubscribeAction
+): ModelEditorTool {
   switch(toolType) {
     case ToolType.brush: {
-      return new BrushTool({ view, setState, dispatchAction }, getState);
+      return new BrushTool({ canvas, getState, dispatchAction, subscribeAction });
     }
     case ToolType.colorize: {
-      return new ColorPickerTool({ view, setState, dispatchAction } , getState);
+      return new ColorizeTool({ canvas, getState, dispatchAction, subscribeAction });
     }
     case ToolType.erase: {
-      return new EraseTool({ view, setState, dispatchAction }, getState);
+      return new EraseTool({ canvas, getState, dispatchAction, subscribeAction });
     }
   }
 

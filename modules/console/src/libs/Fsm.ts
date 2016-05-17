@@ -19,6 +19,8 @@ class State { // Set of event handlers
   static EVENT_ENTER = 'enter';
   static EVENT_LEAVE = 'leave';
 
+  fsm: Fsm;
+
   eventHandlers: EventHandlers;
 
   constructor(eventHandlers: EventHandlers) {
@@ -29,6 +31,14 @@ class State { // Set of event handlers
     const handler = this.eventHandlers[event];
     if (!handler) return;
     return handler(data);
+  }
+
+  transitionTo(state: string, params?: any) {
+    this.fsm.transitionTo({ state, params });
+  }
+
+  setFsm(fsm: Fsm) {
+    this.fsm = fsm;
   }
 }
 
@@ -44,6 +54,7 @@ class Fsm {
 
   constructor(states: States, initialState: string) {
     this.states = states;
+    Object.keys(this.states).forEach(key => this.states[key].setFsm(this));
 
     const state = this.states[initialState];
     if (!state) throw new Error(`Invalid state: ${initialState}`);
@@ -56,7 +67,7 @@ class Fsm {
     if (transition) this.transitionTo(<Transition>transition);
   }
 
-  private transitionTo(transition: Transition) {
+  transitionTo(transition: Transition) {
     const next = this.states[transition.state];
     if (!next) throw new Error(`Invalid state: ${transition.state}`);
 

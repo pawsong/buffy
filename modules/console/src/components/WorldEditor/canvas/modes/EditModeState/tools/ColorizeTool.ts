@@ -17,13 +17,12 @@ import {
 } from '../../../../../../canvas/Constants';
 import { CursorEventParams } from '../../../../../../canvas/CursorManager';
 
-import WorldEditorCanvasTool, {
-  WorldEditorCanvsToolState,
-  WorldEditorCanvsToolStates,
-} from '../../WorldEditorCanvasTool';
-import WorldEditorCanvas from '../../../WorldEditorCanvas';
+import EditModeTool, {
+  InitParams,
+  ToolState,
+} from './EditModeTool';
 
-import EditModeTool, { InitParams } from './EditModeTool';
+import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
 const COLOR_TOOLTIP_RADIUS = 20;
 
@@ -37,7 +36,7 @@ function multiplyColor({ r, g, b }) {
 
 interface WaitStateProps {}
 
-class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
+class WaitState extends ToolState {
   constructor(
     private tool: ColorizeTool,
     private view: WorldEditorCanvas
@@ -73,8 +72,6 @@ class WaitState extends WorldEditorCanvsToolState<WaitStateProps> {
     const { face } = intersect;
     this.tool.dispatchAction(changePaletteColor(multiplyColor(face.color)));
   }
-
-  render() {}
 }
 
 class ColorizeTool extends EditModeTool {
@@ -98,7 +95,7 @@ class ColorizeTool extends EditModeTool {
 
     const wait = new WaitState(this, view);
 
-    return <WorldEditorCanvsToolStates>{
+    return {
       wait,
     };
   }

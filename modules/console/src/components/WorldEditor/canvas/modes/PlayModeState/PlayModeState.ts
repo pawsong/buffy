@@ -32,8 +32,11 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
   private subscrbieAction: SubscribeAction;
   private unsubscrbieAction: UnsubscribeAction;
 
+  private initParams: InitParams;
+
   constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB, subscribeAction: SubscribeAction) {
-    super(getState, initParams);
+    super(getState);
+    this.initParams = initParams;
     this.canvas = initParams.view;
     this.stateLayer = initParams.stateLayer;
     this.getFiles = getFiles;
@@ -46,10 +49,7 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
 
   // Lazy getter
   createTool(toolType: PlayToolType): PlayModeTool {
-    return createTool(toolType, this.getState, {
-      view: this.canvas,
-      stateLayer: this.stateLayer,
-    });
+    return createTool(toolType, this.getState, this.initParams);
   }
 
   handleEnter() {

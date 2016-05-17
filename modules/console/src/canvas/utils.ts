@@ -101,14 +101,15 @@ export function createGeometryFromMesh({ vertices, faces }: Mesh) {
     geometry.faceVertexUvs[0].push([uv[1], uv[2], uv[3]]);
   }
 
+  geometry.mergeVertices();
+
   geometry.computeFaceNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
 
   geometry.verticesNeedUpdate = true;
   geometry.elementsNeedUpdate = true;
   geometry.normalsNeedUpdate = true;
-
-  geometry.computeBoundingBox();
-  geometry.computeBoundingSphere();
 
   return geometry;
 }

@@ -43,7 +43,7 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
   private stateLayer: StateLayer;
 
   constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB, subscribeAction: SubscribeAction, stateLayer: StateLayer) {
-    super(getState, initParams);
+    super(getState);
     this.getFiles = getFiles;
     this.initParams = initParams;
     this.subscribeAction = subscribeAction;
