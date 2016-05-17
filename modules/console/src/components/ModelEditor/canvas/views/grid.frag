@@ -5,7 +5,6 @@ varying vec3 vColor;
 
 void main(void) {
     float thickness = 0.01;
-    float delta = 0.05 / 2.0;
 
     float x = fract(vUV.x);
     x = min(x, 1.0 - x);
