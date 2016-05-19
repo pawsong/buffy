@@ -57,11 +57,11 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
 
     // Init data
 
-    const files = this.getFiles();
+    const recipeFiles = this.getFiles();
     const { zones, robots, playerId } = this.getState().editMode;
 
     const server = <LocalServer>this.stateLayer.store;
-    server.initialize(files, zones, robots);
+    server.initialize(recipeFiles, zones, robots);
     server.start();
 
     // Init view

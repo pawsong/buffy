@@ -278,7 +278,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
   startStateLayer() {
     // Share memory bewteen LocalServer and StateStore
-    this.server = new LocalServer(this.state.studioState.files, this.state.studioState.worldId, this.socket);
+    this.server = new LocalServer(this.state.studioState.worldId, this.socket);
 
     this.stateLayer = new StateLayer({
       store: this.server,

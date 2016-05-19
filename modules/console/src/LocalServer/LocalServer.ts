@@ -38,61 +38,15 @@ class LocalServer extends StateStore {
 
   socket: LocalSocket;
 
-  constructor(files: SourceFileDB, worldId: string, socket: LocalSocket) {
+  constructor(worldId: string, socket: LocalSocket) {
     invariant(socket, 'Invalid socket');
 
     super();
     this.socket = socket;
     this.routes = new LocalRoutes(id => this.objects[id], this.socket);
-
-    // const worldFile = files[worldId];
-    // const world: WorldEditorState = worldFile.state;
-
-    // // Initialize maps and users
-
-    // Object.keys(world.zones).map(id => world.zones[id]).forEach(zoneState => {
-    //   const blocks: Int32Array = zoneState.blocks.data;
-
-    //   const zone = this.indexedZones[zoneState.id] = new ServerGameMap({
-    //     id: zoneState.id,
-    //     name: zoneState.name,
-    //     width: zoneState.size[0],
-    //     depth: zoneState.size[2],
-    //     size: zoneState.size,
-    //     blocks: blocks.slice().buffer, // Copy buffer to preserve original state in file.
-    //     terrains: [],
-    //     objects: [],
-    //   });
-    //   this.zones.push(zone);
-    // });
-
-    // Object.keys(world.robots).map(id => world.robots[id]).forEach(robotState => {
-    //   const recipeFile = files[robotState.recipe];
-    //   const recipe: RecipeEditorState = recipeFile.state;
-
-    //   const zone = this.indexedZones[robotState.zone];
-    //   const user = new LocalUserGameObject({
-    //     id: robotState.id,
-    //     zone: robotState.zone,
-    //     robot: robotState.recipe,
-    //     designId: recipe.design,
-    //     position: {
-    //       x: robotState.position[0],
-    //       y: robotState.position[1],
-    //       z: robotState.position[2],
-    //     },
-    //     direction: {
-    //       x: robotState.direction[0],
-    //       y: robotState.direction[1],
-    //       z: robotState.direction[2],
-    //     },
-    //   }, zone, this.socket);
-    //   this.objects[user.id] = user;
-    //   zone.addUser(user);
-    // });
   }
 
-  initialize(files: SourceFileDB, zones: { [index: string]: Zone }, robots: { [index: string]: Robot }) {
+  initialize(recipeFiles: SourceFileDB, zones: { [index: string]: Zone }, robots: { [index: string]: Robot }) {
     this.zones = [];
     this.indexedZones = {};
     this.objects = {};
@@ -116,7 +70,7 @@ class LocalServer extends StateStore {
     });
 
     Object.keys(robots).map(id => robots[id]).forEach(robotState => {
-      const recipeFile = files[robotState.recipe];
+      const recipeFile = recipeFiles[robotState.recipe];
       const recipe: RecipeEditorState = recipeFile.state;
 
       const zone = this.indexedZones[robotState.zone];
