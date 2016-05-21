@@ -34,8 +34,6 @@ import {
   EditorMode,
   ViewMode,
   ActionListener,
-  SubscribeAction,
-  UnsubscribeAction,
 } from '../types';
 
 if (__CLIENT__) {
@@ -60,7 +58,6 @@ interface WorldEditorCanvasOptions {
   stateLayer: StateLayer;
   getState: GetState;
   dispatchAction: DispatchAction;
-  subscribeAction: SubscribeAction;
   getFiles: () => SourceFileDB;
 }
 
@@ -87,16 +84,12 @@ class WorldEditorCanvas extends ZoneCanvas {
   private dispatchAction: DispatchAction;
   private getFiles: () => SourceFileDB;
 
-  private subscribeAction: SubscribeAction;
-  private unsubscribeAction: UnsubscribeAction;
-
   constructor({
     container,
     modelManager,
     stateLayer,
     getState,
     dispatchAction,
-    subscribeAction,
     getFiles,
   }: WorldEditorCanvasOptions) {
     super(container, modelManager, () => {
@@ -109,7 +102,6 @@ class WorldEditorCanvas extends ZoneCanvas {
     this.getGameState = getState;
     this.getFiles = getFiles;
     this.dispatchAction = dispatchAction;
-    this.subscribeAction = subscribeAction;
     this.advertisingBoards = [];
   }
 
@@ -225,33 +217,20 @@ class WorldEditorCanvas extends ZoneCanvas {
       getFiles: this.getFiles,
       dispatchAction: this.dispatchAction,
       modelManager: this.modelManager,
-      subscribeAction: this.subscribeAction,
-    }, this.getFiles, this.subscribeAction, this.stateLayer);
+    }, this.getFiles, this.stateLayer);
     this.editModeState.init();
 
     this.playModeState = new PlayModeState(this.getGameState, {
       view: this,
       stateLayer: this.stateLayer,
       getState: this.getGameState,
-    }, this.getFiles, this.subscribeAction);
+    }, this.getFiles);
     this.playModeState.init();
 
     this.modeFsm = new Fsm({
       [EditorMode[EditorMode.EDIT]]: this.editModeState,
       [EditorMode[EditorMode.PLAY]]: this.playModeState,
     }, EditorMode[this.state.editMode.tool]);
-
-    this.unsubscribeAction = this.subscribeAction(action => this.handleActionDispatch(action));
-  }
-
-  handleActionDispatch(action: Action<any>) {
-    switch(action.type) {
-      case CHANGE_EDITOR_MODE: {
-        const { mode } = <ChangeEditorModeAction>action;
-        this.modeFsm.trigger(ModeEvents.CHANGE_MODE, mode);
-        return;
-      }
-    }
   }
 
   initCamera(): THREE.Camera {
@@ -283,13 +262,14 @@ class WorldEditorCanvas extends ZoneCanvas {
   }
 
   handleChange(state: WorldEditorState) {
+    if (this.state.common.mode !== state.common.mode) {
+      this.modeFsm.trigger(ModeEvents.CHANGE_MODE, state.common.mode);
+    }
     this.modeFsm.trigger(ModeEvents.CHANGE_STATE, state);
     this.state = state;
   }
 
   destroy() {
-    this.unsubscribeAction();
-
     this.editModeState.destroy();
     this.playModeState.destroy();
 

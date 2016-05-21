@@ -114,7 +114,7 @@ class WaitState extends ToolState {
   }
 }
 
-class AddRobotTool extends EditModeTool{
+class AddRobotTool extends EditModeTool<any> {
   getToolType() { return EditToolType.ADD_ROBOT; }
 
   cursorMaterial: THREE.Material;

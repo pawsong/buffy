@@ -37,8 +37,6 @@ import {
   Color,
   ModelEditorState,
   ActionListener,
-  SubscribeAction,
-  UnsubscribeAction,
 } from './types';
 
 import {
@@ -102,8 +100,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   constructor(props) {
     super(props);
 
-    this.actionListeners = [];
-
     this.state = {
       fullscreen: false,
     };
@@ -113,19 +109,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.props.onChange(editorState);
   }
 
-  actionListeners: ActionListener[];
-
-  subscribeAction: SubscribeAction = (listener) => {
-    this.actionListeners.push(listener);
-    return () => {
-      const index = this.actionListeners.indexOf(listener);
-      if (index !== -1) this.actionListeners.splice(index, 1);
-    };
-  }
-
   dispatchAction = (action: Action<any>, callback?: () => any) => {
     const nextState = rootReducer(this.props.editorState, action);
-    this.actionListeners.forEach(listener => listener(action));
 
     // TODO: Support callback
     this.props.onChange(nextState);
@@ -144,7 +129,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
       stores: this.stores,
       dispatchAction: this.dispatchAction,
-      subscribeAction: this.subscribeAction,
       getEditorState: () => this.props.editorState,
     });
     this.canvas.init();

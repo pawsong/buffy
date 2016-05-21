@@ -123,7 +123,7 @@ module.exports = function (options) {
   gulp.task('build:watch', function () {
     runSequence('build:watch:run');
     gulp.watch([
-      'typings/tsd.d.ts',
+      'typings/main.d.ts',
       'src/**/*.{ts,tsx}',
     ], ['build::watch:run']).on('change', function(e) {
       const file = path.relative(cwd, e.path);
@@ -142,7 +142,7 @@ module.exports = function (options) {
     }
 
     return gulp.src([
-      'typings/tsd.d.ts',
+      'typings/main.d.ts',
       'test/**/*.{ts,tsx}',
     ]).pipe(sourcemaps.init())
       .pipe(ts(testTsProject, undefined, ts.reporter.longReporter()))

@@ -25,7 +25,6 @@ import {
 import {
   ToolType,
   DispatchAction,
-  SubscribeAction,
   ModelEditorState,
   GetEditorState,
 } from '../types';
@@ -42,7 +41,6 @@ interface CanvasOptions {
   container: HTMLElement;
   stores: Stores;
   dispatchAction: DispatchAction;
-  subscribeAction: SubscribeAction;
   getEditorState: GetEditorState;
 }
 
@@ -53,11 +51,10 @@ class ModelEditorCanvas extends Canvas {
   controls: any;
 
   dispatchAction: DispatchAction;
-  subscribeAction: SubscribeAction;
   getState: GetEditorState;
 
-  cachedTools: { [index: string]: ModelEditorTool };
-  tool: ModelEditorTool;
+  cachedTools: { [index: string]: ModelEditorTool<any> };
+  tool: ModelEditorTool<any>;
 
   camera: THREE.PerspectiveCamera;
   stores: Stores;
@@ -73,7 +70,6 @@ class ModelEditorCanvas extends Canvas {
     container,
     stores,
     dispatchAction,
-    subscribeAction,
     getEditorState,
   }: CanvasOptions) {
     super(container);
@@ -81,7 +77,6 @@ class ModelEditorCanvas extends Canvas {
     this.stores = stores;
     this.dispatchAction = dispatchAction;
     this.getState = getEditorState;
-    this.subscribeAction = subscribeAction;
 
     this.cachedTools = {};
   }
@@ -153,8 +148,10 @@ class ModelEditorCanvas extends Canvas {
       DESIGN_IMG_SIZE * PIXEL_SCALE / 2
     );
 
-    this.tool = this.getTool(this.getState().common.selectedTool);
-    this.tool.start();
+    const state = this.getState();
+
+    this.tool = this.getTool(state.common.selectedTool);
+    this.tool.start(state);
   }
 
   initCamera() {
@@ -172,12 +169,12 @@ class ModelEditorCanvas extends Canvas {
   }
 
   // Lazy getter
-  getTool(toolType: ToolType): ModelEditorTool {
+  getTool(toolType: ToolType): ModelEditorTool<any> {
     const tool = this.cachedTools[toolType];
     if (tool) return tool;
 
     return this.cachedTools[toolType] =
-      createTool(toolType, this, this.getState, this.dispatchAction, this.subscribeAction);
+      createTool(toolType, this, this.getState, this.dispatchAction);
   }
 
   handleWindowResize() {
@@ -219,7 +216,9 @@ class ModelEditorCanvas extends Canvas {
       const nextTool = this.getTool(nextState.common.selectedTool);
       this.tool.stop();
       this.tool = nextTool;
-      this.tool.start();
+      this.tool.start(nextState);
+    } else {
+      this.tool.updateProps(nextState);
     }
   }
 

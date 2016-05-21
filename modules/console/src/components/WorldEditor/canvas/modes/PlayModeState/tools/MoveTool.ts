@@ -83,7 +83,7 @@ class WaitState extends ToolState {
   }
 }
 
-class MoveTool extends PlayModeTool {
+class MoveTool extends PlayModeTool<void> {
   getToolType() { return PlayToolType.MOVE; }
 
   init({ view, stateLayer, getState }: InitParams) {

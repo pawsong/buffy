@@ -7,7 +7,6 @@ import {
   EditToolType,
   GetState,
   DispatchAction,
-  SubscribeAction,
 } from '../../../../types';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
@@ -20,10 +19,9 @@ export interface InitParams {
   getState: GetState;
   getFiles: () => SourceFileDB;
   dispatchAction: DispatchAction;
-  subscribeAction: SubscribeAction;
   modelManager: ModelManager;
 }
 
-abstract class EditModeTool extends Tool<EditToolType, InitParams> {}
+abstract class EditModeTool<T> extends Tool<EditToolType, InitParams, WorldEditorState, T> {}
 
 export default EditModeTool;

@@ -74,7 +74,7 @@ class WaitState extends ToolState {
   }
 }
 
-class ColorizeTool extends EditModeTool {
+class ColorizeTool extends EditModeTool<any> {
   colorTooltip: HTMLElement;
   dispatchAction: DispatchAction;
 

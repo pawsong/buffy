@@ -72,7 +72,7 @@ class WaitState extends ToolState {
   }
 }
 
-class ColorizeTool extends ModelEditorTool {
+class ColorizeTool extends ModelEditorTool<void> {
   colorTooltip: HTMLElement;
 
   getToolType(): ToolType { return ToolType.colorize; }

@@ -1,7 +1,6 @@
 import {
   ToolType,
   DispatchAction,
-  SubscribeAction,
   GetEditorState,
 } from '../../types';
 
@@ -17,18 +16,22 @@ export default function createTool(
   toolType: ToolType,
   canvas: ModelEditorCanvas,
   getState: GetEditorState,
-  dispatchAction: DispatchAction,
-  subscribeAction: SubscribeAction
-): ModelEditorTool {
+  dispatchAction: DispatchAction
+): ModelEditorTool<any> {
+  const state = getState();
+  const initParams = {
+    canvas, getState, dispatchAction,
+  };
+
   switch(toolType) {
     case ToolType.brush: {
-      return new BrushTool({ canvas, getState, dispatchAction, subscribeAction });
+      return new BrushTool(initParams);
     }
     case ToolType.colorize: {
-      return new ColorizeTool({ canvas, getState, dispatchAction, subscribeAction });
+      return new ColorizeTool(initParams);
     }
     case ToolType.erase: {
-      return new EraseTool({ canvas, getState, dispatchAction, subscribeAction });
+      return new EraseTool(initParams);
     }
   }
 

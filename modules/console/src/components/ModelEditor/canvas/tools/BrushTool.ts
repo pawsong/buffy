@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import * as ndarray from 'ndarray';
 
+import { Schema, SchemaType } from '@pasta/helper/lib/diff';
+
 import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
 
 import ModelEditorTool, {
@@ -17,8 +19,6 @@ import {
   ToolType,
   ModelEditorState,
   DispatchAction,
-  SubscribeAction,
-  UnsubscribeAction,
   GetEditorState,
 } from '../../types';
 
@@ -203,7 +203,11 @@ class DrawState extends ToolState {
   }
 }
 
-class BrushTool extends ModelEditorTool {
+interface BrushToolProps {
+  color: Color;
+}
+
+class BrushTool extends ModelEditorTool<BrushToolProps> {
   canvas: ModelEditorCanvas;
 
   drawGuideMaterial: THREE.MeshBasicMaterial;
@@ -212,14 +216,31 @@ class BrushTool extends ModelEditorTool {
   drawGuideZ: THREE.Mesh;
 
   getState: GetEditorState;
-  subscribeAction: SubscribeAction;
-  unsubscribeAction: UnsubscribeAction;
 
   cursorColor: THREE.Vector3;
   cursorScale: THREE.Vector3;
   cursorMesh: THREE.Mesh;
 
   getToolType() { return ToolType.brush; }
+
+  getPropsSchema(): Schema {
+    return {
+      type: SchemaType.OBJECT,
+      properties: {
+        color: {
+          type: SchemaType.ANY,
+        },
+      },
+    };
+  }
+
+  mapProps(state: ModelEditorState) {
+    return { color: state.common.paletteColor };
+  }
+
+  render(diff: BrushToolProps) {
+    this.setCursorColor(diff.color || this.props.color);
+  }
 
   createGuideGeometry(width, height, depth) {
     const geometry = new THREE.BoxGeometry(width, height, depth);
@@ -233,13 +254,11 @@ class BrushTool extends ModelEditorTool {
   }
 
   setCursorColor(color: Color) {
-    console.log(color);
     this.cursorColor.set(color.r / 0xff, color.g / 0xff, color.b / 0xff);
   }
 
   init(params: InitParams) {
     this.getState = params.getState;
-    this.subscribeAction = params.subscribeAction;
     this.canvas = params.canvas;
 
     // Setup cursor
@@ -295,17 +314,6 @@ class BrushTool extends ModelEditorTool {
   }
 
   onStart() {
-    const { common: { paletteColor } } = this.getState();
-    this.setCursorColor(paletteColor);
-    this.unsubscribeAction = this.subscribeAction(action => {
-      switch(action.type) {
-        case CHANGE_PALETTE_COLOR: {
-          const { color } = <ChangePaletteColorAction>action;
-          this.setCursorColor(color);
-        }
-      }
-    });
-
     this.canvas.scene.add(this.cursorMesh);
 
     this.canvas.scene.add(this.drawGuideX);
@@ -314,9 +322,6 @@ class BrushTool extends ModelEditorTool {
   }
 
   onStop() {
-    this.unsubscribeAction();
-    this.unsubscribeAction = null;
-
     this.canvas.scene.remove(this.cursorMesh);
 
     this.canvas.scene.remove(this.drawGuideX);

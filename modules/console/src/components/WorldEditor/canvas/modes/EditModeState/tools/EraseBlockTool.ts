@@ -69,7 +69,7 @@ class WaitState extends ToolState {
   }
 }
 
-class EraseBlockTool extends EditModeTool {
+class EraseBlockTool extends EditModeTool<any> {
   cursorGeometry: THREE.Geometry;
   cursorMaterial: THREE.Material;
 

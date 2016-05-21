@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
+import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
 import { Position } from '@pasta/core/lib/types';
 
@@ -15,8 +16,6 @@ import {
   EditToolType,
   GetState,
   Action,
-  SubscribeAction,
-  UnsubscribeAction,
 } from '../../../../types';
 
 import {
@@ -36,43 +35,25 @@ export function rgbToHex({ r, g, b }) {
 
 class WaitState extends ToolState {
   cursor: Cursor;
-  cursorMaterial: THREE.MeshBasicMaterial;
-  unsubscribeAction: UnsubscribeAction;
 
   constructor(
+    private tool: AddBlockTool,
     private canvas: WorldEditorCanvas,
-    private getState: GetState,
-    private subscribeAction: SubscribeAction
+    private getState: GetState
   ) {
     super();
 
-    this.cursorMaterial = new THREE.MeshBasicMaterial({
-      color: 0xff0000,
-      opacity: 0.5,
-      transparent: true,
-      polygonOffset: true,
-      polygonOffsetFactor: -0.1,
-    });
-
     this.cursor = new Cursor(canvas, {
       geometry: this.canvas.cubeGeometry,
-      material: this.cursorMaterial,
+      material: this.tool.cursorMaterial,
       getInteractables: () => [this.canvas.chunk.mesh],
       offset: [PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF],
       onMouseUp: () => this.handleMouseUp(),
     });
   }
 
-  setCursorColor({ r, g, b }: Color) {
-    this.cursorMaterial.color.setRGB(r / 0xff, g / 0xff, b / 0xff);
-  }
-
   onEnter() {
-    this.unsubscribeAction = this.subscribeAction(this.handleActionDispatch);
-
     const { editMode: { paletteColor } } = this.getState();
-    this.setCursorColor(paletteColor);
-
     this.cursor.start();
   }
 
@@ -80,7 +61,6 @@ class WaitState extends ToolState {
     switch (action.type) {
       case CHANGE_PALETTE_COLOR: {
         const { color } = <ChangePaletteColorAction>action;
-        this.setCursorColor(color);
       }
     }
   }
@@ -103,18 +83,54 @@ class WaitState extends ToolState {
   }
 
   onLeave() {
-    this.unsubscribeAction();
-    this.unsubscribeAction = null;
-
     this.cursor.stop();
   }
 }
 
-class AddBlockTool extends EditModeTool{
+interface AddBlockToolProps {
+  color: Color;
+}
+
+class AddBlockTool extends EditModeTool<AddBlockToolProps> {
+  cursorMaterial: THREE.MeshBasicMaterial;
+
   getToolType() { return EditToolType.ADD_BLOCK; }
 
-  init({ view, getState, subscribeAction }: InitParams) {
-    const wait = new WaitState(view, getState, subscribeAction);
+  setCursorColor(color: Color) {
+    this.cursorMaterial.color.setRGB(color.r / 0xff, color.g / 0xff, color.b / 0xff);
+  }
+
+  getPropsSchema(): Schema {
+    return {
+      type: SchemaType.OBJECT,
+      properties: {
+        color: {
+          type: SchemaType.ANY,
+        },
+      }
+    };
+  }
+
+  mapProps(state: WorldEditorState) {
+    return {
+      color: state.editMode.paletteColor,
+    };
+  }
+
+  render(diff: AddBlockToolProps) {
+    this.setCursorColor(diff.color || this.props.color);
+  }
+
+  init({ view, getState }: InitParams) {
+    this.cursorMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      opacity: 0.5,
+      transparent: true,
+      polygonOffset: true,
+      polygonOffsetFactor: -0.1,
+    });
+
+    const wait = new WaitState(this, view, getState);
 
     return {
       wait,

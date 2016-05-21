@@ -1,11 +1,11 @@
 import * as THREE from 'three';
+import { Differ, Schema } from '@pasta/helper/lib/diff';
 import ModelEditorCanvas from '../ModelEditorCanvas';
 
 import {
   ToolType,
   ModelEditorState,
   DispatchAction,
-  SubscribeAction,
   GetEditorState,
 } from '../../types';
 
@@ -16,9 +16,9 @@ export interface InitParams {
   canvas: ModelEditorCanvas;
   getState: GetEditorState;
   dispatchAction: DispatchAction;
-  subscribeAction: SubscribeAction;
 }
 
-abstract class ModelEditorTool extends Tool<ToolType, InitParams> {}
+abstract class ModelEditorTool<T> extends Tool<ToolType, InitParams, ModelEditorState, T> {
+}
 
 export default ModelEditorTool;

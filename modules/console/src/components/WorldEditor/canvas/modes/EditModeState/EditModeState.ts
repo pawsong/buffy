@@ -1,9 +1,11 @@
 import StateLayer from '@pasta/core/lib/StateLayer';
+import { SchemaType, Schema } from '@pasta/helper/lib/diff';
 import LocalServer from '../../../../../LocalServer';
 import {
   SourceFileDB,
 } from '../../../../Studio/types';
 import { RecipeEditorState } from '../../../../RecipeEditor';
+import SimpleComponent from '../../../../../libs/SimpleComponent';
 
 import {
   Robot,
@@ -13,8 +15,6 @@ import {
   EditToolType,
   GetState,
   DispatchAction,
-  SubscribeAction,
-  UnsubscribeAction,
 } from '../../../types';
 
 import {
@@ -34,20 +34,114 @@ import {
   PIXEL_SCALE_HALF,
 } from '../../../../../canvas/Constants';
 
+interface UpdateParams {
+  state: WorldEditorState;
+  recipeFiles: SourceFileDB;
+}
+
+interface Props {
+  scriptIsRunning: boolean;
+  robots: { [index: string]: Robot };
+  recipeFiles: SourceFileDB;
+}
+
+class EditModeComponent extends SimpleComponent<UpdateParams, Props> {
+  constructor(private editModeState: EditModeState) {
+    super();
+  }
+
+  getPropsSchema(): Schema {
+    return {
+      type: SchemaType.OBJECT,
+      properties: {
+        scriptIsRunning: {
+          type: SchemaType.BOOLEAN,
+        },
+        robots: {
+          type: SchemaType.MAP,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              recipe: { type: SchemaType.STRING },
+              position: { type: SchemaType.ANY },
+              direction: { type: SchemaType.ANY },
+            },
+          }
+        },
+        recipeFiles: {
+          type: SchemaType.MAP,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              state: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  design: { type: SchemaType.STRING },
+                }
+              },
+            },
+          },
+        },
+      },
+    };
+  }
+
+  mapProps({ state, recipeFiles }: UpdateParams) {
+    return {
+      scriptIsRunning: state.editMode.scriptIsRunning,
+      robots: state.editMode.robots,
+      recipeFiles,
+    };
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.scriptIsRunning !== this.props.scriptIsRunning) {
+      if (this.props.scriptIsRunning) {
+        this.editModeState.startScript();
+      } else {
+        this.editModeState.stopScript();
+      }
+    }
+  }
+
+  render(diff: Props) {
+    if (this.props.scriptIsRunning) return;
+    if (!diff.robots) return;
+
+    Object.keys(diff.robots).forEach(robotId => {
+      const robot = diff.robots[robotId];
+      if (robot) {
+        this.editModeState.createOrUpdateRobot(robot, this.props.recipeFiles);
+      } else {
+        this.editModeState.canvas.objectManager.remove(robotId);
+      }
+    });
+  }
+}
+
 class EditModeState extends ModeState<EditToolType, InitParams> {
   getFiles: () => SourceFileDB;
   initParams: InitParams;
-  subscribeAction: SubscribeAction;
-  unsubscribeAction: UnsubscribeAction;
+  canvas: WorldEditorCanvas;
+  component: EditModeComponent;
 
   private stateLayer: StateLayer;
 
-  constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB, subscribeAction: SubscribeAction, stateLayer: StateLayer) {
+  constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB, stateLayer: StateLayer) {
     super(getState);
     this.getFiles = getFiles;
     this.initParams = initParams;
-    this.subscribeAction = subscribeAction;
+    this.canvas = initParams.view;
     this.stateLayer = stateLayer;
+    this.component = new EditModeComponent(this);
+  }
+
+  handleStateChange(state: WorldEditorState) {
+    super.handleStateChange(state);
+    this.component.updateProps({
+      state,
+      recipeFiles: this.getFiles(),
+    });
   }
 
   getToolType(editorState: WorldEditorState): EditToolType {
@@ -55,17 +149,15 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
   }
 
   // Lazy getter
-  createTool(toolType: EditToolType): EditModeTool {
+  createTool(toolType: EditToolType): EditModeTool<any> {
     return createTool(toolType, this.getState, this.initParams);
   }
 
-  addRobot(robot: Robot, files: SourceFileDB) {
-    const canvas = this.initParams.view;
-
+  createOrUpdateRobot(robot: Robot, files: SourceFileDB) {
     const recipeFile = files[robot.recipe];
     const recipe: RecipeEditorState = recipeFile.state;
 
-    const object = this.initParams.view.objectManager.create(robot.id, recipe.design);
+    const object = this.canvas.objectManager.create(robot.id, recipe.design);
     // const mesh = new THREE.Mesh(this.canvas.cubeGeometry , this.canvas.cubeMaterial);
     // mesh.castShadow = true;
 
@@ -89,7 +181,12 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
     this.initParams.view.applyCameraMode(ViewMode.BIRDS_EYE);
 
-    this.unsubscribeAction = this.subscribeAction(action => this.handleActionDispatch(action));
+    this.canvas.objectManager.removeAll();
+
+    this.component.start({
+      state: this.getState(),
+      recipeFiles: this.getFiles(),
+    });
 
     super.handleEnter();
   }
@@ -98,13 +195,11 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
     this.stopScript();
 
     super.handleLeave();
-    this.unsubscribeAction();
+    this.component.stop();
   }
 
   syncCanvasToFileState() {
     const canvas = this.initParams.view;
-
-    canvas.objectManager.removeAll();
 
     // Connect to file store
     const state = this.getState();
@@ -112,16 +207,11 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
     canvas.chunk.setData(zone.blocks);
     canvas.chunk.update();
-
-    const files = this.getFiles();
-
-    Object.keys(state.editMode.robots).forEach(id => {
-      const robot = state.editMode.robots[id];
-      this.addRobot(robot, files);
-    });
   }
 
   startScript() {
+    this.component.stop();
+
     const canvas = this.initParams.view;
 
     const files = this.getFiles();
@@ -154,31 +244,12 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
     })
     canvas.disconnectFromStateStore();
 
-    this.syncCanvasToFileState();
-  }
+    this.canvas.objectManager.removeAll();
 
-  handleActionDispatch(action: Action<any>) {
-    switch(action.type) {
-      case ADD_ROBOT: {
-        const { robot } = <AddRobotAction>action;
-        const files = this.getFiles();
-        this.addRobot(robot, files);
-        return;
-      }
-      case REMOVE_ROBOT: {
-        const { robotId } = <RemoveRobotAction>action;
-        this.initParams.view.objectManager.remove(robotId);
-        return;
-      }
-      case RUN_SCRIPT: {
-        this.startScript();
-        return;
-      }
-      case STOP_SCRIPT: {
-        this.stopScript();
-        return;
-      }
-    }
+    this.component.start({
+      state: this.getState(),
+      recipeFiles: this.getFiles(),
+    });
   }
 }
 

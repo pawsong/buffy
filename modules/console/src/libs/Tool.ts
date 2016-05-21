@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import * as invariant from 'invariant';
 import mapValues from 'lodash/mapValues';
+import { Differ, Schema } from '@pasta/helper/lib/diff';
+import SimpleComponent from './SimpleComponent';
 
 import Fsm, { State, HandlerResult, EventHandlers } from './Fsm';
 export { HandlerResult, EventHandlers }
@@ -43,7 +45,7 @@ interface ToolStates {
 }
 
 class IdleState extends ToolState {
-  constructor(private tool: Tool<any, any>) {
+  constructor(private tool: Tool<any, any, any, any>) {
     // Just wait start event.
     super({
       [ToolState.EVENT_START]: () => ({ state: ToolState.STATE_WAIT }),
@@ -51,10 +53,11 @@ class IdleState extends ToolState {
   }
 }
 
-abstract class Tool<U /* ToolType */, V /* InitParams */> {
+abstract class Tool<U /* ToolType */, V /* InitParams */, T, K> extends SimpleComponent<T, K> {
   protected fsm: Fsm;
 
   constructor(params: V) {
+    super();
     const idle = new IdleState(this);
     const states: ToolStates = objectAssign({ [ToolState.STATE_IDLE]: idle }, this.init(params));
     invariant(states[ToolState.STATE_WAIT], `${ToolState.STATE_WAIT} is missing`);
@@ -72,19 +75,15 @@ abstract class Tool<U /* ToolType */, V /* InitParams */> {
 
   abstract init(params: V);
 
-  start() {
-    this.onStart();
+  start(updateParams: T) {
+    super.start(updateParams);
     this.fsm.trigger(ToolState.EVENT_START);
   }
 
-  onStart() {}
-
   stop() {
     this.fsm.trigger(ToolState.EVENT_STOP);
-    this.onStop();
+    super.stop();
   }
-
-  onStop() {}
 
   abstract destroy();
 }

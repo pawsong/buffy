@@ -17,14 +17,6 @@ export interface ActionListener {
   <T>(action: Action<T>): any;
 }
 
-export interface UnsubscribeAction {
-  (): void;
-}
-
-export interface SubscribeAction {
-  (listener: ActionListener): UnsubscribeAction;
-}
-
 export enum EditorMode {
   EDIT,
   PLAY,

@@ -14,10 +14,10 @@ import {
 import WorldEditorCanvas from '../WorldEditorCanvas';
 
 abstract class ModeState<T, U> extends State {
-  tool: Tool<T, U>;
+  tool: Tool<T, U, any, any>;
   getState: GetState;
 
-  private cachedTools: { [index: string]: Tool<T, U> };
+  private cachedTools: { [index: string]: Tool<T, U, any, any> };
 
   constructor(getState: GetState) {
     super({
@@ -37,14 +37,7 @@ abstract class ModeState<T, U> extends State {
   }
 
   handleEnter() {
-    const state = this.getState();
-
-    this.tool.start();
-    this.handleStateChange(state);
-  }
-
-  handleLeave() {
-    this.tool.stop();
+    this.tool.start(this.getState());
   }
 
   handleStateChange(state: WorldEditorState) {
@@ -54,14 +47,20 @@ abstract class ModeState<T, U> extends State {
       const nextTool = this.getOrCreateTool(toolType);
       this.tool.stop();
       this.tool = nextTool;
-      this.tool.start();
+      this.tool.start(state);
+    } else {
+      this.tool.updateProps(state);
     }
   }
 
-  abstract getToolType(editorState: WorldEditorState): T;
-  abstract createTool(toolType: T): Tool<T, U>;
+  handleLeave() {
+    this.tool.stop();
+  }
 
-  private getOrCreateTool(toolType: T): Tool<T, U> {
+  abstract getToolType(editorState: WorldEditorState): T;
+  abstract createTool(toolType: T): Tool<T, U, any, any>;
+
+  private getOrCreateTool(toolType: T): Tool<T, U, any, any> {
     const tool = this.cachedTools[toolType as any];
     if (tool) return tool;
 

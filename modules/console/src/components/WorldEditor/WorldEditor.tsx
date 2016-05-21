@@ -53,7 +53,6 @@ import {
   Action,
   DispatchAction,
   ActionListener,
-  SubscribeAction,
 } from './types';
 
 import { rootReducer } from './reducers';
@@ -101,8 +100,6 @@ interface CreateStateOptions {
 class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState> {
   static createState: (fileId: string, options: CreateStateOptions) => WorldEditorState;
 
-  actionListeners: ActionListener[];
-
   private sandbox: Sandbox;
 
   constructor(props: WorldEditorProps, context) {
@@ -110,22 +107,12 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
     this.state = {
       canvasElement: null,
     };
-    this.actionListeners = [];
 
     this.sandbox = new Sandbox(props.stateLayer);
   }
 
-  subscribeAction: SubscribeAction = (listener) => {
-    this.actionListeners.push(listener);
-    return () => {
-      const index = this.actionListeners.indexOf(listener);
-      if (index !== -1) this.actionListeners.splice(index, 1);
-    };
-  }
-
   dispatchAction = (action: Action<any>, callback?: () => any) => {
     const nextState = rootReducer(this.props.editorState, action);
-    this.actionListeners.forEach(listener => listener(action));
     this.props.onChange(nextState, callback);
   }
 
@@ -219,7 +206,6 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
           <Canvas
             editorState={this.props.editorState}
             dispatchAction={this.dispatchAction}
-            subscribeAction={this.subscribeAction}
             sizeVersion={this.props.sizeVersion}
             stateLayer={this.props.stateLayer}
             modelManager={this.props.modelManager}

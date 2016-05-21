@@ -1,4 +1,5 @@
 import StateLayer from '@pasta/core/lib/StateLayer';
+import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 import * as ndarray from 'ndarray';
 
 import LocalServer from '../../../../../LocalServer';
@@ -7,13 +8,14 @@ import {
   SourceFileDB,
 } from '../../../../Studio/types';
 
+import SimpleComponent from '../../../../../libs/SimpleComponent';
+
 import {
   WorldEditorState,
   PlayToolType,
   GetState,
   Action,
-  SubscribeAction,
-  UnsubscribeAction,
+  ViewMode,
 } from '../../../types';
 
 import {
@@ -25,22 +27,52 @@ import WorldEditorCanvas from '../../WorldEditorCanvas';
 
 import createTool, { PlayModeTool, InitParams } from './tools';
 
+interface PlayModeComponentProps {
+  viewMode: ViewMode;
+}
+
+class PlayModeComponent extends SimpleComponent<WorldEditorState, PlayModeComponentProps> {
+  constructor(private canvas: WorldEditorCanvas) {
+    super();
+  }
+
+  getPropsSchema(): Schema {
+    return {
+      type: SchemaType.OBJECT,
+      properties: {
+        viewMode: { type: SchemaType.ANY },
+      },
+    };
+  }
+
+  mapProps(state: WorldEditorState): PlayModeComponentProps {
+    return {
+      viewMode: state.playMode.viewMode,
+    };
+  }
+
+  componentDidUpdate(prevProps: PlayModeComponentProps) {
+    if (prevProps.viewMode !== this.props.viewMode) {
+      this.canvas.applyCameraMode(this.props.viewMode);
+    }
+  }
+}
+
 class PlayModeState extends ModeState<PlayToolType, InitParams> {
   private stateLayer: StateLayer;
   private canvas: WorldEditorCanvas;
   private getFiles: () => SourceFileDB;
-  private subscrbieAction: SubscribeAction;
-  private unsubscrbieAction: UnsubscribeAction;
+  private component: PlayModeComponent;
 
   private initParams: InitParams;
 
-  constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB, subscribeAction: SubscribeAction) {
+  constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB) {
     super(getState);
     this.initParams = initParams;
     this.canvas = initParams.view;
     this.stateLayer = initParams.stateLayer;
     this.getFiles = getFiles;
-    this.subscrbieAction = subscribeAction;
+    this.component = new PlayModeComponent(this.canvas);
   }
 
   getToolType(editorState: WorldEditorState): PlayToolType {
@@ -48,7 +80,7 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
   }
 
   // Lazy getter
-  createTool(toolType: PlayToolType): PlayModeTool {
+  createTool(toolType: PlayToolType): PlayModeTool<any> {
     return createTool(toolType, this.getState, this.initParams);
   }
 
@@ -73,29 +105,18 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
     })
     this.canvas.connectToStateStore(this.stateLayer.store);
 
-    this.unsubscrbieAction = this.subscrbieAction(action => this.handleActionDispatch(action));
+    this.component.start(this.getState());
   }
 
-  handleActionDispatch(action: Action<any>) {
-    switch(action.type) {
-      case CHANGE_PLAY_VIEW_MODE: {
-        const { viewMode } = <ChangePlayViewModeAction>action;
-        this.canvas.applyCameraMode(viewMode);
-        return;
-      }
-    }
-
-    // if (this.state.editMode.playerId !== nextState.editMode.playerId) {
-    //   const object = this.objectManager.objects[nextState.editMode.playerId];
-    //   this.setCameraPosition(object.group.position);
-    // }
+  handleStateChange(state: WorldEditorState) {
+    super.handleStateChange(state);
+    this.component.updateProps(state);
   }
 
   handleLeave() {
-    super.handleLeave();
+    this.component.stop();
 
-    this.unsubscrbieAction();
-    this.unsubscrbieAction = null;
+    super.handleLeave();
 
     const server = <LocalServer>this.stateLayer.store;
     server.stop();

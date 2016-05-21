@@ -15,7 +15,6 @@ import {
   EditorMode,
   PlayModeState,
   DispatchAction,
-  SubscribeAction,
 } from '../types';
 
 import {
@@ -30,7 +29,6 @@ interface CanvasProps extends React.Props<Canvas> {
   dispatchAction: DispatchAction;
   registerElement: (element: HTMLElement) => any;
   files: SourceFileDB;
-  subscribeAction: SubscribeAction;
 }
 
 const styles = {
@@ -55,7 +53,6 @@ class Canvas extends React.Component<CanvasProps, {}> {
       stateLayer: this.props.stateLayer,
       getState: () => this.props.editorState,
       dispatchAction: this.props.dispatchAction,
-      subscribeAction: this.props.subscribeAction,
       getFiles: () => this.props.files,
     });
     this.canvas.init();

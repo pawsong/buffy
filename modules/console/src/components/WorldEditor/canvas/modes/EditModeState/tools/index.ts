@@ -20,7 +20,7 @@ export default function createTool(
   toolType: EditToolType,
   getState: GetState,
   params: InitParams
-): EditModeTool {
+): EditModeTool<any> {
   switch(toolType) {
     case EditToolType.MOVE: {
       return new MoveTool(params);

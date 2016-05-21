@@ -3,6 +3,7 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 import {
   PlayToolType,
   GetState,
+  WorldEditorState,
 } from '../../../../types';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
@@ -16,6 +17,6 @@ export interface InitParams {
   getState: GetState;
 }
 
-abstract class PlayModeTool extends Tool<PlayToolType, InitParams> {}
+abstract class PlayModeTool<T> extends Tool<PlayToolType, InitParams, WorldEditorState, T> {}
 
 export default PlayModeTool;
