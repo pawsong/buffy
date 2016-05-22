@@ -191,6 +191,7 @@ class ModelEditorCanvas extends Canvas {
       this.camera.position.z,
     ]);
     this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
+    this.render();
   }
 
   private handleMeshChange = (geometry: THREE.Geometry) => {

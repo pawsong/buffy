@@ -102,6 +102,8 @@ class ModelLoader {
 
       this.state = LoaderState.LOADED;
       this.triggerWatchers();
+
+      this.modelManager.notifyUpdate();
     };
     this.xhr.send();
   }
@@ -121,6 +123,7 @@ class ModelLoader {
     const thumbnailUrl = this.modelManager.createThumbnail(this.geometry);
 
     this.modelManager.updateThumbnail(this.modelId, thumbnailUrl);
+    this.modelManager.notifyUpdate();
   }
 }
 
@@ -130,7 +133,9 @@ const radius = 160, theta = 270, phi = 60;
 class ModelManager {
   loaders: { [index: string]: ModelLoader };
   thumbnails: Immutable.Map<string, string>;
-  thumbnailListeners: (() => any)[];
+
+  private thumbnailListeners: (() => any)[];
+  private updateListeners: (() => any)[];
 
   private renderer: THREE.WebGLRenderer;
   private thumbnailMaterial: THREE.Material;
@@ -139,6 +144,8 @@ class ModelManager {
   private thumbnailBoundingBoxSize: THREE.Vector3;
 
   constructor() {
+    this.updateListeners = [];
+
     this.loaders = {};
     this.thumbnails = Immutable.Map<string, string>();
     this.thumbnailListeners = [];
@@ -173,6 +180,19 @@ class ModelManager {
     light.position.set(5, 3, 4);
     light.position.normalize();
     this.scene.add(light);
+  }
+
+  notifyUpdate() {
+    this.updateListeners.forEach(listener => listener());
+  }
+
+  listenUpdate(listener: () => any) {
+    this.updateListeners.push(listener);
+  }
+
+  unlistenUpdate(listener: () => any) {
+    const index = this.updateListeners.indexOf(listener);
+    if (index !== -1) this.updateListeners.splice(index, 1);
   }
 
   createThumbnail(geometry: THREE.Geometry): string {

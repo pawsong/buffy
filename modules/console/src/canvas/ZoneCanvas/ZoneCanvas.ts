@@ -43,11 +43,14 @@ abstract class ZoneCanvas extends Canvas {
 
   private tokens: any[];
   private getZoneViewState: GetZoneViewState;
+  private boundRender: () => any;
 
   constructor(container: HTMLElement, modelManager: ModelManager, getState: GetZoneViewState) {
     super(container);
     this.modelManager = modelManager;
     this.getZoneViewState = getState;
+
+    this.boundRender = this.render.bind(this);
   }
 
   init() {
@@ -56,6 +59,7 @@ abstract class ZoneCanvas extends Canvas {
 
     this.chunk = new Chunk(this.scene);
     this.effectManager = createEffectManager(this.scene);
+    this.modelManager.listenUpdate(this.boundRender);
   }
 
   connectToStateStore(store: StateStore) {
@@ -131,6 +135,7 @@ abstract class ZoneCanvas extends Canvas {
 
   destroy() {
     this.disconnectFromStateStore();
+    this.modelManager.unlistenUpdate(this.boundRender);
     super.destroy();
   }
 }
