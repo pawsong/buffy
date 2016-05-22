@@ -48,6 +48,7 @@ class BirdsEyeView implements View {
 	  controls.zoomSpeed = 1.0;
     controls.enableKeys = false;
     controls.enabled = true;
+    controls.addEventListener('change', () => this.canvas.render());
 
     this.controls = controls;
 
@@ -57,10 +58,13 @@ class BirdsEyeView implements View {
       y: 8 * BOX_SIZE,
       z: 8 * BOX_SIZE,
     });
+
+    this.controls.update();
   }
 
   onEnter() {
     this.scene.add(this.camera);
+    console.log('onEnter');
   }
 
   onLeave() {
@@ -83,8 +87,6 @@ class BirdsEyeView implements View {
   }
 
   onUpdate(): void {
-    this.controls.update();
-
     this.camera.getWorldDirection(this.cameraDirection);
     this.cameraDirection.applyAxisAngle(yUnit, Math.PI / 4);
 

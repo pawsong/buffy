@@ -194,6 +194,8 @@ class Cursor {
   private _onMouseMove = (event: MouseEvent) => {
     event.preventDefault();
     this.handleMouseMove(event);
+
+    this.canvas.render();
   }
 
   private _onMouseDown = (event: MouseEvent) => {
@@ -202,6 +204,8 @@ class Cursor {
 
     // TODO: Touch device support.
     this.onMouseDown({ event, intersect });
+
+    this.canvas.render();
   }
 
   private _onMouseUp = (event: MouseEvent) => {
@@ -212,6 +216,8 @@ class Cursor {
     if (this.onTouchTap) this.onTouchTap({ event, intersect });
 
     if (this.onMouseUp) this.onMouseUp({ event, intersect });
+
+    this.canvas.render();
   }
 
   getPosition() {

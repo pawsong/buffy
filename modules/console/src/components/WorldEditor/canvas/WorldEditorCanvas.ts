@@ -231,6 +231,8 @@ class WorldEditorCanvas extends ZoneCanvas {
       [EditorMode[EditorMode.EDIT]]: this.editModeState,
       [EditorMode[EditorMode.PLAY]]: this.playModeState,
     }, EditorMode[this.state.editMode.tool]);
+
+    this.render();
   }
 
   initCamera(): THREE.Camera {

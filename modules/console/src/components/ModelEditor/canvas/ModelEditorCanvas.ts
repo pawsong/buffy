@@ -147,11 +147,16 @@ class ModelEditorCanvas extends Canvas {
       DESIGN_IMG_SIZE * PIXEL_SCALE / 4,
       DESIGN_IMG_SIZE * PIXEL_SCALE / 2
     );
+    // add this only if there is no animation loop (requestAnimationFrame)
+    this.controls.addEventListener('change', () => this.render());
 
     const state = this.getState();
 
     this.tool = this.getTool(state.common.selectedTool);
     this.tool.start(state);
+
+    this.controls.update();
+    this.render();
   }
 
   initCamera() {
@@ -223,9 +228,6 @@ class ModelEditorCanvas extends Canvas {
   }
 
   render() {
-    super.render();
-    this.controls.update();
-
     if (
          this.prevCameraPosition.x !== this.camera.position.x
       || this.prevCameraPosition.y !== this.camera.position.y

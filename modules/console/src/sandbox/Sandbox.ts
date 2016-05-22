@@ -89,27 +89,38 @@ class Sandbox {
   private frameId: number;
   private keyEventListener: (e: KeyboardEvent) => any;
 
+  private keyState: { [index: string]: boolean };
+
+  running: boolean;
+
   constructor(stateLayer: StateLayer) {
     this.stateLayer = stateLayer;
     this.processes = [];
 
-    const keyState = {};
-    this.keyEventListener = (e: KeyboardEvent) => {
-      keyState[e.keyCode] = e.type === 'keydown';
-    }
-    window.addEventListener('keydown', this.keyEventListener, false);
-    window.addEventListener('keyup', this.keyEventListener, false);
+    this.running = false;
+  }
 
-    const update = () => {
-      this.frameId = requestAnimationFrame(update);
-      Object.keys(keyState).forEach(keyCode => {
-        if (keyState[keyCode]) this.emit(`keydown_${keyCode}`);
-      })
-    }
-    this.frameId = requestAnimationFrame(update);
+  listenKeyEvent = (e: KeyboardEvent) => {
+    this.keyState[e.keyCode] = e.type === 'keydown';
+  }
+
+  update = () => {
+    this.frameId = requestAnimationFrame(this.update);
+    Object.keys(this.keyState).forEach(keyCode => {
+      if (this.keyState[keyCode]) this.emit(`keydown_${keyCode}`);
+    })
   }
 
   exec(playerId: string, scripts: Scripts): Promise<void> {
+    if (!this.running) {
+      this.running = true;
+
+      this.keyState = {};
+      window.addEventListener('keydown', this.listenKeyEvent, false);
+      window.addEventListener('keyup', this.listenKeyEvent, false);
+      this.frameId = requestAnimationFrame(this.update);
+    }
+
     const process = new Process(this.stateLayer, playerId, scripts);
     this.processes.push(process);
 
@@ -124,17 +135,20 @@ class Sandbox {
   }
 
   reset() {
+    if (this.running) {
+      this.running = false;
+
+      window.removeEventListener('keydown', this.listenKeyEvent, false);
+      window.removeEventListener('keyup', this.listenKeyEvent, false);
+      cancelAnimationFrame(this.frameId);
+    }
+
     this.processes.forEach(process => process.kill());
     this.processes = [];
   }
 
   destroy() {
     this.reset();
-
-    cancelAnimationFrame(this.frameId);
-    window.removeEventListener('keydown', this.keyEventListener, false);
-    window.removeEventListener('keyup', this.keyEventListener, false);
-
     this.stateLayer = null;
   }
 }

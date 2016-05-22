@@ -26,7 +26,6 @@ abstract class Canvas {
   protected abstract handleWindowResize();
 
   private boundHandleWindowResize: () => any;
-  private frameId: number;
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -99,26 +98,15 @@ abstract class Canvas {
     // /////////////////////////////////////////////////////////////////////////
     // // FIN
     // /////////////////////////////////////////////////////////////////////////
-
-    let then = Date.now();
-    const update = () => {
-      this.frameId = requestAnimationFrame(update);
-      const now = Date.now();
-      this.render(now - then);
-      then = now;
-    }
-    this.frameId = requestAnimationFrame(update);
   }
 
   resize() {
     this.boundHandleWindowResize();
   }
 
-  render(dt = 0) {}
+  abstract render();
 
   destroy() {
-    // Release event handlers
-    cancelAnimationFrame(this.frameId);
     window.removeEventListener('resize', this.boundHandleWindowResize, false);
 
     // Dispose webgl resources
