@@ -270,6 +270,8 @@ class WorldEditorCanvas extends ZoneCanvas {
     }
     this.modeFsm.trigger(ModeEvents.CHANGE_STATE, state);
     this.state = state;
+
+    this.render();
   }
 
   destroy() {

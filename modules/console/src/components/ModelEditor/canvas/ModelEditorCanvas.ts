@@ -215,6 +215,8 @@ class ModelEditorCanvas extends Canvas {
     this.modelMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
 
     this.scene.add(this.modelMesh);
+
+    this.render();
   }
 
   updateState(nextState: ModelEditorState) {
