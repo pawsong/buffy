@@ -116,6 +116,7 @@ class ModelLoader {
 
     if (this.geometry) this.geometry.dispose();
     this.geometry = createGeometryFromMesh(mesh);
+    this.geometry.scale(DESIGN_SCALE, DESIGN_SCALE, DESIGN_SCALE);
 
     this.state = LoaderState.LOADED;
     this.triggerWatchers();
@@ -202,8 +203,7 @@ class ModelManager {
       -geometry.boundingBox.min.x - this.thumbnailBoundingBoxSize.x / 2,
       -geometry.boundingBox.min.y - this.thumbnailBoundingBoxSize.y / 2,
       -geometry.boundingBox.min.z - this.thumbnailBoundingBoxSize.z / 2
-    ).multiplyScalar(DESIGN_SCALE);
-    mesh.scale.set(DESIGN_SCALE, DESIGN_SCALE, DESIGN_SCALE);
+    );
 
     this.scene.add(mesh);
     this.renderer.render(this.scene, this.camera);

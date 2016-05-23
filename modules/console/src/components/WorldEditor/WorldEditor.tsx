@@ -233,7 +233,7 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
     name: 'Robot 1',
     zone: zoneId,
     recipe: options.recipe,
-    position: [3, 4, 3],
+    position: [0, 3, 0],
     direction: [0, 0, 1],
   };
 
@@ -244,7 +244,7 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
     name: 'Robot 2',
     zone: zoneId,
     recipe: options.recipe,
-    position: [2, 4, 6],
+    position: [1, 3, 3],
     direction: [0, 0, 1],
   };
 

@@ -10,6 +10,7 @@ import {
   DESIGN_SCALE,
 } from '../../../../../../canvas/Constants';
 import ModelManager from '../../../../../../canvas/ModelManager';
+import Cursor from '../../../../../../canvas/Cursor';
 
 import {
   SourceFile,
@@ -49,6 +50,8 @@ interface WaitStateProps {
 class WaitState extends ToolState {
   cursorOffset: Position;
 
+  cursor: Cursor;
+
   recipeFile: SourceFile;
   designWatcher: (geometry: THREE.Geometry) => any;
 
@@ -62,18 +65,21 @@ class WaitState extends ToolState {
   ) {
     super();
 
+    const geometry = new THREE.Geometry();
+
+    this.cursor = new Cursor(canvas, {
+      getInteractables: () => [this.canvas.chunk.mesh],
+      geometry: new THREE.Geometry(), // Dummy
+      material: cursorMaterial,
+      hitTest: intersect => yUnit.dot(intersect.face.normal) !== 0,
+      onTouchTap: () => this.handleTouchTap(),
+    });
+
     this.cursorOffset = [PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF];
     this.designWatcher = geometry => {
-      this.canvas.cursorManager.stop();
-      this.canvas.cursorManager.start({
-        getInteractables: () => [this.canvas.chunk.mesh],
-        cursorGeometry: geometry,
-        cursorMaterial: cursorMaterial,
-        cursorScale: DESIGN_SCALE,
-        hitTest: intersect => yUnit.dot(intersect.face.normal) !== 0,
-        onTouchTap: () => this.handleTouchTap(),
-      });
-    };
+      console.log(geometry);
+      this.cursor.changeGeometry(geometry);
+    }
   }
 
   // mapStateToProps(gameState: WorldEditorState): WaitStateProps {
@@ -89,17 +95,18 @@ class WaitState extends ToolState {
     this.recipeFile = files[addRobotRecipeId];
 
     this.modelManager.watch(this.recipeFile.state.design, this.designWatcher);
+    this.cursor.start();
   }
 
   onLeave() {
     this.modelManager.unwatch(this.recipeFile.state.design, this.designWatcher);
-    this.canvas.cursorManager.stop();
+    this.cursor.stop();
     this.recipeFile = null;
   }
 
   handleTouchTap() {
-    const { hit, position } = this.canvas.cursorManager.getPosition();
-    if (!hit) { return; }
+    const position = this.cursor.getPosition();
+    if (!position) return;
 
     const { activeZoneId } = this.getState().editMode;
 

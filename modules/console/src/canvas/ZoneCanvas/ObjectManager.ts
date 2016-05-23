@@ -73,7 +73,6 @@ export class SmartObject {
     surfacemesh.position.y = - PIXEL_SCALE_HALF;
     surfacemesh.position.z = - PIXEL_SCALE_HALF;
 
-    surfacemesh.scale.set(DESIGN_SCALE, DESIGN_SCALE, DESIGN_SCALE);
     surfacemesh.castShadow = true;
 
     this.add(surfacemesh, { material });

@@ -165,9 +165,9 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
     const { group } = object;
 
-    group.position.x = robot.position[0] * PIXEL_SCALE - PIXEL_SCALE_HALF;
-    group.position.y = robot.position[1] * PIXEL_SCALE - PIXEL_SCALE_HALF;
-    group.position.z = robot.position[2] * PIXEL_SCALE - PIXEL_SCALE_HALF;
+    group.position.x = robot.position[0] * PIXEL_SCALE + PIXEL_SCALE_HALF;
+    group.position.y = robot.position[1] * PIXEL_SCALE + PIXEL_SCALE_HALF;
+    group.position.z = robot.position[2] * PIXEL_SCALE + PIXEL_SCALE_HALF;
 
     group.lookAt(new THREE.Vector3(
       group.position.x + robot.direction[0],
