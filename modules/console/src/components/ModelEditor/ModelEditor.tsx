@@ -49,6 +49,7 @@ import PreviewPanel from './components/panels/PreviewPanel';
 import ToolsPanel from './components/panels/ToolsPanel';
 
 import FullscreenButton from './components/FullscreenButton';
+import ApplyButton from './components/ApplyButton';
 
 import ModelEditorCanvas from './canvas/ModelEditorCanvas';
 
@@ -71,6 +72,7 @@ export { ModelEditorState };
 interface ModelEditorProps extends React.Props<ModelEditor> {
   editorState: ModelEditorState;
   onChange: (voxelEditorState: ModelEditorState) => any;
+  onApply: () => any;
   sizeVersion: number;
   focus: boolean;
   intl?: InjectedIntlProps;
@@ -195,6 +197,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         <FullscreenButton
           onTouchTap={() => this.handleFullscreenButtonClick()}
           fullscreen={this.state.fullscreen}
+        />
+        <ApplyButton
+          onTouchTap={this.props.onApply}
         />
         {this.renderPanels()}
       </div>

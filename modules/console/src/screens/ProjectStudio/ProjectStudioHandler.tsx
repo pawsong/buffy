@@ -476,6 +476,12 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     });
   }
 
+  handleModelApply = (file: SourceFile) => {
+    const { mesh } = file.state.voxel.present;
+    const loader = this.modelManager.getLoader(file.id);
+    loader.loadFromMemory(mesh);
+  }
+
   render() {
     if (!this.state.stateLayerIsRunning) {
       return <div>Loading now...</div>;
@@ -498,6 +504,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
           studioState={this.state.studioState}
           onChange={(studioState, callback) => this.handleStudioStateChange(studioState, callback)}
           onOpenFileRequest={fileType => this.handleOpenFileRequest(fileType)}
+          onModelApply={this.handleModelApply}
           stateLayer={this.stateLayer}
           modelManager={this.modelManager}
           style={styles.studio}

@@ -84,6 +84,7 @@ interface StudioProps extends React.Props<Studio> {
   studioState: StudioState;
   onChange: (nextState: StudioState, callback?: any) => any;
   onOpenFileRequest: (fileType: FileType) => any;
+  onModelApply: (file: SourceFile) => any;
 
   editorFocus: boolean;
 
@@ -238,6 +239,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
         <Editor
           editorSizeRevision={this.state.editorSizeVersion}
           onFileChange={(id, state) => this.handleFileChange(id, state)}
+          onModelApply={this.props.onModelApply}
           file={file}
           files={this.props.studioState.files}
           modelManager={this.props.modelManager}
