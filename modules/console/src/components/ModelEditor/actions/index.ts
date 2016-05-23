@@ -7,48 +7,6 @@ import {
   ToolType,
 } from '../types';
 
-export const VOXEL_INIT: 'voxel-editor/VOXEL_INIT' = 'voxel-editor/VOXEL_INIT';
-export interface VoxelInitAction extends Action<typeof VOXEL_INIT> {
-
-}
-
-export const VOXEL_UNDO: 'voxel-editor/VOXEL_UNDO' = 'voxel-editor/VOXEL_UNDO';
-export interface VoxelUndoAction extends Action<typeof VOXEL_UNDO> {
-
-}
-
-export const VOXEL_UNDO_SEEK: 'voxel-editor/VOXEL_UNDO_SEEK' = 'voxel-editor/VOXEL_UNDO_SEEK';
-export interface VoxelUndoSeekAction extends Action<typeof VOXEL_UNDO_SEEK> {
-  historyIndex: number;
-}
-export function voxelUndoSeek(historyIndex: number): VoxelUndoSeekAction {
-  return {
-    type: VOXEL_UNDO_SEEK,
-    historyIndex,
-  };
-}
-
-export const VOXEL_REDO: 'voxel-editor/VOXEL_REDO' = 'voxel-editor/VOXEL_REDO';
-export interface VoxelRedoAction extends Action<typeof VOXEL_REDO> {
-
-}
-
-export const VOXEL_REDO_SEEK: 'voxel-editor/VOXEL_REDO_SEEK' = 'voxel-editor/VOXEL_REDO_SEEK';
-export interface VoxelRedoSeekAction extends Action<typeof VOXEL_REDO_SEEK> {
-  historyIndex: number;
-}
-export function voxelRedoSeek(historyIndex: number): VoxelRedoSeekAction {
-  return {
-    type: VOXEL_REDO_SEEK,
-    historyIndex,
-  };
-}
-
-export const LOAD_WORKSPACE: 'voxel-editor/LOAD_WORKSPACE' = 'voxel-editor/LOAD_WORKSPACE';
-export interface LoadWorkspaceAction extends Action<typeof LOAD_WORKSPACE> {
-  voxels: any; // TODO: define type
-}
-
 export const VOXEL_ADD: 'voxel-editor/VOXEL_ADD' = 'voxel-editor/VOXEL_ADD';
 export interface VoxelAddAction extends Action<typeof VOXEL_ADD> {
   position: Position;

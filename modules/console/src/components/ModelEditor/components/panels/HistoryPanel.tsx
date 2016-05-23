@@ -10,6 +10,12 @@ const objectAssign = require('object-assign');
 import AppBar from 'material-ui/lib/app-bar';
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
+import {
+  undoSeek,
+  redoSeek,
+  INIT,
+} from '@pasta/helper/lib/undoable';
+
 import { connectSource } from '../../../Panel';
 
 import {
@@ -23,9 +29,6 @@ import {
 } from '../../types';
 
 import {
-  voxelUndoSeek,
-  voxelRedoSeek,
-  VOXEL_INIT,
   VOXEL_ADD_BATCH,
   VOXEL_REMOVE_BATCH,
   VOXEL_ROTATE,
@@ -60,7 +63,7 @@ const messages = defineMessages({
 });
 
 const ActionMessages = {
-  [VOXEL_INIT]: messages.labelVoxelInit,
+  [INIT]: messages.labelVoxelInit,
   [VOXEL_ADD_BATCH]: messages.labelVoxelAdd,
   [VOXEL_REMOVE_BATCH]: messages.labelVoxelRemove,
   [VOXEL_ROTATE]: messages.labelVoxelRotate,
@@ -97,11 +100,11 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
   };
 
   handleUndoClick(historyIndex: number) {
-    this.props.dispatchAction(voxelUndoSeek(historyIndex));
+    this.props.dispatchAction(undoSeek(historyIndex));
   }
 
   handleRedoClick(historyIndex: number) {
-    this.props.dispatchAction(voxelRedoSeek(historyIndex));
+    this.props.dispatchAction(redoSeek(historyIndex));
   }
 
   render() {

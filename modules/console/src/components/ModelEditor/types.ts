@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Ndarray } from 'ndarray';
+import { UndoableState } from '@pasta/helper/lib/undoable';
 
 /**
  * Flux
@@ -46,21 +47,12 @@ export type Volumn = [
   number /* minZ */, number /* maxZ */
 ]
 
-export interface VoxelSnapshot {
-  historyIndex: number;
-  action: string;
-  data: {
-    matrix: Ndarray;
-    mesh: any;
-  }
+interface VoxelData {
+  matrix: Ndarray;
+  mesh: any;
 }
 
-export interface VoxelState {
-  historyIndex: number;
-  past: VoxelSnapshot[];
-  present: VoxelSnapshot;
-  future: VoxelSnapshot[];
-}
+export type VoxelState = UndoableState<VoxelData>;
 
 export interface CommonState {
   selectedTool: ToolType;

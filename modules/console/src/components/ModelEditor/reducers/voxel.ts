@@ -1,43 +1,25 @@
-import * as Immutable from 'immutable';
 import * as ndarray from 'ndarray';
+
+import undoable from '@pasta/helper/lib/undoable';
 
 import {
   Position,
   Action,
   Voxel,
-  VoxelState,
-  VoxelSnapshot,
   Volumn,
 } from '../types';
 
 import {
-  VOXEL_INIT, VoxelInitAction,
-  VOXEL_UNDO, VoxelUndoAction,
-  VOXEL_UNDO_SEEK, VoxelUndoSeekAction,
-  VOXEL_REDO, VoxelRedoAction,
-  VOXEL_REDO_SEEK, VoxelRedoSeekAction,
-  LOAD_WORKSPACE, LoadWorkspaceAction,
   VOXEL_ADD, VoxelAddAction,
   VOXEL_ADD_BATCH, VoxelAddBatchAction,
   VOXEL_REMOVE, VoxelRemoveAction,
   VOXEL_REMOVE_BATCH, VoxelRemoveBatchAction,
   VOXEL_ROTATE, VoxelRotateAction,
-  SET_WORKSPACE, SetWorkspaceAction,
 } from '../actions';
-
-import {
-  GRID_SIZE,
-} from '../constants/Pixels';
 
 import {
   DESIGN_IMG_SIZE,
 } from '../../../canvas/Constants';
-
-const objectAssign = require('object-assign');
-const findIndex = require('lodash/findIndex');
-import vector3ToString from '@pasta/helper/lib/vector3ToString';
-
-const MAX_HISTORY_LEN = 20;
 
 import mesher from '../../../canvas/meshers/greedy';
 
@@ -45,137 +27,9 @@ const matrix = ndarray(new Int32Array(16 * 16 * 16), [16, 16, 16]);
 matrix.set(0,1,1, 1 << 24 | 0xff << 8);
 matrix.set(1,1,1, 1 << 24 | 0xff << 8);
 
-const initialState: VoxelState = {
-  historyIndex: 1,
-  past: [],
-  present: {
-    historyIndex: 1,
-    action: VOXEL_INIT,
-    data: {
-      matrix,
-      mesh: mesher(matrix.data, matrix.shape),
-    },
-  },
-  future: [],
-};
-
-function mesh(reducer) {
-  return function (state, action) {
-    const nextMatrix = reducer(state.matrix, action);
-    if (state.matrix === nextMatrix) return state;
-
-    return Object.assign({}, state, {
-      matrix: nextMatrix,
-      mesh: mesher(nextMatrix.data, nextMatrix.shape),
-    });
-  }
-}
-
-const voxelUndoable = reducer => (state = initialState, action: Action<any>): VoxelState => {
-  switch (action.type) {
-    case VOXEL_UNDO: {
-      const past = state.past.slice(0, state.past.length - 1);
-      const present = state.past[state.past.length - 1];
-      const future = [ state.present, ...state.future ];
-      return {
-        historyIndex: state.historyIndex,
-        past,
-        present,
-        future,
-      }
-    }
-    case VOXEL_UNDO_SEEK: {
-      const { historyIndex } = <VoxelUndoSeekAction>action;
-      const index = findIndex(state.past, { historyIndex });
-
-      const past = state.past.slice(0, index);
-      const present = state.past[index];
-      const future = [
-        ...state.past.slice(index + 1),
-        state.present,
-        ...state.future,
-      ];
-      return {
-        historyIndex,
-        past,
-        present,
-        future,
-      }
-    }
-    case VOXEL_REDO: {
-      const past = [ ...state.past, state.present ];
-      const present = state.future[0];
-      const future = state.future.slice(1);
-      return {
-        historyIndex: state.historyIndex,
-        past,
-        present,
-        future,
-      }
-    }
-    case VOXEL_REDO_SEEK: {
-      const { historyIndex } = <VoxelRedoSeekAction>action;
-      const index = findIndex(state.future, { historyIndex });
-
-      const past = [
-        ...state.past,
-        state.present,
-        ...state.future.slice(0, index),
-      ];
-      const present = state.future[index];
-      const future = state.future.slice(index + 1);
-      return {
-        historyIndex,
-        past,
-        present,
-        future,
-      }
-    }
-    // // Load workspace should clear history
-    // case UPDATE_WORKSPACE: {
-    //   const { query } = <UpdateWorkspaceAction>action;
-    //   if (!query.voxels) return state;
-
-    //   return {
-    //     historyIndex: state.historyIndex + 1,
-    //     past: [],
-    //     present: {
-    //       historyIndex: state.historyIndex + 1,
-    //       action: action.type,
-    //       data: Immutable.Map<string, Voxel>(query.voxels),
-    //     },
-    //     future: [],
-    //   };
-    // }
-    default: {
-      // Delegate handling the action to the passed reducer
-      const data = reducer(state.present.data, action)
-      if (state.present.data === data) {
-        return state;
-      }
-
-      const historyIndex = state.historyIndex + 1;
-
-      const past = (
-        state.past.length < MAX_HISTORY_LEN - 1
-          ? state.past
-          : state.past.slice(state.past.length - MAX_HISTORY_LEN + 2)
-      ).concat(state.present);
-
-      const present: VoxelSnapshot = {
-        historyIndex,
-        action: action.type,
-        data,
-      };
-
-      return {
-        historyIndex,
-        past,
-        present,
-        future: [],
-      }
-    }
-  }
+const initialState = {
+  matrix,
+  mesh: mesher(matrix.data, matrix.shape),
 };
 
 export function rgbToHex({ r, g, b }) {
@@ -251,4 +105,16 @@ function matrixReducer(state: ndarray.Ndarray, action: Action<any>): ndarray.Nda
   }
 }
 
-export default voxelUndoable(mesh(matrixReducer));
+function mesh(reducer) {
+  return function (state = initialState, action) {
+    const nextMatrix = reducer(state.matrix, action);
+    if (state.matrix === nextMatrix) return state;
+
+    return Object.assign({}, state, {
+      matrix: nextMatrix,
+      mesh: mesher(nextMatrix.data, nextMatrix.shape),
+    });
+  }
+}
+
+export default undoable(mesh(matrixReducer));
