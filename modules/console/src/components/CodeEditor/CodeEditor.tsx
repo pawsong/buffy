@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { findDOMNode } from 'react-dom';
 import * as invariant from 'invariant';
 const objectAssign = require('object-assign');
 const pure = require('recompose/pure').default;
@@ -22,94 +23,46 @@ const styles = {
   },
 };
 
-export interface CodeEditorState {
-  fileId?: string;
-  blocklyXml?: string;
-}
+import { CodeEditorState } from './types';
 
 interface CodeEditorProps extends React.Props<CodeEditor> {
   editorState: CodeEditorState;
-  onChange: (fileId: string, state: CodeEditorState) => any;
+  onChange: (state: CodeEditorState) => any;
   sizeRevision: number;
   readyToRender: boolean;
 }
 
-export interface CreateStateOptions extends CodeEditorState {
+export interface CreateStateOptions {
   blocklyXml?: string;
 }
 
 @pure
 class CodeEditor extends React.Component<CodeEditorProps, void> {
   static creatState: (fileId: string, options?: CreateStateOptions) => CodeEditorState;
+  rootElement: HTMLElement;
 
-  workspace: any;
-
-  constructor(props, context) {
-    super(props, context);
-    this.workspace = null;
+  constructor(props) {
+    super(props);
   }
 
-  setEditorState(nextState: CodeEditorState) {
-    this.props.onChange(this.props.editorState.fileId, nextState);
-  }
-
-  injectWorkspace() {
-    invariant(!this.workspace, 'Cannot inject multiple workspace instances');
-
-    this.workspace = Blockly.inject(this.refs['editor'], {
-      toolbox,
-      grid: {
-        spacing: 20,
-        length: 3,
-        colour: '#ccc',
-      },
-      trashcan: true,
-    });
-
-    Blockly.JavaScript.init(this.workspace);
-    const savedXml = this.props.editorState.blocklyXml;
-    const dom = Blockly.Xml.textToDom(savedXml || initBlock);
-    Blockly.Xml.domToWorkspace(dom, this.workspace);
-
-    // Blockly emits events for installation in the next frame.
-    setTimeout(() => {
-      this.workspace.addChangeListener((e) => {
-        if (e.type === 'ui') return;
-
-        const dom = Blockly.Xml.workspaceToDom(this.workspace);
-        const xml = Blockly.Xml.domToText(dom);
-        this.setEditorState({ blocklyXml: xml });
-      });
-    }, 0);
+  incrementRevision() {
+    this.props.onChange(Object.assign({}, this.props.editorState, {
+      revision: this.props.editorState.revision + 1,
+    }));
   }
 
   componentDidMount() {
-    if(this.props.readyToRender) {
-      this.injectWorkspace();
-    }
+    this.rootElement = findDOMNode<HTMLElement>(this.refs['editor']);
+    this.rootElement.appendChild(this.props.editorState.container);
+    Blockly.svgResize(this.props.editorState.workspace);
   }
 
   componentWillReceiveProps(nextProps: CodeEditorProps) {
-    if (this.workspace) {
-      if (this.props.sizeRevision !== nextProps.sizeRevision) {
-        Blockly.svgResize(this.workspace);
-      }
-
-      if (this.props.editorState.fileId !== nextProps.editorState.fileId) {
-        const dom = Blockly.Xml.textToDom(nextProps.editorState.blocklyXml);
-        this.workspace.clear();
-        Blockly.Xml.domToWorkspace(dom, this.workspace);
-      }
-      return;
-    }
-
-    if (nextProps.readyToRender) this.injectWorkspace();
-  }
-
-  componentWillUnmount() {
-    if (this.workspace) {
-      this.workspace.dispose();
-      this.workspace = null;
+    if (this.props.editorState.container !== nextProps.editorState.container) {
+      this.rootElement.removeChild(this.props.editorState.container);
+      this.rootElement.appendChild(nextProps.editorState.container);
+      Blockly.svgResize(nextProps.editorState.workspace);
+      nextProps.editorState.workspace.markFocused();
     }
   }
 
@@ -123,9 +76,29 @@ class CodeEditor extends React.Component<CodeEditorProps, void> {
 }
 
 CodeEditor.creatState = (fileId: string, options: CreateStateOptions = {}): CodeEditorState => {
+  const container = document.createElement('div');
+  container.style.position = 'absolute';
+  container.style.height = '100%';
+  container.style.width = '100%';
+
+  document.body.appendChild(container);
+
+  const workspace = Blockly.inject(container, {
+    toolbox,
+    grid: {
+      spacing: 20,
+      length: 3,
+      colour: '#ccc',
+    },
+    trashcan: true,
+  });
+
+  document.body.removeChild(container);
+
   return {
-    fileId,
-    blocklyXml: options.blocklyXml || initBlock,
+    container,
+    workspace,
+    revision: 0,
   };
 }
 
