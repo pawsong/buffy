@@ -41,9 +41,9 @@ const MAX_HISTORY_LEN = 20;
 
 import mesher from '../../../canvas/meshers/greedy';
 
-const data = ndarray(new Int32Array(16 * 16 * 16), [16, 16, 16]);
-data.set(0,1,1, 1 << 24 | 0xff << 8);
-data.set(1,1,1, 1 << 24 | 0xff << 8);
+const matrix = ndarray(new Int32Array(16 * 16 * 16), [16, 16, 16]);
+matrix.set(0,1,1, 1 << 24 | 0xff << 8);
+matrix.set(1,1,1, 1 << 24 | 0xff << 8);
 
 const initialState: VoxelState = {
   historyIndex: 1,
@@ -51,11 +51,25 @@ const initialState: VoxelState = {
   present: {
     historyIndex: 1,
     action: VOXEL_INIT,
-    data: data,
-    mesh: mesher(data.data, data.shape),
+    data: {
+      matrix,
+      mesh: mesher(matrix.data, matrix.shape),
+    },
   },
   future: [],
 };
+
+function mesh(reducer) {
+  return function (state, action) {
+    const nextMatrix = reducer(state.matrix, action);
+    if (state.matrix === nextMatrix) return state;
+
+    return Object.assign({}, state, {
+      matrix: nextMatrix,
+      mesh: mesher(nextMatrix.data, nextMatrix.shape),
+    });
+  }
+}
 
 const voxelUndoable = reducer => (state = initialState, action: Action<any>): VoxelState => {
   switch (action.type) {
@@ -140,8 +154,6 @@ const voxelUndoable = reducer => (state = initialState, action: Action<any>): Vo
         return state;
       }
 
-      const { vertices, faces } = mesher(data.data, data.shape);
-
       const historyIndex = state.historyIndex + 1;
 
       const past = (
@@ -154,7 +166,6 @@ const voxelUndoable = reducer => (state = initialState, action: Action<any>): Vo
         historyIndex,
         action: action.type,
         data,
-        mesh: { vertices, faces },
       };
 
       return {
@@ -183,7 +194,7 @@ const rotates: { [index: string]: RotateFn } = {
   z: (shape, pos) => ([ shape[1] - pos[1], pos[0],            pos[2]            ]),
 };
 
-export default voxelUndoable((state: ndarray.Ndarray, action: Action<any>): ndarray.Ndarray => {
+function matrixReducer(state: ndarray.Ndarray, action: Action<any>): ndarray.Ndarray {
   switch (action.type) {
     case VOXEL_ADD_BATCH: {
       const { volumn, color } = <VoxelAddBatchAction>action;
@@ -238,4 +249,6 @@ export default voxelUndoable((state: ndarray.Ndarray, action: Action<any>): ndar
       return state;
     }
   }
-});
+}
+
+export default voxelUndoable(mesh(matrixReducer));

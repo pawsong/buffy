@@ -27,7 +27,7 @@ class Stores {
   }
 
   voxelStateChange(state: VoxelState) {
-    const mesh = state.present.mesh;
+    const { mesh } = state.present.data;
 
     const geometry = this.meshStore.getState();
     const nextGeometry = createGeometryFromMesh(mesh);

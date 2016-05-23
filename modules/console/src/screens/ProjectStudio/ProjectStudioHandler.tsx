@@ -270,7 +270,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       .forEach(file => {
         const loader = this.modelManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
-        loader.loadFromMemory(file.state.voxel.present.mesh);
+        loader.loadFromMemory(file.state.voxel.present.data.mesh);
       });
 
     this.startStateLayer();
@@ -477,7 +477,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   handleModelApply = (file: SourceFile) => {
-    const { mesh } = file.state.voxel.present;
+    const { mesh } = file.state.voxel.present.data;
     const loader = this.modelManager.getLoader(file.id);
     loader.loadFromMemory(mesh);
   }

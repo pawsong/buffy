@@ -49,8 +49,10 @@ export type Volumn = [
 export interface VoxelSnapshot {
   historyIndex: number;
   action: string;
-  data: Ndarray;
-  mesh: any;
+  data: {
+    matrix: Ndarray;
+    mesh: any;
+  }
 }
 
 export interface VoxelState {
