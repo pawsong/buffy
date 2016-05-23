@@ -31,7 +31,7 @@ import {
 
 import Stores from './stores';
 
-var radius = 1600, theta = 270, phi = 60;
+var radius = PIXEL_SCALE * 25, theta = 270, phi = 45;
 
 interface PlaneMesh extends THREE.Mesh {
   isPlane: boolean;

@@ -9,6 +9,12 @@ import {
   PLANE_Y_OFFSET,
 } from '../../constants/Pixels';
 
+import {
+  PIXEL_SCALE,
+  DESIGN_IMG_SIZE,
+  DESIGN_SCALE,
+} from '../../../../canvas/Constants';
+
 import Stores from '../stores';
 
 import { ModelEditorState } from '../../types';
@@ -63,6 +69,12 @@ class PreviewView {
     light.position.normalize();
     scene.add(light);
 
+    const target = new THREE.Vector3(
+      DESIGN_IMG_SIZE * DESIGN_SCALE / 2 / 3,
+      DESIGN_IMG_SIZE * DESIGN_SCALE / 4 / 3,
+      DESIGN_IMG_SIZE * DESIGN_SCALE / 2 / 3
+    );
+
     let surfacemesh;
     stores.meshStore.listen((geometry) => {
       if (surfacemesh) {
@@ -97,15 +109,13 @@ class PreviewView {
       render();
     });
 
-    previewCamera.lookAt(scene.position);
-
     stores.cameraPositionStore.listen(position => {
-      previewCamera.position.set(position[0], position[1], position[2]).multiplyScalar(0.2);
+      previewCamera.position.set(position[0], position[1], position[2]).multiplyScalar(DESIGN_SCALE / PIXEL_SCALE / 3);
       render();
     });
 
     function render() {
-      previewCamera.lookAt(scene.position);
+      previewCamera.lookAt(target);
       renderer.render(scene, previewCamera);
     }
 
