@@ -105,9 +105,9 @@ abstract class ZoneCanvas extends Canvas {
 
       const { group } = object;
 
-      group.position.x = obj.position.x * PIXEL_SCALE - PIXEL_SCALE_HALF;
-      group.position.y = obj.position.y * PIXEL_SCALE - PIXEL_SCALE_HALF;
-      group.position.z = obj.position.z * PIXEL_SCALE - PIXEL_SCALE_HALF;
+      group.position.x = obj.position.x * PIXEL_SCALE + PIXEL_SCALE_HALF;
+      group.position.y = obj.position.y * PIXEL_SCALE + PIXEL_SCALE_HALF;
+      group.position.z = obj.position.z * PIXEL_SCALE + PIXEL_SCALE_HALF;
 
       group.lookAt(new THREE.Vector3(
         group.position.x + obj.direction.x,

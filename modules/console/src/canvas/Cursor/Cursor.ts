@@ -23,6 +23,7 @@ interface CursorOptions {
   material?: THREE.Material;
   offset?: Position;
   scale?: number;
+  renderOnUpdate?: boolean;
 
   getInteractables?: () => THREE.Object3D[];
   getOffset?: (normal: THREE.Vector3) => THREE.Vector3;
@@ -54,6 +55,8 @@ class Cursor {
   private visible: boolean;
   private externalMesh: boolean;
 
+  private render: () => any;
+
   constructor(canvas: Canvas, options: CursorOptions) {
     this.position = new THREE.Vector3();
     this.raycaster = new THREE.Raycaster();
@@ -75,6 +78,7 @@ class Cursor {
       onMouseDown,
       onMouseUp,
       hitTest,
+      renderOnUpdate,
     } = options;
 
     this.visible = visible !== false;
@@ -114,6 +118,8 @@ class Cursor {
     this.onMouseDown = onMouseDown || null;
     this.onMouseUp = onMouseUp || null;
     this.onTouchTap = onTouchTap || null;
+
+    this.render = renderOnUpdate !== false ? () => this.canvas.render() : () => {};
   }
 
   start(event?: MouseEvent) {
@@ -195,7 +201,7 @@ class Cursor {
     event.preventDefault();
     this.handleMouseMove(event);
 
-    this.canvas.render();
+    this.render();
   }
 
   private _onMouseDown = (event: MouseEvent) => {
@@ -205,7 +211,7 @@ class Cursor {
     // TODO: Touch device support.
     this.onMouseDown({ event, intersect });
 
-    this.canvas.render();
+    this.render();
   }
 
   private _onMouseUp = (event: MouseEvent) => {
@@ -217,7 +223,7 @@ class Cursor {
 
     if (this.onMouseUp) this.onMouseUp({ event, intersect });
 
-    this.canvas.render();
+    this.render();
   }
 
   getPosition() {

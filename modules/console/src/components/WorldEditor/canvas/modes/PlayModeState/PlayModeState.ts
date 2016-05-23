@@ -65,6 +65,7 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
   private component: PlayModeComponent;
 
   private initParams: InitParams;
+  private frameId: number;
 
   constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB) {
     super(getState);
@@ -82,6 +83,11 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
   // Lazy getter
   createTool(toolType: PlayToolType): PlayModeTool<any> {
     return createTool(toolType, this.getState, this.initParams);
+  }
+
+  animate = () => {
+    this.frameId = requestAnimationFrame(this.animate);
+    this.canvas.render();
   }
 
   handleEnter() {
@@ -106,6 +112,8 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
     this.canvas.connectToStateStore(this.stateLayer.store);
 
     this.component.start(this.getState());
+
+    this.animate();
   }
 
   handleStateChange(state: WorldEditorState) {
@@ -114,6 +122,8 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
   }
 
   handleLeave() {
+    cancelAnimationFrame(this.frameId);
+
     this.component.stop();
 
     super.handleLeave();

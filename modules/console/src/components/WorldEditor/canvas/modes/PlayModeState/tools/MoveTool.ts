@@ -58,6 +58,7 @@ class WaitState extends ToolState {
       getInteractables: () => [this.canvas.chunk.mesh],
       hitTest: intersect => yUnit.dot(intersect.face.normal) !== 0,
       onTouchTap: () => this.handleMouseDown(),
+      renderOnUpdate: false,
     });
   }
 
