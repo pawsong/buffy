@@ -1,3 +1,4 @@
+import StateLayer from '@pasta/core/lib/StateLayer';
 import Fsm, { State } from '../../../../libs/Fsm';
 import {
   WorldEditorState,
@@ -13,13 +14,24 @@ import {
 } from './Events';
 import WorldEditorCanvas from '../WorldEditorCanvas';
 
-abstract class ModeState<T, U> extends State {
-  tool: Tool<T, U, any, any>;
-  getState: GetState;
+import LocalServer from '../../../../LocalServer';
+import {
+  SourceFileDB,
+} from '../../../Studio/types';
 
+
+abstract class ModeState<T, U> extends State {
+  canvas: WorldEditorCanvas;
+
+  protected tool: Tool<T, U, any, any>;
+  protected getState: GetState;
+  protected getFiles: () => SourceFileDB;
+
+  private stateLayer: StateLayer;
+  private frameId: number;
   private cachedTools: { [index: string]: Tool<T, U, any, any> };
 
-  constructor(getState: GetState) {
+  constructor(canvas: WorldEditorCanvas, getState: GetState, stateLayer: StateLayer, getFiles: () => SourceFileDB) {
     super({
       [State.EVENT_ENTER]: () => this.handleEnter(),
       [State.EVENT_LEAVE]: () => this.handleLeave(),
@@ -27,7 +39,10 @@ abstract class ModeState<T, U> extends State {
       [CHANGE_STATE]: (state: WorldEditorState) => this.handleStateChange(state),
     });
 
+    this.canvas = canvas;
+    this.stateLayer = stateLayer;
     this.getState = getState;
+    this.getFiles = getFiles;
     this.cachedTools = {};
   }
 
@@ -51,6 +66,35 @@ abstract class ModeState<T, U> extends State {
     } else {
       this.tool.updateProps(state);
     }
+  }
+
+  animate = () => {
+    this.frameId = requestAnimationFrame(this.animate);
+    this.canvas.render();
+  }
+
+  startLocalServerMode() {
+    // Init data
+    const recipeFiles = this.getFiles();
+    const { zones, robots, playerId } = this.getState().editMode;
+
+    const server = <LocalServer>this.stateLayer.store;
+    server.initialize(recipeFiles, zones, robots);
+    server.start();
+
+    // Init view
+    this.canvas.connectToStateStore(this.stateLayer.store);
+    this.animate();
+  }
+
+  stopLocalServerMode() {
+    // Clean up view
+    cancelAnimationFrame(this.frameId);
+    this.canvas.disconnectFromStateStore();
+
+    // Clean up data
+    const server = <LocalServer>this.stateLayer.store;
+    server.stop();
   }
 
   handleLeave() {

@@ -120,19 +120,14 @@ class EditModeComponent extends SimpleComponent<UpdateParams, Props> {
 }
 
 class EditModeState extends ModeState<EditToolType, InitParams> {
-  getFiles: () => SourceFileDB;
   initParams: InitParams;
-  canvas: WorldEditorCanvas;
   component: EditModeComponent;
 
-  private stateLayer: StateLayer;
-
   constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB, stateLayer: StateLayer) {
-    super(getState);
+    super(initParams.view, getState, stateLayer, getFiles);
     this.getFiles = getFiles;
     this.initParams = initParams;
     this.canvas = initParams.view;
-    this.stateLayer = stateLayer;
     this.component = new EditModeComponent(this);
   }
 
@@ -193,9 +188,8 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
   handleLeave() {
     this.stopScript();
-
-    super.handleLeave();
     this.component.stop();
+    super.handleLeave();
   }
 
   syncCanvasToFileState() {
@@ -211,27 +205,13 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
   startScript() {
     this.component.stop();
-
-    // Init data
-    const files = this.getFiles();
-    const { zones, robots, playerId } = this.getState().editMode;
-
-    const server = <LocalServer>this.stateLayer.store;
-    server.initialize(files, zones, robots);
-    server.start();
-
-    // Init view
-    this.canvas.connectToStateStore(this.stateLayer.store);
+    this.startLocalServerMode();
   }
 
   stopScript() {
-    // Clean up view
-    this.canvas.disconnectFromStateStore();
-    this.canvas.objectManager.removeAll();
+    this.stopLocalServerMode();
 
-    // Clean up data
-    const server = <LocalServer>this.stateLayer.store;
-    server.stop();
+    this.canvas.objectManager.removeAll();
 
     // Restore canvas state from files
     this.component.start({

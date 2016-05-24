@@ -59,21 +59,14 @@ class PlayModeComponent extends SimpleComponent<WorldEditorState, PlayModeCompon
 }
 
 class PlayModeState extends ModeState<PlayToolType, InitParams> {
-  private stateLayer: StateLayer;
-  private canvas: WorldEditorCanvas;
-  private getFiles: () => SourceFileDB;
   private component: PlayModeComponent;
 
   private initParams: InitParams;
-  private frameId: number;
 
   constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB) {
-    super(getState);
+    super(initParams.view, getState, initParams.stateLayer, getFiles);
     this.initParams = initParams;
-    this.canvas = initParams.view;
-    this.stateLayer = initParams.stateLayer;
-    this.getFiles = getFiles;
-    this.component = new PlayModeComponent(this.canvas);
+    this.component = new PlayModeComponent(initParams.view);
   }
 
   getToolType(editorState: WorldEditorState): PlayToolType {
@@ -85,26 +78,11 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
     return createTool(toolType, this.getState, this.initParams);
   }
 
-  animate = () => {
-    this.frameId = requestAnimationFrame(this.animate);
-    this.canvas.render();
-  }
-
   handleEnter() {
     super.handleEnter();
 
-    // Init data
-    const recipeFiles = this.getFiles();
-    const { zones, robots, playerId } = this.getState().editMode;
-
-    const server = <LocalServer>this.stateLayer.store;
-    server.initialize(recipeFiles, zones, robots);
-    server.start();
-
-    // Init view
-    this.canvas.connectToStateStore(this.stateLayer.store);
+    this.startLocalServerMode();
     this.component.start(this.getState());
-    this.animate();
   }
 
   handleStateChange(state: WorldEditorState) {
@@ -113,15 +91,8 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
   }
 
   handleLeave() {
-    // Clean up view
-    cancelAnimationFrame(this.frameId);
     this.component.stop();
-    this.canvas.disconnectFromStateStore();
-
-    // Clean up data
-    const server = <LocalServer>this.stateLayer.store;
-    server.stop();
-
+    this.stopLocalServerMode();
     super.handleLeave();
   }
 }
