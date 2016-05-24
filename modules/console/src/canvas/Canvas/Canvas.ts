@@ -75,7 +75,7 @@ abstract class Canvas {
 
     const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
+    renderer.setSize(this.container.clientWidth, this.container.clientHeight);
     renderer.shadowMap.enabled = true;
 
     // Eliminate ghost bottom margin

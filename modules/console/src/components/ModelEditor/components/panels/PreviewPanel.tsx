@@ -17,7 +17,10 @@ import {
   Panels,
 } from '../../panel';
 
-import { ModelEditorState } from '../../types';
+import {
+  ModelEditorState,
+  CameraStore,
+} from '../../types';
 
 import Stores from '../../canvas/stores';
 
@@ -25,7 +28,7 @@ import {
   DispatchAction,
 } from '../../types';
 
-import PreviewView from '../../canvas/views/preview';
+import PreviewCanvas from '../../canvas/PreviewCanvas';
 
 import { voxelRotate } from '../../actions';
 
@@ -66,6 +69,7 @@ interface PreviewPanelProps extends React.Props<PreviewPanel> {
   focus: boolean;
   sizeVersion: number;
   stores: Stores;
+  cameraStore: CameraStore;
   dispatchAction: DispatchAction;
   intl?: InjectedIntlProps;
 }
@@ -77,27 +81,35 @@ interface PreviewPanelProps extends React.Props<PreviewPanel> {
 })
 @injectIntl
 class PreviewPanel extends React.Component<PreviewPanelProps, {}> {
-  view: PreviewView;
+  canvas: PreviewCanvas;
 
   handleClickRotate(axis) {
     this.props.dispatchAction(voxelRotate(axis));
   };
 
   componentDidMount() {
-    this.view = new PreviewView({
+    this.canvas = new PreviewCanvas({
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
       stores: this.props.stores,
+      cameraStore: this.props.cameraStore,
     });
+    this.canvas.init();
   }
 
   componentWillReceiveProps(nextProps: PreviewPanelProps) {
     if (this.props.sizeVersion !== nextProps.sizeVersion) {
-      this.view.resize();
+      this.canvas.resize();
+    }
+  }
+
+  componentDidUpdate(prevProps: PreviewPanelProps) {
+    if (this.props.cameraStore !== prevProps.cameraStore) {
+      this.canvas.onCameraStoreChange(this.props.cameraStore);
     }
   }
 
   componentWillUnmount() {
-    this.view.destroy();
+    this.canvas.destroy();
   }
 
   render() {

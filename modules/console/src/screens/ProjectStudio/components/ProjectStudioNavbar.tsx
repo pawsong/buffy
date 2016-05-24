@@ -87,6 +87,7 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
     const fileId = generateObjectId();
 
     let data;
+    let extraData;
     switch(type) {
       case FileType.CODE: {
         data = CodeEditor.creatState(fileId);
@@ -94,6 +95,7 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
       }
       case FileType.MODEL: {
         data = ModelEditor.createState(fileId);
+        extraData = ModelEditor.createExtraData();
         break;
       }
       default: {
@@ -106,6 +108,7 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
       type: type,
       modified: false,
       data,
+      extraData,
     }]);
   }
 

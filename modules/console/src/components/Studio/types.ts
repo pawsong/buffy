@@ -21,6 +21,7 @@ export interface SourceFile {
   readonly: boolean;
   savedState: any;
   state: any;
+  extraData?: any;
 }
 
 export interface SourceFileDB {

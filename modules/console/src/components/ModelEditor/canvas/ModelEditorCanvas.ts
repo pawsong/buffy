@@ -27,11 +27,10 @@ import {
   DispatchAction,
   ModelEditorState,
   GetEditorState,
+  CameraStore,
 } from '../types';
 
 import Stores from './stores';
-
-var radius = PIXEL_SCALE * 25, theta = 270, phi = 45;
 
 interface PlaneMesh extends THREE.Mesh {
   isPlane: boolean;
@@ -40,6 +39,7 @@ interface PlaneMesh extends THREE.Mesh {
 interface CanvasOptions {
   container: HTMLElement;
   stores: Stores;
+  cameraStore: CameraStore;
   dispatchAction: DispatchAction;
   getEditorState: GetEditorState;
 }
@@ -66,17 +66,22 @@ class ModelEditorCanvas extends Canvas {
   modelMesh: THREE.Mesh;
   private modelMaterial: THREE.ShaderMaterial;
 
+  private cameraStore: CameraStore;
+
   constructor({
     container,
     stores,
     dispatchAction,
     getEditorState,
+    cameraStore,
   }: CanvasOptions) {
     super(container);
 
     this.stores = stores;
     this.dispatchAction = dispatchAction;
     this.getState = getEditorState;
+
+    this.cameraStore = cameraStore;
 
     this.cachedTools = {};
   }
@@ -135,10 +140,6 @@ class ModelEditorCanvas extends Canvas {
 
     this.stores.meshStore.listen(this.handleMeshChange);
 
-    this.camera.translateX(DESIGN_IMG_SIZE * PIXEL_SCALE / 2);
-    this.camera.translateY(DESIGN_IMG_SIZE * PIXEL_SCALE / 4);
-    this.camera.translateZ(DESIGN_IMG_SIZE * PIXEL_SCALE / 2);
-
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     this.controls.maxDistance = 4000;
     this.controls.enableKeys = false;
@@ -163,14 +164,19 @@ class ModelEditorCanvas extends Canvas {
     const camera = new THREE.PerspectiveCamera(
       40, this.container.offsetWidth / this.container.offsetHeight, 1, 10000
     );
-    camera.position.x =
-      radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
-    camera.position.z =
-      radius * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
-    camera.position.y =
-      radius * Math.sin(phi * Math.PI / 360);
+    const position = this.cameraStore.getState();
+    camera.position.set(position[0], position[1], position[2]);
 
     return camera;
+  }
+
+  onChangeCameraStore(cameraStore: CameraStore) {
+    this.cameraStore = cameraStore;
+
+    const position = this.cameraStore.getState();
+    this.camera.position.set(position[0], position[1], position[2]);
+    this.controls.update();
+    this.render();
   }
 
   // Lazy getter
@@ -184,7 +190,7 @@ class ModelEditorCanvas extends Canvas {
 
   handleWindowResize() {
     this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight
-    this.camera.updateProjectionMatrix()
+    this.camera.updateProjectionMatrix();
     this.stores.cameraPositionStore.update([
       this.camera.position.x,
       this.camera.position.y,
@@ -237,7 +243,7 @@ class ModelEditorCanvas extends Canvas {
       || this.prevCameraPosition.z !== this.camera.position.z
     ) {
       this.prevCameraPosition.copy(this.camera.position);
-      this.stores.cameraPositionStore.update([
+      this.cameraStore.update([
         this.camera.position.x,
         this.camera.position.y,
         this.camera.position.z,

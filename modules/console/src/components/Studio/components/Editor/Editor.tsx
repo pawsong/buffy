@@ -62,6 +62,7 @@ class Editor extends React.Component<EditorProps, any> {
         onApply={this.handleModelFileApply}
         focus={this.props.focus}
         sizeVersion={this.props.editorSizeRevision}
+        extraData={this.props.file.extraData}
       />
     );
   }

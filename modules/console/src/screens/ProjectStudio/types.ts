@@ -5,4 +5,5 @@ export interface NewFileSpec {
   type: FileType;
   modified: boolean;
   data: any;
+  extraData: any;
 }

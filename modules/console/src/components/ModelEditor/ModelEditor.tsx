@@ -16,6 +16,8 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 
 import * as ndarray from 'ndarray';
 
+import { SimpleStore } from '../../libs';
+
 import Messages from '../../constants/Messages';
 
 import * as StorageKeys from '../../constants/StorageKeys';
@@ -31,12 +33,19 @@ import {
 } from './canvas/utils';
 
 import {
+  PIXEL_SCALE,
+  DESIGN_IMG_SIZE,
+} from '../../canvas/Constants';
+
+import {
   VoxelState,
   Action,
   ToolType,
   Color,
   ModelEditorState,
   ActionListener,
+  ExtraData,
+  Position,
 } from './types';
 
 import {
@@ -75,6 +84,7 @@ interface ModelEditorProps extends React.Props<ModelEditor> {
   onApply: () => any;
   sizeVersion: number;
   focus: boolean;
+  extraData: ExtraData;
   intl?: InjectedIntlProps;
 }
 
@@ -95,6 +105,7 @@ export interface CreateStateOptions {
 })
 class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static createState: (fileId: string, options?: CreateStateOptions) => ModelEditorState;
+  static createExtraData: () => ExtraData;
   static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
 
   stores: Stores;
@@ -131,6 +142,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.canvas = new ModelEditorCanvas({
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
       stores: this.stores,
+      cameraStore: this.props.extraData.cameraPositionStore,
       dispatchAction: this.dispatchAction,
       getEditorState: () => this.props.editorState,
     });
@@ -148,6 +160,12 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
     if (this.props.editorState !== nextProps.editorState) {
       this.canvas.updateState(nextProps.editorState);
+    }
+  }
+
+  componentDidUpdate(prevProps: ModelEditorProps) {
+    if (prevProps.extraData !== this.props.extraData) {
+      this.canvas.onChangeCameraStore(this.props.extraData.cameraPositionStore);
     }
   }
 
@@ -169,6 +187,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         <PreviewPanel
           focus={this.props.focus}
           stores={this.stores}
+          cameraStore={this.props.extraData.cameraPositionStore}
           dispatchAction={this.dispatchAction}
           sizeVersion={this.props.sizeVersion}
         />
@@ -226,6 +245,23 @@ ModelEditor.createState = function VoxelEditor(options: CreateStateOptions = {})
   const initialState = rootReducer({}, { type: '' });
   return Object.assign(initialState);
 }
+
+var radius = PIXEL_SCALE * 25, theta = 270, phi = 45;
+
+ModelEditor.createExtraData = () => {
+  const cameraPositionStore = new SimpleStore<Position>([
+    radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
+      + DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
+    radius * Math.sin(phi * Math.PI / 360)
+      + DESIGN_IMG_SIZE * PIXEL_SCALE / 4,
+    radius * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
+      + DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
+  ]);
+
+  return {
+    cameraPositionStore,
+  };
+};
 
 ModelEditor.isModified = function (lhs: ModelEditorState, rhs: ModelEditorState) {
   return lhs.voxel.present !== rhs.voxel.present;

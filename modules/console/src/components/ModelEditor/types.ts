@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Ndarray } from 'ndarray';
 import { UndoableState } from '@pasta/helper/lib/undoable';
+import { SimpleStore } from '../../libs';
 
 /**
  * Flux
@@ -50,6 +51,12 @@ export type Volumn = [
 interface VoxelData {
   matrix: Ndarray;
   mesh: any;
+}
+
+export type CameraStore = SimpleStore<Position>;
+
+export interface ExtraData {
+  cameraPositionStore: CameraStore;
 }
 
 export type VoxelState = UndoableState<VoxelData>;

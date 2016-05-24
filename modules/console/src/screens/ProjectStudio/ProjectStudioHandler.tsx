@@ -458,12 +458,13 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
         readonly: false,
         savedState: spec.data,
         state: spec.data,
+        extraData: spec.extraData
       };
 
       if (spec.type === FileType.MODEL) {
         const loader = this.modelManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
-        loader.loadFromMemory(file.state.voxel.present.mesh);
+        loader.loadFromMemory(file.state.voxel.present.data.mesh);
       }
     });
 
