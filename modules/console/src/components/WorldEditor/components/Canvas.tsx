@@ -15,6 +15,8 @@ import {
   EditorMode,
   PlayModeState,
   DispatchAction,
+  FileState,
+  WorldState,
 } from '../types';
 
 import {
@@ -26,6 +28,7 @@ interface CanvasProps extends React.Props<Canvas> {
   stateLayer: StateLayer;
   modelManager: ModelManager;
   editorState: WorldEditorState;
+  fileState: FileState;
   dispatchAction: DispatchAction;
   registerElement: (element: HTMLElement) => any;
   files: SourceFileDB;
@@ -46,14 +49,21 @@ class Canvas extends React.Component<CanvasProps, {}> {
 
   pointerlockchange: () => any;
 
+  getState(): WorldState {
+    return {
+      editor: this.props.editorState,
+      file: this.props.fileState.present.data,
+    };
+  }
+
   componentDidMount() {
     this.canvas = new WorldEditorCanvas({
       container: this.refs['canvas'] as HTMLElement,
       modelManager: this.props.modelManager,
       stateLayer: this.props.stateLayer,
-      getState: () => this.props.editorState,
       dispatchAction: this.props.dispatchAction,
       getFiles: () => this.props.files,
+      state: this.getState(),
     });
     this.canvas.init();
 
@@ -94,12 +104,14 @@ class Canvas extends React.Component<CanvasProps, {}> {
     if (nextProps.sizeVersion !== this.props.sizeVersion) {
       this.canvas.resize();
     }
-
   }
 
   componentDidUpdate(prevProps: CanvasProps) {
-    if (prevProps.editorState !== this.props.editorState) {
-      this.canvas.onChange(this.props.editorState);
+    if (
+         prevProps.editorState !== this.props.editorState
+      || prevProps.fileState !== this.props.fileState
+    ) {
+      this.canvas.onChange(this.getState());
     }
   }
 

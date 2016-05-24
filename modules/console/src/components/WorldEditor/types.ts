@@ -5,6 +5,8 @@ import {
   Direction,
 } from '@pasta/core/lib/types';
 
+import { UndoableState } from '@pasta/helper/lib/undoable';
+
 export interface Action<T> {
   type: T;
 }
@@ -23,7 +25,6 @@ export enum EditorMode {
 }
 
 export interface CommonState {
-  fileId: string;
   mode: EditorMode;
 }
 
@@ -61,11 +62,8 @@ export interface Zone {
 }
 
 export interface EditModeState {
-  playerId: string;
   tool: EditToolType;
   paletteColor: Color;
-  robots: { [index: string]: Robot };
-  zones: { [index: string]: Zone };
   activeZoneId: string;
   addRobotRecipeId: string;
   toolToRestore: EditToolType;
@@ -92,10 +90,23 @@ export interface PlayModeState {
   tool: PlayToolType;
 }
 
+export interface WorldData {
+  playerId: string;
+  robots: { [index: string]: Robot };
+  zones: { [index: string]: Zone };
+}
+
+export type FileState = UndoableState<WorldData>;
+
 export interface WorldEditorState {
   common: CommonState,
   editMode: EditModeState,
   playMode: PlayModeState,
+}
+
+export interface WorldState {
+  editor: WorldEditorState;
+  file: WorldData;
 }
 
 export interface GetState {

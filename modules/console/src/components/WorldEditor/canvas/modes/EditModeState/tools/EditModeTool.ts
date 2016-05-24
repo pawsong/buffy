@@ -5,23 +5,21 @@ import {
 import {
   WorldEditorState,
   EditToolType,
-  GetState,
   DispatchAction,
 } from '../../../../types';
 
-import WorldEditorCanvas from '../../../WorldEditorCanvas';
+import ModeTool, { ToolState, ModeToolUpdateParams } from '../../ModeTool';
+export { ToolState, ModeToolUpdateParams }
 
-import Tool, { ToolState } from '../../../../../../libs/Tool';
-export { ToolState }
+import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
 export interface InitParams {
   view: WorldEditorCanvas;
-  getState: GetState;
   getFiles: () => SourceFileDB;
   dispatchAction: DispatchAction;
   modelManager: ModelManager;
 }
 
-abstract class EditModeTool<T> extends Tool<EditToolType, InitParams, WorldEditorState, T> {}
+abstract class EditModeTool<T> extends ModeTool<EditToolType, InitParams, T> {}
 
 export default EditModeTool;

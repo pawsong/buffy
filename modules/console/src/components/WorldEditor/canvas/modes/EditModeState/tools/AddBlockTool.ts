@@ -14,12 +14,13 @@ import {
   Color,
   WorldEditorState,
   EditToolType,
-  GetState,
   Action,
+  DispatchAction,
 } from '../../../../types';
 
 import {
   CHANGE_PALETTE_COLOR, ChangePaletteColorAction,
+  addZoneBlock,
 } from '../../../../actions';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
@@ -27,6 +28,7 @@ import WorldEditorCanvas from '../../../WorldEditorCanvas';
 import EditModeTool, {
   InitParams,
   ToolState,
+  ModeToolUpdateParams,
 } from './EditModeTool';
 
 export function rgbToHex({ r, g, b }) {
@@ -38,8 +40,7 @@ class WaitState extends ToolState {
 
   constructor(
     private tool: AddBlockTool,
-    private canvas: WorldEditorCanvas,
-    private getState: GetState
+    private canvas: WorldEditorCanvas
   ) {
     super();
 
@@ -53,33 +54,18 @@ class WaitState extends ToolState {
   }
 
   onEnter() {
-    const { editMode: { paletteColor } } = this.getState();
     this.cursor.start();
-  }
-
-  handleActionDispatch = (action: Action<any>) => {
-    switch (action.type) {
-      case CHANGE_PALETTE_COLOR: {
-        const { color } = <ChangePaletteColorAction>action;
-      }
-    }
   }
 
   handleMouseUp() {
     const position = this.cursor.getPosition();
     if (!position) { return; }
 
-    const { editMode: { paletteColor } } = this.getState();
-
-    // TODO: Refactoring
-    // This is bad... this is possible because view directly accesses data memory space.
-    // But we have to explicitly get memory address from data variable.
-    this.canvas.chunk.findAndUpdate([
-      position.x,
-      position.y,
-      position.z,
-    ], paletteColor);
-    this.canvas.chunk.update();
+    this.tool.dispatchAction(addZoneBlock(
+      this.tool.props.activeZoneId,
+      position.x, position.y, position.z,
+      this.tool.props.color
+    ));
   }
 
   onLeave() {
@@ -89,10 +75,12 @@ class WaitState extends ToolState {
 
 interface AddBlockToolProps {
   color: Color;
+  activeZoneId: string;
 }
 
 class AddBlockTool extends EditModeTool<AddBlockToolProps> {
   cursorMaterial: THREE.MeshBasicMaterial;
+  dispatchAction: DispatchAction;
 
   getToolType() { return EditToolType.ADD_BLOCK; }
 
@@ -104,16 +92,16 @@ class AddBlockTool extends EditModeTool<AddBlockToolProps> {
     return {
       type: SchemaType.OBJECT,
       properties: {
-        color: {
-          type: SchemaType.ANY,
-        },
+        color: { type: SchemaType.ANY },
+        activeZoneId: { type: SchemaType.ANY },
       }
     };
   }
 
-  mapProps(state: WorldEditorState) {
+  mapProps({ editor }: ModeToolUpdateParams) {
     return {
-      color: state.editMode.paletteColor,
+      color: editor.editMode.paletteColor,
+      activeZoneId: editor.editMode.activeZoneId,
     };
   }
 
@@ -121,7 +109,9 @@ class AddBlockTool extends EditModeTool<AddBlockToolProps> {
     this.setCursorColor(diff.color || this.props.color);
   }
 
-  init({ view, getState }: InitParams) {
+  init({ view, dispatchAction }: InitParams) {
+    this.dispatchAction = dispatchAction;
+
     this.cursorMaterial = new THREE.MeshBasicMaterial({
       color: 0xff0000,
       opacity: 0.5,
@@ -130,7 +120,7 @@ class AddBlockTool extends EditModeTool<AddBlockToolProps> {
       polygonOffsetFactor: -0.1,
     });
 
-    const wait = new WaitState(this, view, getState);
+    const wait = new WaitState(this, view);
 
     return {
       wait,

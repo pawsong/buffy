@@ -15,6 +15,8 @@ import {
   EditToolType,
   GetState,
   DispatchAction,
+  WorldState,
+  Zone,
 } from '../../../types';
 
 import {
@@ -35,13 +37,14 @@ import {
 } from '../../../../../canvas/Constants';
 
 interface UpdateParams {
-  state: WorldEditorState;
+  state: WorldState;
   recipeFiles: SourceFileDB;
 }
 
 interface Props {
   scriptIsRunning: boolean;
   robots: { [index: string]: Robot };
+  zone: Zone;
   recipeFiles: SourceFileDB;
 }
 
@@ -57,6 +60,7 @@ class EditModeComponent extends SimpleComponent<UpdateParams, Props> {
         scriptIsRunning: {
           type: SchemaType.BOOLEAN,
         },
+        zone: { type: SchemaType.ANY },
         robots: {
           type: SchemaType.MAP,
           items: {
@@ -88,8 +92,9 @@ class EditModeComponent extends SimpleComponent<UpdateParams, Props> {
 
   mapProps({ state, recipeFiles }: UpdateParams) {
     return {
-      scriptIsRunning: state.editMode.scriptIsRunning,
-      robots: state.editMode.robots,
+      scriptIsRunning: state.editor.editMode.scriptIsRunning,
+      zone: state.file.zones[state.editor.editMode.activeZoneId],
+      robots: state.file.robots,
       recipeFiles,
     };
   }
@@ -106,16 +111,22 @@ class EditModeComponent extends SimpleComponent<UpdateParams, Props> {
 
   render(diff: Props) {
     if (this.props.scriptIsRunning) return;
-    if (!diff.robots) return;
 
-    Object.keys(diff.robots).forEach(robotId => {
-      const robot = diff.robots[robotId];
-      if (robot) {
-        this.editModeState.createOrUpdateRobot(robot, this.props.recipeFiles);
-      } else {
-        this.editModeState.canvas.objectManager.remove(robotId);
-      }
-    });
+    if (diff.robots) {
+      Object.keys(diff.robots).forEach(robotId => {
+        const robot = diff.robots[robotId];
+        if (robot) {
+          this.editModeState.createOrUpdateRobot(robot, this.props.recipeFiles);
+        } else {
+          this.editModeState.canvas.objectManager.remove(robotId);
+        }
+      });
+    }
+
+    if (diff.zone) {
+      this.editModeState.canvas.chunk.setData(diff.zone.blocks);
+      this.editModeState.canvas.chunk.update();
+    }
   }
 }
 
@@ -123,16 +134,16 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
   initParams: InitParams;
   component: EditModeComponent;
 
-  constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB, stateLayer: StateLayer) {
-    super(initParams.view, getState, stateLayer, getFiles);
+  constructor(initParams: InitParams, getFiles: () => SourceFileDB, stateLayer: StateLayer, state: WorldState) {
+    super(initParams.view, stateLayer, getFiles, state);
     this.getFiles = getFiles;
     this.initParams = initParams;
     this.canvas = initParams.view;
     this.component = new EditModeComponent(this);
   }
 
-  handleStateChange(state: WorldEditorState) {
-    super.handleStateChange(state);
+  onStateChange(state: WorldState) {
+    super.onStateChange(state);
     this.component.updateProps({
       state,
       recipeFiles: this.getFiles(),
@@ -145,7 +156,7 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
   // Lazy getter
   createTool(toolType: EditToolType): EditModeTool<any> {
-    return createTool(toolType, this.getState, this.initParams);
+    return createTool(toolType, this.initParams);
   }
 
   createOrUpdateRobot(robot: Robot, files: SourceFileDB) {
@@ -171,36 +182,17 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
     ));
   }
 
-  handleEnter() {
-    this.syncCanvasToFileState();
+  onEnter(state: WorldState) {
+    super.onEnter(state);
 
     this.initParams.view.applyCameraMode(ViewMode.BIRDS_EYE);
 
     this.canvas.objectManager.removeAll();
 
     this.component.start({
-      state: this.getState(),
+      state: this.state,
       recipeFiles: this.getFiles(),
     });
-
-    super.handleEnter();
-  }
-
-  handleLeave() {
-    this.stopScript();
-    this.component.stop();
-    super.handleLeave();
-  }
-
-  syncCanvasToFileState() {
-    const canvas = this.initParams.view;
-
-    // Connect to file store
-    const state = this.getState();
-    const zone = state.editMode.zones[state.editMode.activeZoneId];
-
-    canvas.chunk.setData(zone.blocks);
-    canvas.chunk.update();
   }
 
   startScript() {
@@ -210,14 +202,19 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
 
   stopScript() {
     this.stopLocalServerMode();
-
     this.canvas.objectManager.removeAll();
 
     // Restore canvas state from files
     this.component.start({
-      state: this.getState(),
+      state: this.state,
       recipeFiles: this.getFiles(),
     });
+  }
+
+  onLeave() {
+    this.stopLocalServerMode();
+    this.component.stop();
+    super.onLeave();
   }
 }
 

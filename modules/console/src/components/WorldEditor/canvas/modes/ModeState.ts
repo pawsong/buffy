@@ -3,7 +3,8 @@ import Fsm, { State } from '../../../../libs/Fsm';
 import {
   WorldEditorState,
   EditorMode,
-  GetState,
+  FileState,
+  WorldState,
 } from '../../types';
 import Tool from '../../../../libs/Tool';
 import {
@@ -32,7 +33,6 @@ abstract class ModeState<T, U> extends State {
   canvas: WorldEditorCanvas;
 
   protected tool: Tool<T, U, any, any>;
-  protected getState: GetState;
   protected getFiles: () => SourceFileDB;
 
   private sandbox: Sandbox;
@@ -40,34 +40,39 @@ abstract class ModeState<T, U> extends State {
   private frameId: number;
   private cachedTools: { [index: string]: Tool<T, U, any, any> };
 
-  constructor(canvas: WorldEditorCanvas, getState: GetState, stateLayer: StateLayer, getFiles: () => SourceFileDB) {
+  protected state: WorldState;
+
+  constructor(canvas: WorldEditorCanvas, stateLayer: StateLayer, getFiles: () => SourceFileDB, state: WorldState) {
     super({
-      [State.EVENT_ENTER]: () => this.handleEnter(),
-      [State.EVENT_LEAVE]: () => this.handleLeave(),
-      [CHANGE_MODE]: (mode: EditorMode) => ({ state: EditorMode[mode] }),
-      [CHANGE_STATE]: (state: WorldEditorState) => this.handleStateChange(state),
+      [State.EVENT_ENTER]: (state: WorldState) => this.onEnter(state),
+      [State.EVENT_LEAVE]: () => this.onLeave(),
+      [CHANGE_MODE]: (state: WorldState) => ({
+        state: EditorMode[state.editor.common.mode],
+        params: state,
+      }),
+      [CHANGE_STATE]: (state: WorldState) => this.onStateChange(state),
     });
 
     this.canvas = canvas;
     this.stateLayer = stateLayer;
-    this.getState = getState;
     this.getFiles = getFiles;
     this.cachedTools = {};
 
     this.sandbox = new Sandbox(stateLayer);
+    this.state = state;
   }
 
   init() {
-    const state = this.getState();
-    this.tool = this.getOrCreateTool(this.getToolType(state));
+    this.tool = this.getOrCreateTool(this.getToolType(this.state.editor));
   }
 
-  handleEnter() {
-    this.tool.start(this.getState());
+  onEnter(state: WorldState) {
+    this.state = state;
+    this.tool.start(state);
   }
 
-  handleStateChange(state: WorldEditorState) {
-    const toolType = this.getToolType(state);
+  protected onStateChange(state: WorldState) {
+    const toolType = this.getToolType(state.editor);
 
     if (this.tool.getToolType() !== toolType) {
       const nextTool = this.getOrCreateTool(toolType);
@@ -77,6 +82,8 @@ abstract class ModeState<T, U> extends State {
     } else {
       this.tool.updateProps(state);
     }
+
+    this.state = state;
   }
 
   animate = () => {
@@ -87,7 +94,7 @@ abstract class ModeState<T, U> extends State {
   startLocalServerMode() {
     // Init data
     const recipeFiles = this.getFiles();
-    const { zones, robots, playerId } = this.getState().editMode;
+    const { zones, robots, playerId } = this.state.file;
 
     const server = <LocalServer>this.stateLayer.store;
     server.initialize(recipeFiles, zones, robots);
@@ -141,7 +148,7 @@ abstract class ModeState<T, U> extends State {
     server.stop();
   }
 
-  handleLeave() {
+  onLeave() {
     this.tool.stop();
   }
 

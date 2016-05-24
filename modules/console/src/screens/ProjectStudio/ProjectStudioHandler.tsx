@@ -20,7 +20,7 @@ import { saga, SagaProps, ImmutableTask } from '../../saga';
 import * as StorageKeys from '../../constants/StorageKeys';
 import Studio, { StudioState } from '../../components/Studio';
 import { FileType, SourceFile } from '../../components/Studio/types';
-import { WorldEditorState } from '../../components/WorldEditor';
+import { WorldFileState } from '../../components/WorldEditor';
 import { requestLogout } from '../../actions/auth';
 import { compileBlocklyXml } from '../../blockly/utils';
 
@@ -318,7 +318,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     if (!file.modified) return;
 
     const worldFile = this.state.studioState.files[this.state.studioState.worldId];
-    const world: WorldEditorState = worldFile.state;
+    const world: WorldFileState = worldFile.state;
 
     // this.setState(update(this.state, {
     //   studioState: { workingCopies: { [workingCopyId]: {
@@ -342,7 +342,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       case FileType.ROBOT: {
         const state: RecipeEditorState = file.state;
         this.stateLayer.rpc.updateRobot({
-          objectId: world.editMode.playerId,
+          objectId: world.present.data.playerId,
           robot: file.id,
           design: state.design,
         });

@@ -99,6 +99,34 @@ export function removeRobot(robotId: string): RemoveRobotAction {
   };
 }
 
+export const ADD_ZONE_BLOCK: 'ADD_ZONE_BLOCK' = 'ADD_ZONE_BLOCK';
+export interface AddZoneBlockAction extends Action<typeof ADD_ZONE_BLOCK> {
+  zoneId: string;
+  x: number; y: number; z: number;
+  color: Color;
+}
+export function addZoneBlock(zoneId: string, x: number, y: number, z: number, color: Color): AddZoneBlockAction {
+  return {
+    type: ADD_ZONE_BLOCK,
+    zoneId,
+    x, y, z,
+    color,
+  };
+}
+
+export const REMOVE_ZONE_BLOCK: 'REMOVE_ZONE_BLOCK' = 'REMOVE_ZONE_BLOCK';
+export interface RemoveZoneBlockAction extends Action<typeof REMOVE_ZONE_BLOCK> {
+  zoneId: string;
+  x: number; y: number; z: number;
+}
+export function removeZoneBlock(zoneId: string, x: number, y: number, z: number): RemoveZoneBlockAction {
+  return {
+    type: REMOVE_ZONE_BLOCK,
+    zoneId,
+    x, y, z,
+  };
+}
+
 export const RUN_SCRIPT: 'RUN_SCRIPT' = 'RUN_SCRIPT';
 export interface RunScriptAction extends Action<typeof RUN_SCRIPT> {
 }

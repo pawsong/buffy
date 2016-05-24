@@ -2,7 +2,6 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 import {
   PlayToolType,
-  GetState,
 } from '../../../../types';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
@@ -14,7 +13,6 @@ import MoveTool from './MoveTool';
 
 export default function createTool(
   toolType: PlayToolType,
-  getState: GetState,
   params: InitParams
 ): PlayModeTool<any> {
   switch(toolType) {

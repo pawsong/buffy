@@ -2,21 +2,18 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 import {
   PlayToolType,
-  GetState,
-  WorldEditorState,
 } from '../../../../types';
 
-import WorldEditorCanvas from '../../../WorldEditorCanvas';
+import ModeTool, { ToolState, ModeToolUpdateParams } from '../../ModeTool';
+export { ToolState, ModeToolUpdateParams }
 
-import Tool, { ToolState } from '../../../../../../libs/Tool';
-export { ToolState }
+import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
 export interface InitParams {
   view: WorldEditorCanvas;
   stateLayer: StateLayer;
-  getState: GetState;
 }
 
-abstract class PlayModeTool<T> extends Tool<PlayToolType, InitParams, WorldEditorState, T> {}
+abstract class PlayModeTool<T> extends ModeTool<PlayToolType, InitParams, T> {}
 
 export default PlayModeTool;

@@ -2,7 +2,6 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 
 import {
   EditToolType,
-  GetState,
 } from '../../../../types';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
@@ -18,7 +17,6 @@ import AddRobotTool from './AddRobotTool';
 
 export default function createTool(
   toolType: EditToolType,
-  getState: GetState,
   params: InitParams
 ): EditModeTool<any> {
   switch(toolType) {

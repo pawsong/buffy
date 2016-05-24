@@ -1,19 +1,23 @@
 import {
   CommonState,
-} from '../types';
+  EditorMode,
+} from '../../types';
 
 import {
   Action,
   CHANGE_EDITOR_MODE,
   ChangeEditorModeAction,
-} from '../actions';
+} from '../../actions';
 
-export function commonReducer(state: CommonState, action: Action<any>): CommonState {
+const initialState: CommonState = {
+  mode: EditorMode.EDIT,
+};
+
+export function commonReducer(state = initialState, action: Action<any>): CommonState {
   switch (action.type) {
     case CHANGE_EDITOR_MODE: {
       const { mode } = <ChangeEditorModeAction>action;
       return {
-        fileId: state.fileId,
         mode,
       };
     }

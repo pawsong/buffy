@@ -60,19 +60,23 @@ export interface UndoableOptions {
   maxHistoryLength?: number;
 }
 
-export default function undoable<T>(reducer: Reducer<T>, options: UndoableOptions = {}) {
-  const maxHistoryLength = options.maxHistoryLength || DEFAULT_MAX_HISTORY_LEN;
-
-  const initialState: UndoableState<any> = {
+export function createState<T>(initialState: T): UndoableState<T> {
+  return {
     historyIndex: 1,
     past: [],
     present: {
       historyIndex: 1,
       action: INIT,
-      data: reducer(undefined, { type: INIT }),
+      data: initialState,
     },
     future: [],
   };
+}
+
+export default function undoable<T>(reducer: Reducer<T>, options: UndoableOptions = {}) {
+  const maxHistoryLength = options.maxHistoryLength || DEFAULT_MAX_HISTORY_LEN;
+
+  const initialState: UndoableState<any> = createState(reducer(undefined, { type: INIT }));
 
   return function (state = initialState, action: Action<any>): UndoableState<T> {
     switch (action.type) {

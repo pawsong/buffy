@@ -10,6 +10,7 @@ import {
   DispatchAction,
   EditToolType,
   WorldEditorState,
+  WorldData,
 } from '../../types';
 
 import {
@@ -33,6 +34,7 @@ import ModelManager from '../../../../canvas/ModelManager';
 
 interface EditModeProps extends React.Props<EditMode> {
   editorState: WorldEditorState;
+  worldData: WorldData;
   dispatchAction: DispatchAction;
   files: SourceFileDB;
   modelManager: ModelManager;
@@ -75,9 +77,9 @@ class EditMode extends React.Component<EditModeProps, EditModeState> {
       <div>
         <RobotPanel
           modelManager={this.props.modelManager}
-          robots={this.props.editorState.editMode.robots}
+          robots={this.props.worldData.robots}
           files={this.props.files}
-          playerId={this.props.editorState.editMode.playerId}
+          playerId={this.props.worldData.playerId}
           onPlayerChange={playerId => {}}
           onRobotRemove={robotId => this.handleRobotRemove(robotId)}
           onAddRobotButtonClick={() => this.setState({ addRobotDialogOpen: true })}

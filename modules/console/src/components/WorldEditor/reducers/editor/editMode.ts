@@ -9,7 +9,7 @@ import {
   EditModeState,
   EditToolType,
   Robot,
-} from '../types';
+} from '../../types';
 
 import {
   Action,
@@ -21,9 +21,18 @@ import {
   REMOVE_ROBOT, RemoveRobotAction,
   RUN_SCRIPT, RunScriptAction,
   STOP_SCRIPT, StopScriptAction,
-} from '../actions';
+} from '../../actions';
 
-export function editModeReducer(state: EditModeState, action: Action<any>): EditModeState {
+const initialState: EditModeState = {
+  tool: EditToolType.MOVE,
+  activeZoneId: '',
+  paletteColor: { r: 104, g: 204, b: 202 },
+  addRobotRecipeId: '',
+  toolToRestore: EditToolType.MOVE,
+  scriptIsRunning: false,
+};
+
+export function editModeReducer(state = initialState, action: Action<any>): EditModeState {
   switch(action.type) {
     case CHANGE_EDIT_TOOL: {
       const { tool } = <ChangeEditToolAction>action;
@@ -44,28 +53,6 @@ export function editModeReducer(state: EditModeState, action: Action<any>): Edit
         toolToRestore: state.tool,
         addRobotRecipeId: recipeId,
       });
-    }
-    case ADD_ROBOT: {
-      const { robot } = <AddRobotAction>action;
-      const robots = Object.assign({}, state.robots);
-      robots[robot.id] = robot;
-      return Object.assign({}, state, {
-        robots,
-        tool: state.toolToRestore,
-        toolToRestore: EditToolType.MOVE,
-        addRobotRecipeId: '',
-      });
-    }
-    case REMOVE_ROBOT: {
-      const { robotId } = <RemoveRobotAction>action;
-
-      const robots: { [index: string]: Robot } = {};
-      Object.keys(state.robots).forEach(id => {
-        if (id === robotId) return;
-        robots[id] = state.robots[id];
-      });
-
-      return objectAssign({}, state, { robots });
     }
     case RUN_SCRIPT: {
       return objectAssign({}, state, { scriptIsRunning: true });

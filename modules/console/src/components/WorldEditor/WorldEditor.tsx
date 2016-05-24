@@ -2,6 +2,7 @@ import * as React from 'react';
 const pure = require('recompose/pure').default;
 
 import StateLayer from '@pasta/core/lib/StateLayer';
+import { createState as createUndoableState } from '@pasta/helper/lib/undoable';
 const objectAssign = require('object-assign');
 
 import * as ndarray from 'ndarray';
@@ -10,6 +11,7 @@ import {
   changeEditorMode,
   runScript,
   stopScript,
+  changeActiveZone,
 } from './actions';
 
 import { Sandbox, Scripts } from '../../sandbox';
@@ -48,15 +50,20 @@ import {
   Action,
   DispatchAction,
   ActionListener,
+  FileState,
 } from './types';
 
-import { rootReducer } from './reducers';
+import fileReducer from './reducers/file';
+import editorReducer from './reducers/editor';
 
 export { WorldEditorState };
 
 interface WorldEditorProps extends React.Props<WorldEditor> {
   editorState: WorldEditorState;
-  onChange: (state: WorldEditorState, callback?: () => any) => any;
+  onEditorStateChange: (state: WorldEditorState) => any;
+  fileState: FileState;
+  onFileStateChanage: (fileState: FileState) => any;
+
   stateLayer: StateLayer;
   modelManager: ModelManager;
   sizeVersion: number; // For resize
@@ -89,7 +96,8 @@ interface CreateStateOptions {
   limitTop: TOOLBAR_HEIGHT,
 })
 class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState> {
-  static createState: (fileId: string, options: CreateStateOptions) => WorldEditorState;
+  static createEditorState: (activeZoneId: string) => WorldEditorState;
+  static createFileState: (fileId: string, options: CreateStateOptions) => FileState;
 
   private sandbox: Sandbox;
 
@@ -103,8 +111,11 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
   }
 
   dispatchAction = (action: Action<any>) => {
-    const nextState = rootReducer(this.props.editorState, action);
-    this.props.onChange(nextState);
+    const nextEditorState = editorReducer(this.props.editorState, action);
+    if (this.props.editorState !== nextEditorState) this.props.onEditorStateChange(nextEditorState);
+
+    const nextFileState = fileReducer(this.props.fileState, action);
+    if (this.props.fileState !== nextFileState) this.props.onFileStateChanage(nextFileState);
   }
 
   renderContent() {
@@ -114,6 +125,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
           <EditMode
             modelManager={this.props.modelManager}
             editorState={this.props.editorState}
+            worldData={this.props.fileState.present.data}
             dispatchAction={this.dispatchAction}
             files={this.props.files}
           />
@@ -162,6 +174,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
         <div style={styles.canvasContainer}>
           <Canvas
             editorState={this.props.editorState}
+            fileState={this.props.fileState}
             dispatchAction={this.dispatchAction}
             sizeVersion={this.props.sizeVersion}
             stateLayer={this.props.stateLayer}
@@ -180,7 +193,11 @@ function rgbToHex({ r, g, b }) {
   return (1 << 24) /* Used by mesher */ | (r << 16) | (g << 8) | b;
 }
 
-WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEditorState => {
+WorldEditor.createEditorState = (activeZoneId: string): WorldEditorState => {
+  return editorReducer(undefined, changeActiveZone(activeZoneId));
+}
+
+WorldEditor.createFileState = (fileId: string, options: CreateStateOptions): FileState => {
   const zoneId = generateObjectId();
 
   const robotId1 = generateObjectId();
@@ -205,6 +222,11 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
     direction: [0, 0, 1],
   };
 
+  const robots: { [index: string]: Robot } = {
+    [robot1.id]: robot1,
+    [robot2.id]: robot2,
+  };
+
   // Initialize data
   const size: [number, number, number] = [16, 16, 16];
   const zone: Zone = {
@@ -212,6 +234,10 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
     name: 'Zone',
     size,
     blocks: ndarray(new Int32Array(size[0] * size[1] * size[2]), size),
+  };
+
+  const zones: { [index: string]: Zone } = {
+    [zone.id]: zone,
   };
 
   const soilColor = rgbToHex({ r: 100, g: 100, b: 0 });
@@ -225,33 +251,11 @@ WorldEditor.createState = (fileId: string, options: CreateStateOptions): WorldEd
     }
   }
 
-  return {
-    common: {
-      fileId,
-      mode: EditorMode.EDIT,
-    },
-    editMode: {
-      tool: EditToolType.MOVE,
-      playerId: robot1.id,
-      robots: {
-        [robot1.id]: robot1,
-        [robot2.id]: robot2,
-      },
-      zones: {
-        [zone.id]: zone,
-      },
-      activeZoneId: zone.id,
-      paletteColor: { r: 104, g: 204, b: 202 },
-      addRobotRecipeId: '',
-      toolToRestore: EditToolType.MOVE,
-      scriptIsRunning: false,
-    },
-    playMode: {
-      state: PlayState.READY,
-      tool: PlayToolType.MOVE,
-      viewMode: ViewMode.BIRDS_EYE,
-    },
-  };
+  return createUndoableState({
+    playerId: robot1.id,
+    robots,
+    zones,
+  });
 }
 
 export default WorldEditor;

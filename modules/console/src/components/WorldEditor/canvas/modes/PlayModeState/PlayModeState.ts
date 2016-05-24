@@ -16,6 +16,7 @@ import {
   GetState,
   Action,
   ViewMode,
+  WorldState,
 } from '../../../types';
 
 import {
@@ -31,7 +32,7 @@ interface PlayModeComponentProps {
   viewMode: ViewMode;
 }
 
-class PlayModeComponent extends SimpleComponent<WorldEditorState, PlayModeComponentProps> {
+class PlayModeComponent extends SimpleComponent<WorldState, PlayModeComponentProps> {
   constructor(private canvas: WorldEditorCanvas) {
     super();
   }
@@ -45,9 +46,9 @@ class PlayModeComponent extends SimpleComponent<WorldEditorState, PlayModeCompon
     };
   }
 
-  mapProps(state: WorldEditorState): PlayModeComponentProps {
+  mapProps(state: WorldState): PlayModeComponentProps {
     return {
-      viewMode: state.playMode.viewMode,
+      viewMode: state.editor.playMode.viewMode,
     };
   }
 
@@ -63,8 +64,8 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
 
   private initParams: InitParams;
 
-  constructor(getState: GetState, initParams: InitParams, getFiles: () => SourceFileDB) {
-    super(initParams.view, getState, initParams.stateLayer, getFiles);
+  constructor(initParams: InitParams, getFiles: () => SourceFileDB, state: WorldState) {
+    super(initParams.view, initParams.stateLayer, getFiles, state);
     this.initParams = initParams;
     this.component = new PlayModeComponent(initParams.view);
   }
@@ -75,25 +76,25 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
 
   // Lazy getter
   createTool(toolType: PlayToolType): PlayModeTool<any> {
-    return createTool(toolType, this.getState, this.initParams);
+    return createTool(toolType, this.initParams);
   }
 
-  handleEnter() {
-    super.handleEnter();
+  onEnter(state: WorldState) {
+    super.onEnter(state);
 
     this.startLocalServerMode();
-    this.component.start(this.getState());
+    this.component.start(state);
   }
 
-  handleStateChange(state: WorldEditorState) {
-    super.handleStateChange(state);
+  onStateChange(state: WorldState) {
+    super.onStateChange(state);
     this.component.updateProps(state);
   }
 
-  handleLeave() {
+  onLeave() {
     this.component.stop();
     this.stopLocalServerMode();
-    super.handleLeave();
+    super.onLeave();
   }
 }
 

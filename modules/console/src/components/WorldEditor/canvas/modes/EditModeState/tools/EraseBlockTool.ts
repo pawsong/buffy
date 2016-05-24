@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import { Position } from '@pasta/core/lib/types';
+import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
 import {
   EditToolType,
   WorldEditorState,
+  DispatchAction,
 } from '../../../../types';
 
 import {
@@ -16,7 +18,12 @@ import { CursorEventParams } from '../../../../../../canvas/CursorManager';
 import EditModeTool, {
   InitParams,
   ToolState,
+  ModeToolUpdateParams,
 } from './EditModeTool';
+
+import {
+  removeZoneBlock,
+} from '../../../../actions';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
@@ -24,6 +31,7 @@ interface WaitStateProps {}
 
 class WaitState extends ToolState {
   cursor: Cursor;
+
   constructor(
     private tool: EraseBlockTool,
     private canvas: WorldEditorCanvas
@@ -57,25 +65,43 @@ class WaitState extends ToolState {
     const position = this.cursor.getPosition();
     if (!position) return;
 
-    // TODO: Refactoring
-    // This is bad... this is possible because view directly accesses data memory space.
-    // But we have to explicitly get memory address from data variable.
-    this.canvas.chunk.remove([
-      position.x,
-      position.y,
-      position.z,
-    ]);
-    this.canvas.chunk.update();
+    this.tool.dispatchAction(removeZoneBlock(
+      this.tool.props.activeZoneId,
+      position.x, position.y, position.z
+    ));
   }
 }
 
-class EraseBlockTool extends EditModeTool<any> {
+interface EraseBlockToolProps {
+  activeZoneId: string;
+}
+
+class EraseBlockTool extends EditModeTool<EraseBlockToolProps> {
+  dispatchAction: DispatchAction;
+
   cursorGeometry: THREE.Geometry;
   cursorMaterial: THREE.Material;
 
   getToolType() { return EditToolType.REMOVE_BLOCK; }
 
-  init({ view }: InitParams) {
+  getPropsSchema(): Schema {
+    return {
+      type: SchemaType.OBJECT,
+      properties: {
+        activeZoneId: { type: SchemaType.STRING },
+      },
+    };
+  }
+
+  mapProps(params: ModeToolUpdateParams) {
+    return {
+      activeZoneId: params.editor.editMode.activeZoneId,
+    };
+  }
+
+  init({ view, dispatchAction }: InitParams) {
+    this.dispatchAction = dispatchAction;
+
     this.cursorGeometry = new THREE.CubeGeometry(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
     this.cursorMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,

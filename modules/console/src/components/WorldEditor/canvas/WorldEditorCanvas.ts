@@ -29,11 +29,13 @@ import {
 import {
   Action,
   WorldEditorState,
+  FileState,
   DispatchAction,
   GetState,
   EditorMode,
   ViewMode,
   ActionListener,
+  WorldState,
 } from '../types';
 
 if (__CLIENT__) {
@@ -53,10 +55,10 @@ interface Position {
 }
 
 interface WorldEditorCanvasOptions {
+  state: WorldState;
   container: HTMLElement;
   modelManager: ModelManager;
   stateLayer: StateLayer;
-  getState: GetState;
   dispatchAction: DispatchAction;
   getFiles: () => SourceFileDB;
 }
@@ -74,13 +76,13 @@ class WorldEditorCanvas extends ZoneCanvas {
 
   advertisingBoards: THREE.Mesh[];
 
-  protected state: WorldEditorState;
+  private state: WorldState;
 
   private view: View;
   private cachedViews: { [index: string]: View };
 
   private stateLayer: StateLayer;
-  private getGameState: GetState;
+  // private getGameState: GetState;
   private dispatchAction: DispatchAction;
   private getFiles: () => SourceFileDB;
 
@@ -88,18 +90,17 @@ class WorldEditorCanvas extends ZoneCanvas {
     container,
     modelManager,
     stateLayer,
-    getState,
+    state,
     dispatchAction,
     getFiles,
   }: WorldEditorCanvasOptions) {
     super(container, modelManager, () => {
-      const state = getState();
-      return { playerId: state.editMode.playerId };
+      return { playerId: this.state.file.playerId };
     });
 
+    this.state = state;
     this.cachedViews = {};
     this.stateLayer = stateLayer;
-    this.getGameState = getState;
     this.getFiles = getFiles;
     this.dispatchAction = dispatchAction;
     this.advertisingBoards = [];
@@ -139,8 +140,6 @@ class WorldEditorCanvas extends ZoneCanvas {
   }
 
   init () {
-    this.state = this.getGameState();
-
     const advertisingBoardGeometry = new THREE.PlaneGeometry(16 * BOX_SIZE, 12 * BOX_SIZE);
     advertisingBoardGeometry.rotateY( - Math.PI / 2 );
 
@@ -211,32 +210,30 @@ class WorldEditorCanvas extends ZoneCanvas {
     this.advertisingBoards.forEach(board => this.scene.add(board));
 
     // Initialize modes
-    this.editModeState = new EditModeState(this.getGameState, {
+    this.editModeState = new EditModeState({
       view: this,
-      getState: this.getGameState,
       getFiles: this.getFiles,
       dispatchAction: this.dispatchAction,
       modelManager: this.modelManager,
-    }, this.getFiles, this.stateLayer);
+    }, this.getFiles, this.stateLayer, this.state);
     this.editModeState.init();
 
-    this.playModeState = new PlayModeState(this.getGameState, {
+    this.playModeState = new PlayModeState({
       view: this,
       stateLayer: this.stateLayer,
-      getState: this.getGameState,
-    }, this.getFiles);
+    }, this.getFiles, this.state);
     this.playModeState.init();
 
     this.modeFsm = new Fsm({
       [EditorMode[EditorMode.EDIT]]: this.editModeState,
       [EditorMode[EditorMode.PLAY]]: this.playModeState,
-    }, EditorMode[this.state.editMode.tool]);
+    }, EditorMode[this.state.editor.common.mode], this.state);
 
     this.render();
   }
 
   initCamera(): THREE.Camera {
-    this.applyCameraMode(this.state.playMode.viewMode);
+    this.applyCameraMode(this.state.editor.playMode.viewMode);
     return this.view.camera;
   }
 
@@ -252,10 +249,6 @@ class WorldEditorCanvas extends ZoneCanvas {
     this.renderer.render(this.scene, this.camera);
   }
 
-  onChange(gameState: WorldEditorState) {
-    this.handleChange(gameState);
-  }
-
   addCameraPosition(pos: Position) {
     this.view.addPosition(pos);
   }
@@ -264,11 +257,13 @@ class WorldEditorCanvas extends ZoneCanvas {
     this.view.setPosition(pos);
   }
 
-  handleChange(state: WorldEditorState) {
-    if (this.state.common.mode !== state.common.mode) {
-      this.modeFsm.trigger(ModeEvents.CHANGE_MODE, state.common.mode);
+  onChange(state: WorldState) {
+    if (this.state.editor.common.mode !== state.editor.common.mode) {
+      this.modeFsm.trigger(ModeEvents.CHANGE_MODE, state);
+    } else {
+      this.modeFsm.trigger(ModeEvents.CHANGE_STATE, state);
     }
-    this.modeFsm.trigger(ModeEvents.CHANGE_STATE, state);
+
     this.state = state;
 
     this.render();

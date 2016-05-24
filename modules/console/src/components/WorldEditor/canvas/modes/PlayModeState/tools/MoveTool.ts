@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Position } from '@pasta/core/lib/types';
+import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
 import {
   PlayToolType,
@@ -17,6 +18,7 @@ import Cursor from '../../../../../../canvas/Cursor';
 import PlayModeTool, {
   InitParams,
   ToolState,
+  ModeToolUpdateParams,
 } from './PlayModeTool';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
@@ -31,9 +33,9 @@ class WaitState extends ToolState {
   cursor: Cursor;
 
   constructor(
+    private tool: MoveTool,
     private canvas: WorldEditorCanvas,
-    private stateLayer: StateLayer,
-    private getState: GetState
+    private stateLayer: StateLayer
   ) {
     super();
 
@@ -74,21 +76,38 @@ class WaitState extends ToolState {
     const position = this.cursor.getPosition();
     if (!position) return;
 
-    const { editMode: { playerId } } = this.getState();
-
     this.stateLayer.rpc.move({
-      id: playerId,
+      id: this.tool.props.playerId,
       x: position.x,
       z: position.z,
     });
   }
 }
 
-class MoveTool extends PlayModeTool<void> {
+interface MoveToolProps {
+  playerId: string;
+}
+
+class MoveTool extends PlayModeTool<MoveToolProps> {
   getToolType() { return PlayToolType.MOVE; }
 
-  init({ view, stateLayer, getState }: InitParams) {
-    const wait = new WaitState(view, stateLayer, getState);
+  getPropsSchema(): Schema {
+    return {
+      type: SchemaType.OBJECT,
+      properties: {
+        playerId: { type: SchemaType.STRING },
+      },
+    };
+  }
+
+  mapProps({ file }: ModeToolUpdateParams) {
+    return {
+      playerId: file.playerId,
+    };
+  }
+
+  init({ view, stateLayer }: InitParams) {
+    const wait = new WaitState(this, view, stateLayer);
 
     return {
       wait,

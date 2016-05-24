@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as shortid from 'shortid';
 import StateLayer from '@pasta/core/lib/StateLayer';
-
+import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 import { Position } from '@pasta/core/lib/types';
 
 import {
@@ -20,7 +20,6 @@ import { RecipeEditorState } from '../../../../../RecipeEditor';
 
 import {
   Color,
-  GetState,
   WorldEditorState,
   EditToolType,
   DispatchAction,
@@ -33,6 +32,7 @@ import {
 import EditModeTool, {
   InitParams,
   ToolState,
+  ModeToolUpdateParams,
 } from './EditModeTool';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
@@ -56,9 +56,9 @@ class WaitState extends ToolState {
   designWatcher: (geometry: THREE.Geometry) => any;
 
   constructor(
+    private tool: AddRobotTool,
     private cursorMaterial: THREE.Material,
     private canvas: WorldEditorCanvas,
-    private getState: GetState,
     private getFiles: () => SourceFileDB,
     private dispatchAction: DispatchAction,
     private modelManager: ModelManager
@@ -89,10 +89,8 @@ class WaitState extends ToolState {
   // }
 
   onEnter() {
-    const { addRobotRecipeId } = this.getState().editMode;
-
     const files = this.getFiles();
-    this.recipeFile = files[addRobotRecipeId];
+    this.recipeFile = files[this.tool.props.addRobotRecipeId];
 
     this.modelManager.watch(this.recipeFile.state.design, this.designWatcher);
     this.cursor.start();
@@ -108,25 +106,45 @@ class WaitState extends ToolState {
     const position = this.cursor.getPosition();
     if (!position) return;
 
-    const { activeZoneId } = this.getState().editMode;
-
     this.dispatchAction(addRobot({
       id: shortid.generate(),
       name: this.recipeFile.name,
       recipe: this.recipeFile.id,
-      zone: activeZoneId,
+      zone: this.tool.props.activeZoneId,
       position: [position.x, position.y, position.z],
       direction: [0, 0, 1],
     }));
   }
 }
 
-class AddRobotTool extends EditModeTool<any> {
+interface AddRobotToolProps {
+  activeZoneId: string;
+  addRobotRecipeId: string;
+}
+
+class AddRobotTool extends EditModeTool<AddRobotToolProps> {
   getToolType() { return EditToolType.ADD_ROBOT; }
 
   cursorMaterial: THREE.Material;
 
-  init({ view, getState, getFiles, dispatchAction, modelManager }: InitParams) {
+  mapProps({ editor }: ModeToolUpdateParams) {
+    return {
+      activeZoneId: editor.editMode.activeZoneId,
+      addRobotRecipeId: editor.editMode.addRobotRecipeId,
+    };
+  }
+
+  getPropsSchema(): Schema {
+    return {
+      type: SchemaType.OBJECT,
+      properties: {
+        activeZoneId: { type: SchemaType.STRING },
+        addRobotRecipeId: { type: SchemaType.STRING },
+      }
+    };
+  }
+
+  init({ view, getFiles, dispatchAction, modelManager }: InitParams) {
     this.cursorMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,
       opacity: 0.5,
@@ -135,7 +153,7 @@ class AddRobotTool extends EditModeTool<any> {
       polygonOffsetFactor: -0.1,
     });
 
-    const wait = new WaitState(this.cursorMaterial, view, getState, getFiles, dispatchAction, modelManager);
+    const wait = new WaitState(this, this.cursorMaterial, view, getFiles, dispatchAction, modelManager);
 
     return {
       wait,

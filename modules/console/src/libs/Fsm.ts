@@ -52,14 +52,14 @@ class Fsm {
   current: State;
   private states: States;
 
-  constructor(states: States, initialState: string) {
+  constructor(states: States, initialState: string, initialParams?: any) {
     this.states = states;
     Object.keys(this.states).forEach(key => this.states[key].setFsm(this));
 
     const state = this.states[initialState];
     if (!state) throw new Error(`Invalid state: ${initialState}`);
 
-    this.enterState(state);
+    this.enterState(state, initialParams);
   }
 
   trigger(event: string, data?: any) {

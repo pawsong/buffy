@@ -33,6 +33,7 @@ import Editor from './components/Editor';
 
 import WorldEditor, {
   WorldEditorState,
+  WorldFileState,
 } from '../../components/WorldEditor';
 import CodeEditor, {
   CodeEditorState,
@@ -97,6 +98,7 @@ interface StudioProps extends React.Props<Studio> {
 interface StudioOwnState { // UI states
   gameSizeVersion?: number;
   editorSizeVersion?: number;
+  worldEditorState?: WorldEditorState;
 }
 
 interface CreateStateOptions {
@@ -126,9 +128,14 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   constructor(props: StudioProps, context) {
     super(props, context);
 
+    const worldFile = props.studioState.files[props.studioState.worldId];
+    const world: WorldFileState = worldFile.state;
+    const worldData = world.present.data;
+
     this.state = {
       editorSizeVersion: 0,
       gameSizeVersion: 0,
+      worldEditorState: WorldEditor.createEditorState(worldData.robots[worldData.playerId].zone),
     };
   }
 
@@ -265,6 +272,14 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     this.setState({ editorSizeVersion: this.state.editorSizeVersion + 1 });
   }
 
+  handleWorldEditorStateChanage = (worldEditorState: WorldEditorState) => {
+    this.setState({ worldEditorState });
+  }
+
+  handleWorldFileStateChanage = (worldFileState: WorldFileState) => {
+    this.handleFileChange2(this.props.studioState.worldId, worldFileState);
+  }
+
   render() {
     const editor = this.renderEditor();
 
@@ -285,8 +300,10 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           </LayoutContainer>
           <LayoutContainer remaining={true}>
             <WorldEditor
-              editorState={this.props.studioState.files[this.props.studioState.worldId].state}
-              onChange={(state) => this.handleFileChange2(state.common.fileId, state)}
+              editorState={this.state.worldEditorState}
+              onEditorStateChange={this.handleWorldEditorStateChanage}
+              fileState={this.props.studioState.files[this.props.studioState.worldId].state}
+              onFileStateChanage={this.handleWorldFileStateChanage}
               sizeVersion={this.state.gameSizeVersion}
               stateLayer={this.props.stateLayer}
               modelManager={this.props.modelManager}
@@ -344,7 +361,7 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
     state: recipeState,
   };
 
-  const worldState = WorldEditor.createState(worldFileId, {
+  const worldState = WorldEditor.createFileState(worldFileId, {
     recipe: robotFileId,
   });
   const worldFile = {
