@@ -98,6 +98,7 @@ interface CreateStateOptions {
 class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState> {
   static createEditorState: (activeZoneId: string) => WorldEditorState;
   static createFileState: (fileId: string, options: CreateStateOptions) => FileState;
+  static isModified: (lhs: FileState, rhs: FileState) => boolean;
 
   private sandbox: Sandbox;
 
@@ -258,5 +259,9 @@ WorldEditor.createFileState = (fileId: string, options: CreateStateOptions): Fil
     zones,
   });
 }
+
+WorldEditor.isModified = (lhs, rhs) => {
+  return lhs.present.data !== rhs.present.data;
+};
 
 export default WorldEditor;

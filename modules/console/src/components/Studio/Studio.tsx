@@ -198,18 +198,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     this.props.onChange(update(this.props.studioState, {
       files: { [id]: {
         modified: { $set: modified },
-        state: { $merge: state },
-      } },
-    }));
-  }
-
-  handleFileChange2(id: string, state: any) {
-    const file = this.props.studioState.files[id];
-    const modified = file.modified || file.state !== state;
-
-    this.props.onChange(update(this.props.studioState, {
-      files: { [id]: {
-        modified: { $set: modified },
         state: { $set: state },
       } },
     }));
@@ -277,7 +265,11 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   }
 
   handleWorldFileStateChanage = (worldFileState: WorldFileState) => {
-    this.handleFileChange2(this.props.studioState.worldId, worldFileState);
+    const worldFile = this.props.studioState.files[this.props.studioState.worldId];
+
+    this.handleFileChange(this.props.studioState.worldId, worldFileState,
+      WorldEditor.isModified(worldFile.savedState, worldFileState)
+    );
   }
 
   render() {

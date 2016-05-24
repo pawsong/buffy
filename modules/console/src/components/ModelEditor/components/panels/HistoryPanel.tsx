@@ -82,7 +82,6 @@ function getActionMessage(action: string) {
 interface HistoryPanelProps extends React.Props<HistoryPanel> {
   voxel: FileState;
   dispatchAction: DispatchAction;
-  intl?: InjectedIntlProps;
 }
 
 @connectSource({
@@ -90,7 +89,6 @@ interface HistoryPanelProps extends React.Props<HistoryPanel> {
   panelId: Panels.history,
   title: messages.title,
 })
-@injectIntl
 class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
   componentDidUpdate() {
     if (this.props.voxel.future.length === 0) {

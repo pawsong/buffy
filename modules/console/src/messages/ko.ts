@@ -592,7 +592,7 @@ export default {
    * description: Add robot history label
    * defaultMessage: Add robot
    */
-/* translate */ 'worldeditor.panels.history.add.robot': '',
+  'worldeditor.panels.history.add.robot': '로봇 추가',
 
   /**
    * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
