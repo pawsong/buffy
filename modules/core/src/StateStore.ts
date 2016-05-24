@@ -1,5 +1,5 @@
 import { EventEmitter, EventSubscription } from 'fbemitter';
-import GameObject from './classes/GameObject';
+import GameObject, { SerializedGameObject } from './classes/GameObject';
 import GameMap from './classes/GameMap';
 import Terrain from './classes/Terrain';
 import { StoreEvents, StoreEmit, StoreListen } from './store/Events';
@@ -36,9 +36,9 @@ class StateStore {
 
   subscribe: StoreListen;
 
-  zones: GameMap[];
-  indexedZones: { [index: string]: GameMap };
-  objects: { [index: string]: GameObject };
+  protected indexedZones: { [index: string]: GameMap };
+  protected zones: GameMap[];
+  protected objects: { [index: string]: GameObject };
 
   constructor() {
     this.zones = [];
@@ -58,7 +58,7 @@ class StateStore {
       const zone = this.indexedZones[serialziedZone.id];
       if (zone) {
         // Replace
-        zone.objects.forEach(object => {
+        zone.forEachObject(object => {
           this.unwatchObject(object);
           delete this.objects[object.id];
         });
@@ -104,11 +104,35 @@ class StateStore {
     return this.indexedZones[zoneId];
   }
 
-  watchObject(object: GameObject) {
+  forEachObject(handler: (object: GameObject) => any) {
+    const objects = Object.keys(this.objects)
+      .map(key => this.objects[key]).forEach(handler);
+  }
+
+  addObject(serialized: SerializedGameObject): GameObject {
+    const zone = this.findZone(serialized.zone);
+    const object = new GameObject(serialized, zone);
+    object.zone.addObject(object);
+
+    this.objects[object.id] = object;
+    this.watchObject(object);
+    return object;
+  }
+
+  removeObject(objectId: string) {
+    const object = this.findObject(objectId);
+    if (!object) return;
+
+    this.unwatchObject(object);
+    delete this.objects[object.id];
+    object.zone.removeObject(object.id);
+  }
+
+  protected watchObject(object: GameObject) {
     object.onMove(() => this.emit.move({ object }));
   };
 
-  unwatchObject(object: GameObject) {
+  protected unwatchObject(object: GameObject) {
     object.removeAllListeners();
   }
 }

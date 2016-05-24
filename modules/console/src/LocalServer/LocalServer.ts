@@ -30,9 +30,9 @@ interface CreateInitialDataOptions {
 class LocalServer extends StateStore {
   routes: LocalRoutes;
 
-  zones: ServerGameMap[];
-  indexedZones: { [index: string]: ServerGameMap };
-  objects: { [index: string]: LocalUserGameObject };
+  protected zones: ServerGameMap[];
+  protected indexedZones: { [index: string]: ServerGameMap };
+  protected objects: { [index: string]: LocalUserGameObject };
 
   updateFrameId: number;
 
@@ -92,6 +92,8 @@ class LocalServer extends StateStore {
       }, zone, this.socket);
       this.objects[user.id] = user;
       zone.addUser(user);
+
+      this.watchObject(user);
     });
   }
 

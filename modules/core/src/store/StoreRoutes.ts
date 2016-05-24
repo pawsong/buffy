@@ -50,14 +50,12 @@ abstract class StoreRoutes implements ZC.Listen {
   abstract _objectAdded(params: ZC.ObjectAddedParams): GameObject;
   objectAdded(params: ZC.ObjectAddedParams) {
     const object = this._objectAdded(params);
-    this.store.watchObject(object);
     this.store.emit.objectAdded({ object });
   }
 
   abstract _objectRemoved(params: ZC.ObjectRemovedParams, object: GameObject): void;
   objectRemoved(params: ZC.ObjectRemovedParams) {
     const object = this.store.findObject(params.id);
-    this.store.unwatchObject(object);
     this._objectRemoved(params, object);
     this.store.emit.objectRemoved({ id: object.id });
   }
@@ -78,9 +76,10 @@ abstract class StoreRoutes implements ZC.Listen {
 
   abstract _robotUpdated(params: ZC.RobotUpdatedParams, objects: GameObject[]): void;
   robotUpdated(params: ZC.RobotUpdatedParams) {
-    const objects = Object.keys(this.store.objects)
-      .map(key => this.store.objects[key])
-      .filter(object => object.robot === params.robot);
+    const objects = [];
+    this.store.forEachObject(object => {
+      if (object.robot === params.robot) objects.push(object);
+    });
 
     this._robotUpdated(params, objects);
     this.store.emit.designChanged({

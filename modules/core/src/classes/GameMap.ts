@@ -37,7 +37,7 @@ class GameMap {
   depth: number;
 
   terrains: Terrain[];
-  objects: GameObject[];
+  private objects: GameObject[];
 
   size: [number, number, number];
   blocks: any; // ndarray
@@ -84,15 +84,17 @@ class GameMap {
     this.objects.push(object);
   }
 
-  removeObject(object: GameObject) {
-    const idx = findIndex(this.objects, obj => obj.id === object.id);
-    if (idx !== -1) {
-      this.objects.splice(idx, 1);
-    }
+  removeObject(objectId: string) {
+    const idx = findIndex(this.objects, obj => obj.id === objectId);
+    if (idx !== -1) this.objects.splice(idx, 1);
   }
 
   findObject(id: string) {
     return find(this.objects, obj => obj.id === id);
+  }
+
+  forEachObject(handler: (object: GameObject) => any) {
+    this.objects.forEach(handler);
   }
 
   getAllObjects() {

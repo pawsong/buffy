@@ -96,7 +96,7 @@ abstract class ZoneCanvas extends Canvas {
     this.chunk.update();
 
     // Objects
-    player.zone.objects.forEach(obj => {
+    player.zone.forEachObject(obj => {
       const object = this.objectManager.create(obj.id, obj.designId);
       // const mesh = new THREE.Mesh(this.cubeGeometry , this.cubeMaterial);
       // mesh.castShadow = true;

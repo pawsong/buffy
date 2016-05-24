@@ -39,7 +39,7 @@ class ServerGameMap extends GameMap {
 
   removeUser(user: UserGameObject) {
     this.broadcast.objectRemoved({ id: user.id });
-    this.removeObject(user);
+    this.removeObject(user.id);
 
     const socketId = user.getSocketId();
     this.socketRefs[socketId] = (this.socketRefs[socketId] || 1) - 1;

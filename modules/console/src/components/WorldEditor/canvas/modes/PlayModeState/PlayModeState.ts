@@ -94,7 +94,6 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
     super.handleEnter();
 
     // Init data
-
     const recipeFiles = this.getFiles();
     const { zones, robots, playerId } = this.getState().editMode;
 
@@ -103,16 +102,8 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
     server.start();
 
     // Init view
-
-    // TODO: Filter objects on current active map.
-    Object.keys(this.stateLayer.store.objects).forEach(key => {
-      const object = this.stateLayer.store.objects[key];
-      this.stateLayer.store.watchObject(object);
-    })
     this.canvas.connectToStateStore(this.stateLayer.store);
-
     this.component.start(this.getState());
-
     this.animate();
   }
 
@@ -122,21 +113,16 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
   }
 
   handleLeave() {
+    // Clean up view
     cancelAnimationFrame(this.frameId);
-
     this.component.stop();
+    this.canvas.disconnectFromStateStore();
 
-    super.handleLeave();
-
+    // Clean up data
     const server = <LocalServer>this.stateLayer.store;
     server.stop();
 
-    // TODO: Think about nicer api for unwatching...
-    Object.keys(this.stateLayer.store.objects).forEach(key => {
-      const object = this.stateLayer.store.objects[key];
-      this.stateLayer.store.unwatchObject(object);
-    })
-    this.canvas.disconnectFromStateStore();
+    super.handleLeave();
   }
 }
 

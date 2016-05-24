@@ -38,18 +38,11 @@ class RemoteStoreRoutes extends StoreRoutes {
   }
 
   _objectAdded(params: ZC.ObjectAddedParams): GameObject {
-    const zone = this.store.findZone(params.object.zone);
-    const object = new GameObject(params.object, zone);
-
-    object.zone.objects.push(object);
-
-    this.store.objects[object.id] = object;
-    return object;
+    return this.store.addObject(params.object);
   }
 
   _objectRemoved(params: ZC.ObjectRemovedParams, object: GameObject) {
-    delete this.store.objects[params.id];
-    object.zone.removeObject(object);
+    this.store.removeObject(params.id);
   }
 
   _terrainUpdated(params: ZC.TerrainUpdatedParams): Terrain {

@@ -6,9 +6,7 @@ import StoreRoutes from './StoreRoutes';
 class LocalStoreRoutes extends StoreRoutes {
   _init(params: ZC.InitParams) {}
 
-  _move(params: ZC.MoveParams) {
-    console.log(params);
-  }
+  _move(params: ZC.MoveParams) {}
 
   _stop(params: ZC.StopParams) {}
 

@@ -212,8 +212,7 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
   startScript() {
     this.component.stop();
 
-    const canvas = this.initParams.view;
-
+    // Init data
     const files = this.getFiles();
     const { zones, robots, playerId } = this.getState().editMode;
 
@@ -222,30 +221,19 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
     server.start();
 
     // Init view
-
-    // TODO: Filter objects on current active map.
-    Object.keys(this.stateLayer.store.objects).forEach(key => {
-      const object = this.stateLayer.store.objects[key];
-      this.stateLayer.store.watchObject(object);
-    })
-    canvas.connectToStateStore(this.stateLayer.store);
+    this.canvas.connectToStateStore(this.stateLayer.store);
   }
 
   stopScript() {
-    const canvas = this.initParams.view;
+    // Clean up view
+    this.canvas.disconnectFromStateStore();
+    this.canvas.objectManager.removeAll();
 
+    // Clean up data
     const server = <LocalServer>this.stateLayer.store;
     server.stop();
 
-    // TODO: Think about nicer api for unwatching...
-    Object.keys(this.stateLayer.store.objects).forEach(key => {
-      const object = this.stateLayer.store.objects[key];
-      this.stateLayer.store.unwatchObject(object);
-    })
-    canvas.disconnectFromStateStore();
-
-    this.canvas.objectManager.removeAll();
-
+    // Restore canvas state from files
     this.component.start({
       state: this.getState(),
       recipeFiles: this.getFiles(),
