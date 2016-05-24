@@ -18,7 +18,15 @@ import LocalServer from '../../../../LocalServer';
 import {
   SourceFileDB,
 } from '../../../Studio/types';
+import { Sandbox, Scripts } from '../../../../sandbox';
+import { compileBlocklyXml } from '../../../../blockly/utils';
 
+import {
+  RecipeEditorState,
+} from '../../../RecipeEditor';
+import {
+  CodeEditorState,
+} from '../../../CodeEditor';
 
 abstract class ModeState<T, U> extends State {
   canvas: WorldEditorCanvas;
@@ -27,6 +35,7 @@ abstract class ModeState<T, U> extends State {
   protected getState: GetState;
   protected getFiles: () => SourceFileDB;
 
+  private sandbox: Sandbox;
   private stateLayer: StateLayer;
   private frameId: number;
   private cachedTools: { [index: string]: Tool<T, U, any, any> };
@@ -44,6 +53,8 @@ abstract class ModeState<T, U> extends State {
     this.getState = getState;
     this.getFiles = getFiles;
     this.cachedTools = {};
+
+    this.sandbox = new Sandbox(stateLayer);
   }
 
   init() {
@@ -85,9 +96,42 @@ abstract class ModeState<T, U> extends State {
     // Init view
     this.canvas.connectToStateStore(this.stateLayer.store);
     this.animate();
+
+    // Start user script
+    const codeFiles = this.getFiles();
+    const robotsList = Object.keys(robots).map(robotId => robots[robotId]);
+
+    const recipes: { [index: string]: RecipeEditorState } = {};
+    robotsList.forEach(robot => {
+      recipes[robot.recipe] = recipeFiles[robot.recipe].state;
+    });
+
+    const codesSet = {};
+    Object.keys(recipes).forEach(robotId => {
+      const robotState = recipes[robotId];
+      robotState.codes.forEach(code => codesSet[code] = true);
+    });
+
+    const codes: { [index: string]: Scripts } = {};
+    Object.keys(codesSet).map(codeId => {
+      const codeState = <CodeEditorState>codeFiles[codeId].state;
+      codes[codeId] = compileBlocklyXml(codeState.workspace);
+    });
+
+    robotsList.forEach(robot => {
+      const recipe = recipes[robot.recipe];
+      recipe.codes.forEach(codeId => {
+        this.sandbox.exec(robot.id, codes[codeId]);
+      });
+    });
+
+    this.sandbox.emit('when_run');
   }
 
   stopLocalServerMode() {
+    // Clean up Sandbox
+    this.sandbox.reset();
+
     // Clean up view
     cancelAnimationFrame(this.frameId);
     this.canvas.disconnectFromStateStore();

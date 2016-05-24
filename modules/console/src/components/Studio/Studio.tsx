@@ -82,7 +82,7 @@ export interface StudioState {
 
 interface StudioProps extends React.Props<Studio> {
   studioState: StudioState;
-  onChange: (nextState: StudioState, callback?: any) => any;
+  onChange: (nextState: StudioState) => any;
   onOpenFileRequest: (fileType: FileType) => any;
   onModelApply: (file: SourceFile) => any;
 
@@ -199,7 +199,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     }));
   }
 
-  handleFileChange2(id: string, state: any, callback?: Function) {
+  handleFileChange2(id: string, state: any) {
     const file = this.props.studioState.files[id];
     const modified = file.modified || file.state !== state;
 
@@ -208,7 +208,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
         modified: { $set: modified },
         state: { $set: state },
       } },
-    }), callback);
+    }));
   }
 
   handleFileTabOrderChange(dragIndex, hoverIndex) {
@@ -290,7 +290,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           <LayoutContainer remaining={true}>
             <WorldEditor
               editorState={this.props.studioState.files[this.props.studioState.worldId].state}
-              onChange={(state, callback) => this.handleFileChange2(state.common.fileId, state, callback)}
+              onChange={(state) => this.handleFileChange2(state.common.fileId, state)}
               sizeVersion={this.state.gameSizeVersion}
               stateLayer={this.props.stateLayer}
               modelManager={this.props.modelManager}

@@ -5,14 +5,7 @@ import { Keys, Key } from './constants';
 const indexedKeys: { [index: string]: Key } = {};
 Keys.forEach(key => indexedKeys[key.id] = key);
 
-export function compileBlocklyXml(xml: string): Scripts {
-  // Create temporary workspace to parse xml string.
-  const workspace = new Blockly.Workspace();
-  Blockly.JavaScript.init(workspace);
-  const dom = Blockly.Xml.textToDom(xml);
-  Blockly.Xml.domToWorkspace(dom, workspace);
-
-  // Parse!
+export function compileBlocklyXml(workspace: any): Scripts {
   const scripts: Scripts = {};
 
   workspace.getTopBlocks().forEach(block => {
@@ -41,6 +34,5 @@ export function compileBlocklyXml(xml: string): Scripts {
     }
   });
 
-  workspace.dispose();
   return scripts;
 }

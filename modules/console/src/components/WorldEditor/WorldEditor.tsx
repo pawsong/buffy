@@ -33,11 +33,6 @@ import { TOOLBAR_HEIGHT } from './Constants';
 
 import generateObjectId from '../../utils/generateObjectId';
 
-import { saga, SagaProps, ImmutableTask } from '../../saga';
-import { runBlocklyWorkspace, CompiledCodes } from './sagas';
-
-import { compileBlocklyXml } from '../../blockly/utils';
-
 import {
   PlayState,
   ViewMode,
@@ -59,14 +54,13 @@ import { rootReducer } from './reducers';
 
 export { WorldEditorState };
 
-interface WorldEditorProps extends React.Props<WorldEditor>, SagaProps {
+interface WorldEditorProps extends React.Props<WorldEditor> {
   editorState: WorldEditorState;
   onChange: (state: WorldEditorState, callback?: () => any) => any;
   stateLayer: StateLayer;
   modelManager: ModelManager;
   sizeVersion: number; // For resize
   files: SourceFileDB;
-  run?: ImmutableTask<any>;
 }
 
 const styles = {
@@ -94,9 +88,6 @@ interface CreateStateOptions {
   mapIdToLocalStorageKey: panelId => `worldeditor.panel.${panelId}`,
   limitTop: TOOLBAR_HEIGHT,
 })
-@saga({
-  run: runBlocklyWorkspace,
-})
 class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState> {
   static createState: (fileId: string, options: CreateStateOptions) => WorldEditorState;
 
@@ -111,9 +102,9 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
     this.sandbox = new Sandbox(props.stateLayer);
   }
 
-  dispatchAction = (action: Action<any>, callback?: () => any) => {
+  dispatchAction = (action: Action<any>) => {
     const nextState = rootReducer(this.props.editorState, action);
-    this.props.onChange(nextState, callback);
+    this.props.onChange(nextState);
   }
 
   renderContent() {
@@ -151,44 +142,10 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
   }
 
   handleScriptRun = () => {
-    console.log('run!');
-    this.dispatchAction(runScript(), () => {
-      console.log('dispatched');
-
-      const robots = Object.keys(this.props.editorState.editMode.robots).map(robotId => {
-        return this.props.editorState.editMode.robots[robotId];
-      });
-
-      // Find robots
-      const recipes: { [index: string]: RecipeEditorState } = {};
-      robots.forEach(robot => {
-        recipes[robot.recipe] = this.props.files[robot.recipe].state;
-      });
-
-      const codesSet = {};
-      Object.keys(recipes).forEach(robotId => {
-        const robotState = recipes[robotId];
-        robotState.codes.forEach(code => codesSet[code] = true);
-      });
-
-      const codes: CompiledCodes = {};
-      Object.keys(codesSet).map(codeId => {
-        const codeState = this.props.files[codeId].state;
-        codes[codeId] = compileBlocklyXml(codeState.blocklyXml);
-      });
-
-      this.props.runSaga(this.props.run, this.sandbox, codes, robots.map(instance => {
-        const recipe = recipes[instance.recipe];
-        return {
-          objectId: instance.id,
-          codeIds: recipe.codes,
-        };
-      }));
-    });
+    this.dispatchAction(runScript());
   }
 
   handleScriptStop = () => {
-    this.props.cancelSaga(this.props.run);
     this.dispatchAction(stopScript());
   }
 

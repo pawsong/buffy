@@ -135,6 +135,9 @@ class Sandbox {
   }
 
   reset() {
+    this.processes.forEach(process => process.kill());
+    this.processes = [];
+
     if (this.running) {
       this.running = false;
 
@@ -142,9 +145,6 @@ class Sandbox {
       window.removeEventListener('keyup', this.listenKeyEvent, false);
       cancelAnimationFrame(this.frameId);
     }
-
-    this.processes.forEach(process => process.kill());
-    this.processes = [];
   }
 
   destroy() {
