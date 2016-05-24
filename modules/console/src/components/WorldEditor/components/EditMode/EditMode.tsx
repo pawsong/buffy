@@ -11,6 +11,7 @@ import {
   EditToolType,
   WorldEditorState,
   WorldData,
+  FileState,
 } from '../../types';
 
 import {
@@ -29,12 +30,14 @@ import { Robot } from '../../types';
 
 import RobotPanel from './RobotPanel';
 import ToolsPanel from './ToolsPanel';
+import HistoryPanel from './HistoryPanel';
 
 import ModelManager from '../../../../canvas/ModelManager';
 
 interface EditModeProps extends React.Props<EditMode> {
   editorState: WorldEditorState;
   worldData: WorldData;
+  fileState: FileState;
   dispatchAction: DispatchAction;
   files: SourceFileDB;
   modelManager: ModelManager;
@@ -83,6 +86,10 @@ class EditMode extends React.Component<EditModeProps, EditModeState> {
           onPlayerChange={playerId => {}}
           onRobotRemove={robotId => this.handleRobotRemove(robotId)}
           onAddRobotButtonClick={() => this.setState({ addRobotDialogOpen: true })}
+        />
+        <HistoryPanel
+          file={this.props.fileState}
+          dispatchAction={this.props.dispatchAction}
         />
         <ToolsPanel
           changePaletteColor={brushColor => this.handlePaletteColorChange(brushColor)}

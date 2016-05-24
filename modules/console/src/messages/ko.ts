@@ -588,6 +588,41 @@ export default {
   'vrMode': 'VR 모드',
 
   /**
+   * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
+   * description: Add robot history label
+   * defaultMessage: Add robot
+   */
+/* translate */ 'worldeditor.panels.history.add.robot': '',
+
+  /**
+   * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
+   * description: Zone block add history label
+   * defaultMessage: Add block
+   */
+  'worldeditor.panels.history.add.zone.block': '블록 추가',
+
+  /**
+   * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
+   * description: Init history label
+   * defaultMessage: Initialize
+   */
+  'worldeditor.panels.history.init': '초기화',
+
+  /**
+   * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
+   * description: Zone block remove history label
+   * defaultMessage: Remove block
+   */
+  'worldeditor.panels.history.remove.zone.block': '블록 제거',
+
+  /**
+   * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
+   * description: World editor history panel title
+   * defaultMessage: History
+   */
+  'worldeditor.panels.history.title': '히스토리',
+
+  /**
    * path: src/components/WorldEditor/components/EditMode/RobotPanel.json
    * description: World editor robot panel title
    * defaultMessage: Robots
@@ -601,6 +636,10 @@ export default {
    */
   'worldeditor.panels.tools.title': '도구상자',
 
+/* [Warning] Message not in use */ 'worldeditor.panels.history.voxel.remove': '',
+/* [Warning] Message not in use */ 'worldeditor.panels.history.voxel.init': '',
+/* [Warning] Message not in use */ 'worldeditor.panels.history.voxel.rotate': '',
+/* [Warning] Message not in use */ 'worldeditor.panels.history.voxel.add': '',
 /* [Warning] Message not in use */ 'worldeditor.panels.zone.title': '지역',
 /* [Warning] Message not in use */ 'worldeditor.panels.robot.id': '',
 /* [Warning] Message not in use */ 'worldeditor.panels.zone.id': '',

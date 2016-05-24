@@ -124,6 +124,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
         return (
           <EditMode
             modelManager={this.props.modelManager}
+            fileState={this.props.fileState}
             editorState={this.props.editorState}
             worldData={this.props.fileState.present.data}
             dispatchAction={this.dispatchAction}

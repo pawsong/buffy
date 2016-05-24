@@ -54,6 +54,12 @@ export function editModeReducer(state = initialState, action: Action<any>): Edit
         addRobotRecipeId: recipeId,
       });
     }
+    case ADD_ROBOT: {
+      return Object.assign({}, state, {
+        tool: state.toolToRestore,
+        addRobotRecipeId: '',
+      });
+    }
     case RUN_SCRIPT: {
       return objectAssign({}, state, { scriptIsRunning: true });
     }
