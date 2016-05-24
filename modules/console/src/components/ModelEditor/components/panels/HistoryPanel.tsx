@@ -24,7 +24,7 @@ import {
 } from '../../panel';
 
 import {
-  VoxelState,
+  FileState,
   DispatchAction,
 } from '../../types';
 
@@ -80,7 +80,7 @@ function getActionMessage(action: string) {
  */
 
 interface HistoryPanelProps extends React.Props<HistoryPanel> {
-  voxel: VoxelState;
+  voxel: FileState;
   dispatchAction: DispatchAction;
   intl?: InjectedIntlProps;
 }

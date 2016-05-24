@@ -270,7 +270,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       .forEach(file => {
         const loader = this.modelManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
-        loader.loadFromMemory(file.state.voxel.present.data.mesh);
+        loader.loadFromMemory(file.state.present.data.mesh);
       });
 
     this.startStateLayer();
@@ -329,7 +329,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
     switch(file.type) {
       case FileType.MODEL: {
-        const mesh = file.state.voxel.present.mesh;
+        const mesh = file.state.present.mesh;
         const loader = this.modelManager.getLoader(fileId);
         loader.loadFromMemory(mesh);
         // this.stateLayer.rpc.updateMesh({
@@ -464,7 +464,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       if (spec.type === FileType.MODEL) {
         const loader = this.modelManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
-        loader.loadFromMemory(file.state.voxel.present.data.mesh);
+        loader.loadFromMemory(file.state.present.data.mesh);
       }
     });
 
@@ -479,7 +479,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   handleModelApply = (file: SourceFile) => {
-    const { mesh } = file.state.voxel.present.data;
+    const { mesh } = file.state.present.data;
     const loader = this.modelManager.getLoader(file.id);
     loader.loadFromMemory(mesh);
   }
@@ -510,7 +510,6 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
           stateLayer={this.stateLayer}
           modelManager={this.modelManager}
           style={styles.studio}
-          editorFocus={!this.state.newFileDialogOpen}
         />
         <NewRecipeFileDialog
           modelManager={this.modelManager}

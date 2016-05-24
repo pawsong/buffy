@@ -66,7 +66,6 @@ class RotateButton extends React.Component<RotateButtonProps, {}> {
 };
 
 interface PreviewPanelProps extends React.Props<PreviewPanel> {
-  focus: boolean;
   sizeVersion: number;
   stores: Stores;
   cameraStore: CameraStore;

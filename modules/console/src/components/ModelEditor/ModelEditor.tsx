@@ -38,7 +38,7 @@ import {
 } from '../../canvas/Constants';
 
 import {
-  VoxelState,
+  FileState,
   Action,
   ToolType,
   Color,
@@ -46,6 +46,7 @@ import {
   ActionListener,
   ExtraData,
   Position,
+  CommonState,
 } from './types';
 
 import {
@@ -62,7 +63,8 @@ import ApplyButton from './components/ApplyButton';
 
 import ModelEditorCanvas from './canvas/ModelEditorCanvas';
 
-import rootReducer from './reducers';
+import commonReducer from './reducers/common';
+import fileReducer from './reducers/file';
 
 const styles = {
   canvas: {
@@ -79,11 +81,12 @@ import {
 export { ModelEditorState };
 
 interface ModelEditorProps extends React.Props<ModelEditor> {
-  editorState: ModelEditorState;
-  onChange: (voxelEditorState: ModelEditorState) => any;
+  commonState: CommonState;
+  onCommonStateChange: (commonState: CommonState) => any;
+  fileState: FileState;
+  onFileStateChange: (fileState: FileState) => any;
   onApply: () => any;
   sizeVersion: number;
-  focus: boolean;
   extraData: ExtraData;
   intl?: InjectedIntlProps;
 }
@@ -104,7 +107,8 @@ export interface CreateStateOptions {
   mapIdToLocalStorageKey: panelId => `${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${panelId}`,
 })
 class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
-  static createState: (fileId: string, options?: CreateStateOptions) => ModelEditorState;
+  static createCommonState: () => CommonState;
+  static createFileState: (fileId: string, options?: CreateStateOptions) => ModelEditorState;
   static createExtraData: () => ExtraData;
   static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
 
@@ -119,15 +123,12 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     };
   }
 
-  handleStateChange(editorState: ModelEditorState) {
-    this.props.onChange(editorState);
-  }
-
   dispatchAction = (action: Action<any>, callback?: () => any) => {
-    const nextState = rootReducer(this.props.editorState, action);
+    const nextCommonState = commonReducer(this.props.commonState, action);
+    if (this.props.commonState !== nextCommonState) this.props.onCommonStateChange(nextCommonState);
 
-    // TODO: Support callback
-    this.props.onChange(nextState);
+    const nextFileState = fileReducer(this.props.fileState, action);
+    if (this.props.fileState !== nextFileState) this.props.onFileStateChange(nextFileState);
   }
 
   handleFullscreenButtonClick() {
@@ -135,7 +136,14 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 
   componentWillMount() {
-    this.stores = new Stores(this.props.editorState.voxel);
+    this.stores = new Stores(this.props.fileState);
+  }
+
+  getEditorState(): ModelEditorState {
+    return {
+      common: this.props.commonState,
+      file: this.props.fileState,
+    };
   }
 
   componentDidMount() {
@@ -144,26 +152,23 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       stores: this.stores,
       cameraStore: this.props.extraData.cameraPositionStore,
       dispatchAction: this.dispatchAction,
-      getEditorState: () => this.props.editorState,
+      state: this.getEditorState(),
     });
     this.canvas.init();
   }
 
-  componentWillReceiveProps(nextProps: ModelEditorProps) {
-    if (nextProps.sizeVersion !== this.props.sizeVersion) {
+  componentDidUpdate(prevProps: ModelEditorProps) {
+    if (prevProps.sizeVersion !== this.props.sizeVersion) {
       this.canvas.resize();
     }
 
-    if (this.props.editorState.voxel !== nextProps.editorState.voxel) {
-      this.stores.voxelStateChange(nextProps.editorState.voxel);
+    if (this.props.fileState !== prevProps.fileState) {
+      this.stores.voxelStateChange(this.props.fileState);
+      this.canvas.onStateChange(this.getEditorState());
+    } else if (this.props.commonState !== prevProps.commonState) {
+      this.canvas.onStateChange(this.getEditorState());
     }
 
-    if (this.props.editorState !== nextProps.editorState) {
-      this.canvas.updateState(nextProps.editorState);
-    }
-  }
-
-  componentDidUpdate(prevProps: ModelEditorProps) {
     if (prevProps.extraData !== this.props.extraData) {
       this.canvas.onChangeCameraStore(this.props.extraData.cameraPositionStore);
     }
@@ -181,19 +186,18 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     return (
       <div>
         <HistoryPanel
-          voxel={this.props.editorState.voxel}
+          voxel={this.props.fileState}
           dispatchAction={this.dispatchAction}
         />
         <PreviewPanel
-          focus={this.props.focus}
           stores={this.stores}
           cameraStore={this.props.extraData.cameraPositionStore}
           dispatchAction={this.dispatchAction}
           sizeVersion={this.props.sizeVersion}
         />
         <ToolsPanel
-          paletteColor={this.props.editorState.common.paletteColor}
-          selectedTool={this.props.editorState.common.selectedTool}
+          paletteColor={this.props.commonState.paletteColor}
+          selectedTool={this.props.commonState.selectedTool}
           changePaletteColor={this.changePaletteColor}
           selectTool={this.selectTool}
         />
@@ -227,7 +231,11 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 }
 
-ModelEditor.createState = function VoxelEditor(options: CreateStateOptions = {}): ModelEditorState {
+ModelEditor.createCommonState = () => {
+  return commonReducer(undefined, { type: '' });
+};
+
+ModelEditor.createFileState = function VoxelEditor(options: CreateStateOptions = {}): FileState {
   // let voxel: VoxelState = initialVoxelState;
 
   // if (options.voxels) {
@@ -242,7 +250,7 @@ ModelEditor.createState = function VoxelEditor(options: CreateStateOptions = {})
   //   });
   // }
 
-  const initialState = rootReducer({}, { type: '' });
+  const initialState = fileReducer(undefined, { type: '' });
   return Object.assign(initialState);
 }
 
@@ -263,8 +271,8 @@ ModelEditor.createExtraData = () => {
   };
 };
 
-ModelEditor.isModified = function (lhs: ModelEditorState, rhs: ModelEditorState) {
-  return lhs.voxel.present !== rhs.voxel.present;
+ModelEditor.isModified = function (lhs: FileState, rhs: FileState) {
+  return lhs.present !== rhs.present;
 };
 
 export default ModelEditor;

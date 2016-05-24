@@ -14,7 +14,6 @@ export { ToolState }
 
 export interface InitParams {
   canvas: ModelEditorCanvas;
-  getState: GetEditorState;
   dispatchAction: DispatchAction;
 }
 

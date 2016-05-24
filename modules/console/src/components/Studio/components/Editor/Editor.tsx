@@ -3,7 +3,7 @@ const update = require('react-addons-update');
 
 import FileTabs from '../FileTabs';
 import CodeEditor, { CodeEditorState } from '../../../CodeEditor';
-import ModelEditor, { ModelEditorState } from '../../../ModelEditor';
+import ModelEditor, { ModelEditorState, ModelCommonState } from '../../../ModelEditor';
 import RecipeEditor, { RecipeEditorState } from '../../../RecipeEditor';
 
 import { FileType } from '../../types';
@@ -19,14 +19,24 @@ interface EditorProps extends React.Props<Editor> {
   file: SourceFile;
   files: { [index: string]: SourceFile };
   modelManager: ModelManager;
-  focus: boolean;
   editorSizeRevision: number;
   onFileChange: (fileId: string, state: any, modified: boolean) => any;
   onModelApply: (file: SourceFile) => any;
 }
 
+interface EditorState {
+  modelCommonState?: ModelCommonState;
+}
+
 @withStyles(styles)
-class Editor extends React.Component<EditorProps, any> {
+class Editor extends React.Component<EditorProps, EditorState> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modelCommonState: ModelEditor.createCommonState(),
+    };
+  }
+
   handleFileStateChange = (nextState: any, modified: boolean) => {
     this.props.onFileChange(this.props.file.id, nextState, modified);
   }
@@ -50,17 +60,22 @@ class Editor extends React.Component<EditorProps, any> {
     );
   }
 
-  handleModelStateChange = (state: ModelEditorState) => {
+  handleModelCommonStateChange = (commonState: ModelCommonState) => {
+    this.setState({ modelCommonState: commonState });
+  }
+
+  handleModelFileStateChange = (state: ModelEditorState) => {
     this.props.onFileChange(this.props.file.id, state, ModelEditor.isModified(this.props.file.savedState, state));
   }
 
   renderDesignEditor() {
     return (
       <ModelEditor
-        editorState={this.props.file.state}
-        onChange={this.handleModelStateChange}
+        commonState={this.state.modelCommonState}
+        onCommonStateChange={this.handleModelCommonStateChange}
+        fileState={this.props.file.state}
+        onFileStateChange={this.handleModelFileStateChange}
         onApply={this.handleModelFileApply}
-        focus={this.props.focus}
         sizeVersion={this.props.editorSizeRevision}
         extraData={this.props.file.extraData}
       />

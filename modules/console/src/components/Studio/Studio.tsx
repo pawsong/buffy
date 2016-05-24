@@ -86,8 +86,6 @@ interface StudioProps extends React.Props<Studio> {
   onOpenFileRequest: (fileType: FileType) => any;
   onModelApply: (file: SourceFile) => any;
 
-  editorFocus: boolean;
-
   game?: React.ReactElement<any>;
 
   stateLayer: StateLayer;
@@ -242,7 +240,6 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
           file={file}
           files={this.props.studioState.files}
           modelManager={this.props.modelManager}
-          focus={this.props.editorFocus}
         />
       </div>
     );
@@ -307,7 +304,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
   const { codeFileId, designFileId, robotFileId, worldFileId } = options;
 
-  const modelState = ModelEditor.createState(designFileId, options.voxelEditorState);
+  const modelState = ModelEditor.createFileState(designFileId, options.voxelEditorState);
   const modelFile = {
     id: designFileId,
     created: true,

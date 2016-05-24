@@ -41,7 +41,7 @@ interface CanvasOptions {
   stores: Stores;
   cameraStore: CameraStore;
   dispatchAction: DispatchAction;
-  getEditorState: GetEditorState;
+  state: ModelEditorState;
 }
 
 const gridVertexShader = require('raw!./shaders/grid.vert');
@@ -51,7 +51,6 @@ class ModelEditorCanvas extends Canvas {
   controls: any;
 
   dispatchAction: DispatchAction;
-  getState: GetEditorState;
 
   cachedTools: { [index: string]: ModelEditorTool<any> };
   tool: ModelEditorTool<any>;
@@ -67,19 +66,20 @@ class ModelEditorCanvas extends Canvas {
   private modelMaterial: THREE.ShaderMaterial;
 
   private cameraStore: CameraStore;
+  private state: ModelEditorState;
 
   constructor({
     container,
     stores,
     dispatchAction,
-    getEditorState,
     cameraStore,
+    state,
   }: CanvasOptions) {
     super(container);
 
     this.stores = stores;
     this.dispatchAction = dispatchAction;
-    this.getState = getEditorState;
+    this.state = state;
 
     this.cameraStore = cameraStore;
 
@@ -151,10 +151,8 @@ class ModelEditorCanvas extends Canvas {
     // add this only if there is no animation loop (requestAnimationFrame)
     this.controls.addEventListener('change', () => this.render());
 
-    const state = this.getState();
-
-    this.tool = this.getTool(state.common.selectedTool);
-    this.tool.start(state);
+    this.tool = this.getTool(this.state.common.selectedTool);
+    this.tool.start(this.state);
 
     this.controls.update();
     this.render();
@@ -185,13 +183,13 @@ class ModelEditorCanvas extends Canvas {
     if (tool) return tool;
 
     return this.cachedTools[toolType] =
-      createTool(toolType, this, this.getState, this.dispatchAction);
+      createTool(toolType, this, this.dispatchAction);
   }
 
   handleWindowResize() {
     this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight
     this.camera.updateProjectionMatrix();
-    this.stores.cameraPositionStore.update([
+    this.cameraStore.update([
       this.camera.position.x,
       this.camera.position.y,
       this.camera.position.z,
@@ -225,7 +223,7 @@ class ModelEditorCanvas extends Canvas {
     this.render();
   }
 
-  updateState(nextState: ModelEditorState) {
+  onStateChange(nextState: ModelEditorState) {
     if (this.tool.getToolType() !== nextState.common.selectedTool) {
       const nextTool = this.getTool(nextState.common.selectedTool);
       this.tool.stop();
@@ -234,6 +232,8 @@ class ModelEditorCanvas extends Canvas {
     } else {
       this.tool.updateProps(nextState);
     }
+
+    this.state = nextState;
   }
 
   render() {

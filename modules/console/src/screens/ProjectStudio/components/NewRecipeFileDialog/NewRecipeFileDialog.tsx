@@ -106,7 +106,7 @@ class NewFileDialog extends React.Component<NewFileDialogProps, NewFileState> {
         id: designId,
         type: FileType.MODEL,
         modified: true,
-        data: ModelEditor.createState(designId),
+        data: ModelEditor.createFileState(designId),
         extraData: ModelEditor.createExtraData(),
       });
     } else {

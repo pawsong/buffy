@@ -15,12 +15,10 @@ import EraseTool from './EraseTool';
 export default function createTool(
   toolType: ToolType,
   canvas: ModelEditorCanvas,
-  getState: GetEditorState,
   dispatchAction: DispatchAction
 ): ModelEditorTool<any> {
-  const state = getState();
   const initParams = {
-    canvas, getState, dispatchAction,
+    canvas, dispatchAction,
   };
 
   switch(toolType) {

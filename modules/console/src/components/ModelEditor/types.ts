@@ -59,7 +59,7 @@ export interface ExtraData {
   cameraPositionStore: CameraStore;
 }
 
-export type VoxelState = UndoableState<VoxelData>;
+export type FileState = UndoableState<VoxelData>;
 
 export interface CommonState {
   selectedTool: ToolType;
@@ -68,7 +68,7 @@ export interface CommonState {
 
 export interface ModelEditorState {
   common?: CommonState;
-  voxel?: VoxelState;
+  file?: FileState;
 }
 
 /**

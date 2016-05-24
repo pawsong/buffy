@@ -6,7 +6,7 @@ import { SimpleStore } from '../../../../libs';
 
 import {
   Position,
-  VoxelState,
+  FileState,
 } from '../../types';
 
 interface Mesh {
@@ -14,19 +14,15 @@ interface Mesh {
 }
 
 class Stores {
-  cameraPositionStore: SimpleStore<Position>;
   meshStore: SimpleStore<THREE.Geometry>;
 
-  constructor(state: VoxelState) {
-    this.cameraPositionStore = new SimpleStore<Position>([0, 0, 0]);
-
+  constructor(state: FileState) {
     // Mesh store
     this.meshStore = new SimpleStore<THREE.Geometry>(null);
-
     this.voxelStateChange(state);
   }
 
-  voxelStateChange(state: VoxelState) {
+  voxelStateChange(state: FileState) {
     const { mesh } = state.present.data;
 
     const geometry = this.meshStore.getState();

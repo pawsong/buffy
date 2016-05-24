@@ -93,8 +93,7 @@ class DrawState extends ToolState {
   constructor(
     private tool: BrushTool,
     private canvas: ModelEditorCanvas,
-    private dispatchAction: DispatchAction,
-    private getState: GetEditorState
+    private dispatchAction: DispatchAction
   ) {
     super();
 
@@ -166,7 +165,7 @@ class DrawState extends ToolState {
   }
 
   handleMouseUp({ } : CursorEventParams) {
-    const { common: { paletteColor } } = this.getState();
+    this.tool.props.color;
 
     this.dispatchAction(voxelAddBatch([
       Math.min(this.anchor.x, this.target.x),
@@ -175,7 +174,7 @@ class DrawState extends ToolState {
       Math.max(this.anchor.y, this.target.y),
       Math.min(this.anchor.z, this.target.z),
       Math.max(this.anchor.z, this.target.z),
-    ], paletteColor));
+    ], this.tool.props.color));
 
     this.transitionTo(STATE_WAIT);
   }
@@ -214,8 +213,6 @@ class BrushTool extends ModelEditorTool<BrushToolProps> {
   drawGuideX: THREE.Mesh;
   drawGuideY: THREE.Mesh;
   drawGuideZ: THREE.Mesh;
-
-  getState: GetEditorState;
 
   cursorColor: THREE.Vector3;
   cursorScale: THREE.Vector3;
@@ -258,7 +255,6 @@ class BrushTool extends ModelEditorTool<BrushToolProps> {
   }
 
   init(params: InitParams) {
-    this.getState = params.getState;
     this.canvas = params.canvas;
 
     // Setup cursor
@@ -304,7 +300,7 @@ class BrushTool extends ModelEditorTool<BrushToolProps> {
 
     const wait = new WaitState(this);
     const rotate = new RotateState();
-    const draw = new DrawState(this, params.canvas, params.dispatchAction, params.getState);
+    const draw = new DrawState(this, params.canvas, params.dispatchAction);
 
     return {
       [STATE_WAIT]: wait,
