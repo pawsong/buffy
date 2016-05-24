@@ -2,9 +2,9 @@ import * as React from 'react';
 const update = require('react-addons-update');
 
 import FileTabs from '../FileTabs';
-import CodeEditor from '../../../CodeEditor';
-import ModelEditor from '../../../ModelEditor';
-import RecipeEditor from '../../../RecipeEditor';
+import CodeEditor, { CodeEditorState } from '../../../CodeEditor';
+import ModelEditor, { ModelEditorState } from '../../../ModelEditor';
+import RecipeEditor, { RecipeEditorState } from '../../../RecipeEditor';
 
 import { FileType } from '../../types';
 
@@ -21,36 +21,44 @@ interface EditorProps extends React.Props<Editor> {
   modelManager: ModelManager;
   focus: boolean;
   editorSizeRevision: number;
-  onFileChange: (fileId: string, state: any) => any;
+  onFileChange: (fileId: string, state: any, modified: boolean) => any;
   onModelApply: (file: SourceFile) => any;
 }
 
 @withStyles(styles)
 class Editor extends React.Component<EditorProps, any> {
-  handleFileStateChange = (nextState: any) => {
-    this.props.onFileChange(this.props.file.id, nextState);
+  handleFileStateChange = (nextState: any, modified: boolean) => {
+    this.props.onFileChange(this.props.file.id, nextState, modified);
   }
 
   handleModelFileApply = () => {
     this.props.onModelApply(this.props.file);
   }
 
+  handleCodeStateChange = (state: CodeEditorState) => {
+    this.props.onFileChange(this.props.file.id, state, true);
+  }
+
   renderCodeEditor() {
     return (
       <CodeEditor
         editorState={this.props.file.state}
-        onChange={editorState => this.props.onFileChange(this.props.file.id, editorState)}
+        onChange={this.handleCodeStateChange}
         sizeRevision={this.props.editorSizeRevision}
         readyToRender={true}
       />
     );
   }
 
+  handleModelStateChange = (state: ModelEditorState) => {
+    this.props.onFileChange(this.props.file.id, state, ModelEditor.isModified(this.props.file.savedState, state));
+  }
+
   renderDesignEditor() {
     return (
       <ModelEditor
         editorState={this.props.file.state}
-        onChange={this.handleFileStateChange}
+        onChange={this.handleModelStateChange}
         onApply={this.handleModelFileApply}
         focus={this.props.focus}
         sizeVersion={this.props.editorSizeRevision}
@@ -58,12 +66,16 @@ class Editor extends React.Component<EditorProps, any> {
     );
   }
 
+  handleRecipeStateChange = (state: RecipeEditorState) => {
+    this.props.onFileChange(this.props.file.id, state, true);
+  }
+
   renderRecipeEditor() {
     return (
       <RecipeEditor
         modelManager={this.props.modelManager}
         editorState={this.props.file.state}
-        onChange={editorState => this.props.onFileChange(this.props.file.id, editorState)}
+        onChange={this.handleRecipeStateChange}
         files={this.props.files}
       />
     );

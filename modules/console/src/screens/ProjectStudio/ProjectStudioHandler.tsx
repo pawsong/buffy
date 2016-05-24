@@ -456,6 +456,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
         created: true,
         modified: false,
         readonly: false,
+        savedState: spec.data,
         state: spec.data,
       };
 

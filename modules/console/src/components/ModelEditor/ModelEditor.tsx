@@ -95,6 +95,7 @@ export interface CreateStateOptions {
 })
 class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static createState: (fileId: string, options?: CreateStateOptions) => ModelEditorState;
+  static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
 
   stores: Stores;
   canvas: ModelEditorCanvas;
@@ -225,5 +226,9 @@ ModelEditor.createState = function VoxelEditor(options: CreateStateOptions = {})
   const initialState = rootReducer({}, { type: '' });
   return Object.assign(initialState);
 }
+
+ModelEditor.isModified = function (lhs: ModelEditorState, rhs: ModelEditorState) {
+  return lhs.voxel.present !== rhs.voxel.present;
+};
 
 export default ModelEditor;

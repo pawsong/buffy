@@ -19,6 +19,7 @@ export interface SourceFile {
   created: boolean;
   modified: boolean;
   readonly: boolean;
+  savedState: any;
   state: any;
 }
 

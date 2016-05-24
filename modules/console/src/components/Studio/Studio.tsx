@@ -187,9 +187,8 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
     });
   }
 
-  handleFileChange(id: string, state: any) {
+  handleFileChange = (id: string, state: any, modified: boolean) => {
     const file = this.props.studioState.files[id];
-    const modified = file.modified || file.state !== state;
 
     this.props.onChange(update(this.props.studioState, {
       files: { [id]: {
@@ -238,7 +237,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
         />
         <Editor
           editorSizeRevision={this.state.editorSizeVersion}
-          onFileChange={(id, state) => this.handleFileChange(id, state)}
+          onFileChange={this.handleFileChange}
           onModelApply={this.props.onModelApply}
           file={file}
           files={this.props.studioState.files}
@@ -308,50 +307,64 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
   const { codeFileId, designFileId, robotFileId, worldFileId } = options;
 
-  const robotState: RobotState = {
+  const modelState = ModelEditor.createState(designFileId, options.voxelEditorState);
+  const modelFile = {
+    id: designFileId,
+    created: true,
+    modified: false,
+    readonly: false,
+    name: 'Model',
+    type: FileType.MODEL,
+    savedState: modelState,
+    state: modelState,
+  };
+
+  const codeState = CodeEditor.creatState(codeFileId, options.codeEditorState);
+  const codeFile = {
+    id: codeFileId,
+    created: true,
+    modified: false,
+    readonly: false,
+    name: 'Code',
+    type: FileType.CODE,
+    savedState: codeState,
+    state: codeState,
+  };
+
+  const recipeState: RobotState = {
     codes: [codeFileId],
     design: designFileId,
   };
+  const recipeFile = {
+    id: robotFileId,
+    created: true,
+    modified: false,
+    readonly: false,
+    name: 'Recipe',
+    type: FileType.ROBOT,
+    savedState: recipeState,
+    state: recipeState,
+  };
+
+  const worldState = WorldEditor.createState(worldFileId, {
+    recipe: robotFileId,
+  });
+  const worldFile = {
+    id: worldFileId,
+    created: true,
+    modified: false,
+    readonly: false,
+    name: 'World',
+    type: FileType.WORLD,
+    savedState: worldState,
+    state: worldState,
+  };
 
   const files: { [idnex: string]: SourceFile } = {
-    [designFileId]: {
-      id: designFileId,
-      created: true,
-      modified: false,
-      readonly: false,
-      name: 'Model',
-      type: FileType.MODEL,
-      state: ModelEditor.createState(designFileId, options.voxelEditorState),
-    },
-    [codeFileId]: {
-      id: codeFileId,
-      created: true,
-      modified: false,
-      readonly: false,
-      name: 'Code',
-      type: FileType.CODE,
-      state: CodeEditor.creatState(codeFileId, options.codeEditorState),
-    },
-    [robotFileId]: {
-      id: robotFileId,
-      created: true,
-      modified: false,
-      readonly: false,
-      name: 'Recipe',
-      type: FileType.ROBOT,
-      state: robotState,
-    },
-    [worldFileId]: {
-      id: worldFileId,
-      created: true,
-      modified: false,
-      readonly: false,
-      name: 'World',
-      type: FileType.WORLD,
-      state: WorldEditor.createState(worldFileId, {
-        recipe: robotFileId,
-      }),
-    },
+    [modelFile.id]: modelFile,
+    [codeFile.id]: codeFile,
+    [recipeFile.id]: recipeFile,
+    [worldFile.id]: worldFile,
   };
 
   const filesOnTab = Object.keys(files).filter(key => files[key].created);
