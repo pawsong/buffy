@@ -1,5 +1,9 @@
 {
-  "ambientDependencies": {
+  "dependencies": {
+    "lodash": "registry:npm/lodash#4.0.0+20160416211519",
+    "source-map": "registry:npm/source-map#0.4.0+20160211003958"
+  },
+  "globalDependencies": {
     "bluebird": "registry:dt/bluebird#2.0.0+20160319051630",
     "classnames": "registry:dt/classnames#0.0.0+20160316155526",
     "clean-css": "registry:dt/clean-css#3.4.9+20160316155526",
@@ -14,6 +18,7 @@
     "material-ui": "registry:dt/material-ui#0.14.4+20160412130500",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
     "node": "registry:dt/node#4.0.0+20160423143914",
+    "pako": "registry:dt/pako#0.0.0+20160317120654",
     "react": "registry:dt/react#0.14.0+20160423065914",
     "react-dnd": "registry:dt/react-dnd#1.1.4+20160316155526",
     "react-dom": "registry:dt/react-dom#0.14.0+20160412154040",
@@ -28,9 +33,5 @@
     "socket.io-client": "registry:dt/socket.io-client#1.4.4+20160317120654",
     "three": "registry:dt/three#0.0.0+20160417141754",
     "uglify-js": "registry:dt/uglify-js#2.6.1+20160316155526"
-  },
-  "dependencies": {
-    "lodash": "registry:npm/lodash#4.0.0+20160416211519",
-    "source-map": "registry:npm/source-map#0.4.0+20160211003958"
   }
 }

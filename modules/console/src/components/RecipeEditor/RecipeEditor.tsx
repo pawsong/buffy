@@ -16,10 +16,10 @@ const styles = {
   },
 }
 
-export interface RecipeEditorState {
-  codes?: string[];
-  design?: string;
-}
+import {
+  RecipeEditorState,
+  SerializedData,
+} from './types'
 
 interface RobotEditorProps extends React.Props<RecipeEditor>, ReceiveThumbnailsProps {
   files: { [index: string]: SourceFile };
@@ -35,6 +35,8 @@ interface CreateStateOptions {
 @receiveThumbnails()
 class RecipeEditor extends React.Component<RobotEditorProps, void> {
   static createState: (options: CreateStateOptions) => RecipeEditorState;
+  static serialize: (fileState: RecipeEditorState) => SerializedData;
+  static deserialize: (data: SerializedData) => RecipeEditorState;
 
   handleStateChange(editorState: RecipeEditorState) {
     this.props.onChange(objectAssign({}, this.props.editorState, editorState));
@@ -110,6 +112,14 @@ RecipeEditor.createState = (options: CreateStateOptions) => {
     codes: options.codes,
     design: options.design,
   };
+};
+
+RecipeEditor.serialize = (fileState: RecipeEditorState) => {
+  return fileState;
+};
+
+RecipeEditor.deserialize = (data: SerializedData) => {
+  return data;
 };
 
 export default RecipeEditor;

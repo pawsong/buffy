@@ -2,6 +2,8 @@ import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 const pure = require('recompose/pure').default;
 
+import * as pako from 'pako';
+
 import * as Immutable from 'immutable';
 
 import { DropTarget } from 'react-dnd';
@@ -11,6 +13,7 @@ import { EventEmitter, EventSubscription } from 'fbemitter';
 const objectAssign = require('object-assign');
 import * as invariant from 'invariant';
 import RaisedButton from 'material-ui/lib/raised-button';
+import { reset } from '@pasta/helper/lib/undoable';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 
@@ -39,6 +42,7 @@ import {
 
 import {
   FileState,
+  VoxelData,
   Action,
   ToolType,
   Color,
@@ -47,6 +51,7 @@ import {
   ExtraData,
   Position,
   CommonState,
+  SerializedData,
 } from './types';
 
 import {
@@ -95,10 +100,6 @@ interface ContainerStates {
   fullscreen?: boolean;
 }
 
-export interface CreateStateOptions {
-  voxels?: any;
-}
-
 @pure
 @injectIntl
 @connectTarget({
@@ -108,9 +109,11 @@ export interface CreateStateOptions {
 })
 class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static createCommonState: () => CommonState;
-  static createFileState: (fileId: string, options?: CreateStateOptions) => ModelEditorState;
+  static createFileState: (data?: VoxelData) => FileState;
   static createExtraData: () => ExtraData;
   static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
+  static serialize: (fileState: FileState) => SerializedData;
+  static deserialize: (data: SerializedData) => FileState;
 
   stores: Stores;
   canvas: ModelEditorCanvas;
@@ -235,23 +238,8 @@ ModelEditor.createCommonState = () => {
   return commonReducer(undefined, { type: '' });
 };
 
-ModelEditor.createFileState = function VoxelEditor(options: CreateStateOptions = {}): FileState {
-  // let voxel: VoxelState = initialVoxelState;
-
-  // if (options.voxels) {
-  //   const data = Immutable.Map().withMutations(mutable => {
-  //     options.voxels.forEach(voxel => {
-  //       mutable.set(Immutable.Iterable(voxel.position), voxel);
-  //     });
-  //   });
-
-  //   voxel = update(initialVoxelState, {
-  //     present: { data: { $set: data } },
-  //   });
-  // }
-
-  const initialState = fileReducer(undefined, { type: '' });
-  return Object.assign(initialState);
+ModelEditor.createFileState = (data): FileState => {
+  return data ? fileReducer(undefined, reset(data)) : fileReducer(undefined, { type: '' });
 }
 
 var radius = PIXEL_SCALE * 25, theta = 270, phi = 45;
@@ -274,5 +262,25 @@ ModelEditor.createExtraData = () => {
 ModelEditor.isModified = function (lhs: FileState, rhs: FileState) {
   return lhs.present !== rhs.present;
 };
+
+ModelEditor.serialize = (fileState) => {
+  const data: any = pako.deflate(fileState.present.data.matrix.data.buffer);
+
+  return {
+    data,
+    shape: fileState.present.data.matrix.shape,
+  };
+}
+
+ModelEditor.deserialize = data => {
+  const inflated = pako.inflate(data.data);
+  const matrix = ndarray(new Int32Array(inflated.buffer), data.shape);
+  const mesh = mesher(matrix.data, matrix.shape);
+
+  return ModelEditor.createFileState({
+    matrix,
+    mesh,
+  });
+}
 
 export default ModelEditor;

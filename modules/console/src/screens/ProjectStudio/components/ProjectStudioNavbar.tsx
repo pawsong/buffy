@@ -90,11 +90,11 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
     let extraData;
     switch(type) {
       case FileType.CODE: {
-        data = CodeEditor.creatState(fileId);
+        data = CodeEditor.createState();
         break;
       }
       case FileType.MODEL: {
-        data = ModelEditor.createFileState(fileId);
+        data = ModelEditor.createFileState();
         extraData = ModelEditor.createExtraData();
         break;
       }

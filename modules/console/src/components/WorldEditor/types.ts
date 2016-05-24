@@ -109,6 +109,19 @@ export interface WorldState {
   file: WorldData;
 }
 
+export interface SerializedZone {
+  id: string;
+  name: string;
+  shape: [number /* width */, number /* height */, number /* depth */];
+  blocks: Uint8Array;
+}
+
+export interface SerializedData {
+  playerId: string;
+  robots: Robot[];
+  zones: SerializedZone[];
+}
+
 export interface GetState {
   (): WorldEditorState;
 }

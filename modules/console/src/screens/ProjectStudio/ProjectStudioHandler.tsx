@@ -1,4 +1,6 @@
 import * as React from 'react';
+const invariant = require('fbjs/lib/invariant');
+
 import { connect } from 'react-redux';
 import { RouteComponentProps, Link } from 'react-router';
 import { push } from 'react-router-redux';
@@ -20,6 +22,12 @@ import { saga, SagaProps, ImmutableTask } from '../../saga';
 import * as StorageKeys from '../../constants/StorageKeys';
 import Studio, { StudioState } from '../../components/Studio';
 import { FileType, SourceFile } from '../../components/Studio/types';
+
+import ModelEditor from '../../components/ModelEditor';
+import CodeEditor from '../../components/CodeEditor';
+import RecipeEditor from '../../components/RecipeEditor';
+import WorldEditor from '../../components/WorldEditor';
+
 import { WorldFileState } from '../../components/WorldEditor';
 import { requestLogout } from '../../actions/auth';
 import { compileBlocklyXml } from '../../blockly/utils';
@@ -256,7 +264,6 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     return {
       studioState: Studio.creatState({
         codeEditorState: { blocklyXml: project.blocklyXml },
-        voxelEditorState: { voxels },
       }),
     };
   }
@@ -305,6 +312,45 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   handleSave() {
+    const { files } = this.state.studioState;
+    const filesToSave = Object.keys(files)
+      .map(id => files[id])
+      .filter(file => file.created || file.modified);
+
+    const sf = filesToSave.map(file => {
+      let data;
+
+      switch (file.type) {
+        case FileType.CODE: {
+          data = CodeEditor.serialize(file.extraData);
+          break;
+        }
+        case FileType.MODEL: {
+          data = ModelEditor.serialize(file.state);
+          break;
+        }
+        case FileType.ROBOT: {
+          data = RecipeEditor.serialize(file.state);
+          break;
+        }
+        case FileType.WORLD: {
+          data = WorldEditor.serialize(file.state);
+          break;
+        }
+        default: {
+          invariant(false, `Invalid type: ${file.type}`);
+        }
+      }
+
+      return {
+        id: file.id,
+        name: file.name,
+        type: msgpack.encode(data),
+      };
+    });
+
+    console.log(sf);
+
     // Create files
     // const buffer = msgpack.encode(this.state.studioState.codeEditorState.blocklyXml);
     // this.props.runSaga(this.props.createFiles, [{
@@ -313,64 +359,64 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
     //   data: buffer.toArrayBuffer()
     // }]);
 
-    const fileId = this.state.studioState.activeFileId;
-    const file = this.state.studioState.files[fileId];
-    if (!file.modified) return;
+    // const fileId = this.state.studioState.activeFileId;
+    // const file = this.state.studioState.files[fileId];
+    // if (!file.modified) return;
 
-    const worldFile = this.state.studioState.files[this.state.studioState.worldId];
-    const world: WorldFileState = worldFile.state;
+    // const worldFile = this.state.studioState.files[this.state.studioState.worldId];
+    // const world: WorldFileState = worldFile.state;
 
-    // this.setState(update(this.state, {
-    //   studioState: { workingCopies: { [workingCopyId]: {
-    //     created: { $set: false },
-    //     modified: { $set: false },
-    //   } } },
-    // }));
+    // // this.setState(update(this.state, {
+    // //   studioState: { workingCopies: { [workingCopyId]: {
+    // //     created: { $set: false },
+    // //     modified: { $set: false },
+    // //   } } },
+    // // }));
 
-    switch(file.type) {
-      case FileType.MODEL: {
-        const mesh = file.state.present.mesh;
-        const loader = this.modelManager.getLoader(fileId);
-        loader.loadFromMemory(mesh);
-        // this.stateLayer.rpc.updateMesh({
-        //   objectId: world.playerId,
-        //   designId: fileId,
-        //   mesh: mesh,
-        // });
-        break;
-      }
-      case FileType.ROBOT: {
-        const state: RecipeEditorState = file.state;
-        this.stateLayer.rpc.updateRobot({
-          objectId: world.present.data.playerId,
-          robot: file.id,
-          design: state.design,
-        });
-        break;
-      }
-    }
+    // switch(file.type) {
+    //   case FileType.MODEL: {
+    //     const mesh = file.state.present.mesh;
+    //     const loader = this.modelManager.getLoader(fileId);
+    //     loader.loadFromMemory(mesh);
+    //     // this.stateLayer.rpc.updateMesh({
+    //     //   objectId: world.playerId,
+    //     //   designId: fileId,
+    //     //   mesh: mesh,
+    //     // });
+    //     break;
+    //   }
+    //   case FileType.ROBOT: {
+    //     const state: RecipeEditorState = file.state;
+    //     this.stateLayer.rpc.updateRobot({
+    //       objectId: world.present.data.playerId,
+    //       robot: file.id,
+    //       design: state.design,
+    //     });
+    //     break;
+    //   }
+    // }
 
-    if (file.created) {
-      // Serialize
-      // const buffer = msgpack.encode(this.state.studioState.codeEditorState.blocklyXml);
+    // if (file.created) {
+    //   // Serialize
+    //   // const buffer = msgpack.encode(this.state.studioState.codeEditorState.blocklyXml);
 
-      // // Save
-      // this.props.runSaga(this.props.createFile, {
-      //   name: 'name',
-      //   format: 'format',
-      //   data: buffer.toArrayBuffer()
-      // }, fileId => this.setState(update(this.state, {
-      //   workingCopies: {
-      //     [workingCopyId]: {
-      //       fileId: { $set: fileId },
-      //       created: { $set: false },
-      //       modified: { $set: false },
-      //     },
-      //   },
-      // })));
-    } else {
+    //   // // Save
+    //   // this.props.runSaga(this.props.createFile, {
+    //   //   name: 'name',
+    //   //   format: 'format',
+    //   //   data: buffer.toArrayBuffer()
+    //   // }, fileId => this.setState(update(this.state, {
+    //   //   workingCopies: {
+    //   //     [workingCopyId]: {
+    //   //       fileId: { $set: fileId },
+    //   //       created: { $set: false },
+    //   //       modified: { $set: false },
+    //   //     },
+    //   //   },
+    //   // })));
+    // } else {
 
-    }
+    // }
 
     // // Game
     // const serialized = this.server.serialize();

@@ -27,6 +27,7 @@ import {
 } from '../../../RecipeEditor';
 import {
   CodeEditorState,
+  CodeExtraData,
 } from '../../../CodeEditor';
 
 abstract class ModeState<T, U> extends State {
@@ -121,8 +122,8 @@ abstract class ModeState<T, U> extends State {
 
     const codes: { [index: string]: Scripts } = {};
     Object.keys(codesSet).map(codeId => {
-      const codeState = <CodeEditorState>codeFiles[codeId].state;
-      codes[codeId] = compileBlocklyXml(codeState.workspace);
+      const { workspace } = <CodeExtraData>codeFiles[codeId].extraData;
+      codes[codeId] = compileBlocklyXml(workspace);
     });
 
     robotsList.forEach(robot => {

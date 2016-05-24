@@ -1,6 +1,8 @@
 import * as React from 'react';
 const pure = require('recompose/pure').default;
 
+import * as pako from 'pako';
+
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { createState as createUndoableState } from '@pasta/helper/lib/undoable';
 const objectAssign = require('object-assign');
@@ -51,6 +53,7 @@ import {
   DispatchAction,
   ActionListener,
   FileState,
+  SerializedData,
 } from './types';
 
 import fileReducer from './reducers/file';
@@ -99,6 +102,9 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
   static createEditorState: (activeZoneId: string) => WorldEditorState;
   static createFileState: (fileId: string, options: CreateStateOptions) => FileState;
   static isModified: (lhs: FileState, rhs: FileState) => boolean;
+
+  static serialize: (fileState: FileState) => SerializedData;
+  static deserialize: (data: SerializedData) => FileState;
 
   private sandbox: Sandbox;
 
@@ -262,6 +268,48 @@ WorldEditor.createFileState = (fileId: string, options: CreateStateOptions): Fil
 
 WorldEditor.isModified = (lhs, rhs) => {
   return lhs.present.data !== rhs.present.data;
+};
+
+WorldEditor.serialize = (fileState: FileState) => {
+  const { data } = fileState.present;
+  return {
+    playerId: data.playerId,
+    robots: Object.keys(data.robots).map(id => data.robots[id]),
+    zones: Object.keys(data.zones).map(id => {
+      const zone = data.zones[id];
+
+      return {
+        id: zone.id,
+        name: zone.name,
+        shape: zone.blocks.shape,
+        blocks: pako.deflate(zone.blocks.data.buffer) as any,
+      };
+    }),
+  };
+};
+
+WorldEditor.deserialize = (data: SerializedData) => {
+  const robots: { [index: string]: Robot } = {};
+  data.robots.forEach(robot => {
+    robots[robot.id] = robot;
+  })
+
+  const zones: { [index: string]: Zone } = {};
+  data.zones.forEach(zone => {
+    const blocksData = new Int32Array(pako.inflate(zone.blocks).buffer);
+    zones[zone.id] = {
+      id: zone.id,
+      name: zone.name,
+      size: zone.shape,
+      blocks: ndarray(blocksData, zone.shape),
+    };
+  });
+
+  return createUndoableState({
+    playerId: data.playerId,
+    robots,
+    zones,
+  });
 };
 
 export default WorldEditor;

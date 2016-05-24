@@ -23,10 +23,15 @@ const styles = {
   },
 };
 
-import { CodeEditorState } from './types';
+import {
+  CodeEditorState,
+  ExtraData,
+  SerializedData,
+} from './types';
 
 interface CodeEditorProps extends React.Props<CodeEditor> {
   editorState: CodeEditorState;
+  extraData: ExtraData;
   onChange: (state: CodeEditorState) => any;
   sizeRevision: number;
   readyToRender: boolean;
@@ -38,8 +43,12 @@ export interface CreateStateOptions {
 
 @pure
 class CodeEditor extends React.Component<CodeEditorProps, void> {
-  static creatState: (fileId: string, options?: CreateStateOptions) => CodeEditorState;
-  rootElement: HTMLElement;
+  static createState: () => CodeEditorState;
+  static createExtraData: (xml?: string) => ExtraData;
+  static serialize: (data: ExtraData) => SerializedData;
+  static deserialize: (data: SerializedData) => ExtraData;
+
+  private rootElement: HTMLElement;
 
   constructor(props) {
     super(props);
@@ -53,16 +62,16 @@ class CodeEditor extends React.Component<CodeEditorProps, void> {
 
   componentDidMount() {
     this.rootElement = findDOMNode<HTMLElement>(this.refs['editor']);
-    this.rootElement.appendChild(this.props.editorState.container);
-    Blockly.svgResize(this.props.editorState.workspace);
+    this.rootElement.appendChild(this.props.extraData.container);
+    Blockly.svgResize(this.props.extraData.workspace);
   }
 
   componentWillReceiveProps(nextProps: CodeEditorProps) {
-    if (this.props.editorState.container !== nextProps.editorState.container) {
-      this.rootElement.removeChild(this.props.editorState.container);
-      this.rootElement.appendChild(nextProps.editorState.container);
-      Blockly.svgResize(nextProps.editorState.workspace);
-      nextProps.editorState.workspace.markFocused();
+    if (this.props.extraData.container !== nextProps.extraData.container) {
+      this.rootElement.removeChild(this.props.extraData.container);
+      this.rootElement.appendChild(nextProps.extraData.container);
+      Blockly.svgResize(nextProps.extraData.workspace);
+      nextProps.extraData.workspace.markFocused();
     }
   }
 
@@ -75,7 +84,13 @@ class CodeEditor extends React.Component<CodeEditorProps, void> {
   }
 }
 
-CodeEditor.creatState = (fileId: string, options: CreateStateOptions = {}): CodeEditorState => {
+CodeEditor.createState = (): CodeEditorState => {
+  return {
+    revision: 0,
+  };
+}
+
+CodeEditor.createExtraData = (xml?: string) => {
   const container = document.createElement('div');
   container.style.position = 'absolute';
   container.style.height = '100%';
@@ -93,13 +108,26 @@ CodeEditor.creatState = (fileId: string, options: CreateStateOptions = {}): Code
     trashcan: true,
   });
 
+  const dom = Blockly.Xml.textToDom(xml || initBlock);
+  Blockly.Xml.domToWorkspace(dom, workspace);
+
   document.body.removeChild(container);
 
   return {
     container,
     workspace,
-    revision: 0,
   };
-}
+};
+
+CodeEditor.serialize = data => {
+  const dom = Blockly.Xml.workspaceToDom(data.workspace);
+  const xml = Blockly.Xml.domToText(dom);
+
+  return { blocklyXml: xml };
+};
+
+CodeEditor.deserialize = data => {
+  return CodeEditor.createExtraData(data.blocklyXml);
+};
 
 export default CodeEditor;

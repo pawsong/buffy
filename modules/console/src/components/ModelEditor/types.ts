@@ -48,7 +48,7 @@ export type Volumn = [
   number /* minZ */, number /* maxZ */
 ]
 
-interface VoxelData {
+export interface VoxelData {
   matrix: Ndarray;
   mesh: any;
 }
@@ -69,6 +69,11 @@ export interface CommonState {
 export interface ModelEditorState {
   common?: CommonState;
   file?: FileState;
+}
+
+export interface SerializedData {
+  data: Uint8Array;
+  shape: any;
 }
 
 /**

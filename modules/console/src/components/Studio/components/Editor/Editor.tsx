@@ -53,6 +53,7 @@ class Editor extends React.Component<EditorProps, EditorState> {
     return (
       <CodeEditor
         editorState={this.props.file.state}
+        extraData={this.props.file.extraData}
         onChange={this.handleCodeStateChange}
         sizeRevision={this.props.editorSizeRevision}
         readyToRender={true}

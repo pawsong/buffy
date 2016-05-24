@@ -41,7 +41,6 @@ import CodeEditor, {
 } from '../../components/CodeEditor';
 import ModelEditor, {
   ModelEditorState,
-  CreateStateOptions as CreateVoxelEditorStateOptions,
 } from '../../components/ModelEditor';
 
 import { compileBlocklyXml } from '../../blockly/utils';
@@ -103,7 +102,6 @@ interface StudioOwnState { // UI states
 
 interface CreateStateOptions {
   codeEditorState?: CreateCodeEditorStateOptions;
-  voxelEditorState?: CreateVoxelEditorStateOptions;
   codeFileId?: string;
   designFileId?: string;
   robotFileId?: string;
@@ -313,7 +311,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
 Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
   const { codeFileId, designFileId, robotFileId, worldFileId } = options;
 
-  const modelState = ModelEditor.createFileState(designFileId, options.voxelEditorState);
+  const modelState = ModelEditor.createFileState();
   const modelFile = {
     id: designFileId,
     created: true,
@@ -326,7 +324,7 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
     extraData: ModelEditor.createExtraData(),
   };
 
-  const codeState = CodeEditor.creatState(codeFileId, options.codeEditorState);
+  const codeState = CodeEditor.createState();
   const codeFile = {
     id: codeFileId,
     created: true,
@@ -336,6 +334,7 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
     type: FileType.CODE,
     savedState: codeState,
     state: codeState,
+    extraData: CodeEditor.createExtraData(),
   };
 
   const recipeState: RobotState = {
