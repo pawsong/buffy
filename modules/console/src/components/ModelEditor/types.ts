@@ -24,6 +24,7 @@ export interface ActionListener {
  */
 export enum ToolType {
   brush,
+  rectangle,
   erase,
   colorize,
 }
