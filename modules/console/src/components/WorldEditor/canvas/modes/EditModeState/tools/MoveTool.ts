@@ -45,9 +45,6 @@ class WaitState extends ToolState {
   }
 
   onMouseDown() {
-    // const { hit, position } = this.canvas.cursorManager.getPosition();
-    // if (!hit) { return; }
-    // console.log(position);
   }
 }
 

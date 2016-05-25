@@ -11,8 +11,6 @@ import {
   PIXEL_SCALE,
 } from '../Constants';
 
-import CursorManager from '../CursorManager';
-
 abstract class Canvas {
   container: HTMLElement;
   scene: THREE.Scene;
@@ -20,7 +18,6 @@ abstract class Canvas {
   renderer: THREE.WebGLRenderer;
   cubeGeometry: THREE.Geometry;
   cubeMaterial: THREE.Material;
-  cursorManager: CursorManager;
 
   protected abstract initCamera(): THREE.Camera;
   protected abstract handleWindowResize();
@@ -33,8 +30,6 @@ abstract class Canvas {
 
   init() {
     const scene = this.scene = new THREE.Scene();
-
-    this.cursorManager = new CursorManager(this);
 
     const planeGeo = new THREE.PlaneBufferGeometry( 2 * GRID_SIZE, 2 * GRID_SIZE );
     planeGeo.rotateX( - Math.PI / 2 );

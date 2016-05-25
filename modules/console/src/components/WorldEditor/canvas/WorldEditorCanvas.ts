@@ -276,8 +276,6 @@ class WorldEditorCanvas extends ZoneCanvas {
     // Destroy views
     Object.keys(this.cachedViews).forEach(key => this.cachedViews[key].onDispose());
 
-    this.cursorManager.destroy();
-
     super.destroy();
   }
 }

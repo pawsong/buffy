@@ -15,7 +15,7 @@ import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../../../../../../canvas/Constants';
-import { CursorEventParams } from '../../../../../../canvas/CursorManager';
+import Cursor, { CursorEventParams } from '../../../../../../canvas/Cursor';
 
 import EditModeTool, {
   InitParams,
@@ -37,31 +37,31 @@ function multiplyColor({ r, g, b }) {
 interface WaitStateProps {}
 
 class WaitState extends ToolState {
+  cursor: Cursor;
+
   constructor(
     private tool: ColorizeTool,
     private view: WorldEditorCanvas
   ) {
     super();
-  }
-
-  onEnter() {
-    this.view.cursorManager.start({
+    this.cursor = new Cursor(view, {
+      visible: false,
       getInteractables: () => this.view.objectManager.object3Ds.concat(this.view.chunk.mesh),
       onInteract: (params) => this.handleInteract(params),
+      onMiss: () => this.tool.hideTooltip(),
       onTouchTap: (params) => this.handleTouchTap(params),
     });
   }
 
+  onEnter() {
+    this.cursor.start();
+  }
+
   onLeave() {
-    this.view.cursorManager.stop();
-    this.tool.hideTooltip();
+    this.cursor.stop();
   }
 
   handleInteract({ event, intersect }: CursorEventParams) {
-    this.tool.hideTooltip();
-
-    if (!intersect) return;
-
     const { face } = intersect;
     this.tool.showTooltip(event.offsetX, event.offsetY, multiplyColor(face.color));
   }
@@ -111,6 +111,11 @@ class ColorizeTool extends EditModeTool<any> {
     this.colorTooltip.style.left = `${left}px`;
     this.colorTooltip.style.top = `${top}px`;
     this.colorTooltip.style.background = `rgb(${c.r},${c.g},${c.b})`;
+  }
+
+  onStop() {
+    super.onStop();
+    this.hideTooltip();
   }
 
   destroy() {
