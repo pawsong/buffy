@@ -12,8 +12,7 @@ import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../../../../../../canvas/Constants';
-import Cursor from '../../../../../../canvas/Cursor';
-import { CursorEventParams } from '../../../../../../canvas/CursorManager';
+import Cursor, { CursorEventParams } from '../../../../../../canvas/Cursor';
 
 import EditModeTool, {
   InitParams,

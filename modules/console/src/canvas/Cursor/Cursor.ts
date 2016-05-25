@@ -5,8 +5,6 @@ const invariant = require('fbjs/lib/invariant');
 
 import Canvas from '../Canvas';
 import {
-  BOX_SIZE,
-  PIXEL_UNIT,
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../Constants';

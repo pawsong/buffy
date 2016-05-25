@@ -2,12 +2,8 @@ import * as THREE from 'three';
 const objectAssign = require('object-assign');
 
 import {
-  PIXEL_NUM,
-  PIXEL_UNIT,
-  BOX_SIZE,
-  MINI_PIXEL_SIZE,
-  GRID_SIZE,
-} from '../../Constants';
+  PIXEL_SCALE,
+} from '../../../../canvas/Constants';
 
 import View, { Position } from './View';
 import WorldEditorCanvas from '../WorldEditorCanvas';
@@ -54,9 +50,9 @@ class BirdsEyeView implements View {
 
     // TODO: Calculate position from parameter.
     this.setPosition({
-      x: 8 * BOX_SIZE,
-      y: 8 * BOX_SIZE,
-      z: 8 * BOX_SIZE,
+      x: 8 * PIXEL_SCALE,
+      y: 8 * PIXEL_SCALE,
+      z: 8 * PIXEL_SCALE,
     });
 
     this.controls.update();

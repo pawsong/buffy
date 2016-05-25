@@ -22,8 +22,6 @@ import {
   GetEditorState,
 } from '../../types';
 
-import Voxel, { VoxelMesh } from '../Voxel';
-
 import {
   voxelAddBatch,
   CHANGE_PALETTE_COLOR, ChangePaletteColorAction,

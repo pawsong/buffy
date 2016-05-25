@@ -16,11 +16,6 @@ import { StoreHandler } from './interface';
 
 // TODO Support dynamic grid size
 import {
-  PIXEL_NUM,
-  PIXEL_UNIT,
-  BOX_SIZE,
-  MINI_PIXEL_SIZE,
-  GRID_SIZE,
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../Constants';

@@ -21,33 +21,9 @@ import {
   DispatchAction,
 } from '../../types';
 
-import Voxel, { VoxelMesh } from '../Voxel';
-
 import {
   voxelRemoveBatch,
 } from '../../actions';
-
-import {
-  GRID_SIZE,
-  UNIT_PIXEL,
-  BOX_SIZE,
-  DIMENSIONS,
-  PLANE_Y_OFFSET,
-} from '../../constants/Pixels';
-
-import {
-  toAbsPos,
-  toScreenPos,
-} from '../utils';
-
-const cube = new THREE.CubeGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE);
-const cubeMaterial = new THREE.MeshBasicMaterial({
-  vertexColors: THREE.VertexColors,
-  opacity: 0.5,
-  transparent: true,
-  polygonOffset: true,
-  polygonOffsetFactor: -0.1,
-});
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';

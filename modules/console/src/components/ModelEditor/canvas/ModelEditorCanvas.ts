@@ -186,7 +186,7 @@ class ModelEditorCanvas extends Canvas {
       createTool(toolType, this, this.dispatchAction);
   }
 
-  handleWindowResize() {
+  onWindowResize() {
     this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight
     this.camera.updateProjectionMatrix();
     this.cameraStore.update([

@@ -19,12 +19,8 @@ import {
 } from './modes';
 
 import {
-  PIXEL_NUM,
-  PIXEL_UNIT,
-  BOX_SIZE,
-  MINI_PIXEL_SIZE,
-  GRID_SIZE,
-} from '../Constants';
+  PIXEL_SCALE,
+} from '../../../canvas/Constants';
 
 import {
   Action,
@@ -140,7 +136,7 @@ class WorldEditorCanvas extends ZoneCanvas {
   }
 
   init () {
-    const advertisingBoardGeometry = new THREE.PlaneGeometry(16 * BOX_SIZE, 12 * BOX_SIZE);
+    const advertisingBoardGeometry = new THREE.PlaneGeometry(16 * PIXEL_SCALE, 12 * PIXEL_SCALE);
     advertisingBoardGeometry.rotateY( - Math.PI / 2 );
 
     const advertisingBoard1Material = new THREE.MeshBasicMaterial({
@@ -150,9 +146,9 @@ class WorldEditorCanvas extends ZoneCanvas {
     });
     const advertisingBoard1 = new THREE.Mesh( advertisingBoardGeometry, advertisingBoard1Material );
     advertisingBoard1.position.set(
-      (0 - 2) * BOX_SIZE,
-      (8 + 2) * BOX_SIZE,
-      8 * BOX_SIZE
+      (0 - 2) * PIXEL_SCALE,
+      (8 + 2) * PIXEL_SCALE,
+      8 * PIXEL_SCALE
     );
     advertisingBoard1.rotateY( Math.PI );
     advertisingBoard1['__WORLD_DIRECTION__'] = advertisingBoard1.getWorldDirection();
@@ -166,9 +162,9 @@ class WorldEditorCanvas extends ZoneCanvas {
     const advertisingBoard2 = new THREE.Mesh( advertisingBoardGeometry, advertisingBoard2Material );
     advertisingBoard2.rotateY( Math.PI / 2 );
     advertisingBoard2.position.set(
-      8 * BOX_SIZE,
-      (8 + 2) * BOX_SIZE,
-      (0 - 2) * BOX_SIZE
+      8 * PIXEL_SCALE,
+      (8 + 2) * PIXEL_SCALE,
+      (0 - 2) * PIXEL_SCALE
     );
     advertisingBoard2['__WORLD_DIRECTION__'] = advertisingBoard2.getWorldDirection();
     this.advertisingBoards.push(advertisingBoard2);
@@ -181,9 +177,9 @@ class WorldEditorCanvas extends ZoneCanvas {
     const advertisingBoard3 = new THREE.Mesh( advertisingBoardGeometry, advertisingBoard3Material );
 
     advertisingBoard3.position.set(
-      (16 + 2) * BOX_SIZE,
-      (8 + 2) * BOX_SIZE,
-      8 * BOX_SIZE
+      (16 + 2) * PIXEL_SCALE,
+      (8 + 2) * PIXEL_SCALE,
+      8 * PIXEL_SCALE
     );
     advertisingBoard3['__WORLD_DIRECTION__'] = advertisingBoard3.getWorldDirection();
     this.advertisingBoards.push(advertisingBoard3);
@@ -196,9 +192,9 @@ class WorldEditorCanvas extends ZoneCanvas {
     const advertisingBoard4 = new THREE.Mesh( advertisingBoardGeometry, advertisingBoard4Material );
     advertisingBoard4.rotateY( 3 * Math.PI / 2 );
     advertisingBoard4.position.set(
-      8 * BOX_SIZE,
-      (8 + 2) * BOX_SIZE,
-      (16 + 2) * BOX_SIZE
+      8 * PIXEL_SCALE,
+      (8 + 2) * PIXEL_SCALE,
+      (16 + 2) * PIXEL_SCALE
     );
     advertisingBoard4['__WORLD_DIRECTION__'] = advertisingBoard4.getWorldDirection();
     this.advertisingBoards.push(advertisingBoard4);
@@ -237,7 +233,7 @@ class WorldEditorCanvas extends ZoneCanvas {
     return this.view.camera;
   }
 
-  handleWindowResize() {
+  onWindowResize() {
     this.view.onResize();
     this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
     this.render();

@@ -4,8 +4,6 @@ import { StoreHandler } from '../interface';
 import ZoneCanvas from '../ZoneCanvas';
 
 import {
-  BOX_SIZE,
-  PIXEL_UNIT,
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../../Constants';

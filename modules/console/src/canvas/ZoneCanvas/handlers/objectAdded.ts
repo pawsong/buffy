@@ -4,8 +4,8 @@ import { StoreHandler } from '../interface';
 import ZoneCanvas from '../ZoneCanvas';
 
 import {
-  BOX_SIZE,
-  PIXEL_UNIT,
+  PIXEL_SCALE,
+  PIXEL_SCALE_HALF,
 } from '../../Constants';
 
 export default <StoreHandler<ZoneCanvas>>(({
@@ -19,9 +19,9 @@ export default <StoreHandler<ZoneCanvas>>(({
 
   const { group } = object;
 
-  group.position.x = BOX_SIZE * obj.position.x - PIXEL_UNIT;
-  group.position.z = BOX_SIZE * obj.position.z - PIXEL_UNIT;
-  group.position.y = PIXEL_UNIT;
+  group.position.x = PIXEL_SCALE * obj.position.x - PIXEL_SCALE_HALF;
+  group.position.z = PIXEL_SCALE * obj.position.z - PIXEL_SCALE_HALF;
+  group.position.y = PIXEL_SCALE_HALF;
 
   group.lookAt(new THREE.Vector3(
     group.position.x,

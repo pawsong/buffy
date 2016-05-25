@@ -2,14 +2,6 @@ import * as THREE from 'three';
 import * as ndarray from 'ndarray';
 
 import {
-  GRID_SIZE,
-  UNIT_PIXEL,
-  BOX_SIZE,
-  DIMENSIONS,
-  PLANE_Y_OFFSET,
-} from '../constants/Pixels';
-
-import {
   PIXEL_SCALE,
   DESIGN_IMG_SIZE,
   DESIGN_SCALE,
@@ -24,8 +16,6 @@ import {
   CameraStore,
   Position,
 } from '../types';
-
-const size = GRID_SIZE * UNIT_PIXEL;
 
 interface PreviewViewOptions {
   container: HTMLElement;
@@ -93,7 +83,7 @@ class PreviewCanvas extends Canvas {
     this.renderer.render(this.scene, this.camera);
   }
 
-  handleWindowResize() {
+  onWindowResize() {
     this.camera.left = this.container.clientWidth / - 2;
     this.camera.right = this.container.clientWidth / 2;
     this.camera.top = this.container.clientHeight / 2;
@@ -125,14 +115,14 @@ class PreviewCanvas extends Canvas {
     this.mesh = new THREE.Mesh(geometry, this.material);
 
     this.mesh.scale.set(
-      BOX_SIZE,
-      BOX_SIZE,
-      BOX_SIZE
+      PIXEL_SCALE,
+      PIXEL_SCALE,
+      PIXEL_SCALE
     ).multiplyScalar(0.1);
     this.mesh.position.set(
-      -GRID_SIZE * BOX_SIZE / 2,
-      -GRID_SIZE * BOX_SIZE / 2,
-      -GRID_SIZE * BOX_SIZE / 2
+      -DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
+      -DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
+      -DESIGN_IMG_SIZE * PIXEL_SCALE / 2
     ).multiplyScalar(0.1);
 
     this.scene.add(this.mesh);

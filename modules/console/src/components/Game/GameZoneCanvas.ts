@@ -23,7 +23,7 @@ class GameZoneCanvas extends ZoneCanvas {
     return camera;
   }
 
-  handleWindowResize() {
+  onWindowResize() {
     const width = this.container.offsetWidth;
     const height = this.container.offsetHeight;
     this.camera.aspect = width / height;

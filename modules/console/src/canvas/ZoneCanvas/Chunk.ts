@@ -7,9 +7,6 @@ import { createGeometryFromMesh } from '../utils';
 import { Position, Color } from '@pasta/core/lib/types';
 
 import {
-  BOX_SIZE,
-  MINI_PIXEL_SIZE,
-  PIXEL_NUM,
   PIXEL_SCALE,
 } from '../Constants';
 

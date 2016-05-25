@@ -3,11 +3,6 @@ import GameObject from '@pasta/core/lib/classes/GameObject';
 
 // TODO Support dynamic grid size
 import {
-  PIXEL_NUM,
-  PIXEL_UNIT,
-  BOX_SIZE,
-  MINI_PIXEL_SIZE,
-  GRID_SIZE,
   PIXEL_SCALE,
 } from '../Constants';
 
@@ -19,10 +14,7 @@ abstract class Canvas {
   cubeGeometry: THREE.Geometry;
   cubeMaterial: THREE.Material;
 
-  protected abstract initCamera(): THREE.Camera;
-  protected abstract handleWindowResize();
-
-  private boundHandleWindowResize: () => any;
+  private boundOnWindowResize: () => any;
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -30,14 +22,6 @@ abstract class Canvas {
 
   init() {
     const scene = this.scene = new THREE.Scene();
-
-    const planeGeo = new THREE.PlaneBufferGeometry( 2 * GRID_SIZE, 2 * GRID_SIZE );
-    planeGeo.rotateX( - Math.PI / 2 );
-
-    const plane = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial({
-      visible: false,
-    }));
-    scene.add( plane );
 
     // Cubes
     const geometry = this.cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
@@ -85,8 +69,8 @@ abstract class Canvas {
     // // Add event listeners
     // /////////////////////////////////////////////////////////////////////////
 
-    this.boundHandleWindowResize = this.handleWindowResize.bind(this);
-    window.addEventListener('resize', this.boundHandleWindowResize, false);
+    this.boundOnWindowResize = this.onWindowResize.bind(this);
+    window.addEventListener('resize', this.boundOnWindowResize, false);
 
     // // Sync view to store data
 
@@ -96,13 +80,15 @@ abstract class Canvas {
   }
 
   resize() {
-    this.boundHandleWindowResize();
+    this.boundOnWindowResize();
   }
 
+  protected abstract initCamera(): THREE.Camera;
+  protected abstract onWindowResize();
   abstract render();
 
   destroy() {
-    window.removeEventListener('resize', this.boundHandleWindowResize, false);
+    window.removeEventListener('resize', this.boundOnWindowResize, false);
 
     // Dispose webgl resources
     this.renderer.forceContextLoss();
