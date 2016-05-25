@@ -21,6 +21,8 @@ import ClickAwayListener from '../../../ClickAwayListener';
 
 import { ToolType, Color } from '../../types';
 
+import CubeIcon from '../../../CubeIcon';
+
 const styles = {
   color: {
     width: 38,
@@ -163,13 +165,22 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             style={this.getIconButtonStyle(styles.iconButton, ToolType.rectangle)}
             tooltipStyles={styles.tooltips}
             iconStyle={{
-              transform: 'scale(1.5)',
+              transform: 'scale(1.32)',
             }}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
             tooltip={'Rectangle'}
           >
             stop
+          </IconButton>
+          <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.box)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.box)}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Box'}
+          >
+            <CubeIcon />
           </IconButton>
         </div>
         <div style={styles.iconRow}>

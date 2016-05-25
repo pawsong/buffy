@@ -27,6 +27,7 @@ export enum ToolType {
   rectangle,
   erase,
   colorize,
+  box,
 }
 
 export interface Color {
