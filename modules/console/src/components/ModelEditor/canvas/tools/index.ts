@@ -13,6 +13,7 @@ import RectangleTool from './RectangleTool';
 import ColorizeTool from './ColorizeTool';
 import EraseTool from './EraseTool';
 import BoxTool from './BoxTool';
+import BoxSelectTool from './BoxSelectTool';
 
 export default function createTool(
   toolType: ToolType,
@@ -38,6 +39,9 @@ export default function createTool(
     }
     case ToolType.box: {
       return new BoxTool(initParams);
+    }
+    case ToolType.BOX_SELECT: {
+      return new BoxSelectTool(initParams);
     }
   }
 

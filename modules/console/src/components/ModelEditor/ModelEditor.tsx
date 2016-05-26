@@ -280,6 +280,8 @@ ModelEditor.deserialize = data => {
   return ModelEditor.createFileState({
     matrix,
     mesh,
+    selection: null,
+    selectionMesh: null,
   });
 }
 

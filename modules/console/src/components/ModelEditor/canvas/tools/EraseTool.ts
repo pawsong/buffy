@@ -137,7 +137,7 @@ class DragState extends ToolState {
   handleMouseUp({ event }: CursorEventParams) {
     const positions = Object.keys(this.selectedVoxels)
       .map(key => this.selectedVoxels[key].position);
-    console.log(positions);
+
     this.dispatchAction(voxelRemoveBatch(positions));
     this.transitionTo(STATE_WAIT, event);
   }

@@ -567,6 +567,13 @@ export default {
   'voxel-editor.panels.history.voxel.rotate': '블럭 회전',
 
   /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Voxel select box history label
+   * defaultMessage: Select voxels
+   */
+  'voxel-editor.panels.history.voxel.select': '블럭 선택',
+
+  /**
    * path: src/components/ModelEditor/components/panels/PreviewPanel.json
    * description: Voxel editor preview panel title
    * defaultMessage: Preview
@@ -636,13 +643,7 @@ export default {
    */
   'worldeditor.panels.tools.title': '도구상자',
 
-/* [Warning] Message not in use */ 'worldeditor.panels.history.voxel.remove': '',
-/* [Warning] Message not in use */ 'worldeditor.panels.history.voxel.init': '',
-/* [Warning] Message not in use */ 'worldeditor.panels.history.voxel.rotate': '',
-/* [Warning] Message not in use */ 'worldeditor.panels.history.voxel.add': '',
 /* [Warning] Message not in use */ 'worldeditor.panels.zone.title': '지역',
-/* [Warning] Message not in use */ 'worldeditor.panels.robot.id': '',
-/* [Warning] Message not in use */ 'worldeditor.panels.zone.id': '',
 /* [Warning] Message not in use */ 'vr.start': '시작하기',
 /* [Warning] Message not in use */ 'voxel-editor.panels.workspace.title': '워크스페이스',
 }

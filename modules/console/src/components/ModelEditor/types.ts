@@ -28,6 +28,7 @@ export enum ToolType {
   erase,
   colorize,
   box,
+  BOX_SELECT,
 }
 
 export interface Color {
@@ -53,6 +54,8 @@ export type Volumn = [
 export interface VoxelData {
   matrix: Ndarray;
   mesh: any;
+  selection: Ndarray;
+  selectionMesh: any;
 }
 
 export type CameraStore = SimpleStore<Position>;

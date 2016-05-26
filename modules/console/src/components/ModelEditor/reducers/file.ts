@@ -7,6 +7,7 @@ import {
   Action,
   Voxel,
   Volumn,
+  VoxelData,
 } from '../types';
 
 import {
@@ -15,6 +16,7 @@ import {
   VOXEL_REMOVE, VoxelRemoveAction,
   VOXEL_REMOVE_BATCH, VoxelRemoveBatchAction,
   VOXEL_ROTATE, VoxelRotateAction,
+  VOXEL_SELECT_BOX, VoxelSelectBoxAction,
 } from '../actions';
 
 import {
@@ -23,13 +25,15 @@ import {
 
 import mesher from '../../../canvas/meshers/greedy';
 
-const matrix = ndarray(new Int32Array(16 * 16 * 16), [16, 16, 16]);
-matrix.set(0,1,1, 1 << 24 | 0xff << 8);
-matrix.set(1,1,1, 1 << 24 | 0xff << 8);
+const initialMatrix = ndarray(new Int32Array(16 * 16 * 16), [16, 16, 16]);
+initialMatrix.set(0,1,1, 1 << 24 | 0xff << 8);
+initialMatrix.set(1,1,1, 1 << 24 | 0xff << 8);
 
-const initialState = {
-  matrix,
-  mesh: mesher(matrix.data, matrix.shape),
+const initialState: VoxelData = {
+  matrix: initialMatrix,
+  mesh: mesher(initialMatrix.data, initialMatrix.shape),
+  selection: null,
+  selectionMesh: null,
 };
 
 export function rgbToHex({ r, g, b }) {
@@ -48,73 +52,167 @@ const rotates: { [index: string]: RotateFn } = {
   z: (shape, pos) => ([ shape[1] - pos[1], pos[0],            pos[2]            ]),
 };
 
-function matrixReducer(state: ndarray.Ndarray, action: Action<any>): ndarray.Ndarray {
+function voxelDataReducer(state = initialState, action: Action<any>): VoxelData {
   switch (action.type) {
     case VOXEL_ADD_BATCH: {
       const { volumn, color } = <VoxelAddBatchAction>action;
       const c = rgbToHex(color);
-      const nextState = ndarray(state.data.slice(), state.shape);
+      const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
+
+      if (!state.selection) {
+        for (let i = volumn[0]; i <= volumn[1]; ++i) {
+          for (let j = volumn[2]; j <= volumn[3]; ++j) {
+            for (let k = volumn[4]; k <= volumn[5]; ++k) {
+              matrix.set(k, j, i, c);
+            }
+          }
+        }
+      } else {
+        let changed = false;
+
+        for (let i = volumn[0]; i <= volumn[1]; ++i) {
+          for (let j = volumn[2]; j <= volumn[3]; ++j) {
+            for (let k = volumn[4]; k <= volumn[5]; ++k) {
+              if (state.selection.get(k, j, i)) {
+                matrix.set(k, j, i, c);
+                changed = true;
+              }
+            }
+          }
+        }
+
+        if (!changed) return state;
+      }
+
+      return Object.assign({}, state, {
+        matrix,
+        mesh: mesher(matrix.data, matrix.shape),
+      });
+    }
+
+    case VOXEL_SELECT_BOX: {
+      const { volumn } = <VoxelSelectBoxAction>action;
+      const selection = ndarray(
+        new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
+        state.matrix.shape
+      );
+
+      let selected = false;
 
       for (let i = volumn[0]; i <= volumn[1]; ++i) {
         for (let j = volumn[2]; j <= volumn[3]; ++j) {
           for (let k = volumn[4]; k <= volumn[5]; ++k) {
-            nextState.set(k, j, i, c);
+            if (state.matrix.get(k, j, i) !== 0) {
+              selection.set(k, j, i, 1);
+              selected = true;
+            }
           }
         }
       }
-      return nextState;
+
+      if (!selected && !state.selection) return state;
+
+      return Object.assign({}, state, {
+        selection: selected ? selection : null,
+        selectionMesh: selected ? mesher(selection.data, selection.shape): null,
+      });
     }
+
     case VOXEL_REMOVE_BATCH: {
       const { positions } = <VoxelRemoveBatchAction>action;
 
-      const nextState = ndarray(state.data.slice(), state.shape);
-      positions.forEach(position => {
-        nextState.set(position[2], position[1], position[0], 0);
-      });
-      return nextState;
+      if (!state.selection) {
+        const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
+        positions.forEach(position => {
+          matrix.set(position[2], position[1], position[0], 0);
+        });
+
+        return Object.assign({}, state, {
+          matrix,
+          mesh: mesher(matrix.data, matrix.shape),
+        });
+      } else {
+        let changed = false;
+
+        const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
+        const selection = ndarray(state.selection.data.slice(), state.selection.shape);
+
+        positions.forEach(position => {
+          if (selection.get(position[2], position[1], position[0])) {
+            matrix.set(position[2], position[1], position[0], 0);
+            selection.set(position[2], position[1], position[0], 0);
+            changed = true;
+          }
+        });
+
+        if (!changed) return state;
+
+        return Object.assign({}, state, {
+          matrix,
+          mesh: mesher(matrix.data, matrix.shape),
+          selection,
+          selectionMesh: mesher(selection.data, selection.shape),
+        });
+      }
     }
+
     case VOXEL_ROTATE: {
       const { axis } = <VoxelRotateAction>action;
       const rotate = rotates[axis];
       if (!rotate) return state;
 
-      const xLen = state.shape[0];
-      const yLen = state.shape[1];
-      const zLen = state.shape[2];
-      const nextState = ndarray(new Int32Array(xLen * yLen * zLen), state.shape);
+      const width = state.matrix.shape[0];
+      const height = state.matrix.shape[1];
+      const depth = state.matrix.shape[2];
+      const matrix = ndarray(new Int32Array(width * height * depth), state.matrix.shape);
 
       // TODO: Support user define shape
       const shape: Shape = [ DESIGN_IMG_SIZE, DESIGN_IMG_SIZE, DESIGN_IMG_SIZE ];
 
-      for (let i = 0; i < xLen; ++i) {
-        for (let j = 0; j < yLen; ++j) {
-          for (let k = 0; k < zLen; ++k) {
-            const c = state.get(i, j, k);
+      for (let i = 0; i < width; ++i) {
+        for (let j = 0; j < height; ++j) {
+          for (let k = 0; k < depth; ++k) {
+            const c = state.matrix.get(i, j, k);
             if (c === 0) continue;
             const pos = rotate(shape, [i, j, k]);
-            nextState.set(pos[0], pos[1], pos[2], c);
+            matrix.set(pos[0], pos[1], pos[2], c);
           }
         }
       }
 
-      return nextState;
+      if (!state.selection) {
+        return Object.assign({}, state, {
+          matrix,
+          mesh: mesher(matrix.data, matrix.shape),
+        });
+      } else {
+        const selection = ndarray(new Int32Array(width * height * depth), state.selection.shape);
+
+        for (let i = 0; i < width; ++i) {
+          for (let j = 0; j < height; ++j) {
+            for (let k = 0; k < depth; ++k) {
+              const c = state.selection.get(i, j, k);
+              if (c === 0) continue;
+
+              const pos = rotate(shape, [i, j, k]);
+              selection.set(pos[0], pos[1], pos[2], c);
+            }
+          }
+        }
+
+        return Object.assign({}, state, {
+          matrix,
+          mesh: mesher(matrix.data, matrix.shape),
+          selection,
+          selectionMesh: mesher(selection.data, selection.shape),
+        });
+      }
     }
+
     default: {
       return state;
     }
   }
 }
 
-function mesh(reducer) {
-  return function (state = initialState, action) {
-    const nextMatrix = reducer(state.matrix, action);
-    if (state.matrix === nextMatrix) return state;
-
-    return Object.assign({}, state, {
-      matrix: nextMatrix,
-      mesh: mesher(nextMatrix.data, nextMatrix.shape),
-    });
-  }
-}
-
-export default undoable(mesh(matrixReducer));
+export default undoable(voxelDataReducer);

@@ -26,6 +26,17 @@ export function voxelAddBatch(volumn: Volumn, color: Color): VoxelAddBatchAction
   };
 }
 
+export const VOXEL_SELECT_BOX: 'VOXEL_SELECT_BOX' = 'VOXEL_SELECT_BOX';
+export interface VoxelSelectBoxAction extends Action<typeof VOXEL_SELECT_BOX> {
+  volumn: Volumn;
+}
+export function voxelSelectBox(volumn: Volumn): VoxelSelectBoxAction {
+  return {
+    type: VOXEL_SELECT_BOX,
+    volumn,
+  };
+}
+
 export const VOXEL_REMOVE: 'voxel-editor/VOXEL_REMOVE' = 'voxel-editor/VOXEL_REMOVE';
 export interface VoxelRemoveAction extends Action<typeof VOXEL_REMOVE> {
   position: Position;

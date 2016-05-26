@@ -32,6 +32,7 @@ import {
   VOXEL_ADD_BATCH,
   VOXEL_REMOVE_BATCH,
   VOXEL_ROTATE,
+  VOXEL_SELECT_BOX,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -60,6 +61,11 @@ const messages = defineMessages({
     description: 'Voxel rotate history label',
     defaultMessage: 'Rotate voxels',
   },
+  labelVoxelSelect: {
+    id: 'voxel-editor.panels.history.voxel.select',
+    description: 'Voxel select box history label',
+    defaultMessage: 'Select voxels',
+  },
 });
 
 const ActionMessages = {
@@ -67,6 +73,7 @@ const ActionMessages = {
   [VOXEL_ADD_BATCH]: messages.labelVoxelAdd,
   [VOXEL_REMOVE_BATCH]: messages.labelVoxelRemove,
   [VOXEL_ROTATE]: messages.labelVoxelRotate,
+  [VOXEL_SELECT_BOX]: messages.labelVoxelSelect,
 };
 
 function getActionMessage(action: string) {

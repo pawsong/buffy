@@ -11,6 +11,7 @@ if (__CLIENT__) {
   require('three/examples/js/controls/OrbitControls');
 }
 
+import { createGeometryFromMesh } from '../../../canvas/utils';
 import Canvas from '../../../canvas/Canvas';
 
 import {
@@ -32,10 +33,6 @@ import {
 
 import Stores from './stores';
 
-interface PlaneMesh extends THREE.Mesh {
-  isPlane: boolean;
-}
-
 interface CanvasOptions {
   container: HTMLElement;
   stores: Stores;
@@ -44,8 +41,11 @@ interface CanvasOptions {
   state: ModelEditorState;
 }
 
-const gridVertexShader = require('raw!./shaders/grid.vert');
-const gridFragmentShader = require('raw!./shaders/grid.frag');
+const gridVertexShader = require('raw!./shaders/grid3.vert');
+const gridFragmentShader = require('raw!./shaders/grid3.frag');
+
+const gridVertexShader4 = require('raw!./shaders/grid4.vert');
+const gridFragmentShader4 = require('raw!./shaders/grid4.frag');
 
 class ModelEditorCanvas extends Canvas {
   controls: any;
@@ -63,7 +63,11 @@ class ModelEditorCanvas extends Canvas {
   private prevCameraPosition: THREE.Vector3;
 
   modelMesh: THREE.Mesh;
-  private modelMaterial: THREE.ShaderMaterial;
+  selectionMesh: THREE.Mesh;
+  selectionGeometry: THREE.Geometry;
+
+  private modelMaterial: THREE.MeshLambertMaterial;
+  private selectionMaterial: THREE.ShaderMaterial;
 
   private cameraStore: CameraStore;
   private state: ModelEditorState;
@@ -88,7 +92,7 @@ class ModelEditorCanvas extends Canvas {
 
   init() {
     super.init();
-    this.renderer.setClearColor(0xffffff);
+    this.renderer.setClearColor(0x333333);
 
     this.prevCameraPosition = new THREE.Vector3().copy(this.camera.position);
 
@@ -97,31 +101,28 @@ class ModelEditorCanvas extends Canvas {
 
     // Plane
     {
+      const selectionMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          gridColor: { value: new THREE.Vector3(0.61, 0.61, 0.61) },
+          gridThickness: { type: 'f', value: 0.02 },
+          scale: { value: new THREE.Vector3(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE) },
+        },
+        vertexShader: gridVertexShader4,
+        fragmentShader: gridFragmentShader4,
+
+        side: THREE.DoubleSide,
+        transparent: true,
+      });
+      selectionMaterial.extensions.derivatives = true;
+
       const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
       geometry.rotateX( - Math.PI / 2 );
 
-      this.plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial() ) as PlaneMesh;
+      this.plane = new THREE.Mesh(geometry, selectionMaterial);
       this.plane.position.x = planeWidth / 2;
       this.plane.position.y = 0;
       this.plane.position.z = planeWidth / 2;
       this.scene.add(this.plane)
-    }
-
-    // Grid
-    {
-      const geometry = new THREE.Geometry()
-      for (let i = 1; i <= DESIGN_IMG_SIZE; ++i) {
-        geometry.vertices.push(new THREE.Vector3(0,               0, i * PIXEL_SCALE));
-        geometry.vertices.push(new THREE.Vector3(planeWidth,      0, i * PIXEL_SCALE));
-        geometry.vertices.push(new THREE.Vector3(i * PIXEL_SCALE, 0, 0              ));
-        geometry.vertices.push(new THREE.Vector3(i * PIXEL_SCALE, 0, planeHeight    ));
-      }
-
-      const material = new THREE.LineBasicMaterial({
-        color: 0xdddddd, linewidth: 2,
-      });
-      const line = new THREE.LineSegments(geometry, material );
-      this.scene.add( line )
     }
 
     // Arrows
@@ -131,12 +132,25 @@ class ModelEditorCanvas extends Canvas {
       this.scene.add(axisHelper);
     }
 
-    this.modelMaterial = new THREE.ShaderMaterial({
-      uniforms: { opacity: { type: 'f', value: 1.0 } },
+    this.modelMaterial = new THREE.MeshLambertMaterial({
+      color: 0xffffff,
+      vertexColors: THREE.VertexColors,
+
+      polygonOffset: true,
+      polygonOffsetFactor: 1, // positive value pushes polygon further away
+      polygonOffsetUnits: 1,
+    });
+
+    this.selectionMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        gridColor: { value: new THREE.Vector3(1.0, 0.95, 0.46) },
+        gridThickness: { type: 'f', value: 0.05 },
+      },
       vertexShader: gridVertexShader,
       fragmentShader: gridFragmentShader,
+      transparent: true,
     });
-    this.modelMaterial.extensions.derivatives = true;
+    this.selectionMaterial.extensions.derivatives = true;
 
     this.stores.meshStore.listen(this.handleMeshChange);
 
@@ -223,6 +237,32 @@ class ModelEditorCanvas extends Canvas {
     this.render();
   }
 
+  handleSelectionMeshChange(selectionMesh: any) {
+    if (this.selectionMesh) {
+      this.scene.remove(this.selectionMesh);
+      this.selectionMesh = null;
+    }
+
+    if (this.selectionGeometry) {
+      this.selectionGeometry.dispose();
+      this.selectionGeometry = null;
+    }
+
+    if (!selectionMesh) return;
+
+    this.selectionGeometry = createGeometryFromMesh(selectionMesh);
+
+    this.selectionMesh = new THREE.Mesh(this.selectionGeometry, this.selectionMaterial);
+    this.selectionMesh['doubleSided'] = false;
+
+    this.selectionMesh.position.x = 0;
+    this.selectionMesh.position.y = 0;
+    this.selectionMesh.position.z = 0;
+
+    this.selectionMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    this.scene.add(this.selectionMesh);
+  }
+
   onStateChange(nextState: ModelEditorState) {
     if (this.tool.getToolType() !== nextState.common.selectedTool) {
       const nextTool = this.getTool(nextState.common.selectedTool);
@@ -233,7 +273,13 @@ class ModelEditorCanvas extends Canvas {
       this.tool.updateProps(nextState);
     }
 
+    if (this.state.file.present.data.selectionMesh !== nextState.file.present.data.selectionMesh) {
+      this.handleSelectionMeshChange(nextState.file.present.data.selectionMesh);
+    }
+
     this.state = nextState;
+
+    this.render();
   }
 
   render() {
