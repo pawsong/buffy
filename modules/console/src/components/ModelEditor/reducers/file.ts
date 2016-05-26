@@ -1,6 +1,7 @@
 import * as ndarray from 'ndarray';
 
 import undoable from '@pasta/helper/lib/undoable';
+const floodFill = require('n-dimensional-flood-fill');
 
 import {
   Position,
@@ -17,6 +18,7 @@ import {
   VOXEL_REMOVE_BATCH, VoxelRemoveBatchAction,
   VOXEL_ROTATE, VoxelRotateAction,
   VOXEL_SELECT_BOX, VoxelSelectBoxAction,
+  VOXEL_MAGIN_WAND, VoxelMaginWandAction,
 } from '../actions';
 
 import {
@@ -115,6 +117,38 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       return Object.assign({}, state, {
         selection: selected ? selection : null,
         selectionMesh: selected ? mesher(selection.data, selection.shape): null,
+      });
+    }
+
+    case VOXEL_MAGIN_WAND: {
+      const { position } = <VoxelMaginWandAction>action;
+
+      const selection = ndarray(
+        new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
+        state.matrix.shape
+      );
+
+      floodFill({
+        getter: (x: number, y: number, z: number) => {
+          if (
+               x < 0 || x >= state.matrix.shape[0]
+            || y < 0 || y >= state.matrix.shape[1]
+            || z < 0 || z >= state.matrix.shape[2]
+          ) {
+            return;
+          }
+
+          return state.matrix.get(z, y, x);
+        },
+        onFlood: (x: number, y: number, z: number) => {
+          selection.set(z, y, x, 1);
+        },
+        seed: position,
+      });
+
+      return Object.assign({}, state, {
+        selection,
+        selectionMesh: mesher(selection.data, selection.shape),
       });
     }
 

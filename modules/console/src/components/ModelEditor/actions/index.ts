@@ -37,6 +37,17 @@ export function voxelSelectBox(volumn: Volumn): VoxelSelectBoxAction {
   };
 }
 
+export const VOXEL_MAGIN_WAND: 'VOXEL_MAGIN_WAND' = 'VOXEL_MAGIN_WAND';
+export interface VoxelMaginWandAction extends Action<typeof VOXEL_MAGIN_WAND> {
+  position: Position;
+}
+export function voxelMaginWand(x: number, y: number, z: number): VoxelMaginWandAction {
+  return {
+    type: VOXEL_MAGIN_WAND,
+    position: [x, y, z],
+  };
+}
+
 export const VOXEL_REMOVE: 'voxel-editor/VOXEL_REMOVE' = 'voxel-editor/VOXEL_REMOVE';
 export interface VoxelRemoveAction extends Action<typeof VOXEL_REMOVE> {
   position: Position;

@@ -33,6 +33,7 @@ import {
   VOXEL_REMOVE_BATCH,
   VOXEL_ROTATE,
   VOXEL_SELECT_BOX,
+  VOXEL_MAGIN_WAND,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -74,6 +75,7 @@ const ActionMessages = {
   [VOXEL_REMOVE_BATCH]: messages.labelVoxelRemove,
   [VOXEL_ROTATE]: messages.labelVoxelRotate,
   [VOXEL_SELECT_BOX]: messages.labelVoxelSelect,
+  [VOXEL_MAGIN_WAND]: messages.labelVoxelSelect,
 };
 
 function getActionMessage(action: string) {

@@ -69,6 +69,7 @@
     "material-ui": "^0.14.4",
     "mongoose": "^4.3.6",
     "msgpack-lite": "^0.1.20",
+    "n-dimensional-flood-fill": "^1.0.0",
     "ndarray": "^1.0.18",
     "normalizr": "^2.0.0",
     "object-assign": "^4.0.1",

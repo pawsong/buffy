@@ -29,6 +29,7 @@ export enum ToolType {
   colorize,
   box,
   BOX_SELECT,
+  MAGIC_WAND,
 }
 
 export interface Color {
