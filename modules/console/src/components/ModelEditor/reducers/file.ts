@@ -52,6 +52,23 @@ interface RotateFn {
   (shape: Shape, position: Position): Position;
 }
 
+function isEmpty(matrix: ndarray.Ndarray) {
+  const { shape } = matrix;
+
+  for (let i = 0; i < shape[2]; ++i) {
+    for (let j = 0; j < shape[1]; ++j) {
+      for (let k = 0; k < shape[0]; ++k) {
+        if (matrix.get(k, j, i) !== 0) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+
 const rotates: { [index: string]: RotateFn } = {
   x: (shape, pos) => ([ pos[0],            shape[2] - pos[2], pos[1]            ]),
   y: (shape, pos) => ([ pos[2],            pos[1],            shape[0] - pos[0] ]),
@@ -264,11 +281,13 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
         if (!changed) return state;
 
+        const selected = isEmpty(selection);
+
         return Object.assign({}, state, {
           matrix,
           mesh: mesher(matrix.data, matrix.shape),
-          selection,
-          selectionMesh: mesher(selection.data, selection.shape),
+          selection: selected ? selection : null,
+          selectionMesh: selected ? mesher(selection.data, selection.shape) : null,
         });
       }
     }
