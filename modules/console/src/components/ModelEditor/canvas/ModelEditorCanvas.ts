@@ -35,7 +35,6 @@ import Stores from './stores';
 
 interface CanvasOptions {
   container: HTMLElement;
-  stores: Stores;
   cameraStore: CameraStore;
   dispatchAction: DispatchAction;
   state: ModelEditorState;
@@ -56,7 +55,6 @@ class ModelEditorCanvas extends Canvas {
   tool: ModelEditorTool<any>;
 
   camera: THREE.PerspectiveCamera;
-  stores: Stores;
 
   plane: THREE.Mesh;
 
@@ -72,16 +70,16 @@ class ModelEditorCanvas extends Canvas {
   private cameraStore: CameraStore;
   private state: ModelEditorState;
 
+  private modelGeometry: THREE.Geometry;
+
   constructor({
     container,
-    stores,
     dispatchAction,
     cameraStore,
     state,
   }: CanvasOptions) {
     super(container);
 
-    this.stores = stores;
     this.dispatchAction = dispatchAction;
     this.state = state;
 
@@ -167,10 +165,12 @@ class ModelEditorCanvas extends Canvas {
     this.tool = this.getTool(this.state.common.selectedTool);
     this.tool.start(this.state);
 
+    // Render
+    this.handleMeshChange(this.state.file.present.data.mesh);
+    this.handleSelectionMeshChange(this.state.file.present.data.selectionMesh);
+
     this.controls.update();
     this.render();
-
-    this.stores.meshStore.listen(this.handleMeshChange);
   }
 
   initCamera() {
@@ -213,7 +213,7 @@ class ModelEditorCanvas extends Canvas {
     this.render();
   }
 
-  private handleMeshChange = (geometry: THREE.Geometry) => {
+  private handleMeshChange(mesh: any) {
     if (this.modelMesh) {
       this.scene.remove(this.modelMesh);
 
@@ -221,10 +221,18 @@ class ModelEditorCanvas extends Canvas {
       // this.modelMesh = undefined;
     }
 
+    if (this.modelGeometry) {
+      this.modelGeometry.dispose();
+      this.modelGeometry = null;
+    }
+
+    const geometry = createGeometryFromMesh(mesh);
     if (geometry.vertices.length === 0) return;
 
+    this.modelGeometry = geometry;
+
     // Create mesh
-    this.modelMesh = new THREE.Mesh(geometry, this.modelMaterial);
+    this.modelMesh = new THREE.Mesh(this.modelGeometry, this.modelMaterial);
     this.modelMesh['doubleSided'] = false;
 
     this.modelMesh.position.x = 0;
@@ -265,6 +273,10 @@ class ModelEditorCanvas extends Canvas {
   }
 
   onStateChange(nextState: ModelEditorState) {
+    if (this.state.file.present.data.mesh !== nextState.file.present.data.mesh) {
+      this.handleMeshChange(nextState.file.present.data.mesh);
+    }
+
     if (this.state.file.present.data.selectionMesh !== nextState.file.present.data.selectionMesh) {
       this.handleSelectionMeshChange(nextState.file.present.data.selectionMesh);
     }
@@ -303,8 +315,6 @@ class ModelEditorCanvas extends Canvas {
   }
 
   destroy() {
-    this.stores.meshStore.unlisten(this.handleMeshChange);
-
     // Destroy tools
     Object.keys(this.cachedTools).forEach(toolType => this.cachedTools[toolType].destroy());
 

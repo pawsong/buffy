@@ -29,8 +29,6 @@ import { connectTarget } from '../Panel';
 
 import mesher from './canvas/meshers/greedy';
 
-import Stores from './canvas/stores';
-
 import {
   rgbToHex,
 } from './canvas/utils';
@@ -60,7 +58,6 @@ import {
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
-import PreviewPanel from './components/panels/PreviewPanel';
 import ToolsPanel from './components/panels/ToolsPanel';
 
 import FullscreenButton from './components/FullscreenButton';
@@ -115,7 +112,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static serialize: (fileState: FileState) => SerializedData;
   static deserialize: (data: SerializedData) => FileState;
 
-  stores: Stores;
   canvas: ModelEditorCanvas;
 
   constructor(props) {
@@ -138,10 +134,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.setState({ fullscreen: !this.state.fullscreen }, () => this.canvas.resize());
   }
 
-  componentWillMount() {
-    this.stores = new Stores(this.props.fileState);
-  }
-
   getEditorState(): ModelEditorState {
     return {
       common: this.props.commonState,
@@ -152,7 +144,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   componentDidMount() {
     this.canvas = new ModelEditorCanvas({
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
-      stores: this.stores,
       cameraStore: this.props.extraData.cameraPositionStore,
       dispatchAction: this.dispatchAction,
       state: this.getEditorState(),
@@ -166,7 +157,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     }
 
     if (this.props.fileState !== prevProps.fileState) {
-      this.stores.voxelStateChange(this.props.fileState);
       this.canvas.onStateChange(this.getEditorState());
     } else if (this.props.commonState !== prevProps.commonState) {
       this.canvas.onStateChange(this.getEditorState());
@@ -179,7 +169,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
   componentWillUnmount() {
     this.canvas.destroy();
-    this.stores.destroy();
   }
 
   selectTool = (selectedTool: ToolType) => this.dispatchAction(changeTool(selectedTool));
@@ -191,12 +180,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         <HistoryPanel
           voxel={this.props.fileState}
           dispatchAction={this.dispatchAction}
-        />
-        <PreviewPanel
-          stores={this.stores}
-          cameraStore={this.props.extraData.cameraPositionStore}
-          dispatchAction={this.dispatchAction}
-          sizeVersion={this.props.sizeVersion}
         />
         <ToolsPanel
           paletteColor={this.props.commonState.paletteColor}
