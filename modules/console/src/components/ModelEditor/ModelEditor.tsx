@@ -282,6 +282,8 @@ ModelEditor.deserialize = data => {
     mesh,
     selection: null,
     selectionMesh: null,
+    fragment: null,
+    fragmentMesh: null,
   });
 }
 

@@ -30,6 +30,7 @@ export enum ToolType {
   box,
   BOX_SELECT,
   MAGIC_WAND,
+  MOVE,
 }
 
 export interface Color {
@@ -57,6 +58,8 @@ export interface VoxelData {
   mesh: any;
   selection: Ndarray;
   selectionMesh: any;
+  fragment: Ndarray;
+  fragmentMesh: any;
 }
 
 export type CameraStore = SimpleStore<Position>;

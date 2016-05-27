@@ -24,6 +24,7 @@ import { ToolType, Color } from '../../types';
 import CubeIcon from '../../../CubeIcon';
 import CubeOutlineIcon from '../../../CubeOutlineIcon';
 import AutoFixIcon from '../../../AutoFixIcon';
+import CursorMoveIcon from '../../../CursorMoveIcon';
 
 const styles = {
   color: {
@@ -136,6 +137,17 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
 
     return (
       <div>
+        <div style={styles.iconRow}>
+          <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.MOVE)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.MOVE)}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Move'}
+          >
+            <CursorMoveIcon />
+          </IconButton>
+        </div>
         <div style={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.brush)}

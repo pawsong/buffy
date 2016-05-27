@@ -15,6 +15,7 @@ import EraseTool from './EraseTool';
 import BoxTool from './BoxTool';
 import BoxSelectTool from './BoxSelectTool';
 import MagicWandTool from './MagicWandTool';
+import MoveTool from './MoveTool';
 
 export default function createTool(
   toolType: ToolType,
@@ -46,6 +47,9 @@ export default function createTool(
     }
     case ToolType.MAGIC_WAND: {
       return new MagicWandTool(initParams);
+    }
+    case ToolType.MOVE: {
+      return new MoveTool(initParams);
     }
   }
 

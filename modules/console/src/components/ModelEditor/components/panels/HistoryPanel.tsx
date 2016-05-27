@@ -34,6 +34,8 @@ import {
   VOXEL_ROTATE,
   VOXEL_SELECT_BOX,
   VOXEL_MAGIN_WAND,
+  VOXEL_MOVE_START,
+  VOXEL_MOVE_END,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -67,6 +69,11 @@ const messages = defineMessages({
     description: 'Voxel select box history label',
     defaultMessage: 'Select voxels',
   },
+  labelVoxelMove: {
+    id: 'voxel-editor.panels.history.voxel.move',
+    description: 'Voxel move history label',
+    defaultMessage: 'Move voxels',
+  },
 });
 
 const ActionMessages = {
@@ -76,6 +83,8 @@ const ActionMessages = {
   [VOXEL_ROTATE]: messages.labelVoxelRotate,
   [VOXEL_SELECT_BOX]: messages.labelVoxelSelect,
   [VOXEL_MAGIN_WAND]: messages.labelVoxelSelect,
+  [VOXEL_MOVE_START]: messages.labelVoxelMove,
+  [VOXEL_MOVE_END]: messages.labelVoxelMove,
 };
 
 function getActionMessage(action: string) {

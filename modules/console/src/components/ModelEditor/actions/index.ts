@@ -68,10 +68,30 @@ export const VOXEL_ROTATE: 'voxel-editor/VOXEL_ROTATE' = 'voxel-editor/VOXEL_ROT
 export interface VoxelRotateAction extends Action<typeof VOXEL_ROTATE> {
   axis: string;
 }
-export function voxelRotate(axis: string) {
+export function voxelRotate(axis: string): VoxelRotateAction {
   return {
     type: VOXEL_ROTATE,
     axis,
+  };
+}
+
+export const VOXEL_MOVE_START: 'VOXEL_MOVE_START' = 'VOXEL_MOVE_START';
+export interface VoxelMoveStartAction extends Action<typeof VOXEL_MOVE_START> {
+}
+export function voxelMoveStart(): VoxelMoveStartAction {
+  return {
+    type: VOXEL_MOVE_START,
+  };
+}
+
+export const VOXEL_MOVE_END: 'VOXEL_MOVE_END' = 'VOXEL_MOVE_END';
+export interface VoxelMoveEndAction extends Action<typeof VOXEL_MOVE_END> {
+  offset: Position;
+}
+export function voxelMoveEnd(x: number, y: number, z: number): VoxelMoveEndAction {
+  return {
+    type: VOXEL_MOVE_END,
+    offset: [x, y, z],
   };
 }
 

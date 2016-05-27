@@ -16,6 +16,7 @@ export interface CursorEventParams {
 
 interface CursorOptions {
   visible?: boolean;
+  intersectRecursively?: boolean;
   mesh?: THREE.Mesh;
   geometry?: THREE.Geometry;
   material?: THREE.Material;
@@ -41,6 +42,7 @@ class Cursor {
 
   private canvas: Canvas;
   private raycaster: THREE.Raycaster;
+  private intersectRecursively: boolean;
 
   private getIntractables: () => THREE.Object3D[];
   private getCursorOffset: (normal: THREE.Vector3) => THREE.Vector3;
@@ -65,6 +67,7 @@ class Cursor {
 
     const {
       visible,
+      intersectRecursively,
       mesh,
       geometry,
       material,
@@ -83,6 +86,8 @@ class Cursor {
     } = options;
 
     this.visible = visible !== false;
+
+    this.intersectRecursively = intersectRecursively || false;
 
     this.externalMesh = !!mesh;
 
@@ -175,27 +180,40 @@ class Cursor {
       y: -(event.offsetY / this.canvas.container.offsetHeight) * 2 + 1,
     }, this.canvas.camera);
 
-    const intersects = this.raycaster.intersectObjects(this.getIntractables());
+    const intersects = this.raycaster.intersectObjects(this.getIntractables(), this.intersectRecursively);
     return intersects[0];
   }
 
-  private handleMouseMove(event: MouseEvent) {
+  getPositionFromMouseEvent(event: MouseEvent, out: THREE.Vector3) {
+    const intersect = this.getCanvasPositionFromMouseEvent(event, out);
+    if (!intersect) return intersect;
+
+    out.divideScalar(PIXEL_SCALE).floor();
+    return intersect;
+  }
+
+  private getCanvasPositionFromMouseEvent(event: MouseEvent, out: THREE.Vector3) {
     const intersect = this.getIntersect(event);
+    if (!intersect || !this.hitTest(intersect)) return null;
 
-    if (!intersect || !this.hitTest(intersect)) {
-      if (this.mesh.visible) this.onCursorShow(false);
-      this.onMiss({ event, intersect });
-      return;
-    }
-
-    if (!this.mesh.visible) this.onCursorShow(true);
-
-    this.mesh.position
+    out
       .copy(intersect.point).add(intersect.face.normal)
-      .divideScalar(PIXEL_SCALE).floor().multiplyScalar(PIXEL_SCALE)
+      .divideScalar(PIXEL_SCALE).floor()
+      .multiplyScalar(PIXEL_SCALE)
       .add(this.getCursorOffset(intersect.face.normal));
 
-    this.onInteract({ event, intersect });
+    return intersect;
+  }
+
+  private handleMouseMove(event: MouseEvent) {
+    const intersect = this.getCanvasPositionFromMouseEvent(event, this.mesh.position);
+    if (intersect) {
+      if (!this.mesh.visible) this.onCursorShow(true);
+      this.onInteract({ event, intersect });
+    } else {
+      if (this.mesh.visible) this.onCursorShow(false);
+      this.onMiss({ event, intersect });
+    }
   }
 
   private _onMouseMove = (event: MouseEvent) => {

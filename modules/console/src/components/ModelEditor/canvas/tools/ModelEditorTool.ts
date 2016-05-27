@@ -18,6 +18,9 @@ export interface InitParams {
 }
 
 abstract class ModelEditorTool<T> extends Tool<ToolType, InitParams, ModelEditorState, T> {
+  onRender() {
+
+  }
 }
 
 export default ModelEditorTool;

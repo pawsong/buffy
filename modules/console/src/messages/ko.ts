@@ -554,6 +554,13 @@ export default {
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Voxel move history label
+   * defaultMessage: Move voxels
+   */
+  'voxel-editor.panels.history.voxel.move': '블럭 이동',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel remove history label
    * defaultMessage: Remove voxels
    */

@@ -93,6 +93,7 @@ class ModelEditorCanvas extends Canvas {
   init() {
     super.init();
     this.renderer.setClearColor(0x333333);
+    this.renderer.autoClear = false;
 
     this.prevCameraPosition = new THREE.Vector3().copy(this.camera.position);
 
@@ -152,8 +153,6 @@ class ModelEditorCanvas extends Canvas {
     });
     this.selectionMaterial.extensions.derivatives = true;
 
-    this.stores.meshStore.listen(this.handleMeshChange);
-
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     this.controls.maxDistance = 4000;
     this.controls.enableKeys = false;
@@ -170,6 +169,8 @@ class ModelEditorCanvas extends Canvas {
 
     this.controls.update();
     this.render();
+
+    this.stores.meshStore.listen(this.handleMeshChange);
   }
 
   initCamera() {
@@ -264,6 +265,10 @@ class ModelEditorCanvas extends Canvas {
   }
 
   onStateChange(nextState: ModelEditorState) {
+    if (this.state.file.present.data.selectionMesh !== nextState.file.present.data.selectionMesh) {
+      this.handleSelectionMeshChange(nextState.file.present.data.selectionMesh);
+    }
+
     if (this.tool.getToolType() !== nextState.common.selectedTool) {
       const nextTool = this.getTool(nextState.common.selectedTool);
       this.tool.stop();
@@ -271,10 +276,6 @@ class ModelEditorCanvas extends Canvas {
       this.tool.start(nextState);
     } else {
       this.tool.updateProps(nextState);
-    }
-
-    if (this.state.file.present.data.selectionMesh !== nextState.file.present.data.selectionMesh) {
-      this.handleSelectionMeshChange(nextState.file.present.data.selectionMesh);
     }
 
     this.state = nextState;
@@ -296,7 +297,9 @@ class ModelEditorCanvas extends Canvas {
       ]);
     }
 
+    this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
+    this.tool.onRender();
   }
 
   destroy() {
