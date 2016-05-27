@@ -35,7 +35,7 @@ initialMatrix.set(1,1,1, 1 << 24 | 0xff << 8);
 
 const initialState: VoxelData = {
   matrix: initialMatrix,
-  mesh: mesher(initialMatrix.data, initialMatrix.shape),
+  mesh: mesher(initialMatrix),
   selection: null,
   selectionMesh: null,
   fragment: null,
@@ -55,10 +55,10 @@ interface RotateFn {
 function isEmpty(matrix: ndarray.Ndarray) {
   const { shape } = matrix;
 
-  for (let i = 0; i < shape[2]; ++i) {
+  for (let k = 0; k < shape[2]; ++k) {
     for (let j = 0; j < shape[1]; ++j) {
-      for (let k = 0; k < shape[0]; ++k) {
-        if (matrix.get(k, j, i) !== 0) {
+      for (let i = 0; i < shape[0]; ++i) {
+        if (matrix.get(i, j, k) !== 0) {
           return true;
         }
       }
@@ -83,21 +83,21 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
 
       if (!state.selection) {
-        for (let i = volumn[0]; i <= volumn[1]; ++i) {
+        for (let k = volumn[4]; k <= volumn[5]; ++k) {
           for (let j = volumn[2]; j <= volumn[3]; ++j) {
-            for (let k = volumn[4]; k <= volumn[5]; ++k) {
-              matrix.set(k, j, i, c);
+            for (let i = volumn[0]; i <= volumn[1]; ++i) {
+              matrix.set(i, j, k, c);
             }
           }
         }
       } else {
         let changed = false;
 
-        for (let i = volumn[0]; i <= volumn[1]; ++i) {
+        for (let k = volumn[4]; k <= volumn[5]; ++k) {
           for (let j = volumn[2]; j <= volumn[3]; ++j) {
-            for (let k = volumn[4]; k <= volumn[5]; ++k) {
-              if (state.selection.get(k, j, i)) {
-                matrix.set(k, j, i, c);
+            for (let i = volumn[0]; i <= volumn[1]; ++i) {
+              if (state.selection.get(i, j, k)) {
+                matrix.set(i, j, k, c);
                 changed = true;
               }
             }
@@ -109,7 +109,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         matrix,
-        mesh: mesher(matrix.data, matrix.shape),
+        mesh: mesher(matrix),
       });
     }
 
@@ -122,12 +122,12 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       let selected = false;
 
-      for (let i = volumn[0]; i <= volumn[1]; ++i) {
+      for (let k = volumn[4]; k <= volumn[5]; ++k) {
         for (let j = volumn[2]; j <= volumn[3]; ++j) {
-          for (let k = volumn[4]; k <= volumn[5]; ++k) {
-            const c = state.matrix.get(k, j, i);
+          for (let i = volumn[0]; i <= volumn[1]; ++i) {
+            const c = state.matrix.get(i, j, k);
             if (c !== 0) {
-              selection.set(k, j, i, 1);
+              selection.set(i, j, k, 1);
               selected = true;
             }
           }
@@ -138,7 +138,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         selection: selected ? selection : null,
-        selectionMesh: selected ? mesher(selection.data, selection.shape): null,
+        selectionMesh: selected ? mesher(selection) : null,
       });
     }
 
@@ -162,17 +162,17 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
             return;
           }
 
-          return state.matrix.get(z, y, x);
+          return state.matrix.get(x, y, z);
         },
         onFlood: (x: number, y: number, z: number) => {
-          selection.set(z, y, x, 1);
+          selection.set(x, y, z, 1);
         },
         seed: position,
       });
 
       return Object.assign({}, state, {
         selection,
-        selectionMesh: mesher(selection.data, selection.shape),
+        selectionMesh: mesher(selection),
       });
     }
 
@@ -186,12 +186,12 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       );
 
       const { shape } = state.selection;
-      for (let i = 0; i < shape[2]; ++i) {
+      for (let k = 0; k < shape[2]; ++k) {
         for (let j = 0; j < shape[1]; ++j) {
-          for (let k = 0; k < shape[0]; ++k) {
-            if (state.selection.get(k, j, i) !== 0) {
-              fragment.set(k, j, i, matrix.get(k, j, i));
-              matrix.set(k, j, i, 0);
+          for (let i = 0; i < shape[0]; ++i) {
+            if (state.selection.get(i, j, k) !== 0) {
+              fragment.set(i, j, k, matrix.get(i, j, k));
+              matrix.set(i, j, k, 0);
             }
           }
         }
@@ -199,11 +199,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         matrix,
-        mesh: mesher(matrix.data, matrix.shape),
+        mesh: mesher(matrix),
         selection: null,
         selectionMesh: null,
         fragment,
-        fragmentMesh: mesher(fragment.data, fragment.shape),
+        fragmentMesh: mesher(fragment),
       });
     }
 
@@ -229,13 +229,13 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       let selected = false;
 
-      for (let i = minX; i < maxX; ++i) {
+      for (let k = minZ; k < maxZ; ++k) {
         for (let j = minY; j < maxY; ++j) {
-          for (let k = minZ; k < maxZ; ++k) {
-            const c = state.fragment.get(k - offset[2], j - offset[1], i - offset[0]);
+          for (let i = minX; i < maxX; ++i) {
+            const c = state.fragment.get(i - offset[0], j - offset[1], k - offset[2]);
             if (c !== 0) {
-              matrix.set(k, j, i, c);
-              selection.set(k, j, i, c);
+              matrix.set(i, j, k, c);
+              selection.set(i, j, k, c);
               selected = true;
             }
           }
@@ -244,9 +244,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         matrix,
-        mesh: mesher(matrix.data, matrix.shape),
+        mesh: mesher(matrix),
         selection: selected ? selection : null,
-        selectionMesh: selected ? mesher(selection.data, selection.shape) : null,
+        selectionMesh: selected ? mesher(selection) : null,
         fragment: null,
         fragmentMesh: null,
       });
@@ -258,12 +258,12 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       if (!state.selection) {
         const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
         positions.forEach(position => {
-          matrix.set(position[2], position[1], position[0], 0);
+          matrix.set(position[0], position[1], position[2], 0);
         });
 
         return Object.assign({}, state, {
           matrix,
-          mesh: mesher(matrix.data, matrix.shape),
+          mesh: mesher(matrix),
         });
       } else {
         let changed = false;
@@ -272,9 +272,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         const selection = ndarray(state.selection.data.slice(), state.selection.shape);
 
         positions.forEach(position => {
-          if (selection.get(position[2], position[1], position[0])) {
-            matrix.set(position[2], position[1], position[0], 0);
-            selection.set(position[2], position[1], position[0], 0);
+          if (selection.get(position[0], position[1], position[2])) {
+            matrix.set(position[0], position[1], position[2], 0);
+            selection.set(position[0], position[1], position[2], 0);
             changed = true;
           }
         });
@@ -285,9 +285,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
         return Object.assign({}, state, {
           matrix,
-          mesh: mesher(matrix.data, matrix.shape),
+          mesh: mesher(matrix),
           selection: selected ? selection : null,
-          selectionMesh: selected ? mesher(selection.data, selection.shape) : null,
+          selectionMesh: selected ? mesher(selection) : null,
         });
       }
     }
@@ -305,9 +305,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       // TODO: Support user define shape
       const shape: Shape = [ DESIGN_IMG_SIZE, DESIGN_IMG_SIZE, DESIGN_IMG_SIZE ];
 
-      for (let i = 0; i < width; ++i) {
+      for (let k = 0; k < depth; ++k) {
         for (let j = 0; j < height; ++j) {
-          for (let k = 0; k < depth; ++k) {
+          for (let i = 0; i < width; ++i) {
             const c = state.matrix.get(i, j, k);
             if (c === 0) continue;
             const pos = rotate(shape, [i, j, k]);
@@ -319,14 +319,14 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       if (!state.selection) {
         return Object.assign({}, state, {
           matrix,
-          mesh: mesher(matrix.data, matrix.shape),
+          mesh: mesher(matrix),
         });
       } else {
         const selection = ndarray(new Int32Array(width * height * depth), state.selection.shape);
 
-        for (let i = 0; i < width; ++i) {
+        for (let k = 0; k < depth; ++k) {
           for (let j = 0; j < height; ++j) {
-            for (let k = 0; k < depth; ++k) {
+            for (let i = 0; i < width; ++i) {
               const c = state.selection.get(i, j, k);
               if (c === 0) continue;
 
@@ -338,9 +338,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
         return Object.assign({}, state, {
           matrix,
-          mesh: mesher(matrix.data, matrix.shape),
+          mesh: mesher(matrix),
           selection,
-          selectionMesh: mesher(selection.data, selection.shape),
+          selectionMesh: mesher(selection),
         });
       }
     }

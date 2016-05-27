@@ -52,7 +52,7 @@ function worldDataReducer(state: WorldData, action: Action<any>): WorldData {
 
       const c = rgbToHex(color);
       const nextBlocks = ndarray(blocks.data.slice(), blocks.shape);
-      nextBlocks.set(z, y, x, c);
+      nextBlocks.set(x, y, z, c);
 
       return update(state, {
         zones: { [zoneId]: { blocks: { $set: nextBlocks } } }
@@ -63,7 +63,7 @@ function worldDataReducer(state: WorldData, action: Action<any>): WorldData {
       const { blocks } = state.zones[zoneId];
 
       const nextBlocks = ndarray(blocks.data.slice(), blocks.shape);
-      nextBlocks.set(z, y, x, 0);
+      nextBlocks.set(x, y, z, 0);
 
       return update(state, {
         zones: { [zoneId]: { blocks: { $set: nextBlocks } } }

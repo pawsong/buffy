@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { Ndarray } from 'ndarray';
 import mesher from '../meshers/greedy';
 import { createGeometryFromMesh } from '../utils';
-// const compileMesher = require('greedy-mesher');
 
 import { Position, Color } from '@pasta/core/lib/types';
 
@@ -40,20 +39,18 @@ class Chunk {
   }
 
   remove(pos: Position) {
-    // TODO: Make order right.
-    this.data.set(pos[2], pos[1], pos[0], 0);
+    this.data.set(pos[0], pos[1], pos[2], 0);
   }
 
   findAndUpdate(pos: Position, color: Color) {
-    // TODO: Make order right.
-    this.data.set(pos[2], pos[1], pos[0], rgbToHex(color));
+    this.data.set(pos[0], pos[1], pos[2], rgbToHex(color));
   }
 
   update() {
     if (this.mesh) this.scene.remove(this.mesh);
     if (this.geometry) this.geometry.dispose();
 
-    const mesh = mesher(this.data.data, this.data.shape);
+    const mesh = mesher(this.data);
     this.geometry = createGeometryFromMesh(mesh);
 
     // Create surface mesh

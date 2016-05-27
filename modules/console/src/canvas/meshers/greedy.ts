@@ -20,15 +20,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+import * as ndarray from 'ndarray';
 
 var GreedyMesh = (function() {
 //Cache buffer internally
 var mask = new Int32Array(4096);
 
-return function(volume, dims) {
+return function(array: ndarray.Ndarray) {
   function f(i,j,k) {
-    return volume[i + dims[0] * (j + dims[1] * k)];
+    return array.get(i, j ,k);
   }
+  const dims = array.shape;
+
   //Sweep over 3-axes
   var vertices = [], faces = [];
   for(var d=0; d<3; ++d) {

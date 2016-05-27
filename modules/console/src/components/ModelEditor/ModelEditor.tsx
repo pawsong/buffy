@@ -27,7 +27,7 @@ import * as StorageKeys from '../../constants/StorageKeys';
 
 import { connectTarget } from '../Panel';
 
-import mesher from './canvas/meshers/greedy';
+import mesher from '../../canvas/meshers/greedy';
 
 import {
   rgbToHex,
@@ -258,7 +258,7 @@ ModelEditor.serialize = (fileState) => {
 ModelEditor.deserialize = data => {
   const inflated = pako.inflate(data.data);
   const matrix = ndarray(new Int32Array(inflated.buffer), data.shape);
-  const mesh = mesher(matrix.data, matrix.shape);
+  const mesh = mesher(matrix);
 
   return ModelEditor.createFileState({
     matrix,
