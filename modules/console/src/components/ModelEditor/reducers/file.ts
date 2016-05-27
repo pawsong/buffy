@@ -21,6 +21,7 @@ import {
   VOXEL_MAGIN_WAND, VoxelMaginWandAction,
   VOXEL_MOVE_START, VoxelMoveStartAction,
   VOXEL_MOVE_END, VoxelMoveEndAction,
+  VOXEL_REMOVE_SELECTED, VoxelRemoveSelectedAction,
 } from '../actions';
 
 import {
@@ -52,22 +53,126 @@ interface RotateFn {
   (shape: Shape, position: Position): Position;
 }
 
-function isEmpty(matrix: ndarray.Ndarray) {
-  const { shape } = matrix;
+const cwise = require('cwise');
 
-  for (let k = 0; k < shape[2]; ++k) {
-    for (let j = 0; j < shape[1]; ++j) {
-      for (let i = 0; i < shape[0]; ++i) {
-        if (matrix.get(i, j, k) !== 0) {
-          return true;
-        }
+const any = cwise({
+  args: ['array'],
+  body: function(a) {
+    if (a) return true;
+  },
+  post: function() {
+    return false
+  },
+});
+
+const fill = (() => {
+  const _fill = cwise({
+    args: ['array', 'scalar'],
+    body: function(a, s) {
+      a = s;
+    },
+  });
+
+  return function (array: ndarray.Ndarray, volumn: Volumn, c: number) {
+    const offset = array.stride[0] * volumn[0] +
+                   array.stride[1] * volumn[1] +
+                   array.stride[2] * volumn[2];
+
+    const shape = [
+      volumn[3] - volumn[0] + 1,
+      volumn[4] - volumn[1] + 1,
+      volumn[5] - volumn[2] + 1,
+    ];
+
+    const _array = ndarray(array.data, shape, array.stride, offset);
+    _fill(_array, c);
+  };
+})();
+
+const fillInSelection = (() => {
+  const _fillInSelection = cwise({
+    args: ['array', 'array', 'scalar'],
+    pre: function () {
+      this.changed = false;
+    },
+    body: function (model, selection, color) {
+      if (selection) {
+        model = color;
+        this.changed = true;
       }
-    }
-  }
+    },
+    post: function () {
+      return this.changed;
+    },
+  });
 
-  return false;
-}
+  return function (array: ndarray.Ndarray, volumn: Volumn, c: number, selection: ndarray.Ndarray): boolean {
+    const offset = array.stride[0] * volumn[0] +
+                   array.stride[1] * volumn[1] +
+                   array.stride[2] * volumn[2];
 
+    const shape = [
+      volumn[3] - volumn[0] + 1,
+      volumn[4] - volumn[1] + 1,
+      volumn[5] - volumn[2] + 1,
+    ];
+
+    const _array = ndarray(array.data, shape, array.stride, offset);
+    const _selection = ndarray(selection.data, shape, selection.stride, offset);
+
+    return _fillInSelection(_array, _selection, c);
+  };
+})();
+
+const selectWithBox = (() => {
+  const _selectWithBox = cwise({
+    args: ['array', 'array'],
+    pre: function () {
+      this.selected = false;
+    },
+    body: function (selection, model) {
+      if (model) {
+        selection = 1;
+        this.selected = true;
+      }
+    },
+    post: function () {
+      return this.selected;
+    },
+  });
+
+  return function (selection: ndarray.Ndarray, model: ndarray.Ndarray, volumn: Volumn): boolean {
+    const offset = model.stride[0] * volumn[0] +
+                   model.stride[1] * volumn[1] +
+                   model.stride[2] * volumn[2];
+
+    const shape = [
+      volumn[3] - volumn[0] + 1,
+      volumn[4] - volumn[1] + 1,
+      volumn[5] - volumn[2] + 1,
+    ];
+
+    const _model = ndarray(model.data, shape, model.stride, offset);
+    const _selection = ndarray(selection.data, shape, selection.stride, offset);
+
+    return _selectWithBox(_selection, _model);
+  };
+})();
+
+const removeInSelection = (() => {
+  const _removeInSelection = cwise({
+    args: ['array', 'array'],
+    body: function (model, selection) {
+      if (selection) {
+        model = 0;
+      }
+    },
+  });
+
+  return (model: ndarray.Ndarray, selection: ndarray.Ndarray) => {
+    return _removeInSelection(model, selection);
+  };
+})();
 
 const rotates: { [index: string]: RotateFn } = {
   x: (shape, pos) => ([ pos[0],            shape[2] - pos[2], pos[1]            ]),
@@ -83,28 +188,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
 
       if (!state.selection) {
-        for (let k = volumn[4]; k <= volumn[5]; ++k) {
-          for (let j = volumn[2]; j <= volumn[3]; ++j) {
-            for (let i = volumn[0]; i <= volumn[1]; ++i) {
-              matrix.set(i, j, k, c);
-            }
-          }
-        }
+        fill(matrix, volumn, c);
       } else {
-        let changed = false;
-
-        for (let k = volumn[4]; k <= volumn[5]; ++k) {
-          for (let j = volumn[2]; j <= volumn[3]; ++j) {
-            for (let i = volumn[0]; i <= volumn[1]; ++i) {
-              if (state.selection.get(i, j, k)) {
-                matrix.set(i, j, k, c);
-                changed = true;
-              }
-            }
-          }
+        if (!fillInSelection(matrix, volumn, c, state.selection)) {
+          return state;
         }
-
-        if (!changed) return state;
       }
 
       return Object.assign({}, state, {
@@ -120,19 +208,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         state.matrix.shape
       );
 
-      let selected = false;
-
-      for (let k = volumn[4]; k <= volumn[5]; ++k) {
-        for (let j = volumn[2]; j <= volumn[3]; ++j) {
-          for (let i = volumn[0]; i <= volumn[1]; ++i) {
-            const c = state.matrix.get(i, j, k);
-            if (c !== 0) {
-              selection.set(i, j, k, 1);
-              selected = true;
-            }
-          }
-        }
-      }
+      const selected = selectWithBox(selection, state.matrix, volumn);
 
       if (!selected && !state.selection) return state;
 
@@ -281,7 +357,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
         if (!changed) return state;
 
-        const selected = isEmpty(selection);
+        const selected = any(selection);
 
         return Object.assign({}, state, {
           matrix,
@@ -290,6 +366,20 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
           selectionMesh: selected ? mesher(selection) : null,
         });
       }
+    }
+
+    case VOXEL_REMOVE_SELECTED: {
+      if (!state.selection) return;
+
+      const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
+      removeInSelection(matrix, state.selection);
+
+      return Object.assign({}, state, {
+        matrix,
+        mesh: mesher(matrix),
+        selection: null,
+        selectionMesh: null,
+      });
     }
 
     case VOXEL_ROTATE: {

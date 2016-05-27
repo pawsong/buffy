@@ -48,9 +48,8 @@ export interface Voxel {
 }
 
 export type Volumn = [
-  number /* minX */, number /* maxX */,
-  number /* minY */, number /* maxY */,
-  number /* minZ */, number /* maxZ */
+  number /* minX */, number /* minY */, number /* minZ */,
+  number /* maxX */, number /* maxY */, number /* maxZ */
 ]
 
 export interface VoxelData {

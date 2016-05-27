@@ -36,6 +36,7 @@ import {
   VOXEL_MAGIN_WAND,
   VOXEL_MOVE_START,
   VOXEL_MOVE_END,
+  VOXEL_REMOVE_SELECTED,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -80,6 +81,7 @@ const ActionMessages = {
   [INIT]: messages.labelVoxelInit,
   [VOXEL_ADD_BATCH]: messages.labelVoxelAdd,
   [VOXEL_REMOVE_BATCH]: messages.labelVoxelRemove,
+  [VOXEL_REMOVE_SELECTED]: messages.labelVoxelRemove,
   [VOXEL_ROTATE]: messages.labelVoxelRotate,
   [VOXEL_SELECT_BOX]: messages.labelVoxelSelect,
   [VOXEL_MAGIN_WAND]: messages.labelVoxelSelect,

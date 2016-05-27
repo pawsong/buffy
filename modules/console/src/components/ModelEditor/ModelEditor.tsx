@@ -57,6 +57,7 @@ import {
 import {
   changeTool,
   changePaletteColor,
+  voxelRemoveSelected,
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
@@ -143,6 +144,27 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     };
   }
 
+  private keyPressed = {};
+
+  private handleKeyDown = (e: KeyboardEvent) => {
+    if (this.keyPressed[e.keyCode]) return;
+    this.keyPressed[e.keyCode] = true;
+
+    switch(e.keyCode) {
+      case 8: // Backspace
+      case 46: // delete
+      {
+        if (this.props.fileState.present.data.selection) {
+          this.dispatchAction(voxelRemoveSelected());
+        }
+      }
+    }
+  };
+
+  private handleKeyUp = (e: KeyboardEvent) => {
+    this.keyPressed[e.keyCode] = false;
+  }
+
   componentDidMount() {
     this.canvas = new ModelEditorCanvas({
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
@@ -151,6 +173,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       state: this.getEditorState(),
     });
     this.canvas.init();
+
+    document.addEventListener('keydown', this.handleKeyDown, false);
+    document.addEventListener('keyup', this.handleKeyUp, false);
   }
 
   componentDidUpdate(prevProps: ModelEditorProps) {
@@ -171,6 +196,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
   componentWillUnmount() {
     this.canvas.destroy();
+    document.removeEventListener('keydown', this.handleKeyDown, false);
+    document.removeEventListener('keyup', this.handleKeyUp, false);
   }
 
   selectTool = (selectedTool: ToolType) => this.dispatchAction(changeTool(selectedTool));

@@ -172,10 +172,10 @@ class DrawState extends ToolState {
 
     this.dispatchAction(voxelAddBatch([
       Math.min(this.anchor.x, this.target.x),
-      Math.max(this.anchor.x, this.target.x),
       Math.min(this.anchor.y, this.target.y),
-      Math.max(this.anchor.y, this.target.y),
       Math.min(this.anchor.z, this.target.z),
+      Math.max(this.anchor.x, this.target.x),
+      Math.max(this.anchor.y, this.target.y),
       Math.max(this.anchor.z, this.target.z),
     ], this.tool.props.color));
 

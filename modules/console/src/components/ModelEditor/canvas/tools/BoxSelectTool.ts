@@ -284,9 +284,8 @@ class DrawState extends ToolState {
     );
 
     this.dispatchAction(voxelSelectBox([
-      lo.x, hi.x,
-      lo.y, hi.y,
-      lo.z, hi.z,
+      lo.x, lo.y, lo.z,
+      hi.x, hi.y, hi.z,
     ]));
 
     this.transitionTo(STATE_WAIT);

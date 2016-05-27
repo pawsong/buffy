@@ -64,6 +64,15 @@ export function voxelRemoveBatch(positions: Position[]): VoxelRemoveBatchAction 
   };
 }
 
+export const VOXEL_REMOVE_SELECTED: 'voxel-editor/VOXEL_REMOVE_SELECTED' = 'voxel-editor/VOXEL_REMOVE_SELECTED';
+export interface VoxelRemoveSelectedAction extends Action<typeof VOXEL_REMOVE_SELECTED> {
+}
+export function voxelRemoveSelected(): VoxelRemoveSelectedAction {
+  return {
+    type: VOXEL_REMOVE_SELECTED,
+  };
+}
+
 export const VOXEL_ROTATE: 'voxel-editor/VOXEL_ROTATE' = 'voxel-editor/VOXEL_ROTATE';
 export interface VoxelRotateAction extends Action<typeof VOXEL_ROTATE> {
   axis: string;

@@ -284,9 +284,8 @@ class DrawState extends ToolState {
     );
 
     this.dispatchAction(voxelAddBatch([
-      lo.x, hi.x,
-      lo.y, hi.y,
-      lo.z, hi.z,
+      lo.x, lo.y, lo.z,
+      hi.x, hi.y, hi.z,
     ], this.tool.props.color));
 
     this.transitionTo(STATE_WAIT);
