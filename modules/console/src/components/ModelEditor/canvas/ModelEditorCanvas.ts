@@ -28,14 +28,11 @@ import {
   DispatchAction,
   ModelEditorState,
   GetEditorState,
-  CameraStore,
 } from '../types';
-
-import Stores from './stores';
 
 interface CanvasOptions {
   container: HTMLElement;
-  cameraStore: CameraStore;
+  camera: THREE.PerspectiveCamera;
   dispatchAction: DispatchAction;
   state: ModelEditorState;
 }
@@ -58,8 +55,6 @@ class ModelEditorCanvas extends Canvas {
 
   plane: THREE.Mesh;
 
-  private prevCameraPosition: THREE.Vector3;
-
   modelMesh: THREE.Mesh;
   selectionMesh: THREE.Mesh;
   selectionGeometry: THREE.Geometry;
@@ -67,7 +62,6 @@ class ModelEditorCanvas extends Canvas {
   private modelMaterial: THREE.MeshLambertMaterial;
   private selectionMaterial: THREE.ShaderMaterial;
 
-  private cameraStore: CameraStore;
   private state: ModelEditorState;
 
   private modelGeometry: THREE.Geometry;
@@ -75,15 +69,15 @@ class ModelEditorCanvas extends Canvas {
   constructor({
     container,
     dispatchAction,
-    cameraStore,
     state,
+    camera,
   }: CanvasOptions) {
     super(container);
 
     this.dispatchAction = dispatchAction;
     this.state = state;
 
-    this.cameraStore = cameraStore;
+    this.camera = camera;
 
     this.cachedTools = {};
   }
@@ -92,8 +86,6 @@ class ModelEditorCanvas extends Canvas {
     super.init();
     this.renderer.setClearColor(0x333333);
     this.renderer.autoClear = false;
-
-    this.prevCameraPosition = new THREE.Vector3().copy(this.camera.position);
 
     const planeWidth = DESIGN_IMG_SIZE * PIXEL_SCALE;
     const planeHeight = DESIGN_IMG_SIZE * PIXEL_SCALE;
@@ -174,20 +166,19 @@ class ModelEditorCanvas extends Canvas {
   }
 
   initCamera() {
-    const camera = new THREE.PerspectiveCamera(
-      40, this.container.offsetWidth / this.container.offsetHeight, 1, 10000
-    );
-    const position = this.cameraStore.getState();
-    camera.position.set(position[0], position[1], position[2]);
+    this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
+    this.camera.updateProjectionMatrix();
 
-    return camera;
+    return this.camera;
   }
 
-  onChangeCameraStore(cameraStore: CameraStore) {
-    this.cameraStore = cameraStore;
+  onChangeCamera(camera: THREE.PerspectiveCamera) {
+    this.camera = camera;
+    this.controls.object = this.camera;
 
-    const position = this.cameraStore.getState();
-    this.camera.position.set(position[0], position[1], position[2]);
+    this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight
+    this.camera.updateProjectionMatrix();
+
     this.controls.update();
     this.render();
   }
@@ -204,11 +195,6 @@ class ModelEditorCanvas extends Canvas {
   onWindowResize() {
     this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight
     this.camera.updateProjectionMatrix();
-    this.cameraStore.update([
-      this.camera.position.x,
-      this.camera.position.y,
-      this.camera.position.z,
-    ]);
     this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
     this.render();
   }
@@ -296,19 +282,6 @@ class ModelEditorCanvas extends Canvas {
   }
 
   render() {
-    if (
-         this.prevCameraPosition.x !== this.camera.position.x
-      || this.prevCameraPosition.y !== this.camera.position.y
-      || this.prevCameraPosition.z !== this.camera.position.z
-    ) {
-      this.prevCameraPosition.copy(this.camera.position);
-      this.cameraStore.update([
-        this.camera.position.x,
-        this.camera.position.y,
-        this.camera.position.z,
-      ]);
-    }
-
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
     this.tool.onRender();

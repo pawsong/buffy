@@ -2,6 +2,8 @@ import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 const pure = require('recompose/pure').default;
 
+import * as THREE from 'three';
+
 import * as pako from 'pako';
 
 import * as Immutable from 'immutable';
@@ -144,7 +146,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   componentDidMount() {
     this.canvas = new ModelEditorCanvas({
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
-      cameraStore: this.props.extraData.cameraPositionStore,
+      camera: this.props.extraData.camera,
       dispatchAction: this.dispatchAction,
       state: this.getEditorState(),
     });
@@ -163,7 +165,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     }
 
     if (prevProps.extraData !== this.props.extraData) {
-      this.canvas.onChangeCameraStore(this.props.extraData.cameraPositionStore);
+      this.canvas.onChangeCamera(this.props.extraData.camera);
     }
   }
 
@@ -225,20 +227,24 @@ ModelEditor.createFileState = (data): FileState => {
   return data ? fileReducer(undefined, reset(data)) : fileReducer(undefined, { type: '' });
 }
 
-var radius = PIXEL_SCALE * 25, theta = 270, phi = 45;
+var radius = PIXEL_SCALE * 25, theta = 90, phi = 45;
 
 ModelEditor.createExtraData = () => {
-  const cameraPositionStore = new SimpleStore<Position>([
+  const camera = new THREE.PerspectiveCamera();
+  camera.fov = 40;
+  camera.near = 1;
+  camera.far = 10000;
+  camera.position.set(
     radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
       + DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
     radius * Math.sin(phi * Math.PI / 360)
       + DESIGN_IMG_SIZE * PIXEL_SCALE / 4,
     radius * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
-      + DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
-  ]);
+      + DESIGN_IMG_SIZE * PIXEL_SCALE / 2
+  );
 
   return {
-    cameraPositionStore,
+    camera,
   };
 };
 

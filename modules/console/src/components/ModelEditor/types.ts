@@ -62,10 +62,8 @@ export interface VoxelData {
   fragmentMesh: any;
 }
 
-export type CameraStore = SimpleStore<Position>;
-
 export interface ExtraData {
-  cameraPositionStore: CameraStore;
+  camera: THREE.PerspectiveCamera;
 }
 
 export type FileState = UndoableState<VoxelData>;

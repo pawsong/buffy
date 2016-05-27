@@ -581,13 +581,6 @@ export default {
   'voxel-editor.panels.history.voxel.select': '블럭 선택',
 
   /**
-   * path: src/components/ModelEditor/components/panels/PreviewPanel.json
-   * description: Voxel editor preview panel title
-   * defaultMessage: Preview
-   */
-  'voxel-editor.panels.preview.title': '프리뷰',
-
-  /**
    * path: src/components/ModelEditor/components/panels/ToolsPanel.json
    * description: Voxel editor tools panel title
    * defaultMessage: Tools
@@ -650,6 +643,7 @@ export default {
    */
   'worldeditor.panels.tools.title': '도구상자',
 
+/* [Warning] Message not in use */ 'voxel-editor.panels.preview.title': '프리뷰',
 /* [Warning] Message not in use */ 'worldeditor.panels.zone.title': '지역',
 /* [Warning] Message not in use */ 'vr.start': '시작하기',
 /* [Warning] Message not in use */ 'voxel-editor.panels.workspace.title': '워크스페이스',
