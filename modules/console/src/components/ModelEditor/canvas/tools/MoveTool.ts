@@ -54,7 +54,7 @@ interface MoveToolProps {
   selection: ndarray.Ndarray;
 }
 
-class MoveTool extends ModelEditorTool<MoveToolProps> {
+class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolProps> {
   canvas: ModelEditorCanvas;
 
   translucentMaterial: THREE.Material;
@@ -80,14 +80,14 @@ class MoveTool extends ModelEditorTool<MoveToolProps> {
 
   getToolType(): ToolType { return ToolType.MOVE; }
 
-  mapProps(params: ModelEditorState) {
+  mapParamsToProps(params: ModelEditorState) {
     return {
       fragment: params.file.present.data.fragment,
       selection: params.file.present.data.selection,
     };
   }
 
-  getPropsSchema(): Schema {
+  getTreeSchema(): Schema {
     return {
       type: SchemaType.OBJECT,
       properties: {
@@ -152,7 +152,9 @@ class MoveTool extends ModelEditorTool<MoveToolProps> {
     v.copy(this.fragmentMesh.position).divideScalar(PIXEL_SCALE).round();
   }
 
-  render(diff: MoveToolProps) {
+  render() { return this.props; }
+
+  patch(diff: MoveToolProps) {
     if (!this.props.fragment && !this.props.selection) {
       this.arrowX.visible = false;
       this.arrowY.visible = false;

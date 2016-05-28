@@ -14,6 +14,6 @@ export interface InitParams {
   stateLayer: StateLayer;
 }
 
-abstract class PlayModeTool<T> extends ModeTool<PlayToolType, InitParams, T> {}
+abstract class PlayModeTool<P, S, T> extends ModeTool<PlayToolType, InitParams, P, S, T> {}
 
 export default PlayModeTool;

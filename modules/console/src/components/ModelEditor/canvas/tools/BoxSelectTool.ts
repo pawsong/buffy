@@ -311,7 +311,7 @@ interface BoxSelectToolProps {
   color: Color;
 }
 
-class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps> {
+class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, BoxSelectToolProps> {
   canvas: ModelEditorCanvas;
 
   drawGuideMaterial: THREE.MeshBasicMaterial;
@@ -324,7 +324,7 @@ class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps> {
 
   getToolType() { return ToolType.BOX_SELECT; }
 
-  getPropsSchema(): Schema {
+  getTreeSchema(): Schema {
     return {
       type: SchemaType.OBJECT,
       properties: {
@@ -335,11 +335,13 @@ class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps> {
     };
   }
 
-  mapProps(state: ModelEditorState) {
+  mapParamsToProps(state: ModelEditorState) {
     return { color: state.common.paletteColor };
   }
 
-  render(diff: BoxSelectToolProps) {
+  render() { return this.props; }
+
+  patch(diff: BoxSelectToolProps) {
     this.setCursorColor(diff.color || this.props.color);
   }
 

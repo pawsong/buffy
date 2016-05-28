@@ -209,7 +209,7 @@ interface RectangleToolProps {
   color: Color;
 }
 
-class RectangleTool extends ModelEditorTool<RectangleToolProps> {
+class RectangleTool extends ModelEditorTool<RectangleToolProps, void, RectangleToolProps> {
   canvas: ModelEditorCanvas;
 
   drawGuideMaterial: THREE.MeshBasicMaterial;
@@ -221,7 +221,7 @@ class RectangleTool extends ModelEditorTool<RectangleToolProps> {
 
   getToolType() { return ToolType.rectangle; }
 
-  getPropsSchema(): Schema {
+  getTreeSchema(): Schema {
     return {
       type: SchemaType.OBJECT,
       properties: {
@@ -232,11 +232,13 @@ class RectangleTool extends ModelEditorTool<RectangleToolProps> {
     };
   }
 
-  mapProps(state: ModelEditorState) {
+  mapParamsToProps(state: ModelEditorState) {
     return { color: state.common.paletteColor };
   }
 
-  render(diff: RectangleToolProps) {
+  render() { return this.props; }
+
+  patch(diff: RectangleToolProps) {
     this.setCursorColor(diff.color || this.props.color);
   }
 

@@ -1,44 +1,91 @@
 import { Differ, Schema } from '@pasta/helper/lib/diff';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 
-class SimpleComponent<T /* UpdateParams */, U /* Props */> {
-  protected differ: Differ<U>;
-  props: U;
+class SimpleComponent<P /* Props */, S /* State*/, T /* Tree */> {
+  props: P;
+  state: S;
+
+  protected tree: T;
+
+  private diff: (prev: T, next: T) => T;
+  private updatingProps: boolean;
 
   constructor() {
-    const schema = this.getPropsSchema();
-    if (schema) this.differ = new Differ<U>(schema);
-  }
+    this.updatingProps = false;
 
-  getPropsSchema(): Schema { return null; }
-
-  updateProps(updateParams: T): void {
-    const prevProps = this.props;
-    this.props = this.mapProps(updateParams);
-
-    if (this.differ) {
-      const diff = this.differ.diff(prevProps, this.props);
-      if (diff) {
-        this.render(diff);
-        this.componentDidUpdate(prevProps);
-      }
+    const schema = this.getTreeSchema();
+    if (schema) {
+      const differ = new Differ<T>(schema);
+      this.diff = differ.diff.bind(differ);
     } else {
-      if (!shallowEqual(prevProps, this.props)) {
-        this.componentDidUpdate(prevProps);
-      }
+      this.diff = () => null;
     }
   }
 
-  mapProps(updateParams: T): U { return null; }
+  getTreeSchema(): Schema { return null; }
 
-  render(diff: U) {}
+  /*
+   * Lifecycle methods
+   */
+  componentWillReceiveProps(nextProps: P) {}
+  componentDidUpdate(prevProps: P, prevState: S) {}
 
-  componentDidUpdate(prevProps: U) {}
+  /*
+   * Change handlers
+   */
+  updateProps(nextProps: P): void {
+    const prevProps = this.props;
+    const prevState = this.state;
 
-  start(updateParams: T) {
-    this.props = this.mapProps(updateParams);
+    // Component will receive props
+    this.updatingProps = true;
+    this.componentWillReceiveProps(nextProps);
+    this.updatingProps = false;
+
+    this.props = nextProps;
+
+    // Assume component is pure.
+    if (shallowEqual(prevProps, this.props) && shallowEqual(prevState, this.state)) {
+      return;
+    }
+
+    this.processRendering();
+    this.componentDidUpdate(prevProps, prevState);
+  }
+
+  setState(state: S) {
+    const prevState = this.state;
+
+    this.state = Object.assign({}, this.state, state);
+    if (this.updatingProps) return;
+
+    this.processRendering();
+    this.componentDidUpdate(this.props, prevState);
+  }
+
+  /*
+   * Methods for rendering
+   */
+  protected render(): T { return null; }
+  protected patch(diff: T) {}
+
+  private processRendering() {
+    const prevTree = this.tree;
+    this.tree = this.render();
+
+    const diff = this.diff(prevTree, this.tree);
+    if (diff) this.patch(diff);
+  }
+
+  /*
+   * Mount-like things
+   */
+  start(props: P) {
+    this.props = props;
     this.onStart();
-    this.render(this.props);
+
+    this.tree = this.render();
+    this.patch(this.tree);
   }
 
   onStart() {}

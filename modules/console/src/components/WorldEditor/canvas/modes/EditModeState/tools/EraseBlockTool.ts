@@ -75,7 +75,7 @@ interface EraseBlockToolProps {
   activeZoneId: string;
 }
 
-class EraseBlockTool extends EditModeTool<EraseBlockToolProps> {
+class EraseBlockTool extends EditModeTool<EraseBlockToolProps, void, void> {
   dispatchAction: DispatchAction;
 
   cursorGeometry: THREE.Geometry;
@@ -83,16 +83,7 @@ class EraseBlockTool extends EditModeTool<EraseBlockToolProps> {
 
   getToolType() { return EditToolType.REMOVE_BLOCK; }
 
-  getPropsSchema(): Schema {
-    return {
-      type: SchemaType.OBJECT,
-      properties: {
-        activeZoneId: { type: SchemaType.STRING },
-      },
-    };
-  }
-
-  mapProps(params: ModeToolUpdateParams) {
+  mapParamsToProps(params: ModeToolUpdateParams) {
     return {
       activeZoneId: params.editor.editMode.activeZoneId,
     };

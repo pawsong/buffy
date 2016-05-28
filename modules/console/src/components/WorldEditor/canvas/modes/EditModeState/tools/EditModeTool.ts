@@ -20,6 +20,6 @@ export interface InitParams {
   modelManager: ModelManager;
 }
 
-abstract class EditModeTool<T> extends ModeTool<EditToolType, InitParams, T> {}
+abstract class EditModeTool<P, S, T> extends ModeTool<EditToolType, InitParams, P, S, T> {}
 
 export default EditModeTool;

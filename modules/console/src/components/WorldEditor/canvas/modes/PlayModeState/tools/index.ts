@@ -14,7 +14,7 @@ import MoveTool from './MoveTool';
 export default function createTool(
   toolType: PlayToolType,
   params: InitParams
-): PlayModeTool<any> {
+): PlayModeTool<any, any, any> {
   switch(toolType) {
     case PlayToolType.MOVE: {
       return new MoveTool(params);

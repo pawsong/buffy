@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Position } from '@pasta/core/lib/types';
-import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
 import {
   PlayToolType,
@@ -88,19 +87,10 @@ interface MoveToolProps {
   playerId: string;
 }
 
-class MoveTool extends PlayModeTool<MoveToolProps> {
+class MoveTool extends PlayModeTool<MoveToolProps, void, void> {
   getToolType() { return PlayToolType.MOVE; }
 
-  getPropsSchema(): Schema {
-    return {
-      type: SchemaType.OBJECT,
-      properties: {
-        playerId: { type: SchemaType.STRING },
-      },
-    };
-  }
-
-  mapProps({ file }: ModeToolUpdateParams) {
+  mapParamsToProps({ file }: ModeToolUpdateParams) {
     return {
       playerId: file.playerId,
     };

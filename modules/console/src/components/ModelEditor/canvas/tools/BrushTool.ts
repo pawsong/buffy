@@ -163,8 +163,6 @@ class DrawState extends ToolState {
   }
 
   handleMouseUp({ } : CursorEventParams) {
-    this.tool.props.color;
-
     this.dispatchAction(voxelAddBatch([
       Math.min(this.anchor.x, this.target.x),
       Math.min(this.anchor.y, this.target.y),
@@ -204,7 +202,7 @@ interface BrushToolProps {
   color: Color;
 }
 
-class BrushTool extends ModelEditorTool<BrushToolProps> {
+class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolProps> {
   canvas: ModelEditorCanvas;
 
   drawGuideMaterial: THREE.MeshBasicMaterial;
@@ -218,7 +216,7 @@ class BrushTool extends ModelEditorTool<BrushToolProps> {
 
   getToolType() { return ToolType.brush; }
 
-  getPropsSchema(): Schema {
+  getTreeSchema(): Schema {
     return {
       type: SchemaType.OBJECT,
       properties: {
@@ -229,11 +227,13 @@ class BrushTool extends ModelEditorTool<BrushToolProps> {
     };
   }
 
-  mapProps(state: ModelEditorState) {
+  mapParamsToProps(state: ModelEditorState) {
     return { color: state.common.paletteColor };
   }
 
-  render(diff: BrushToolProps) {
+  render() { return this.props; }
+
+  patch(diff: BrushToolProps) {
     this.setCursorColor(diff.color || this.props.color);
   }
 

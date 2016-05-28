@@ -32,24 +32,9 @@ interface PlayModeComponentProps {
   viewMode: ViewMode;
 }
 
-class PlayModeComponent extends SimpleComponent<WorldState, PlayModeComponentProps> {
+class PlayModeComponent extends SimpleComponent<PlayModeComponentProps, void, void> {
   constructor(private canvas: WorldEditorCanvas) {
     super();
-  }
-
-  getPropsSchema(): Schema {
-    return {
-      type: SchemaType.OBJECT,
-      properties: {
-        viewMode: { type: SchemaType.ANY },
-      },
-    };
-  }
-
-  mapProps(state: WorldState): PlayModeComponentProps {
-    return {
-      viewMode: state.editor.playMode.viewMode,
-    };
   }
 
   componentDidUpdate(prevProps: PlayModeComponentProps) {
@@ -75,7 +60,7 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
   }
 
   // Lazy getter
-  createTool(toolType: PlayToolType): PlayModeTool<any> {
+  createTool(toolType: PlayToolType): PlayModeTool<any, any, any> {
     return createTool(toolType, this.initParams);
   }
 
@@ -83,12 +68,16 @@ class PlayModeState extends ModeState<PlayToolType, InitParams> {
     super.onEnter(state);
 
     this.startLocalServerMode();
-    this.component.start(state);
+    this.component.start({
+      viewMode: state.editor.playMode.viewMode,
+    });
   }
 
   onStateChange(state: WorldState) {
     super.onStateChange(state);
-    this.component.updateProps(state);
+    this.component.updateProps({
+      viewMode: state.editor.playMode.viewMode,
+    });
   }
 
   onLeave() {

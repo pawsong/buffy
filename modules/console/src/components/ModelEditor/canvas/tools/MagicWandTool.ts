@@ -124,7 +124,7 @@ class DragState extends ToolState {
   }
 }
 
-class MagicWandTool extends ModelEditorTool<void> {
+class MagicWandTool extends ModelEditorTool<void, void, void> {
   translucentMaterial: THREE.Material;
 
   getToolType(): ToolType { return ToolType.MAGIC_WAND; }

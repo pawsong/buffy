@@ -21,7 +21,7 @@ export default function createTool(
   toolType: ToolType,
   canvas: ModelEditorCanvas,
   dispatchAction: DispatchAction
-): ModelEditorTool<any> {
+): ModelEditorTool<any, any, any> {
   const initParams = {
     canvas, dispatchAction,
   };

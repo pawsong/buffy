@@ -45,7 +45,7 @@ interface ToolStates {
 }
 
 class IdleState extends ToolState {
-  constructor(private tool: Tool<any, any, any, any>) {
+  constructor(private tool: Tool<any, any, any, any, any>) {
     // Just wait start event.
     super({
       [ToolState.EVENT_START]: () => ({ state: ToolState.STATE_WAIT }),
@@ -53,7 +53,7 @@ class IdleState extends ToolState {
   }
 }
 
-abstract class Tool<U /* ToolType */, V /* InitParams */, T, K> extends SimpleComponent<T, K> {
+abstract class Tool<U /* ToolType */, V /* InitParams */, P, S, T> extends SimpleComponent<P, S, T> {
   protected fsm: Fsm;
 
   constructor(params: V) {
@@ -75,8 +75,8 @@ abstract class Tool<U /* ToolType */, V /* InitParams */, T, K> extends SimpleCo
 
   abstract init(params: V);
 
-  start(updateParams: T) {
-    super.start(updateParams);
+  start(props: P) {
+    super.start(props);
     this.fsm.trigger(ToolState.EVENT_START);
   }
 

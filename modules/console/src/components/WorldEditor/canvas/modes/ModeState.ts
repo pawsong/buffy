@@ -6,7 +6,8 @@ import {
   FileState,
   WorldState,
 } from '../../types';
-import Tool from '../../../../libs/Tool';
+// import Tool from '../../../../libs/Tool';
+import ModeTool from './ModeTool';
 import {
   CHANGE_MODE,
   CHANGE_STATE,
@@ -33,13 +34,13 @@ import {
 abstract class ModeState<T, U> extends State {
   canvas: WorldEditorCanvas;
 
-  protected tool: Tool<T, U, any, any>;
+  protected tool: ModeTool<T, U, any, any, any>;
   protected getFiles: () => SourceFileDB;
 
   private sandbox: Sandbox;
   private stateLayer: StateLayer;
   private frameId: number;
-  private cachedTools: { [index: string]: Tool<T, U, any, any> };
+  private cachedTools: { [index: string]: ModeTool<T, U, any, any, any> };
 
   protected state: WorldState;
 
@@ -69,7 +70,8 @@ abstract class ModeState<T, U> extends State {
 
   onEnter(state: WorldState) {
     this.state = state;
-    this.tool.start(state);
+    const props = this.tool.mapParamsToProps(state);
+    this.tool.start(props);
   }
 
   protected onStateChange(state: WorldState) {
@@ -79,9 +81,11 @@ abstract class ModeState<T, U> extends State {
       const nextTool = this.getOrCreateTool(toolType);
       this.tool.stop();
       this.tool = nextTool;
-      this.tool.start(state);
+      const props = this.tool.mapParamsToProps(state);
+      this.tool.start(props);
     } else {
-      this.tool.updateProps(state);
+      const props = this.tool.mapParamsToProps(state);
+      if (props) this.tool.updateProps(props);
     }
 
     this.state = state;
@@ -154,9 +158,9 @@ abstract class ModeState<T, U> extends State {
   }
 
   abstract getToolType(editorState: WorldEditorState): T;
-  abstract createTool(toolType: T): Tool<T, U, any, any>;
+  abstract createTool(toolType: T): ModeTool<T, U, any, any, any>;
 
-  private getOrCreateTool(toolType: T): Tool<T, U, any, any> {
+  private getOrCreateTool(toolType: T): ModeTool<T, U, any, any, any> {
     const tool = this.cachedTools[toolType as any];
     if (tool) return tool;
 

@@ -48,7 +48,7 @@ class WaitState extends ToolState {
   }
 }
 
-class MoveTool extends EditModeTool<any> {
+class MoveTool extends EditModeTool<any, any, any> {
   getToolType() { return EditToolType.MOVE; }
 
   init({ view }: InitParams) {

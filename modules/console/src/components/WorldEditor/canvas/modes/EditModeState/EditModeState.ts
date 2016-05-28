@@ -36,24 +36,24 @@ import {
   PIXEL_SCALE_HALF,
 } from '../../../../../canvas/Constants';
 
-interface UpdateParams {
+interface EditModeComponentProps {
   state: WorldState;
   recipeFiles: SourceFileDB;
 }
 
-interface Props {
+interface EditModeComponentTree {
   scriptIsRunning: boolean;
   robots: { [index: string]: Robot };
   zone: Zone;
   recipeFiles: SourceFileDB;
 }
 
-class EditModeComponent extends SimpleComponent<UpdateParams, Props> {
+class EditModeComponent extends SimpleComponent<EditModeComponentProps, void, EditModeComponentTree> {
   constructor(private editModeState: EditModeState) {
     super();
   }
 
-  getPropsSchema(): Schema {
+  getTreeSchema(): Schema {
     return {
       type: SchemaType.OBJECT,
       properties: {
@@ -90,18 +90,19 @@ class EditModeComponent extends SimpleComponent<UpdateParams, Props> {
     };
   }
 
-  mapProps({ state, recipeFiles }: UpdateParams) {
+  render() {
     return {
-      scriptIsRunning: state.editor.editMode.scriptIsRunning,
-      zone: state.file.zones[state.editor.editMode.activeZoneId],
-      robots: state.file.robots,
-      recipeFiles,
+      scriptIsRunning: this.props.state.editor.editMode.scriptIsRunning,
+      zone: this.props.state.file.zones[this.props.state.editor.editMode.activeZoneId],
+      robots: this.props.state.file.robots,
+      recipeFiles: this.props.recipeFiles,
     };
   }
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.scriptIsRunning !== this.props.scriptIsRunning) {
-      if (this.props.scriptIsRunning) {
+  componentDidUpdate(prevProps: EditModeComponentProps) {
+    if (prevProps.state.editor.editMode.scriptIsRunning !==
+        this.props.state.editor.editMode.scriptIsRunning) {
+      if (this.props.state.editor.editMode.scriptIsRunning) {
         this.editModeState.startScript();
       } else {
         this.editModeState.stopScript();
@@ -109,14 +110,14 @@ class EditModeComponent extends SimpleComponent<UpdateParams, Props> {
     }
   }
 
-  render(diff: Props) {
-    if (this.props.scriptIsRunning) return;
+  patch(diff: EditModeComponentTree) {
+    if (this.tree.scriptIsRunning) return;
 
     if (diff.robots) {
       Object.keys(diff.robots).forEach(robotId => {
         const robot = diff.robots[robotId];
         if (robot) {
-          this.editModeState.createOrUpdateRobot(robot, this.props.recipeFiles);
+          this.editModeState.createOrUpdateRobot(robot, this.tree.recipeFiles);
         } else {
           this.editModeState.canvas.objectManager.remove(robotId);
         }
@@ -155,7 +156,7 @@ class EditModeState extends ModeState<EditToolType, InitParams> {
   }
 
   // Lazy getter
-  createTool(toolType: EditToolType): EditModeTool<any> {
+  createTool(toolType: EditToolType): EditModeTool<any, any, any> {
     return createTool(toolType, this.initParams);
   }
 

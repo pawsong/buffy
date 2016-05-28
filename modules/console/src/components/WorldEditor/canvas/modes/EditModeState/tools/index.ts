@@ -18,7 +18,7 @@ import AddRobotTool from './AddRobotTool';
 export default function createTool(
   toolType: EditToolType,
   params: InitParams
-): EditModeTool<any> {
+): EditModeTool<any, any, any> {
   switch(toolType) {
     case EditToolType.MOVE: {
       return new MoveTool(params);

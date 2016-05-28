@@ -122,25 +122,15 @@ interface AddRobotToolProps {
   addRobotRecipeId: string;
 }
 
-class AddRobotTool extends EditModeTool<AddRobotToolProps> {
+class AddRobotTool extends EditModeTool<AddRobotToolProps, void, void> {
   getToolType() { return EditToolType.ADD_ROBOT; }
 
   cursorMaterial: THREE.Material;
 
-  mapProps({ editor }: ModeToolUpdateParams) {
+  mapParamsToProps({ editor }: ModeToolUpdateParams) {
     return {
       activeZoneId: editor.editMode.activeZoneId,
       addRobotRecipeId: editor.editMode.addRobotRecipeId,
-    };
-  }
-
-  getPropsSchema(): Schema {
-    return {
-      type: SchemaType.OBJECT,
-      properties: {
-        activeZoneId: { type: SchemaType.STRING },
-        addRobotRecipeId: { type: SchemaType.STRING },
-      }
     };
   }
 

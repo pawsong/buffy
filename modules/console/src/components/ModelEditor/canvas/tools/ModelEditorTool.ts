@@ -17,10 +17,9 @@ export interface InitParams {
   dispatchAction: DispatchAction;
 }
 
-abstract class ModelEditorTool<T> extends Tool<ToolType, InitParams, ModelEditorState, T> {
-  onRender() {
-
-  }
+abstract class ModelEditorTool<P, S, T> extends Tool<ToolType, InitParams, P, S, T> {
+  mapParamsToProps(params: ModelEditorState): P { return null; }
+  onRender() {}
 }
 
 export default ModelEditorTool;

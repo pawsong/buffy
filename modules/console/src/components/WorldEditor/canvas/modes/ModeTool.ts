@@ -11,6 +11,10 @@ export interface ModeToolUpdateParams {
   file: WorldData;
 }
 
-abstract class ModeTool<T, U, V> extends Tool<T, U, ModeToolUpdateParams, V> {}
+abstract class ModeTool<U, V, P, S, T> extends Tool<U, V, P, S, T> {
+  mapParamsToProps(params: ModeToolUpdateParams): P {
+    return null;
+  };
+}
 
 export default ModeTool;

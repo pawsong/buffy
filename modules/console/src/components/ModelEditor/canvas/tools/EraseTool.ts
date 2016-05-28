@@ -155,7 +155,7 @@ class DragState extends ToolState {
   }
 }
 
-class EraseTool extends ModelEditorTool<void> {
+class EraseTool extends ModelEditorTool<void, void, void> {
   translucentMaterial: THREE.Material;
 
   getToolType(): ToolType { return ToolType.erase; }

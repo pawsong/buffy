@@ -78,7 +78,11 @@ interface AddBlockToolProps {
   activeZoneId: string;
 }
 
-class AddBlockTool extends EditModeTool<AddBlockToolProps> {
+interface AddBlockToolTree {
+
+}
+
+class AddBlockTool extends EditModeTool<AddBlockToolProps, void, AddBlockToolProps> {
   cursorMaterial: THREE.MeshBasicMaterial;
   dispatchAction: DispatchAction;
 
@@ -88,7 +92,14 @@ class AddBlockTool extends EditModeTool<AddBlockToolProps> {
     this.cursorMaterial.color.setRGB(color.r / 0xff, color.g / 0xff, color.b / 0xff);
   }
 
-  getPropsSchema(): Schema {
+  mapParamsToProps({ editor }: ModeToolUpdateParams) {
+    return {
+      color: editor.editMode.paletteColor,
+      activeZoneId: editor.editMode.activeZoneId,
+    };
+  }
+
+  getTreeSchema(): Schema {
     return {
       type: SchemaType.OBJECT,
       properties: {
@@ -98,14 +109,9 @@ class AddBlockTool extends EditModeTool<AddBlockToolProps> {
     };
   }
 
-  mapProps({ editor }: ModeToolUpdateParams) {
-    return {
-      color: editor.editMode.paletteColor,
-      activeZoneId: editor.editMode.activeZoneId,
-    };
-  }
+  render() { return this.props; }
 
-  render(diff: AddBlockToolProps) {
+  patch(diff: AddBlockToolProps) {
     this.setCursorColor(diff.color || this.props.color);
   }
 

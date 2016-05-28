@@ -54,7 +54,7 @@ interface ComponentProps {
   selection: ndarray.Ndarray;
 }
 
-class ModelEditorCanvasComponent extends SimpleComponent<ModelEditorState, ComponentProps> {
+class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, any, ComponentProps> {
   private modelMaterial: THREE.MeshLambertMaterial;
   modelMesh: THREE.Mesh;
   private emptyModelMesh: THREE.Mesh;
@@ -102,7 +102,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ModelEditorState, Compo
     this.modelMeshIsDirty = false;
   }
 
-  getPropsSchema(): Schema {
+  getTreeSchema(): Schema {
     return {
       type: SchemaType.OBJECT,
       properties: {
@@ -112,14 +112,9 @@ class ModelEditorCanvasComponent extends SimpleComponent<ModelEditorState, Compo
     };
   }
 
-  mapProps(params: ModelEditorState) {
-    return {
-      model: params.file.present.data.matrix,
-      selection: params.file.present.data.selection,
-    };
-  }
+  render() { return this.props; }
 
-  render(diff: ComponentProps) {
+  patch(diff: ComponentProps) {
     if (diff.hasOwnProperty('model')) {
       if (this.modelMeshIsDirty) {
         this.modelMeshIsDirty = false;
@@ -172,8 +167,8 @@ class ModelEditorCanvas extends Canvas {
 
   dispatchAction: DispatchAction;
 
-  cachedTools: { [index: string]: ModelEditorTool<any> };
-  tool: ModelEditorTool<any>;
+  cachedTools: { [index: string]: ModelEditorTool<any, any, any> };
+  tool: ModelEditorTool<any, any, any>;
 
   camera: THREE.PerspectiveCamera;
 
@@ -250,12 +245,16 @@ class ModelEditorCanvas extends Canvas {
     this.controls.addEventListener('change', () => this.render());
 
     this.tool = this.getTool(this.state.common.selectedTool);
-    this.tool.start(this.state);
+    const props = this.tool.mapParamsToProps(this.state);
+    this.tool.start(props);
 
     this.controls.update();
 
     this.component = new ModelEditorCanvasComponent(this);
-    this.component.start(this.state);
+    this.component.start({
+      model: this.state.file.present.data.matrix,
+      selection: this.state.file.present.data.selection,
+    });
     this.render();
   }
 
@@ -278,7 +277,7 @@ class ModelEditorCanvas extends Canvas {
   }
 
   // Lazy getter
-  getTool(toolType: ToolType): ModelEditorTool<any> {
+  getTool(toolType: ToolType): ModelEditorTool<any, any, any> {
     const tool = this.cachedTools[toolType];
     if (tool) return tool;
 
@@ -294,15 +293,20 @@ class ModelEditorCanvas extends Canvas {
   }
 
   onStateChange(nextState: ModelEditorState) {
-    this.component.updateProps(nextState);
+    this.component.updateProps({
+      model: nextState.file.present.data.matrix,
+      selection: nextState.file.present.data.selection,
+    });
 
     if (this.tool.getToolType() !== nextState.common.selectedTool) {
       const nextTool = this.getTool(nextState.common.selectedTool);
       this.tool.stop();
       this.tool = nextTool;
-      this.tool.start(nextState);
+      const props = this.tool.mapParamsToProps(nextState);
+      this.tool.start(props);
     } else {
-      this.tool.updateProps(nextState);
+      const props = this.tool.mapParamsToProps(nextState);
+      if (props) this.tool.updateProps(props);
     }
 
     this.state = nextState;
