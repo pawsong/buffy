@@ -20,6 +20,8 @@ import { SetState } from '../types';
 
 import mesher from '../../../../canvas/meshers/greedy';
 
+import BoundingBoxEdgesHelper from '../helpers/BoundingBoxEdgesHelper';
+
 const fragmentVertexShader = require('raw!../shaders/fragment.vert');
 const fragmentFragmentShader = require('raw!../shaders/fragment.frag');
 
@@ -52,33 +54,6 @@ interface MoveToolProps {
   selection: ndarray.Ndarray;
 }
 
-class BoundingBoxEdgesHelper {
-  object: THREE.Object3D;
-  box: THREE.Box3;
-  edges: THREE.LineSegments;
-
-  constructor(object: THREE.Object3D, hex: number) {
-    this.object = object;
-  	this.box = new THREE.Box3();
-
-    this.edges = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.BoxBufferGeometry(1, 1, 1), 1),
-      new THREE.LineBasicMaterial({ color: hex })
-    );
-  }
-
-  update() {
-    this.box.setFromObject(this.object);
-    this.box.size(this.edges.scale);
-    this.box.center(this.edges.position);
-  }
-
-  dispose() {
-    this.edges.geometry.dispose();
-    this.edges.material.dispose();
-  }
-}
-
 class MoveTool extends ModelEditorTool<MoveToolProps> {
   canvas: ModelEditorCanvas;
 
@@ -87,7 +62,6 @@ class MoveTool extends ModelEditorTool<MoveToolProps> {
   arrowX: THREE.ArrowHelper;
   arrowY: THREE.ArrowHelper;
   arrowZ: THREE.ArrowHelper;
-  boundingBoxHelper: BoundingBoxEdgesHelper;
   fragmentBoundingBoxHelper: BoundingBoxEdgesHelper;
 
   temp1: THREE.Vector3;
@@ -191,31 +165,20 @@ class MoveTool extends ModelEditorTool<MoveToolProps> {
     }
 
     if (diff.hasOwnProperty('selection')) {
-      if (this.boundingBoxHelper) {
-        this.canvas.scene.remove(this.boundingBoxHelper.edges);
-        this.boundingBoxHelper.dispose();
-        this.boundingBoxHelper = null;
-      }
 
       if (diff.selection) {
-        this.boundingBoxHelper = new BoundingBoxEdgesHelper(this.canvas.component.selectionMesh, 0xFFEB3B);
-        this.boundingBoxHelper.update();
-        this.canvas.scene.add(this.boundingBoxHelper.edges);
-
-        this.boundingBoxHelper.box.size(this.temp1);
-
-        const maxSize = Math.max(this.temp1.x, this.temp1.y, this.temp1.z);
+        const { selectionBoundingBox } = this.canvas.component;
 
         this.arrowX.visible = true;
-        this.arrowX.position.copy(this.boundingBoxHelper.edges.position);
+        this.arrowX.position.copy(selectionBoundingBox.edges.position);
         this.arrowX.setLength(this.temp1.x / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
 
         this.arrowY.visible = true;
-        this.arrowY.position.copy(this.boundingBoxHelper.edges.position);
+        this.arrowY.position.copy(selectionBoundingBox.edges.position);
         this.arrowY.setLength(this.temp1.y / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
 
         this.arrowZ.visible = true;
-        this.arrowZ.position.copy(this.boundingBoxHelper.edges.position);
+        this.arrowZ.position.copy(selectionBoundingBox.edges.position);
         this.arrowZ.setLength(this.temp1.z / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
       }
     }
@@ -318,11 +281,9 @@ class MoveTool extends ModelEditorTool<MoveToolProps> {
     }
   }
 
-  updateDrawGuide(direction: THREE.Vector3) {
-    if (!this.boundingBoxHelper) return;
-
-    this.boundingBoxHelper.box.size(this.temp1);
-    const { position } = this.boundingBoxHelper.edges;
+  updateDrawGuide(direction: THREE.Vector3, boundingBox: BoundingBoxEdgesHelper) {
+    boundingBox.box.size(this.temp1);
+    const { position } = boundingBox.edges;
 
     const len = DESIGN_IMG_SIZE * PIXEL_SCALE * 4;
     const pos = DESIGN_IMG_SIZE * PIXEL_SCALE / 2;
@@ -352,13 +313,6 @@ class MoveTool extends ModelEditorTool<MoveToolProps> {
   onStop() {
     super.onStop();
     this.canvas.scene.remove(this.drawGuide);
-
-    if (this.boundingBoxHelper) {
-      this.canvas.scene.remove(this.boundingBoxHelper.edges);
-
-      this.boundingBoxHelper.dispose();
-      this.boundingBoxHelper = null;
-    }
 
     this.removeFragmentMesh();
   }
@@ -460,7 +414,7 @@ class DragState extends ToolState {
     this.canvas.controls.enableRotate = false;
 
     this.tool.getDirection(this.direction);
-    this.tool.updateDrawGuide(this.direction);
+    this.tool.updateDrawGuide(this.direction, this.canvas.component.selectionBoundingBox);
 
     // Detach selected mesh from current model
     // and create a new moving model fragment.

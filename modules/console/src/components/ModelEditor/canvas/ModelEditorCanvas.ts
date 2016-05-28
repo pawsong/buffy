@@ -18,6 +18,8 @@ import { createGeometryFromMesh } from '../../../canvas/utils';
 import Canvas from '../../../canvas/Canvas';
 import mesher from '../../../canvas/meshers/greedy';
 
+import BoundingBoxEdgesHelper from './helpers/BoundingBoxEdgesHelper';
+
 import {
   PIXEL_SCALE,
   DESIGN_IMG_SIZE,
@@ -61,6 +63,9 @@ class ModelEditorCanvasComponent extends SimpleComponent<ModelEditorState, Compo
   private selectionMaterial: THREE.ShaderMaterial;
   selectionMesh: THREE.Mesh;
 
+  private emptySelectionMesh: THREE.Mesh;
+  selectionBoundingBox: BoundingBoxEdgesHelper;
+
   constructor(private canvas: ModelEditorCanvas) {
     super();
     this.modelMaterial = new THREE.MeshLambertMaterial({
@@ -82,6 +87,11 @@ class ModelEditorCanvasComponent extends SimpleComponent<ModelEditorState, Compo
       transparent: true,
     });
     this.selectionMaterial.extensions.derivatives = true;
+
+    this.emptySelectionMesh = new THREE.Mesh();
+    this.selectionBoundingBox = new BoundingBoxEdgesHelper(this.emptyModelMesh, 0xFFEB3B);
+    this.selectionBoundingBox.edges.visible = false;
+    this.canvas.scene.add(this.selectionBoundingBox.edges);
   }
 
   onStart() {
@@ -144,6 +154,12 @@ class ModelEditorCanvasComponent extends SimpleComponent<ModelEditorState, Compo
         this.selectionMesh = new THREE.Mesh(geometry, this.selectionMaterial);
         this.selectionMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
         this.canvas.scene.add(this.selectionMesh);
+
+        this.selectionBoundingBox.edges.visible = true;
+        this.selectionBoundingBox.changeTarget(this.selectionMesh);
+      } else {
+        this.selectionBoundingBox.edges.visible = false;
+        this.selectionBoundingBox.changeTarget(this.emptySelectionMesh);
       }
     }
   }
@@ -179,7 +195,6 @@ class ModelEditorCanvas extends Canvas {
     this.camera = camera;
 
     this.cachedTools = {};
-    this.component = new ModelEditorCanvasComponent(this);
   }
 
   init() {
@@ -239,6 +254,7 @@ class ModelEditorCanvas extends Canvas {
 
     this.controls.update();
 
+    this.component = new ModelEditorCanvasComponent(this);
     this.component.start(this.state);
     this.render();
   }
