@@ -18,6 +18,8 @@ import ModelEditorTool, {
 import ModelEditorCanvas from '../ModelEditorCanvas';
 import { SetState } from '../types';
 
+import mesher from '../../../../canvas/meshers/greedy';
+
 const fragmentVertexShader = require('raw!../shaders/fragment.vert');
 const fragmentFragmentShader = require('raw!../shaders/fragment.frag');
 
@@ -34,6 +36,8 @@ import {
   voxelMoveEnd,
 } from '../../actions';
 
+import * as ndarray from 'ndarray';
+
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
 const STATE_ROTATE = 'rotate';
@@ -44,8 +48,8 @@ interface MaterialToRestore {
 }
 
 interface MoveToolProps {
-  fragmentMesh: any;
-  selectionMesh: any;
+  fragment: ndarray.Ndarray;
+  selection: ndarray.Ndarray;
 }
 
 class BoundingBoxEdgesHelper {
@@ -104,8 +108,8 @@ class MoveTool extends ModelEditorTool<MoveToolProps> {
 
   mapProps(params: ModelEditorState) {
     return {
-      fragmentMesh: params.file.present.data.fragmentMesh,
-      selectionMesh: params.file.present.data.selectionMesh,
+      fragment: params.file.present.data.fragment,
+      selection: params.file.present.data.selection,
     };
   }
 
@@ -113,13 +117,14 @@ class MoveTool extends ModelEditorTool<MoveToolProps> {
     return {
       type: SchemaType.OBJECT,
       properties: {
-        fragmentMesh: { type: SchemaType.ANY },
-        selectionMesh: { type: SchemaType.ANY },
+        fragment: { type: SchemaType.ANY },
+        selection: { type: SchemaType.ANY },
       }
     };
   }
 
-  private addFragmentMesh(mesh: any) {
+  private addFragmentMesh(array: ndarray.Ndarray) {
+    const mesh = mesher(array);
     const geometry = createGeometryFromMesh(mesh);
     this.fragmentMesh = new THREE.Mesh(geometry, this.fragmentMaterial);
     this.fragmentMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
@@ -174,26 +179,26 @@ class MoveTool extends ModelEditorTool<MoveToolProps> {
   }
 
   render(diff: MoveToolProps) {
-    if (!this.props.fragmentMesh && !this.props.selectionMesh) {
+    if (!this.props.fragment && !this.props.selection) {
       this.arrowX.visible = false;
       this.arrowY.visible = false;
       this.arrowZ.visible = false;
     }
 
-    if (diff.hasOwnProperty('fragmentMesh')) {
+    if (diff.hasOwnProperty('fragment')) {
       this.removeFragmentMesh();
-      if (diff.fragmentMesh) this.addFragmentMesh(diff.fragmentMesh);
+      if (diff.fragment) this.addFragmentMesh(diff.fragment);
     }
 
-    if (diff.hasOwnProperty('selectionMesh')) {
+    if (diff.hasOwnProperty('selection')) {
       if (this.boundingBoxHelper) {
         this.canvas.scene.remove(this.boundingBoxHelper.edges);
         this.boundingBoxHelper.dispose();
         this.boundingBoxHelper = null;
       }
 
-      if (diff.selectionMesh) {
-        this.boundingBoxHelper = new BoundingBoxEdgesHelper(this.canvas.selectionMesh, 0xFFEB3B);
+      if (diff.selection) {
+        this.boundingBoxHelper = new BoundingBoxEdgesHelper(this.canvas.component.selectionMesh, 0xFFEB3B);
         this.boundingBoxHelper.update();
         this.canvas.scene.add(this.boundingBoxHelper.edges);
 

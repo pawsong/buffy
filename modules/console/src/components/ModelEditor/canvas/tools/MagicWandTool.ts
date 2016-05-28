@@ -46,7 +46,7 @@ class WaitState extends ToolState {
     const offset = new THREE.Vector3();
 
     this.cursor = new Cursor(canvas, {
-      getInteractables: () => [this.canvas.modelMesh],
+      getInteractables: () => [this.canvas.component.modelMesh],
       geometry: this.canvas.cubeGeometry,
       material: this.tool.translucentMaterial,
       getOffset: normal => offset.set(
@@ -98,7 +98,7 @@ class DragState extends ToolState {
         PIXEL_SCALE_HALF * (1 - 2 * normal.y),
         PIXEL_SCALE_HALF * (1 - 2 * normal.z)
       ),
-      getInteractables: () => [this.canvas.modelMesh],
+      getInteractables: () => [this.canvas.component.modelMesh],
       onMouseUp: params => this.handleMouseUp(params),
     });
   }

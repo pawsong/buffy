@@ -54,11 +54,8 @@ export type Volumn = [
 
 export interface VoxelData {
   matrix: Ndarray;
-  mesh: any;
   selection: Ndarray;
-  selectionMesh: any;
   fragment: Ndarray;
-  fragmentMesh: any;
 }
 
 export interface ExtraData {

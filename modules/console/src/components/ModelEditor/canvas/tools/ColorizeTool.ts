@@ -39,7 +39,7 @@ class WaitState extends ToolState {
     super();
     this.cursor = new Cursor(canvas, {
       visible: false,
-      getInteractables: () => [canvas.modelMesh],
+      getInteractables: () => [canvas.component.modelMesh],
       onInteract: params => this.handleInteract(params),
       onMiss: params => this.handleMiss(params),
       onTouchTap: params => this.handleTouchTap(params),

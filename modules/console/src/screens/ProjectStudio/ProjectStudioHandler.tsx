@@ -13,6 +13,8 @@ import StateLayer from '@pasta/core/lib/StateLayer';
 const update = require('react-addons-update');
 const objectAssign = require('object-assign');
 
+import mesher from '../../canvas/meshers/greedy';
+
 import LocalServer, { LocalSocket } from '../../LocalServer';
 import ModelManager from '../../canvas/ModelManager';
 import { connectApi, preloadApi, ApiCall, get, ApiDispatchProps } from '../../api';
@@ -23,7 +25,7 @@ import * as StorageKeys from '../../constants/StorageKeys';
 import Studio, { StudioState } from '../../components/Studio';
 import { FileType, SourceFile } from '../../components/Studio/types';
 
-import ModelEditor from '../../components/ModelEditor';
+import ModelEditor, { ModelFileState } from '../../components/ModelEditor';
 import CodeEditor from '../../components/CodeEditor';
 import RecipeEditor from '../../components/RecipeEditor';
 import WorldEditor from '../../components/WorldEditor';
@@ -275,9 +277,10 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       .map(key => files[key])
       .filter(file => file.type === FileType.MODEL)
       .forEach(file => {
+        const state: ModelFileState = file.state;
         const loader = this.modelManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
-        loader.loadFromMemory(file.state.present.data.mesh);
+        loader.loadFromMemory(mesher(state.present.data.matrix));
       });
 
     this.startStateLayer();
@@ -510,7 +513,8 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
       if (spec.type === FileType.MODEL) {
         const loader = this.modelManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
-        loader.loadFromMemory(file.state.present.data.mesh);
+        const state: ModelFileState = file.state;
+        loader.loadFromMemory(mesher(state.present.data.matrix));
       }
     });
 
@@ -525,9 +529,10 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
   }
 
   handleModelApply = (file: SourceFile) => {
-    const { mesh } = file.state.present.data;
+    const state: ModelFileState = file.state;
+    const { matrix } = state.present.data;
     const loader = this.modelManager.getLoader(file.id);
-    loader.loadFromMemory(mesh);
+    loader.loadFromMemory(mesher(matrix));
   }
 
   render() {

@@ -28,19 +28,14 @@ import {
   DESIGN_IMG_SIZE,
 } from '../../../canvas/Constants';
 
-import mesher from '../../../canvas/meshers/greedy';
-
 const initialMatrix = ndarray(new Int32Array(16 * 16 * 16), [16, 16, 16]);
 initialMatrix.set(0,1,1, 1 << 24 | 0xff << 8);
 initialMatrix.set(1,1,1, 1 << 24 | 0xff << 8);
 
 const initialState: VoxelData = {
   matrix: initialMatrix,
-  mesh: mesher(initialMatrix),
   selection: null,
-  selectionMesh: null,
   fragment: null,
-  fragmentMesh: null,
 };
 
 export function rgbToHex({ r, g, b }) {
@@ -197,7 +192,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         matrix,
-        mesh: mesher(matrix),
       });
     }
 
@@ -214,7 +208,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         selection: selected ? selection : null,
-        selectionMesh: selected ? mesher(selection) : null,
       });
     }
 
@@ -248,7 +241,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         selection,
-        selectionMesh: mesher(selection),
       });
     }
 
@@ -275,11 +267,8 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         matrix,
-        mesh: mesher(matrix),
         selection: null,
-        selectionMesh: null,
         fragment,
-        fragmentMesh: mesher(fragment),
       });
     }
 
@@ -320,11 +309,8 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         matrix,
-        mesh: mesher(matrix),
         selection: selected ? selection : null,
-        selectionMesh: selected ? mesher(selection) : null,
         fragment: null,
-        fragmentMesh: null,
       });
     }
 
@@ -339,7 +325,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
         return Object.assign({}, state, {
           matrix,
-          mesh: mesher(matrix),
         });
       } else {
         let changed = false;
@@ -361,9 +346,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
         return Object.assign({}, state, {
           matrix,
-          mesh: mesher(matrix),
           selection: selected ? selection : null,
-          selectionMesh: selected ? mesher(selection) : null,
         });
       }
     }
@@ -376,9 +359,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         matrix,
-        mesh: mesher(matrix),
         selection: null,
-        selectionMesh: null,
       });
     }
 
@@ -409,7 +390,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       if (!state.selection) {
         return Object.assign({}, state, {
           matrix,
-          mesh: mesher(matrix),
         });
       } else {
         const selection = ndarray(new Int32Array(width * height * depth), state.selection.shape);
@@ -428,9 +408,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
         return Object.assign({}, state, {
           matrix,
-          mesh: mesher(matrix),
           selection,
-          selectionMesh: mesher(selection),
         });
       }
     }

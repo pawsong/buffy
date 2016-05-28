@@ -57,7 +57,7 @@ class WaitState extends ToolState {
       offset: [0, 0, 0],
       getInteractables: () => [
         this.tool.canvas.plane,
-        this.tool.canvas.modelMesh,
+        this.tool.canvas.component.modelMesh,
       ],
       onMouseDown: params => this.handleMouseDown(params),
     });

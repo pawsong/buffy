@@ -291,15 +291,11 @@ ModelEditor.serialize = (fileState) => {
 ModelEditor.deserialize = data => {
   const inflated = pako.inflate(data.data);
   const matrix = ndarray(new Int32Array(inflated.buffer), data.shape);
-  const mesh = mesher(matrix);
 
   return ModelEditor.createFileState({
     matrix,
-    mesh,
     selection: null,
-    selectionMesh: null,
     fragment: null,
-    fragmentMesh: null,
   });
 }
 
