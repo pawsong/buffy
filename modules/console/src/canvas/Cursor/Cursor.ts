@@ -59,6 +59,8 @@ class Cursor {
 
   private render: () => any;
 
+  private missHaveToRenderer: boolean;
+
   constructor(canvas: Canvas, options: CursorOptions) {
     this.position = new THREE.Vector3();
     this.raycaster = new THREE.Raycaster();
@@ -143,6 +145,8 @@ class Cursor {
     }
 
     if (event) this._onMouseMove(event);
+
+    this.missHaveToRenderer = true;
   }
 
   stop() {
@@ -205,22 +209,30 @@ class Cursor {
     return intersect;
   }
 
-  private handleMouseMove(event: MouseEvent) {
+  private handleMouseMove(event: MouseEvent): boolean {
     const intersect = this.getCanvasPositionFromMouseEvent(event, this.mesh.position);
     if (intersect) {
       if (!this.mesh.visible) this.onCursorShow(true);
       this.onInteract({ event, intersect });
+      return true;
     } else {
       if (this.mesh.visible) this.onCursorShow(false);
       this.onMiss({ event, intersect });
+      return false;
     }
   }
 
   private _onMouseMove = (event: MouseEvent) => {
     event.preventDefault();
-    this.handleMouseMove(event);
-
-    this.render();
+    if (this.handleMouseMove(event)) {
+      this.missHaveToRenderer = true;
+      this.render();
+    } else {
+      if (this.missHaveToRenderer) {
+        this.missHaveToRenderer = false;
+        this.render();
+      }
+    }
   }
 
   private _onMouseDown = (event: MouseEvent) => {
