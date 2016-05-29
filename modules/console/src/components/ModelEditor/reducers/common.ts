@@ -11,7 +11,7 @@ import {
 } from '../types';
 
 const initialState: CommonState = {
-  selectedTool: ToolType.brush,
+  selectedTool: ToolType.BRUSH,
   paletteColor: { r: 104, g: 204, b: 202 },
 }
 

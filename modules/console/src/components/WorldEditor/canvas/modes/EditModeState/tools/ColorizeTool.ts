@@ -115,7 +115,7 @@ class ColorizeTool extends EditModeTool<any, void, void> {
     this.hideTooltip();
   }
 
-  destroy() {
+  onDestroy() {
     this.colorTooltip.remove();
   }
 }

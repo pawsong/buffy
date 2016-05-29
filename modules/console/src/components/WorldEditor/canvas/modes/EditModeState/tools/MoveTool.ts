@@ -58,7 +58,7 @@ class MoveTool extends EditModeTool<any, any, any> {
     };
   }
 
-  destroy() {}
+  onDestroy() {}
 }
 
 export default MoveTool;

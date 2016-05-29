@@ -256,7 +256,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     this.canvas.scene.remove(this.drawGuide);
   }
 
-  destroy() {
+  onDestroy() {
 
   }
 }

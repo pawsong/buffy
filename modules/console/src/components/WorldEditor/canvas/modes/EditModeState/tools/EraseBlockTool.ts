@@ -105,7 +105,7 @@ class EraseBlockTool extends EditModeTool<EraseBlockToolProps, void, void> {
     };
   }
 
-  destroy() {
+  onDestroy() {
   }
 }
 

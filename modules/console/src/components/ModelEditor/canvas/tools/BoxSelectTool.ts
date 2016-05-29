@@ -399,7 +399,7 @@ class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, BoxSelectT
     this.canvas.scene.remove(this.drawGuide);
   }
 
-  destroy() {
+  onDestroy() {
 
   }
 }

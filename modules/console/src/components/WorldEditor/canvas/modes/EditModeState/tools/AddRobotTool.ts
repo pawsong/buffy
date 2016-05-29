@@ -151,7 +151,7 @@ class AddRobotTool extends EditModeTool<AddRobotToolProps, void, void> {
     };
   }
 
-  destroy() {}
+  onDestroy() {}
 }
 
 export default AddRobotTool;

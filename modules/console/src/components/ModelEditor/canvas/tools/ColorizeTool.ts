@@ -66,7 +66,7 @@ class WaitState extends ToolState {
 class ColorizeTool extends ModelEditorTool<void, void, void> {
   colorTooltip: HTMLElement;
 
-  getToolType(): ToolType { return ToolType.colorize; }
+  getToolType(): ToolType { return ToolType.COLORIZE; }
 
   onInit(params: InitParams) {
     super.onInit(params);
@@ -101,7 +101,7 @@ class ColorizeTool extends ModelEditorTool<void, void, void> {
     this.colorTooltip.style.background = `rgb(${c.r},${c.g},${c.b})`;
   }
 
-  destroy() {
+  onDestroy() {
     this.colorTooltip.remove();
   }
 }

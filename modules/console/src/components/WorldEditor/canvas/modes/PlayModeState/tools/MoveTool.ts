@@ -98,7 +98,7 @@ class MoveTool extends PlayModeTool<MoveToolProps, void, void> {
     };
   }
 
-  destroy() {}
+  onDestroy() {}
 }
 
 export default MoveTool;

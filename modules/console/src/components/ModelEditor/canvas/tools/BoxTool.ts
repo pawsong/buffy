@@ -292,7 +292,7 @@ class BoxTool extends ModelEditorTool<BoxToolProps, void, BoxToolProps> {
   cursorScale: THREE.Vector3;
   cursorMesh: THREE.Mesh;
 
-  getToolType() { return ToolType.box; }
+  getToolType() { return ToolType.BOX; }
 
   getTreeSchema(): Schema {
     return {
@@ -381,7 +381,7 @@ class BoxTool extends ModelEditorTool<BoxToolProps, void, BoxToolProps> {
     this.canvas.scene.remove(this.drawGuide);
   }
 
-  destroy() {
+  onDestroy() {
 
   }
 }

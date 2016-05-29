@@ -130,7 +130,7 @@ class AddBlockTool extends EditModeTool<AddBlockToolProps, void, AddBlockToolPro
     };
   }
 
-  destroy() {}
+  onDestroy() {}
 }
 
 export default AddBlockTool;

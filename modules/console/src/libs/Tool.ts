@@ -117,7 +117,11 @@ abstract class Tool<U /* ToolType */, V /* InitParams */, P, S, T> extends Simpl
     this.fsm.trigger(ToolState.EVENT_RESUME);
   }
 
-  abstract destroy();
+  destroy() {
+    this.onDestroy();
+  }
+
+  abstract onDestroy();
 }
 
 export default Tool;

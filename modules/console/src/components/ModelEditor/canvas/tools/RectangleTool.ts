@@ -19,7 +19,6 @@ import {
 
 import {
   voxelAddBatch,
-  CHANGE_PALETTE_COLOR, ChangePaletteColorAction,
 } from '../../actions';
 
 import {
@@ -191,7 +190,7 @@ class RectangleTool extends ModelEditorTool<RectangleToolProps, void, RectangleT
   cursorScale: THREE.Vector3;
   cursorMesh: THREE.Mesh;
 
-  getToolType() { return ToolType.rectangle; }
+  getToolType() { return ToolType.RECTANGLE; }
 
   getTreeSchema(): Schema {
     return {
@@ -280,7 +279,7 @@ class RectangleTool extends ModelEditorTool<RectangleToolProps, void, RectangleT
     this.canvas.scene.remove(this.drawGuide);
   }
 
-  destroy() {
+  onDestroy() {
 
   }
 }

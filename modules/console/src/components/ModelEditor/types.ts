@@ -23,11 +23,11 @@ export interface ActionListener {
  *
  */
 export enum ToolType {
-  brush,
-  rectangle,
-  erase,
-  colorize,
-  box,
+  BRUSH,
+  RECTANGLE,
+  ERASE,
+  COLORIZE,
+  BOX,
   BOX_SELECT,
   MAGIC_WAND,
   MOVE,

@@ -27,19 +27,19 @@ export default function createTool(
   };
 
   switch(toolType) {
-    case ToolType.brush: {
+    case ToolType.BRUSH: {
       return new BrushTool(initParams);
     }
-    case ToolType.rectangle: {
+    case ToolType.RECTANGLE: {
       return new RectangleTool(initParams);
     }
-    case ToolType.colorize: {
+    case ToolType.COLORIZE: {
       return new ColorizeTool(initParams);
     }
-    case ToolType.erase: {
+    case ToolType.ERASE: {
       return new EraseTool(initParams);
     }
-    case ToolType.box: {
+    case ToolType.BOX: {
       return new BoxTool(initParams);
     }
     case ToolType.BOX_SELECT: {

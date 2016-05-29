@@ -59,7 +59,7 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
     };
   }
 
-  destroy() {
+  onDestroy() {
 
   }
 }

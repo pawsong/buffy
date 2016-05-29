@@ -28,7 +28,7 @@ const STATE_DRAG = 'drag';
 class EraseTool extends ModelEditorTool<void, void, void> {
   translucentMaterial: THREE.Material;
 
-  getToolType(): ToolType { return ToolType.erase; }
+  getToolType(): ToolType { return ToolType.ERASE; }
 
   onInit(params) {
     super.onInit(params);
@@ -49,7 +49,7 @@ class EraseTool extends ModelEditorTool<void, void, void> {
     };
   }
 
-  destroy() {
+  onDestroy() {
 
   }
 }
