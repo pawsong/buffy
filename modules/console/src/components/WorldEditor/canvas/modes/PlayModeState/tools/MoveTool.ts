@@ -16,7 +16,7 @@ import Cursor from '../../../../../../canvas/Cursor';
 
 import PlayModeTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
   ModeToolUpdateParams,
 } from './PlayModeTool';
 
@@ -31,11 +31,7 @@ class WaitState extends ToolState {
   cursorOffset: Position;
   cursor: Cursor;
 
-  constructor(
-    private tool: MoveTool,
-    private canvas: WorldEditorCanvas,
-    private stateLayer: StateLayer
-  ) {
+  constructor(private tool: MoveTool) {
     super();
 
     this.cursorGeometry = new THREE.PlaneGeometry(1, 1);
@@ -52,11 +48,11 @@ class WaitState extends ToolState {
       polygonOffsetFactor: -0.1,
     });
 
-    this.cursor = new Cursor(canvas, {
+    this.cursor = new Cursor(tool.canvas, {
       geometry: this.cursorGeometry,
       material: this.cursorMaterial,
       offset: this.cursorOffset,
-      getInteractables: () => [this.canvas.chunk.mesh],
+      getInteractables: () => [tool.canvas.chunk.mesh],
       hitTest: intersect => yUnit.dot(intersect.face.normal) !== 0,
       onTouchTap: () => this.handleMouseDown(),
       renderOnUpdate: false,
@@ -75,7 +71,7 @@ class WaitState extends ToolState {
     const position = this.cursor.getPosition();
     if (!position) return;
 
-    this.stateLayer.rpc.move({
+    this.tool.stateLayer.rpc.move({
       id: this.tool.props.playerId,
       x: position.x,
       z: position.z,
@@ -96,11 +92,9 @@ class MoveTool extends PlayModeTool<MoveToolProps, void, void> {
     };
   }
 
-  init({ view, stateLayer }: InitParams) {
-    const wait = new WaitState(this, view, stateLayer);
-
+  createStates(): ToolStates {
     return {
-      wait,
+      wait: new WaitState(this),
     };
   }
 

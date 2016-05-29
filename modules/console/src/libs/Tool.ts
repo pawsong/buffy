@@ -45,12 +45,12 @@ abstract class ToolState extends State {
 
 export { ToolState }
 
-interface ToolStates {
+export interface ToolStates {
   [index: string]: ToolState;
 }
 
 class IdleState extends ToolState {
-  constructor(private tool: Tool<any, any, any, any, any>) {
+  constructor() {
     // Just wait start event.
     super({
       [ToolState.EVENT_START]: () => ({ state: ToolState.STATE_WAIT }),
@@ -59,7 +59,7 @@ class IdleState extends ToolState {
 }
 
 class PauseState extends ToolState {
-  constructor(private tool: Tool<any, any, any, any, any>) {
+  constructor() {
     // Just wait start event.
     super({
       [ToolState.EVENT_STOP]: () => ({ state: ToolState.STATE_IDLE }),
@@ -73,10 +73,9 @@ abstract class Tool<U /* ToolType */, V /* InitParams */, P, S, T> extends Simpl
 
   constructor(params: V) {
     super();
-    const idle = new IdleState(this);
-    const pause = new PauseState(this);
+    this.onInit(params);
 
-    const states = this.init(params);
+    const states = this.createStates();
 
     [
       ToolState.STATE_IDLE,
@@ -88,8 +87,8 @@ abstract class Tool<U /* ToolType */, V /* InitParams */, P, S, T> extends Simpl
     invariant(states[ToolState.STATE_WAIT], `State ${ToolState.STATE_WAIT} is required`);
 
     const finalStates: ToolStates = objectAssign({
-      [ToolState.STATE_IDLE]: idle,
-      [ToolState.STATE_PAUSE]: pause,
+      [ToolState.STATE_IDLE]: new IdleState(),
+      [ToolState.STATE_PAUSE]: new PauseState(),
     }, states);
 
     this.fsm = new Fsm(finalStates, ToolState.STATE_IDLE);
@@ -97,7 +96,8 @@ abstract class Tool<U /* ToolType */, V /* InitParams */, P, S, T> extends Simpl
 
   abstract getToolType(): U;
 
-  abstract init(params: V);
+  abstract onInit(params: V): any;
+  abstract createStates(): ToolStates;
 
   start(props: P) {
     super.start(props);

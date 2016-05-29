@@ -27,7 +27,7 @@ import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
 import EditModeTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
   ModeToolUpdateParams,
 } from './EditModeTool';
 
@@ -38,16 +38,13 @@ export function rgbToHex({ r, g, b }) {
 class WaitState extends ToolState {
   cursor: Cursor;
 
-  constructor(
-    private tool: AddBlockTool,
-    private canvas: WorldEditorCanvas
-  ) {
+  constructor(private tool: AddBlockTool) {
     super();
 
-    this.cursor = new Cursor(canvas, {
-      geometry: this.canvas.cubeGeometry,
-      material: this.tool.cursorMaterial,
-      getInteractables: () => [this.canvas.chunk.mesh],
+    this.cursor = new Cursor(tool.canvas, {
+      geometry: tool.canvas.cubeGeometry,
+      material: tool.cursorMaterial,
+      getInteractables: () => [tool.canvas.chunk.mesh],
       offset: [PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF],
       onMouseUp: () => this.handleMouseUp(),
     });
@@ -115,8 +112,8 @@ class AddBlockTool extends EditModeTool<AddBlockToolProps, void, AddBlockToolPro
     this.setCursorColor(diff.color || this.props.color);
   }
 
-  init({ view, dispatchAction }: InitParams) {
-    this.dispatchAction = dispatchAction;
+  onInit(params: InitParams) {
+    super.onInit(params);
 
     this.cursorMaterial = new THREE.MeshBasicMaterial({
       color: 0xff0000,
@@ -125,11 +122,11 @@ class AddBlockTool extends EditModeTool<AddBlockToolProps, void, AddBlockToolPro
       polygonOffset: true,
       polygonOffsetFactor: -0.1,
     });
+  }
 
-    const wait = new WaitState(this, view);
-
+  createStates(): ToolStates {
     return {
-      wait,
+      wait: new WaitState(this),
     };
   }
 

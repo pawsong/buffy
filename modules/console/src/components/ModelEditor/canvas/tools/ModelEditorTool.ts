@@ -6,11 +6,10 @@ import {
   ToolType,
   ModelEditorState,
   DispatchAction,
-  GetEditorState,
 } from '../../types';
 
-import Tool, { ToolState } from '../../../../libs/Tool';
-export { ToolState }
+import Tool, { ToolState, ToolStates } from '../../../../libs/Tool';
+export { ToolState, ToolStates }
 
 export interface InitParams {
   canvas: ModelEditorCanvas;
@@ -18,7 +17,16 @@ export interface InitParams {
 }
 
 abstract class ModelEditorTool<P, S, T> extends Tool<ToolType, InitParams, P, S, T> {
+  canvas: ModelEditorCanvas;
+  dispatchAction: DispatchAction;
+
+  onInit(params: InitParams) {
+    this.canvas = params.canvas;
+    this.dispatchAction = params.dispatchAction;
+  }
+
   mapParamsToProps(params: ModelEditorState): P { return null; }
+
   onRender() {}
 }
 

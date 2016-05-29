@@ -3,8 +3,8 @@ import {
   WorldData,
 } from '../../types';
 
-import Tool, { ToolState } from '../../../../libs/Tool';
-export { ToolState }
+import Tool, { ToolState, ToolStates } from '../../../../libs/Tool';
+export { ToolState, ToolStates }
 
 export interface ModeToolUpdateParams {
   editor: WorldEditorState;

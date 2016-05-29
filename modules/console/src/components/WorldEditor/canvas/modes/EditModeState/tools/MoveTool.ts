@@ -16,7 +16,7 @@ import {
 
 import EditModeTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
 } from './EditModeTool';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
@@ -30,11 +30,8 @@ interface WaitStateProps {}
 class WaitState extends ToolState {
   cursorOffset: Position;
 
-  constructor(
-    private canvas: WorldEditorCanvas
-  ) {
+  constructor(private tool: MoveTool) {
     super();
-
     this.cursorOffset = [PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF];
   }
 
@@ -51,11 +48,13 @@ class WaitState extends ToolState {
 class MoveTool extends EditModeTool<any, any, any> {
   getToolType() { return EditToolType.MOVE; }
 
-  init({ view }: InitParams) {
-    const wait = new WaitState(view);
+  onInit(params: InitParams) {
+    super.onInit(params);
+  }
 
+  createStates(): ToolStates {
     return {
-      wait,
+      wait: new WaitState(this),
     };
   }
 

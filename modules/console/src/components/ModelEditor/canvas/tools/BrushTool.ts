@@ -7,19 +7,14 @@ import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
 
 import ModelEditorTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
 } from './ModelEditorTool';
-
-import ModelEditorCanvas from '../ModelEditorCanvas';
-import { SetState } from '../types';
 
 import {
   Position,
   Color,
   ToolType,
   ModelEditorState,
-  DispatchAction,
-  GetEditorState,
 } from '../../types';
 
 import {
@@ -56,7 +51,7 @@ class WaitState extends ToolState {
         this.tool.canvas.component.fragmentMesh,
       ],
       hitTest: (intersect, meshPosition) => {
-        this.cursor.getDataPosition(meshPosition, position);
+        Cursor.getDataPosition(meshPosition, position);
         return (
              position.x >= 0 && position.x < DESIGN_IMG_SIZE
           && position.y >= 0 && position.y < DESIGN_IMG_SIZE
@@ -90,10 +85,7 @@ class DrawState extends ToolState {
   private anchor: THREE.Vector3;
   private target: THREE.Vector3;
 
-  constructor(
-    private tool: BrushTool,
-    private canvas: ModelEditorCanvas
-  ) {
+  constructor(private tool: BrushTool) {
     super();
 
     const offset = new THREE.Vector3();
@@ -201,9 +193,6 @@ interface BrushToolTree {
 }
 
 class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolTree> {
-  canvas: ModelEditorCanvas;
-  dispatchAction: DispatchAction;
-
   drawGuideMaterial: THREE.MeshBasicMaterial;
   drawGuideX: THREE.Mesh;
   drawGuideY: THREE.Mesh;
@@ -252,7 +241,9 @@ class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolTree> {
     this.cursorColor.set(color.r / 0xff, color.g / 0xff, color.b / 0xff);
   }
 
-  init(params: InitParams) {
+  onInit(params: InitParams) {
+    super.onInit(params);
+
     this.dispatchAction = params.dispatchAction;
     this.canvas = params.canvas;
 
@@ -294,15 +285,12 @@ class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolTree> {
     this.drawGuideZ = new THREE.Mesh(drawGuideGeometryZ, this.drawGuideMaterial);
     this.drawGuideZ.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
     this.drawGuideZ.visible = false;
+  }
 
-    // Setup states
-
-    const wait = new WaitState(this);
-    const draw = new DrawState(this, params.canvas);
-
+  createStates(): ToolStates {
     return {
-      [STATE_WAIT]: wait,
-      [STATE_DRAW]: draw,
+      [STATE_WAIT]: new WaitState(this),
+      [STATE_DRAW]: new DrawState(this),
     };
   }
 

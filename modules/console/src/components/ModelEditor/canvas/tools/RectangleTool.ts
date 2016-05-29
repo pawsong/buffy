@@ -7,19 +7,14 @@ import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
 
 import ModelEditorTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
 } from './ModelEditorTool';
-
-import ModelEditorCanvas from '../ModelEditorCanvas';
-import { SetState } from '../types';
 
 import {
   Position,
   Color,
   ToolType,
   ModelEditorState,
-  DispatchAction,
-  GetEditorState,
 } from '../../types';
 
 import {
@@ -87,11 +82,7 @@ class DrawState extends ToolState {
   private anchor: THREE.Vector3;
   private target: THREE.Vector3;
 
-  constructor(
-    private tool: RectangleTool,
-    private canvas: ModelEditorCanvas,
-    private dispatchAction: DispatchAction
-  ) {
+  constructor(private tool: RectangleTool) {
     super();
 
     const offset = new THREE.Vector3();
@@ -114,10 +105,6 @@ class DrawState extends ToolState {
   }
 
   onEnter({ anchor, normal }: DrawEnterParams) {
-    // Disable rotation.
-
-    this.canvas.controls.enabled = false;
-
     // Init data
 
     this.anchor.copy(anchor);
@@ -146,10 +133,6 @@ class DrawState extends ToolState {
   }
 
   onLeave() {
-    // Enable rotation.
-
-    this.canvas.controls.enabled = true;
-
     // Hide meshes.
 
     this.tool.drawGuide.visible = false;
@@ -161,7 +144,7 @@ class DrawState extends ToolState {
   handleMouseUp({ } : CursorEventParams) {
     this.tool.props.color;
 
-    this.dispatchAction(voxelAddBatch([
+    this.tool.dispatchAction(voxelAddBatch([
       Math.min(this.anchor.x, this.target.x),
       Math.min(this.anchor.y, this.target.y),
       Math.min(this.anchor.z, this.target.z),
@@ -201,8 +184,6 @@ interface RectangleToolProps {
 }
 
 class RectangleTool extends ModelEditorTool<RectangleToolProps, void, RectangleToolProps> {
-  canvas: ModelEditorCanvas;
-
   drawGuideMaterial: THREE.MeshBasicMaterial;
   drawGuide: THREE.Mesh;
 
@@ -248,8 +229,8 @@ class RectangleTool extends ModelEditorTool<RectangleToolProps, void, RectangleT
     this.cursorColor.set(color.r / 0xff, color.g / 0xff, color.b / 0xff);
   }
 
-  init(params: InitParams) {
-    this.canvas = params.canvas;
+  onInit(params: InitParams) {
+    super.onInit(params);
 
     // Setup cursor
 
@@ -280,15 +261,12 @@ class RectangleTool extends ModelEditorTool<RectangleToolProps, void, RectangleT
     const drawGuideGeometry = this.createGuideGeometry(1, 1, 1);
     this.drawGuide = new THREE.Mesh(drawGuideGeometry, this.drawGuideMaterial);
     this.drawGuide.visible = false;
+  }
 
-    // Setup states
-
-    const wait = new WaitState(this);
-    const draw = new DrawState(this, params.canvas, params.dispatchAction);
-
+  createStates(): ToolStates {
     return {
-      [STATE_WAIT]: wait,
-      [STATE_DRAW]: draw,
+      [STATE_WAIT]: new WaitState(this),
+      [STATE_DRAW]: new DrawState(this),
     };
   }
 

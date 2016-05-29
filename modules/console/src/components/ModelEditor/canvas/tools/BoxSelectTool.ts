@@ -7,19 +7,14 @@ import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
 
 import ModelEditorTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
 } from './ModelEditorTool';
-
-import ModelEditorCanvas from '../ModelEditorCanvas';
-import { SetState } from '../types';
 
 import {
   Position,
   Color,
   ToolType,
   ModelEditorState,
-  DispatchAction,
-  GetEditorState,
 } from '../../types';
 
 import {
@@ -106,11 +101,7 @@ class DrawState extends ToolState {
   private temp3: THREE.Vector3;
   private temp4: THREE.Vector3;
 
-  constructor(
-    private tool: BoxSelectTool,
-    private canvas: ModelEditorCanvas,
-    private dispatchAction: DispatchAction
-  ) {
+  constructor(private tool: BoxSelectTool) {
     super();
 
     const offset = new THREE.Vector3();
@@ -181,7 +172,7 @@ class DrawState extends ToolState {
   handleKeyDown = (e: KeyboardEvent) => {
     if (e.keyCode === 27) {
       this.transitionTo(STATE_WAIT);
-      this.canvas.render();
+      this.tool.canvas.render();
     }
   }
 
@@ -270,7 +261,7 @@ class DrawState extends ToolState {
       this.temp4.copy(this.normal).multiplyScalar(Math.max(this.target2, this.anchor2))
     );
 
-    this.dispatchAction(voxelSelectBox([
+    this.tool.dispatchAction(voxelSelectBox([
       lo.x, lo.y, lo.z,
       hi.x, hi.y, hi.z,
     ]));
@@ -295,8 +286,6 @@ interface BoxSelectToolProps {
 }
 
 class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, BoxSelectToolProps> {
-  canvas: ModelEditorCanvas;
-
   drawGuideMaterial: THREE.MeshBasicMaterial;
   drawGuide: THREE.Mesh;
 
@@ -348,8 +337,8 @@ class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, BoxSelectT
     this.cursorEdges.visible = visible;
   }
 
-  init(params: InitParams) {
-    this.canvas = params.canvas;
+  onInit(params: InitParams) {
+    super.onInit(params);
 
     // Setup cursor
 
@@ -389,13 +378,12 @@ class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, BoxSelectT
     this.drawGuide.visible = false;
 
     // Setup states
+  }
 
-    const wait = new WaitState(this);
-    const draw = new DrawState(this, params.canvas, params.dispatchAction);
-
+  createStates(): ToolStates {
     return {
-      [STATE_WAIT]: wait,
-      [STATE_DRAW]: draw,
+      [STATE_WAIT]: new WaitState(this),
+      [STATE_DRAW]: new DrawState(this),
     };
   }
 

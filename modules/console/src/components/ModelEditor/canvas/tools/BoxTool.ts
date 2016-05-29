@@ -7,24 +7,18 @@ import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
 
 import ModelEditorTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
 } from './ModelEditorTool';
-
-import ModelEditorCanvas from '../ModelEditorCanvas';
-import { SetState } from '../types';
 
 import {
   Position,
   Color,
   ToolType,
   ModelEditorState,
-  DispatchAction,
-  GetEditorState,
 } from '../../types';
 
 import {
   voxelAddBatch,
-  CHANGE_PALETTE_COLOR, ChangePaletteColorAction,
 } from '../../actions';
 
 import {
@@ -106,11 +100,7 @@ class DrawState extends ToolState {
   private temp3: THREE.Vector3;
   private temp4: THREE.Vector3;
 
-  constructor(
-    private tool: BoxTool,
-    private canvas: ModelEditorCanvas,
-    private dispatchAction: DispatchAction
-  ) {
+  constructor(private tool: BoxTool) {
     super();
 
     const offset = new THREE.Vector3();
@@ -181,7 +171,7 @@ class DrawState extends ToolState {
   handleKeyDown = (e: KeyboardEvent) => {
     if (e.keyCode === 27) {
       this.transitionTo(STATE_WAIT);
-      this.canvas.render();
+      this.tool.canvas.render();
     }
   }
 
@@ -270,7 +260,7 @@ class DrawState extends ToolState {
       this.temp4.copy(this.normal).multiplyScalar(Math.max(this.target2, this.anchor2))
     );
 
-    this.dispatchAction(voxelAddBatch([
+    this.tool.dispatchAction(voxelAddBatch([
       lo.x, lo.y, lo.z,
       hi.x, hi.y, hi.z,
     ], this.tool.props.color));
@@ -295,8 +285,6 @@ interface BoxToolProps {
 }
 
 class BoxTool extends ModelEditorTool<BoxToolProps, void, BoxToolProps> {
-  canvas: ModelEditorCanvas;
-
   drawGuideMaterial: THREE.MeshBasicMaterial;
   drawGuide: THREE.Mesh;
 
@@ -342,8 +330,8 @@ class BoxTool extends ModelEditorTool<BoxToolProps, void, BoxToolProps> {
     this.cursorColor.set(color.r / 0xff, color.g / 0xff, color.b / 0xff);
   }
 
-  init(params: InitParams) {
-    this.canvas = params.canvas;
+  onInit(params: InitParams) {
+    super.onInit(params);
 
     // Setup cursor
 
@@ -374,15 +362,12 @@ class BoxTool extends ModelEditorTool<BoxToolProps, void, BoxToolProps> {
     const drawGuideGeometry = this.createGuideGeometry(1, 1, 1);
     this.drawGuide = new THREE.Mesh(drawGuideGeometry, this.drawGuideMaterial);
     this.drawGuide.visible = false;
+  }
 
-    // Setup states
-
-    const wait = new WaitState(this);
-    const draw = new DrawState(this, params.canvas, params.dispatchAction);
-
+  createStates(): ToolStates {
     return {
-      [STATE_WAIT]: wait,
-      [STATE_DRAW]: draw,
+      [STATE_WAIT]: new WaitState(this),
+      [STATE_DRAW]: new DrawState(this),
     };
   }
 

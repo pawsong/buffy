@@ -5,20 +5,17 @@ import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
+  DESIGN_IMG_SIZE,
 } from '../../../../canvas/Constants';
 
 import ModelEditorTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
 } from './ModelEditorTool';
-
-import ModelEditorCanvas from '../ModelEditorCanvas';
-import { SetState } from '../types';
 
 import {
   Position,
   ToolType,
-  DispatchAction,
 } from '../../types';
 
 import {
@@ -28,25 +25,64 @@ import {
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
 
+class EraseTool extends ModelEditorTool<void, void, void> {
+  translucentMaterial: THREE.Material;
+
+  getToolType(): ToolType { return ToolType.erase; }
+
+  onInit(params) {
+    super.onInit(params);
+
+    this.translucentMaterial = new THREE.MeshBasicMaterial({
+      vertexColors: THREE.VertexColors,
+      opacity: 0.5,
+      transparent: true,
+      polygonOffset: true,
+      polygonOffsetFactor: -0.1,
+    });
+  }
+
+  createStates(): ToolStates {
+    return {
+      [STATE_WAIT]: new WaitState(this),
+      [STATE_DRAG]: new DragState(this),
+    };
+  }
+
+  destroy() {
+
+  }
+}
+
 class WaitState extends ToolState {
   cursor: Cursor;
 
-  constructor(
-    private tool: EraseTool,
-    private canvas: ModelEditorCanvas
-  ) {
+  constructor(private tool: EraseTool) {
     super();
-    const offset = new THREE.Vector3();
 
-    this.cursor = new Cursor(canvas, {
-      getInteractables: () => [this.canvas.component.modelMesh],
-      geometry: this.canvas.cubeGeometry,
+    const offset = new THREE.Vector3();
+    const position = new THREE.Vector3();
+
+    this.cursor = new Cursor(tool.canvas, {
+      geometry: this.tool.canvas.cubeGeometry,
       material: this.tool.translucentMaterial,
       getOffset: normal => offset.set(
         PIXEL_SCALE_HALF * (1 - 2 * normal.x),
         PIXEL_SCALE_HALF * (1 - 2 * normal.y),
         PIXEL_SCALE_HALF * (1 - 2 * normal.z)
       ),
+      getInteractables: () => [
+        this.tool.canvas.component.modelMesh,
+        this.tool.canvas.component.fragmentMesh,
+      ],
+      hitTest: (intersect, meshPosition) => {
+        Cursor.getDataPosition(meshPosition, position);
+        return (
+             position.x >= 0 && position.x < DESIGN_IMG_SIZE
+          && position.y >= 0 && position.y < DESIGN_IMG_SIZE
+          && position.z >= 0 && position.z < DESIGN_IMG_SIZE
+        );
+      },
       onMouseDown: params => this.handleMouseDown(params),
     });
   }
@@ -56,9 +92,7 @@ class WaitState extends ToolState {
   }
 
   handleMouseDown({ event, intersect }: CursorEventParams) {
-    if (intersect) {
-      this.transitionTo(STATE_DRAG, event);
-    }
+    this.transitionTo(STATE_DRAG, event);
   }
 
   onLeave() {
@@ -75,9 +109,7 @@ class DragState extends ToolState {
   private position: THREE.Vector3;
 
   constructor(
-    private tool: EraseTool,
-    private canvas: ModelEditorCanvas,
-    private dispatchAction: DispatchAction
+    private tool: EraseTool
   ) {
     super();
     this.position = new THREE.Vector3();
@@ -87,14 +119,14 @@ class DragState extends ToolState {
     this.selectedGeometry = new THREE.BoxGeometry(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
     this.selectedGeometry.translate(PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF);
 
-    this.cursor = new Cursor(canvas, {
+    this.cursor = new Cursor(tool.canvas, {
       visible: false,
       getOffset: normal => offset.set(
         PIXEL_SCALE_HALF * (1 - 2 * normal.x),
         PIXEL_SCALE_HALF * (1 - 2 * normal.y),
         PIXEL_SCALE_HALF * (1 - 2 * normal.z)
       ),
-      getInteractables: () => [this.canvas.component.modelMesh],
+      getInteractables: () => [tool.canvas.component.modelMesh],
       onInteract: params => this.handleInteract(params),
       onMouseUp: params => this.handleMouseUp(params),
     });
@@ -115,7 +147,7 @@ class DragState extends ToolState {
     const mesh = new THREE.Mesh(this.selectedGeometry, this.tool.translucentMaterial);
     mesh.position.copy(position).multiplyScalar(PIXEL_SCALE);
     // mesh.overdraw = false;
-    this.canvas.scene.add(mesh);
+    this.tool.canvas.scene.add(mesh);
 
     this.selectedVoxels[key] = {
       position: [position.x, position.y, position.z],
@@ -127,7 +159,8 @@ class DragState extends ToolState {
     const positions = Object.keys(this.selectedVoxels)
       .map(key => this.selectedVoxels[key].position);
 
-    this.dispatchAction(voxelRemoveBatch(positions));
+    if (positions.length > 0) this.tool.dispatchAction(voxelRemoveBatch(positions));
+
     this.transitionTo(STATE_WAIT, event);
   }
 
@@ -136,37 +169,9 @@ class DragState extends ToolState {
 
     Object.keys(this.selectedVoxels).forEach(key => {
       const { mesh } = this.selectedVoxels[key];
-      this.canvas.scene.remove(mesh);
+      this.tool.canvas.scene.remove(mesh);
     });
     this.selectedVoxels = null;
-  }
-}
-
-class EraseTool extends ModelEditorTool<void, void, void> {
-  translucentMaterial: THREE.Material;
-
-  getToolType(): ToolType { return ToolType.erase; }
-
-  init(params: InitParams) {
-    this.translucentMaterial = new THREE.MeshBasicMaterial({
-      vertexColors: THREE.VertexColors,
-      opacity: 0.5,
-      transparent: true,
-      polygonOffset: true,
-      polygonOffsetFactor: -0.1,
-    });
-
-    const wait = new WaitState(this, params.canvas);
-    const drag = new DragState(this, params.canvas, params.dispatchAction);
-
-    return {
-      [STATE_WAIT]: wait,
-      [STATE_DRAG]: drag,
-    };
-  }
-
-  destroy() {
-
   }
 }
 

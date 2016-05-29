@@ -31,7 +31,7 @@ import {
 
 import EditModeTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
   ModeToolUpdateParams,
 } from './EditModeTool';
 
@@ -55,22 +55,15 @@ class WaitState extends ToolState {
   recipeFile: SourceFile;
   designWatcher: (geometry: THREE.Geometry) => any;
 
-  constructor(
-    private tool: AddRobotTool,
-    private cursorMaterial: THREE.Material,
-    private canvas: WorldEditorCanvas,
-    private getFiles: () => SourceFileDB,
-    private dispatchAction: DispatchAction,
-    private modelManager: ModelManager
-  ) {
+  constructor(private tool: AddRobotTool) {
     super();
 
     const geometry = new THREE.Geometry();
 
-    this.cursor = new Cursor(canvas, {
-      getInteractables: () => [this.canvas.chunk.mesh],
+    this.cursor = new Cursor(tool.canvas, {
+      getInteractables: () => [tool.canvas.chunk.mesh],
       geometry: new THREE.Geometry(), // Dummy
-      material: cursorMaterial,
+      material: tool.cursorMaterial,
       hitTest: intersect => yUnit.dot(intersect.face.normal) !== 0,
       onTouchTap: () => this.handleTouchTap(),
     });
@@ -89,15 +82,15 @@ class WaitState extends ToolState {
   // }
 
   onEnter() {
-    const files = this.getFiles();
+    const files = this.tool.getFiles();
     this.recipeFile = files[this.tool.props.addRobotRecipeId];
 
-    this.modelManager.watch(this.recipeFile.state.design, this.designWatcher);
+    this.tool.modelManager.watch(this.recipeFile.state.design, this.designWatcher);
     this.cursor.start();
   }
 
   onLeave() {
-    this.modelManager.unwatch(this.recipeFile.state.design, this.designWatcher);
+    this.tool.modelManager.unwatch(this.recipeFile.state.design, this.designWatcher);
     this.cursor.stop();
     this.recipeFile = null;
   }
@@ -106,7 +99,7 @@ class WaitState extends ToolState {
     const position = this.cursor.getPosition();
     if (!position) return;
 
-    this.dispatchAction(addRobot({
+    this.tool.dispatchAction(addRobot({
       id: shortid.generate(),
       name: this.recipeFile.name,
       recipe: this.recipeFile.id,
@@ -123,6 +116,9 @@ interface AddRobotToolProps {
 }
 
 class AddRobotTool extends EditModeTool<AddRobotToolProps, void, void> {
+  getFiles: () => SourceFileDB;
+  modelManager: ModelManager;
+
   getToolType() { return EditToolType.ADD_ROBOT; }
 
   cursorMaterial: THREE.Material;
@@ -134,7 +130,12 @@ class AddRobotTool extends EditModeTool<AddRobotToolProps, void, void> {
     };
   }
 
-  init({ view, getFiles, dispatchAction, modelManager }: InitParams) {
+  onInit(params: InitParams) {
+    super.onInit(params);
+
+    this.getFiles = params.getFiles;
+    this.modelManager = params.modelManager;
+
     this.cursorMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,
       opacity: 0.5,
@@ -142,11 +143,11 @@ class AddRobotTool extends EditModeTool<AddRobotToolProps, void, void> {
       polygonOffset: true,
       polygonOffsetFactor: -0.1,
     });
+  }
 
-    const wait = new WaitState(this, this.cursorMaterial, view, getFiles, dispatchAction, modelManager);
-
+  createStates(): ToolStates {
     return {
-      wait,
+      wait: new WaitState(this),
     };
   }
 

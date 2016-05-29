@@ -12,11 +12,8 @@ import {
 
 import ModelEditorTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
 } from './ModelEditorTool';
-
-import ModelEditorCanvas from '../ModelEditorCanvas';
-import { SetState } from '../types';
 
 import BoundingBoxEdgesHelper from '../helpers/BoundingBoxEdgesHelper';
 
@@ -26,7 +23,6 @@ const fragmentFragmentShader = require('raw!../shaders/fragment.frag');
 import {
   Position,
   ToolType,
-  DispatchAction,
   ModelEditorState,
 } from '../../types';
 
@@ -58,8 +54,6 @@ interface MoveToolTree {
 }
 
 class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
-  canvas: ModelEditorCanvas;
-
   translucentMaterial: THREE.Material;
 
   arrowX: THREE.ArrowHelper;
@@ -76,8 +70,6 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
   private materialsToRestore: MaterialToRestore[];
 
   drawGuide: THREE.Mesh;
-
-  dispatchAction: DispatchAction;
 
   getToolType(): ToolType { return ToolType.MOVE; }
 
@@ -160,9 +152,8 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     }
   }
 
-  init(params: InitParams) {
-    this.canvas = params.canvas;
-    this.dispatchAction = params.dispatchAction;
+  onInit(params: InitParams) {
+    super.onInit(params);
 
     this.temp1 = new THREE.Vector3();
     this.temp2 = new THREE.Vector3();
@@ -202,13 +193,12 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     this.arrowScene.add(this.arrowX);
     this.arrowScene.add(this.arrowY);
     this.arrowScene.add(this.arrowZ);
+  }
 
-    const wait = new WaitState(this, params.canvas);
-    const drag = new DragState(this, params.canvas);
-
+  createStates(): ToolStates {
     return {
-      [STATE_WAIT]: wait,
-      [STATE_DRAG]: drag,
+      [STATE_WAIT]: new WaitState(this),
+      [STATE_DRAG]: new DragState(this),
     };
   }
 
@@ -292,17 +282,14 @@ class WaitState extends ToolState {
   materialsToRestore: MaterialToRestore[];
   activeMeshes: THREE.Mesh[];
 
-  constructor(
-    private tool: MoveTool,
-    private canvas: ModelEditorCanvas
-  ) {
+  constructor(private tool: MoveTool) {
     super();
     this.materialsToRestore = [];
     this.activeMeshes = [];
 
     const offset = new THREE.Vector3();
 
-    this.cursor = new Cursor(canvas, {
+    this.cursor = new Cursor(tool.canvas, {
       visible: false,
       getInteractables: () => [
         tool.arrowX.cone,
@@ -351,10 +338,7 @@ class DragState extends ToolState {
   private temp1: THREE.Vector3;
   private temp2: THREE.Vector3;
 
-  constructor(
-    private tool: MoveTool,
-    private canvas: ModelEditorCanvas
-  ) {
+  constructor(private tool: MoveTool) {
     super();
     this.direction = new THREE.Vector3();
     this.origin = new THREE.Vector3();
@@ -367,7 +351,7 @@ class DragState extends ToolState {
 
     const intersectables = [this.tool.drawGuide];
 
-    this.cursor = new Cursor(canvas, {
+    this.cursor = new Cursor(tool.canvas, {
       visible: false,
       getInteractables: () => intersectables,
       onInteract: params => this.handleInteract(params),
@@ -376,10 +360,10 @@ class DragState extends ToolState {
   }
 
   onEnter(event: MouseEvent) {
-    const boundingBox = this.canvas.component.fragmentBoundingBox;
+    const boundingBox = this.tool.canvas.component.fragmentBoundingBox;
 
     if (!this.tool.props.fragment) {
-      this.canvas.component.setTemporaryFragment();
+      this.tool.canvas.component.setTemporaryFragment();
       this.tool.updateArrow(boundingBox);
     }
 

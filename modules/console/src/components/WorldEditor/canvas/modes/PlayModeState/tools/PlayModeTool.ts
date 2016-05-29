@@ -4,8 +4,8 @@ import {
   PlayToolType,
 } from '../../../../types';
 
-import ModeTool, { ToolState, ModeToolUpdateParams } from '../../ModeTool';
-export { ToolState, ModeToolUpdateParams }
+import ModeTool, { ToolState, ToolStates, ModeToolUpdateParams } from '../../ModeTool';
+export { ToolState, ToolStates, ModeToolUpdateParams }
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
 
@@ -14,6 +14,14 @@ export interface InitParams {
   stateLayer: StateLayer;
 }
 
-abstract class PlayModeTool<P, S, T> extends ModeTool<PlayToolType, InitParams, P, S, T> {}
+abstract class PlayModeTool<P, S, T> extends ModeTool<PlayToolType, InitParams, P, S, T> {
+  canvas: WorldEditorCanvas;
+  stateLayer: StateLayer;
+
+  onInit({ view, stateLayer }: InitParams) {
+    this.canvas = view;
+    this.stateLayer = stateLayer;
+  }
+}
 
 export default PlayModeTool;

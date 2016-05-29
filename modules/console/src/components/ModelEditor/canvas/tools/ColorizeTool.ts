@@ -1,10 +1,7 @@
 import ModelEditorTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
 } from './ModelEditorTool';
-
-import ModelEditorCanvas from '../ModelEditorCanvas';
-import { SetState } from '../types';
 
 import {
   changePaletteColor,
@@ -12,8 +9,6 @@ import {
 
 import {
   ToolType,
-  GetEditorState,
-  DispatchAction,
 } from '../../types';
 
 import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
@@ -31,15 +26,11 @@ function multiplyColor({ r, g, b }) {
 class WaitState extends ToolState {
   cursor: Cursor;
 
-  constructor(
-    private tool: ColorizeTool,
-    private canvas: ModelEditorCanvas,
-    private dispatchAction: DispatchAction
-  ) {
+  constructor(private tool: ColorizeTool) {
     super();
-    this.cursor = new Cursor(canvas, {
+    this.cursor = new Cursor(tool.canvas, {
       visible: false,
-      getInteractables: () => [canvas.component.modelMesh],
+      getInteractables: () => [tool.canvas.component.modelMesh],
       onInteract: params => this.handleInteract(params),
       onMiss: params => this.handleMiss(params),
       onTouchTap: params => this.handleTouchTap(params),
@@ -68,7 +59,7 @@ class WaitState extends ToolState {
     if (!intersect) return;
 
     const { face } = intersect;
-    this.dispatchAction(changePaletteColor(multiplyColor(face.color)));
+    this.tool.dispatchAction(changePaletteColor(multiplyColor(face.color)));
   }
 }
 
@@ -77,8 +68,8 @@ class ColorizeTool extends ModelEditorTool<void, void, void> {
 
   getToolType(): ToolType { return ToolType.colorize; }
 
-  init(params: InitParams) {
-    params.dispatchAction;
+  onInit(params: InitParams) {
+    super.onInit(params);
 
     this.colorTooltip = document.createElement("div");
     this.colorTooltip.style.position = 'absolute';
@@ -88,12 +79,12 @@ class ColorizeTool extends ModelEditorTool<void, void, void> {
     this.colorTooltip.style['border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
     this.colorTooltip.style['-moz-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
     this.colorTooltip.style['-webkit-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
-    params.canvas.container.appendChild(this.colorTooltip);
+    this.canvas.container.appendChild(this.colorTooltip);
+  }
 
-    const wait = new WaitState(this, params.canvas, params.dispatchAction);
-
+  createStates(): ToolStates {
     return {
-      wait,
+      wait: new WaitState(this),
     };
   }
 

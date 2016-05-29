@@ -37,6 +37,10 @@ interface CursorOptions {
 }
 
 class Cursor {
+  static getDataPosition(meshPosition: THREE.Vector3, out: THREE.Vector3) {
+    return out.copy(meshPosition).divideScalar(PIXEL_SCALE).floor();
+  }
+
   private canvasPosition: THREE.Vector3;
 
   private mesh: THREE.Mesh;
@@ -263,13 +267,9 @@ class Cursor {
     this.render();
   }
 
-  getDataPosition(meshPosition: THREE.Vector3, out: THREE.Vector3) {
-    return out.copy(meshPosition).divideScalar(PIXEL_SCALE).floor();
-  }
-
   getPosition() {
     if (!this.mesh.visible) return null;
-    return this.getDataPosition(this.mesh.position, this.position);
+    return Cursor.getDataPosition(this.mesh.position, this.position);
   }
 
   destroy() {

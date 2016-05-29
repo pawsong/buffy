@@ -19,7 +19,7 @@ import Cursor, { CursorEventParams } from '../../../../../../canvas/Cursor';
 
 import EditModeTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
 } from './EditModeTool';
 
 import WorldEditorCanvas from '../../../WorldEditorCanvas';
@@ -39,14 +39,11 @@ interface WaitStateProps {}
 class WaitState extends ToolState {
   cursor: Cursor;
 
-  constructor(
-    private tool: ColorizeTool,
-    private view: WorldEditorCanvas
-  ) {
+  constructor(private tool: ColorizeTool) {
     super();
-    this.cursor = new Cursor(view, {
+    this.cursor = new Cursor(tool.canvas, {
       visible: false,
-      getInteractables: () => this.view.objectManager.object3Ds.concat(this.view.chunk.mesh),
+      getInteractables: () => tool.canvas.objectManager.object3Ds.concat(tool.canvas.chunk.mesh),
       onInteract: (params) => this.handleInteract(params),
       onMiss: () => this.tool.hideTooltip(),
       onTouchTap: (params) => this.handleTouchTap(params),
@@ -80,8 +77,8 @@ class ColorizeTool extends EditModeTool<any, void, void> {
 
   getToolType() { return EditToolType.COLORIZE; }
 
-  init({ view, dispatchAction }: InitParams) {
-    this.dispatchAction = dispatchAction;
+  onInit(params: InitParams) {
+    super.onInit(params);
 
     this.colorTooltip = document.createElement("div");
     this.colorTooltip.style.position = 'absolute';
@@ -91,12 +88,12 @@ class ColorizeTool extends EditModeTool<any, void, void> {
     this.colorTooltip.style['border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
     this.colorTooltip.style['-moz-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
     this.colorTooltip.style['-webkit-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
-    view.container.appendChild(this.colorTooltip);
+    this.canvas.container.appendChild(this.colorTooltip);
+  }
 
-    const wait = new WaitState(this, view);
-
+  createStates(): ToolStates {
     return {
-      wait,
+      wait: new WaitState(this),
     };
   }
 

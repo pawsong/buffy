@@ -9,16 +9,12 @@ import {
 
 import ModelEditorTool, {
   InitParams,
-  ToolState,
+  ToolState, ToolStates,
 } from './ModelEditorTool';
-
-import ModelEditorCanvas from '../ModelEditorCanvas';
-import { SetState } from '../types';
 
 import {
   Position,
   ToolType,
-  DispatchAction,
   ModelEditorState,
 } from '../../types';
 
@@ -39,16 +35,14 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
 
   getToolType(): ToolType { return ToolType.MAGIC_WAND; }
 
-  dispatchAction: DispatchAction;
-
   mapParamsToProps(params: ModelEditorState) {
     return {
       selection: params.file.present.data.selection,
     };
   }
 
-  init(params: InitParams) {
-    this.dispatchAction = params.dispatchAction;
+  onInit(params: InitParams) {
+    super.onInit(params);
 
     this.translucentMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,
@@ -57,11 +51,11 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
       polygonOffset: true,
       polygonOffsetFactor: -0.1,
     });
+  }
 
-    const wait = new WaitState(this, params.canvas);
-
+  createStates(): ToolStates {
     return {
-      [STATE_WAIT]: wait,
+      [STATE_WAIT]: new WaitState(this),
     };
   }
 
@@ -73,17 +67,14 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
 class WaitState extends ToolState {
   cursor: Cursor;
 
-  constructor(
-    private tool: MagicWandTool,
-    private canvas: ModelEditorCanvas
-  ) {
+  constructor(private tool: MagicWandTool) {
     super();
     const offset = new THREE.Vector3();
 
-    this.cursor = new Cursor(canvas, {
-      getInteractables: () => [this.canvas.component.modelMesh],
-      geometry: this.canvas.cubeGeometry,
-      material: this.tool.translucentMaterial,
+    this.cursor = new Cursor(tool.canvas, {
+      getInteractables: () => [tool.canvas.component.modelMesh],
+      geometry: tool.canvas.cubeGeometry,
+      material: tool.translucentMaterial,
       getOffset: normal => offset.set(
         PIXEL_SCALE_HALF * (1 - 2 * normal.x),
         PIXEL_SCALE_HALF * (1 - 2 * normal.y),
