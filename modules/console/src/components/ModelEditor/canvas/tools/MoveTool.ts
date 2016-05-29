@@ -49,8 +49,9 @@ interface MoveToolProps {
 }
 
 interface MoveToolTree {
-  boundingBox: BoundingBoxEdgesHelper;
-  offset: Position;
+  selection: ndarray.Ndarray;
+  fragment: ndarray.Ndarray;
+  fragmentOffset: Position;
 }
 
 class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
@@ -85,8 +86,9 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     return {
       type: SchemaType.OBJECT,
       properties: {
-        boundingBox: { type: SchemaType.ANY },
-        offset: { type: SchemaType.ANY },
+        selection: { type: SchemaType.ANY },
+        fragment: { type: SchemaType.ANY },
+        fragmentOffset: { type: SchemaType.ANY },
       }
     };
   }
@@ -113,42 +115,25 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     }
   }
 
-  private renderBoundingBox(): BoundingBoxEdgesHelper {
-    // Fragment has precedence over selection.
-    // Selection must not exist when fragment does.
-    if (this.props.fragment) {
-      return this.canvas.component.fragmentBoundingBox;
-    } else if (this.props.selection) {
-      return this.canvas.component.selectionBoundingBox;
-    } else {
-      return null;
-    }
-  }
-
   render() {
-    if (this.props.fragment) {
-      return {
-        boundingBox: this.canvas.component.fragmentBoundingBox,
-        offset: this.props.fragmentOffset,
-      };
-    } else if (this.props.selection) {
-      return {
-        boundingBox: this.canvas.component.selectionBoundingBox,
-        offset: null,
-      };
-    } else {
-      return {
-        boundingBox: null,
-        offset: null,
-      };
-    }
+    return this.props;
   }
 
   patch(diff: MoveToolTree) {
-    if (diff.hasOwnProperty('boundingBox')) {
-      this.updateArrow(diff.boundingBox);
-    } else if (diff.hasOwnProperty('offset')) {
-      if (diff.offset && this.tree.boundingBox) this.updateArrow(this.tree.boundingBox);
+    // Fragment has precedence over selection.
+    // Selection must not exist when fragment does.
+
+    if (diff.selection && this.tree.fragment) {
+      // This should not occur.
+      return;
+    }
+
+    if (this.tree.fragment) {
+      this.updateArrow(this.canvas.component.fragmentBoundingBox);
+    } else if (this.tree.selection) {
+      this.updateArrow(this.canvas.component.selectionBoundingBox);
+    } else {
+      this.updateArrow(null);
     }
   }
 
@@ -249,7 +234,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     this.drawGuide.position.copy(position).multiply(this.temp2)
       .add(this.temp3.copy(direction).multiplyScalar(pos));
 
-    this.drawGuide.updateMatrixWorld(true);
+    this.drawGuide.updateMatrixWorld(false);
   }
 
   onStart() {
