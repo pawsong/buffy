@@ -23,6 +23,7 @@ import {
   VOXEL_MOVE_FRAGMENT, VoxelMoveFragmentAction,
   VOXEL_MERGE_FRAGMENT, VoxelMergeFragmentAction,
   VOXEL_REMOVE_SELECTED, VoxelRemoveSelectedAction,
+  VOXEL_CLEAR_SELECTION, VoxelClearSelection,
 } from '../actions';
 
 import {
@@ -267,6 +268,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       return Object.assign({}, state, {
         selection,
       });
+    }
+
+    case VOXEL_CLEAR_SELECTION: {
+      if (!state.selection) return;
+      return Object.assign({}, state, { selection: null });
     }
 
     case VOXEL_CREATE_FRAGMENT: {

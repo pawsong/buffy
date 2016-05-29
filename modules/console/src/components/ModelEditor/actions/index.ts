@@ -50,6 +50,15 @@ export function voxelMaginWand(x: number, y: number, z: number): VoxelMaginWandA
   };
 }
 
+export const VOXEL_CLEAR_SELECTION: 'VOXEL_CLEAR_SELECTION' = 'VOXEL_CLEAR_SELECTION';
+export interface VoxelClearSelection extends Action<typeof VOXEL_CLEAR_SELECTION> {
+}
+export function voxelClearSelection(): VoxelClearSelection {
+  return {
+    type: VOXEL_CLEAR_SELECTION,
+  };
+}
+
 export const VOXEL_REMOVE: 'voxel-editor/VOXEL_REMOVE' = 'voxel-editor/VOXEL_REMOVE';
 export interface VoxelRemoveAction extends Action<typeof VOXEL_REMOVE> {
   position: Position;

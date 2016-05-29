@@ -582,10 +582,10 @@ export default {
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
-   * description: Voxel select box history label
-   * defaultMessage: Select voxels
+   * description: Voxel select change history label
+   * defaultMessage: Selection change
    */
-  'voxel-editor.panels.history.voxel.select': '블럭 선택',
+  'voxel-editor.panels.history.voxel.select': '블럭 선택 변경',
 
   /**
    * path: src/components/ModelEditor/components/panels/ToolsPanel.json

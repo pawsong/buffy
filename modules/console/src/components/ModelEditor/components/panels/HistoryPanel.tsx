@@ -38,6 +38,7 @@ import {
   VOXEL_MOVE_FRAGMENT,
   VOXEL_MERGE_FRAGMENT,
   VOXEL_REMOVE_SELECTED,
+  VOXEL_CLEAR_SELECTION,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -68,8 +69,8 @@ const messages = defineMessages({
   },
   labelVoxelSelect: {
     id: 'voxel-editor.panels.history.voxel.select',
-    description: 'Voxel select box history label',
-    defaultMessage: 'Select voxels',
+    description: 'Voxel select change history label',
+    defaultMessage: 'Selection change',
   },
   labelVoxelMove: {
     id: 'voxel-editor.panels.history.voxel.move',
@@ -91,6 +92,7 @@ const ActionMessages = {
   [VOXEL_ROTATE]: messages.labelVoxelRotate,
   [VOXEL_SELECT_BOX]: messages.labelVoxelSelect,
   [VOXEL_MAGIN_WAND]: messages.labelVoxelSelect,
+  [VOXEL_CLEAR_SELECTION]: messages.labelVoxelSelect,
   [VOXEL_CREATE_FRAGMENT]: messages.labelVoxelMove,
   [VOXEL_MOVE_FRAGMENT]: messages.labelVoxelMove,
   [VOXEL_MERGE_FRAGMENT]: messages.labelVoxelMoveFinish,
