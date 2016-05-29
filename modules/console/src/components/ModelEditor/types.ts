@@ -56,6 +56,7 @@ export interface VoxelData {
   matrix: Ndarray;
   selection: Ndarray;
   fragment: Ndarray;
+  fragmentOffset: Position;
 }
 
 export interface ExtraData {

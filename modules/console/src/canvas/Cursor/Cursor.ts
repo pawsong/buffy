@@ -26,7 +26,7 @@ interface CursorOptions {
 
   getInteractables?: () => THREE.Object3D[];
   getOffset?: (normal: THREE.Vector3) => THREE.Vector3;
-  hitTest?: (intersect: THREE.Intersection) => boolean;
+  hitTest?: (intersect: THREE.Intersection, meshPosition: THREE.Vector3) => boolean;
 
   onInteract?: (params: CursorEventParams) => any;
   onMiss?: (params: CursorEventParams) => any;
@@ -37,8 +37,10 @@ interface CursorOptions {
 }
 
 class Cursor {
+  private canvasPosition: THREE.Vector3;
+
   private mesh: THREE.Mesh;
-  private hitTest: (intersect: THREE.Intersection) => boolean;
+  private hitTest: (intersect: THREE.Intersection, meshPosition: THREE.Vector3) => boolean;
 
   private canvas: Canvas;
   private raycaster: THREE.Raycaster;
@@ -62,6 +64,7 @@ class Cursor {
   private missHaveToRenderer: boolean;
 
   constructor(canvas: Canvas, options: CursorOptions) {
+    this.canvasPosition = new THREE.Vector3();
     this.position = new THREE.Vector3();
     this.raycaster = new THREE.Raycaster();
 
@@ -198,14 +201,17 @@ class Cursor {
 
   private getCanvasPositionFromMouseEvent(event: MouseEvent, out: THREE.Vector3) {
     const intersect = this.getIntersect(event);
-    if (!intersect || !this.hitTest(intersect)) return null;
+    if (!intersect) return null;
 
-    out
+    this.canvasPosition
       .copy(intersect.point).add(intersect.face.normal)
       .divideScalar(PIXEL_SCALE).floor()
       .multiplyScalar(PIXEL_SCALE)
       .add(this.getCursorOffset(intersect.face.normal));
 
+    if (!this.hitTest(intersect, this.canvasPosition)) return null;
+
+    out.copy(this.canvasPosition);
     return intersect;
   }
 
@@ -257,11 +263,13 @@ class Cursor {
     this.render();
   }
 
+  getDataPosition(meshPosition: THREE.Vector3, out: THREE.Vector3) {
+    return out.copy(meshPosition).divideScalar(PIXEL_SCALE).floor();
+  }
+
   getPosition() {
     if (!this.mesh.visible) return null;
-
-    return this.position.copy(this.mesh.position)
-      .divideScalar(PIXEL_SCALE).floor();
+    return this.getDataPosition(this.mesh.position, this.position);
   }
 
   destroy() {

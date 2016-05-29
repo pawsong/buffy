@@ -29,8 +29,6 @@ import * as StorageKeys from '../../constants/StorageKeys';
 
 import { connectTarget } from '../Panel';
 
-import mesher from '../../canvas/meshers/greedy';
-
 import {
   rgbToHex,
 } from './canvas/utils';
@@ -296,6 +294,7 @@ ModelEditor.deserialize = data => {
     matrix,
     selection: null,
     fragment: null,
+    fragmentOffset: [0, 0, 0],
   });
 }
 

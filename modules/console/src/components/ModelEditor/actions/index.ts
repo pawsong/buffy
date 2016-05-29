@@ -1,3 +1,5 @@
+import { Ndarray } from 'ndarray';
+
 import {
   Action,
   Color,
@@ -84,23 +86,38 @@ export function voxelRotate(axis: string): VoxelRotateAction {
   };
 }
 
-export const VOXEL_MOVE_START: 'VOXEL_MOVE_START' = 'VOXEL_MOVE_START';
-export interface VoxelMoveStartAction extends Action<typeof VOXEL_MOVE_START> {
+export const VOXEL_CREATE_FRAGMENT: 'VOXEL_CREATE_FRAGMENT' = 'VOXEL_CREATE_FRAGMENT';
+export interface VoxelCreateFragmentAction extends Action<typeof VOXEL_CREATE_FRAGMENT> {
+  model: Ndarray;
+  fragment: Ndarray;
+  fragmentOffset: Position;
 }
-export function voxelMoveStart(): VoxelMoveStartAction {
+export function voxelCreateFragment(model: Ndarray, fragment: Ndarray, x: number, y: number, z: number): VoxelCreateFragmentAction {
   return {
-    type: VOXEL_MOVE_START,
+    type: VOXEL_CREATE_FRAGMENT,
+    model,
+    fragment,
+    fragmentOffset: [x, y, z],
   };
 }
 
-export const VOXEL_MOVE_END: 'VOXEL_MOVE_END' = 'VOXEL_MOVE_END';
-export interface VoxelMoveEndAction extends Action<typeof VOXEL_MOVE_END> {
+export const VOXEL_MOVE_FRAGMENT: 'VOXEL_MOVE_FRAGMENT' = 'VOXEL_MOVE_FRAGMENT';
+export interface VoxelMoveFragmentAction extends Action<typeof VOXEL_MOVE_FRAGMENT> {
   offset: Position;
 }
-export function voxelMoveEnd(x: number, y: number, z: number): VoxelMoveEndAction {
+export function voxelMoveFragment(x: number, y: number, z: number): VoxelMoveFragmentAction {
   return {
-    type: VOXEL_MOVE_END,
+    type: VOXEL_MOVE_FRAGMENT,
     offset: [x, y, z],
+  };
+}
+
+export const VOXEL_MERGE_FRAGMENT: 'VOXEL_MERGE_FRAGMENT' = 'VOXEL_MERGE_FRAGMENT';
+export interface VoxelMergeFragmentAction extends Action<typeof VOXEL_MERGE_FRAGMENT> {
+}
+export function voxelMergeFragment(): VoxelMergeFragmentAction {
+  return {
+    type: VOXEL_MERGE_FRAGMENT,
   };
 }
 

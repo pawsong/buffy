@@ -1,11 +1,14 @@
 import { Differ, Schema } from '@pasta/helper/lib/diff';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 
+// 'tree' can sound somewhat strange, but this concept has come from
+// vdom terminology, so let's keep use it.
+
 class SimpleComponent<P /* Props */, S /* State*/, T /* Tree */> {
   props: P;
   state: S;
 
-  protected tree: T;
+  tree: T;
 
   private diff: (prev: T, next: T) => T;
   private updatingProps: boolean;

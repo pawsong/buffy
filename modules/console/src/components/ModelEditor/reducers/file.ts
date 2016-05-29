@@ -19,8 +19,9 @@ import {
   VOXEL_ROTATE, VoxelRotateAction,
   VOXEL_SELECT_BOX, VoxelSelectBoxAction,
   VOXEL_MAGIN_WAND, VoxelMaginWandAction,
-  VOXEL_MOVE_START, VoxelMoveStartAction,
-  VOXEL_MOVE_END, VoxelMoveEndAction,
+  VOXEL_CREATE_FRAGMENT, VoxelCreateFragmentAction,
+  VOXEL_MOVE_FRAGMENT, VoxelMoveFragmentAction,
+  VOXEL_MERGE_FRAGMENT, VoxelMergeFragmentAction,
   VOXEL_REMOVE_SELECTED, VoxelRemoveSelectedAction,
 } from '../actions';
 
@@ -36,6 +37,7 @@ const initialState: VoxelData = {
   matrix: initialMatrix,
   selection: null,
   fragment: null,
+  fragmentOffset: [0, 0, 0],
 };
 
 export function rgbToHex({ r, g, b }) {
@@ -169,6 +171,29 @@ const removeInSelection = (() => {
   };
 })();
 
+const mergeFragmentIntoModel = (() => {
+  const _mergeFragmentIntoModel = cwise({
+    args: ['array', 'array', 'array'],
+    pre: function () {
+      this.selected = false;
+    },
+    body: function (model, selection, fragment) {
+      if (fragment) {
+        selection = 1;
+        model = fragment;
+        this.selected = true;
+      }
+    },
+    post: function () {
+      return this.selected;
+    }
+  });
+
+  return (model: ndarray.Ndarray, selection: ndarray.Ndarray, fragment: ndarray.Ndarray): boolean => {
+    return _mergeFragmentIntoModel(model, selection, fragment);
+  };
+})();
+
 const rotates: { [index: string]: RotateFn } = {
   x: (shape, pos) => ([ pos[0],            shape[2] - pos[2], pos[1]            ]),
   y: (shape, pos) => ([ pos[2],            pos[1],            shape[0] - pos[0] ]),
@@ -244,73 +269,112 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       });
     }
 
-    case VOXEL_MOVE_START: {
-      if (!state.selection) return state;
+    case VOXEL_CREATE_FRAGMENT: {
+      const { model, fragment, fragmentOffset } = <VoxelCreateFragmentAction>action;
 
-      const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
-      const fragment = ndarray(
-        new Int32Array(state.selection.shape[0] * state.selection.shape[1] * state.selection.shape[2]),
-        state.selection.shape
-      );
+      console.log(fragmentOffset);
 
-      const { shape } = state.selection;
-      for (let k = 0; k < shape[2]; ++k) {
-        for (let j = 0; j < shape[1]; ++j) {
-          for (let i = 0; i < shape[0]; ++i) {
-            if (state.selection.get(i, j, k) !== 0) {
-              fragment.set(i, j, k, matrix.get(i, j, k));
-              matrix.set(i, j, k, 0);
-            }
-          }
-        }
-      }
-
+      // Reuse ndarray params for performance reason.
       return Object.assign({}, state, {
-        matrix,
+        matrix: model,
         selection: null,
         fragment,
+        fragmentOffset,
       });
     }
 
-    case VOXEL_MOVE_END: {
+    case VOXEL_MOVE_FRAGMENT: {
+      const { offset } = <VoxelMoveFragmentAction>action;
+
+      console.log(offset);
+
+      return Object.assign({}, state, {
+        fragmentOffset: offset,
+      });
+    }
+
+    case VOXEL_MERGE_FRAGMENT: {
       if (!state.fragment) return state;
 
-      const { offset } = <VoxelMoveEndAction>action;
+      const { shape } = state.fragment;
+      const offset = state.fragmentOffset;
 
-      const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
+      if (
+          offset[0] <= -shape[0] || offset[0] >= shape[0]
+       || offset[1] <= -shape[1] || offset[1] >= shape[1]
+       || offset[2] <= -shape[2] || offset[2] >= shape[2]
+      ) {
+        return Object.assign({}, state, {
+          selection: null,
+          fragment: null,
+          fragmentOffset: [0, 0, 0],
+        });
+      }
+
+      let loX, loY, loZ, hiX, hiY, hiZ;
+      let fragmentLoX;
+      let fragmentLoY;
+      let fragmentLoZ;
+
+      if (offset[0] > 0) {
+        loX = offset[0];
+        hiX = shape[0];
+        fragmentLoX = 0;
+      } else {
+        loX = 0;
+        hiX = shape[0] + offset[0];
+        fragmentLoX = -offset[0];
+      }
+
+      if (offset[1] > 0) {
+        loY = offset[1];
+        hiY = shape[1];
+        fragmentLoY = 0;
+      } else {
+        loY = 0;
+        hiY = shape[1] + offset[1];
+        fragmentLoY = -offset[1];
+      }
+
+      if (offset[2] > 0) {
+        loZ = offset[2];
+        hiZ = shape[2];
+        fragmentLoZ = 0;
+      } else {
+        loZ = 0;
+        hiZ = shape[2] + offset[2];
+        fragmentLoZ = -offset[2];
+      }
+
+      const intersectionShape = [hiX - loX, hiY - loY, hiZ - loZ];
+
+      const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
       const selection = ndarray(
         new Int32Array(state.fragment.shape[0] * state.fragment.shape[1] * state.fragment.shape[2]),
         state.fragment.shape
       );
 
-      const { shape } = state.fragment;
+      const modelOffset =
+        model.stride[0] * loX +
+        model.stride[1] * loY +
+        model.stride[2] * loZ;
 
-      const minX = Math.max(0,        offset[0]           );
-      const maxX = Math.min(shape[0], offset[0] + shape[0]);
-      const minY = Math.max(0,        offset[1]           );
-      const maxY = Math.min(shape[1], offset[1] + shape[1]);
-      const minZ = Math.max(0,        offset[2]           );
-      const maxZ = Math.max(shape[2], offset[2] + shape[2]);
+      const fragmentOffset =
+        model.stride[0] * fragmentLoX +
+        model.stride[1] * fragmentLoY +
+        model.stride[2] * fragmentLoZ;
 
-      let selected = false;
+      const intersectionInModel = ndarray(model.data, intersectionShape, model.stride, modelOffset);
+      const intersectionInSelection = ndarray(selection.data, intersectionShape, selection.stride, modelOffset);
+      const intersectionInFragment = ndarray(state.fragment.data, intersectionShape, state.fragment.stride, fragmentOffset);
 
-      for (let k = minZ; k < maxZ; ++k) {
-        for (let j = minY; j < maxY; ++j) {
-          for (let i = minX; i < maxX; ++i) {
-            const c = state.fragment.get(i - offset[0], j - offset[1], k - offset[2]);
-            if (c !== 0) {
-              matrix.set(i, j, k, c);
-              selection.set(i, j, k, c);
-              selected = true;
-            }
-          }
-        }
-      }
+      const selected = mergeFragmentIntoModel(intersectionInModel, intersectionInSelection, intersectionInFragment);
 
       return Object.assign({}, state, {
-        matrix,
+        matrix: model,
         selection: selected ? selection : null,
         fragment: null,
+        fragmentOffset: [0, 0, 0],
       });
     }
 

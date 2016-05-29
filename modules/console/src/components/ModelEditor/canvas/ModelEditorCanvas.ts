@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import * as ndarray from 'ndarray';
 const mapValues = require('lodash/mapValues');
 const findLastIndex = require('lodash/findLastIndex');
+import { createSelector, Selector } from 'reselect';
+
+const cwise = require('cwise');
 
 import ModelEditorTool from './tools/ModelEditorTool';
 import createTool from './tools';
@@ -34,6 +37,8 @@ import {
   DispatchAction,
   ModelEditorState,
   GetEditorState,
+  VoxelData,
+  Position,
 } from '../types';
 
 interface CanvasOptions {
@@ -49,25 +54,97 @@ const gridFragmentShader = require('raw!./shaders/grid3.frag');
 const gridVertexShader4 = require('raw!./shaders/grid4.vert');
 const gridFragmentShader4 = require('raw!./shaders/grid4.frag');
 
-interface ComponentProps {
-  model: ndarray.Ndarray;
-  selection: ndarray.Ndarray;
+const fragmentVertexShader = require('raw!./shaders/fragment.vert');
+const fragmentFragmentShader = require('raw!./shaders/fragment.frag');
+
+type ComponentProps = VoxelData;
+
+interface ComponentState {
+  fragment?: ndarray.Ndarray;
 }
 
-class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, any, ComponentProps> {
+interface ComponentTree {
+  model: ndarray.Ndarray;
+  selection: ndarray.Ndarray;
+  fragment: ndarray.Ndarray;
+  fragmentOffset: Position;
+}
+
+const subtract = (() => {
+  const _subtract = cwise({
+    args: ['array', 'array'],
+    body: function(a1, a2) {
+      if (a2) a1 = 0;
+    },
+  });
+
+  return function (array1: ndarray.Ndarray, array2: ndarray.Ndarray) {
+    _subtract(array1, array2);
+  };
+})();
+
+const select = (() => {
+  const _select = cwise({
+    args: ['array', 'array', 'array'],
+    body: function(a1, a2, a3) {
+      if (a3) a1 = a2;
+    },
+  });
+
+  return function (array1: ndarray.Ndarray, array2: ndarray.Ndarray, array3: ndarray.Ndarray) {
+    _select(array1, array2, array3);
+  };
+})();
+
+class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, ComponentState, ComponentTree> {
+  private emptyMesh: THREE.Mesh;
+
   private modelMaterial: THREE.MeshLambertMaterial;
   modelMesh: THREE.Mesh;
-  private emptyModelMesh: THREE.Mesh;
-  private modelMeshIsDirty: boolean;
 
   private selectionMaterial: THREE.ShaderMaterial;
   selectionMesh: THREE.Mesh;
-
-  private emptySelectionMesh: THREE.Mesh;
   selectionBoundingBox: BoundingBoxEdgesHelper;
+
+  private fragmentMaterial: THREE.ShaderMaterial;
+  fragmentMesh: THREE.Mesh;
+  fragmentBoundingBox: BoundingBoxEdgesHelper;
+
+  fragmentedModelSelector: Selector<any, any>;
+
+  private temp1: THREE.Vector3;
+
+  getTreeSchema(): Schema {
+    return {
+      type: SchemaType.OBJECT,
+      properties: {
+        model: { type: SchemaType.ANY },
+        selection: { type: SchemaType.ANY },
+        fragment: { type: SchemaType.ANY },
+        fragmentOffset: { type: SchemaType.ANY },
+      },
+    };
+  }
 
   constructor(private canvas: ModelEditorCanvas) {
     super();
+    this.state = {
+      fragment: null,
+    };
+
+    this.temp1 = new THREE.Vector3();
+
+    this.fragmentedModelSelector = createSelector(
+      (props: ComponentProps, state: ComponentState) => props.matrix,
+      (props: ComponentProps, state: ComponentState) => state.fragment,
+      (model, fragment) => {
+        console.log('selector', model, fragment);
+        const fragmentedModel = ndarray(model.data.slice(), model.shape);
+        subtract(fragmentedModel, this.state.fragment);
+        return fragmentedModel;
+      }
+    );
+
     this.modelMaterial = new THREE.MeshLambertMaterial({
       color: 0xffffff,
       vertexColors: THREE.VertexColors,
@@ -88,48 +165,107 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, any, Co
     });
     this.selectionMaterial.extensions.derivatives = true;
 
-    this.emptySelectionMesh = new THREE.Mesh();
-    this.selectionBoundingBox = new BoundingBoxEdgesHelper(this.emptyModelMesh, 0xFFEB3B);
+    this.fragmentMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        opacity: { type: 'f', value: 0.5 },
+        gridColor: { value: new THREE.Vector3(0.91, 0.12, 0.39) }, // 0xE91E63
+        gridThickness: { type: 'f', value: 0.05 },
+      },
+      vertexShader: fragmentVertexShader,
+      fragmentShader: fragmentFragmentShader,
+      transparent: true,
+    });
+    this.fragmentMaterial.extensions.derivatives = true;
+
+    this.emptyMesh = new THREE.Mesh();
+    this.emptyMesh.visible = false;
+
+    this.selectionBoundingBox = new BoundingBoxEdgesHelper(this.emptyMesh, 0xFFEB3B);
     this.selectionBoundingBox.edges.visible = false;
     this.canvas.scene.add(this.selectionBoundingBox.edges);
+
+    this.fragmentBoundingBox = new BoundingBoxEdgesHelper(this.emptyMesh, 0xE91E63);
+    this.fragmentBoundingBox.edges.visible = false;
+    this.canvas.scene.add(this.fragmentBoundingBox.edges);
   }
 
   onStart() {
     super.onStart();
 
-    this.emptyModelMesh = new THREE.Mesh();
-    this.modelMesh = this.emptyModelMesh;
-    this.modelMeshIsDirty = false;
+    this.modelMesh = this.emptyMesh;
+    this.selectionMesh = this.emptyMesh;
+    this.fragmentMesh = this.emptyMesh;
   }
 
-  getTreeSchema(): Schema {
+  setTemporaryFragment() {
+    if (!this.props.selection) return;
+
+    const { shape } = this.props.matrix;
+    const fragment = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), this.props.matrix.shape);
+    select(fragment, this.props.matrix, this.props.selection);
+
+    this.setState({ fragment });
+  }
+
+  componentWillReceiveProps(nextProps: ComponentProps) {
+    // Reset temporary fragment on every props (file state) update.
+    if (this.props !== nextProps) {
+      if (this.state.fragment) this.setState({ fragment: null });
+    }
+  }
+
+  /*
+   * This function mutate fragment mesh position without changing
+   * component props or state, which is a exception of flux rule. Be careful!
+   *
+   * Mutation occurred in this function must be reset when props or state changes.
+   */
+  moveFragmentMesh(displacement: THREE.Vector3) {
+    if (!this.fragmentMesh.visible) return;
+
+    this.fragmentMesh.position
+      .copy(displacement)
+      .multiplyScalar(PIXEL_SCALE);
+
+    this.fragmentBoundingBox.update();
+  }
+
+  /*
+   * Getting data from view is not a good practice but is allowed here for performance's sake.
+   */
+  getFragmentPosition(v: THREE.Vector3) {
+    v.copy(this.fragmentMesh.position).divideScalar(PIXEL_SCALE).round();
+  }
+
+  render() {
+    const model = this.state.fragment
+      ? this.fragmentedModelSelector(this.props, this.state)
+      : this.props.matrix;
+
+    // Hide selection when temporary fragment exists.
+    const selection = this.state.fragment ? null : this.props.selection;
+
+    const fragment = this.state.fragment || this.props.fragment;
+
     return {
-      type: SchemaType.OBJECT,
-      properties: {
-        model: { type: SchemaType.ANY },
-        selection: { type: SchemaType.ANY },
-      },
+      model,
+      selection,
+      fragment,
+      fragmentOffset: this.props.fragmentOffset,
     };
   }
 
-  render() { return this.props; }
-
-  patch(diff: ComponentProps) {
+  patch(diff: ComponentTree) {
     if (diff.hasOwnProperty('model')) {
-      if (this.modelMeshIsDirty) {
-        this.modelMeshIsDirty = false;
-
+      if (this.modelMesh.visible) {
         this.canvas.scene.remove(this.modelMesh);
         this.modelMesh.geometry.dispose();
-
-        this.modelMesh = this.emptyModelMesh;
+        this.modelMesh = this.emptyMesh;
       }
 
       const mesh = mesher(diff.model);
       const geometry = createGeometryFromMesh(mesh);
       if (geometry.vertices.length !== 0) {
-        this.modelMeshIsDirty = true;
-
         this.modelMesh = new THREE.Mesh(geometry, this.modelMaterial);
         this.modelMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
         this.canvas.scene.add(this.modelMesh);
@@ -137,10 +273,10 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, any, Co
     }
 
     if (diff.hasOwnProperty('selection')) {
-      if (this.selectionMesh) {
+      if (this.selectionMesh.visible) {
         this.canvas.scene.remove(this.selectionMesh);
         this.selectionMesh.geometry.dispose();
-        this.selectionMesh = null;
+        this.selectionMesh = this.emptyMesh;
       }
 
       if (diff.selection) {
@@ -154,7 +290,40 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, any, Co
         this.selectionBoundingBox.changeTarget(this.selectionMesh);
       } else {
         this.selectionBoundingBox.edges.visible = false;
-        this.selectionBoundingBox.changeTarget(this.emptySelectionMesh);
+        this.selectionBoundingBox.changeTarget(this.selectionMesh);
+      }
+    }
+
+    if (diff.hasOwnProperty('fragment')) {
+      if (this.fragmentMesh.visible) {
+        this.canvas.scene.remove(this.fragmentMesh);
+        this.fragmentMesh.geometry.dispose();
+        this.fragmentMesh = this.emptyMesh;
+      }
+
+      if (diff.fragment) {
+        const mesh = mesher(diff.fragment);
+        const geometry = createGeometryFromMesh(mesh);
+        this.fragmentMesh = new THREE.Mesh(geometry, this.fragmentMaterial);
+        this.fragmentMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+        this.canvas.scene.add(this.fragmentMesh);
+
+        const offset = this.tree.fragmentOffset;
+        this.moveFragmentMesh(this.temp1.set(offset[0], offset[1], offset[2]));
+
+        this.fragmentBoundingBox.edges.visible = true;
+        this.fragmentBoundingBox.changeTarget(this.fragmentMesh);
+      } else {
+        this.fragmentBoundingBox.edges.visible = false;
+        this.fragmentBoundingBox.changeTarget(this.fragmentMesh);
+      }
+    } else if (diff.hasOwnProperty('fragmentOffset')) {
+      if (this.tree.fragment) {
+        const offset = this.tree.fragmentOffset;
+        this.moveFragmentMesh(this.temp1.set(offset[0], offset[1], offset[2]));
+
+        this.fragmentBoundingBox.edges.visible = true;
+        this.fragmentBoundingBox.changeTarget(this.fragmentMesh);
       }
     }
   }
@@ -251,10 +420,7 @@ class ModelEditorCanvas extends Canvas {
     this.controls.update();
 
     this.component = new ModelEditorCanvasComponent(this);
-    this.component.start({
-      model: this.state.file.present.data.matrix,
-      selection: this.state.file.present.data.selection,
-    });
+    this.component.start(this.state.file.present.data);
     this.render();
   }
 
@@ -293,10 +459,7 @@ class ModelEditorCanvas extends Canvas {
   }
 
   onStateChange(nextState: ModelEditorState) {
-    this.component.updateProps({
-      model: nextState.file.present.data.matrix,
-      selection: nextState.file.present.data.selection,
-    });
+    this.component.updateProps(nextState.file.present.data);
 
     if (this.tool.getToolType() !== nextState.common.selectedTool) {
       const nextTool = this.getTool(nextState.common.selectedTool);

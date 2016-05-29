@@ -18,8 +18,6 @@ import ModelEditorTool, {
 import ModelEditorCanvas from '../ModelEditorCanvas';
 import { SetState } from '../types';
 
-import mesher from '../../../../canvas/meshers/greedy';
-
 import BoundingBoxEdgesHelper from '../helpers/BoundingBoxEdgesHelper';
 
 const fragmentVertexShader = require('raw!../shaders/fragment.vert');
@@ -33,9 +31,9 @@ import {
 } from '../../types';
 
 import {
-  voxelMaginWand,
-  voxelMoveStart,
-  voxelMoveEnd,
+  voxelCreateFragment,
+  voxelMoveFragment,
+  voxelMergeFragment,
 } from '../../actions';
 
 import * as ndarray from 'ndarray';
@@ -50,11 +48,17 @@ interface MaterialToRestore {
 }
 
 interface MoveToolProps {
-  fragment: ndarray.Ndarray;
   selection: ndarray.Ndarray;
+  fragment: ndarray.Ndarray;
+  fragmentOffset: Position;
 }
 
-class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolProps> {
+interface MoveToolTree {
+  boundingBox: BoundingBoxEdgesHelper;
+  offset: Position;
+}
+
+class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
   canvas: ModelEditorCanvas;
 
   translucentMaterial: THREE.Material;
@@ -62,7 +66,6 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolProps> {
   arrowX: THREE.ArrowHelper;
   arrowY: THREE.ArrowHelper;
   arrowZ: THREE.ArrowHelper;
-  fragmentBoundingBoxHelper: BoundingBoxEdgesHelper;
 
   temp1: THREE.Vector3;
   temp2: THREE.Vector3;
@@ -73,17 +76,17 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolProps> {
   private activeCone: THREE.Mesh;
   private materialsToRestore: MaterialToRestore[];
 
-  private fragmentMaterial: THREE.ShaderMaterial;
-  private fragmentMesh: THREE.Mesh;
-
   drawGuide: THREE.Mesh;
+
+  dispatchAction: DispatchAction;
 
   getToolType(): ToolType { return ToolType.MOVE; }
 
   mapParamsToProps(params: ModelEditorState) {
     return {
-      fragment: params.file.present.data.fragment,
       selection: params.file.present.data.selection,
+      fragment: params.file.present.data.fragment,
+      fragmentOffset: params.file.present.data.fragmentOffset,
     };
   }
 
@@ -91,121 +94,83 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolProps> {
     return {
       type: SchemaType.OBJECT,
       properties: {
-        fragment: { type: SchemaType.ANY },
-        selection: { type: SchemaType.ANY },
+        boundingBox: { type: SchemaType.ANY },
+        offset: { type: SchemaType.ANY },
       }
     };
   }
 
-  private addFragmentMesh(array: ndarray.Ndarray) {
-    const mesh = mesher(array);
-    const geometry = createGeometryFromMesh(mesh);
-    this.fragmentMesh = new THREE.Mesh(geometry, this.fragmentMaterial);
-    this.fragmentMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
-    this.canvas.scene.add(this.fragmentMesh);
+  updateArrow(boundingBox: BoundingBoxEdgesHelper) {
+    if (boundingBox && boundingBox.edges.visible) {
+      boundingBox.box.size(this.temp1);
 
-    this.fragmentBoundingBoxHelper = new BoundingBoxEdgesHelper(this.fragmentMesh, 0xE91E63);
-    this.fragmentBoundingBoxHelper.update();
-    this.canvas.scene.add(this.fragmentBoundingBoxHelper.edges);
+      this.arrowX.visible = true;
+      this.arrowX.position.copy(boundingBox.edges.position);
+      this.arrowX.setLength(this.temp1.x / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
 
-    this.fragmentBoundingBoxHelper.box.size(this.temp1);
+      this.arrowY.visible = true;
+      this.arrowY.position.copy(boundingBox.edges.position);
+      this.arrowY.setLength(this.temp1.y / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
 
-    this.arrowX.visible = true;
-    this.arrowX.position.copy(this.fragmentBoundingBoxHelper.edges.position);
-    this.arrowX.setLength(this.temp1.x / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
-
-    this.arrowY.visible = true;
-    this.arrowY.position.copy(this.fragmentBoundingBoxHelper.edges.position);
-    this.arrowY.setLength(this.temp1.y / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
-
-    this.arrowZ.visible = true;
-    this.arrowZ.position.copy(this.fragmentBoundingBoxHelper.edges.position);
-    this.arrowZ.setLength(this.temp1.z / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
-  }
-
-  private removeFragmentMesh() {
-    if (this.fragmentMesh) {
-      this.canvas.scene.remove(this.fragmentMesh);
-      this.fragmentMesh.geometry.dispose();
-      this.fragmentMesh = null;
-    }
-
-    if (this.fragmentBoundingBoxHelper) {
-      this.canvas.scene.remove(this.fragmentBoundingBoxHelper.edges);
-      this.fragmentBoundingBoxHelper.dispose();
-      this.fragmentBoundingBoxHelper = null;
-    }
-  }
-
-  moveFragmentMesh(displacement: THREE.Vector3) {
-    this.fragmentMesh.position
-      .copy(displacement)
-      .multiplyScalar(PIXEL_SCALE);
-
-    this.fragmentBoundingBoxHelper.update();
-    this.arrowX.position.copy(this.fragmentBoundingBoxHelper.edges.position);
-    this.arrowY.position.copy(this.fragmentBoundingBoxHelper.edges.position);
-    this.arrowZ.position.copy(this.fragmentBoundingBoxHelper.edges.position);
-  }
-
-  getFragmentPosition(v: THREE.Vector3) {
-    v.copy(this.fragmentMesh.position).divideScalar(PIXEL_SCALE).round();
-  }
-
-  render() { return this.props; }
-
-  patch(diff: MoveToolProps) {
-    if (!this.props.fragment && !this.props.selection) {
+      this.arrowZ.visible = true;
+      this.arrowZ.position.copy(boundingBox.edges.position);
+      this.arrowZ.setLength(this.temp1.z / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
+    } else {
       this.arrowX.visible = false;
       this.arrowY.visible = false;
       this.arrowZ.visible = false;
     }
+  }
 
-    if (diff.hasOwnProperty('fragment')) {
-      this.removeFragmentMesh();
-      if (diff.fragment) this.addFragmentMesh(diff.fragment);
+  private renderBoundingBox(): BoundingBoxEdgesHelper {
+    // Fragment has precedence over selection.
+    // Selection must not exist when fragment does.
+    if (this.props.fragment) {
+      return this.canvas.component.fragmentBoundingBox;
+    } else if (this.props.selection) {
+      return this.canvas.component.selectionBoundingBox;
+    } else {
+      return null;
     }
+  }
 
-    if (diff.hasOwnProperty('selection')) {
+  render() {
+    if (this.props.fragment) {
+      return {
+        boundingBox: this.canvas.component.fragmentBoundingBox,
+        offset: this.props.fragmentOffset,
+      };
+    } else if (this.props.selection) {
+      return {
+        boundingBox: this.canvas.component.selectionBoundingBox,
+        offset: null,
+      };
+    } else {
+      return {
+        boundingBox: null,
+        offset: null,
+      };
+    }
+  }
 
-      if (diff.selection) {
-        const { selectionBoundingBox } = this.canvas.component;
-
-        this.arrowX.visible = true;
-        this.arrowX.position.copy(selectionBoundingBox.edges.position);
-        this.arrowX.setLength(this.temp1.x / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
-
-        this.arrowY.visible = true;
-        this.arrowY.position.copy(selectionBoundingBox.edges.position);
-        this.arrowY.setLength(this.temp1.y / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
-
-        this.arrowZ.visible = true;
-        this.arrowZ.position.copy(selectionBoundingBox.edges.position);
-        this.arrowZ.setLength(this.temp1.z / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
-      }
+  patch(diff: MoveToolTree) {
+    if (diff.hasOwnProperty('boundingBox')) {
+      this.updateArrow(diff.boundingBox);
+    } else if (diff.hasOwnProperty('offset')) {
+      if (diff.offset && this.tree.boundingBox) this.updateArrow(this.tree.boundingBox);
     }
   }
 
   init(params: InitParams) {
     this.canvas = params.canvas;
+    this.dispatchAction = params.dispatchAction;
+
     this.temp1 = new THREE.Vector3();
     this.temp2 = new THREE.Vector3();
     this.temp3 = new THREE.Vector3();
 
     this.activeCone = null;
     this.materialsToRestore = [];
-
-    this.fragmentMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        opacity: { type: 'f', value: 0.5 },
-        gridColor: { value: new THREE.Vector3(1.0, 0.95, 0.46) },
-        gridThickness: { type: 'f', value: 0.05 },
-      },
-      vertexShader: fragmentVertexShader,
-      fragmentShader: fragmentFragmentShader,
-      transparent: true,
-    });
-    this.fragmentMaterial.extensions.derivatives = true;
 
     this.translucentMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,
@@ -241,7 +206,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolProps> {
 
     const wait = new WaitState(this, params.canvas);
     const rotate = new RotateState();
-    const drag = new DragState(this, params.canvas, params.dispatchAction);
+    const drag = new DragState(this, params.canvas);
 
     return {
       [STATE_WAIT]: wait,
@@ -296,6 +261,8 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolProps> {
       .add(this.temp3.copy(direction).multiplyScalar(len));
     this.drawGuide.position.copy(position).multiply(this.temp2)
       .add(this.temp3.copy(direction).multiplyScalar(pos));
+
+    this.drawGuide.updateMatrixWorld(true);
   }
 
   onStart() {
@@ -315,8 +282,6 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolProps> {
   onStop() {
     super.onStop();
     this.canvas.scene.remove(this.drawGuide);
-
-    this.removeFragmentMesh();
   }
 
   destroy() {
@@ -370,6 +335,7 @@ class WaitState extends ToolState {
     if (intersect) {
       this.transitionTo(STATE_DRAG, event);
     } else {
+      if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
       this.transitionTo(STATE_ROTATE);
     }
   }
@@ -387,11 +353,11 @@ class DragState extends ToolState {
   private target: THREE.Vector3;
 
   private temp1: THREE.Vector3;
+  private temp2: THREE.Vector3;
 
   constructor(
     private tool: MoveTool,
-    private canvas: ModelEditorCanvas,
-    private dispatchAction: DispatchAction
+    private canvas: ModelEditorCanvas
   ) {
     super();
     this.direction = new THREE.Vector3();
@@ -399,6 +365,7 @@ class DragState extends ToolState {
     this.target = new THREE.Vector3();
 
     this.temp1 = new THREE.Vector3();
+    this.temp2 = new THREE.Vector3();
 
     const offset = new THREE.Vector3();
 
@@ -415,12 +382,16 @@ class DragState extends ToolState {
   onEnter(event: MouseEvent) {
     this.canvas.controls.enableRotate = false;
 
-    this.tool.getDirection(this.direction);
-    this.tool.updateDrawGuide(this.direction, this.canvas.component.selectionBoundingBox);
+    const boundingBox = this.canvas.component.fragmentBoundingBox;
 
-    // Detach selected mesh from current model
-    // and create a new moving model fragment.
-    this.dispatchAction(voxelMoveStart());
+    if (!this.tool.props.fragment) {
+      this.canvas.component.setTemporaryFragment();
+      this.tool.updateArrow(boundingBox);
+    }
+
+    this.tool.getDirection(this.direction);
+    this.tool.updateDrawGuide(this.direction, boundingBox);
+
     this.cursor.start();
 
     this.cursor.getPositionFromMouseEvent(event, this.origin);
@@ -435,20 +406,38 @@ class DragState extends ToolState {
     if (this.target.equals(position)) return;
     this.target.copy(position);
 
-    this.tool.moveFragmentMesh(this.temp1.subVectors(this.target, this.origin).multiply(this.direction));
+    const offset = this.tool.props.fragmentOffset;
+    this.temp1.set(offset[0], offset[1], offset[2]);
+
+    this.tool.canvas.component.moveFragmentMesh(
+      this.temp2
+        .subVectors(this.target, this.origin)
+        .multiply(this.direction)
+        .add(this.temp1)
+    );
+    this.tool.updateArrow(this.tool.canvas.component.fragmentBoundingBox);
   }
 
   private handleMouseUp() {
+    if (this.tool.props.fragment) {
+      // Update fragment position.
+      this.tool.canvas.component.getFragmentPosition(this.temp1);
+      this.tool.dispatchAction(voxelMoveFragment(this.temp1.x, this.temp1.y, this.temp1.z));
+    } else {
+      // Create fragment from selection with current view offset.
+      this.tool.canvas.component.getFragmentPosition(this.temp1);
+      this.tool.dispatchAction(voxelCreateFragment(
+        this.tool.canvas.component.tree.model,
+        this.tool.canvas.component.tree.fragment,
+        this.temp1.x, this.temp1.y, this.temp1.z
+      ));
+    }
+
     this.transitionTo(STATE_WAIT, event);
   }
 
   onLeave() {
     this.canvas.controls.enableRotate = true;
-
-    this.tool.getFragmentPosition(this.temp1);
-
-    // Merge fragment into base model.
-    this.dispatchAction(voxelMoveEnd(this.temp1.x, this.temp1.y, this.temp1.z));
 
     this.cursor.stop();
   }

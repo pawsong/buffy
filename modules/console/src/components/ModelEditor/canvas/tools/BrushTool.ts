@@ -24,7 +24,7 @@ import {
 
 import {
   voxelAddBatch,
-  CHANGE_PALETTE_COLOR, ChangePaletteColorAction,
+  voxelMergeFragment,
 } from '../../actions';
 
 import {
@@ -52,18 +52,31 @@ class WaitState extends ToolState {
   constructor(private tool: BrushTool) {
     super();
 
+    const position = new THREE.Vector3();
+
     this.cursor = new Cursor(tool.canvas, {
       mesh: tool.cursorMesh,
       offset: [0, 0, 0],
       getInteractables: () => [
         this.tool.canvas.plane,
         this.tool.canvas.component.modelMesh,
+        this.tool.canvas.component.fragmentMesh,
       ],
+      hitTest: (intersect, meshPosition) => {
+        this.cursor.getDataPosition(meshPosition, position);
+        return (
+             position.x >= 0 && position.x < DESIGN_IMG_SIZE
+          && position.y >= 0 && position.y < DESIGN_IMG_SIZE
+          && position.z >= 0 && position.z < DESIGN_IMG_SIZE
+        );
+      },
       onMouseDown: params => this.handleMouseDown(params),
     });
   }
 
   handleMouseDown({ event, intersect }: CursorEventParams) {
+    if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
+
     const position = this.cursor.getPosition();
     if (position) {
       this.transitionTo(STATE_DRAW, position);
@@ -90,8 +103,7 @@ class DrawState extends ToolState {
 
   constructor(
     private tool: BrushTool,
-    private canvas: ModelEditorCanvas,
-    private dispatchAction: DispatchAction
+    private canvas: ModelEditorCanvas
   ) {
     super();
 
@@ -163,7 +175,7 @@ class DrawState extends ToolState {
   }
 
   handleMouseUp({ } : CursorEventParams) {
-    this.dispatchAction(voxelAddBatch([
+    this.tool.dispatchAction(voxelAddBatch([
       Math.min(this.anchor.x, this.target.x),
       Math.min(this.anchor.y, this.target.y),
       Math.min(this.anchor.z, this.target.z),
@@ -200,10 +212,16 @@ class DrawState extends ToolState {
 
 interface BrushToolProps {
   color: Color;
+  fragment: ndarray.Ndarray;
 }
 
-class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolProps> {
+interface BrushToolTree {
+  color: Color;
+}
+
+class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolTree> {
   canvas: ModelEditorCanvas;
+  dispatchAction: DispatchAction;
 
   drawGuideMaterial: THREE.MeshBasicMaterial;
   drawGuideX: THREE.Mesh;
@@ -220,15 +238,16 @@ class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolProps> {
     return {
       type: SchemaType.OBJECT,
       properties: {
-        color: {
-          type: SchemaType.ANY,
-        },
+        color: { type: SchemaType.ANY },
       },
     };
   }
 
   mapParamsToProps(state: ModelEditorState) {
-    return { color: state.common.paletteColor };
+    return {
+      color: state.common.paletteColor,
+      fragment: state.file.present.data.fragment,
+    };
   }
 
   render() { return this.props; }
@@ -253,6 +272,7 @@ class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolProps> {
   }
 
   init(params: InitParams) {
+    this.dispatchAction = params.dispatchAction;
     this.canvas = params.canvas;
 
     // Setup cursor
@@ -298,7 +318,7 @@ class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolProps> {
 
     const wait = new WaitState(this);
     const rotate = new RotateState();
-    const draw = new DrawState(this, params.canvas, params.dispatchAction);
+    const draw = new DrawState(this, params.canvas);
 
     return {
       [STATE_WAIT]: wait,

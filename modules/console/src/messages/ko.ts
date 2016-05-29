@@ -561,6 +561,13 @@ export default {
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Voxel move finish history label
+   * defaultMessage: Move finish
+   */
+  'voxel-editor.panels.history.voxel.move.finish': '블럭 이동 완료',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel remove history label
    * defaultMessage: Remove voxels
    */

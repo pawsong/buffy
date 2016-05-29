@@ -34,8 +34,9 @@ import {
   VOXEL_ROTATE,
   VOXEL_SELECT_BOX,
   VOXEL_MAGIN_WAND,
-  VOXEL_MOVE_START,
-  VOXEL_MOVE_END,
+  VOXEL_CREATE_FRAGMENT,
+  VOXEL_MOVE_FRAGMENT,
+  VOXEL_MERGE_FRAGMENT,
   VOXEL_REMOVE_SELECTED,
 } from '../../actions';
 
@@ -75,6 +76,11 @@ const messages = defineMessages({
     description: 'Voxel move history label',
     defaultMessage: 'Move voxels',
   },
+  labelVoxelMoveFinish: {
+    id: 'voxel-editor.panels.history.voxel.move.finish',
+    description: 'Voxel move finish history label',
+    defaultMessage: 'Move finish',
+  },
 });
 
 const ActionMessages = {
@@ -85,8 +91,9 @@ const ActionMessages = {
   [VOXEL_ROTATE]: messages.labelVoxelRotate,
   [VOXEL_SELECT_BOX]: messages.labelVoxelSelect,
   [VOXEL_MAGIN_WAND]: messages.labelVoxelSelect,
-  [VOXEL_MOVE_START]: messages.labelVoxelMove,
-  [VOXEL_MOVE_END]: messages.labelVoxelMove,
+  [VOXEL_CREATE_FRAGMENT]: messages.labelVoxelMove,
+  [VOXEL_MOVE_FRAGMENT]: messages.labelVoxelMove,
+  [VOXEL_MERGE_FRAGMENT]: messages.labelVoxelMoveFinish,
 };
 
 function getActionMessage(action: string) {

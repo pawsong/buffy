@@ -96,6 +96,7 @@
     "redux-ignore": "^1.2.3",
     "redux-saga": "^0.9.5",
     "request": "^2.65.0",
+    "reselect": "^2.5.1",
     "screenfull": "^3.0.0",
     "scriptjs": "^2.5.8",
     "scroll-behavior": "^0.3.3",
