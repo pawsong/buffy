@@ -1,18 +1,14 @@
 import * as THREE from 'three';
-import * as ndarray from 'ndarray';
 
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
 import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
 
-import ModelEditorTool, {
-  InitParams,
+import {
   ToolState, ToolStates,
 } from './ModelEditorTool';
 
 import {
-  Position,
-  Color,
   ToolType,
   ModelEditorState,
 } from '../../types';
@@ -27,52 +23,35 @@ import {
   DESIGN_IMG_SIZE,
 } from '../../../../canvas/Constants';
 
-const gridVertexShader = require('raw!../shaders/grid2.vert');
-const gridFragmentShader = require('raw!../shaders/grid2.frag');
+import AddBlockTool, { AddBlockToolWaitState } from './AddBlockTool';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
+
+class RectangleTool extends AddBlockTool {
+  getToolType() { return ToolType.RECTANGLE; }
+
+  createStates(): ToolStates {
+    return {
+      [STATE_WAIT]: new WaitState(this),
+      [STATE_DRAW]: new DrawState(this),
+    };
+  }
+}
 
 interface DrawEnterParams {
   anchor: THREE.Vector3;
   normal: THREE.Vector3;
 }
 
-class WaitState extends ToolState {
-  cursor: Cursor;
+class WaitState extends AddBlockToolWaitState<DrawEnterParams> {
+  getDrawStateName() { return STATE_DRAW; }
 
-  constructor(private tool: RectangleTool) {
-    super();
-
-    this.cursor = new Cursor(tool.canvas, {
-      mesh: tool.cursorMesh,
-      offset: [0, 0, 0],
-      getInteractables: () => [
-        this.tool.canvas.plane,
-        this.tool.canvas.component.modelMesh,
-      ],
-      onMouseDown: params => this.handleMouseDown(params),
-    });
-  }
-
-  handleMouseDown({ event, intersect }: CursorEventParams) {
-    const position = this.cursor.getPosition();
-    if (position) {
-      this.transitionTo(STATE_DRAW, <DrawEnterParams>{
-        anchor: position,
-        normal: intersect.face.normal,
-      });
-    }
-  }
-
-  onEnter() {
-    this.tool.setCursorSize(1, 1, 1);
-    this.cursor.start();
-  }
-
-  onLeave() {
-    this.cursor.stop();
-    this.tool.cursorMesh.visible = false;
+  getDrawStateParams(intersect: THREE.Intersection, position: THREE.Vector3) {
+    return {
+      anchor: position,
+      normal: intersect.face.normal,
+    };
   }
 }
 
@@ -81,11 +60,24 @@ class DrawState extends ToolState {
   private anchor: THREE.Vector3;
   private target: THREE.Vector3;
 
+  private drawGuide: THREE.Mesh;
+
   constructor(private tool: RectangleTool) {
     super();
 
+    // Setup draw guides
+
+    const drawGuideGeometry = new THREE.BoxGeometry(1, 1, 1);
+    drawGuideGeometry.translate(1 / 2, 1 / 2, 1 / 2);
+
+    const drawGuideMaterial = new THREE.MeshBasicMaterial({ visible: false });
+
+    this.drawGuide = new THREE.Mesh(drawGuideGeometry, drawGuideMaterial);
+
+    // Setup cursor
+
     const offset = new THREE.Vector3();
-    const intersectables = [this.tool.drawGuide];
+    const intersectables = [this.drawGuide];
 
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
@@ -111,33 +103,28 @@ class DrawState extends ToolState {
 
     // Show and move draw guides
 
-    this.tool.drawGuide.visible = true;
-
     const scaledAnchor = anchor.multiplyScalar(PIXEL_SCALE);
     const absNormal = normal.multiply(normal);
 
-    this.tool.drawGuide.position.copy(absNormal).multiply(scaledAnchor);
-    this.tool.drawGuide.scale
+    this.drawGuide.position.copy(absNormal).multiply(scaledAnchor);
+    this.drawGuide.scale
       .copy(absNormal).subScalar(1).multiplyScalar(-1)
       .multiplyScalar(DESIGN_IMG_SIZE - 1).addScalar(1)
       .multiplyScalar(PIXEL_SCALE);
+    this.drawGuide.updateMatrixWorld(false);
 
     // Init cursor mesh
 
-    this.tool.cursorMesh.visible = true;
-    this.tool.cursorMesh.position.copy(scaledAnchor);
-    this.tool.setCursorSize(1, 1, 1);
+    this.tool.selectionBox.show(true);
+    this.tool.selectionBox.mesh.position.copy(scaledAnchor);
+    this.tool.selectionBox.resize(1, 1, 1);
 
     this.cursor.start();
   }
 
   onLeave() {
-    // Hide meshes.
-
-    this.tool.drawGuide.visible = false;
-
     this.cursor.stop();
-    this.tool.cursorMesh.visible = false;
+    this.tool.selectionBox.show(false);
   }
 
   handleMouseUp({ } : CursorEventParams) {
@@ -164,123 +151,17 @@ class DrawState extends ToolState {
 
     const displacement = position.sub(this.anchor);
 
-    this.tool.cursorMesh.position.set(
+    this.tool.selectionBox.mesh.position.set(
       this.anchor.x + Math.min(displacement.x, 0),
       this.anchor.y + Math.min(displacement.y, 0),
       this.anchor.z + Math.min(displacement.z, 0)
     ).multiplyScalar(PIXEL_SCALE);
 
-    this.tool.setCursorSize(
+    this.tool.selectionBox.resize(
       Math.abs(displacement.x) + 1,
       Math.abs(displacement.y) + 1,
       Math.abs(displacement.z) + 1
     );
-  }
-}
-
-interface RectangleToolProps {
-  color: Color;
-}
-
-class RectangleTool extends ModelEditorTool<RectangleToolProps, void, RectangleToolProps> {
-  drawGuideMaterial: THREE.MeshBasicMaterial;
-  drawGuide: THREE.Mesh;
-
-  cursorColor: THREE.Vector3;
-  cursorScale: THREE.Vector3;
-  cursorMesh: THREE.Mesh;
-
-  getToolType() { return ToolType.RECTANGLE; }
-
-  getTreeSchema(): Schema {
-    return {
-      type: SchemaType.OBJECT,
-      properties: {
-        color: {
-          type: SchemaType.ANY,
-        },
-      },
-    };
-  }
-
-  mapParamsToProps(state: ModelEditorState) {
-    return { color: state.common.paletteColor };
-  }
-
-  render() { return this.props; }
-
-  patch(diff: RectangleToolProps) {
-    this.setCursorColor(diff.color || this.props.color);
-  }
-
-  createGuideGeometry(width, height, depth) {
-    const geometry = new THREE.BoxGeometry(width, height, depth);
-    geometry.translate(width / 2, height / 2, depth / 2);
-    return geometry;
-  }
-
-  setCursorSize(width: number, height: number, depth: number) {
-    this.cursorScale.set(width, height, depth);
-    this.cursorMesh.scale.copy(this.cursorScale).multiplyScalar(PIXEL_SCALE);
-  }
-
-  setCursorColor(color: Color) {
-    this.cursorColor.set(color.r / 0xff, color.g / 0xff, color.b / 0xff);
-  }
-
-  onInit(params: InitParams) {
-    super.onInit(params);
-
-    // Setup cursor
-
-    const cursorGeometry = new THREE.BoxGeometry(1, 1, 1);
-    cursorGeometry.translate(0.5, 0.5, 0.5);
-
-    this.cursorColor = new THREE.Vector3();
-    this.cursorScale = new THREE.Vector3();
-    const cursorMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        color: { value: this.cursorColor },
-        scale: { value: this.cursorScale },
-        opacity: { type: 'f', value: 0.5 },
-      },
-      vertexShader: gridVertexShader,
-      fragmentShader: gridFragmentShader,
-      transparent: true,
-    });
-    cursorMaterial.extensions.derivatives = true;
-    this.cursorMesh = new THREE.Mesh(cursorGeometry, cursorMaterial);
-
-    // Setup draw guides
-
-    this.drawGuideMaterial = new THREE.MeshBasicMaterial({
-      visible: false,
-    });
-
-    const drawGuideGeometry = this.createGuideGeometry(1, 1, 1);
-    this.drawGuide = new THREE.Mesh(drawGuideGeometry, this.drawGuideMaterial);
-    this.drawGuide.visible = false;
-  }
-
-  createStates(): ToolStates {
-    return {
-      [STATE_WAIT]: new WaitState(this),
-      [STATE_DRAW]: new DrawState(this),
-    };
-  }
-
-  onStart() {
-    this.canvas.scene.add(this.cursorMesh);
-    this.canvas.scene.add(this.drawGuide);
-  }
-
-  onStop() {
-    this.canvas.scene.remove(this.cursorMesh);
-    this.canvas.scene.remove(this.drawGuide);
-  }
-
-  onDestroy() {
-
   }
 }
 
