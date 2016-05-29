@@ -281,7 +281,7 @@ class WaitState extends ToolState {
         tool.arrowY.cone,
         tool.arrowZ.cone,
       ],
-      onInteract: params => this.handleInteract(params),
+      onHit: params => this.handleHit(params),
       onMiss: () => this.handleMiss(),
       onMouseDown: params => this.handleMouseDown(params),
     });
@@ -295,7 +295,7 @@ class WaitState extends ToolState {
     this.tool.deactivateArrow();
   }
 
-  private handleInteract({ intersect }: CursorEventParams) {
+  private handleHit({ intersect }: CursorEventParams) {
     const cone = <THREE.Mesh>intersect.object;
     this.tool.activateArrow(cone);
   }
@@ -339,7 +339,7 @@ class DragState extends ToolState {
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
       getInteractables: () => intersectables,
-      onInteract: params => this.handleInteract(params),
+      onHit: params => this.handleHit(params),
       onMouseUp: () => this.handleMouseUp(),
     });
   }
@@ -361,7 +361,7 @@ class DragState extends ToolState {
     this.target.copy(this.origin);
   }
 
-  private handleInteract(params: CursorEventParams) {
+  private handleHit(params: CursorEventParams) {
     const position = this.cursor.getPosition();
 
     if (!position) return;

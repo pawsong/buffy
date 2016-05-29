@@ -31,7 +31,7 @@ class WaitState extends ToolState {
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
       getInteractables: () => [tool.canvas.component.modelMesh],
-      onInteract: params => this.handleInteract(params),
+      onHit: params => this.handleHit(params),
       onMiss: params => this.handleMiss(params),
       onTouchTap: params => this.handleTouchTap(params),
     });
@@ -50,7 +50,7 @@ class WaitState extends ToolState {
     this.tool.hideTooltip();
   }
 
-  handleInteract({ event, intersect }: CursorEventParams) {
+  handleHit({ event, intersect }: CursorEventParams) {
     const { face } = intersect;
     this.tool.showTooltip(event.offsetX, event.offsetY, multiplyColor(face.color));
   }

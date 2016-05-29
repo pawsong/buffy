@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import * as ndarray from 'ndarray';
-
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
 import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
@@ -44,14 +43,13 @@ interface BrushToolTree {
 }
 
 class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolTree> {
-  drawGuideMaterial: THREE.MeshBasicMaterial;
+  cursorMesh: THREE.Mesh;
   drawGuideX: THREE.Mesh;
   drawGuideY: THREE.Mesh;
   drawGuideZ: THREE.Mesh;
 
-  cursorColor: THREE.Vector3;
-  cursorScale: THREE.Vector3;
-  cursorMesh: THREE.Mesh;
+  private cursorColor: THREE.Vector3;
+  private cursorScale: THREE.Vector3;
 
   getToolType() { return ToolType.BRUSH; }
 
@@ -75,7 +73,9 @@ class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolTree> {
     };
   }
 
-  render() { return this.props; }
+  render() {
+    return this.props;
+  }
 
   patch(diff: BrushToolProps) {
     this.setCursorColor(diff.color || this.props.color);
@@ -118,9 +118,6 @@ class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolTree> {
   onInit(params: InitParams) {
     super.onInit(params);
 
-    this.dispatchAction = params.dispatchAction;
-    this.canvas = params.canvas;
-
     // Setup cursor
 
     const cursorGeometry = new THREE.BoxGeometry(1, 1, 1);
@@ -143,18 +140,18 @@ class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolTree> {
 
     // Setup draw guides
 
-    this.drawGuideMaterial = new THREE.MeshBasicMaterial({ visible: false });
+    const drawGuideMaterial = new THREE.MeshBasicMaterial({ visible: false });
 
     const drawGuideGeometryX = this.createGuideGeometry(DESIGN_IMG_SIZE, 1, 1);
-    this.drawGuideX = new THREE.Mesh(drawGuideGeometryX, this.drawGuideMaterial);
+    this.drawGuideX = new THREE.Mesh(drawGuideGeometryX, drawGuideMaterial);
     this.drawGuideX.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
 
     const drawGuideGeometryY = this.createGuideGeometry(1, DESIGN_IMG_SIZE, 1);
-    this.drawGuideY = new THREE.Mesh(drawGuideGeometryY, this.drawGuideMaterial);
+    this.drawGuideY = new THREE.Mesh(drawGuideGeometryY, drawGuideMaterial);
     this.drawGuideY.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
 
     const drawGuideGeometryZ = this.createGuideGeometry(1, 1, DESIGN_IMG_SIZE);
-    this.drawGuideZ = new THREE.Mesh(drawGuideGeometryZ, this.drawGuideMaterial);
+    this.drawGuideZ = new THREE.Mesh(drawGuideGeometryZ, drawGuideMaterial);
     this.drawGuideZ.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
   }
 
@@ -240,7 +237,7 @@ class DrawState extends ToolState {
         PIXEL_SCALE_HALF * (1 - 2 * normal.z)
       ),
       onMouseUp: params => this.handleMouseUp(params),
-      onInteract : params => this.handleInteract(params),
+      onHit: params => this.handleHit(params),
     });
 
     this.anchor = new THREE.Vector3();
@@ -291,7 +288,7 @@ class DrawState extends ToolState {
     this.transitionTo(STATE_WAIT);
   }
 
-  handleInteract({ } : CursorEventParams) {
+  handleHit({ } : CursorEventParams) {
     const position = this.cursor.getPosition();
     if (!position) return;
 

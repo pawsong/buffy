@@ -28,7 +28,7 @@ interface CursorOptions {
   getOffset?: (normal: THREE.Vector3) => THREE.Vector3;
   hitTest?: (intersect: THREE.Intersection, meshPosition: THREE.Vector3) => boolean;
 
-  onInteract?: (params: CursorEventParams) => any;
+  onHit?: (params: CursorEventParams) => any;
   onMiss?: (params: CursorEventParams) => any;
   onTouchTap?: (params: CursorEventParams) => any;
   onMouseDown?: (params: CursorEventParams) => any;
@@ -52,7 +52,7 @@ class Cursor {
 
   private getIntractables: () => THREE.Object3D[];
   private getCursorOffset: (normal: THREE.Vector3) => THREE.Vector3;
-  private onInteract: (params: CursorEventParams) => any;
+  private onHit: (params: CursorEventParams) => any;
   private onMiss: (params: CursorEventParams) => any;
   private onMouseDown: (params: CursorEventParams) => any;
   private onMouseUp: (params: CursorEventParams) => any;
@@ -84,7 +84,7 @@ class Cursor {
       scale,
       getOffset,
       getInteractables,
-      onInteract,
+      onHit,
       onMiss,
       onTouchTap,
       onMouseDown,
@@ -126,7 +126,7 @@ class Cursor {
     }
 
     this.getIntractables = getInteractables || (() => []);
-    this.onInteract = onInteract || (() => {});
+    this.onHit = onHit || (() => {});
     this.onMiss = onMiss || (() => {});
     this.hitTest = hitTest || (() => true);
     this.onCursorShow = onCursorShow || (visible => this.mesh.visible = visible);
@@ -223,7 +223,7 @@ class Cursor {
     const intersect = this.getCanvasPositionFromMouseEvent(event, this.mesh.position);
     if (intersect) {
       if (!this.mesh.visible) this.onCursorShow(true);
-      this.onInteract({ event, intersect });
+      this.onHit({ event, intersect });
       return true;
     } else {
       if (this.mesh.visible) this.onCursorShow(false);

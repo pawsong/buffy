@@ -127,7 +127,7 @@ class DragState extends ToolState {
         PIXEL_SCALE_HALF * (1 - 2 * normal.z)
       ),
       getInteractables: () => [tool.canvas.component.modelMesh],
-      onInteract: params => this.handleInteract(params),
+      onHit: params => this.handleHit(params),
       onMouseUp: params => this.handleMouseUp(params),
     });
   }
@@ -137,7 +137,7 @@ class DragState extends ToolState {
     this.cursor.start(event);
   }
 
-  handleInteract({ intersect }: CursorEventParams) {
+  handleHit({ intersect }: CursorEventParams) {
     const position = this.cursor.getPosition();
     if (!position) return;
 

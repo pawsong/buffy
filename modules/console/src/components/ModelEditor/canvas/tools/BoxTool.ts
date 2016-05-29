@@ -92,7 +92,7 @@ class DrawState extends ToolState {
 
   private targetStep2: number;
 
-  private handleInteract: (params: CursorEventParams) => any;
+  private handleHit: (params: CursorEventParams) => any;
   private handleMouseUp: (params: CursorEventParams) => any;
 
   private temp1: THREE.Vector3;
@@ -114,7 +114,7 @@ class DrawState extends ToolState {
         PIXEL_SCALE_HALF * (1 - 2 * normal.y),
         PIXEL_SCALE_HALF * (1 - 2 * normal.z)
       ),
-      onInteract: params => this.handleInteract(params),
+      onHit: params => this.handleHit(params),
       onMouseUp: params => this.handleMouseUp(params),
     });
 
@@ -139,7 +139,7 @@ class DrawState extends ToolState {
     document.addEventListener('keydown', this.handleKeyDown, false);
 
     // Init handlers
-    this.handleInteract = this.handleInteractInStep1;
+    this.handleHit = this.handleHitInStep1;
     this.handleMouseUp = this.handleMouseUpInStep1;
 
     // Init data
@@ -177,7 +177,7 @@ class DrawState extends ToolState {
 
   /* Step 1: Get values for surface */
 
-  handleInteractInStep1 = ({ } : CursorEventParams) => {
+  handleHitInStep1 = ({ } : CursorEventParams) => {
     const position = this.cursor.getPosition();
     if (!position) return;
 
@@ -225,13 +225,13 @@ class DrawState extends ToolState {
     this.anchor2 = this.target2 = this.target.dot(this.normal);
 
     // Transition to Step 2
-    this.handleInteract = this.handleInteractInStep2;
+    this.handleHit = this.handleHitInStep2;
     this.handleMouseUp = this.handleMouseUpInStep2;
   }
 
   /* Step 2: Get value for normal direction */
 
-  handleInteractInStep2 = ({ } : CursorEventParams) => {
+  handleHitInStep2 = ({ } : CursorEventParams) => {
     const position = this.cursor.getPosition();
     if (!position) return;
 

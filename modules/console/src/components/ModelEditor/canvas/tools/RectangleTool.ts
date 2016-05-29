@@ -96,7 +96,7 @@ class DrawState extends ToolState {
         PIXEL_SCALE_HALF * (1 - 2 * normal.z)
       ),
       onMouseUp: params => this.handleMouseUp(params),
-      onInteract : params => this.handleInteract(params),
+      onHit : params => this.handleHit(params),
     });
 
     this.anchor = new THREE.Vector3();
@@ -155,7 +155,7 @@ class DrawState extends ToolState {
     this.transitionTo(STATE_WAIT);
   }
 
-  handleInteract({ } : CursorEventParams) {
+  handleHit({ } : CursorEventParams) {
     const position = this.cursor.getPosition();
     if (!position) return;
 
