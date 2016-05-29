@@ -187,8 +187,8 @@ class Cursor {
 
   private getIntersect(event: MouseEvent) {
     this.raycaster.setFromCamera({
-      x: (event.offsetX / this.canvas.container.offsetWidth) * 2 - 1,
-      y: -(event.offsetY / this.canvas.container.offsetHeight) * 2 + 1,
+      x: (event.offsetX / this.canvas.container.clientWidth) * 2 - 1,
+      y: -(event.offsetY / this.canvas.container.clientHeight) * 2 + 1,
     }, this.canvas.camera);
 
     const intersects = this.raycaster.intersectObjects(this.getIntractables(), this.intersectRecursively);

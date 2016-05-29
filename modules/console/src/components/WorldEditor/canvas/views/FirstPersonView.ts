@@ -28,7 +28,7 @@ class FirstPersonView implements View {
     // Init camera
     const camera = new THREE.PerspectiveCamera(
       90,
-      this.container.offsetWidth / this.container.offsetHeight,
+      this.container.clientWidth / this.container.clientHeight,
       0.001,
       700
     );
@@ -141,7 +141,7 @@ class FirstPersonView implements View {
   }
 
   onResize(): void {
-    this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
+    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
     this.camera.updateProjectionMatrix();
   }
 

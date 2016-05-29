@@ -28,14 +28,14 @@ class CardboardZoneCanvas extends ZoneCanvas {
   // }
 
   initCamera() {
-    const camera = new THREE.PerspectiveCamera(90, this.container.offsetWidth / this.container.offsetHeight, 0.001, 700);
+    const camera = new THREE.PerspectiveCamera(90, this.container.clientWidth / this.container.clientHeight, 0.001, 700);
     // camera.position.set(0, 15, 0);
     return camera;
   }
 
   onWindowResize() {
-    const width = this.container.offsetWidth;
-    const height = this.container.offsetHeight;
+    const width = this.container.clientWidth;
+    const height = this.container.clientHeight;
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);

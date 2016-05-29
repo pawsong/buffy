@@ -25,7 +25,7 @@ class BirdsEyeView implements View {
 
     // Init camera
     const camera = new THREE.PerspectiveCamera(
-      40, container.offsetWidth / container.offsetHeight, 1, 10000
+      40, container.clientWidth / container.clientHeight, 1, 10000
     );
     camera.position.x = radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360);
     camera.position.z = radius * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360);
@@ -98,7 +98,7 @@ class BirdsEyeView implements View {
   }
 
   onResize(): void {
-    this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
+    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
     this.camera.updateProjectionMatrix();
   }
 

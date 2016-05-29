@@ -235,7 +235,7 @@ class WorldEditorCanvas extends ZoneCanvas {
 
   onWindowResize() {
     this.view.onResize();
-    this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
+    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
     this.render();
   }
 
