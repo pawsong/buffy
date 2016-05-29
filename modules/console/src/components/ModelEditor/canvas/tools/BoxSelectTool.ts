@@ -37,13 +37,6 @@ const gridFragmentShader5 = require('raw!../shaders/grid5.frag');
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
-const STATE_ROTATE = 'rotate';
-
-class RotateState extends ToolState {
-  private _onMouseUp = () => this.transitionTo(STATE_WAIT);
-  onEnter() { document.addEventListener('mouseup', this._onMouseUp, false); }
-  onLeave() { document.removeEventListener('mouseup', this._onMouseUp, false); }
-}
 
 interface DrawEnterParams {
   anchor: THREE.Vector3;
@@ -75,8 +68,6 @@ class WaitState extends ToolState {
         anchor: position,
         normal: intersect.face.normal,
       });
-    } else {
-      this.transitionTo(STATE_ROTATE);
     }
   }
 
@@ -156,10 +147,6 @@ class DrawState extends ToolState {
 
   onEnter({ anchor, normal }: DrawEnterParams) {
     document.addEventListener('keydown', this.handleKeyDown, false);
-
-    // Disable rotation.
-
-    this.canvas.controls.enableRotate = false;
 
     // Init handlers
     this.handleInteract = this.handleInteractInStep1;
@@ -294,10 +281,6 @@ class DrawState extends ToolState {
   onLeave() {
     document.removeEventListener('keydown', this.handleKeyDown, false);
 
-    // Enable rotation.
-
-    this.canvas.controls.enableRotate = true;
-
     // Hide meshes.
 
     this.tool.drawGuide.visible = false;
@@ -408,12 +391,10 @@ class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, BoxSelectT
     // Setup states
 
     const wait = new WaitState(this);
-    const rotate = new RotateState();
     const draw = new DrawState(this, params.canvas, params.dispatchAction);
 
     return {
       [STATE_WAIT]: wait,
-      [STATE_ROTATE]: rotate,
       [STATE_DRAW]: draw,
     };
   }

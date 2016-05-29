@@ -402,20 +402,58 @@ class ModelEditorCanvas extends Canvas {
       this.scene.add(axisHelper);
     }
 
-    this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.maxDistance = 4000;
-    this.controls.enableKeys = false;
-    this.controls.target.set(
-      DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
-      DESIGN_IMG_SIZE * PIXEL_SCALE / 4,
-      DESIGN_IMG_SIZE * PIXEL_SCALE / 2
-    );
-    // add this only if there is no animation loop (requestAnimationFrame)
-    this.controls.addEventListener('change', () => this.render());
-
     this.tool = this.getTool(this.state.common.selectedTool);
     const props = this.tool.mapParamsToProps(this.state);
     this.tool.start(props);
+
+    this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.mouseButtons.ORBIT = THREE.MOUSE.RIGHT;
+    this.controls.maxDistance = 4000;
+    this.controls.enableKeys = false;
+    this.controls.enablePan = false;
+    this.controls.target.set(
+      DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
+      DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
+      DESIGN_IMG_SIZE * PIXEL_SCALE / 2
+    );
+
+    // Controls emits too many events at the same frame.
+    // This is a sort of debouncer.
+    let controlsRef = 0;
+    const updateControlsState = (() => {
+      let controlsHasStarted = false;
+      let controlsUpdateTimeout;
+
+      const update = () => {
+        if (controlsRef > 0) {
+          if (!controlsHasStarted) {
+            controlsHasStarted = true;
+            this.tool.pause();
+          }
+        } else {
+          if (controlsHasStarted) {
+            controlsHasStarted = false;
+            this.tool.resume();
+          }
+        }
+      };
+
+      return () => {
+        clearTimeout(controlsUpdateTimeout);
+        controlsUpdateTimeout = setTimeout(update, 0);
+      };
+    })();
+
+    // add this only if there is no animation loop (requestAnimationFrame)
+    this.controls.addEventListener('change', () => this.render());
+    this.controls.addEventListener('start', () => {
+      controlsRef++;
+      updateControlsState();
+    });
+    this.controls.addEventListener('end', () => {
+      controlsRef--;
+      updateControlsState();
+    });
 
     this.controls.update();
 

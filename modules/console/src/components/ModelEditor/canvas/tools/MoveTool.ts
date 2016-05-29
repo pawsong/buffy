@@ -40,7 +40,6 @@ import * as ndarray from 'ndarray';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
-const STATE_ROTATE = 'rotate';
 
 interface MaterialToRestore {
   material: THREE.MeshBasicMaterial;
@@ -205,13 +204,11 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     this.arrowScene.add(this.arrowZ);
 
     const wait = new WaitState(this, params.canvas);
-    const rotate = new RotateState();
     const drag = new DragState(this, params.canvas);
 
     return {
       [STATE_WAIT]: wait,
       [STATE_DRAG]: drag,
-      [STATE_ROTATE]: rotate,
     };
   }
 
@@ -336,7 +333,6 @@ class WaitState extends ToolState {
       this.transitionTo(STATE_DRAG, event);
     } else {
       if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
-      this.transitionTo(STATE_ROTATE);
     }
   }
 
@@ -380,8 +376,6 @@ class DragState extends ToolState {
   }
 
   onEnter(event: MouseEvent) {
-    this.canvas.controls.enableRotate = false;
-
     const boundingBox = this.canvas.component.fragmentBoundingBox;
 
     if (!this.tool.props.fragment) {
@@ -437,16 +431,8 @@ class DragState extends ToolState {
   }
 
   onLeave() {
-    this.canvas.controls.enableRotate = true;
-
     this.cursor.stop();
   }
-}
-
-class RotateState extends ToolState {
-  handleMouseUp = () => this.transitionTo(STATE_WAIT)
-  onEnter() { document.addEventListener('mouseup', this.handleMouseUp, false); }
-  onLeave() { document.removeEventListener('mouseup', this.handleMouseUp, false); }
 }
 
 export default MoveTool;

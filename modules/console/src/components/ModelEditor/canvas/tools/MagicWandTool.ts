@@ -29,7 +29,6 @@ import {
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
-const STATE_ROTATE = 'rotate';
 
 interface MagicWandToolProps {
   selection: any;

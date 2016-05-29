@@ -38,13 +38,6 @@ const gridFragmentShader = require('raw!../shaders/grid2.frag');
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
-const STATE_ROTATE = 'rotate';
-
-class RotateState extends ToolState {
-  _onMouseUp = () => this.transitionTo(STATE_WAIT);
-  onEnter() { document.addEventListener('mouseup', this._onMouseUp, false); }
-  onLeave() { document.removeEventListener('mouseup', this._onMouseUp, false); }
-}
 
 class WaitState extends ToolState {
   cursor: Cursor;
@@ -78,11 +71,7 @@ class WaitState extends ToolState {
     if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
 
     const position = this.cursor.getPosition();
-    if (position) {
-      this.transitionTo(STATE_DRAW, position);
-    } else {
-      this.transitionTo(STATE_ROTATE);
-    }
+    if (position) this.transitionTo(STATE_DRAW, position);
   }
 
   onEnter() {
@@ -130,10 +119,6 @@ class DrawState extends ToolState {
   }
 
   onEnter(cursorPosition: THREE.Vector3) {
-    // Disable rotation.
-
-    this.canvas.controls.enableRotate = false;
-
     // Init data
 
     this.anchor.copy(cursorPosition);
@@ -160,10 +145,6 @@ class DrawState extends ToolState {
   }
 
   onLeave() {
-    // Enable rotation.
-
-    this.canvas.controls.enableRotate = true;
-
     // Hide meshes.
 
     this.tool.drawGuideX.visible = false;
@@ -317,12 +298,10 @@ class BrushTool extends ModelEditorTool<BrushToolProps, void, BrushToolTree> {
     // Setup states
 
     const wait = new WaitState(this);
-    const rotate = new RotateState();
     const draw = new DrawState(this, params.canvas);
 
     return {
       [STATE_WAIT]: wait,
-      [STATE_ROTATE]: rotate,
       [STATE_DRAW]: draw,
     };
   }

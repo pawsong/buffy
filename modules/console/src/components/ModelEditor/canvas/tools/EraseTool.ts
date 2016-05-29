@@ -27,13 +27,6 @@ import {
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
-const STATE_ROTATE = 'rotate';
-
-class RotateState extends ToolState {
-  handleMouseUp = () => this.transitionTo(STATE_WAIT)
-  onEnter() { document.addEventListener('mouseup', this.handleMouseUp, false); }
-  onLeave() { document.removeEventListener('mouseup', this.handleMouseUp, false); }
-}
 
 class WaitState extends ToolState {
   cursor: Cursor;
@@ -65,8 +58,6 @@ class WaitState extends ToolState {
   handleMouseDown({ event, intersect }: CursorEventParams) {
     if (intersect) {
       this.transitionTo(STATE_DRAG, event);
-    } else {
-      this.transitionTo(STATE_ROTATE);
     }
   }
 
@@ -110,8 +101,6 @@ class DragState extends ToolState {
   }
 
   onEnter(event: MouseEvent) {
-    this.canvas.controls.enableRotate = false;
-
     this.selectedVoxels = {};
     this.cursor.start(event);
   }
@@ -143,8 +132,6 @@ class DragState extends ToolState {
   }
 
   onLeave() {
-    this.canvas.controls.enableRotate = true;
-
     this.cursor.stop();
 
     Object.keys(this.selectedVoxels).forEach(key => {
@@ -170,13 +157,11 @@ class EraseTool extends ModelEditorTool<void, void, void> {
     });
 
     const wait = new WaitState(this, params.canvas);
-    const rotate = new RotateState();
     const drag = new DragState(this, params.canvas, params.dispatchAction);
 
     return {
       [STATE_WAIT]: wait,
       [STATE_DRAG]: drag,
-      [STATE_ROTATE]: rotate,
     };
   }
 
