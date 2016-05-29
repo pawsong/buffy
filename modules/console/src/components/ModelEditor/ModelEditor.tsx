@@ -15,7 +15,7 @@ import { EventEmitter, EventSubscription } from 'fbemitter';
 const objectAssign = require('object-assign');
 import * as invariant from 'invariant';
 import RaisedButton from 'material-ui/lib/raised-button';
-import { reset } from '@pasta/helper/lib/undoable';
+import { reset, undo, redo } from '@pasta/helper/lib/undoable';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 
@@ -142,12 +142,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     };
   }
 
-  private keyPressed = {};
-
   private handleKeyDown = (e: KeyboardEvent) => {
-    if (this.keyPressed[e.keyCode]) return;
-    this.keyPressed[e.keyCode] = true;
-
     switch(e.keyCode) {
       case 8: // Backspace
       case 46: // delete
@@ -157,11 +152,33 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
       }
     }
-  };
 
-  private handleKeyUp = (e: KeyboardEvent) => {
-    this.keyPressed[e.keyCode] = false;
-  }
+    if (e.ctrlKey || e.metaKey) {
+      if (e.shiftKey) {
+        // CTRL or COMMAND + SHIFT
+
+        switch(e.keyCode) {
+          case 90: // Z
+          {
+            if (this.props.fileState.future.length > 0) {
+              this.dispatchAction(redo());
+            }
+          }
+        }
+      } else {
+        // CTRL or COMMAND
+
+        switch(e.keyCode) {
+          case 90: // Z
+          {
+            if (this.props.fileState.past.length > 0) {
+              this.dispatchAction(undo());
+            }
+          }
+        }
+      }
+    }
+  };
 
   componentDidMount() {
     this.canvas = new ModelEditorCanvas({
@@ -173,7 +190,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.canvas.init();
 
     document.addEventListener('keydown', this.handleKeyDown, false);
-    document.addEventListener('keyup', this.handleKeyUp, false);
   }
 
   componentDidUpdate(prevProps: ModelEditorProps) {
@@ -195,7 +211,6 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   componentWillUnmount() {
     this.canvas.destroy();
     document.removeEventListener('keydown', this.handleKeyDown, false);
-    document.removeEventListener('keyup', this.handleKeyUp, false);
   }
 
   selectTool = (selectedTool: ToolType) => this.dispatchAction(changeTool(selectedTool));
