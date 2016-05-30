@@ -16,6 +16,7 @@ import {
 
 import {
   voxelSelectBox,
+  voxelClearSelection,
   voxelMergeFragment,
 } from '../../actions';
 
@@ -58,6 +59,7 @@ class EdgesSelectionBox extends SelectionBox {
 }
 
 interface BoxSelectToolProps {
+  selection: ndarray.Ndarray;
   fragment: ndarray.Ndarray;
 }
 
@@ -68,6 +70,7 @@ class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, void> {
 
   mapParamsToProps(state: ModelEditorState) {
     return {
+      selection: state.file.present.data.selection,
       fragment: state.file.present.data.fragment,
     };
   }
@@ -135,8 +138,12 @@ class WaitState extends CursorState<EnterParams> {
     };
   }
 
-  onMouseDown() {
+  onMouseDown(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
     if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
+
+    if (!position && this.tool.props.selection) {
+      this.tool.dispatchAction(voxelClearSelection());
+    }
   }
 
   onEnter() {
