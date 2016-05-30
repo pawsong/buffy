@@ -15,7 +15,7 @@ import ModelEditorTool, {
   ToolState, ToolStates,
 } from './ModelEditorTool';
 
-import BoundingBoxEdgesHelper from '../helpers/BoundingBoxEdgesHelper';
+import BoundingBoxEdgesHelper from '../objects/BoundingBoxEdgesHelper';
 
 const fragmentVertexShader = require('raw!../shaders/fragment.vert');
 const fragmentFragmentShader = require('raw!../shaders/fragment.frag');

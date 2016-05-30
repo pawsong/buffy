@@ -21,7 +21,7 @@ import { createGeometryFromMesh } from '../../../canvas/utils';
 import Canvas from '../../../canvas/Canvas';
 import mesher from '../../../canvas/meshers/greedy';
 
-import BoundingBoxEdgesHelper from './helpers/BoundingBoxEdgesHelper';
+import BoundingBoxEdgesHelper from './objects/BoundingBoxEdgesHelper';
 
 import {
   PIXEL_SCALE,
