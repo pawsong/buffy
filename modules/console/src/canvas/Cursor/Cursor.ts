@@ -247,6 +247,9 @@ class Cursor {
 
   private _onMouseDown = (event: MouseEvent) => {
     event.preventDefault();
+
+    if (event.which !== 1) return;
+
     const intersect = this.getIntersect(event);
 
     // TODO: Touch device support.
@@ -257,6 +260,9 @@ class Cursor {
 
   private _onMouseUp = (event: MouseEvent) => {
     event.preventDefault();
+
+    if (event.which !== 1) return;
+
     const intersect = this.getIntersect(event);
 
     // TODO: Touch device support.
