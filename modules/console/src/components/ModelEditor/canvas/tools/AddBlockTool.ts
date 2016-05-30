@@ -30,6 +30,8 @@ import SelectionBox from '../objects/SelectionBox';
 const gridVertexShader = require('raw!../shaders/grid2.vert');
 const gridFragmentShader = require('raw!../shaders/grid2.frag');
 
+import CursorState from './states/CursorState';
+
 class GridSelectionBox extends SelectionBox {
   color: THREE.Vector3;
   scale: THREE.Vector3;
@@ -120,54 +122,30 @@ abstract class AddBlockTool extends ModelEditorTool<AddBlockToolProps, void, Add
   }
 }
 
-abstract class AddBlockToolWaitState<T> extends ToolState {
-  cursor: Cursor;
-
-  private drawState: string;
-
-  abstract getDrawStateName(): string;
-  abstract getDrawStateParams(intersect: THREE.Intersection, position: THREE.Vector3): T;
-
+abstract class AddBlockToolWaitState<T> extends CursorState<T> {
   constructor(protected tool: AddBlockTool) {
-    super();
-    this.drawState = this.getDrawStateName();
-
-    const position = new THREE.Vector3();
-
-    this.cursor = new Cursor(tool.canvas, {
-      mesh: tool.selectionBox.mesh,
-      offset: [0, 0, 0],
+    super(tool.canvas, {
+      cursorOnFace: true,
+      cursorMesh: tool.selectionBox.mesh,
       getInteractables: () => [
-        this.tool.canvas.plane,
-        this.tool.canvas.component.modelMesh,
-        this.tool.canvas.component.fragmentMesh,
+        tool.canvas.plane,
+        tool.canvas.component.modelMesh,
+        tool.canvas.component.fragmentMesh,
       ],
-      hitTest: (intersect, meshPosition) => {
-        Cursor.getDataPosition(meshPosition, position);
-        return (
-             position.x >= 0 && position.x < DESIGN_IMG_SIZE
-          && position.y >= 0 && position.y < DESIGN_IMG_SIZE
-          && position.z >= 0 && position.z < DESIGN_IMG_SIZE
-        );
-      },
-      onMouseDown: params => this.handleMouseDown(params),
     });
   }
 
-  handleMouseDown({ event, intersect }: CursorEventParams) {
+  onMouseDown() {
     if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
-
-    const position = this.cursor.getPosition();
-    if (position) this.transitionTo(this.drawState, this.getDrawStateParams(intersect, position));
   }
 
   onEnter() {
     this.tool.selectionBox.resize(1, 1, 1);
-    this.cursor.start();
+    super.onEnter();
   }
 
   onLeave() {
-    this.cursor.stop();
+    super.onLeave();
     this.tool.selectionBox.show(false);
   }
 }

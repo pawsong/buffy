@@ -11,18 +11,22 @@ import ModelEditorTool, {
 import {
   ToolType,
   Volumn,
+  ModelEditorState,
 } from '../../types';
 
 import {
   voxelSelectBox,
+  voxelMergeFragment,
 } from '../../actions';
 
 import {
   PIXEL_SCALE,
 } from '../../../../canvas/Constants';
 
-import SelectionBox from '../objects/SelectionBox';
+import CursorState from './states/CursorState';
 import SelectBoxState, { EnterParams } from './states/SelectBoxState';
+
+import SelectionBox from '../objects/SelectionBox';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
@@ -53,10 +57,20 @@ class EdgesSelectionBox extends SelectionBox {
   }
 }
 
-class BoxSelectTool extends ModelEditorTool<void, void, void> {
+interface BoxSelectToolProps {
+  fragment: ndarray.Ndarray;
+}
+
+class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, void> {
   selectionBox: EdgesSelectionBox;
 
   getToolType() { return ToolType.BOX_SELECT; }
+
+  mapParamsToProps(state: ModelEditorState) {
+    return {
+      fragment: state.file.present.data.fragment,
+    };
+  }
 
   onInit(params: InitParams) {
     super.onInit(params);
@@ -85,41 +99,38 @@ class BoxSelectTool extends ModelEditorTool<void, void, void> {
   }
 }
 
-class WaitState extends ToolState {
-  cursor: Cursor;
-
+class WaitState extends CursorState<EnterParams> {
   constructor(private tool: BoxSelectTool) {
-    super();
-
-    this.cursor = new Cursor(tool.canvas, {
-      mesh: tool.selectionBox.mesh,
-      offset: [0, 0, 0],
+    super(tool.canvas, {
+      cursorOnFace: false,
+      cursorMesh: tool.selectionBox.mesh,
       getInteractables: () => [
-        this.tool.canvas.plane,
-        this.tool.canvas.component.modelMesh,
+        tool.canvas.plane,
+        tool.canvas.component.modelMesh,
+        tool.canvas.component.fragmentMesh,
       ],
-      onCursorShow: visible => tool.selectionBox.show(visible),
-      onMouseDown: params => this.handleMouseDown(params),
     });
   }
 
-  handleMouseDown({ event, intersect }: CursorEventParams) {
-    const position = this.cursor.getPosition();
-    if (position) {
-      this.transitionTo(STATE_DRAW, <EnterParams>{
-        anchor: position,
-        normal: intersect.face.normal,
-      });
-    }
+  getNextStateName() { return STATE_DRAW; }
+  getNextStateParams(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
+    return {
+      anchor: position,
+      normal: intersect.face.normal,
+    };
+  }
+
+  onMouseDown() {
+    if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
   }
 
   onEnter() {
     this.tool.selectionBox.resize(1, 1, 1);
-    this.cursor.start();
+    super.onEnter();
   }
 
   onLeave() {
-    this.cursor.stop();
+    super.onLeave();
     this.tool.selectionBox.show(false);
   }
 }

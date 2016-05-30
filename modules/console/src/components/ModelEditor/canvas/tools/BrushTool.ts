@@ -37,8 +37,8 @@ class BrushTool extends AddBlockTool {
 }
 
 class WaitState extends AddBlockToolWaitState<THREE.Vector3> {
-  getDrawStateName() { return STATE_DRAW; }
-  getDrawStateParams(intersect: THREE.Intersection, position: THREE.Vector3) {
+  getNextStateName() { return STATE_DRAW; }
+  getNextStateParams(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
     return position;
   }
 }

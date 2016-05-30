@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as Immutable from 'immutable';
 
+import CursorState from './states/CursorState';
 import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
 import {
   PIXEL_SCALE,
@@ -30,6 +31,7 @@ interface MagicWandToolProps {
 }
 
 class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
+  cursorGeometry: THREE.Geometry;
   translucentMaterial: THREE.Material;
 
   getToolType(): ToolType { return ToolType.MAGIC_WAND; }
@@ -42,6 +44,9 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
 
   onInit(params: InitParams) {
     super.onInit(params);
+
+    this.cursorGeometry = new THREE.BoxGeometry(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    this.cursorGeometry.translate(PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF);
 
     this.translucentMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,
@@ -63,41 +68,22 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
   }
 }
 
-class WaitState extends ToolState {
-  cursor: Cursor;
-
+class WaitState extends CursorState<void> {
   constructor(private tool: MagicWandTool) {
-    super();
-    const offset = new THREE.Vector3();
-
-    this.cursor = new Cursor(tool.canvas, {
+    super(tool.canvas, {
+      cursorOnFace: false,
       getInteractables: () => [tool.canvas.component.modelMesh],
-      geometry: tool.canvas.cubeGeometry,
-      material: tool.translucentMaterial,
-      getOffset: normal => offset.set(
-        PIXEL_SCALE_HALF * (1 - 2 * normal.x),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.y),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.z)
-      ),
-      onMouseDown: params => this.handleMouseDown(params),
+      cursorGeometry: tool.cursorGeometry,
+      cursorMaterial: tool.translucentMaterial,
     });
   }
 
-  onEnter(event?: MouseEvent) {
-    this.cursor.start(event);
-  }
-
-  handleMouseDown({ event, intersect }: CursorEventParams) {
-    const position = this.cursor.getPosition();
+  onMouseDown(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
     if (position) {
       this.tool.dispatchAction(voxelMaginWand(position.x, position.y, position.z));
     } else {
       if (this.tool.props.selection) this.tool.dispatchAction(voxelClearSelection());
     }
-  }
-
-  onLeave() {
-    this.cursor.stop();
   }
 }
 

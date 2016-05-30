@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 
-import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
-
-import SelectTraceState from './states/SelectTraceState';
+import CursorState from './states/CursorState';
+import SelectTraceState, { StateEnterParams } from './states/SelectTraceState';
 
 import {
   PIXEL_SCALE,
@@ -28,12 +27,16 @@ const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
 
 class EraseTool extends ModelEditorTool<void, void, void> {
+  cursorGeometry: THREE.Geometry;
   translucentMaterial: THREE.Material;
 
   getToolType(): ToolType { return ToolType.ERASE; }
 
   onInit(params: InitParams) {
     super.onInit(params);
+
+    this.cursorGeometry = new THREE.BoxGeometry(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    this.cursorGeometry.translate(PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF);
 
     this.translucentMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,
@@ -56,49 +59,25 @@ class EraseTool extends ModelEditorTool<void, void, void> {
   }
 }
 
-class WaitState extends ToolState {
-  cursor: Cursor;
-
-  constructor(private tool: EraseTool) {
-    super();
-
-    const offset = new THREE.Vector3();
-    const position = new THREE.Vector3();
-
-    this.cursor = new Cursor(tool.canvas, {
-      geometry: this.tool.canvas.cubeGeometry,
-      material: this.tool.translucentMaterial,
-      getOffset: normal => offset.set(
-        PIXEL_SCALE_HALF * (1 - 2 * normal.x),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.y),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.z)
-      ),
+class WaitState extends CursorState<StateEnterParams> {
+  constructor(tool: EraseTool) {
+    super(tool.canvas, {
+      cursorOnFace: false,
+      cursorGeometry: tool.cursorGeometry,
+      cursorMaterial: tool.translucentMaterial,
       getInteractables: () => [
-        this.tool.canvas.component.modelMesh,
-        this.tool.canvas.component.fragmentMesh,
+        tool.canvas.component.modelMesh,
+        tool.canvas.component.fragmentMesh,
       ],
-      hitTest: (intersect, meshPosition) => {
-        Cursor.getDataPosition(meshPosition, position);
-        return (
-             position.x >= 0 && position.x < DESIGN_IMG_SIZE
-          && position.y >= 0 && position.y < DESIGN_IMG_SIZE
-          && position.z >= 0 && position.z < DESIGN_IMG_SIZE
-        );
-      },
-      onMouseDown: params => this.handleMouseDown(params),
+      transitionRequiresHit: false,
     });
   }
 
-  onEnter(event?: MouseEvent) {
-    this.cursor.start(event);
-  }
+  getNextStateName() { return STATE_DRAG; }
+  getNextStateParams(event: MouseEvent) { return event; }
 
-  handleMouseDown({ event, intersect }: CursorEventParams) {
-    this.transitionTo(STATE_DRAG, event);
-  }
+  onMouseDown() {
 
-  onLeave() {
-    this.cursor.stop();
   }
 }
 

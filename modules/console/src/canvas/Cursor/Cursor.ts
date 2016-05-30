@@ -15,6 +15,8 @@ export interface CursorEventParams {
 }
 
 interface CursorOptions {
+  cursorOnFace?: boolean;
+
   visible?: boolean;
   intersectRecursively?: boolean;
   mesh?: THREE.Mesh;
@@ -41,6 +43,14 @@ class Cursor {
     return out.copy(meshPosition).divideScalar(PIXEL_SCALE).floor();
   }
 
+  private static getCursorPositionOnFace(intersect: THREE.Intersection, out: THREE.Vector3) {
+    out.copy(intersect.point).add(intersect.face.normal);
+  }
+
+  private static getCursorPositionUnderFace(intersect: THREE.Intersection, out: THREE.Vector3) {
+    out.copy(intersect.point).sub(intersect.face.normal);
+  }
+
   private canvasPosition: THREE.Vector3;
 
   private mesh: THREE.Mesh;
@@ -63,36 +73,36 @@ class Cursor {
   private visible: boolean;
   private externalMesh: boolean;
 
+  private getCursorPostionFromIntersect: (intersect: THREE.Intersection, out: THREE.Vector3) => any;
   private render: () => any;
 
   private missHaveToRenderer: boolean;
 
-  constructor(canvas: Canvas, options: CursorOptions) {
+  constructor(canvas: Canvas, {
+    cursorOnFace,
+    visible,
+    intersectRecursively,
+    mesh,
+    geometry,
+    material,
+    offset,
+    scale,
+    getOffset,
+    getInteractables,
+    onHit,
+    onMiss,
+    onTouchTap,
+    onMouseDown,
+    onMouseUp,
+    onCursorShow,
+    hitTest,
+    renderOnUpdate,
+  }: CursorOptions) {
     this.canvasPosition = new THREE.Vector3();
     this.position = new THREE.Vector3();
     this.raycaster = new THREE.Raycaster();
 
     this.canvas = canvas;
-
-    const {
-      visible,
-      intersectRecursively,
-      mesh,
-      geometry,
-      material,
-      offset,
-      scale,
-      getOffset,
-      getInteractables,
-      onHit,
-      onMiss,
-      onTouchTap,
-      onMouseDown,
-      onMouseUp,
-      onCursorShow,
-      hitTest,
-      renderOnUpdate,
-    } = options;
 
     this.visible = visible !== false;
 
@@ -136,6 +146,12 @@ class Cursor {
     this.onTouchTap = onTouchTap || null;
 
     this.render = renderOnUpdate !== false ? () => this.canvas.render() : () => {};
+
+    if (cursorOnFace !== false) {
+      this.getCursorPostionFromIntersect = Cursor.getCursorPositionOnFace;
+    } else {
+      this.getCursorPostionFromIntersect = Cursor.getCursorPositionUnderFace;
+    }
   }
 
   start(event?: MouseEvent) {
@@ -151,9 +167,10 @@ class Cursor {
       this.canvas.container.addEventListener('mouseup', this._onMouseUp, false);
     }
 
-    if (event) this._onMouseMove(event);
-
     this.missHaveToRenderer = true;
+    this.mesh.visible = false;
+
+    if (event) this._onMouseMove(event);
   }
 
   stop() {
@@ -207,9 +224,9 @@ class Cursor {
     const intersect = this.getIntersect(event);
     if (!intersect) return null;
 
-    this.canvasPosition
-      .copy(intersect.point).add(intersect.face.normal)
-      .divideScalar(PIXEL_SCALE).floor()
+    this.getCursorPostionFromIntersect(intersect, this.canvasPosition);
+
+    this.canvasPosition.divideScalar(PIXEL_SCALE).floor()
       .multiplyScalar(PIXEL_SCALE)
       .add(this.getCursorOffset(intersect.face.normal));
 

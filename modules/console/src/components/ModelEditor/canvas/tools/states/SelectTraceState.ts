@@ -15,6 +15,8 @@ import {
   ToolType,
 } from '../../../types';
 
+export type StateEnterParams = MouseEvent;
+
 abstract class SelectTraceState extends ToolState {
   cursor: Cursor;
 
@@ -49,7 +51,7 @@ abstract class SelectTraceState extends ToolState {
     });
   }
 
-  onEnter(event: MouseEvent) {
+  onEnter(event: StateEnterParams) {
     this.selectedVoxels = {};
     this.cursor.start(event);
   }

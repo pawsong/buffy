@@ -45,9 +45,8 @@ interface DrawEnterParams {
 }
 
 class WaitState extends AddBlockToolWaitState<DrawEnterParams> {
-  getDrawStateName() { return STATE_DRAW; }
-
-  getDrawStateParams(intersect: THREE.Intersection, position: THREE.Vector3) {
+  getNextStateName() { return STATE_DRAW; }
+  getNextStateParams(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
     return {
       anchor: position,
       normal: intersect.face.normal,
