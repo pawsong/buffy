@@ -1,24 +1,14 @@
 import * as THREE from 'three';
-import * as ndarray from 'ndarray';
 
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
+import { ToolState } from '../../../../../libs/Tool';
 import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
-
-import ModelEditorCanvas from '../../ModelEditorCanvas';
-import { ToolState } from '../ModelEditorTool';
+import Canvas from '../../../../../canvas/Canvas';
 
 import {
-  Position,
-  Color,
-  ToolType,
-  ModelEditorState,
   Volumn,
 } from '../../../types';
-
-import {
-  voxelSelectBox,
-} from '../../../actions';
 
 import {
   PIXEL_SCALE,
@@ -61,7 +51,7 @@ abstract class SelectBoxState extends ToolState {
 
   private drawGuide: THREE.Mesh;
 
-  constructor(private canvas: ModelEditorCanvas, private selectionBox: SelectionBox) {
+  constructor(private canvas: Canvas, private selectionBox: SelectionBox) {
     super();
 
     const drawGuideGeometry = new THREE.BoxGeometry(1, 1, 1);

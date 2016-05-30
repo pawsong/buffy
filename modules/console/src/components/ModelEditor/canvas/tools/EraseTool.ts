@@ -1,7 +1,9 @@
 import * as THREE from 'three';
-import * as Immutable from 'immutable';
 
 import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
+
+import SelectTraceState from './states/SelectTraceState';
+
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
@@ -30,7 +32,7 @@ class EraseTool extends ModelEditorTool<void, void, void> {
 
   getToolType(): ToolType { return ToolType.ERASE; }
 
-  onInit(params) {
+  onInit(params: InitParams) {
     super.onInit(params);
 
     this.translucentMaterial = new THREE.MeshBasicMaterial({
@@ -100,78 +102,13 @@ class WaitState extends ToolState {
   }
 }
 
-class DragState extends ToolState {
-  cursor: Cursor;
-
-  selectedGeometry: THREE.Geometry;
-  selectedVoxels: { [index: string]: { mesh: THREE.Mesh, position: Position } };
-
-  private position: THREE.Vector3;
-
-  constructor(
-    private tool: EraseTool
-  ) {
-    super();
-    this.position = new THREE.Vector3();
-
-    const offset = new THREE.Vector3();
-
-    this.selectedGeometry = new THREE.BoxGeometry(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
-    this.selectedGeometry.translate(PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF);
-
-    this.cursor = new Cursor(tool.canvas, {
-      visible: false,
-      getOffset: normal => offset.set(
-        PIXEL_SCALE_HALF * (1 - 2 * normal.x),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.y),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.z)
-      ),
-      getInteractables: () => [tool.canvas.component.modelMesh],
-      onHit: params => this.handleHit(params),
-      onMouseUp: params => this.handleMouseUp(params),
-    });
+class DragState extends SelectTraceState {
+  constructor(private tool: EraseTool) {
+    super(tool.canvas, tool.translucentMaterial, () => [tool.canvas.component.modelMesh]);
   }
 
-  onEnter(event: MouseEvent) {
-    this.selectedVoxels = {};
-    this.cursor.start(event);
-  }
-
-  handleHit({ intersect }: CursorEventParams) {
-    const position = this.cursor.getPosition();
-    if (!position) return;
-
-    const key = [position.x, position.y, position.z].join('|');
-    if (this.selectedVoxels[key]) return;
-
-    const mesh = new THREE.Mesh(this.selectedGeometry, this.tool.translucentMaterial);
-    mesh.position.copy(position).multiplyScalar(PIXEL_SCALE);
-    // mesh.overdraw = false;
-    this.tool.canvas.scene.add(mesh);
-
-    this.selectedVoxels[key] = {
-      position: [position.x, position.y, position.z],
-      mesh,
-    };
-  }
-
-  handleMouseUp({ event }: CursorEventParams) {
-    const positions = Object.keys(this.selectedVoxels)
-      .map(key => this.selectedVoxels[key].position);
-
-    if (positions.length > 0) this.tool.dispatchAction(voxelRemoveBatch(positions));
-
-    this.transitionTo(STATE_WAIT, event);
-  }
-
-  onLeave() {
-    this.cursor.stop();
-
-    Object.keys(this.selectedVoxels).forEach(key => {
-      const { mesh } = this.selectedVoxels[key];
-      this.tool.canvas.scene.remove(mesh);
-    });
-    this.selectedVoxels = null;
+  onTraceSelect(trace: Position[]) {
+    this.tool.dispatchAction(voxelRemoveBatch(trace));
   }
 }
 

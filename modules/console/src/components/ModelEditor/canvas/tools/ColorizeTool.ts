@@ -23,6 +23,51 @@ function multiplyColor({ r, g, b }) {
   };
 }
 
+const STATE_WAIT = ToolState.STATE_WAIT;
+
+class ColorizeTool extends ModelEditorTool<void, void, void> {
+  colorTooltip: HTMLElement;
+
+  getToolType(): ToolType { return ToolType.COLORIZE; }
+
+  onInit(params: InitParams) {
+    super.onInit(params);
+
+    this.colorTooltip = document.createElement("div");
+    this.colorTooltip.style.position = 'absolute';
+    this.colorTooltip.style.display = 'none';
+    this.colorTooltip.style.width = `${2 * COLOR_TOOLTIP_RADIUS}px`;
+    this.colorTooltip.style.height = `${2 * COLOR_TOOLTIP_RADIUS}px`;
+    this.colorTooltip.style['border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
+    this.colorTooltip.style['-moz-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
+    this.colorTooltip.style['-webkit-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
+    this.canvas.container.appendChild(this.colorTooltip);
+  }
+
+  createStates(): ToolStates {
+    return {
+      [STATE_WAIT]: new WaitState(this),
+    };
+  }
+
+  hideTooltip() {
+    this.colorTooltip.style.display = `none`;
+  }
+
+  showTooltip(x, y, c) {
+    this.colorTooltip.style.display = `block`;
+    const left = x - COLOR_TOOLTIP_RADIUS;
+    const top = y - 2 * COLOR_TOOLTIP_RADIUS - 30;
+    this.colorTooltip.style.left = `${left}px`;
+    this.colorTooltip.style.top = `${top}px`;
+    this.colorTooltip.style.background = `rgb(${c.r},${c.g},${c.b})`;
+  }
+
+  onDestroy() {
+    this.colorTooltip.remove();
+  }
+}
+
 class WaitState extends ToolState {
   cursor: Cursor;
 
@@ -60,49 +105,6 @@ class WaitState extends ToolState {
 
     const { face } = intersect;
     this.tool.dispatchAction(changePaletteColor(multiplyColor(face.color)));
-  }
-}
-
-class ColorizeTool extends ModelEditorTool<void, void, void> {
-  colorTooltip: HTMLElement;
-
-  getToolType(): ToolType { return ToolType.COLORIZE; }
-
-  onInit(params: InitParams) {
-    super.onInit(params);
-
-    this.colorTooltip = document.createElement("div");
-    this.colorTooltip.style.position = 'absolute';
-    this.colorTooltip.style.display = 'none';
-    this.colorTooltip.style.width = `${2 * COLOR_TOOLTIP_RADIUS}px`;
-    this.colorTooltip.style.height = `${2 * COLOR_TOOLTIP_RADIUS}px`;
-    this.colorTooltip.style['border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
-    this.colorTooltip.style['-moz-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
-    this.colorTooltip.style['-webkit-border-radius'] = `${COLOR_TOOLTIP_RADIUS}px`;
-    this.canvas.container.appendChild(this.colorTooltip);
-  }
-
-  createStates(): ToolStates {
-    return {
-      wait: new WaitState(this),
-    };
-  }
-
-  hideTooltip() {
-    this.colorTooltip.style.display = `none`;
-  }
-
-  showTooltip(x, y, c) {
-    this.colorTooltip.style.display = `block`;
-    const left = x - COLOR_TOOLTIP_RADIUS;
-    const top = y - 2 * COLOR_TOOLTIP_RADIUS - 30;
-    this.colorTooltip.style.left = `${left}px`;
-    this.colorTooltip.style.top = `${top}px`;
-    this.colorTooltip.style.background = `rgb(${c.r},${c.g},${c.b})`;
-  }
-
-  onDestroy() {
-    this.colorTooltip.remove();
   }
 }
 

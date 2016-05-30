@@ -24,7 +24,6 @@ import {
 } from '../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
-const STATE_DRAG = 'drag';
 
 interface MagicWandToolProps {
   selection: any;

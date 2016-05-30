@@ -120,8 +120,6 @@ abstract class AddBlockTool extends ModelEditorTool<AddBlockToolProps, void, Add
   }
 }
 
-export default AddBlockTool;
-
 abstract class AddBlockToolWaitState<T> extends ToolState {
   cursor: Cursor;
 
@@ -174,4 +172,5 @@ abstract class AddBlockToolWaitState<T> extends ToolState {
   }
 }
 
+export default AddBlockTool;
 export { AddBlockToolWaitState }
