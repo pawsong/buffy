@@ -19,10 +19,12 @@ import {
 interface CursorStateOptions {
   getInteractables: () => THREE.Mesh[];
   cursorOnFace: boolean;
+  getOffset?: (intersect: THREE.Intersection) => THREE.Vector3;
   cursorMesh?: THREE.Mesh;
   cursorGeometry?: THREE.Geometry;
   cursorMaterial?: THREE.Material;
   transitionRequiresHit?: boolean;
+  onCursorShow?: (visible: boolean) => any;
 }
 
 abstract class CursorState<T> extends ToolState {
@@ -38,11 +40,13 @@ abstract class CursorState<T> extends ToolState {
 
   constructor(canvas: Canvas, {
     getInteractables,
+    getOffset,
     cursorOnFace,
     cursorMesh,
     cursorGeometry,
     cursorMaterial,
     transitionRequiresHit,
+    onCursorShow,
   }: CursorStateOptions) {
     super();
 
@@ -62,6 +66,8 @@ abstract class CursorState<T> extends ToolState {
       material: cursorMaterial,
       cursorOnFace,
       getInteractables,
+      getOffset,
+      onCursorShow,
       hitTest: (intersect, meshPosition) => {
         Cursor.getDataPosition(meshPosition, position);
         return (

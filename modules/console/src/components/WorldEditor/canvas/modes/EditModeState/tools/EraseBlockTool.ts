@@ -40,10 +40,10 @@ class WaitState extends ToolState {
       geometry: this.tool.cursorGeometry,
       material: this.tool.cursorMaterial,
       getInteractables: () => [tool.canvas.chunk.mesh],
-      getOffset: normal => offset.set(
-        PIXEL_SCALE_HALF * (1 - 2 * normal.x),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.y),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.z)
+      getOffset: intersect => offset.set(
+        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.x),
+        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.y),
+        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.z)
       ),
       onTouchTap: (params) => this.handleTouchTap(params),
     });

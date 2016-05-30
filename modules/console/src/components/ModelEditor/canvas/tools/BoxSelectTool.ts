@@ -100,16 +100,31 @@ class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, void> {
 }
 
 class WaitState extends CursorState<EnterParams> {
-  constructor(private tool: BoxSelectTool) {
+  private tool: BoxSelectTool;
+
+  constructor(tool: BoxSelectTool) {
+    const origin = new THREE.Vector3();
+    const offset = new THREE.Vector3();
+
     super(tool.canvas, {
       cursorOnFace: false,
       cursorMesh: tool.selectionBox.mesh,
+      onCursorShow: visible => tool.selectionBox.show(visible),
       getInteractables: () => [
         tool.canvas.plane,
         tool.canvas.component.modelMesh,
         tool.canvas.component.fragmentMesh,
       ],
+      getOffset: intersect => {
+        if (intersect.object === tool.canvas.plane) {
+          return offset.copy(intersect.face.normal).multiplyScalar(PIXEL_SCALE);
+        } else {
+          return origin;
+        }
+      },
     });
+
+    this.tool = tool;
   }
 
   getNextStateName() { return STATE_DRAW; }

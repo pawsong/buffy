@@ -27,7 +27,7 @@ interface CursorOptions {
   renderOnUpdate?: boolean;
 
   getInteractables?: () => THREE.Object3D[];
-  getOffset?: (normal: THREE.Vector3) => THREE.Vector3;
+  getOffset?: (intersect: THREE.Intersection) => THREE.Vector3;
   hitTest?: (intersect: THREE.Intersection, meshPosition: THREE.Vector3) => boolean;
 
   onHit?: (params: CursorEventParams) => any;
@@ -61,7 +61,7 @@ class Cursor {
   private intersectRecursively: boolean;
 
   private getIntractables: () => THREE.Object3D[];
-  private getCursorOffset: (normal: THREE.Vector3) => THREE.Vector3;
+  private getCursorOffset: (intersect: THREE.Intersection) => THREE.Vector3;
   private onHit: (params: CursorEventParams) => any;
   private onMiss: (params: CursorEventParams) => any;
   private onMouseDown: (params: CursorEventParams) => any;
@@ -167,8 +167,8 @@ class Cursor {
       this.canvas.container.addEventListener('mouseup', this._onMouseUp, false);
     }
 
+    this.onCursorShow(false);
     this.missHaveToRenderer = true;
-    this.mesh.visible = false;
 
     if (event) this._onMouseMove(event);
   }
@@ -228,7 +228,7 @@ class Cursor {
 
     this.canvasPosition.divideScalar(PIXEL_SCALE).floor()
       .multiplyScalar(PIXEL_SCALE)
-      .add(this.getCursorOffset(intersect.face.normal));
+      .add(this.getCursorOffset(intersect));
 
     if (!this.hitTest(intersect, this.canvasPosition)) return null;
 

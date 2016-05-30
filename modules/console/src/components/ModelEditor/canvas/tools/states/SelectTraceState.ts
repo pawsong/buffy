@@ -40,10 +40,10 @@ abstract class SelectTraceState extends ToolState {
 
     this.cursor = new Cursor(canvas, {
       visible: false,
-      getOffset: normal => offset.set(
-        PIXEL_SCALE_HALF * (1 - 2 * normal.x),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.y),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.z)
+      getOffset: intersect => offset.set(
+        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.x),
+        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.y),
+        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.z)
       ),
       getInteractables,
       onHit: params => this.handleHit(params),

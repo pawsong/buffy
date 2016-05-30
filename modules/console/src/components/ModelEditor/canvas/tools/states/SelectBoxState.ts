@@ -64,10 +64,10 @@ abstract class SelectBoxState extends ToolState {
     this.cursor = new Cursor(canvas, {
       visible: false,
       getInteractables: () => intersectables,
-      getOffset: normal => offset.set(
-        PIXEL_SCALE_HALF * (1 - 2 * normal.x),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.y),
-        PIXEL_SCALE_HALF * (1 - 2 * normal.z)
+      getOffset: intersect => offset.set(
+        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.x),
+        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.y),
+        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.z)
       ),
       onHit: params => this.handleHit(params),
       onMouseUp: params => this.handleMouseUp(params),
