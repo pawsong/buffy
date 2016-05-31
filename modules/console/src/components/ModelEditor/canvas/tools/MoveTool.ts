@@ -28,8 +28,10 @@ import {
 
 import {
   voxelCreateFragment,
+  voxelSelectConnected,
   voxelMoveFragment,
   voxelMergeFragment,
+  voxelClearSelection,
 } from '../../actions';
 
 import * as ndarray from 'ndarray';
@@ -67,7 +69,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
 
   arrowScene: THREE.Scene;
 
-  private activeCone: THREE.Mesh;
+  private activeCone: THREE.Object3D;
   private materialsToRestore: MaterialToRestore[];
 
   drawGuide: THREE.Mesh;
@@ -187,7 +189,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     };
   }
 
-  activateArrow(cone: THREE.Mesh) {
+  activateArrow(cone: THREE.Object3D) {
     if (this.activeCone === cone) return;
 
     this.deactivateArrow();
@@ -276,10 +278,12 @@ class WaitState extends ToolState {
 
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
+      cursorOnFace: false,
       getInteractables: () => [
         tool.arrowX.cone,
         tool.arrowY.cone,
         tool.arrowZ.cone,
+        tool.canvas.component.modelMesh,
       ],
       onHit: params => this.handleHit(params),
       onMiss: () => this.handleMiss(),
@@ -296,15 +300,27 @@ class WaitState extends ToolState {
   }
 
   private handleHit({ intersect }: CursorEventParams) {
-    const cone = <THREE.Mesh>intersect.object;
-    this.tool.activateArrow(cone);
+    if (intersect.object === this.tool.canvas.component.modelMesh) {
+      this.tool.deactivateArrow();
+    } else {
+      this.tool.activateArrow(intersect.object);
+    }
   }
 
   private handleMouseDown({ event, intersect }: CursorEventParams) {
     if (intersect) {
-      this.transitionTo(STATE_DRAG, event);
+      if (intersect.object === this.tool.canvas.component.modelMesh) {
+        const position = this.cursor.getPosition();
+        this.tool.dispatchAction(voxelSelectConnected(position.x, position.y, position.z));
+      } else {
+        this.transitionTo(STATE_DRAG, event);
+      }
     } else {
-      if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
+      if (this.tool.props.fragment) {
+        this.tool.dispatchAction(voxelMergeFragment());
+      } else if (this.tool.props.selection) {
+        this.tool.dispatchAction(voxelClearSelection());
+      }
     }
   }
 

@@ -19,6 +19,7 @@ import {
   VOXEL_ROTATE, VoxelRotateAction,
   VOXEL_SELECT, VoxelSelectAction,
   VOXEL_SELECT_BOX, VoxelSelectBoxAction,
+  VOXEL_SELECT_CONNECTED, VoxelSelectConnectedAction,
   VOXEL_MAGIN_WAND, VoxelMaginWandAction,
   VOXEL_CREATE_FRAGMENT, VoxelCreateFragmentAction,
   VOXEL_MOVE_FRAGMENT, VoxelMoveFragmentAction,
@@ -243,6 +244,35 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       });
     }
 
+    case VOXEL_SELECT_CONNECTED: {
+      const { position } = <VoxelSelectConnectedAction>action;
+
+      const selection = ndarray(
+        new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
+        state.matrix.shape
+      );
+
+      floodFill({
+        getter: (x: number, y: number, z: number) => {
+          if (
+               x < 0 || x >= state.matrix.shape[0]
+            || y < 0 || y >= state.matrix.shape[1]
+            || z < 0 || z >= state.matrix.shape[2]
+          ) {
+            return;
+          }
+
+          return state.matrix.get(x, y, z) !== 0;
+        },
+        onFlood: (x: number, y: number, z: number) => {
+          selection.set(x, y, z, 1);
+        },
+        seed: position,
+      });
+
+      return Object.assign({}, state, { selection });
+    }
+
     case VOXEL_MAGIN_WAND: {
       const { position } = <VoxelMaginWandAction>action;
 
@@ -271,9 +301,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         seed: position,
       });
 
-      return Object.assign({}, state, {
-        selection,
-      });
+      return Object.assign({}, state, { selection });
     }
 
     case VOXEL_CLEAR_SELECTION: {

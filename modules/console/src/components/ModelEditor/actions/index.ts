@@ -50,6 +50,17 @@ export function voxelSelectBox(volumn: Volumn): VoxelSelectBoxAction {
   };
 }
 
+export const VOXEL_SELECT_CONNECTED: 'VOXEL_SELECT_CONNECTED' = 'VOXEL_SELECT_CONNECTED';
+export interface VoxelSelectConnectedAction extends Action<typeof VOXEL_SELECT_CONNECTED> {
+  position: Position;
+}
+export function voxelSelectConnected(x: number, y: number, z: number): VoxelSelectConnectedAction {
+  return {
+    type: VOXEL_SELECT_CONNECTED,
+    position: [x, y, z],
+  };
+}
+
 export const VOXEL_MAGIN_WAND: 'VOXEL_MAGIN_WAND' = 'VOXEL_MAGIN_WAND';
 export interface VoxelMaginWandAction extends Action<typeof VOXEL_MAGIN_WAND> {
   position: Position;
