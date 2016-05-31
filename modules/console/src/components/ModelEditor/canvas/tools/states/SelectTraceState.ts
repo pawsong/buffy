@@ -7,7 +7,6 @@ import Canvas from '../../../../../canvas/Canvas';
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-  DESIGN_IMG_SIZE,
 } from '../../../../../canvas/Constants';
 
 import {

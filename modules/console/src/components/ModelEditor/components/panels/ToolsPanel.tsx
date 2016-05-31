@@ -26,6 +26,7 @@ import CubeOutlineIcon from '../../../CubeOutlineIcon';
 import AutoFixIcon from '../../../AutoFixIcon';
 import CursorMoveIcon from '../../../CursorMoveIcon';
 import SelectIcon from '../../../SelectIcon';
+import ArrowExpandIcon from '../../../icons/ArrowExpandIcon';
 
 const styles = {
   color: {
@@ -225,6 +226,27 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             tooltip={'Magic Wand'}
           >
             <AutoFixIcon />
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.TRANSFORM)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.TRANSFORM)}
+            iconClassName="material-icons"
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Transform'}
+          >
+            transform
+          </IconButton>
+          <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.RESIZE)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.RESIZE)}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Resize'}
+          >
+            <ArrowExpandIcon />
           </IconButton>
         </div>
         <div style={styles.iconRow}>

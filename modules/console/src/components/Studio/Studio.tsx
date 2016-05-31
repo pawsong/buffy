@@ -321,7 +321,7 @@ Studio.creatState = (options: CreateStateOptions = {}): StudioState => {
     type: FileType.MODEL,
     savedState: modelState,
     state: modelState,
-    extraData: ModelEditor.createExtraData(),
+    extraData: ModelEditor.createExtraData(modelState.present.data.size),
   };
 
   const codeState = CodeEditor.createState();

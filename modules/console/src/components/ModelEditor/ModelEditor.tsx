@@ -37,7 +37,6 @@ import {
 
 import {
   PIXEL_SCALE,
-  DESIGN_IMG_SIZE,
 } from '../../canvas/Constants';
 
 import {
@@ -112,7 +111,7 @@ interface ContainerStates {
 class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static createCommonState: () => CommonState;
   static createFileState: (data?: VoxelData) => FileState;
-  static createExtraData: () => ExtraData;
+  static createExtraData: (size: Position) => ExtraData;
   static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
   static serialize: (fileState: FileState) => SerializedData;
   static deserialize: (data: SerializedData) => FileState;
@@ -291,18 +290,18 @@ ModelEditor.createFileState = (data): FileState => {
 
 var radius = PIXEL_SCALE * 25, theta = 90, phi = 45;
 
-ModelEditor.createExtraData = () => {
+ModelEditor.createExtraData = (size: Position) => {
   const camera = new THREE.PerspectiveCamera();
   camera.fov = 40;
   camera.near = 1;
   camera.far = 10000;
   camera.position.set(
     radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
-      + DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
+      + size[0] * PIXEL_SCALE / 2,
     radius * Math.sin(phi * Math.PI / 360)
-      + DESIGN_IMG_SIZE * PIXEL_SCALE / 4,
+      + size[1] * PIXEL_SCALE / 4,
     radius * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
-      + DESIGN_IMG_SIZE * PIXEL_SCALE / 2
+      + size[2] * PIXEL_SCALE / 2
   );
 
   return {
@@ -328,6 +327,7 @@ ModelEditor.deserialize = data => {
   const matrix = ndarray(new Int32Array(inflated.buffer), data.shape);
 
   return ModelEditor.createFileState({
+    size: data.shape,
     matrix,
     selection: null,
     fragment: null,

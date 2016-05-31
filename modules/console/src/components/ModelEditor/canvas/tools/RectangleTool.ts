@@ -20,7 +20,6 @@ import {
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-  DESIGN_IMG_SIZE,
 } from '../../../../canvas/Constants';
 
 import AddBlockTool, { AddBlockToolWaitState } from './AddBlockTool';
@@ -58,11 +57,14 @@ class DrawState extends ToolState {
   private cursor: Cursor;
   private anchor: THREE.Vector3;
   private target: THREE.Vector3;
+  private temp1: THREE.Vector3;
 
   private drawGuide: THREE.Mesh;
 
   constructor(private tool: RectangleTool) {
     super();
+
+    this.temp1 = new THREE.Vector3();
 
     // Setup draw guides
 
@@ -95,6 +97,8 @@ class DrawState extends ToolState {
   }
 
   onEnter({ anchor, normal }: DrawEnterParams) {
+    const { size } = this.tool.props;
+
     // Init data
 
     this.anchor.copy(anchor);
@@ -108,7 +112,8 @@ class DrawState extends ToolState {
     this.drawGuide.position.copy(absNormal).multiply(scaledAnchor);
     this.drawGuide.scale
       .copy(absNormal).subScalar(1).multiplyScalar(-1)
-      .multiplyScalar(DESIGN_IMG_SIZE - 1).addScalar(1)
+      .multiply(this.temp1.set(size[0] - 1, size[1] - 1, size[2] - 1))
+      .addScalar(1)
       .multiplyScalar(PIXEL_SCALE);
     this.drawGuide.updateMatrixWorld(false);
 

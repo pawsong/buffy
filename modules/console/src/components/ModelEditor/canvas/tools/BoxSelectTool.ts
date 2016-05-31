@@ -12,6 +12,7 @@ import {
   ToolType,
   Volumn,
   ModelEditorState,
+  Position,
 } from '../../types';
 
 import {
@@ -59,6 +60,7 @@ class EdgesSelectionBox extends SelectionBox {
 }
 
 interface BoxSelectToolProps {
+  size: Position;
   selection: ndarray.Ndarray;
   fragment: ndarray.Ndarray;
 }
@@ -70,6 +72,7 @@ class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, void> {
 
   mapParamsToProps(state: ModelEditorState) {
     return {
+      size: state.file.present.data.size,
       selection: state.file.present.data.selection,
       fragment: state.file.present.data.fragment,
     };
@@ -104,6 +107,7 @@ class BoxSelectTool extends ModelEditorTool<BoxSelectToolProps, void, void> {
 
 class WaitState extends CursorState<EnterParams> {
   private tool: BoxSelectTool;
+  private temp1: THREE.Vector3;
 
   constructor(tool: BoxSelectTool) {
     const origin = new THREE.Vector3();
@@ -113,13 +117,14 @@ class WaitState extends CursorState<EnterParams> {
       cursorOnFace: false,
       cursorMesh: tool.selectionBox.mesh,
       onCursorShow: visible => tool.selectionBox.show(visible),
+      getSize: () => tool.props.size,
       getInteractables: () => [
-        tool.canvas.plane,
+        tool.canvas.component.plane,
         tool.canvas.component.modelMesh,
         tool.canvas.component.fragmentMesh,
       ],
       getOffset: intersect => {
-        if (intersect.object === tool.canvas.plane) {
+        if (intersect.object === tool.canvas.component.plane) {
           return offset.copy(intersect.face.normal).multiplyScalar(PIXEL_SCALE);
         } else {
           return origin;
@@ -128,11 +133,14 @@ class WaitState extends CursorState<EnterParams> {
     });
 
     this.tool = tool;
+
+    this.temp1 = new THREE.Vector3();
   }
 
   getNextStateName() { return STATE_DRAW; }
   getNextStateParams(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
     return {
+      size: this.tool.props.size,
       anchor: position,
       normal: intersect.face.normal,
     };

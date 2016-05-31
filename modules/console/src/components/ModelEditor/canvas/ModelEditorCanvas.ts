@@ -28,12 +28,8 @@ import BoundingBoxEdgesHelper from './objects/BoundingBoxEdgesHelper';
 
 import {
   PIXEL_SCALE,
-  DESIGN_IMG_SIZE,
+  PIXEL_SCALE_HALF,
 } from '../../../canvas/Constants';
-
-import {
-  rgbToHex,
-} from './utils';
 
 import {
   ToolType,
@@ -71,6 +67,7 @@ interface ComponentState {
 }
 
 interface ComponentTree {
+  size: Position;
   model: ndarray.Ndarray;
   selection: ndarray.Ndarray;
   fragment: ndarray.Ndarray;
@@ -103,8 +100,13 @@ const select = (() => {
   };
 })();
 
+const PLANE_GRID_STEP = 4;
+
 class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, ComponentState, ComponentTree> {
   private emptyMesh: THREE.Mesh;
+
+  private planeMaterial: THREE.ShaderMaterial;
+  plane: THREE.Mesh;
 
   private modelMaterial: THREE.Material;
   modelMesh: THREE.Mesh;
@@ -128,6 +130,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     return {
       type: SchemaType.OBJECT,
       properties: {
+        size: { type: SchemaType.ANY },
         model: { type: SchemaType.ANY },
         selection: { type: SchemaType.ANY },
         fragment: { type: SchemaType.ANY },
@@ -144,11 +147,30 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
     this.temp1 = new THREE.Vector3();
 
+    this.planeMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        gridColor: { value: new THREE.Vector3(0.61, 0.61, 0.61) },
+        gridThickness: { type: 'f', value: 0.005 },
+        scale: {
+          value: new THREE.Vector3(
+            PIXEL_SCALE * PLANE_GRID_STEP,
+            PIXEL_SCALE * PLANE_GRID_STEP,
+            PIXEL_SCALE * PLANE_GRID_STEP
+          )
+        },
+      },
+      vertexShader: gridVertexShader4,
+      fragmentShader: gridFragmentShader4,
+
+      transparent: true,
+      depthWrite: false,
+    });
+    this.planeMaterial.extensions.derivatives = true;
+
     this.fragmentedModelSelector = createSelector(
       (props: ComponentProps, state: ComponentState) => props.matrix,
       (props: ComponentProps, state: ComponentState) => state.fragment,
       (model, fragment) => {
-        console.log('selector', model, fragment);
         const fragmentedModel = ndarray(model.data.slice(), model.shape);
         subtract(fragmentedModel, this.state.fragment);
         return fragmentedModel;
@@ -217,6 +239,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   onStart() {
     super.onStart();
 
+    this.plane = this.emptyMesh;
     this.modelMesh = this.emptyMesh;
     this.modelGridMesh = this.emptyMesh;
     this.selectionMesh = this.emptyMesh;
@@ -277,11 +300,56 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       model,
       selection,
       fragment,
+      size: this.props.size,
       fragmentOffset: this.props.fragmentOffset,
     };
   }
 
   patch(diff: ComponentTree) {
+    if (diff.hasOwnProperty('size')) {
+      if (this.plane.visible) {
+        this.canvas.scene.remove(this.plane);
+        this.plane.geometry.dispose();
+        this.plane = this.emptyMesh;
+      }
+
+      const { size } = this.tree;
+
+      const widthHalf = size[0] / 2;
+      const resultX = Math.floor(widthHalf / PLANE_GRID_STEP);
+      const offsetX = resultX > 0 ? widthHalf - resultX * PLANE_GRID_STEP : widthHalf;
+
+      const heightHalf = size[1] / 2;
+      const resultY = Math.floor(heightHalf / PLANE_GRID_STEP);
+      const offsetY = resultY > 0 ? heightHalf - resultY * PLANE_GRID_STEP : heightHalf;
+
+      const depthHalf = size[2] / 2;
+      const resultZ = Math.floor(depthHalf / PLANE_GRID_STEP);
+      const offsetZ = resultZ > 0 ? depthHalf - resultZ * PLANE_GRID_STEP : depthHalf;
+
+      const geometry = new FlippedBoxGeometry(
+        size[0] * PIXEL_SCALE,
+        size[1] * PIXEL_SCALE,
+        size[2] * PIXEL_SCALE
+      );
+      geometry.translate(offsetX * PIXEL_SCALE, offsetY * PIXEL_SCALE, offsetZ * PIXEL_SCALE);
+
+      this.plane = new THREE.Mesh(geometry, this.planeMaterial);
+      this.plane.position.set(
+        widthHalf - offsetX,
+        heightHalf - offsetY,
+        depthHalf - offsetZ
+      ).multiplyScalar(PIXEL_SCALE);
+      this.canvas.scene.add(this.plane)
+
+      this.canvas.controls.target.set(
+        size[0] * PIXEL_SCALE_HALF,
+        size[1] * PIXEL_SCALE_HALF,
+        size[2] * PIXEL_SCALE_HALF
+      );
+      this.canvas.controls.update();
+    }
+
     if (diff.hasOwnProperty('model')) {
       if (this.modelMesh.visible) {
         this.canvas.scene.remove(this.modelMesh);
@@ -377,7 +445,7 @@ class ModelEditorCanvas extends Canvas {
 
   camera: THREE.PerspectiveCamera;
 
-  plane: THREE.Mesh;
+  // plane: THREE.Mesh;
 
   private state: ModelEditorState;
   private keyboard: Keyboard;
@@ -407,60 +475,11 @@ class ModelEditorCanvas extends Canvas {
     this.renderer.setClearColor(0x333333);
     this.renderer.autoClear = false;
 
-    const planeWidth = DESIGN_IMG_SIZE * PIXEL_SCALE;
-    const planeHeight = DESIGN_IMG_SIZE * PIXEL_SCALE;
-
-    // Plane
-    {
-      const STEP = 4;
-      const selectionMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-          gridColor: { value: new THREE.Vector3(0.61, 0.61, 0.61) },
-          gridThickness: { type: 'f', value: 0.005 },
-          scale: { value: new THREE.Vector3(PIXEL_SCALE * STEP, PIXEL_SCALE * STEP, PIXEL_SCALE * STEP) },
-        },
-        vertexShader: gridVertexShader4,
-        fragmentShader: gridFragmentShader4,
-
-        transparent: true,
-        depthWrite: false,
-      });
-      selectionMaterial.extensions.derivatives = true;
-
-      const operand = DESIGN_IMG_SIZE / 2;
-      const result = Math.floor(operand / STEP);
-      const offset = result > 0 ? operand - result * STEP : operand;
-
-      const geometry = new FlippedBoxGeometry(
-        PIXEL_SCALE * DESIGN_IMG_SIZE,
-        PIXEL_SCALE * DESIGN_IMG_SIZE,
-        PIXEL_SCALE * DESIGN_IMG_SIZE
-      );
-      geometry.translate(offset * PIXEL_SCALE, offset * PIXEL_SCALE, offset * PIXEL_SCALE);
-
-      this.plane = new THREE.Mesh(geometry, selectionMaterial);
-      this.plane.position.set(
-        (DESIGN_IMG_SIZE / 2 - offset) * PIXEL_SCALE,
-        (DESIGN_IMG_SIZE / 2 - offset) * PIXEL_SCALE,
-        (DESIGN_IMG_SIZE / 2 - offset) * PIXEL_SCALE
-      );
-      this.scene.add(this.plane)
-    }
-
-    this.tool = this.getTool(this.state.common.selectedTool);
-    const props = this.tool.mapParamsToProps(this.state);
-    this.tool.start(props);
-
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     this.controls.mouseButtons.ORBIT = THREE.MOUSE.RIGHT;
     this.controls.maxDistance = 4000;
     this.controls.enableKeys = false;
     this.controls.enablePan = false;
-    this.controls.target.set(
-      DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
-      DESIGN_IMG_SIZE * PIXEL_SCALE / 2,
-      DESIGN_IMG_SIZE * PIXEL_SCALE / 2
-    );
 
     // Controls emits too many events at the same frame.
     // This is a sort of debouncer.
@@ -503,6 +522,8 @@ class ModelEditorCanvas extends Canvas {
     this.controls.addEventListener('change', () => {
       this.light.position.copy(this.camera.position);
       this.light.lookAt(this.controls.target);
+
+      this.tool.onCameraMove();
       this.render();
     });
     this.controls.addEventListener('start', () => {
@@ -513,6 +534,10 @@ class ModelEditorCanvas extends Canvas {
       controlsRef--;
       updateControlsState();
     });
+
+    this.tool = this.getTool(this.state.common.selectedTool);
+    const props = this.tool.mapParamsToProps(this.state);
+    this.tool.start(props);
 
     this.controls.update();
     this.syncLightToCamera();

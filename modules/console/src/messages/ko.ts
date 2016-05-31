@@ -568,6 +568,13 @@ export default {
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Voxel resize history label
+   * defaultMessage: Resize
+   */
+  'voxel-editor.panels.history.voxel.move.resize': '크기 변경',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel remove history label
    * defaultMessage: Remove voxels
    */
@@ -586,6 +593,13 @@ export default {
    * defaultMessage: Selection change
    */
   'voxel-editor.panels.history.voxel.select': '블럭 선택 변경',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Voxel transform label
+   * defaultMessage: Transform
+   */
+  'voxel-editor.panels.history.voxel.transform': '블럭 변환',
 
   /**
    * path: src/components/ModelEditor/components/panels/ToolsPanel.json

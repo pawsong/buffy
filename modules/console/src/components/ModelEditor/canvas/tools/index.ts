@@ -19,6 +19,8 @@ import BoxSelectTool from './BoxSelectTool';
 import RectangleSelectTool from './RectangleSelectTool';
 import MagicWandTool from './MagicWandTool';
 import MoveTool from './MoveTool';
+import ResizeTool from './ResizeTool';
+import TransformTool from './TransformTool';
 
 export default function createTool(
   toolType: ToolType,
@@ -57,6 +59,12 @@ export default function createTool(
     }
     case ToolType.MOVE: {
       return new MoveTool(initParams);
+    }
+    case ToolType.RESIZE: {
+      return new ResizeTool(initParams);
+    }
+    case ToolType.TRANSFORM: {
+      return new TransformTool(initParams);
     }
   }
 

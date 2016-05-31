@@ -8,7 +8,6 @@ import Canvas from '../../../../../canvas/Canvas';
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-  DESIGN_IMG_SIZE,
 } from '../../../../../canvas/Constants';
 
 import {
@@ -18,6 +17,7 @@ import {
 
 interface CursorStateOptions {
   getInteractables: () => THREE.Mesh[];
+  getSize: () => Position;
   cursorOnFace: boolean;
   getOffset?: (intersect: THREE.Intersection) => THREE.Vector3;
   cursorVisible?: boolean;
@@ -42,6 +42,7 @@ abstract class CursorState<T> extends ToolState {
   constructor(canvas: Canvas, {
     getInteractables,
     getOffset,
+    getSize,
     cursorOnFace,
     cursorVisible,
     cursorMesh,
@@ -77,10 +78,11 @@ abstract class CursorState<T> extends ToolState {
       onCursorShow,
       hitTest: (intersect, meshPosition) => {
         Cursor.getDataPosition(meshPosition, position);
+        const size = getSize();
         return (
-             position.x >= 0 && position.x < DESIGN_IMG_SIZE
-          && position.y >= 0 && position.y < DESIGN_IMG_SIZE
-          && position.z >= 0 && position.z < DESIGN_IMG_SIZE
+             position.x >= 0 && position.x < size[0]
+          && position.y >= 0 && position.y < size[1]
+          && position.z >= 0 && position.z < size[2]
         );
       },
       onMouseDown: params => this.handleMouseDown(params),

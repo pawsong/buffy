@@ -7,7 +7,6 @@ import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-  DESIGN_IMG_SIZE,
 } from '../../../../canvas/Constants';
 
 import ModelEditorTool, {
@@ -45,6 +44,7 @@ interface MaterialToRestore {
 }
 
 interface MoveToolProps {
+  size: Position;
   selection: ndarray.Ndarray;
   fragment: ndarray.Ndarray;
   fragmentOffset: Position;
@@ -66,6 +66,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
   temp1: THREE.Vector3;
   temp2: THREE.Vector3;
   temp3: THREE.Vector3;
+  temp4: THREE.Vector3;
 
   arrowScene: THREE.Scene;
 
@@ -78,6 +79,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
 
   mapParamsToProps(params: ModelEditorState) {
     return {
+      size: params.file.present.data.size,
       selection: params.file.present.data.selection,
       fragment: params.file.present.data.fragment,
       fragmentOffset: params.file.present.data.fragmentOffset,
@@ -145,6 +147,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     this.temp1 = new THREE.Vector3();
     this.temp2 = new THREE.Vector3();
     this.temp3 = new THREE.Vector3();
+    this.temp4 = new THREE.Vector3();
 
     this.activeCone = null;
     this.materialsToRestore = [];
@@ -226,15 +229,14 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     boundingBox.box.size(this.temp1);
     const { position } = boundingBox.edges;
 
-    const len = DESIGN_IMG_SIZE * PIXEL_SCALE * 4;
-    const pos = DESIGN_IMG_SIZE * PIXEL_SCALE / 2;
+    this.temp4.set(this.props.size[0], this.props.size[0], this.props.size[0]);
 
     this.temp2.copy(direction).subScalar(1).multiplyScalar(-1);
 
     this.drawGuide.scale.copy(this.temp1).multiply(this.temp2)
-      .add(this.temp3.copy(direction).multiplyScalar(len));
+      .add(this.temp3.copy(direction).multiply(this.temp4).multiplyScalar(PIXEL_SCALE * 4));
     this.drawGuide.position.copy(position).multiply(this.temp2)
-      .add(this.temp3.copy(direction).multiplyScalar(pos));
+      .add(this.temp3.copy(direction).multiply(this.temp4).multiplyScalar(PIXEL_SCALE_HALF));
 
     this.drawGuide.updateMatrixWorld(false);
   }
@@ -392,7 +394,6 @@ class DragState extends ToolState {
 
   private handleHit(params: CursorEventParams) {
     const position = this.cursor.getPosition();
-
     if (!position) return;
 
     if (this.target.equals(position)) return;

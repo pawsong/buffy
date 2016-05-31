@@ -41,6 +41,8 @@ import {
   VOXEL_MERGE_FRAGMENT,
   VOXEL_REMOVE_SELECTED,
   VOXEL_CLEAR_SELECTION,
+  VOXEL_RESIZE,
+  VOXEL_TRANSFORM,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -84,6 +86,16 @@ const messages = defineMessages({
     description: 'Voxel move finish history label',
     defaultMessage: 'Move finish',
   },
+  labelVoxelResize: {
+    id: 'voxel-editor.panels.history.voxel.move.resize',
+    description: 'Voxel resize history label',
+    defaultMessage: 'Resize',
+  },
+  labelVoxelTransform: {
+    id: 'voxel-editor.panels.history.voxel.transform',
+    description: 'Voxel transform label',
+    defaultMessage: 'Transform',
+  },
 });
 
 const ActionMessages = {
@@ -100,6 +112,8 @@ const ActionMessages = {
   [VOXEL_CREATE_FRAGMENT]: messages.labelVoxelMove,
   [VOXEL_MOVE_FRAGMENT]: messages.labelVoxelMove,
   [VOXEL_MERGE_FRAGMENT]: messages.labelVoxelMoveFinish,
+  [VOXEL_RESIZE]: messages.labelVoxelResize,
+  [VOXEL_TRANSFORM]: messages.labelVoxelTransform,
 };
 
 function getActionMessage(action: string) {

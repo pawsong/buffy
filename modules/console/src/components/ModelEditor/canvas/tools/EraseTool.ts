@@ -6,7 +6,6 @@ import SelectTraceState, { StateEnterParams } from './states/SelectTraceState';
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-  DESIGN_IMG_SIZE,
 } from '../../../../canvas/Constants';
 
 import ModelEditorTool, {
@@ -17,6 +16,7 @@ import ModelEditorTool, {
 import {
   Position,
   ToolType,
+  ModelEditorState,
 } from '../../types';
 
 import {
@@ -26,11 +26,21 @@ import {
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
 
-class EraseTool extends ModelEditorTool<void, void, void> {
+interface EraseToolProps {
+  size: Position;
+}
+
+class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
   cursorGeometry: THREE.Geometry;
   translucentMaterial: THREE.Material;
 
   getToolType(): ToolType { return ToolType.ERASE; }
+
+  mapParamsToProps(params: ModelEditorState) {
+    return {
+      size: params.file.present.data.size,
+    };
+  }
 
   onInit(params: InitParams) {
     super.onInit(params);
@@ -65,6 +75,7 @@ class WaitState extends CursorState<StateEnterParams> {
       cursorOnFace: false,
       cursorGeometry: tool.cursorGeometry,
       cursorMaterial: tool.translucentMaterial,
+      getSize: () => tool.props.size,
       getInteractables: () => [
         tool.canvas.component.modelMesh,
         tool.canvas.component.fragmentMesh,

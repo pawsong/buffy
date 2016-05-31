@@ -28,7 +28,6 @@ import {
 } from '../../../../canvas/Constants';
 
 import CursorState from './states/CursorState';
-import SelectBoxState, { EnterParams } from './states/SelectBoxState';
 
 import SelectionBox from '../objects/SelectionBox';
 

@@ -6,6 +6,7 @@ import {
   Position,
   Voxel,
   Volumn,
+  Transformation,
   ToolType,
 } from '../types';
 
@@ -155,6 +156,33 @@ export interface VoxelMergeFragmentAction extends Action<typeof VOXEL_MERGE_FRAG
 export function voxelMergeFragment(): VoxelMergeFragmentAction {
   return {
     type: VOXEL_MERGE_FRAGMENT,
+  };
+}
+
+export const VOXEL_RESIZE: 'VOXEL_RESIZE' = 'VOXEL_RESIZE';
+export interface VoxelResizeAction extends Action<typeof VOXEL_RESIZE> {
+  size: Position;
+  offset: Position;
+}
+export function voxelResize(
+  width: number, height: number, depth: number,
+  x: number, y: number, z: number
+): VoxelResizeAction {
+  return {
+    type: VOXEL_RESIZE,
+    size: [width, height, depth],
+    offset: [x, y, z],
+  };
+}
+
+export const VOXEL_TRANSFORM: 'VOXEL_TRANSFORM' = 'VOXEL_TRANSFORM';
+export interface VoxelTransformAction extends Action<typeof VOXEL_TRANSFORM> {
+  transform: Transformation;
+}
+export function voxelTransform(transform: Transformation) {
+  return {
+    type: VOXEL_TRANSFORM,
+    transform,
   };
 }
 

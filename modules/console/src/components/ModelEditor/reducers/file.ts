@@ -9,6 +9,7 @@ import {
   Voxel,
   Volumn,
   VoxelData,
+  Transformation,
 } from '../types';
 
 import {
@@ -26,17 +27,18 @@ import {
   VOXEL_MERGE_FRAGMENT, VoxelMergeFragmentAction,
   VOXEL_REMOVE_SELECTED, VoxelRemoveSelectedAction,
   VOXEL_CLEAR_SELECTION, VoxelClearSelection,
+  VOXEL_RESIZE, VoxelResizeAction,
+  VOXEL_TRANSFORM, VoxelTransformAction,
 } from '../actions';
 
-import {
-  DESIGN_IMG_SIZE,
-} from '../../../canvas/Constants';
+const initialSize: Position = [16, 16, 16];
 
-const initialMatrix = ndarray(new Int32Array(16 * 16 * 16), [16, 16, 16]);
+const initialMatrix = ndarray(new Int32Array(initialSize[0] * initialSize[1] * initialSize[2]), initialSize);
 initialMatrix.set(0,1,1, 1 << 24 | 0xff << 8);
 initialMatrix.set(1,1,1, 1 << 24 | 0xff << 8);
 
 const initialState: VoxelData = {
+  size: initialSize,
   matrix: initialMatrix,
   selection: null,
   fragment: null,
@@ -197,11 +199,113 @@ const mergeFragmentIntoModel = (() => {
   };
 })();
 
+const resizeModel = (() => {
+  const _resizeModel = cwise({
+    args: ['array', 'array'],
+    body: function (next, prev) {
+      if (prev) next = prev;
+    },
+  });
+
+  return (model: ndarray.Ndarray, size: Position, offset: Position): ndarray.Ndarray => {
+    const nextModel = ndarray(new Int32Array(size[0] * size[1] * size[2]), size);
+
+    const prevDataOffset =
+      model.stride[0] * offset[0] +
+      model.stride[1] * offset[1] +
+      model.stride[2] * offset[2];
+
+    const prevModel = ndarray(model.data, size, model.stride, prevDataOffset);
+
+    _resizeModel(nextModel, prevModel);
+
+    return nextModel;
+  };
+})();
+
+const resizeModelAndSelection = (() => {
+  const _mergeFragmentIntoModel = cwise({
+    args: ['array', 'array', 'array'],
+    pre: function () {
+      this.selected = false;
+    },
+    body: function (model, selection, fragment) {
+      if (fragment) {
+        selection = 1;
+        model = fragment;
+        this.selected = true;
+      }
+    },
+    post: function () {
+      return this.selected;
+    }
+  });
+
+  return (model: ndarray.Ndarray, selection: ndarray.Ndarray, fragment: ndarray.Ndarray): boolean => {
+    return _mergeFragmentIntoModel(model, selection, fragment);
+  };
+})();
+
+const merge = (() => {
+  const _merge = cwise({
+    args: ['array', 'array'],
+    body: function (dest, src) {
+      if (src) dest = src;
+    },
+  });
+
+  return (dest: ndarray.Ndarray, src: ndarray.Ndarray): boolean => {
+    return _merge(dest, src);
+  };
+})();
+
 const rotates: { [index: string]: RotateFn } = {
   x: (shape, pos) => ([ pos[0],            shape[2] - pos[2], pos[1]            ]),
   y: (shape, pos) => ([ pos[2],            pos[1],            shape[0] - pos[0] ]),
   z: (shape, pos) => ([ shape[1] - pos[1], pos[0],            pos[2]            ]),
 };
+
+function calculateIntersection(destShape: Position, srcShape: Position, offset: Position) {
+  let srcOffsetX, srcOffsetY, srcOffsetZ;
+  let destOffsetX, destOffsetY, destOffsetZ;
+  let width, height, depth;
+
+  if (offset[0] > 0) {
+    srcOffsetX = 0;
+    destOffsetX = offset[0];
+    width = Math.min(srcShape[0], destShape[0] - destOffsetX);
+  } else {
+    srcOffsetX = -offset[0];
+    destOffsetX = 0;
+    width = Math.min(srcShape[0] - srcOffsetX, destShape[0]);
+  }
+
+  if (offset[1] > 0) {
+    srcOffsetY = 0;
+    destOffsetY = offset[1];
+    height = Math.min(srcShape[1], destShape[1] - destOffsetY);
+  } else {
+    srcOffsetY = -offset[1];
+    destOffsetY = 0;
+    height = Math.min(srcShape[1] - srcOffsetY, destShape[1]);
+  }
+
+  if (offset[2] > 0) {
+    srcOffsetZ = 0;
+    destOffsetZ = offset[2];
+    depth = Math.min(srcShape[2], destShape[2] - destOffsetZ);
+  } else {
+    srcOffsetZ = -offset[2];
+    destOffsetZ = 0;
+    depth = Math.min(srcShape[2] - srcOffsetZ, destShape[2]);
+  }
+
+  return {
+    srcOffset: [srcOffsetX, srcOffsetY, srcOffsetZ],
+    destOffset: [destOffsetX, destOffsetY, destOffsetZ],
+    shape: [width, height, depth],
+  };
+}
 
 function voxelDataReducer(state = initialState, action: Action<any>): VoxelData {
   switch (action.type) {
@@ -354,13 +458,13 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_MERGE_FRAGMENT: {
       if (!state.fragment) return state;
 
-      const { shape } = state.fragment;
-      const offset = state.fragmentOffset;
+      const fShape = state.fragment.shape;
+      const fOffset = state.fragmentOffset;
 
       if (
-          offset[0] <= -shape[0] || offset[0] >= shape[0]
-       || offset[1] <= -shape[1] || offset[1] >= shape[1]
-       || offset[2] <= -shape[2] || offset[2] >= shape[2]
+          fOffset[0] <= -fShape[0] || fOffset[0] >= fShape[0]
+       || fOffset[1] <= -fShape[1] || fOffset[1] >= fShape[1]
+       || fOffset[2] <= -fShape[2] || fOffset[2] >= fShape[2]
       ) {
         return Object.assign({}, state, {
           selection: null,
@@ -369,62 +473,31 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         });
       }
 
-      let loX, loY, loZ, hiX, hiY, hiZ;
-      let fragmentLoX;
-      let fragmentLoY;
-      let fragmentLoZ;
-
-      if (offset[0] > 0) {
-        loX = offset[0];
-        hiX = shape[0];
-        fragmentLoX = 0;
-      } else {
-        loX = 0;
-        hiX = shape[0] + offset[0];
-        fragmentLoX = -offset[0];
-      }
-
-      if (offset[1] > 0) {
-        loY = offset[1];
-        hiY = shape[1];
-        fragmentLoY = 0;
-      } else {
-        loY = 0;
-        hiY = shape[1] + offset[1];
-        fragmentLoY = -offset[1];
-      }
-
-      if (offset[2] > 0) {
-        loZ = offset[2];
-        hiZ = shape[2];
-        fragmentLoZ = 0;
-      } else {
-        loZ = 0;
-        hiZ = shape[2] + offset[2];
-        fragmentLoZ = -offset[2];
-      }
-
-      const intersectionShape = [hiX - loX, hiY - loY, hiZ - loZ];
-
       const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
       const selection = ndarray(
         new Int32Array(state.fragment.shape[0] * state.fragment.shape[1] * state.fragment.shape[2]),
         state.fragment.shape
       );
 
+      const {
+        srcOffset,
+        destOffset,
+        shape,
+      } = calculateIntersection(model.shape, state.fragment.shape, state.fragmentOffset);
+
       const modelOffset =
-        model.stride[0] * loX +
-        model.stride[1] * loY +
-        model.stride[2] * loZ;
+        model.stride[0] * destOffset[0] +
+        model.stride[1] * destOffset[1] +
+        model.stride[2] * destOffset[2];
 
       const fragmentOffset =
-        model.stride[0] * fragmentLoX +
-        model.stride[1] * fragmentLoY +
-        model.stride[2] * fragmentLoZ;
+        model.stride[0] * srcOffset[0] +
+        model.stride[1] * srcOffset[1] +
+        model.stride[2] * srcOffset[2];
 
-      const intersectionInModel = ndarray(model.data, intersectionShape, model.stride, modelOffset);
-      const intersectionInSelection = ndarray(selection.data, intersectionShape, selection.stride, modelOffset);
-      const intersectionInFragment = ndarray(state.fragment.data, intersectionShape, state.fragment.stride, fragmentOffset);
+      const intersectionInModel = ndarray(model.data, shape, model.stride, modelOffset);
+      const intersectionInSelection = ndarray(selection.data, shape, selection.stride, modelOffset);
+      const intersectionInFragment = ndarray(state.fragment.data, shape, state.fragment.stride, fragmentOffset);
 
       const selected = mergeFragmentIntoModel(intersectionInModel, intersectionInSelection, intersectionInFragment);
 
@@ -485,6 +558,134 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       });
     }
 
+    case VOXEL_RESIZE: {
+      const { size, offset } = <VoxelResizeAction>action;
+
+      const src = state.matrix;
+      const dest = ndarray(new Int32Array(size[0] * size[1] * size[2]), size);
+
+      const {
+        srcOffset,
+        destOffset,
+        shape,
+      } = calculateIntersection(dest.shape, src.shape, offset);
+
+      const destOffsetSum =
+        dest.stride[0] * destOffset[0] +
+        dest.stride[1] * destOffset[1] +
+        dest.stride[2] * destOffset[2];
+
+      const srcOffsetSum =
+        src.stride[0] * srcOffset[0] +
+        src.stride[1] * srcOffset[1] +
+        src.stride[2] * srcOffset[2];
+
+      const srcIntersect = ndarray(src.data, shape, src.stride, srcOffsetSum);
+      const destIntersect = ndarray(dest.data, shape, dest.stride, destOffsetSum);
+
+      merge(destIntersect, srcIntersect);
+
+      let destSelection = null;
+      if (state.selection) {
+        const srcSelection = state.selection;
+        destSelection = ndarray(new Int32Array(size[0] * size[1] * size[2]), size);
+
+        const srcSelectionIntersect = ndarray(srcSelection.data, shape, srcSelection.stride, srcOffsetSum);
+        const destSelectionIntersect = ndarray(destSelection.data, shape, destSelection.stride, destOffsetSum);
+
+        merge(destSelectionIntersect, srcSelectionIntersect);
+      }
+
+      return Object.assign({}, state, {
+        size,
+        matrix: dest,
+        selection: destSelection,
+      });
+    }
+
+    case VOXEL_TRANSFORM: {
+      const { transform } = <VoxelTransformAction>action;
+
+      // Infer next shape from transform and current size
+      const { shape } = state.matrix;
+      const w = Math.abs(shape[0] * transform[0][0] + shape[1] * transform[1][0] + shape[2] * transform[2][0]);
+      const h = Math.abs(shape[0] * transform[0][1] + shape[1] * transform[1][1] + shape[2] * transform[2][1]);
+      const d = Math.abs(shape[0] * transform[0][2] + shape[1] * transform[1][2] + shape[2] * transform[2][2]);
+
+      // const ox0 = Math.ceil(shape[0] / 2);
+      // const oy0 = Math.ceil(shape[1] / 2);
+      // const oz0 = Math.ceil(shape[2] / 2);
+
+      // const ox1 = Math.ceil(w / 2);
+      // const oy1 = Math.ceil(h / 2);
+      // const oz1 = Math.ceil(d / 2)
+      const ox0 = (shape[0] / 2) - 0.5;
+      const oy0 = (shape[1] / 2) - 0.5;
+      const oz0 = (shape[2] / 2) - 0.5;
+
+      const ox1 = (w / 2) - 0.5;
+      const oy1 = (h / 2) - 0.5;
+      const oz1 = (d / 2) - 0.5;
+
+      // console.log(`${ox0} ${oy0} ${oz0} / ${ox1} ${oy1} ${oz1}`);
+
+      const model = ndarray(new Int32Array(w * h * d), [w, h ,d]);
+
+      for (let i = 0; i < shape[0]; ++i) {
+        for (let j = 0; j < shape[1]; ++j) {
+          for (let k = 0; k < shape[2]; ++k) {
+            const c = state.matrix.get(i, j, k);
+            if (c) {
+              const x0 = i - ox0;
+              const y0 = j - oy0;
+              const z0 = k - oz0;
+
+              const x1 = x0 * transform[0][0] + y0 * transform[1][0] + z0 * transform[2][0];
+              const y1 = x0 * transform[0][1] + y0 * transform[1][1] + z0 * transform[2][1];
+              const z1 = x0 * transform[0][2] + y0 * transform[1][2] + z0 * transform[2][2];
+
+              // console.log(`${x0} ${y0} ${z0} -> ${x1} ${y1} ${z1} [${c}]`);
+              // console.log(`${i} ${j} ${k} -> ${x1 + ox1} ${y1 + oy1} ${z1 + oz1}`);
+
+              model.set(x1 + ox1, y1 + oy1, z1 + oz1, c);
+            }
+          }
+        }
+      }
+
+      let selection = null;
+
+      if (state.selection) {
+        selection = ndarray(new Int32Array(w * h * d), [w, h ,d]);
+
+        for (let i = 0; i < shape[0]; ++i) {
+          for (let j = 0; j < shape[1]; ++j) {
+            for (let k = 0; k < shape[2]; ++k) {
+              const c = state.selection.get(i, j, k);
+              if (c) {
+                const x0 = i - ox0;
+                const y0 = j - oy0;
+                const z0 = k - oz0;
+
+                const x1 = x0 * transform[0][0] + y0 * transform[1][0] + z0 * transform[2][0];
+                const y1 = x0 * transform[0][1] + y0 * transform[1][1] + z0 * transform[2][1];
+                const z1 = x0 * transform[0][2] + y0 * transform[1][2] + z0 * transform[2][2];
+
+                // console.log(`${x0} ${y0} ${z0} -> ${x1} ${y1} ${z1} [${c}]`);
+
+                selection.set(x1 + ox1, y1 + oy1, z1 + oz1, 1);
+              }
+            }
+          }
+        }
+      }
+
+      return Object.assign({}, state, {
+        matrix: model,
+        selection,
+      });
+    }
+
     case VOXEL_ROTATE: {
       const { axis } = <VoxelRotateAction>action;
       const rotate = rotates[axis];
@@ -496,7 +697,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const matrix = ndarray(new Int32Array(width * height * depth), state.matrix.shape);
 
       // TODO: Support user define shape
-      const shape: Shape = [ DESIGN_IMG_SIZE, DESIGN_IMG_SIZE, DESIGN_IMG_SIZE ];
+      const shape: Shape = state.size;
 
       for (let k = 0; k < depth; ++k) {
         for (let j = 0; j < height; ++j) {

@@ -17,7 +17,6 @@ import {
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-  DESIGN_IMG_SIZE,
 } from '../../../../canvas/Constants';
 
 import AddBlockTool, { AddBlockToolWaitState } from './AddBlockTool';
@@ -59,17 +58,12 @@ class DrawState extends ToolState {
 
     const drawGuideMaterial = new THREE.MeshBasicMaterial({ visible: false });
 
-    const drawGuideGeometryX = this.createGuideGeometry(DESIGN_IMG_SIZE, 1, 1);
-    this.drawGuideX = new THREE.Mesh(drawGuideGeometryX, drawGuideMaterial);
-    this.drawGuideX.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    geometry.translate(1 / 2, 1 / 2, 1 / 2);
 
-    const drawGuideGeometryY = this.createGuideGeometry(1, DESIGN_IMG_SIZE, 1);
-    this.drawGuideY = new THREE.Mesh(drawGuideGeometryY, drawGuideMaterial);
-    this.drawGuideY.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
-
-    const drawGuideGeometryZ = this.createGuideGeometry(1, 1, DESIGN_IMG_SIZE);
-    this.drawGuideZ = new THREE.Mesh(drawGuideGeometryZ, drawGuideMaterial);
-    this.drawGuideZ.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    this.drawGuideX = new THREE.Mesh(geometry, drawGuideMaterial);
+    this.drawGuideY = new THREE.Mesh(geometry, drawGuideMaterial);
+    this.drawGuideZ = new THREE.Mesh(geometry, drawGuideMaterial);
 
     // Setup cursor
 
@@ -95,12 +89,6 @@ class DrawState extends ToolState {
     this.target = new THREE.Vector3();
   }
 
-  createGuideGeometry(width, height, depth) {
-    const geometry = new THREE.BoxGeometry(width, height, depth);
-    geometry.translate(width / 2, height / 2, depth / 2);
-    return geometry;
-  }
-
   onEnter(cursorPosition: THREE.Vector3) {
     // Init data
 
@@ -109,9 +97,17 @@ class DrawState extends ToolState {
 
     // Show and move draw guides
     const { x, y, z } = cursorPosition.multiplyScalar(PIXEL_SCALE);
+
+    const { size } = this.tool.props;
+
     this.drawGuideX.position.set(0, y, z);
+    this.drawGuideX.scale.set(size[0] * PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+
     this.drawGuideY.position.set(x, 0, z);
+    this.drawGuideY.scale.set(PIXEL_SCALE, size[1] * PIXEL_SCALE, PIXEL_SCALE);
+
     this.drawGuideZ.position.set(x, y, 0);
+    this.drawGuideZ.scale.set(PIXEL_SCALE, PIXEL_SCALE, size[2] * PIXEL_SCALE);
 
     this.drawGuideX.updateMatrixWorld(false);
     this.drawGuideY.updateMatrixWorld(false);

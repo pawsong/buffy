@@ -38,6 +38,7 @@ class WaitState extends AddBlockToolWaitState<EnterParams> {
   getNextStateName() { return STATE_DRAW; }
   getNextStateParams(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
     return {
+      size: this.tool.props.size,
       anchor: position,
       normal: intersect.face.normal,
     };

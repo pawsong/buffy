@@ -8,12 +8,12 @@ import Canvas from '../../../../../canvas/Canvas';
 
 import {
   Volumn,
+  Position,
 } from '../../../types';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-  DESIGN_IMG_SIZE,
 } from '../../../../../canvas/Constants';
 
 import SelectionBox from '../../objects/SelectionBox';
@@ -21,6 +21,7 @@ import SelectionBox from '../../objects/SelectionBox';
 const STATE_WAIT = ToolState.STATE_WAIT;
 
 export interface EnterParams {
+  size: Position;
   anchor: THREE.Vector3;
   normal: THREE.Vector3;
 }
@@ -49,6 +50,8 @@ abstract class SelectBoxState extends ToolState {
   private temp3: THREE.Vector3;
   private temp4: THREE.Vector3;
 
+  private size: THREE.Vector3;
+
   private drawGuide: THREE.Mesh;
 
   constructor(private canvas: Canvas, private selectionBox: SelectionBox) {
@@ -73,6 +76,8 @@ abstract class SelectBoxState extends ToolState {
       onMouseUp: params => this.handleMouseUp(params),
     });
 
+    this.size = new THREE.Vector3();
+
     this.temp1 = new THREE.Vector3();
     this.temp2 = new THREE.Vector3();
     this.temp3 = new THREE.Vector3();
@@ -90,8 +95,10 @@ abstract class SelectBoxState extends ToolState {
     this.target2 = 0;
   }
 
-  onEnter({ anchor, normal }: EnterParams) {
+  onEnter({ anchor, normal, size }: EnterParams) {
     document.addEventListener('keydown', this.handleKeyDown, false);
+
+    this.size.set(size[0], size[0], size[0]);
 
     // Init handlers
     this.handleHit = this.handleHitInStep1;
@@ -110,7 +117,7 @@ abstract class SelectBoxState extends ToolState {
     this.drawGuide.position.copy(this.normal).multiply(scaledAnchor);
     this.drawGuide.scale
       .copy(this.normal).subScalar(1).multiplyScalar(-1)
-      .multiplyScalar(DESIGN_IMG_SIZE - 1).addScalar(1)
+      .multiply(this.temp1.copy(this.size).subScalar(1)).addScalar(1)
       .multiplyScalar(PIXEL_SCALE);
     this.drawGuide.updateMatrixWorld(false);
 
@@ -173,7 +180,8 @@ abstract class SelectBoxState extends ToolState {
     this.drawGuide.scale
       .copy(this.anchorSize)
       .multiply(this.normalFilter)
-      .add(this.temp1.copy(this.normal).multiplyScalar(DESIGN_IMG_SIZE))
+      .add(this.temp1.copy(this.normal)
+      .multiply(this.size))
       .multiplyScalar(PIXEL_SCALE);
 
     this.drawGuide.updateMatrixWorld(false);

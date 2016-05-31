@@ -45,12 +45,14 @@ class Cursor {
   }
 
   private static getCursorPositionOnFace(intersect: THREE.Intersection, out: THREE.Vector3) {
-    out.copy(intersect.point).add(intersect.face.normal);
+    out.copy(intersect.point);
+    if (intersect.face) out.add(intersect.face.normal);
   }
 
   private static getCursorPositionUnderFace(intersect: THREE.Intersection, out: THREE.Vector3) {
     out.copy(intersect.point).sub(intersect.face.normal);
-  }
+    if (intersect.face) out.sub(intersect.face.normal);
+ }
 
   private canvasPosition: THREE.Vector3;
 

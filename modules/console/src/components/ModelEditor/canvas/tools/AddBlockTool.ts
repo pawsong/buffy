@@ -14,6 +14,7 @@ import {
   Color,
   ToolType,
   ModelEditorState,
+  Position,
 } from '../../types';
 
 import {
@@ -22,7 +23,6 @@ import {
 
 import {
   PIXEL_SCALE,
-  DESIGN_IMG_SIZE,
 } from '../../../../canvas/Constants';
 
 import SelectionBox from '../objects/SelectionBox';
@@ -69,6 +69,7 @@ class GridSelectionBox extends SelectionBox {
 }
 
 interface AddBlockToolProps {
+  size: Position;
   color: Color;
   fragment: ndarray.Ndarray;
 }
@@ -91,6 +92,7 @@ abstract class AddBlockTool extends ModelEditorTool<AddBlockToolProps, void, Add
 
   mapParamsToProps(state: ModelEditorState) {
     return {
+      size: state.file.present.data.size,
       color: state.common.paletteColor,
       fragment: state.file.present.data.fragment,
     };
@@ -127,8 +129,9 @@ abstract class AddBlockToolWaitState<T> extends CursorState<T> {
     super(tool.canvas, {
       cursorOnFace: true,
       cursorMesh: tool.selectionBox.mesh,
+      getSize: () => tool.props.size,
       getInteractables: () => [
-        tool.canvas.plane,
+        tool.canvas.component.plane,
         tool.canvas.component.modelMesh,
         tool.canvas.component.fragmentMesh,
       ],

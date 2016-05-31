@@ -27,6 +27,7 @@ import {
 const STATE_WAIT = ToolState.STATE_WAIT;
 
 interface MagicWandToolProps {
+  size: Position;
   selection: any;
 }
 
@@ -35,6 +36,7 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
 
   mapParamsToProps(params: ModelEditorState) {
     return {
+      size: params.file.present.data.size,
       selection: params.file.present.data.selection,
     };
   }
@@ -55,6 +57,7 @@ class WaitState extends CursorState<void> {
     super(tool.canvas, {
       cursorVisible: false,
       cursorOnFace: false,
+      getSize: () => tool.props.size,
       getInteractables: () => [tool.canvas.component.modelMesh],
     });
   }

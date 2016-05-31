@@ -31,8 +31,16 @@ export enum ToolType {
   BOX_SELECT,
   RECTANGLE_SELECT,
   MAGIC_WAND,
+  TRANSFORM,
   MOVE,
+  RESIZE,
 }
+
+export type Transformation = [
+  [number, number, number],
+  [number, number, number],
+  [number, number, number]
+];
 
 export interface Color {
   r: number; g: number; b: number;
@@ -41,6 +49,7 @@ export interface Color {
 /**
  * Voxel state
  */
+// TODO: Rename to Vector3
 export type Position = [number /* x */, number /* y */, number /* z */];
 
 export interface Voxel {
@@ -57,6 +66,7 @@ export interface VoxelData {
   matrix: Ndarray;
   selection: Ndarray;
   fragment: Ndarray;
+  size: Position;
   fragmentOffset: Position;
 }
 
