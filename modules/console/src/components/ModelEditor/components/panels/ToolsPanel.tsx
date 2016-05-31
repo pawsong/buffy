@@ -25,6 +25,7 @@ import CubeIcon from '../../../CubeIcon';
 import CubeOutlineIcon from '../../../CubeOutlineIcon';
 import AutoFixIcon from '../../../AutoFixIcon';
 import CursorMoveIcon from '../../../CursorMoveIcon';
+import SelectIcon from '../../../SelectIcon';
 
 const styles = {
   color: {
@@ -146,6 +147,15 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             tooltip={'Move'}
           >
             <CursorMoveIcon />
+          </IconButton>
+          <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE_SELECT)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.RECTANGLE_SELECT)}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Rectangle select'}
+          >
+            <SelectIcon />
           </IconButton>
         </div>
         <div style={styles.iconRow}>

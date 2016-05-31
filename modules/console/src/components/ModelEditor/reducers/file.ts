@@ -17,6 +17,7 @@ import {
   VOXEL_REMOVE, VoxelRemoveAction,
   VOXEL_REMOVE_BATCH, VoxelRemoveBatchAction,
   VOXEL_ROTATE, VoxelRotateAction,
+  VOXEL_SELECT, VoxelSelectAction,
   VOXEL_SELECT_BOX, VoxelSelectBoxAction,
   VOXEL_MAGIN_WAND, VoxelMaginWandAction,
   VOXEL_CREATE_FRAGMENT, VoxelCreateFragmentAction,
@@ -219,6 +220,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       return Object.assign({}, state, {
         matrix,
       });
+    }
+
+    case VOXEL_SELECT: {
+      const { selection } = <VoxelSelectAction>action;
+      return Object.assign({}, state, { selection });
     }
 
     case VOXEL_SELECT_BOX: {

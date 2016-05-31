@@ -14,6 +14,7 @@ import ColorizeTool from './ColorizeTool';
 import EraseTool from './EraseTool';
 import BoxTool from './BoxTool';
 import BoxSelectTool from './BoxSelectTool';
+import RectangleSelectTool from './RectangleSelectTool';
 import MagicWandTool from './MagicWandTool';
 import MoveTool from './MoveTool';
 
@@ -44,6 +45,9 @@ export default function createTool(
     }
     case ToolType.BOX_SELECT: {
       return new BoxSelectTool(initParams);
+    }
+    case ToolType.RECTANGLE_SELECT: {
+      return new RectangleSelectTool(initParams);
     }
     case ToolType.MAGIC_WAND: {
       return new MagicWandTool(initParams);

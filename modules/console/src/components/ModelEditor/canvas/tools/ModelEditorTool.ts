@@ -28,6 +28,8 @@ abstract class ModelEditorTool<P, S, T> extends Tool<ToolType, InitParams, P, S,
   mapParamsToProps(params: ModelEditorState): P { return null; }
 
   onRender() {}
+
+  onResize() {}
 }
 
 export default ModelEditorTool;

@@ -473,7 +473,7 @@ class ModelEditorCanvas extends Canvas {
     this.camera = camera;
     this.controls.object = this.camera;
 
-    this.camera.aspect = this.container.clientWidth / this.container.clientHeight
+    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
     this.camera.updateProjectionMatrix();
 
     this.controls.update();
@@ -490,9 +490,11 @@ class ModelEditorCanvas extends Canvas {
   }
 
   onWindowResize() {
-    this.camera.aspect = this.container.clientWidth / this.container.clientHeight
+    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
     this.camera.updateProjectionMatrix();
+
     this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+    this.tool.onResize();
     this.render();
   }
 

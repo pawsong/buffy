@@ -28,6 +28,17 @@ export function voxelAddBatch(volumn: Volumn, color: Color): VoxelAddBatchAction
   };
 }
 
+export const VOXEL_SELECT: 'VOXEL_SELECT' = 'VOXEL_SELECT';
+export interface VoxelSelectAction extends Action<typeof VOXEL_SELECT> {
+  selection: Ndarray;
+}
+export function voxelSelect(selection: Ndarray): VoxelSelectAction {
+  return {
+    type: VOXEL_SELECT,
+    selection,
+  };
+}
+
 export const VOXEL_SELECT_BOX: 'VOXEL_SELECT_BOX' = 'VOXEL_SELECT_BOX';
 export interface VoxelSelectBoxAction extends Action<typeof VOXEL_SELECT_BOX> {
   volumn: Volumn;

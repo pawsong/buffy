@@ -29,6 +29,7 @@ export enum ToolType {
   COLORIZE,
   BOX,
   BOX_SELECT,
+  RECTANGLE_SELECT,
   MAGIC_WAND,
   MOVE,
 }
