@@ -23,6 +23,7 @@ import mesher from '../../../canvas/meshers/greedy';
 
 import { Keyboard } from '../../../keyboard';
 
+import FlippedBoxGeometry from './objects/FlippedBoxGeometry';
 import BoundingBoxEdgesHelper from './objects/BoundingBoxEdgesHelper';
 
 import {
@@ -377,35 +378,39 @@ class ModelEditorCanvas extends Canvas {
 
     // Plane
     {
+      const STEP = 4;
       const selectionMaterial = new THREE.ShaderMaterial({
         uniforms: {
           gridColor: { value: new THREE.Vector3(0.61, 0.61, 0.61) },
-          gridThickness: { type: 'f', value: 0.02 },
-          scale: { value: new THREE.Vector3(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE) },
+          gridThickness: { type: 'f', value: 0.005 },
+          scale: { value: new THREE.Vector3(PIXEL_SCALE * STEP, PIXEL_SCALE * STEP, PIXEL_SCALE * STEP) },
         },
         vertexShader: gridVertexShader4,
         fragmentShader: gridFragmentShader4,
 
-        side: THREE.DoubleSide,
         transparent: true,
+        depthWrite: false,
       });
       selectionMaterial.extensions.derivatives = true;
 
-      const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
-      geometry.rotateX( - Math.PI / 2 );
+      const operand = DESIGN_IMG_SIZE / 2;
+      const result = Math.floor(operand / STEP);
+      const offset = result > 0 ? operand - result * STEP : operand;
+
+      const geometry = new FlippedBoxGeometry(
+        PIXEL_SCALE * DESIGN_IMG_SIZE,
+        PIXEL_SCALE * DESIGN_IMG_SIZE,
+        PIXEL_SCALE * DESIGN_IMG_SIZE
+      );
+      geometry.translate(offset * PIXEL_SCALE, offset * PIXEL_SCALE, offset * PIXEL_SCALE);
 
       this.plane = new THREE.Mesh(geometry, selectionMaterial);
-      this.plane.position.x = planeWidth / 2;
-      this.plane.position.y = 0;
-      this.plane.position.z = planeWidth / 2;
+      this.plane.position.set(
+        (DESIGN_IMG_SIZE / 2 - offset) * PIXEL_SCALE,
+        (DESIGN_IMG_SIZE / 2 - offset) * PIXEL_SCALE,
+        (DESIGN_IMG_SIZE / 2 - offset) * PIXEL_SCALE
+      );
       this.scene.add(this.plane)
-    }
-
-    // Arrows
-    {
-      const axisHelper = new THREE.AxisHelper(PIXEL_SCALE *  (DESIGN_IMG_SIZE + 1));
-      axisHelper.position.set(0, 0, 0);
-      this.scene.add(axisHelper);
     }
 
     this.tool = this.getTool(this.state.common.selectedTool);
