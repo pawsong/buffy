@@ -382,6 +382,8 @@ class ModelEditorCanvas extends Canvas {
   private state: ModelEditorState;
   private keyboard: Keyboard;
 
+  private light: THREE.DirectionalLight;
+
   constructor({
     container,
     dispatchAction,
@@ -487,8 +489,22 @@ class ModelEditorCanvas extends Canvas {
       };
     })();
 
+    this.light = new THREE.DirectionalLight(0xffffff);
+
+    const d = 15 * PIXEL_SCALE;
+    this.light.shadow.camera['left'] = - d;
+    this.light.shadow.camera['right'] = d;
+    this.light.shadow.camera['top'] = d;
+    this.light.shadow.camera['bottom'] = - d;
+    this.light.shadow.camera['far'] = 2000;
+    this.scene.add(this.light);
+
     // add this only if there is no animation loop (requestAnimationFrame)
-    this.controls.addEventListener('change', () => this.render());
+    this.controls.addEventListener('change', () => {
+      this.light.position.copy(this.camera.position);
+      this.light.lookAt(this.controls.target);
+      this.render();
+    });
     this.controls.addEventListener('start', () => {
       controlsRef++;
       updateControlsState();
@@ -499,10 +515,16 @@ class ModelEditorCanvas extends Canvas {
     });
 
     this.controls.update();
+    this.syncLightToCamera();
 
     this.component = new ModelEditorCanvasComponent(this);
     this.component.start(this.state.file.present.data);
     this.render();
+  }
+
+  syncLightToCamera() {
+    this.light.position.copy(this.camera.position);
+    this.light.lookAt(this.controls.target);
   }
 
   initCamera() {
@@ -520,6 +542,7 @@ class ModelEditorCanvas extends Canvas {
     this.camera.updateProjectionMatrix();
 
     this.controls.update();
+    this.syncLightToCamera();
     this.render();
   }
 

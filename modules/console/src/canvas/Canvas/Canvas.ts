@@ -33,24 +33,8 @@ abstract class Canvas {
     });
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0x666666);
+    const ambientLight = new THREE.AmbientLight(0x888888);
     scene.add(ambientLight);
-
-    const light = new THREE.DirectionalLight(0xffffff);
-    light.position.set(8, 16, 12);
-    light.position.multiplyScalar( PIXEL_SCALE );
-
-    light.castShadow = true;
-    light.shadow.mapSize.width = 1024;
-    light.shadow.mapSize.height = 1024;
-    const d = 15 * PIXEL_SCALE;
-    light.shadow.camera['left'] = - d;
-    light.shadow.camera['right'] = d;
-    light.shadow.camera['top'] = d;
-    light.shadow.camera['bottom'] = - d;
-    light.shadow.camera['far'] = 2000;
-
-    scene.add(light);
 
     const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
