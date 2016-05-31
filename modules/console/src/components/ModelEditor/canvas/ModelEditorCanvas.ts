@@ -52,6 +52,9 @@ interface CanvasOptions {
   state: ModelEditorState;
 }
 
+const modelVertexShader = require('raw!./shaders/grid.vert');
+const modelFragmentShader = require('raw!./shaders/grid.frag');
+
 const gridVertexShader = require('raw!./shaders/grid3.vert');
 const gridFragmentShader = require('raw!./shaders/grid3.frag');
 
@@ -103,8 +106,11 @@ const select = (() => {
 class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, ComponentState, ComponentTree> {
   private emptyMesh: THREE.Mesh;
 
-  private modelMaterial: THREE.MeshLambertMaterial;
+  private modelMaterial: THREE.Material;
   modelMesh: THREE.Mesh;
+
+  private modelGridMaterial: THREE.ShaderMaterial;
+  modelGridMesh: THREE.Mesh;
 
   private selectionMaterial: THREE.ShaderMaterial;
   selectionMesh: THREE.Mesh;
@@ -154,9 +160,24 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       vertexColors: THREE.VertexColors,
 
       polygonOffset: true,
-      polygonOffsetFactor: 1, // positive value pushes polygon further away
+      polygonOffsetFactor: 2, // positive value pushes polygon further away
       polygonOffsetUnits: 1,
     });
+
+    this.modelGridMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        gridColor: { value: new THREE.Vector3(1.0, 0.95, 0.46) },
+        gridThickness: { type: 'f', value: 0.05 },
+      },
+      vertexShader: modelVertexShader,
+      fragmentShader: modelFragmentShader,
+      polygonOffset: true,
+      polygonOffsetFactor: 1, // positive value pushes polygon further away
+      polygonOffsetUnits: 1,
+
+      transparent: true,
+    });
+    this.modelGridMaterial.extensions.derivatives = true;
 
     this.selectionMaterial = new THREE.ShaderMaterial({
       uniforms: {
@@ -197,6 +218,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     super.onStart();
 
     this.modelMesh = this.emptyMesh;
+    this.modelGridMesh = this.emptyMesh;
     this.selectionMesh = this.emptyMesh;
     this.fragmentMesh = this.emptyMesh;
   }
@@ -267,12 +289,22 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         this.modelMesh = this.emptyMesh;
       }
 
+      if (this.modelGridMesh.visible) {
+        this.canvas.scene.remove(this.modelGridMesh);
+        this.modelGridMesh.geometry.dispose();
+        this.modelGridMesh = this.emptyMesh;
+      }
+
       const mesh = mesher(diff.model);
       const geometry = createGeometryFromMesh(mesh);
       if (geometry.vertices.length !== 0) {
         this.modelMesh = new THREE.Mesh(geometry, this.modelMaterial);
         this.modelMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
         this.canvas.scene.add(this.modelMesh);
+
+        this.modelGridMesh = new THREE.Mesh(geometry, this.modelGridMaterial);
+        this.modelGridMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+        this.canvas.scene.add(this.modelGridMesh);
       }
     }
 

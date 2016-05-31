@@ -14,6 +14,6 @@ void main(void) {
     vec2 delta = fwidth(f);
     f = smoothstep(f - delta, f + delta, thickness);
 
-    float c = clamp(f.x + f.y, 0.0, 0.4) - 1.0;
-    gl_FragColor = vec4(vColor.rgb * -c, opacity);
+    float c = clamp(f.x + f.y, 0.0, 1.0);
+    gl_FragColor = vec4(vColor.rgb / 2.0, c);
 }
