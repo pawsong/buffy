@@ -21,6 +21,8 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 
 import * as ndarray from 'ndarray';
 
+import { Keyboard } from '../../keyboard';
+
 import { SimpleStore } from '../../libs';
 
 import Messages from '../../constants/Messages';
@@ -56,6 +58,8 @@ import {
   changeTool,
   changePaletteColor,
   voxelRemoveSelected,
+  voxelMergeFragment,
+  voxelClearSelection,
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
@@ -115,8 +119,12 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
   canvas: ModelEditorCanvas;
 
+  private keyboard: Keyboard;
+
   constructor(props) {
     super(props);
+
+    this.keyboard = new Keyboard();
 
     this.state = {
       fullscreen: false,
@@ -150,6 +158,16 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         if (this.props.fileState.present.data.selection) {
           this.dispatchAction(voxelRemoveSelected());
         }
+        break;
+      }
+      case 27: // ESC
+      {
+        if (this.props.fileState.present.data.fragment) {
+          this.dispatchAction(voxelMergeFragment());
+        } else if (this.props.fileState.present.data.selection) {
+          this.dispatchAction(voxelClearSelection());
+        }
+        break;
       }
     }
 
@@ -163,6 +181,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
             if (this.props.fileState.future.length > 0) {
               this.dispatchAction(redo());
             }
+            break;
           }
         }
       } else {
@@ -174,6 +193,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
             if (this.props.fileState.past.length > 0) {
               this.dispatchAction(undo());
             }
+            break;
           }
         }
       }
@@ -186,6 +206,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       camera: this.props.extraData.camera,
       dispatchAction: this.dispatchAction,
       state: this.getEditorState(),
+      keyboard: this.keyboard,
     });
     this.canvas.init();
 
@@ -211,6 +232,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   componentWillUnmount() {
     this.canvas.destroy();
     document.removeEventListener('keydown', this.handleKeyDown, false);
+    this.keyboard.dispose();
   }
 
   selectTool = (selectedTool: ToolType) => this.dispatchAction(changeTool(selectedTool));

@@ -244,7 +244,13 @@ class DrawState extends ToolState {
     this.matrix.multiplyMatrices(camera.projectionMatrix, this.matrix.getInverse(camera.matrixWorld));
 
     const { model } = this.tool.props;
-    const selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
+
+    let selection: ndarray.Ndarray;
+    if (this.tool.props.selection && this.tool.keyboard.isShiftPressed()) {
+      selection = ndarray(this.tool.props.selection.data.slice(), model.shape);
+    } else {
+      selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
+    }
 
     const selected = filter(selection, this.tool.props.model, PIXEL_SCALE, this.matrix, lo0, lo1, hi0, hi1);
 

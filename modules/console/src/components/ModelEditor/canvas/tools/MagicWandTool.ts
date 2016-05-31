@@ -31,30 +31,12 @@ interface MagicWandToolProps {
 }
 
 class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
-  cursorGeometry: THREE.Geometry;
-  translucentMaterial: THREE.Material;
-
   getToolType(): ToolType { return ToolType.MAGIC_WAND; }
 
   mapParamsToProps(params: ModelEditorState) {
     return {
       selection: params.file.present.data.selection,
     };
-  }
-
-  onInit(params: InitParams) {
-    super.onInit(params);
-
-    this.cursorGeometry = new THREE.BoxGeometry(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
-    this.cursorGeometry.translate(PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF);
-
-    this.translucentMaterial = new THREE.MeshBasicMaterial({
-      vertexColors: THREE.VertexColors,
-      opacity: 0.5,
-      transparent: true,
-      polygonOffset: true,
-      polygonOffsetFactor: -0.1,
-    });
   }
 
   createStates(): ToolStates {
@@ -79,7 +61,9 @@ class WaitState extends CursorState<void> {
 
   onMouseDown(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
     if (position) {
-      this.tool.dispatchAction(voxelMaginWand(position.x, position.y, position.z));
+      this.tool.dispatchAction(
+        voxelMaginWand(position.x, position.y, position.z, this.tool.keyboard.isShiftPressed())
+      );
     } else {
       if (this.tool.props.selection) this.tool.dispatchAction(voxelClearSelection());
     }

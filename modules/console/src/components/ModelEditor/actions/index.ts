@@ -42,33 +42,39 @@ export function voxelSelect(selection: Ndarray): VoxelSelectAction {
 export const VOXEL_SELECT_BOX: 'VOXEL_SELECT_BOX' = 'VOXEL_SELECT_BOX';
 export interface VoxelSelectBoxAction extends Action<typeof VOXEL_SELECT_BOX> {
   volumn: Volumn;
+  merge: boolean;
 }
-export function voxelSelectBox(volumn: Volumn): VoxelSelectBoxAction {
+export function voxelSelectBox(volumn: Volumn, merge: boolean): VoxelSelectBoxAction {
   return {
     type: VOXEL_SELECT_BOX,
     volumn,
+    merge,
   };
 }
 
 export const VOXEL_SELECT_CONNECTED: 'VOXEL_SELECT_CONNECTED' = 'VOXEL_SELECT_CONNECTED';
 export interface VoxelSelectConnectedAction extends Action<typeof VOXEL_SELECT_CONNECTED> {
   position: Position;
+  merge: boolean;
 }
-export function voxelSelectConnected(x: number, y: number, z: number): VoxelSelectConnectedAction {
+export function voxelSelectConnected(x: number, y: number, z: number, merge: boolean): VoxelSelectConnectedAction {
   return {
     type: VOXEL_SELECT_CONNECTED,
     position: [x, y, z],
+    merge,
   };
 }
 
 export const VOXEL_MAGIN_WAND: 'VOXEL_MAGIN_WAND' = 'VOXEL_MAGIN_WAND';
 export interface VoxelMaginWandAction extends Action<typeof VOXEL_MAGIN_WAND> {
   position: Position;
+  merge: boolean;
 }
-export function voxelMaginWand(x: number, y: number, z: number): VoxelMaginWandAction {
+export function voxelMaginWand(x: number, y: number, z: number, merge: boolean): VoxelMaginWandAction {
   return {
     type: VOXEL_MAGIN_WAND,
     position: [x, y, z],
+    merge,
   };
 }
 

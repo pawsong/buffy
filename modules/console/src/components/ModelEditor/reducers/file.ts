@@ -229,11 +229,19 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     }
 
     case VOXEL_SELECT_BOX: {
-      const { volumn } = <VoxelSelectBoxAction>action;
-      const selection = ndarray(
-        new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
-        state.matrix.shape
-      );
+      const { volumn, merge } = <VoxelSelectBoxAction>action;
+
+      let selection: ndarray.Ndarray;
+      if (state.selection && merge) {
+        selection = ndarray(state.selection.data.slice(),
+          state.matrix.shape
+        );
+      } else {
+        selection = ndarray(
+          new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
+          state.matrix.shape
+        );
+      }
 
       const selected = selectWithBox(selection, state.matrix, volumn);
 
@@ -245,12 +253,19 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     }
 
     case VOXEL_SELECT_CONNECTED: {
-      const { position } = <VoxelSelectConnectedAction>action;
+      const { position, merge } = <VoxelSelectConnectedAction>action;
 
-      const selection = ndarray(
-        new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
-        state.matrix.shape
-      );
+      let selection: ndarray.Ndarray;
+      if (state.selection && merge) {
+        selection = ndarray(state.selection.data.slice(),
+          state.matrix.shape
+        );
+      } else {
+        selection = ndarray(
+          new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
+          state.matrix.shape
+        );
+      }
 
       floodFill({
         getter: (x: number, y: number, z: number) => {
@@ -274,14 +289,21 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     }
 
     case VOXEL_MAGIN_WAND: {
-      const { position } = <VoxelMaginWandAction>action;
+      const { position, merge } = <VoxelMaginWandAction>action;
+
+      let selection: ndarray.Ndarray;
+      if (state.selection && merge) {
+        selection = ndarray(state.selection.data.slice(),
+          state.matrix.shape
+        );
+      } else {
+        selection = ndarray(
+          new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
+          state.matrix.shape
+        );
+      }
 
       const c = state.matrix.get(position[2], position[1], position[0]);
-
-      const selection = ndarray(
-        new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
-        state.matrix.shape
-      );
 
       floodFill({
         getter: (x: number, y: number, z: number) => {
@@ -312,8 +334,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_CREATE_FRAGMENT: {
       const { model, fragment, fragmentOffset } = <VoxelCreateFragmentAction>action;
 
-      console.log(fragmentOffset);
-
       // Reuse ndarray params for performance reason.
       return Object.assign({}, state, {
         matrix: model,
@@ -325,8 +345,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
     case VOXEL_MOVE_FRAGMENT: {
       const { offset } = <VoxelMoveFragmentAction>action;
-
-      console.log(offset);
 
       return Object.assign({}, state, {
         fragmentOffset: offset,

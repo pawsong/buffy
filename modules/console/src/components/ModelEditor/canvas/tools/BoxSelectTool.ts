@@ -163,7 +163,7 @@ class DrawState extends SelectBoxState {
   }
 
   onBoxSelect(volumn: Volumn) {
-    this.tool.dispatchAction(voxelSelectBox(volumn));
+    this.tool.dispatchAction(voxelSelectBox(volumn, this.tool.keyboard.isShiftPressed()));
   }
 }
 

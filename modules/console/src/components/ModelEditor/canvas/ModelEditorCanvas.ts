@@ -21,6 +21,8 @@ import { createGeometryFromMesh } from '../../../canvas/utils';
 import Canvas from '../../../canvas/Canvas';
 import mesher from '../../../canvas/meshers/greedy';
 
+import { Keyboard } from '../../../keyboard';
+
 import BoundingBoxEdgesHelper from './objects/BoundingBoxEdgesHelper';
 
 import {
@@ -44,6 +46,7 @@ import {
 interface CanvasOptions {
   container: HTMLElement;
   camera: THREE.PerspectiveCamera;
+  keyboard: Keyboard;
   dispatchAction: DispatchAction;
   state: ModelEditorState;
 }
@@ -344,12 +347,14 @@ class ModelEditorCanvas extends Canvas {
   plane: THREE.Mesh;
 
   private state: ModelEditorState;
+  private keyboard: Keyboard;
 
   constructor({
     container,
     dispatchAction,
     state,
     camera,
+    keyboard,
   }: CanvasOptions) {
     super(container);
 
@@ -357,6 +362,7 @@ class ModelEditorCanvas extends Canvas {
     this.state = state;
 
     this.camera = camera;
+    this.keyboard = keyboard;
 
     this.cachedTools = {};
   }
@@ -486,7 +492,7 @@ class ModelEditorCanvas extends Canvas {
     if (tool) return tool;
 
     return this.cachedTools[toolType] =
-      createTool(toolType, this, this.dispatchAction);
+      createTool(toolType, this, this.dispatchAction, this.keyboard);
   }
 
   onWindowResize() {

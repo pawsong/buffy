@@ -1,3 +1,5 @@
+import { Keyboard } from '../../../../keyboard';
+
 import {
   ToolType,
   DispatchAction,
@@ -21,10 +23,11 @@ import MoveTool from './MoveTool';
 export default function createTool(
   toolType: ToolType,
   canvas: ModelEditorCanvas,
-  dispatchAction: DispatchAction
+  dispatchAction: DispatchAction,
+  keyboard: Keyboard
 ): ModelEditorTool<any, any, any> {
   const initParams = {
-    canvas, dispatchAction,
+    canvas, dispatchAction, keyboard,
   };
 
   switch(toolType) {

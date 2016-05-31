@@ -311,7 +311,9 @@ class WaitState extends ToolState {
     if (intersect) {
       if (intersect.object === this.tool.canvas.component.modelMesh) {
         const position = this.cursor.getPosition();
-        this.tool.dispatchAction(voxelSelectConnected(position.x, position.y, position.z));
+        this.tool.dispatchAction(
+          voxelSelectConnected(position.x, position.y, position.z, this.tool.keyboard.isShiftPressed())
+        );
       } else {
         this.transitionTo(STATE_DRAG, event);
       }
