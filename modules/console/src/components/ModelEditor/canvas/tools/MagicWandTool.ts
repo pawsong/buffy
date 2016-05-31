@@ -71,10 +71,9 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
 class WaitState extends CursorState<void> {
   constructor(private tool: MagicWandTool) {
     super(tool.canvas, {
+      cursorVisible: false,
       cursorOnFace: false,
       getInteractables: () => [tool.canvas.component.modelMesh],
-      cursorGeometry: tool.cursorGeometry,
-      cursorMaterial: tool.translucentMaterial,
     });
   }
 
