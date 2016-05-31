@@ -285,6 +285,15 @@ class WaitState extends ToolState {
         tool.arrowZ.cone,
         tool.canvas.component.modelMesh,
       ],
+      determineIntersect: intersects => {
+        for (let i = 0, len = intersects.length; i < len; ++i) {
+          const intersect = intersects[i];
+          if (intersect.object !== tool.canvas.component.modelMesh) {
+            return intersect;
+          }
+        }
+        return intersects[0];
+      },
       onHit: params => this.handleHit(params),
       onMiss: () => this.handleMiss(),
       onMouseDown: params => this.handleMouseDown(params),
@@ -308,21 +317,23 @@ class WaitState extends ToolState {
   }
 
   private handleMouseDown({ event, intersect }: CursorEventParams) {
-    if (intersect) {
-      if (intersect.object === this.tool.canvas.component.modelMesh) {
-        const position = this.cursor.getPosition();
-        this.tool.dispatchAction(
-          voxelSelectConnected(position.x, position.y, position.z, this.tool.keyboard.isShiftPressed())
-        );
-      } else {
-        this.transitionTo(STATE_DRAG, event);
-      }
-    } else {
+    if (!intersect) {
       if (this.tool.props.fragment) {
         this.tool.dispatchAction(voxelMergeFragment());
       } else if (this.tool.props.selection) {
         this.tool.dispatchAction(voxelClearSelection());
       }
+    } else if (intersect.object === this.tool.canvas.component.modelMesh) {
+      if (this.tool.props.fragment) {
+        this.tool.dispatchAction(voxelMergeFragment());
+      } else {
+        const position = this.cursor.getPosition();
+        this.tool.dispatchAction(
+          voxelSelectConnected(position.x, position.y, position.z, this.tool.keyboard.isShiftPressed())
+        );
+      }
+    } else {
+      this.transitionTo(STATE_DRAG, event);
     }
   }
 
