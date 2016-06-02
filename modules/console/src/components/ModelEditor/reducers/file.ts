@@ -30,6 +30,7 @@ import {
   VOXEL_RESIZE, VoxelResizeAction,
   VOXEL_TRANSFORM, VoxelTransformAction,
   VOXEL_COLOR_FILL, VoxelColorFillAction,
+  VOXEL_ADD_LIST, VoxelAddListAction,
 } from '../actions';
 
 const initialSize: Position = [16, 16, 16];
@@ -328,6 +329,26 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       });
     }
 
+    case VOXEL_ADD_LIST: {
+      const { positions, color } = <VoxelAddListAction>action;
+      const c = rgbToHex(color);
+      const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
+      if (!state.selection) {
+        for (let i = 0, len = positions.length; i < len; ++i) {
+          const pos = positions[i];
+          model.set(pos[0], pos[1], pos[2], c);
+        }
+      } else {
+        for (let i = 0, len = positions.length; i < len; ++i) {
+          const pos = positions[i];
+          if (state.selection.get(pos[0], pos[1], pos[2])) {
+            model.set(pos[0], pos[1], pos[2], c);
+          }
+        }
+      }
+      return Object.assign({}, state, { matrix: model });
+    }
+
     case VOXEL_SELECT: {
       const { selection } = <VoxelSelectAction>action;
       return Object.assign({}, state, { selection });
@@ -562,10 +583,10 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       if (!state.selection) {
         const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
-        positions.forEach(position => {
-          matrix.set(position[0], position[1], position[2], 0);
-        });
-
+        for (let i = 0, len = positions.length; i < len; ++i) {
+          const pos = positions[i];
+          matrix.set(pos[0], pos[1], pos[2], 0);
+        }
         return Object.assign({}, state, {
           matrix,
         });
@@ -575,13 +596,14 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
         const selection = ndarray(state.selection.data.slice(), state.selection.shape);
 
-        positions.forEach(position => {
-          if (selection.get(position[0], position[1], position[2])) {
-            matrix.set(position[0], position[1], position[2], 0);
-            selection.set(position[0], position[1], position[2], 0);
+        for (let i = 0, len = positions.length; i < len; ++i) {
+          const pos = positions[i];
+          if (selection.get(pos[0], pos[1], pos[2])) {
+            matrix.set(pos[0], pos[1], pos[2], 0);
+            selection.set(pos[0], pos[1], pos[2], 0);
             changed = true;
           }
-        });
+        }
 
         if (!changed) return state;
 

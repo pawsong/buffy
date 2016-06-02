@@ -29,6 +29,19 @@ export function voxelAddBatch(volumn: Volumn, color: Color): VoxelAddBatchAction
   };
 }
 
+export const VOXEL_ADD_LIST: 'voxel-editor/VOXEL_ADD_LIST' = 'voxel-editor/VOXEL_ADD_LIST';
+export interface VoxelAddListAction extends Action<typeof VOXEL_ADD_LIST> {
+  positions: Position[];
+  color: Color;
+}
+export function voxelAddList(positions: Position[], color: Color): VoxelAddListAction {
+  return {
+    type: VOXEL_ADD_LIST,
+    positions,
+    color,
+  };
+}
+
 export const VOXEL_SELECT: 'VOXEL_SELECT' = 'VOXEL_SELECT';
 export interface VoxelSelectAction extends Action<typeof VOXEL_SELECT> {
   selection: Ndarray;

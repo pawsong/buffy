@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
 import CursorState from './states/CursorState';
 import SelectTraceState, { StateEnterParams } from './states/SelectTraceState';
@@ -17,29 +18,59 @@ import {
   Position,
   ToolType,
   ModelEditorState,
+  Color,
 } from '../../types';
 
 import {
   voxelRemoveBatch,
+  voxelMergeFragment,
+  voxelAddList,
 } from '../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
 
-interface EraseToolProps {
+interface PencilToolProps {
   size: Position;
+  paletteColor: Color;
+  fragment: any;
 }
 
-class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
-  cursorGeometry: THREE.Geometry;
-  translucentMaterial: THREE.Material;
+interface PencilToolTree {
+  color: Color;
+}
 
-  getToolType(): ToolType { return ToolType.ERASE; }
+class PencilTool extends ModelEditorTool<PencilToolProps, void, PencilToolTree> {
+  cursorGeometry: THREE.Geometry;
+  cursorMaterial: THREE.MeshBasicMaterial;
+
+  getToolType(): ToolType { return ToolType.PENCIL; }
 
   mapParamsToProps(params: ModelEditorState) {
     return {
+      paletteColor: params.common.paletteColor,
       size: params.file.present.data.size,
+      fragment: params.file.present.data.fragment,
     };
+  }
+
+  getTreeSchema(): Schema {
+    return {
+      type: SchemaType.OBJECT,
+      properties: {
+        color: { type: SchemaType.ANY },
+      },
+    };
+  }
+
+  render() {
+    return { color: this.props.paletteColor }
+  }
+
+  patch(diff: PencilToolTree) {
+    if (diff.hasOwnProperty('color')) {
+      this.cursorMaterial.color.setRGB(diff.color.r / 0xff, diff.color.g / 0xff, diff.color.b / 0xff);
+    }
   }
 
   onInit(params: InitParams) {
@@ -48,7 +79,7 @@ class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
     this.cursorGeometry = new THREE.BoxGeometry(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
     this.cursorGeometry.translate(PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF);
 
-    this.translucentMaterial = new THREE.MeshBasicMaterial({
+    this.cursorMaterial = new THREE.MeshBasicMaterial({
       vertexColors: THREE.VertexColors,
       opacity: 0.5,
       transparent: true,
@@ -70,13 +101,14 @@ class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
 }
 
 class WaitState extends CursorState<StateEnterParams> {
-  constructor(tool: EraseTool) {
+  constructor(private tool: PencilTool) {
     super(tool.canvas, {
-      cursorOnFace: false,
+      cursorOnFace: true,
       cursorGeometry: tool.cursorGeometry,
-      cursorMaterial: tool.translucentMaterial,
+      cursorMaterial: tool.cursorMaterial,
       getSize: () => tool.props.size,
       getInteractables: () => [
+        tool.canvas.component.plane,
         tool.canvas.component.modelMesh,
         tool.canvas.component.fragmentMesh,
       ],
@@ -88,23 +120,26 @@ class WaitState extends CursorState<StateEnterParams> {
   getNextStateParams(event: MouseEvent) { return event; }
 
   onMouseDown() {
-
+    if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
   }
 }
 
 class DragState extends SelectTraceState {
-  constructor(private tool: EraseTool) {
+  constructor(private tool: PencilTool) {
     super(tool.canvas, {
-      cursorOnFace: false,
+      cursorOnFace: true,
+      traceMaterial: tool.cursorMaterial,
       getSize: () => tool.props.size,
-      traceMaterial: tool.translucentMaterial,
-      getInteractables: () => [tool.canvas.component.modelMesh],
+      getInteractables: () => [
+        tool.canvas.component.plane,
+        tool.canvas.component.modelMesh,
+      ],
     });
   }
 
   onTraceSelect(trace: Position[]) {
-    this.tool.dispatchAction(voxelRemoveBatch(trace));
+    this.tool.dispatchAction(voxelAddList(trace, this.tool.props.paletteColor));
   }
 }
 
-export default EraseTool;
+export default PencilTool;

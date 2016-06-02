@@ -44,6 +44,7 @@ import {
   VOXEL_RESIZE,
   VOXEL_TRANSFORM,
   VOXEL_COLOR_FILL,
+  VOXEL_ADD_LIST,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -107,6 +108,7 @@ const messages = defineMessages({
 const ActionMessages = {
   [INIT]: messages.labelVoxelInit,
   [VOXEL_ADD_BATCH]: messages.labelVoxelAdd,
+  [VOXEL_ADD_LIST]: messages.labelVoxelAdd,
   [VOXEL_REMOVE_BATCH]: messages.labelVoxelRemove,
   [VOXEL_REMOVE_SELECTED]: messages.labelVoxelRemove,
   [VOXEL_ROTATE]: messages.labelVoxelRotate,

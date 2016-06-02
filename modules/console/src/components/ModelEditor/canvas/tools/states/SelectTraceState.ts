@@ -16,6 +16,13 @@ import {
 
 export type StateEnterParams = MouseEvent;
 
+interface SelectTraceStateOptions {
+  cursorOnFace: boolean;
+  traceMaterial: THREE.Material;
+  getInteractables: () => THREE.Mesh[];
+  getSize: () => Position;
+}
+
 abstract class SelectTraceState extends ToolState {
   cursor: Cursor;
 
@@ -23,13 +30,17 @@ abstract class SelectTraceState extends ToolState {
   selectedVoxels: { [index: string]: { mesh: THREE.Mesh, position: Position } };
 
   private position: THREE.Vector3;
+  private traceMaterial: THREE.Material;
 
-  constructor(
-    private canvas: Canvas,
-    private traceMaterial: THREE.Material,
-    getInteractables: () => THREE.Mesh[]
-  ) {
+  constructor(private canvas: Canvas, {
+    getSize,
+    cursorOnFace,
+    traceMaterial,
+    getInteractables,
+  }: SelectTraceStateOptions) {
     super();
+
+    this.traceMaterial = traceMaterial;
     this.position = new THREE.Vector3();
 
     const offset = new THREE.Vector3();
@@ -37,13 +48,20 @@ abstract class SelectTraceState extends ToolState {
     this.selectedGeometry = new THREE.BoxGeometry(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
     this.selectedGeometry.translate(PIXEL_SCALE_HALF, PIXEL_SCALE_HALF, PIXEL_SCALE_HALF);
 
+    const position = new THREE.Vector3();
+
     this.cursor = new Cursor(canvas, {
       visible: false,
-      getOffset: intersect => offset.set(
-        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.x),
-        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.y),
-        PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.z)
-      ),
+      cursorOnFace,
+      hitTest: (intersect, meshPosition) => {
+        Cursor.getDataPosition(meshPosition, position);
+        const size = getSize();
+        return (
+             position.x >= 0 && position.x < size[0]
+          && position.y >= 0 && position.y < size[1]
+          && position.z >= 0 && position.z < size[2]
+        );
+      },
       getInteractables,
       onHit: params => this.handleHit(params),
       onMouseUp: params => this.handleMouseUp(params),

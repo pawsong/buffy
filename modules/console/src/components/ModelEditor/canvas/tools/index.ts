@@ -10,6 +10,7 @@ import ModelEditorCanvas from '../ModelEditorCanvas';
 
 import ModelEditorTool from './ModelEditorTool';
 
+import PencilTool from './PencilTool';
 import BrushTool from './BrushTool';
 import RectangleTool from './RectangleTool';
 import ColorizeTool from './ColorizeTool';
@@ -34,6 +35,9 @@ export default function createTool(
   };
 
   switch(toolType) {
+    case ToolType.PENCIL: {
+      return new PencilTool(initParams);
+    }
     case ToolType.BRUSH: {
       return new BrushTool(initParams);
     }

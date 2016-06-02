@@ -162,6 +162,18 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         </div>
         <div style={styles.iconRow}>
           <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.PENCIL)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.PENCIL)}
+            tooltipStyles={styles.tooltips}
+            iconClassName="material-icons"
+            tooltipPosition="bottom-center"
+            tooltip={'Pencil'}
+          >
+            mode_edit
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.BRUSH)}
             style={this.getIconButtonStyle(styles.iconButton, ToolType.BRUSH)}
             tooltipStyles={styles.tooltips}
