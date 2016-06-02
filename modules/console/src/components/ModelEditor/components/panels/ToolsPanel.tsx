@@ -199,8 +199,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         </div>
         <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.BRUSH)}
-            style={this.getIconButtonStyle(styles.iconButton, ToolType.BRUSH)}
+            onTouchTap={() => this.props.selectTool(ToolType.LINE)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.LINE)}
             iconStyle={{
               transform: 'rotate(-45deg) scale(1.50)',
             }}

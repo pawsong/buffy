@@ -23,7 +23,7 @@ export interface ActionListener {
  *
  */
 export enum ToolType {
-  BRUSH,
+  LINE,
   COLOR_FILL,
   RECTANGLE,
   PENCIL,

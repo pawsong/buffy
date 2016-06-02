@@ -24,8 +24,8 @@ import AddBlockTool, { AddBlockToolWaitState } from './AddBlockTool';
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
 
-class BrushTool extends AddBlockTool {
-  getToolType() { return ToolType.BRUSH; }
+class LineTool extends AddBlockTool {
+  getToolType() { return ToolType.LINE; }
 
   createStates(): ToolStates {
     return {
@@ -51,7 +51,7 @@ class DrawState extends ToolState {
   private drawGuideY: THREE.Mesh;
   private drawGuideZ: THREE.Mesh;
 
-  constructor(private tool: BrushTool) {
+  constructor(private tool: LineTool) {
     super();
 
     // Setup draw guides
@@ -163,4 +163,4 @@ class DrawState extends ToolState {
   }
 }
 
-export default BrushTool;
+export default LineTool;

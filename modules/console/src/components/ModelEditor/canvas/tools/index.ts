@@ -12,7 +12,7 @@ import ModelEditorTool from './ModelEditorTool';
 
 import PencilTool from './PencilTool';
 import PaintTool from './PaintTool';
-import BrushTool from './BrushTool';
+import LineTool from './LineTool';
 import RectangleTool from './RectangleTool';
 import ColorizeTool from './ColorizeTool';
 import EraseTool from './EraseTool';
@@ -42,8 +42,8 @@ export default function createTool(
     case ToolType.PAINT: {
       return new PaintTool(initParams);
     }
-    case ToolType.BRUSH: {
-      return new BrushTool(initParams);
+    case ToolType.LINE: {
+      return new LineTool(initParams);
     }
     case ToolType.RECTANGLE: {
       return new RectangleTool(initParams);
