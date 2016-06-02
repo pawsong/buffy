@@ -48,6 +48,7 @@ interface MaterialToRestore {
 
 interface ResizeToolProps {
   size: Position;
+  maxSize: number;
   fragment: Ndarray;
 }
 
@@ -73,8 +74,12 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
   getToolType() { return ToolType.RESIZE; }
 
   mapParamsToProps(params: ModelEditorState) {
+    const { size } = params.file.present.data;
+    const maxSize = Math.sqrt(Math.max(size[0], size[1], size[2]) / 10);
+
     return {
-      size: params.file.present.data.size,
+      size,
+      maxSize,
       fragment: params.file.present.data.fragment,
     };
   }
@@ -97,6 +102,7 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
   patch(diff: ResizeToolTree) {
     if (diff.hasOwnProperty('size')) {
       const { size } = this.tree;
+      const { maxSize } = this.props;
 
       this.nxHandle.position.set(0          , size[1] / 2, size[2] / 2).multiplyScalar(PIXEL_SCALE);
       this.pxHandle.position.set(size[0]    , size[1] / 2, size[2] / 2).multiplyScalar(PIXEL_SCALE);
@@ -104,6 +110,13 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
       this.pyHandle.position.set(size[0] / 2, size[1]    , size[2] / 2).multiplyScalar(PIXEL_SCALE);
       this.nzHandle.position.set(size[0] / 2, size[1] / 2, 0          ).multiplyScalar(PIXEL_SCALE);
       this.pzHandle.position.set(size[0] / 2, size[1] / 2, size[2]    ).multiplyScalar(PIXEL_SCALE);
+
+      this.nxHandle.scale.set(maxSize, maxSize, maxSize);
+      this.pxHandle.scale.set(maxSize, maxSize, maxSize);
+      this.nyHandle.scale.set(maxSize, maxSize, maxSize);
+      this.pyHandle.scale.set(maxSize, maxSize, maxSize);
+      this.nzHandle.scale.set(maxSize, maxSize, maxSize);
+      this.pzHandle.scale.set(maxSize, maxSize, maxSize);
 
       this.boundingBox.position.copy(origin);
       this.boundingBox.scale
