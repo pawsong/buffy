@@ -262,6 +262,8 @@ interface DragStateEnterParams {
   direction: THREE.Vector3;
 }
 
+const DRAW_GUIDE_SCALE = 10;
+
 class DragState extends ToolState {
   cursor: Cursor;
   drawGuide: THREE.Mesh;
@@ -326,7 +328,7 @@ class DragState extends ToolState {
     this.drawGuide.position.copy(this.temp1).multiplyScalar(PIXEL_SCALE_HALF);
 
     this.drawGuide.scale
-      .set(MAX_MODEL_SIZE, MAX_MODEL_SIZE, MAX_MODEL_SIZE).multiplyScalar(3)
+      .set(MAX_MODEL_SIZE, MAX_MODEL_SIZE, MAX_MODEL_SIZE).multiplyScalar(DRAW_GUIDE_SCALE)
       .multiply(this.pdir).add(this.temp1.multiply(this.uv));
     this.drawGuide.updateMatrixWorld(false);
 

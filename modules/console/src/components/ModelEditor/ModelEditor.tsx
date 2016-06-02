@@ -288,13 +288,13 @@ ModelEditor.createFileState = (data): FileState => {
   return data ? fileReducer(undefined, reset(data)) : fileReducer(undefined, { type: '' });
 }
 
-var radius = PIXEL_SCALE * 25, theta = 90, phi = 45;
+var radius = PIXEL_SCALE * 50, theta = 135, phi = 45;
 
 ModelEditor.createExtraData = (size: Position) => {
   const camera = new THREE.PerspectiveCamera();
   camera.fov = 40;
   camera.near = 1;
-  camera.far = 10000;
+  camera.far = 20000;
   camera.position.set(
     radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
       + size[0] * PIXEL_SCALE / 2,
