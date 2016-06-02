@@ -612,13 +612,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const h = Math.abs(shape[0] * transform[0][1] + shape[1] * transform[1][1] + shape[2] * transform[2][1]);
       const d = Math.abs(shape[0] * transform[0][2] + shape[1] * transform[1][2] + shape[2] * transform[2][2]);
 
-      // const ox0 = Math.ceil(shape[0] / 2);
-      // const oy0 = Math.ceil(shape[1] / 2);
-      // const oz0 = Math.ceil(shape[2] / 2);
-
-      // const ox1 = Math.ceil(w / 2);
-      // const oy1 = Math.ceil(h / 2);
-      // const oz1 = Math.ceil(d / 2)
       const ox0 = (shape[0] / 2) - 0.5;
       const oy0 = (shape[1] / 2) - 0.5;
       const oz0 = (shape[2] / 2) - 0.5;
@@ -626,8 +619,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const ox1 = (w / 2) - 0.5;
       const oy1 = (h / 2) - 0.5;
       const oz1 = (d / 2) - 0.5;
-
-      // console.log(`${ox0} ${oy0} ${oz0} / ${ox1} ${oy1} ${oz1}`);
 
       const model = ndarray(new Int32Array(w * h * d), [w, h ,d]);
 
@@ -643,9 +634,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
               const x1 = x0 * transform[0][0] + y0 * transform[1][0] + z0 * transform[2][0];
               const y1 = x0 * transform[0][1] + y0 * transform[1][1] + z0 * transform[2][1];
               const z1 = x0 * transform[0][2] + y0 * transform[1][2] + z0 * transform[2][2];
-
-              // console.log(`${x0} ${y0} ${z0} -> ${x1} ${y1} ${z1} [${c}]`);
-              // console.log(`${i} ${j} ${k} -> ${x1 + ox1} ${y1 + oy1} ${z1 + oz1}`);
 
               model.set(x1 + ox1, y1 + oy1, z1 + oz1, c);
             }
@@ -670,8 +658,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
                 const x1 = x0 * transform[0][0] + y0 * transform[1][0] + z0 * transform[2][0];
                 const y1 = x0 * transform[0][1] + y0 * transform[1][1] + z0 * transform[2][1];
                 const z1 = x0 * transform[0][2] + y0 * transform[1][2] + z0 * transform[2][2];
-
-                // console.log(`${x0} ${y0} ${z0} -> ${x1} ${y1} ${z1} [${c}]`);
 
                 selection.set(x1 + ox1, y1 + oy1, z1 + oz1, 1);
               }

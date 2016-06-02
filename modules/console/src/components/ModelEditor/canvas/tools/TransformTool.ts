@@ -527,7 +527,7 @@ class WaitState extends ToolState {
     this.tool.dispatchAction(voxelTransform(arrow[TRANFORM_MATRIX_PROP]));
   }
 
-  handleMouseDown() {
+  handleMouseDown = () => {
     if (this.tool.props.fragment) {
       this.tool.dispatchAction(voxelMergeFragment());
     }

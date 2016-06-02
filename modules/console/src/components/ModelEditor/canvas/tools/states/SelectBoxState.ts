@@ -98,7 +98,7 @@ abstract class SelectBoxState extends ToolState {
   onEnter({ anchor, normal, size }: EnterParams) {
     document.addEventListener('keydown', this.handleKeyDown, false);
 
-    this.size.set(size[0], size[0], size[0]);
+    this.size.set(size[0], size[1], size[2]);
 
     // Init handlers
     this.handleHit = this.handleHitInStep1;
