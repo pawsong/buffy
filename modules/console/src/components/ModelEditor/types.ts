@@ -27,6 +27,7 @@ export enum ToolType {
   COLOR_FILL,
   RECTANGLE,
   PENCIL,
+  PAINT,
   ERASE,
   COLORIZE,
   BOX,

@@ -103,6 +103,11 @@ const messages = defineMessages({
     description: 'Voxel color fill label',
     defaultMessage: 'Color fill',
   },
+  labelVoxelPaint: {
+    id: 'voxel-editor.panels.history.voxel.paint',
+    description: 'Voxel paint label',
+    defaultMessage: 'Paint',
+  },
 });
 
 const ActionMessages = {

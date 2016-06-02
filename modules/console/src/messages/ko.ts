@@ -582,6 +582,13 @@ export default {
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Voxel paint label
+   * defaultMessage: Paint
+   */
+  'voxel-editor.panels.history.voxel.paint': '색칠하기',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel remove history label
    * defaultMessage: Remove voxels
    */

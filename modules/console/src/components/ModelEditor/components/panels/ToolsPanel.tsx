@@ -171,30 +171,15 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           >
             mode_edit
           </IconButton>
-        </div>
-        <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.BRUSH)}
-            style={this.getIconButtonStyle(styles.iconButton, ToolType.BRUSH)}
-            tooltipStyles={styles.tooltips}
+            onTouchTap={() => this.props.selectTool(ToolType.PAINT)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.PAINT)}
             iconClassName="material-icons"
+            tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
-            tooltip={'Brush'}
+            tooltip={'Paint'}
           >
             brush
-          </IconButton>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.ERASE)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.ERASE)}
-            iconStyle={{
-              transform: 'rotate(45deg)',
-            }}
-            tooltipStyles={styles.tooltips}
-            iconClassName="material-icons"
-            tooltipPosition="bottom-center"
-            tooltip={'Erase'}
-          >
-            crop_portrait
           </IconButton>
         </div>
         <div style={styles.iconRow}>
@@ -210,6 +195,34 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             tooltip={'Color fill'}
           >
             <FormatColorFill />
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.BRUSH)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.BRUSH)}
+            iconStyle={{
+              transform: 'rotate(-45deg) scale(1.50)',
+            }}
+            iconClassName="material-icons"
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Line'}
+          >
+            remove
+          </IconButton>
+          <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.ERASE)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.ERASE)}
+            iconStyle={{
+              transform: 'rotate(45deg)',
+            }}
+            tooltipStyles={styles.tooltips}
+            iconClassName="material-icons"
+            tooltipPosition="bottom-center"
+            tooltip={'Erase'}
+          >
+            crop_portrait
           </IconButton>
         </div>
         <div style={styles.iconRow}>
