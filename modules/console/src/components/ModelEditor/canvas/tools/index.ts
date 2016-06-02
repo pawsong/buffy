@@ -18,6 +18,7 @@ import BoxTool from './BoxTool';
 import BoxSelectTool from './BoxSelectTool';
 import RectangleSelectTool from './RectangleSelectTool';
 import MagicWandTool from './MagicWandTool';
+import ColorFillTool from './ColorFillTool';
 import MoveTool from './MoveTool';
 import ResizeTool from './ResizeTool';
 import TransformTool from './TransformTool';
@@ -56,6 +57,9 @@ export default function createTool(
     }
     case ToolType.MAGIC_WAND: {
       return new MagicWandTool(initParams);
+    }
+    case ToolType.COLOR_FILL: {
+      return new ColorFillTool(initParams);
     }
     case ToolType.MOVE: {
       return new MoveTool(initParams);

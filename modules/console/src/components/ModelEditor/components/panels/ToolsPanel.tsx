@@ -27,6 +27,7 @@ import AutoFixIcon from '../../../AutoFixIcon';
 import CursorMoveIcon from '../../../CursorMoveIcon';
 import SelectIcon from '../../../SelectIcon';
 import ArrowExpandIcon from '../../../icons/ArrowExpandIcon';
+import FormatColorFill from '../../../icons/FormatColorFill';
 
 const styles = {
   color: {
@@ -182,6 +183,21 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             tooltip={'Erase'}
           >
             crop_portrait
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.COLOR_FILL)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.COLOR_FILL)}
+            iconStyle={{
+              transform: 'scale(1.32)',
+              marginTop: 4,
+            }}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Color fill'}
+          >
+            <FormatColorFill />
           </IconButton>
         </div>
         <div style={styles.iconRow}>

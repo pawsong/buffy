@@ -547,6 +547,13 @@ export default {
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Voxel color fill label
+   * defaultMessage: Color fill
+   */
+  'voxel-editor.panels.history.voxel.color.fill': '색깔 채우기',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel init history label
    * defaultMessage: Initialize
    */

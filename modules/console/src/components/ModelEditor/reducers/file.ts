@@ -29,6 +29,7 @@ import {
   VOXEL_CLEAR_SELECTION, VoxelClearSelection,
   VOXEL_RESIZE, VoxelResizeAction,
   VOXEL_TRANSFORM, VoxelTransformAction,
+  VOXEL_COLOR_FILL, VoxelColorFillAction,
 } from '../actions';
 
 const initialSize: Position = [16, 16, 16];
@@ -428,6 +429,53 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       });
 
       return Object.assign({}, state, { selection });
+    }
+
+    case VOXEL_COLOR_FILL: {
+      const { position, color } = <VoxelColorFillAction>action;
+      function checkBoundary(x: number, y: number, z: number): boolean {
+        if (
+             x < 0 || x >= state.matrix.shape[0]
+          || y < 0 || y >= state.matrix.shape[1]
+          || z < 0 || z >= state.matrix.shape[2]
+        ) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+
+      let getter: (x: number, y: number, z: number) => number;
+      if (state.selection) {
+        if (!state.selection.get(position[0], position[1], position[2])) {
+          return state;
+        }
+
+        getter = (x: number, y: number, z: number) => {
+          if (!checkBoundary(x, y, z)) return;
+          if (!state.selection.get(x, y, z)) return;
+          return state.matrix.get(x, y, z);
+        }
+      } else {
+        getter = (x: number, y: number, z: number) => {
+          if (!checkBoundary(x, y, z)) return;
+          return state.matrix.get(x, y, z);
+        }
+      }
+
+      const c = rgbToHex(color);
+
+      const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
+
+      floodFill({
+        getter,
+        onFlood: (x: number, y: number, z: number) => {
+          model.set(x, y, z, c);
+        },
+        seed: position,
+      });
+
+      return Object.assign({}, state, { matrix: model });
     }
 
     case VOXEL_CLEAR_SELECTION: {

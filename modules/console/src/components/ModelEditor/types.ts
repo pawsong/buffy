@@ -24,6 +24,7 @@ export interface ActionListener {
  */
 export enum ToolType {
   BRUSH,
+  COLOR_FILL,
   RECTANGLE,
   ERASE,
   COLORIZE,

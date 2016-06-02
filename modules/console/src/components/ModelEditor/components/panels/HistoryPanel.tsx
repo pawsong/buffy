@@ -43,6 +43,7 @@ import {
   VOXEL_CLEAR_SELECTION,
   VOXEL_RESIZE,
   VOXEL_TRANSFORM,
+  VOXEL_COLOR_FILL,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -96,6 +97,11 @@ const messages = defineMessages({
     description: 'Voxel transform label',
     defaultMessage: 'Transform',
   },
+  labelVoxelColorFill: {
+    id: 'voxel-editor.panels.history.voxel.color.fill',
+    description: 'Voxel color fill label',
+    defaultMessage: 'Color fill',
+  },
 });
 
 const ActionMessages = {
@@ -114,6 +120,7 @@ const ActionMessages = {
   [VOXEL_MERGE_FRAGMENT]: messages.labelVoxelMoveFinish,
   [VOXEL_RESIZE]: messages.labelVoxelResize,
   [VOXEL_TRANSFORM]: messages.labelVoxelTransform,
+  [VOXEL_COLOR_FILL]: messages.labelVoxelColorFill,
 };
 
 function getActionMessage(action: string) {

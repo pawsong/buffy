@@ -79,6 +79,19 @@ export function voxelMaginWand(x: number, y: number, z: number, merge: boolean):
   };
 }
 
+export const VOXEL_COLOR_FILL: 'VOXEL_COLOR_FILL' = 'VOXEL_COLOR_FILL';
+export interface VoxelColorFillAction extends Action<typeof VOXEL_COLOR_FILL> {
+  position: Position;
+  color: Color;
+}
+export function voxelColorFill(x: number, y: number, z: number, color: Color): VoxelColorFillAction {
+  return {
+    type: VOXEL_COLOR_FILL,
+    position: [x, y, z],
+    color,
+  };
+}
+
 export const VOXEL_CLEAR_SELECTION: 'VOXEL_CLEAR_SELECTION' = 'VOXEL_CLEAR_SELECTION';
 export interface VoxelClearSelection extends Action<typeof VOXEL_CLEAR_SELECTION> {
 }
