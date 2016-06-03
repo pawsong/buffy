@@ -19,7 +19,7 @@ import {
   voxelSelectBox,
   voxelClearSelection,
   voxelMergeFragment,
-  voxelSelect,
+  voxelSelectProjection,
   VoxelClearSelection,
 } from '../../actions';
 
@@ -33,61 +33,6 @@ import SelectionBox from '../objects/SelectionBox';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
-
-const filter = (() => {
-  const _filter = cwise({
-    args: [
-      'index', 'array', 'array', 'scalar',
-      'scalar', 'scalar', 'scalar', 'scalar', 'scalar', 'scalar',
-      'scalar', 'scalar', 'scalar', 'scalar', 'scalar', 'scalar',
-      'scalar', 'scalar', 'scalar', 'scalar',
-    ],
-    pre: function () {
-      this.selected = false;
-    },
-    body: function (
-      i, selection, model, scale,
-      e0, e1, e3, e4,  e5, e7,
-      e8, e9, e11, e12, e13, e15,
-      lo0, lo1, hi0, hi1
-    ) {
-      if (model) {
-        // Apply projection
-        var x = (i[0] + 0.5) * scale;
-        var y = (i[1] + 0.5) * scale;
-        var z = (i[2] + 0.5) * scale;
-
-        var d = 1 / ( e3 * x + e7 * y + e11 * z + e15 ); // perspective divide
-        var u = ( e0 * x + e4 * y + e8  * z + e12 ) * d;
-        var v = ( e1 * x + e5 * y + e9  * z + e13 ) * d;
-
-        if (u >= lo0 && u < hi0 && v >= lo1 && v < hi1) {
-          selection = 1;
-          this.selected = true;
-        }
-      }
-    },
-    post: function () {
-      return this.selected;
-    },
-  });
-
-  return function (
-    selection: ndarray.Ndarray,
-    model: ndarray.Ndarray,
-    scale: number,
-    projectionMatrix: THREE.Matrix4,
-    lo0: number, lo1: number, hi0: number, hi1: number
-  ) {
-		const e = projectionMatrix.elements;
-    return _filter(
-      selection, model, scale,
-      e[0], e[1], e[3], e[4], e[5], e[7],
-      e[8], e[9], e[11], e[12], e[13], e[15],
-      lo0, lo1, hi0, hi1
-    );
-  };
-})();
 
 interface BoxSelectToolProps {
   model: ndarray.Ndarray;
@@ -242,22 +187,9 @@ class DrawState extends ToolState {
     const { camera } = this.tool.canvas;
     this.matrix.multiplyMatrices(camera.projectionMatrix, this.matrix.getInverse(camera.matrixWorld));
 
-    const { model } = this.tool.props;
-
-    let selection: ndarray.Ndarray;
-    if (this.tool.props.selection && this.tool.keyboard.isShiftPressed()) {
-      selection = ndarray(this.tool.props.selection.data.slice(), model.shape);
-    } else {
-      selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
-    }
-
-    const selected = filter(selection, this.tool.props.model, PIXEL_SCALE, this.matrix, lo0, lo1, hi0, hi1);
-
-    if (selected) {
-      this.tool.dispatchAction(voxelSelect(selection));
-    } else if (this.tool.props.selection) {
-      this.tool.dispatchAction(voxelClearSelection());
-    }
+    this.tool.dispatchAction(voxelSelectProjection(this.matrix, PIXEL_SCALE, [
+      lo0, lo1, hi0, hi1,
+    ], this.tool.keyboard.isShiftPressed()));
 
     this.transitionTo(STATE_WAIT);
   }

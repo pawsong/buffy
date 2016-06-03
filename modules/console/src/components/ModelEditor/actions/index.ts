@@ -8,6 +8,7 @@ import {
   Volumn,
   Transformation,
   ToolType,
+  Rectangle,
 } from '../types';
 
 export const VOXEL_ADD: 'voxel-editor/VOXEL_ADD' = 'voxel-editor/VOXEL_ADD';
@@ -49,14 +50,22 @@ export function voxelPaint(positions: Position[], color: Color): VoxelAddListAct
   return action;
 }
 
-export const VOXEL_SELECT: 'VOXEL_SELECT' = 'VOXEL_SELECT';
-export interface VoxelSelectAction extends Action<typeof VOXEL_SELECT> {
-  selection: Ndarray;
+export const VOXEL_SELECT_PROJECTION: 'VOXEL_SELECT_PROJECTION' = 'VOXEL_SELECT_PROJECTION';
+export interface VoxelSelectProjectionAction extends Action<typeof VOXEL_SELECT_PROJECTION> {
+  projectionMatrix: THREE.Matrix4;
+  scale: number;
+  boundary: Rectangle;
+  merge: boolean;
 }
-export function voxelSelect(selection: Ndarray): VoxelSelectAction {
+export function voxelSelectProjection(
+  projectionMatrix: THREE.Matrix4, scale: number, boundary: Rectangle, merge: boolean
+): VoxelSelectProjectionAction {
   return {
-    type: VOXEL_SELECT,
-    selection,
+    type: VOXEL_SELECT_PROJECTION,
+    projectionMatrix,
+    scale,
+    boundary,
+    merge,
   };
 }
 

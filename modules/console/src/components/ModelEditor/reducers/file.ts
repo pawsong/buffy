@@ -19,7 +19,7 @@ import {
   VOXEL_ADD_BATCH, VoxelAddBatchAction,
   VOXEL_REMOVE, VoxelRemoveAction,
   VOXEL_REMOVE_BATCH, VoxelRemoveBatchAction,
-  VOXEL_SELECT, VoxelSelectAction,
+  VOXEL_SELECT_PROJECTION, VoxelSelectProjectionAction,
   VOXEL_SELECT_BOX, VoxelSelectBoxAction,
   VOXEL_SELECT_CONNECTED, VoxelSelectConnectedAction,
   VOXEL_MAGIN_WAND, VoxelMaginWandAction,
@@ -263,11 +263,60 @@ const merge = (() => {
   };
 })();
 
-const rotates: { [index: string]: RotateFn } = {
-  x: (shape, pos) => ([ pos[0],            shape[2] - pos[2], pos[1]            ]),
-  y: (shape, pos) => ([ pos[2],            pos[1],            shape[0] - pos[0] ]),
-  z: (shape, pos) => ([ shape[1] - pos[1], pos[0],            pos[2]            ]),
-};
+const filterProjection = (() => {
+  const _filterProjection = cwise({
+    args: [
+      'index', 'array', 'array', 'scalar',
+      'scalar', 'scalar', 'scalar', 'scalar', 'scalar', 'scalar',
+      'scalar', 'scalar', 'scalar', 'scalar', 'scalar', 'scalar',
+      'scalar', 'scalar', 'scalar', 'scalar',
+    ],
+    pre: function () {
+      this.selected = false;
+    },
+    body: function (
+      i, selection, model, scale,
+      e0, e1, e3, e4,  e5, e7,
+      e8, e9, e11, e12, e13, e15,
+      lo0, lo1, hi0, hi1
+    ) {
+      if (model) {
+        // Apply projection
+        var x = (i[0] + 0.5) * scale;
+        var y = (i[1] + 0.5) * scale;
+        var z = (i[2] + 0.5) * scale;
+
+        var d = 1 / ( e3 * x + e7 * y + e11 * z + e15 ); // perspective divide
+        var u = ( e0 * x + e4 * y + e8  * z + e12 ) * d;
+        var v = ( e1 * x + e5 * y + e9  * z + e13 ) * d;
+
+        if (u >= lo0 && u < hi0 && v >= lo1 && v < hi1) {
+          selection = 1;
+          this.selected = true;
+        }
+      }
+    },
+    post: function () {
+      return this.selected;
+    },
+  });
+
+  return function (
+    selection: ndarray.Ndarray,
+    model: ndarray.Ndarray,
+    scale: number,
+    projectionMatrix: THREE.Matrix4,
+    lo0: number, lo1: number, hi0: number, hi1: number
+  ) {
+		const e = projectionMatrix.elements;
+    return _filterProjection(
+      selection, model, scale,
+      e[0], e[1], e[3], e[4], e[5], e[7],
+      e[8], e[9], e[11], e[12], e[13], e[15],
+      lo0, lo1, hi0, hi1
+    );
+  };
+})();
 
 function calculateIntersection(destShape: Position, srcShape: Position, offset: Position) {
   let srcOffsetX, srcOffsetY, srcOffsetZ;
@@ -410,9 +459,25 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       return Object.assign({}, state, { matrix: model });
     }
 
-    case VOXEL_SELECT: {
-      const { selection } = <VoxelSelectAction>action;
-      return Object.assign({}, state, { selection });
+    case VOXEL_SELECT_PROJECTION: {
+      const { projectionMatrix, scale, boundary, merge } = <VoxelSelectProjectionAction>action;
+
+      const model = state.matrix;
+
+      let selection: ndarray.Ndarray;
+      if (state.selection && merge) {
+        selection = ndarray(state.selection.data.slice(), model.shape);
+      } else {
+        selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
+      }
+
+      const selected = filterProjection(
+        selection, model, scale, projectionMatrix, boundary[0], boundary[1], boundary[2], boundary[3]
+      );
+
+      return Object.assign({}, state, {
+        selection: selected ? selection : null,
+      });
     }
 
     case VOXEL_SELECT_BOX: {

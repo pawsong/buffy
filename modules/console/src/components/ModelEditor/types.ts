@@ -66,6 +66,10 @@ export type Volumn = [
   number /* maxX */, number /* maxY */, number /* maxZ */
 ]
 
+export type Rectangle = [
+  number /* loX */, number /* loY */, number /* hiX */, number /* hiY */
+]
+
 export interface VoxelData {
   matrix: Ndarray;
   selection: Ndarray;
