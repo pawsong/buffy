@@ -73,6 +73,9 @@ import commonReducer from './reducers/common';
 import fileReducer from './reducers/file';
 
 const styles = {
+  root: {
+    top: 0, left: 0, bottom: 0, right: 0,
+  },
   canvas: {
     position: 'absolute',
     top: 0, left: 0, bottom: 0, right: 0,
@@ -255,17 +258,15 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 
   render() {
-    const style = this.state.fullscreen ? {
+    const rootStyle = this.state.fullscreen ? Object.assign({}, styles.root, {
       position: 'fixed',
-      top: 0, left: 0, bottom: 0, right: 0,
       zIndex: 10000,
-    } : {
-      width: '100%',
-      height: '100%',
-    };
+    }) : Object.assign({}, styles.root, {
+      position: 'absolute',
+    });
 
     return (
-      <div style={style}>
+      <div style={rootStyle}>
         <div style={styles.canvas} ref="canvas"></div>
         <FullscreenButton
           onTouchTap={() => this.handleFullscreenButtonClick()}

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { findDOMNode } from 'react-dom';
 
 import {
   DragSource,
@@ -69,7 +70,7 @@ interface ConnectTargetOptions {
   panelTypes: string;
   panelIds: string[];
   mapIdToLocalStorageKey: (panelId: string) => string;
-  limitTop?: number;
+  limitTop?: number; // px unit
 }
 
 export function connectTarget(options: ConnectTargetOptions) {
@@ -86,11 +87,14 @@ export function connectTarget(options: ConnectTargetOptions) {
       const { panelId } = monitor.getItem() as PanelItem;
       const state = component.state.panels[panelId];
 
-      const delta = monitor.getDifferenceFromInitialOffset();
-      const left = Math.round(state.left + delta.x);
-      const top = Math.round(state.top + delta.y);
+      const width = component.element.clientWidth;
+      const height = component.element.clientHeight;
 
-      if (limitTop > top) return;
+      const delta = monitor.getDifferenceFromInitialOffset();
+      const left = state.left + delta.x / width;
+      const top = state.top + delta.y / height;
+
+      if (limitTop > top * height) return;
 
       component.movePanel(panelId, left, top);
     },
@@ -103,6 +107,8 @@ export function connectTarget(options: ConnectTargetOptions) {
       connectDropTarget: connect.dropTarget()
     })) as any)
     class Connect extends React.Component<TargetProps, TargetState> {
+      element: HTMLElement;
+
       constructor(props) {
         super(props);
 
@@ -141,6 +147,11 @@ export function connectTarget(options: ConnectTargetOptions) {
         };
       }
 
+      componentDidMount() {
+        const rootElement = findDOMNode<HTMLElement>(this.refs['root']);
+        this.element = (rootElement.firstElementChild || rootElement.firstChild) as HTMLElement;
+      }
+
       movePanel(panelId: string, left, top) {
         this.moveToTop(panelId, { left, top }, () => {
           localStorage.setItem(mapIdToLocalStorageKey(panelId), JSON.stringify(this.state.panels[panelId]));
@@ -166,7 +177,7 @@ export function connectTarget(options: ConnectTargetOptions) {
 
       render() {
         const element = React.createElement(WrappedComponent, this.props);
-        return this.props.connectDropTarget(<div>{element}</div>);
+        return this.props.connectDropTarget(<div><div ref="root">{element}</div></div>);
       }
     }
 
@@ -237,7 +248,12 @@ export function connectSource({
         const { connectDragPreview, connectDragSource, isDragging } = this.props;
 
         const opacity = isDragging ? DRAGGING_OPACITY : 1;
-        const previewStyle = objectAssign({ zIndex: order, left, top, opacity }, styles.root);
+        const previewStyle = objectAssign({
+          zIndex: order,
+          left: `${left * 100}%`,
+          top: `${top * 100}%`,
+          opacity,
+        }, styles.root);
 
         const element = React.createElement(WrappedComponent, this.props);
 

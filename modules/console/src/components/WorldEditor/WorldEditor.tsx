@@ -74,6 +74,13 @@ interface WorldEditorProps extends React.Props<WorldEditor> {
 }
 
 const styles = {
+  root: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  },
   canvasContainer: {
     position: 'absolute',
     top: 0,
@@ -171,7 +178,7 @@ class WorldEditor extends React.Component<WorldEditorProps, WorldEditorOwnState>
 
   render() {
     return (
-      <div>
+      <div style={styles.root}>
         <WorldEditorToolbar
           editorState={this.props.editorState}
           onEnterEditMode={this.handleEnterEditMode}
