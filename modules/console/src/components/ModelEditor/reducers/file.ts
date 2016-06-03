@@ -3,8 +3,8 @@ const cwise = require('cwise');
 import { createSelector } from 'reselect';
 
 import undoable from '@pasta/helper/lib/undoable';
-const floodFill = require('n-dimensional-flood-fill');
 
+import ndFloodFill from '../ndops/floodFill';
 import ndAny from '../ndops/any';
 import ndAssign from '../ndops/assign';
 import ndAssign2 from '../ndops/assign2';
@@ -47,7 +47,7 @@ import {
   VOXEL_PASTE, VoxelPasteAction,
 } from '../actions';
 
-const initialSize: Position = [16, 16, 16];
+const initialSize: Position = [64, 64, 64];
 
 const initialMatrix = ndarray(new Int32Array(initialSize[0] * initialSize[1] * initialSize[2]), initialSize);
 initialMatrix.set(0,1,1, 1 << 24 | 0xff << 8);
@@ -63,50 +63,6 @@ const initialState: VoxelData = {
 
 function rgbToHex({ r, g, b }) {
   return (1 << 24) /* Used by mesher */ | (r << 16) | (g << 8) | b;
-}
-
-/**
- * n-dimensional-flood-fill works great but enters infinite loop in some cases:
- *   - When bounds check is missing
- *   - When value in seed position is undefined
- *
- * This simple wrapper takes care of those cases.
- */
-interface FloodFillGetter {
-  (x: number, y: number, z: number): number;
-}
-
-interface OnFloodCallback {
-  (x: number, y: number, z: number): any;
-}
-
-function safeFloodFill(shape: Position, getter: FloodFillGetter, onFlood: OnFloodCallback, seed: Position) {
-  if (getter(seed[0], seed[1], seed[2]) === undefined) {
-    return false;
-  }
-
-  let hit = false;
-
-  floodFill({
-    getter: (x: number, y: number, z: number) => {
-      if (
-           x < 0 || x >= shape[0]
-        || y < 0 || y >= shape[1]
-        || z < 0 || z >= shape[2]
-      ) {
-        return;
-      }
-
-      return getter(x, y, z);
-    },
-    onFlood: (x: number, y: number, z: number) => {
-      onFlood(x, y, z);
-      hit = true;
-    },
-    seed,
-  });
-
-  return hit;
 }
 
 const filterProjection = (() => {
@@ -404,20 +360,16 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const c = rgbToHex(color);
 
       return reduceModelUpsertAction(state,
-        model => safeFloodFill(
-          state.matrix.shape,
-          (x, y, z) => state.matrix.get(x, y, z),
-          (x, y, z) => model.set(x, y, z, c),
-          position
+        model => ndFloodFill(
+          state.matrix.shape, model, (x, y, z) => state.matrix.get(x, y, z), c, position
         ),
-        (model, selection) => safeFloodFill(
-          state.matrix.shape,
+        (model, selection) => ndFloodFill(
+          state.matrix.shape, model,
           (x, y, z) => {
             if (!state.selection.get(x, y, z)) return;
             return state.matrix.get(x, y, z);
           },
-          (x, y, z) => model.set(x, y, z, c),
-          position
+          c, position
         )
       );
     }
@@ -486,22 +438,16 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_SELECT_CONNECTED: {
       const { position, merge } = <VoxelSelectConnectedAction>action;
 
-      return reduceSelectAction(state, merge, selection => safeFloodFill(
-        state.matrix.shape,
-        (x, y, z) => state.matrix.get(x, y, z) !== 0 ? 1 : 0,
-        (x, y, z) => selection.set(x, y, z, 1),
-        position
+      return reduceSelectAction(state, merge, selection => ndFloodFill(
+        state.matrix.shape, selection, (x, y, z) => !!state.matrix.get(x, y, z), 1, position
       ));
     }
 
     case VOXEL_MAGIN_WAND: {
       const { position, merge } = <VoxelMaginWandAction>action;
 
-      return reduceSelectAction(state, merge, selection => safeFloodFill(
-        state.matrix.shape,
-        (x, y, z) => state.matrix.get(x, y, z),
-        (x, y, z) => selection.set(x, y, z, 1),
-        position
+      return reduceSelectAction(state, merge, selection => ndFloodFill(
+        state.matrix.shape, selection, (x, y, z) => state.matrix.get(x, y, z), 1, position
       ));
     }
 
