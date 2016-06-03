@@ -42,6 +42,13 @@ export function voxelAddList(positions: Position[], color: Color): VoxelAddListA
   };
 }
 
+export const VOXEL_PAINT = 'VOXEL_PAINT';
+export function voxelPaint(positions: Position[], color: Color): VoxelAddListAction {
+  const action = voxelAddList(positions, color);
+  action.alias = VOXEL_PAINT;
+  return action;
+}
+
 export const VOXEL_SELECT: 'VOXEL_SELECT' = 'VOXEL_SELECT';
 export interface VoxelSelectAction extends Action<typeof VOXEL_SELECT> {
   selection: Ndarray;

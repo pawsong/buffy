@@ -548,9 +548,9 @@ export default {
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel color fill label
-   * defaultMessage: Color fill
+   * defaultMessage: Paint
    */
-  'voxel-editor.panels.history.voxel.color.fill': '색깔 채우기',
+  'voxel-editor.panels.history.voxel.color.fill': '색칠하기',
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
@@ -579,13 +579,6 @@ export default {
    * defaultMessage: Resize
    */
   'voxel-editor.panels.history.voxel.move.resize': '크기 변경',
-
-  /**
-   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
-   * description: Voxel paint label
-   * defaultMessage: Paint
-   */
-  'voxel-editor.panels.history.voxel.paint': '색칠하기',
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
@@ -678,6 +671,7 @@ export default {
    */
   'worldeditor.panels.tools.title': '도구상자',
 
+/* [Warning] Message not in use */ 'voxel-editor.panels.history.voxel.paint': '색칠하기',
 /* [Warning] Message not in use */ 'voxel-editor.panels.preview.title': '프리뷰',
 /* [Warning] Message not in use */ 'worldeditor.panels.zone.title': '지역',
 /* [Warning] Message not in use */ 'vr.start': '시작하기',

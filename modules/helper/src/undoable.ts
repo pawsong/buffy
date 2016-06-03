@@ -2,6 +2,7 @@ const DEFAULT_MAX_HISTORY_LEN = 20;
 
 export interface Action<T> {
   type: T;
+  alias?: string;
 }
 
 export const INIT: 'undoable/INIT' = 'undoable/INIT';
@@ -60,6 +61,7 @@ export function reset(data: any): ResetAction {
 export interface Snapshot<T> {
   historyIndex: number;
   action: string;
+  actionAlias?: string;
   data: T;
 }
 
@@ -189,22 +191,6 @@ export default function undoable<T>(reducer: Reducer<T>, options: UndoableOption
           future: [],
         };
       }
-      // // Load workspace should clear history
-      // case UPDATE_WORKSPACE: {
-      //   const { query } = <UpdateWorkspaceAction>action;
-      //   if (!query.voxels) return state;
-
-      //   return {
-      //     historyIndex: state.historyIndex + 1,
-      //     past: [],
-      //     present: {
-      //       historyIndex: state.historyIndex + 1,
-      //       action: action.type,
-      //       data: Immutable.Map<string, Voxel>(query.voxels),
-      //     },
-      //     future: [],
-      //   };
-      // }
       default: {
         // Delegate handling the action to the passed reducer
         const data = reducer(state.present.data, action)
@@ -223,6 +209,7 @@ export default function undoable<T>(reducer: Reducer<T>, options: UndoableOption
         const present = {
           historyIndex,
           action: action.type,
+          actionAlias: action.alias,
           data,
         };
 

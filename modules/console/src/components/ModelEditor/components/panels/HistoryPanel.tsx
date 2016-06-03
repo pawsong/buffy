@@ -14,6 +14,7 @@ import {
   undoSeek,
   redoSeek,
   INIT,
+  Snapshot,
 } from '@pasta/helper/lib/undoable';
 
 import { connectSource } from '../../../Panel';
@@ -45,6 +46,7 @@ import {
   VOXEL_TRANSFORM,
   VOXEL_COLOR_FILL,
   VOXEL_ADD_LIST,
+  VOXEL_PAINT,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -101,11 +103,6 @@ const messages = defineMessages({
   labelVoxelColorFill: {
     id: 'voxel-editor.panels.history.voxel.color.fill',
     description: 'Voxel color fill label',
-    defaultMessage: 'Color fill',
-  },
-  labelVoxelPaint: {
-    id: 'voxel-editor.panels.history.voxel.paint',
-    description: 'Voxel paint label',
     defaultMessage: 'Paint',
   },
 });
@@ -128,9 +125,11 @@ const ActionMessages = {
   [VOXEL_RESIZE]: messages.labelVoxelResize,
   [VOXEL_TRANSFORM]: messages.labelVoxelTransform,
   [VOXEL_COLOR_FILL]: messages.labelVoxelColorFill,
+  [VOXEL_PAINT]: messages.labelVoxelColorFill,
 };
 
-function getActionMessage(action: string) {
+function getActionMessage(state: Snapshot<any>) {
+  const action = state.actionAlias || state.action;
   const message = ActionMessages[action];
   if (!message) throw new Error(`Cannot find message for action ${action}`);
   return message;
@@ -178,16 +177,16 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
     const listItems = voxel.past.map(state => {
       return <div style={styles.listItem} key={state.historyIndex}
         onClick={() => this.handleUndoClick(state.historyIndex)}>
-        <FormattedMessage {...getActionMessage(state.action)} />
+        <FormattedMessage {...getActionMessage(state)} />
       </div>;
     }).concat([
       <div style={objectAssign({ backgroundColor: '#ccc' }, styles.listItem)} key={voxel.present.historyIndex}>
-        <FormattedMessage {...getActionMessage(voxel.present.action)} />
+        <FormattedMessage {...getActionMessage(voxel.present)} />
       </div>
     ]).concat(voxel.future.map(state => {
       return <div style={styles.listItem} key={state.historyIndex}
         onClick={() => this.handleRedoClick(state.historyIndex)}>
-        <FormattedMessage {...getActionMessage(state.action)} />
+        <FormattedMessage {...getActionMessage(state)} />
       </div>;
     }));
 

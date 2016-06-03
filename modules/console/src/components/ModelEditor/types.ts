@@ -9,6 +9,7 @@ import { SimpleStore } from '../../libs';
 
 export interface Action<T> {
   type: T;
+  alias?: string;
 }
 
 export interface DispatchAction {

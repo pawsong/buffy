@@ -24,7 +24,7 @@ import {
 import {
   voxelRemoveBatch,
   voxelMergeFragment,
-  voxelAddList,
+  voxelPaint,
 } from '../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
@@ -136,7 +136,7 @@ class DragState extends SelectTraceState {
   }
 
   onTraceSelect(trace: Position[]) {
-    this.tool.dispatchAction(voxelAddList(trace, this.tool.props.paletteColor));
+    this.tool.dispatchAction(voxelPaint(trace, this.tool.props.paletteColor));
   }
 }
 
