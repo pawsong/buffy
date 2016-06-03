@@ -19,7 +19,6 @@ import {
   VOXEL_ADD_BATCH, VoxelAddBatchAction,
   VOXEL_REMOVE, VoxelRemoveAction,
   VOXEL_REMOVE_BATCH, VoxelRemoveBatchAction,
-  VOXEL_ROTATE, VoxelRotateAction,
   VOXEL_SELECT, VoxelSelectAction,
   VOXEL_SELECT_BOX, VoxelSelectBoxAction,
   VOXEL_SELECT_CONNECTED, VoxelSelectConnectedAction,
@@ -804,59 +803,10 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       }
 
       return Object.assign({}, state, {
+        size: model.shape,
         matrix: model,
         selection,
       });
-    }
-
-    case VOXEL_ROTATE: {
-      const { axis } = <VoxelRotateAction>action;
-      const rotate = rotates[axis];
-      if (!rotate) return state;
-
-      const width = state.matrix.shape[0];
-      const height = state.matrix.shape[1];
-      const depth = state.matrix.shape[2];
-      const matrix = ndarray(new Int32Array(width * height * depth), state.matrix.shape);
-
-      // TODO: Support user define shape
-      const shape: Shape = state.size;
-
-      for (let k = 0; k < depth; ++k) {
-        for (let j = 0; j < height; ++j) {
-          for (let i = 0; i < width; ++i) {
-            const c = state.matrix.get(i, j, k);
-            if (c === 0) continue;
-            const pos = rotate(shape, [i, j, k]);
-            matrix.set(pos[0], pos[1], pos[2], c);
-          }
-        }
-      }
-
-      if (!state.selection) {
-        return Object.assign({}, state, {
-          matrix,
-        });
-      } else {
-        const selection = ndarray(new Int32Array(width * height * depth), state.selection.shape);
-
-        for (let k = 0; k < depth; ++k) {
-          for (let j = 0; j < height; ++j) {
-            for (let i = 0; i < width; ++i) {
-              const c = state.selection.get(i, j, k);
-              if (c === 0) continue;
-
-              const pos = rotate(shape, [i, j, k]);
-              selection.set(pos[0], pos[1], pos[2], c);
-            }
-          }
-        }
-
-        return Object.assign({}, state, {
-          matrix,
-          selection,
-        });
-      }
     }
 
     case VOXEL_PASTE: {

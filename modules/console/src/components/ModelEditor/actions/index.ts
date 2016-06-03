@@ -146,17 +146,6 @@ export function voxelRemoveSelected(): VoxelRemoveSelectedAction {
   };
 }
 
-export const VOXEL_ROTATE: 'voxel-editor/VOXEL_ROTATE' = 'voxel-editor/VOXEL_ROTATE';
-export interface VoxelRotateAction extends Action<typeof VOXEL_ROTATE> {
-  axis: string;
-}
-export function voxelRotate(axis: string): VoxelRotateAction {
-  return {
-    type: VOXEL_ROTATE,
-    axis,
-  };
-}
-
 export const VOXEL_CREATE_FRAGMENT: 'VOXEL_CREATE_FRAGMENT' = 'VOXEL_CREATE_FRAGMENT';
 export interface VoxelCreateFragmentAction extends Action<typeof VOXEL_CREATE_FRAGMENT> {
   model: Ndarray;

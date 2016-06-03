@@ -32,7 +32,6 @@ import {
 import {
   VOXEL_ADD_BATCH,
   VOXEL_REMOVE_BATCH,
-  VOXEL_ROTATE,
   VOXEL_SELECT,
   VOXEL_SELECT_BOX,
   VOXEL_SELECT_CONNECTED,
@@ -119,7 +118,6 @@ const ActionMessages = {
   [VOXEL_ADD_LIST]: messages.labelVoxelAdd,
   [VOXEL_REMOVE_BATCH]: messages.labelVoxelRemove,
   [VOXEL_REMOVE_SELECTED]: messages.labelVoxelRemove,
-  [VOXEL_ROTATE]: messages.labelVoxelRotate,
   [VOXEL_SELECT]: messages.labelVoxelSelect,
   [VOXEL_SELECT_BOX]: messages.labelVoxelSelect,
   [VOXEL_SELECT_CONNECTED]: messages.labelVoxelSelect,
