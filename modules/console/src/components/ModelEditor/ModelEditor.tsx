@@ -318,7 +318,7 @@ ModelEditor.createExtraData = (size: Position) => {
   const camera = new THREE.PerspectiveCamera();
   camera.fov = 40;
   camera.near = 1;
-  camera.far = 20000;
+  camera.far = 30000;
   camera.position.set(
     radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
       + size[0] * PIXEL_SCALE / 2,

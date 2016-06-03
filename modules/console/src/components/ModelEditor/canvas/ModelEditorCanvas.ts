@@ -477,7 +477,7 @@ class ModelEditorCanvas extends Canvas {
 
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     this.controls.mouseButtons.ORBIT = THREE.MOUSE.RIGHT;
-    this.controls.maxDistance = 8000;
+    this.controls.maxDistance = 20000;
     this.controls.enableKeys = false;
     this.controls.enablePan = false;
 

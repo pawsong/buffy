@@ -27,7 +27,7 @@ import {
   voxelResize,
 } from '../../actions';
 
-const MAX_MODEL_SIZE = 32;
+const MAX_MODEL_SIZE = 64;
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
