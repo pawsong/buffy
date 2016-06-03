@@ -162,6 +162,26 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         </div>
         <div style={styles.iconRow}>
           <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.BOX_SELECT)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.BOX_SELECT)}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Box Select'}
+          >
+            <CubeOutlineIcon />
+          </IconButton>
+          <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.MAGIC_WAND)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.MAGIC_WAND)}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Magic Wand'}
+          >
+            <AutoFixIcon />
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.PENCIL)}
             style={this.getIconButtonStyle(styles.iconButton, ToolType.PENCIL)}
             tooltipStyles={styles.tooltips}
@@ -172,8 +192,23 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             mode_edit
           </IconButton>
           <IconButton
+            onTouchTap={() => this.props.selectTool(ToolType.ERASE)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.ERASE)}
+            iconStyle={{
+              transform: 'rotate(45deg)',
+            }}
+            tooltipStyles={styles.tooltips}
+            iconClassName="material-icons"
+            tooltipPosition="bottom-center"
+            tooltip={'Erase'}
+          >
+            crop_portrait
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.PAINT)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.PAINT)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.PAINT)}
             iconClassName="material-icons"
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
@@ -181,11 +216,9 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           >
             brush
           </IconButton>
-        </div>
-        <div style={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.COLOR_FILL)}
-            style={this.getIconButtonStyle(styles.iconButton, ToolType.COLOR_FILL)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.COLOR_FILL)}
             iconStyle={{
               transform: 'scale(1.32)',
               marginTop: 4,
@@ -212,23 +245,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             remove
           </IconButton>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.ERASE)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.ERASE)}
-            iconStyle={{
-              transform: 'rotate(45deg)',
-            }}
-            tooltipStyles={styles.tooltips}
-            iconClassName="material-icons"
-            tooltipPosition="bottom-center"
-            tooltip={'Erase'}
-          >
-            crop_portrait
-          </IconButton>
-        </div>
-        <div style={styles.iconRow}>
-          <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE)}
-            style={this.getIconButtonStyle(styles.iconButton, ToolType.RECTANGLE)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.RECTANGLE)}
             tooltipStyles={styles.tooltips}
             iconStyle={{
               transform: 'scale(1.32)',
@@ -239,34 +257,16 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           >
             stop
           </IconButton>
+        </div>
+        <div style={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.BOX)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.BOX)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.BOX)}
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
             tooltip={'Box'}
           >
             <CubeIcon />
-          </IconButton>
-        </div>
-        <div style={styles.iconRow}>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.BOX_SELECT)}
-            style={this.getIconButtonStyle(styles.iconButton, ToolType.BOX_SELECT)}
-            tooltipStyles={styles.tooltips}
-            tooltipPosition="bottom-center"
-            tooltip={'Box Select'}
-          >
-            <CubeOutlineIcon />
-          </IconButton>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.MAGIC_WAND)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.MAGIC_WAND)}
-            tooltipStyles={styles.tooltips}
-            tooltipPosition="bottom-center"
-            tooltip={'Magic Wand'}
-          >
-            <AutoFixIcon />
           </IconButton>
         </div>
         <div style={styles.iconRow}>
