@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as Immutable from 'immutable';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
+import * as ndarray from 'ndarray';
 
 import { createGeometryFromMesh } from '../../../../canvas/utils';
 import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
@@ -35,10 +36,10 @@ import {
   voxelClearSelection,
 } from '../../actions';
 
-import * as ndarray from 'ndarray';
-
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
+
+const DRAW_GUIDE_SCALE = 10;
 
 interface MaterialToRestore {
   material: THREE.MeshBasicMaterial;
@@ -233,7 +234,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     this.temp2.copy(direction).subScalar(1).multiplyScalar(-1);
 
     this.drawGuide.scale.copy(this.temp1).multiply(this.temp2)
-      .add(this.temp3.copy(direction).multiply(this.temp4).multiplyScalar(PIXEL_SCALE * 4));
+      .add(this.temp3.copy(direction).multiply(this.temp4).multiplyScalar(PIXEL_SCALE * DRAW_GUIDE_SCALE));
     this.drawGuide.position.copy(position).multiply(this.temp2)
       .add(this.temp3.copy(direction).multiply(this.temp4).multiplyScalar(PIXEL_SCALE_HALF));
 
