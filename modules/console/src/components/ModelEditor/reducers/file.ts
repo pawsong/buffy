@@ -1,4 +1,5 @@
 import * as ndarray from 'ndarray';
+import { createSelector } from 'reselect';
 
 import undoable from '@pasta/helper/lib/undoable';
 const floodFill = require('n-dimensional-flood-fill');
@@ -10,6 +11,7 @@ import {
   Volumn,
   VoxelData,
   Transformation,
+  Clipboard,
 } from '../types';
 
 import {
@@ -31,6 +33,7 @@ import {
   VOXEL_TRANSFORM, VoxelTransformAction,
   VOXEL_COLOR_FILL, VoxelColorFillAction,
   VOXEL_ADD_LIST, VoxelAddListAction,
+  VOXEL_PASTE, VoxelPasteAction,
 } from '../actions';
 
 const initialSize: Position = [16, 16, 16];
@@ -309,6 +312,65 @@ function calculateIntersection(destShape: Position, srcShape: Position, offset: 
   };
 }
 
+// TODO: Improve algorithm
+const findBoundary = cwise({
+  args: ['index', 'array'],
+  pre: function () {
+    this.loX = Infinity;
+    this.loY = Infinity;
+    this.loZ = Infinity;
+    this.hiX = -1;
+    this.hiY = -1;
+    this.hiZ = -1;
+  },
+  body: function (i, a) {
+    if (a) {
+      if (this.loX > i[0]) this.loX = i[0];
+      if (this.loY > i[1]) this.loY = i[1];
+      if (this.loZ > i[2]) this.loZ = i[2];
+      if (this.hiX < i[0]) this.hiX = i[0];
+      if (this.hiY < i[1]) this.hiY = i[1];
+      if (this.hiZ < i[2]) this.hiZ = i[2];
+    }
+  },
+  post: function () {
+    return [this.loX, this.loY, this.loZ, this.hiX, this.hiY, this.hiZ];
+  }
+})
+
+const filter = cwise({
+  args: ['array', 'array', 'array'],
+  body: function (d, s, f) {
+    if (f) d = s;
+  }
+});
+
+const clipboardSelector = createSelector(
+  (clipboard: Clipboard) => clipboard.model,
+  (clipboard: Clipboard) => clipboard.selection,
+  (model, selection) => {
+    const boundary = findBoundary(selection);
+
+    const shape = [
+      boundary[3] - boundary[0] + 1,
+      boundary[4] - boundary[1] + 1,
+      boundary[5] - boundary[2] + 1,
+    ];
+
+    const offset =
+        boundary[0] * selection.stride[0]
+      + boundary[1] * selection.stride[1]
+      + boundary[2] * selection.stride[2];
+
+    const fragment = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), shape);
+    const partialModel = ndarray(model.data, shape, model.stride, offset);
+    const partialSelection = ndarray(selection.data, shape, selection.stride, offset);
+
+    filter(fragment, partialModel, partialSelection);
+    return fragment;
+  }
+);
+
 function voxelDataReducer(state = initialState, action: Action<any>): VoxelData {
   switch (action.type) {
     case VOXEL_ADD_BATCH: {
@@ -530,10 +592,18 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const fShape = state.fragment.shape;
       const fOffset = state.fragmentOffset;
 
+      const loX = fOffset[0];
+      const loY = fOffset[1];
+      const loZ = fOffset[2];
+      const hiX = fOffset[0] + fShape[0] - 1;
+      const hiY = fOffset[1] + fShape[1] - 1;
+      const hiZ = fOffset[2] + fShape[2] - 1;
+
+      const prevShape = state.matrix.shape;
+
       if (
-          fOffset[0] <= -fShape[0] || fOffset[0] >= fShape[0]
-       || fOffset[1] <= -fShape[1] || fOffset[1] >= fShape[1]
-       || fOffset[2] <= -fShape[2] || fOffset[2] >= fShape[2]
+           loX >= prevShape[0] || loY >= prevShape[1] || loZ >= prevShape[2]
+        || hiX < 0 || hiY < 0 || hiZ < 0
       ) {
         return Object.assign({}, state, {
           selection: null,
@@ -543,10 +613,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       }
 
       const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
-      const selection = ndarray(
-        new Int32Array(state.fragment.shape[0] * state.fragment.shape[1] * state.fragment.shape[2]),
-        state.fragment.shape
-      );
+      const selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
 
       const {
         srcOffset,
@@ -790,6 +857,24 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
           selection,
         });
       }
+    }
+
+    case VOXEL_PASTE: {
+      const { model, selection } = <VoxelPasteAction>action;
+
+      const fragment = clipboardSelector({ model, selection });
+
+      const fragmentOffset = [
+        Math.floor((state.matrix.shape[0] - fragment.shape[0]) / 2),
+        Math.floor((state.matrix.shape[1] - fragment.shape[1]) / 2),
+        Math.floor((state.matrix.shape[2] - fragment.shape[2]) / 2),
+      ];
+
+      return Object.assign({}, state, {
+        selection: null,
+        fragment,
+        fragmentOffset,
+      });
     }
 
     default: {

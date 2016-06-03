@@ -59,6 +59,8 @@ import {
   voxelRemoveSelected,
   voxelMergeFragment,
   voxelClearSelection,
+  voxelCopy,
+  voxelPaste,
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
@@ -191,6 +193,26 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         // CTRL or COMMAND
 
         switch(e.keyCode) {
+          case 67: // C
+          {
+            const { clipboard } = this.props.commonState;
+            const { matrix: model, selection } = this.props.fileState.present.data;
+
+            if (selection) {
+              if (!clipboard || clipboard.model !== model || clipboard.selection !== selection) {
+                this.dispatchAction(voxelCopy(model, selection));
+              }
+            }
+            break;
+          }
+          case 86: // V
+          {
+            const { clipboard } = this.props.commonState;
+            if (clipboard) {
+              this.dispatchAction(voxelPaste(clipboard.model, clipboard.selection));
+            }
+            break;
+          }
           case 90: // Z
           {
             if (this.props.fileState.past.length > 0) {

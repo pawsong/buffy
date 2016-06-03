@@ -80,9 +80,15 @@ export interface ExtraData {
 
 export type FileState = UndoableState<VoxelData>;
 
+export interface Clipboard {
+  model: Ndarray;
+  selection: Ndarray;
+}
+
 export interface CommonState {
   selectedTool: ToolType;
   paletteColor: Color;
+  clipboard: Clipboard;
 }
 
 export interface ModelEditorState {

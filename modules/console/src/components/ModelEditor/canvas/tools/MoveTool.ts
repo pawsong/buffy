@@ -19,6 +19,8 @@ import BoundingBoxEdgesHelper from '../objects/BoundingBoxEdgesHelper';
 const fragmentVertexShader = require('raw!../shaders/fragment.vert');
 const fragmentFragmentShader = require('raw!../shaders/fragment.frag');
 
+const warning = require('fbjs/lib/warning');
+
 import {
   Position,
   ToolType,
@@ -127,10 +129,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     // Fragment has precedence over selection.
     // Selection must not exist when fragment does.
 
-    if (diff.selection && this.tree.fragment) {
-      // This should not occur.
-      return;
-    }
+    warning(!(diff.selection && this.tree.fragment), 'Selection must not exist when fragment does');
 
     if (this.tree.fragment) {
       this.updateArrow(this.canvas.component.fragmentBoundingBox);

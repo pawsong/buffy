@@ -212,10 +212,36 @@ export const VOXEL_TRANSFORM: 'VOXEL_TRANSFORM' = 'VOXEL_TRANSFORM';
 export interface VoxelTransformAction extends Action<typeof VOXEL_TRANSFORM> {
   transform: Transformation;
 }
-export function voxelTransform(transform: Transformation) {
+export function voxelTransform(transform: Transformation): VoxelTransformAction {
   return {
     type: VOXEL_TRANSFORM,
     transform,
+  };
+}
+
+export const VOXEL_COPY: 'VOXEL_COPY' = 'VOXEL_COPY';
+export interface VoxelCopyAction extends Action<typeof VOXEL_COPY> {
+  model: Ndarray;
+  selection: Ndarray;
+}
+export function voxelCopy(model: Ndarray, selection: Ndarray): VoxelCopyAction {
+  return {
+    type: VOXEL_COPY,
+    model,
+    selection,
+  };
+}
+
+export const VOXEL_PASTE: 'VOXEL_PASTE' = 'VOXEL_PASTE';
+export interface VoxelPasteAction extends Action<typeof VOXEL_PASTE> {
+  model: Ndarray;
+  selection: Ndarray;
+}
+export function voxelPaste(model: Ndarray, selection: Ndarray): VoxelPasteAction {
+  return {
+    type: VOXEL_PASTE,
+    model,
+    selection,
   };
 }
 

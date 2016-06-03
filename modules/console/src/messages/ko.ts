@@ -582,6 +582,13 @@ export default {
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Voxel paste label
+   * defaultMessage: Paste
+   */
+  'voxel-editor.panels.history.voxel.paste': '붙여넣기',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel remove history label
    * defaultMessage: Remove voxels
    */

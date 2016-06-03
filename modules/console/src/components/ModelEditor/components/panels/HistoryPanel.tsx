@@ -47,6 +47,7 @@ import {
   VOXEL_COLOR_FILL,
   VOXEL_ADD_LIST,
   VOXEL_PAINT,
+  VOXEL_PASTE,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -105,6 +106,11 @@ const messages = defineMessages({
     description: 'Voxel color fill label',
     defaultMessage: 'Paint',
   },
+  labelVoxelPaste: {
+    id: 'voxel-editor.panels.history.voxel.paste',
+    description: 'Voxel paste label',
+    defaultMessage: 'Paste',
+  },
 });
 
 const ActionMessages = {
@@ -126,6 +132,7 @@ const ActionMessages = {
   [VOXEL_TRANSFORM]: messages.labelVoxelTransform,
   [VOXEL_COLOR_FILL]: messages.labelVoxelColorFill,
   [VOXEL_PAINT]: messages.labelVoxelColorFill,
+  [VOXEL_PASTE]: messages.labelVoxelPaste,
 };
 
 function getActionMessage(state: Snapshot<any>) {
