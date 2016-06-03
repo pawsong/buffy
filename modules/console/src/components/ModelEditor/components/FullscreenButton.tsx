@@ -2,6 +2,7 @@ import * as React from 'react';
 import IconButton from 'material-ui/lib/icon-button';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 import LightRawTheme from 'material-ui/lib/styles/raw-themes/light-raw-theme';
+import Colors from 'material-ui/lib/styles/colors';
 const cloneDeep = require('lodash/cloneDeep');
 
 interface FullscreenButtonProps extends React.Props<FullscreenButton> {
@@ -25,6 +26,7 @@ class FullscreenButton extends React.Component<FullscreenButtonProps, {}> {
       <IconButton
         onTouchTap={this.props.onTouchTap}
         tooltipStyles={{ left: 5 }}
+        iconStyle={{ color: Colors.white }}
         style={styles.root} iconClassName="material-icons" tooltipPosition="bottom-center"
         tooltip={this.props.fullscreen ? 'Fullscreen exit' : 'Fullscreen'}
       >

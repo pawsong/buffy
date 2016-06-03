@@ -258,7 +258,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     const style = this.state.fullscreen ? {
       position: 'fixed',
       top: 0, left: 0, bottom: 0, right: 0,
-      zIndex: 1,
+      zIndex: 10000,
     } : {
       width: '100%',
       height: '100%',
