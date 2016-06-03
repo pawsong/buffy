@@ -54,17 +54,17 @@ export const VOXEL_SELECT_PROJECTION: 'VOXEL_SELECT_PROJECTION' = 'VOXEL_SELECT_
 export interface VoxelSelectProjectionAction extends Action<typeof VOXEL_SELECT_PROJECTION> {
   projectionMatrix: THREE.Matrix4;
   scale: number;
-  boundary: Rectangle;
+  bounds: Rectangle;
   merge: boolean;
 }
 export function voxelSelectProjection(
-  projectionMatrix: THREE.Matrix4, scale: number, boundary: Rectangle, merge: boolean
+  projectionMatrix: THREE.Matrix4, scale: number, bounds: Rectangle, merge: boolean
 ): VoxelSelectProjectionAction {
   return {
     type: VOXEL_SELECT_PROJECTION,
     projectionMatrix,
     scale,
-    boundary,
+    bounds,
     merge,
   };
 }

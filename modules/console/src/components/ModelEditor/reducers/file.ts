@@ -1,8 +1,20 @@
 import * as ndarray from 'ndarray';
+const cwise = require('cwise');
 import { createSelector } from 'reselect';
 
 import undoable from '@pasta/helper/lib/undoable';
 const floodFill = require('n-dimensional-flood-fill');
+
+import ndAny from '../ndops/any';
+import ndAssign from '../ndops/assign';
+import ndAssign2 from '../ndops/assign2';
+import ndAssignAndMask2 from '../ndops/assignAndMask2';
+import ndExclude from '../ndops/exclude';
+import ndCopyWithFilter from '../ndops/copyWithFilter';
+import ndSet from '../ndops/set';
+import ndSetWithFilter2 from '../ndops/setWithFilter2';
+import ndFill from '../ndops/fill';
+import ndFillWithFilter2 from '../ndops/fillWithFilter2';
 
 import {
   Position,
@@ -49,219 +61,53 @@ const initialState: VoxelData = {
   fragmentOffset: [0, 0, 0],
 };
 
-export function rgbToHex({ r, g, b }) {
+function rgbToHex({ r, g, b }) {
   return (1 << 24) /* Used by mesher */ | (r << 16) | (g << 8) | b;
 }
 
-type Shape = [number /* width */, number /* height */, number /* depth */];
-
-interface RotateFn {
-  (shape: Shape, position: Position): Position;
+/**
+ * n-dimensional-flood-fill works great but enters infinite loop in some cases:
+ *   - When bounds check is missing
+ *   - When value in seed position is undefined
+ *
+ * This simple wrapper takes care of those cases.
+ */
+interface FloodFillGetter {
+  (x: number, y: number, z: number): number;
 }
 
-const cwise = require('cwise');
+interface OnFloodCallback {
+  (x: number, y: number, z: number): any;
+}
 
-const any = cwise({
-  args: ['array'],
-  body: function(a) {
-    if (a) return true;
-  },
-  post: function() {
-    return false
-  },
-});
+function safeFloodFill(shape: Position, getter: FloodFillGetter, onFlood: OnFloodCallback, seed: Position) {
+  if (getter(seed[0], seed[1], seed[2]) === undefined) {
+    return false;
+  }
 
-const fill = (() => {
-  const _fill = cwise({
-    args: ['array', 'scalar'],
-    body: function(a, s) {
-      a = s;
-    },
-  });
+  let hit = false;
 
-  return function (array: ndarray.Ndarray, volumn: Volumn, c: number) {
-    const offset = array.stride[0] * volumn[0] +
-                   array.stride[1] * volumn[1] +
-                   array.stride[2] * volumn[2];
-
-    const shape = [
-      volumn[3] - volumn[0] + 1,
-      volumn[4] - volumn[1] + 1,
-      volumn[5] - volumn[2] + 1,
-    ];
-
-    const _array = ndarray(array.data, shape, array.stride, offset);
-    _fill(_array, c);
-  };
-})();
-
-const fillInSelection = (() => {
-  const _fillInSelection = cwise({
-    args: ['array', 'array', 'scalar'],
-    pre: function () {
-      this.changed = false;
-    },
-    body: function (model, selection, color) {
-      if (selection) {
-        model = color;
-        this.changed = true;
+  floodFill({
+    getter: (x: number, y: number, z: number) => {
+      if (
+           x < 0 || x >= shape[0]
+        || y < 0 || y >= shape[1]
+        || z < 0 || z >= shape[2]
+      ) {
+        return;
       }
+
+      return getter(x, y, z);
     },
-    post: function () {
-      return this.changed;
+    onFlood: (x: number, y: number, z: number) => {
+      onFlood(x, y, z);
+      hit = true;
     },
+    seed,
   });
 
-  return function (array: ndarray.Ndarray, volumn: Volumn, c: number, selection: ndarray.Ndarray): boolean {
-    const offset = array.stride[0] * volumn[0] +
-                   array.stride[1] * volumn[1] +
-                   array.stride[2] * volumn[2];
-
-    const shape = [
-      volumn[3] - volumn[0] + 1,
-      volumn[4] - volumn[1] + 1,
-      volumn[5] - volumn[2] + 1,
-    ];
-
-    const _array = ndarray(array.data, shape, array.stride, offset);
-    const _selection = ndarray(selection.data, shape, selection.stride, offset);
-
-    return _fillInSelection(_array, _selection, c);
-  };
-})();
-
-const selectWithBox = (() => {
-  const _selectWithBox = cwise({
-    args: ['array', 'array'],
-    pre: function () {
-      this.selected = false;
-    },
-    body: function (selection, model) {
-      if (model) {
-        selection = 1;
-        this.selected = true;
-      }
-    },
-    post: function () {
-      return this.selected;
-    },
-  });
-
-  return function (selection: ndarray.Ndarray, model: ndarray.Ndarray, volumn: Volumn): boolean {
-    const offset = model.stride[0] * volumn[0] +
-                   model.stride[1] * volumn[1] +
-                   model.stride[2] * volumn[2];
-
-    const shape = [
-      volumn[3] - volumn[0] + 1,
-      volumn[4] - volumn[1] + 1,
-      volumn[5] - volumn[2] + 1,
-    ];
-
-    const _model = ndarray(model.data, shape, model.stride, offset);
-    const _selection = ndarray(selection.data, shape, selection.stride, offset);
-
-    return _selectWithBox(_selection, _model);
-  };
-})();
-
-const removeInSelection = (() => {
-  const _removeInSelection = cwise({
-    args: ['array', 'array'],
-    body: function (model, selection) {
-      if (selection) {
-        model = 0;
-      }
-    },
-  });
-
-  return (model: ndarray.Ndarray, selection: ndarray.Ndarray) => {
-    return _removeInSelection(model, selection);
-  };
-})();
-
-const mergeFragmentIntoModel = (() => {
-  const _mergeFragmentIntoModel = cwise({
-    args: ['array', 'array', 'array'],
-    pre: function () {
-      this.selected = false;
-    },
-    body: function (model, selection, fragment) {
-      if (fragment) {
-        selection = 1;
-        model = fragment;
-        this.selected = true;
-      }
-    },
-    post: function () {
-      return this.selected;
-    }
-  });
-
-  return (model: ndarray.Ndarray, selection: ndarray.Ndarray, fragment: ndarray.Ndarray): boolean => {
-    return _mergeFragmentIntoModel(model, selection, fragment);
-  };
-})();
-
-const resizeModel = (() => {
-  const _resizeModel = cwise({
-    args: ['array', 'array'],
-    body: function (next, prev) {
-      if (prev) next = prev;
-    },
-  });
-
-  return (model: ndarray.Ndarray, size: Position, offset: Position): ndarray.Ndarray => {
-    const nextModel = ndarray(new Int32Array(size[0] * size[1] * size[2]), size);
-
-    const prevDataOffset =
-      model.stride[0] * offset[0] +
-      model.stride[1] * offset[1] +
-      model.stride[2] * offset[2];
-
-    const prevModel = ndarray(model.data, size, model.stride, prevDataOffset);
-
-    _resizeModel(nextModel, prevModel);
-
-    return nextModel;
-  };
-})();
-
-const resizeModelAndSelection = (() => {
-  const _mergeFragmentIntoModel = cwise({
-    args: ['array', 'array', 'array'],
-    pre: function () {
-      this.selected = false;
-    },
-    body: function (model, selection, fragment) {
-      if (fragment) {
-        selection = 1;
-        model = fragment;
-        this.selected = true;
-      }
-    },
-    post: function () {
-      return this.selected;
-    }
-  });
-
-  return (model: ndarray.Ndarray, selection: ndarray.Ndarray, fragment: ndarray.Ndarray): boolean => {
-    return _mergeFragmentIntoModel(model, selection, fragment);
-  };
-})();
-
-const merge = (() => {
-  const _merge = cwise({
-    args: ['array', 'array'],
-    body: function (dest, src) {
-      if (src) dest = src;
-    },
-  });
-
-  return (dest: ndarray.Ndarray, src: ndarray.Ndarray): boolean => {
-    return _merge(dest, src);
-  };
-})();
+  return hit;
+}
 
 const filterProjection = (() => {
   const _filterProjection = cwise({
@@ -318,6 +164,21 @@ const filterProjection = (() => {
   };
 })();
 
+function hasIntersection(destShape: Position, srcShape: Position, offset: Position) {
+  const loX = offset[0];
+  const loY = offset[1];
+  const loZ = offset[2];
+  const hiX = offset[0] + srcShape[0] - 1;
+  const hiY = offset[1] + srcShape[1] - 1;
+  const hiZ = offset[2] + srcShape[2] - 1;
+
+  return (
+       loX < destShape[0] && hiX >= 0
+    && loY < destShape[1] && hiY >= 0
+    && loZ < destShape[2] && hiZ >= 0
+  );
+}
+
 function calculateIntersection(destShape: Position, srcShape: Position, offset: Position) {
   let srcOffsetX, srcOffsetY, srcOffsetZ;
   let destOffsetX, destOffsetY, destOffsetZ;
@@ -361,7 +222,7 @@ function calculateIntersection(destShape: Position, srcShape: Position, offset: 
 }
 
 // TODO: Improve algorithm
-const findBoundary = cwise({
+const findBounds = cwise({
   args: ['index', 'array'],
   pre: function () {
     this.loX = Infinity;
@@ -384,251 +245,274 @@ const findBoundary = cwise({
   post: function () {
     return [this.loX, this.loY, this.loZ, this.hiX, this.hiY, this.hiZ];
   }
-})
-
-const filter = cwise({
-  args: ['array', 'array', 'array'],
-  body: function (d, s, f) {
-    if (f) d = s;
-  }
 });
 
 const clipboardSelector = createSelector(
   (clipboard: Clipboard) => clipboard.model,
   (clipboard: Clipboard) => clipboard.selection,
   (model, selection) => {
-    const boundary = findBoundary(selection);
+    const bounds = findBounds(selection);
 
     const shape = [
-      boundary[3] - boundary[0] + 1,
-      boundary[4] - boundary[1] + 1,
-      boundary[5] - boundary[2] + 1,
+      bounds[3] - bounds[0] + 1,
+      bounds[4] - bounds[1] + 1,
+      bounds[5] - bounds[2] + 1,
     ];
 
     const offset =
-        boundary[0] * selection.stride[0]
-      + boundary[1] * selection.stride[1]
-      + boundary[2] * selection.stride[2];
+        bounds[0] * selection.stride[0]
+      + bounds[1] * selection.stride[1]
+      + bounds[2] * selection.stride[2];
 
     const fragment = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), shape);
     const partialModel = ndarray(model.data, shape, model.stride, offset);
     const partialSelection = ndarray(selection.data, shape, selection.stride, offset);
 
-    filter(fragment, partialModel, partialSelection);
+    ndCopyWithFilter(fragment, partialModel, partialSelection);
     return fragment;
   }
 );
 
+function reduceModelUpsertAction(
+  state: VoxelData,
+  updateFn: (model: ndarray.Ndarray) => boolean,
+  updateWithSelectionFn: (model: ndarray.Ndarray, selection: ndarray.Ndarray) => boolean
+): VoxelData {
+  const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
+
+  let hit: boolean;
+
+  if (!state.selection) {
+    hit = updateFn(model);
+  } else {
+    hit = updateWithSelectionFn(model, state.selection);
+  }
+
+  if (!hit) return state;
+
+  return Object.assign({}, state, { matrix: model });
+}
+
+function reduceModelRemoveAction(
+  state: VoxelData,
+  removeFn: (model: ndarray.Ndarray) => boolean,
+  removeWithSelectionFn: (model: ndarray.Ndarray, selection: ndarray.Ndarray) => boolean
+): VoxelData {
+  const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
+
+  if (!state.selection) {
+    if (removeFn(model)) {
+      return Object.assign({}, state, { matrix: model });
+    } else {
+      return state;
+    }
+  } else {
+    const selection = ndarray(state.selection.data.slice(), state.selection.shape);
+    if (removeWithSelectionFn(model, selection)) {
+      const selectionIsValid = ndAny(selection);
+      return Object.assign({}, state, {
+        matrix: model,
+        selection: selectionIsValid ? selection : null,
+      });
+    } else {
+      return state;
+    }
+  }
+}
+
+function reduceSelectAction(state: VoxelData, merge: boolean, selectFn: (selection: ndarray.Ndarray) => boolean): VoxelData {
+  const model = state.matrix;
+
+  if (merge) {
+    const selection = state.selection
+      ? ndarray(state.selection.data.slice(), model.shape)
+      : ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
+
+    const selected = selectFn(selection);
+
+    if (selected) {
+      return Object.assign({}, state, { selection });
+    } else {
+      return state;
+    }
+  } else {
+    const selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
+
+    const selected = selectFn(selection);
+
+    if (selected) {
+      return Object.assign({}, state, { selection });
+    } else {
+      if (state.selection) {
+        return Object.assign({}, state, { selection: null });
+      } else {
+        return state;
+      }
+    }
+  }
+}
+
 function voxelDataReducer(state = initialState, action: Action<any>): VoxelData {
   switch (action.type) {
+    /*
+     * model update operations
+     */
+
     case VOXEL_ADD_BATCH: {
       const { volumn, color } = <VoxelAddBatchAction>action;
       const c = rgbToHex(color);
-      const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
 
-      if (!state.selection) {
-        fill(matrix, volumn, c);
-      } else {
-        if (!fillInSelection(matrix, volumn, c, state.selection)) {
-          return state;
-        }
-      }
-
-      return Object.assign({}, state, {
-        matrix,
-      });
+      return reduceModelUpsertAction(state,
+        model => {
+          // Skip hit test on the assumption of valid input.
+          ndFill(model, volumn, c);
+          return true;
+        },
+        (model, selection) => ndFillWithFilter2(model, volumn, c, selection)
+      );
     }
 
     case VOXEL_ADD_LIST: {
       const { positions, color } = <VoxelAddListAction>action;
       const c = rgbToHex(color);
-      const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
-      if (!state.selection) {
-        for (let i = 0, len = positions.length; i < len; ++i) {
-          const pos = positions[i];
-          model.set(pos[0], pos[1], pos[2], c);
-        }
-      } else {
-        for (let i = 0, len = positions.length; i < len; ++i) {
-          const pos = positions[i];
-          if (state.selection.get(pos[0], pos[1], pos[2])) {
+
+      return reduceModelUpsertAction(state,
+        model => {
+          // Skip hit test on the assumption of valid input.
+          for (let i = 0, len = positions.length; i < len; ++i) {
+            const pos = positions[i];
             model.set(pos[0], pos[1], pos[2], c);
           }
+          return true;
+        },
+        (model, selection) => {
+          let hit = false;
+          for (let i = 0, len = positions.length; i < len; ++i) {
+            const pos = positions[i];
+            if (selection.get(pos[0], pos[1], pos[2])) {
+              model.set(pos[0], pos[1], pos[2], c);
+              hit = true;
+            }
+          }
+          return hit;
         }
-      }
-      return Object.assign({}, state, { matrix: model });
+      );
     }
 
-    case VOXEL_SELECT_PROJECTION: {
-      const { projectionMatrix, scale, boundary, merge } = <VoxelSelectProjectionAction>action;
+    case VOXEL_COLOR_FILL: {
+      const { position, color } = <VoxelColorFillAction>action;
+      const c = rgbToHex(color);
 
-      const model = state.matrix;
-
-      let selection: ndarray.Ndarray;
-      if (state.selection && merge) {
-        selection = ndarray(state.selection.data.slice(), model.shape);
-      } else {
-        selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
-      }
-
-      const selected = filterProjection(
-        selection, model, scale, projectionMatrix, boundary[0], boundary[1], boundary[2], boundary[3]
+      return reduceModelUpsertAction(state,
+        model => safeFloodFill(
+          state.matrix.shape,
+          (x, y, z) => state.matrix.get(x, y, z),
+          (x, y, z) => model.set(x, y, z, c),
+          position
+        ),
+        (model, selection) => safeFloodFill(
+          state.matrix.shape,
+          (x, y, z) => {
+            if (!state.selection.get(x, y, z)) return;
+            return state.matrix.get(x, y, z);
+          },
+          (x, y, z) => model.set(x, y, z, c),
+          position
+        )
       );
+    }
+
+    case VOXEL_REMOVE_BATCH: {
+      const { positions } = <VoxelRemoveBatchAction>action;
+
+      return reduceModelRemoveAction(state,
+        model => {
+          // Skip hit test on the assumption of valid input.
+          for (let i = 0, len = positions.length; i < len; ++i) {
+            const pos = positions[i];
+            model.set(pos[0], pos[1], pos[2], 0);
+          }
+          return true;
+        },
+        (model, selection) => {
+          let hit = false;
+          for (let i = 0, len = positions.length; i < len; ++i) {
+            const pos = positions[i];
+            if (selection.get(pos[0], pos[1], pos[2])) {
+              model.set(pos[0], pos[1], pos[2], 0);
+              selection.set(pos[0], pos[1], pos[2], 0);
+              hit = true;
+            }
+          }
+          return hit;
+        }
+      );
+    }
+
+    case VOXEL_REMOVE_SELECTED: {
+      if (!state.selection) return;
+
+      const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
+      ndExclude(matrix, state.selection);
 
       return Object.assign({}, state, {
-        selection: selected ? selection : null,
+        matrix,
+        selection: null,
+      });
+    }
+
+    /*
+     * selection update operations
+     */
+
+    case VOXEL_SELECT_PROJECTION: {
+      const { projectionMatrix, scale, bounds, merge } = <VoxelSelectProjectionAction>action;
+
+      return reduceSelectAction(state, merge, selection => {
+        return filterProjection(
+          selection, state.matrix, scale, projectionMatrix, bounds[0], bounds[1], bounds[2], bounds[3]
+        );
       });
     }
 
     case VOXEL_SELECT_BOX: {
       const { volumn, merge } = <VoxelSelectBoxAction>action;
 
-      let selection: ndarray.Ndarray;
-      if (state.selection && merge) {
-        selection = ndarray(state.selection.data.slice(),
-          state.matrix.shape
-        );
-      } else {
-        selection = ndarray(
-          new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
-          state.matrix.shape
-        );
-      }
-
-      const selected = selectWithBox(selection, state.matrix, volumn);
-
-      if (!selected && !state.selection) return state;
-
-      return Object.assign({}, state, {
-        selection: selected ? selection : null,
+      return reduceSelectAction(state, merge, selection => {
+        return ndFillWithFilter2(selection, volumn, 1, state.matrix);
       });
     }
 
     case VOXEL_SELECT_CONNECTED: {
       const { position, merge } = <VoxelSelectConnectedAction>action;
 
-      let selection: ndarray.Ndarray;
-      if (state.selection && merge) {
-        selection = ndarray(state.selection.data.slice(),
-          state.matrix.shape
-        );
-      } else {
-        selection = ndarray(
-          new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
-          state.matrix.shape
-        );
-      }
-
-      floodFill({
-        getter: (x: number, y: number, z: number) => {
-          if (
-               x < 0 || x >= state.matrix.shape[0]
-            || y < 0 || y >= state.matrix.shape[1]
-            || z < 0 || z >= state.matrix.shape[2]
-          ) {
-            return;
-          }
-
-          return state.matrix.get(x, y, z) !== 0;
-        },
-        onFlood: (x: number, y: number, z: number) => {
-          selection.set(x, y, z, 1);
-        },
-        seed: position,
-      });
-
-      return Object.assign({}, state, { selection });
+      return reduceSelectAction(state, merge, selection => safeFloodFill(
+        state.matrix.shape,
+        (x, y, z) => state.matrix.get(x, y, z) !== 0 ? 1 : 0,
+        (x, y, z) => selection.set(x, y, z, 1),
+        position
+      ));
     }
 
     case VOXEL_MAGIN_WAND: {
       const { position, merge } = <VoxelMaginWandAction>action;
 
-      let selection: ndarray.Ndarray;
-      if (state.selection && merge) {
-        selection = ndarray(state.selection.data.slice(),
-          state.matrix.shape
-        );
-      } else {
-        selection = ndarray(
-          new Int32Array(state.matrix.shape[0] * state.matrix.shape[1] * state.matrix.shape[2]),
-          state.matrix.shape
-        );
-      }
-
-      const c = state.matrix.get(position[2], position[1], position[0]);
-
-      floodFill({
-        getter: (x: number, y: number, z: number) => {
-          if (
-               x < 0 || x >= state.matrix.shape[0]
-            || y < 0 || y >= state.matrix.shape[1]
-            || z < 0 || z >= state.matrix.shape[2]
-          ) {
-            return;
-          }
-
-          return state.matrix.get(x, y, z);
-        },
-        onFlood: (x: number, y: number, z: number) => {
-          selection.set(x, y, z, 1);
-        },
-        seed: position,
-      });
-
-      return Object.assign({}, state, { selection });
-    }
-
-    case VOXEL_COLOR_FILL: {
-      const { position, color } = <VoxelColorFillAction>action;
-      function checkBoundary(x: number, y: number, z: number): boolean {
-        if (
-             x < 0 || x >= state.matrix.shape[0]
-          || y < 0 || y >= state.matrix.shape[1]
-          || z < 0 || z >= state.matrix.shape[2]
-        ) {
-          return false;
-        } else {
-          return true;
-        }
-      }
-
-      let getter: (x: number, y: number, z: number) => number;
-      if (state.selection) {
-        if (!state.selection.get(position[0], position[1], position[2])) {
-          return state;
-        }
-
-        getter = (x: number, y: number, z: number) => {
-          if (!checkBoundary(x, y, z)) return;
-          if (!state.selection.get(x, y, z)) return;
-          return state.matrix.get(x, y, z);
-        }
-      } else {
-        getter = (x: number, y: number, z: number) => {
-          if (!checkBoundary(x, y, z)) return;
-          return state.matrix.get(x, y, z);
-        }
-      }
-
-      const c = rgbToHex(color);
-
-      const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
-
-      floodFill({
-        getter,
-        onFlood: (x: number, y: number, z: number) => {
-          model.set(x, y, z, c);
-        },
-        seed: position,
-      });
-
-      return Object.assign({}, state, { matrix: model });
+      return reduceSelectAction(state, merge, selection => safeFloodFill(
+        state.matrix.shape,
+        (x, y, z) => state.matrix.get(x, y, z),
+        (x, y, z) => selection.set(x, y, z, 1),
+        position
+      ));
     }
 
     case VOXEL_CLEAR_SELECTION: {
-      if (!state.selection) return;
+      if (!state.selection) return state;
       return Object.assign({}, state, { selection: null });
     }
+
+    /*
+     * fragment update operations
+     */
 
     case VOXEL_CREATE_FRAGMENT: {
       const { model, fragment, fragmentOffset } = <VoxelCreateFragmentAction>action;
@@ -636,6 +520,24 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       // Reuse ndarray params for performance reason.
       return Object.assign({}, state, {
         matrix: model,
+        selection: null,
+        fragment,
+        fragmentOffset,
+      });
+    }
+
+    case VOXEL_PASTE: {
+      const { model, selection } = <VoxelPasteAction>action;
+
+      const fragment = clipboardSelector({ model, selection });
+
+      const fragmentOffset = [
+        Math.floor((state.matrix.shape[0] - fragment.shape[0]) / 2),
+        Math.floor((state.matrix.shape[1] - fragment.shape[1]) / 2),
+        Math.floor((state.matrix.shape[2] - fragment.shape[2]) / 2),
+      ];
+
+      return Object.assign({}, state, {
         selection: null,
         fragment,
         fragmentOffset,
@@ -653,22 +555,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_MERGE_FRAGMENT: {
       if (!state.fragment) return state;
 
-      const fShape = state.fragment.shape;
-      const fOffset = state.fragmentOffset;
-
-      const loX = fOffset[0];
-      const loY = fOffset[1];
-      const loZ = fOffset[2];
-      const hiX = fOffset[0] + fShape[0] - 1;
-      const hiY = fOffset[1] + fShape[1] - 1;
-      const hiZ = fOffset[2] + fShape[2] - 1;
-
-      const prevShape = state.matrix.shape;
-
-      if (
-           loX >= prevShape[0] || loY >= prevShape[1] || loZ >= prevShape[2]
-        || hiX < 0 || hiY < 0 || hiZ < 0
-      ) {
+      if (!hasIntersection(state.matrix.shape, state.fragment.shape, state.fragmentOffset)) {
         return Object.assign({}, state, {
           selection: null,
           fragment: null,
@@ -691,73 +578,33 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         model.stride[2] * destOffset[2];
 
       const fragmentOffset =
-        model.stride[0] * srcOffset[0] +
-        model.stride[1] * srcOffset[1] +
-        model.stride[2] * srcOffset[2];
+        state.fragment.stride[0] * srcOffset[0] +
+        state.fragment.stride[1] * srcOffset[1] +
+        state.fragment.stride[2] * srcOffset[2];
 
-      const intersectionInModel = ndarray(model.data, shape, model.stride, modelOffset);
-      const intersectionInSelection = ndarray(selection.data, shape, selection.stride, modelOffset);
-      const intersectionInFragment = ndarray(state.fragment.data, shape, state.fragment.stride, fragmentOffset);
+      const intersectInModel = ndarray(model.data, shape, model.stride, modelOffset);
+      const intersectInSelection = ndarray(selection.data, shape, selection.stride, modelOffset);
+      const intersectInFragment = ndarray(state.fragment.data, shape, state.fragment.stride, fragmentOffset);
 
-      const selected = mergeFragmentIntoModel(intersectionInModel, intersectionInSelection, intersectionInFragment);
-
-      return Object.assign({}, state, {
-        matrix: model,
-        selection: selected ? selection : null,
-        fragment: null,
-        fragmentOffset: [0, 0, 0],
-      });
-    }
-
-    case VOXEL_REMOVE_BATCH: {
-      const { positions } = <VoxelRemoveBatchAction>action;
-
-      if (!state.selection) {
-        const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
-        for (let i = 0, len = positions.length; i < len; ++i) {
-          const pos = positions[i];
-          matrix.set(pos[0], pos[1], pos[2], 0);
-        }
+      if (ndAssignAndMask2(intersectInModel, intersectInSelection, intersectInFragment)) {
         return Object.assign({}, state, {
-          matrix,
+          matrix: model,
+          selection,
+          fragment: null,
+          fragmentOffset: [0, 0, 0],
         });
       } else {
-        let changed = false;
-
-        const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
-        const selection = ndarray(state.selection.data.slice(), state.selection.shape);
-
-        for (let i = 0, len = positions.length; i < len; ++i) {
-          const pos = positions[i];
-          if (selection.get(pos[0], pos[1], pos[2])) {
-            matrix.set(pos[0], pos[1], pos[2], 0);
-            selection.set(pos[0], pos[1], pos[2], 0);
-            changed = true;
-          }
-        }
-
-        if (!changed) return state;
-
-        const selected = any(selection);
-
         return Object.assign({}, state, {
-          matrix,
-          selection: selected ? selection : null,
+          selection: null,
+          fragment: null,
+          fragmentOffset: [0, 0, 0],
         });
       }
     }
 
-    case VOXEL_REMOVE_SELECTED: {
-      if (!state.selection) return;
-
-      const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
-      removeInSelection(matrix, state.selection);
-
-      return Object.assign({}, state, {
-        matrix,
-        selection: null,
-      });
-    }
+    /*
+     * Etc.
+     */
 
     case VOXEL_RESIZE: {
       const { size, offset } = <VoxelResizeAction>action;
@@ -784,7 +631,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const srcIntersect = ndarray(src.data, shape, src.stride, srcOffsetSum);
       const destIntersect = ndarray(dest.data, shape, dest.stride, destOffsetSum);
 
-      merge(destIntersect, srcIntersect);
+      ndAssign(destIntersect, srcIntersect);
 
       let destSelection = null;
       if (state.selection) {
@@ -794,7 +641,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         const srcSelectionIntersect = ndarray(srcSelection.data, shape, srcSelection.stride, srcOffsetSum);
         const destSelectionIntersect = ndarray(destSelection.data, shape, destSelection.stride, destOffsetSum);
 
-        merge(destSelectionIntersect, srcSelectionIntersect);
+        if (!ndAssign2(destSelectionIntersect, srcSelectionIntersect)) destSelection = null;
       }
 
       return Object.assign({}, state, {
@@ -871,24 +718,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         size: model.shape,
         matrix: model,
         selection,
-      });
-    }
-
-    case VOXEL_PASTE: {
-      const { model, selection } = <VoxelPasteAction>action;
-
-      const fragment = clipboardSelector({ model, selection });
-
-      const fragmentOffset = [
-        Math.floor((state.matrix.shape[0] - fragment.shape[0]) / 2),
-        Math.floor((state.matrix.shape[1] - fragment.shape[1]) / 2),
-        Math.floor((state.matrix.shape[2] - fragment.shape[2]) / 2),
-      ];
-
-      return Object.assign({}, state, {
-        selection: null,
-        fragment,
-        fragmentOffset,
       });
     }
 
