@@ -71,7 +71,7 @@ export type Rectangle = [
 ]
 
 export interface VoxelData {
-  matrix: Ndarray;
+  model: Ndarray;
   selection: Ndarray;
   fragment: Ndarray;
   size: Position;

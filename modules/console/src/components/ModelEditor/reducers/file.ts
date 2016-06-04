@@ -48,13 +48,13 @@ import {
 
 const initialSize: Position = [16, 16, 16];
 
-const initialMatrix = ndarray(new Int32Array(initialSize[0] * initialSize[1] * initialSize[2]), initialSize);
-initialMatrix.set(0,1,1, 1 << 24 | 0xff << 8);
-initialMatrix.set(1,1,1, 1 << 24 | 0xff << 8);
+const initialModel = ndarray(new Int32Array(initialSize[0] * initialSize[1] * initialSize[2]), initialSize);
+initialModel.set(0,1,1, 1 << 24 | 0xff << 8);
+initialModel.set(1,1,1, 1 << 24 | 0xff << 8);
 
 const initialState: VoxelData = {
   size: initialSize,
-  matrix: initialMatrix,
+  model: initialModel,
   selection: null,
   fragment: null,
   fragmentOffset: [0, 0, 0],
@@ -185,11 +185,11 @@ interface MergeFragmentResult {
 }
 
 function mergeFragment(state: VoxelData, leaveSelection: boolean): MergeFragmentResult {
-  if (!hasIntersection(state.matrix.shape, state.fragment.shape, state.fragmentOffset)) {
-    return { model: state.matrix, selection: null };
+  if (!hasIntersection(state.model.shape, state.fragment.shape, state.fragmentOffset)) {
+    return { model: state.model, selection: null };
   }
 
-  const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
+  const model = ndarray(state.model.data.slice(), state.model.shape);
 
   const {
     srcOffset,
@@ -216,13 +216,13 @@ function mergeFragment(state: VoxelData, leaveSelection: boolean): MergeFragment
     if (ndAssignAndMask2(intersectInModel, intersectInSelection, intersectInFragment, SELECTION_VALUE)) {
       return { model, selection };
     } else {
-      return { model: state.matrix, selection: null };
+      return { model: state.model, selection: null };
     }
   } else {
     if (ndAssign2(intersectInModel, intersectInFragment)) {
       return { model, selection: null };
     } else {
-      return { model: state.matrix, selection: null };
+      return { model: state.model, selection: null };
     }
   }
 }
@@ -284,7 +284,7 @@ function reduceModelUpsertAction(
   updateFn: (model: ndarray.Ndarray) => boolean,
   updateWithSelectionFn: (model: ndarray.Ndarray, selection: ndarray.Ndarray) => boolean
 ): VoxelData {
-  const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
+  const model = ndarray(state.model.data.slice(), state.model.shape);
 
   let hit: boolean;
 
@@ -296,7 +296,7 @@ function reduceModelUpsertAction(
 
   if (!hit) return state;
 
-  return Object.assign({}, state, { matrix: model });
+  return Object.assign({}, state, { model });
 }
 
 function reduceModelRemoveAction(
@@ -304,11 +304,11 @@ function reduceModelRemoveAction(
   removeFn: (model: ndarray.Ndarray) => boolean,
   removeWithSelectionFn: (model: ndarray.Ndarray, selection: ndarray.Ndarray) => boolean
 ): VoxelData {
-  const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
+  const model = ndarray(state.model.data.slice(), state.model.shape);
 
   if (!state.selection) {
     if (removeFn(model)) {
-      return Object.assign({}, state, { matrix: model });
+      return Object.assign({}, state, { model });
     } else {
       return state;
     }
@@ -317,7 +317,7 @@ function reduceModelRemoveAction(
     if (removeWithSelectionFn(model, selection)) {
       const selectionIsValid = ndAny(selection);
       return Object.assign({}, state, {
-        matrix: model,
+        model,
         selection: selectionIsValid ? selection : null,
       });
     } else {
@@ -333,7 +333,7 @@ enum MergeType {
 }
 
 function reduceSelectAction(state: VoxelData, merge: MergeType, selectFn: (selection: ndarray.Ndarray) => boolean): VoxelData {
-  const model = state.matrix;
+  const model = state.model;
 
   switch(merge) {
     case MergeType.NONE: {
@@ -460,11 +460,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_REMOVE_SELECTED: {
       if (!state.selection) return;
 
-      const matrix = ndarray(state.matrix.data.slice(), state.matrix.shape);
-      ndExclude(matrix, state.selection);
+      const model = ndarray(state.model.data.slice(), state.model.shape);
+      ndExclude(model, state.selection);
 
       return Object.assign({}, state, {
-        matrix,
+        model,
         selection: null,
       });
     }
@@ -478,7 +478,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return reduceSelectAction(state, state.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
         return filterProjection(
-          selection, state.matrix, SELECTION_VALUE, scale, projectionMatrix,
+          selection, state.model, SELECTION_VALUE, scale, projectionMatrix,
           bounds[0], bounds[1], bounds[2], bounds[3]
         );
       });
@@ -488,7 +488,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { volumn, merge } = <VoxelSelectBoxAction>action;
 
       return reduceSelectAction(state, state.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
-        return ndFillWithFilter2(selection, volumn, SELECTION_VALUE, state.matrix);
+        return ndFillWithFilter2(selection, volumn, SELECTION_VALUE, state.model);
       });
     }
 
@@ -497,7 +497,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return reduceSelectAction(state, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return selection.get(x, y, z) || (state.matrix.get(x, y, z) && 1);
+          return selection.get(x, y, z) || (state.model.get(x, y, z) && 1);
         });
       });
     }
@@ -507,7 +507,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return reduceSelectAction(state, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return selection.get(x, y, z) || state.matrix.get(x, y, z);
+          return selection.get(x, y, z) || state.model.get(x, y, z);
         });
       });
     }
@@ -526,7 +526,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       // Reuse ndarray params for performance reason.
       return Object.assign({}, state, {
-        matrix: model,
+        model,
         selection: null,
         fragment,
         fragmentOffset,
@@ -536,7 +536,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_PASTE: {
       const fragment = clipboardSelector(<VoxelPasteAction>action);
 
-      const model = state.fragment ? mergeFragment(state, false).model : state.matrix;
+      const model = state.fragment ? mergeFragment(state, false).model : state.model;
 
       const fragmentOffset = [
         Math.floor((model.shape[0] - fragment.shape[0]) / 2),
@@ -545,7 +545,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       ];
 
       return Object.assign({}, state, {
-        matrix: model,
+        model,
         selection: null,
         fragment,
         fragmentOffset,
@@ -566,7 +566,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { model, selection } = mergeFragment(state, true);
 
       return Object.assign({}, state, {
-        matrix: model,
+        model,
         selection,
         fragment: null,
         fragmentOffset: [0, 0, 0],
@@ -580,7 +580,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_RESIZE: {
       const { size, offset } = <VoxelResizeAction>action;
 
-      const src = state.matrix;
+      const src = state.model;
       const dest = ndarray(new Int32Array(size[0] * size[1] * size[2]), size);
 
       const {
@@ -617,7 +617,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         size,
-        matrix: dest,
+        model: dest,
         selection: destSelection,
       });
     }
@@ -626,7 +626,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { transform } = <VoxelTransformAction>action;
 
       // Infer next shape from transform and current size
-      const { shape } = state.matrix;
+      const { shape } = state.model;
       const w = Math.abs(shape[0] * transform[0][0] + shape[1] * transform[1][0] + shape[2] * transform[2][0]);
       const h = Math.abs(shape[0] * transform[0][1] + shape[1] * transform[1][1] + shape[2] * transform[2][1]);
       const d = Math.abs(shape[0] * transform[0][2] + shape[1] * transform[1][2] + shape[2] * transform[2][2]);
@@ -644,7 +644,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       for (let i = 0; i < shape[0]; ++i) {
         for (let j = 0; j < shape[1]; ++j) {
           for (let k = 0; k < shape[2]; ++k) {
-            const c = state.matrix.get(i, j, k);
+            const c = state.model.get(i, j, k);
             if (c) {
               const x0 = i - ox0;
               const y0 = j - oy0;
@@ -687,7 +687,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, {
         size: model.shape,
-        matrix: model,
+        model,
         selection,
       });
     }

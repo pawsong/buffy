@@ -280,7 +280,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
         const state: ModelFileState = file.state;
         const loader = this.modelManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
-        loader.loadFromMemory(mesher(state.present.data.matrix));
+        loader.loadFromMemory(mesher(state.present.data.model));
       });
 
     this.startStateLayer();
@@ -514,7 +514,7 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
         const loader = this.modelManager.getOrCreateLoader(file.id);
         loader.preventGarbageCollection();
         const state: ModelFileState = file.state;
-        loader.loadFromMemory(mesher(state.present.data.matrix));
+        loader.loadFromMemory(mesher(state.present.data.model));
       }
     });
 
@@ -530,9 +530,9 @@ class ProjectStudioHandler extends React.Component<ProjectStudioHandlerProps, Pr
 
   handleModelApply = (file: SourceFile) => {
     const state: ModelFileState = file.state;
-    const { matrix } = state.present.data;
+    const { model } = state.present.data;
     const loader = this.modelManager.getLoader(file.id);
-    loader.loadFromMemory(mesher(matrix));
+    loader.loadFromMemory(mesher(model));
   }
 
   render() {

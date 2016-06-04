@@ -196,7 +196,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           case 67: // C
           {
             const { clipboard } = this.props.commonState;
-            const { matrix: model, selection } = this.props.fileState.present.data;
+            const { model, selection } = this.props.fileState.present.data;
 
             if (selection) {
               if (!clipboard || clipboard.model !== model || clipboard.selection !== selection) {
@@ -338,21 +338,21 @@ ModelEditor.isModified = function (lhs: FileState, rhs: FileState) {
 };
 
 ModelEditor.serialize = (fileState) => {
-  const data: any = pako.deflate(fileState.present.data.matrix.data.buffer);
+  const data: any = pako.deflate(fileState.present.data.model.data.buffer);
 
   return {
     data,
-    shape: fileState.present.data.matrix.shape,
+    shape: fileState.present.data.model.shape,
   };
 }
 
 ModelEditor.deserialize = data => {
   const inflated = pako.inflate(data.data);
-  const matrix = ndarray(new Int32Array(inflated.buffer), data.shape);
+  const model = ndarray(new Int32Array(inflated.buffer), data.shape);
 
   return ModelEditor.createFileState({
     size: data.shape,
-    matrix,
+    model,
     selection: null,
     fragment: null,
     fragmentOffset: [0, 0, 0],

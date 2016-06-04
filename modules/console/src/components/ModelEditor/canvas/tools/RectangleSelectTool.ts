@@ -51,7 +51,7 @@ class RectangleSelectTool extends ModelEditorTool<BoxSelectToolProps, void, void
 
   mapParamsToProps(state: ModelEditorState) {
     return {
-      model: state.file.present.data.matrix,
+      model: state.file.present.data.model,
       selection: state.file.present.data.selection,
       fragment: state.file.present.data.fragment,
     };

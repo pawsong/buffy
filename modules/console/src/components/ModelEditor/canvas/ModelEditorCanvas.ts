@@ -168,7 +168,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     this.planeMaterial.extensions.derivatives = true;
 
     this.fragmentedModelSelector = createSelector(
-      (props: ComponentProps, state: ComponentState) => props.matrix,
+      (props: ComponentProps, state: ComponentState) => props.model,
       (props: ComponentProps, state: ComponentState) => state.fragment,
       (model, fragment) => {
         const fragmentedModel = ndarray(model.data.slice(), model.shape);
@@ -249,9 +249,9 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   setTemporaryFragment() {
     if (!this.props.selection) return;
 
-    const { shape } = this.props.matrix;
-    const fragment = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), this.props.matrix.shape);
-    select(fragment, this.props.matrix, this.props.selection);
+    const { shape } = this.props.model;
+    const fragment = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), this.props.model.shape);
+    select(fragment, this.props.model, this.props.selection);
 
     this.setState({ fragment });
   }
@@ -289,7 +289,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   render() {
     const model = this.state.fragment
       ? this.fragmentedModelSelector(this.props, this.state)
-      : this.props.matrix;
+      : this.props.model;
 
     // Hide selection when temporary fragment exists.
     const selection = this.state.fragment ? null : this.props.selection;
