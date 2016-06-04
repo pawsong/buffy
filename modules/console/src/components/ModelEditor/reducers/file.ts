@@ -23,7 +23,6 @@ import {
   Volumn,
   VoxelData,
   Transformation,
-  Clipboard,
 } from '../types';
 
 import {
@@ -180,6 +179,54 @@ function calculateIntersection(destShape: Position, srcShape: Position, offset: 
   };
 }
 
+interface MergeFragmentResult {
+  model: ndarray.Ndarray;
+  selection: ndarray.Ndarray;
+}
+
+function mergeFragment(state: VoxelData, leaveSelection: boolean): MergeFragmentResult {
+  if (!hasIntersection(state.matrix.shape, state.fragment.shape, state.fragmentOffset)) {
+    return { model: state.matrix, selection: null };
+  }
+
+  const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
+
+  const {
+    srcOffset,
+    destOffset,
+    shape,
+  } = calculateIntersection(model.shape, state.fragment.shape, state.fragmentOffset);
+
+  const modelOffset =
+    model.stride[0] * destOffset[0] +
+    model.stride[1] * destOffset[1] +
+    model.stride[2] * destOffset[2];
+
+  const fragmentOffset =
+    state.fragment.stride[0] * srcOffset[0] +
+    state.fragment.stride[1] * srcOffset[1] +
+    state.fragment.stride[2] * srcOffset[2];
+
+  const intersectInModel = ndarray(model.data, shape, model.stride, modelOffset);
+  const intersectInFragment = ndarray(state.fragment.data, shape, state.fragment.stride, fragmentOffset);
+
+  if (leaveSelection) {
+    const selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
+    const intersectInSelection = ndarray(selection.data, shape, selection.stride, modelOffset);
+    if (ndAssignAndMask2(intersectInModel, intersectInSelection, intersectInFragment, SELECTION_VALUE)) {
+      return { model, selection };
+    } else {
+      return { model: state.matrix, selection: null };
+    }
+  } else {
+    if (ndAssign2(intersectInModel, intersectInFragment)) {
+      return { model, selection: null };
+    } else {
+      return { model: state.matrix, selection: null };
+    }
+  }
+}
+
 // TODO: Improve algorithm
 const findBounds = cwise({
   args: ['index', 'array'],
@@ -207,8 +254,8 @@ const findBounds = cwise({
 });
 
 const clipboardSelector = createSelector(
-  (clipboard: Clipboard) => clipboard.model,
-  (clipboard: Clipboard) => clipboard.selection,
+  (clipboard: VoxelPasteAction) => clipboard.model,
+  (clipboard: VoxelPasteAction) => clipboard.selection,
   (model, selection) => {
     const bounds = findBounds(selection);
 
@@ -487,17 +534,18 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     }
 
     case VOXEL_PASTE: {
-      const { model, selection } = <VoxelPasteAction>action;
+      const fragment = clipboardSelector(<VoxelPasteAction>action);
 
-      const fragment = clipboardSelector({ model, selection });
+      const model = state.fragment ? mergeFragment(state, false).model : state.matrix;
 
       const fragmentOffset = [
-        Math.floor((state.matrix.shape[0] - fragment.shape[0]) / 2),
-        Math.floor((state.matrix.shape[1] - fragment.shape[1]) / 2),
-        Math.floor((state.matrix.shape[2] - fragment.shape[2]) / 2),
+        Math.floor((model.shape[0] - fragment.shape[0]) / 2),
+        Math.floor((model.shape[1] - fragment.shape[1]) / 2),
+        Math.floor((model.shape[2] - fragment.shape[2]) / 2),
       ];
 
       return Object.assign({}, state, {
+        matrix: model,
         selection: null,
         fragment,
         fragmentOffset,
@@ -515,51 +563,14 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_MERGE_FRAGMENT: {
       if (!state.fragment) return state;
 
-      if (!hasIntersection(state.matrix.shape, state.fragment.shape, state.fragmentOffset)) {
-        return Object.assign({}, state, {
-          selection: null,
-          fragment: null,
-          fragmentOffset: [0, 0, 0],
-        });
-      }
+      const { model, selection } = mergeFragment(state, true);
 
-      const model = ndarray(state.matrix.data.slice(), state.matrix.shape);
-      const selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
-
-      const {
-        srcOffset,
-        destOffset,
-        shape,
-      } = calculateIntersection(model.shape, state.fragment.shape, state.fragmentOffset);
-
-      const modelOffset =
-        model.stride[0] * destOffset[0] +
-        model.stride[1] * destOffset[1] +
-        model.stride[2] * destOffset[2];
-
-      const fragmentOffset =
-        state.fragment.stride[0] * srcOffset[0] +
-        state.fragment.stride[1] * srcOffset[1] +
-        state.fragment.stride[2] * srcOffset[2];
-
-      const intersectInModel = ndarray(model.data, shape, model.stride, modelOffset);
-      const intersectInSelection = ndarray(selection.data, shape, selection.stride, modelOffset);
-      const intersectInFragment = ndarray(state.fragment.data, shape, state.fragment.stride, fragmentOffset);
-
-      if (ndAssignAndMask2(intersectInModel, intersectInSelection, intersectInFragment, SELECTION_VALUE)) {
-        return Object.assign({}, state, {
-          matrix: model,
-          selection,
-          fragment: null,
-          fragmentOffset: [0, 0, 0],
-        });
-      } else {
-        return Object.assign({}, state, {
-          selection: null,
-          fragment: null,
-          fragmentOffset: [0, 0, 0],
-        });
-      }
+      return Object.assign({}, state, {
+        matrix: model,
+        selection,
+        fragment: null,
+        fragmentOffset: [0, 0, 0],
+      });
     }
 
     /*
