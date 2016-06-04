@@ -47,7 +47,7 @@ import {
   VOXEL_PASTE, VoxelPasteAction,
 } from '../actions';
 
-const initialSize: Position = [64, 64, 64];
+const initialSize: Position = [16, 16, 16];
 
 const initialMatrix = ndarray(new Int32Array(initialSize[0] * initialSize[1] * initialSize[2]), initialSize);
 initialMatrix.set(0,1,1, 1 << 24 | 0xff << 8);
