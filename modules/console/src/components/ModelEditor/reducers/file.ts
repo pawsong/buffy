@@ -65,10 +65,13 @@ function rgbToHex({ r, g, b }) {
   return (1 << 24) /* Used by mesher */ | (r << 16) | (g << 8) | b;
 }
 
+// Make different from rgb value
+const SELECTION_VALUE = 2 << 24;
+
 const filterProjection = (() => {
   const _filterProjection = cwise({
     args: [
-      'index', 'array', 'array', 'scalar',
+      'index', 'array', 'array', 'scalar', 'scalar',
       'scalar', 'scalar', 'scalar', 'scalar', 'scalar', 'scalar',
       'scalar', 'scalar', 'scalar', 'scalar', 'scalar', 'scalar',
       'scalar', 'scalar', 'scalar', 'scalar',
@@ -77,12 +80,12 @@ const filterProjection = (() => {
       this.selected = false;
     },
     body: function (
-      i, selection, model, scale,
+      i, dest, src, value, scale,
       e0, e1, e3, e4,  e5, e7,
       e8, e9, e11, e12, e13, e15,
       lo0, lo1, hi0, hi1
     ) {
-      if (model) {
+      if (src) {
         // Apply projection
         var x = (i[0] + 0.5) * scale;
         var y = (i[1] + 0.5) * scale;
@@ -93,7 +96,7 @@ const filterProjection = (() => {
         var v = ( e1 * x + e5 * y + e9  * z + e13 ) * d;
 
         if (u >= lo0 && u < hi0 && v >= lo1 && v < hi1) {
-          selection = 1;
+          dest = value;
           this.selected = true;
         }
       }
@@ -106,13 +109,13 @@ const filterProjection = (() => {
   return function (
     selection: ndarray.Ndarray,
     model: ndarray.Ndarray,
-    scale: number,
+    maskValue: number, scale: number,
     projectionMatrix: THREE.Matrix4,
     lo0: number, lo1: number, hi0: number, hi1: number
   ) {
 		const e = projectionMatrix.elements;
     return _filterProjection(
-      selection, model, scale,
+      selection, model, maskValue, scale,
       e[0], e[1], e[3], e[4], e[5], e[7],
       e[8], e[9], e[11], e[12], e[13], e[15],
       lo0, lo1, hi0, hi1
@@ -276,31 +279,44 @@ function reduceModelRemoveAction(
   }
 }
 
-function reduceSelectAction(state: VoxelData, merge: boolean, selectFn: (selection: ndarray.Ndarray) => boolean): VoxelData {
+enum MergeType {
+  NONE,
+  OVERWRITE,
+  ASSIGN,
+}
+
+function reduceSelectAction(state: VoxelData, merge: MergeType, selectFn: (selection: ndarray.Ndarray) => boolean): VoxelData {
   const model = state.matrix;
 
-  if (merge) {
-    const selection = state.selection
-      ? ndarray(state.selection.data.slice(), model.shape)
-      : ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
+  switch(merge) {
+    case MergeType.NONE: {
+      const selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
 
-    const selected = selectFn(selection);
-
-    if (selected) {
-      return Object.assign({}, state, { selection });
-    } else {
-      return state;
+      if (selectFn(selection)) {
+        return Object.assign({}, state, { selection });
+      } else {
+        if (state.selection) {
+          return Object.assign({}, state, { selection: null });
+        } else {
+          return state;
+        }
+      }
     }
-  } else {
-    const selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
+    case MergeType.OVERWRITE: {
+      const selection = ndarray(state.selection.data.slice(), model.shape);
 
-    const selected = selectFn(selection);
+      if (selectFn(selection)) {
+        return Object.assign({}, state, { selection });
+      } else {
+        return state;
+      }
+    }
+    case MergeType.ASSIGN: {
+      const selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
 
-    if (selected) {
-      return Object.assign({}, state, { selection });
-    } else {
-      if (state.selection) {
-        return Object.assign({}, state, { selection: null });
+      if (selectFn(selection)) {
+        ndAssign(selection, state.selection);
+        return Object.assign({}, state, { selection });
       } else {
         return state;
       }
@@ -360,16 +376,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const c = rgbToHex(color);
 
       return reduceModelUpsertAction(state,
-        model => ndFloodFill(
-          state.matrix.shape, model, (x, y, z) => state.matrix.get(x, y, z), c, position
-        ),
+        model => ndFloodFill(model, c, position),
         (model, selection) => ndFloodFill(
-          state.matrix.shape, model,
-          (x, y, z) => {
-            if (!state.selection.get(x, y, z)) return;
-            return state.matrix.get(x, y, z);
-          },
-          c, position
+          model, c, position, (x, y, z) => selection.get(x, y, z) && model.get(x, y, z)
         )
       );
     }
@@ -420,9 +429,10 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_SELECT_PROJECTION: {
       const { projectionMatrix, scale, bounds, merge } = <VoxelSelectProjectionAction>action;
 
-      return reduceSelectAction(state, merge, selection => {
+      return reduceSelectAction(state, state.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
         return filterProjection(
-          selection, state.matrix, scale, projectionMatrix, bounds[0], bounds[1], bounds[2], bounds[3]
+          selection, state.matrix, SELECTION_VALUE, scale, projectionMatrix,
+          bounds[0], bounds[1], bounds[2], bounds[3]
         );
       });
     }
@@ -430,25 +440,29 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_SELECT_BOX: {
       const { volumn, merge } = <VoxelSelectBoxAction>action;
 
-      return reduceSelectAction(state, merge, selection => {
-        return ndFillWithFilter2(selection, volumn, 1, state.matrix);
+      return reduceSelectAction(state, state.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
+        return ndFillWithFilter2(selection, volumn, SELECTION_VALUE, state.matrix);
       });
     }
 
     case VOXEL_SELECT_CONNECTED: {
       const { position, merge } = <VoxelSelectConnectedAction>action;
 
-      return reduceSelectAction(state, merge, selection => ndFloodFill(
-        state.matrix.shape, selection, (x, y, z) => !!state.matrix.get(x, y, z), 1, position
-      ));
+      return reduceSelectAction(state, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
+        return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
+          return selection.get(x, y, z) || (state.matrix.get(x, y, z) && 1);
+        });
+      });
     }
 
     case VOXEL_MAGIN_WAND: {
       const { position, merge } = <VoxelMaginWandAction>action;
 
-      return reduceSelectAction(state, merge, selection => ndFloodFill(
-        state.matrix.shape, selection, (x, y, z) => state.matrix.get(x, y, z), 1, position
-      ));
+      return reduceSelectAction(state, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
+        return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
+          return selection.get(x, y, z) || state.matrix.get(x, y, z);
+        });
+      });
     }
 
     case VOXEL_CLEAR_SELECTION: {
@@ -532,7 +546,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const intersectInSelection = ndarray(selection.data, shape, selection.stride, modelOffset);
       const intersectInFragment = ndarray(state.fragment.data, shape, state.fragment.stride, fragmentOffset);
 
-      if (ndAssignAndMask2(intersectInModel, intersectInSelection, intersectInFragment)) {
+      if (ndAssignAndMask2(intersectInModel, intersectInSelection, intersectInFragment, SELECTION_VALUE)) {
         return Object.assign({}, state, {
           matrix: model,
           selection,

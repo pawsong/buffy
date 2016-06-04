@@ -6,18 +6,18 @@ const cwise = require('cwise');
  */
 
 interface AssignAndMask2 {
-  (dest: Ndarray, mask: Ndarray, src: Ndarray): boolean;
+  (dest: Ndarray, mask: Ndarray, src: Ndarray, maskVal: number): boolean;
 }
 
 export default <AssignAndMask2>cwise({
-  args: ['array', 'array', 'array'],
+  args: ['array', 'array', 'array', 'scalar'],
   pre: function () {
     this.hit = false;
   },
-  body: function (d, m, s) {
+  body: function (d, m, s, maskVal) {
     if (s) {
       d = s;
-      m = 1;
+      m = maskVal;
       this.hit = true;
     }
   },

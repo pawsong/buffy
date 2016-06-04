@@ -1,86 +1,105 @@
-import * as ndarray from 'ndarray';
+import { Ndarray } from 'ndarray';
+const invariant = require('fbjs/lib/invariant');
 
 import { Position } from '../types';
 
-export default function floodFill(
-  shape: Position, dest: ndarray.Ndarray, getter: (x: number, y: number, z: number) => any, value: number, seed: Position
-): boolean {
+interface Getter {
+  (x: number, y: number, z: number): number;
+}
+
+function floodFill(dest: Ndarray, value: number, seed: Position, getter?: Getter): boolean {
   // // For debugging
   // console.log('floodfill start!');
   // const then = performance.now();
 
-  const hiX = shape[0] - 1;
-  const hiY = shape[1] - 1;
-  const hiZ = shape[2] - 1;
+  const finalGetter = getter || ((x, y, z) => dest.get(x, y, z));
+
+  const hx = dest.shape[0] - 1;
+  const hy = dest.shape[1] - 1;
+  const hz = dest.shape[2] - 1;
 
   if (
-       seed[0] < 0 || seed[0] > hiX
-    || seed[1] < 0 || seed[1] > hiY
-    || seed[2] < 0 || seed[2] > hiZ
+       seed[0] < 0 || seed[0] > hx
+    || seed[1] < 0 || seed[1] > hy
+    || seed[2] < 0 || seed[2] > hz
   ) {
     return false;
   }
 
-  const startNode = getter(seed[0], seed[1], seed[2]);
-  if (startNode === undefined) return false;
-
-  const visits = ndarray(new Int8Array(shape[0] * shape[1] * shape[2]), shape);
+  const startNode = finalGetter(seed[0], seed[1], seed[2]);
+  if (startNode === undefined || startNode === value) return false;
 
   let hit = false;
+  let inScanLine;
 
   const stack = [];
   stack.push(seed);
 
   while (stack.length > 0) {
-    const getArgs = stack.pop();
+    const [x, y, z] = stack.pop();
 
-    if (visits.get(getArgs[0], getArgs[1], getArgs[2])) continue;
-    visits.set(getArgs[0], getArgs[1], getArgs[2], 1);
+    if (finalGetter(x, y, z) !== startNode) continue;
 
-    if (getter(getArgs[0], getArgs[1], getArgs[2]) === startNode) {
-      dest.set(getArgs[0], getArgs[1], getArgs[2], value);
-      hit = true;
+    hit = true;
 
-      // [ - 1,   0,   0 ]
-      if (getArgs[0] > 0) {
-        const nextArgs = getArgs.slice(0);
-        nextArgs[0]--;
-        stack.push(nextArgs);
+    let x1 = x;
+    let x2 = x;
+
+    while (x1 > 0 && finalGetter(x1 - 1, y, z) === startNode) x1--;
+    while (x2 < hx && finalGetter(x2 + 1, y, z) === startNode) x2++;
+
+		for (let i = x1; i <= x2; i++) dest.set(i, y, z, value);
+
+    // find scan-lines above the current one
+    if (y > 0) {
+      inScanLine = false;
+      for (let i = x1; i <= x2; i++) {
+        const val = finalGetter(i, y - 1, z);
+        if (!inScanLine && val === startNode) {
+          stack.push([i, y - 1, z]);
+          inScanLine = true;
+        } else if (inScanLine && val !== startNode) {
+          inScanLine = false;
+        }
       }
+    }
 
-      // [   0, - 1,   0 ]
-      if (getArgs[1] > 0) {
-        const nextArgs = getArgs.slice(0);
-        nextArgs[1]--;
-        stack.push(nextArgs);
+    if (y < hy) {
+      inScanLine = false;
+      for (let i = x1; i <= x2; i++) {
+        const val = finalGetter(i, y + 1, z);
+        if (!inScanLine && val === startNode) {
+          stack.push([i, y + 1, z]);
+          inScanLine = true;
+        } else if (inScanLine && val !== startNode) {
+          inScanLine = false;
+        }
       }
+    }
 
-      // [   0,   0, - 1 ]
-      if (getArgs[2] > 0) {
-        const nextArgs = getArgs.slice(0);
-        nextArgs[2]--;
-        stack.push(nextArgs);
+    if (z > 0) {
+      inScanLine = false;
+      for (let i = x1; i <= x2; i++) {
+        const val = finalGetter(i, y, z - 1);
+        if (!inScanLine && val === startNode) {
+          stack.push([i, y, z - 1]);
+          inScanLine = true;
+        } else if (inScanLine && val != startNode) {
+          inScanLine = false;
+        }
       }
+    }
 
-      // [   1,   0,   0 ]
-      if (getArgs[0] < hiX) {
-        const nextArgs = getArgs.slice(0);
-        nextArgs[0]++;
-        stack.push(nextArgs);
-      }
-
-      // [   0,   1,   0 ]
-      if (getArgs[1] < hiY) {
-        const nextArgs = getArgs.slice(0);
-        nextArgs[1]++;
-        stack.push(nextArgs);
-      }
-
-      // [   0,   0,   1 ]
-      if (getArgs[2] < hiZ) {
-        const nextArgs = getArgs.slice(0);
-        nextArgs[2]++;
-        stack.push(nextArgs);
+    if (z < hz) {
+      inScanLine = false;
+      for (let i = x1; i <= x2; i++) {
+        const val = finalGetter(i, y, z + 1);
+        if (!inScanLine && val === startNode) {
+          stack.push([i, y, z + 1]);
+          inScanLine = true;
+        } else if (inScanLine && val !== startNode) {
+          inScanLine = false;
+        }
       }
     }
   }
@@ -90,3 +109,5 @@ export default function floodFill(
 
   return hit;
 };
+
+export default floodFill;
