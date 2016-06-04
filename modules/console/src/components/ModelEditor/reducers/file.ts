@@ -227,6 +227,19 @@ function mergeFragment(state: VoxelData, leaveSelection: boolean): MergeFragment
   }
 }
 
+function ensureFragmentMerged(state: VoxelData, fragmentLeaveSelection: boolean): VoxelData {
+  if (!state.fragment) return state;
+
+  const { model, selection } = mergeFragment(state, fragmentLeaveSelection);
+
+  return Object.assign({}, state, {
+    model,
+    selection,
+    fragment: null,
+    fragmentOffset: initialState.fragmentOffset,
+  });
+}
+
 // TODO: Improve algorithm
 const findBounds = cwise({
   args: ['index', 'array'],
@@ -476,9 +489,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_SELECT_PROJECTION: {
       const { projectionMatrix, scale, bounds, merge } = <VoxelSelectProjectionAction>action;
 
-      return reduceSelectAction(state, state.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
+      const prevState = ensureFragmentMerged(state, true);
+
+      return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
         return filterProjection(
-          selection, state.model, SELECTION_VALUE, scale, projectionMatrix,
+          selection, prevState.model, SELECTION_VALUE, scale, projectionMatrix,
           bounds[0], bounds[1], bounds[2], bounds[3]
         );
       });
@@ -487,17 +502,21 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_SELECT_BOX: {
       const { volumn, merge } = <VoxelSelectBoxAction>action;
 
-      return reduceSelectAction(state, state.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
-        return ndFillWithFilter2(selection, volumn, SELECTION_VALUE, state.model);
+      const prevState = ensureFragmentMerged(state, true);
+
+      return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
+        return ndFillWithFilter2(selection, volumn, SELECTION_VALUE, prevState.model);
       });
     }
 
     case VOXEL_SELECT_CONNECTED: {
       const { position, merge } = <VoxelSelectConnectedAction>action;
 
-      return reduceSelectAction(state, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
+      const prevState = ensureFragmentMerged(state, true);
+
+      return reduceSelectAction(prevState, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return selection.get(x, y, z) || (state.model.get(x, y, z) && 1);
+          return selection.get(x, y, z) || (prevState.model.get(x, y, z) && 1);
         });
       });
     }
@@ -505,9 +524,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_MAGIN_WAND: {
       const { position, merge } = <VoxelMaginWandAction>action;
 
-      return reduceSelectAction(state, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
+      const prevState = ensureFragmentMerged(state, true);
+
+      return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return selection.get(x, y, z) || state.model.get(x, y, z);
+          return selection.get(x, y, z) || prevState.model.get(x, y, z);
         });
       });
     }
@@ -536,16 +557,16 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_PASTE: {
       const fragment = clipboardSelector(<VoxelPasteAction>action);
 
-      const model = state.fragment ? mergeFragment(state, false).model : state.model;
+      const prevState = ensureFragmentMerged(state, false);
 
       const fragmentOffset = [
-        Math.floor((model.shape[0] - fragment.shape[0]) / 2),
-        Math.floor((model.shape[1] - fragment.shape[1]) / 2),
-        Math.floor((model.shape[2] - fragment.shape[2]) / 2),
+        Math.floor((prevState.model.shape[0] - fragment.shape[0]) / 2),
+        Math.floor((prevState.model.shape[1] - fragment.shape[1]) / 2),
+        Math.floor((prevState.model.shape[2] - fragment.shape[2]) / 2),
       ];
 
       return Object.assign({}, state, {
-        model,
+        model: prevState.model,
         selection: null,
         fragment,
         fragmentOffset,
@@ -561,16 +582,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     }
 
     case VOXEL_MERGE_FRAGMENT: {
-      if (!state.fragment) return state;
-
-      const { model, selection } = mergeFragment(state, true);
-
-      return Object.assign({}, state, {
-        model,
-        selection,
-        fragment: null,
-        fragmentOffset: [0, 0, 0],
-      });
+      return ensureFragmentMerged(state, true);
     }
 
     /*
