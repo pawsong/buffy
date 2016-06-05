@@ -93,7 +93,7 @@ const messages = defineMessages({
   labelVoxelResize: {
     id: 'voxel-editor.panels.history.voxel.move.resize',
     description: 'Voxel resize history label',
-    defaultMessage: 'Resize',
+    defaultMessage: 'Canvas resize',
   },
   labelVoxelTransform: {
     id: 'voxel-editor.panels.history.voxel.transform',

@@ -576,9 +576,9 @@ export default {
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel resize history label
-   * defaultMessage: Resize
+   * defaultMessage: Canvas resize
    */
-  'voxel-editor.panels.history.voxel.move.resize': '크기 변경',
+  'voxel-editor.panels.history.voxel.move.resize': '캔버스 크기 변경',
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
