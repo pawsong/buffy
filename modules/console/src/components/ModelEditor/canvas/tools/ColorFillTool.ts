@@ -22,7 +22,6 @@ import {
 
 import {
   voxelColorFill,
-  voxelClearSelection,
   voxelMergeFragment,
 } from '../../actions';
 
@@ -68,11 +67,14 @@ class WaitState extends CursorState<void> {
     });
   }
 
-  onMouseDown(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
-    if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
+  onMouseDown() {}
 
-    if (position) {
+  onMouseUp({ intersect }: CursorEventParams) {
+    if (intersect) {
+      const position = this.cursor.getPosition();
       this.tool.dispatchAction(voxelColorFill(position.x, position.y, position.z, this.tool.props.paletteColor));
+    } else {
+      if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
     }
   }
 }

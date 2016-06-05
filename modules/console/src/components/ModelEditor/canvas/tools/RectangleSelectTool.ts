@@ -17,10 +17,7 @@ import {
 
 import {
   voxelSelectBox,
-  voxelClearSelection,
-  voxelMergeFragment,
   voxelSelectProjection,
-  VoxelClearSelection,
 } from '../../actions';
 
 import {

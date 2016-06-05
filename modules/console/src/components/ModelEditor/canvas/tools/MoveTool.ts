@@ -299,6 +299,7 @@ class WaitState extends ToolState {
       onHit: params => this.handleHit(params),
       onMiss: () => this.handleMiss(),
       onMouseDown: params => this.handleMouseDown(params),
+      onMouseUp: (params) => this.handleMouseUp(params),
     });
   }
 
@@ -319,25 +320,27 @@ class WaitState extends ToolState {
   }
 
   private handleMouseDown({ event, intersect }: CursorEventParams) {
-    const mergeSelection = this.tool.keyboard.isShiftPressed();
+    if (intersect && intersect.object !== this.tool.canvas.component.modelMesh) {
+      this.transitionTo(STATE_DRAG, event);
+    }
+  }
 
-    if (!intersect) {
-      if (this.tool.props.fragment) {
-        this.tool.dispatchAction(voxelMergeFragment());
-      } else if (this.tool.props.selection && !mergeSelection) {
-        this.tool.dispatchAction(voxelClearSelection());
-      }
-    } else if (intersect.object === this.tool.canvas.component.modelMesh) {
-      if (this.tool.props.fragment) {
-        this.tool.dispatchAction(voxelMergeFragment());
-      } else {
+  private handleMouseUp({ intersect }: CursorEventParams) {
+    if (this.tool.props.fragment) {
+      this.tool.dispatchAction(voxelMergeFragment());
+    } else {
+      const mergeSelection = this.tool.keyboard.isShiftPressed();
+
+      if (intersect) {
         const position = this.cursor.getPosition();
         this.tool.dispatchAction(
           voxelSelectConnected(position.x, position.y, position.z, mergeSelection)
         );
+      } else {
+        if (this.tool.props.selection && !mergeSelection) {
+          this.tool.dispatchAction(voxelClearSelection());
+        }
       }
-    } else {
-      this.transitionTo(STATE_DRAG, event);
     }
   }
 

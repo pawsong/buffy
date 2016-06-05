@@ -21,6 +21,7 @@ import {
 
 import {
   voxelRemoveBatch,
+  voxelMergeFragment,
 } from '../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
@@ -28,6 +29,7 @@ const STATE_DRAG = 'drag';
 
 interface EraseToolProps {
   size: Position;
+  fragment: any;
 }
 
 class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
@@ -39,6 +41,7 @@ class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
   mapParamsToProps(params: ModelEditorState) {
     return {
       size: params.file.present.data.size,
+      fragment: params.file.present.data.fragment,
     };
   }
 
@@ -70,7 +73,7 @@ class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
 }
 
 class WaitState extends CursorState<StateEnterParams> {
-  constructor(tool: EraseTool) {
+  constructor(private tool: EraseTool) {
     super(tool.canvas, {
       cursorOnFace: false,
       cursorGeometry: tool.cursorGeometry,
@@ -88,7 +91,7 @@ class WaitState extends CursorState<StateEnterParams> {
   getNextStateParams(event: MouseEvent) { return event; }
 
   onMouseDown() {
-
+    if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
   }
 }
 

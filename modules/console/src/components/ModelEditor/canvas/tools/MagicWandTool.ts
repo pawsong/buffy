@@ -67,10 +67,9 @@ class WaitState extends CursorState<void> {
 
   onMouseDown() {}
 
-  onMouseUp() {
-    const position = this.cursor.getPosition();
-
-    if (position) {
+  onMouseUp({ intersect }: CursorEventParams) {
+    if (intersect) {
+      const position = this.cursor.getPosition();
       this.tool.dispatchAction(
         voxelMaginWand(position.x, position.y, position.z, this.tool.keyboard.isShiftPressed())
       );
@@ -78,7 +77,8 @@ class WaitState extends CursorState<void> {
       if (this.tool.props.fragment) {
         this.tool.dispatchAction(voxelMergeFragment());
       } else if (this.tool.props.selection) {
-        this.tool.dispatchAction(voxelClearSelection());
+        const mergeSelection = this.tool.keyboard.isShiftPressed();
+        if (!mergeSelection) this.tool.dispatchAction(voxelClearSelection());
       }
     }
   }

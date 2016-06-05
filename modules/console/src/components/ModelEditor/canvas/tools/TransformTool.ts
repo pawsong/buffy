@@ -20,7 +20,6 @@ import {
 
 import {
   voxelMaginWand,
-  voxelClearSelection,
   voxelTransform,
   voxelMergeFragment,
 } from '../../actions';
@@ -495,7 +494,6 @@ class WaitState extends ToolState {
       getInteractables: () => arrowMeshes,
       onHit: this.handleHit,
       onMiss: this.handleMiss,
-      onMouseDown: this.handleMouseDown,
       onMouseUp: this.handleMouseUp,
     });
   }
@@ -521,16 +519,13 @@ class WaitState extends ToolState {
   }
 
   private handleMouseUp = ({ intersect }: CursorEventParams) => {
-    if (!intersect) return;
+    if (!intersect) {
+      if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
+      return;
+    };
 
     const arrow = intersect.object.parent ===  this.tool.toolScene ? intersect.object : intersect.object.parent;
     this.tool.dispatchAction(voxelTransform(arrow[TRANFORM_MATRIX_PROP]));
-  }
-
-  handleMouseDown = () => {
-    if (this.tool.props.fragment) {
-      this.tool.dispatchAction(voxelMergeFragment());
-    }
   }
 
   onLeave() {

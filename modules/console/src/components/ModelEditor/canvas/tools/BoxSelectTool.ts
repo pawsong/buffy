@@ -152,7 +152,8 @@ class WaitState extends CursorState<EnterParams> {
     if (this.tool.props.fragment) {
       this.tool.dispatchAction(voxelMergeFragment());
     } else if (this.tool.props.selection) {
-      this.tool.dispatchAction(voxelClearSelection());
+      const mergeSelection = this.tool.keyboard.isShiftPressed();
+      if (!mergeSelection) this.tool.dispatchAction(voxelClearSelection());
     }
   }
 

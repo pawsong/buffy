@@ -223,6 +223,7 @@ class WaitState extends ToolState {
       onHit: params => this.handleHit(params),
       onMiss: params => this.handleMiss(params),
       onMouseDown: params => this.handleMouseDown(params),
+      onMouseUp: () => this.handleMouseUp(),
     });
   }
 
@@ -245,8 +246,6 @@ class WaitState extends ToolState {
   }
 
   handleMouseDown({ event, intersect }: CursorEventParams) {
-    if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
-
     if (intersect) {
       const handle = <HandleHelper>intersect.object.parent;
       this.transitionTo(STATE_DRAG, <DragStateEnterParams>{
@@ -254,6 +253,10 @@ class WaitState extends ToolState {
         direction: handle.direction,
       });
     }
+  }
+
+  handleMouseUp() {
+    if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
   }
 }
 
