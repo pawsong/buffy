@@ -278,7 +278,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             tooltipPosition="bottom-center"
             tooltip={'Transform'}
           >
-            transform
+            rotate_90_degrees_ccw
           </IconButton>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.RESIZE)}
