@@ -63,7 +63,10 @@ class WaitState extends CursorState<void> {
       cursorVisible: false,
       cursorOnFace: false,
       getSize: () => tool.props.size,
-      getInteractables: () => [tool.canvas.component.modelMesh],
+      getInteractables: () => [
+        tool.canvas.component.modelMesh,
+        tool.canvas.component.fragmentMesh,
+      ],
     });
   }
 
