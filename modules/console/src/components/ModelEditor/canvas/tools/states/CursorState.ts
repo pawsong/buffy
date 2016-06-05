@@ -86,10 +86,12 @@ abstract class CursorState<T> extends ToolState {
         );
       },
       onMouseDown: params => this.handleMouseDown(params),
+      onMouseUp: params => this.onMouseUp(params),
     });
   }
 
   abstract onMouseDown(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3);
+  onMouseUp(params: CursorEventParams) {}
 
   private handleMouseDown(params: CursorEventParams) {
     const position = this.cursor.getPosition();

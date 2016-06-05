@@ -146,10 +146,12 @@ class WaitState extends CursorState<EnterParams> {
     };
   }
 
-  onMouseDown(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
-    if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
+  onMouseDown() {}
 
-    if (!position && this.tool.props.selection) {
+  onMouseUp() {
+    if (this.tool.props.fragment) {
+      this.tool.dispatchAction(voxelMergeFragment());
+    } else if (this.tool.props.selection) {
       this.tool.dispatchAction(voxelClearSelection());
     }
   }

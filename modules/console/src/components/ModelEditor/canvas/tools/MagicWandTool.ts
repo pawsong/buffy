@@ -22,6 +22,7 @@ import {
 import {
   voxelMaginWand,
   voxelClearSelection,
+  voxelMergeFragment,
 } from '../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
@@ -29,6 +30,7 @@ const STATE_WAIT = ToolState.STATE_WAIT;
 interface MagicWandToolProps {
   size: Position;
   selection: any;
+  fragment: any;
 }
 
 class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
@@ -38,6 +40,7 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
     return {
       size: params.file.present.data.size,
       selection: params.file.present.data.selection,
+      fragment: params.file.present.data.fragment,
     };
   }
 
@@ -62,13 +65,21 @@ class WaitState extends CursorState<void> {
     });
   }
 
-  onMouseDown(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
+  onMouseDown() {}
+
+  onMouseUp() {
+    const position = this.cursor.getPosition();
+
     if (position) {
       this.tool.dispatchAction(
         voxelMaginWand(position.x, position.y, position.z, this.tool.keyboard.isShiftPressed())
       );
     } else {
-      if (this.tool.props.selection) this.tool.dispatchAction(voxelClearSelection());
+      if (this.tool.props.fragment) {
+        this.tool.dispatchAction(voxelMergeFragment());
+      } else if (this.tool.props.selection) {
+        this.tool.dispatchAction(voxelClearSelection());
+      }
     }
   }
 }
