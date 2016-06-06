@@ -25,7 +25,7 @@ export default function configureStore(initialState?: any) {
   }
 
   // redux-saga middleware
-  const sagaMiddleware = createSagaMiddleware(apiSaga);
+  const sagaMiddleware = createSagaMiddleware();
   middlewares.push(sagaMiddleware);
 
   const store = createStore(
@@ -35,6 +35,8 @@ export default function configureStore(initialState?: any) {
       applyMiddleware(...middlewares)
     ) as any
   );
+
+  sagaMiddleware.run(apiSaga);
 
   let history = null;
   let onRouterUpdate = null;
