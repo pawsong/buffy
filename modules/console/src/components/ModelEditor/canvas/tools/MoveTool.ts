@@ -77,6 +77,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
   private materialsToRestore: MaterialToRestore[];
 
   drawGuide: THREE.Mesh;
+  drawGuideSize: THREE.Vector3;
 
   getToolType(): ToolType { return ToolType.MOVE; }
 
@@ -102,19 +103,13 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
 
   updateArrow(boundingBox: BoundingBoxEdgesHelper) {
     if (boundingBox && boundingBox.edges.visible) {
-      boundingBox.box.size(this.temp1);
-
       this.arrowX.visible = true;
-      this.arrowX.position.copy(boundingBox.edges.position);
-      this.arrowX.setLength(this.temp1.x / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
-
       this.arrowY.visible = true;
-      this.arrowY.position.copy(boundingBox.edges.position);
-      this.arrowY.setLength(this.temp1.y / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
-
       this.arrowZ.visible = true;
+
+      this.arrowX.position.copy(boundingBox.edges.position);
+      this.arrowY.position.copy(boundingBox.edges.position);
       this.arrowZ.position.copy(boundingBox.edges.position);
-      this.arrowZ.setLength(this.temp1.z / 2 + 3 * PIXEL_SCALE, 2 * PIXEL_SCALE, PIXEL_SCALE);
     } else {
       this.arrowX.visible = false;
       this.arrowY.visible = false;
@@ -148,6 +143,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     this.temp2 = new THREE.Vector3();
     this.temp3 = new THREE.Vector3();
     this.temp4 = new THREE.Vector3();
+    this.drawGuideSize = new THREE.Vector3(1, 1, 1);
 
     this.activeArrow = null;
     this.materialsToRestore = [];
@@ -164,11 +160,11 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     const drawGuideMaterial = new THREE.MeshBasicMaterial();
     this.drawGuide = new THREE.Mesh(drawGuideGeometry, drawGuideMaterial);
 
-    // For debugging
-    drawGuideMaterial.color.setHex(0xff0000);
-    drawGuideMaterial.opacity = 0.5;
-    drawGuideMaterial.transparent = true;
-    this.canvas.scene.add(this.drawGuide);
+    // // For debugging
+    // drawGuideMaterial.color.setHex(0xff0000);
+    // drawGuideMaterial.opacity = 0.5;
+    // drawGuideMaterial.transparent = true;
+    // this.canvas.scene.add(this.drawGuide);
 
     const origin = new THREE.Vector3(0, 0, 0); // Has no meaning.
 
@@ -179,6 +175,10 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     this.arrowX = new THREE.ArrowHelper(unitX, origin, length, 0xF44336);
     this.arrowY = new THREE.ArrowHelper(unitY, origin, length, 0x4CAF50);
     this.arrowZ = new THREE.ArrowHelper(unitZ, origin, length, 0x2196F3);
+
+    this.arrowX.setLength(2, 1, 0.5);
+    this.arrowY.setLength(2, 1, 0.5);
+    this.arrowZ.setLength(2, 1, 0.5);
 
     this.arrowScene = new THREE.Scene();
     this.arrowScene.add(this.arrowX);
@@ -226,22 +226,38 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     }
   }
 
-  updateDrawGuide(direction: THREE.Vector3, boundingBox: BoundingBoxEdgesHelper) {
-    const { position } = boundingBox.edges;
+  private getScaleForCamera() {
+    return this.canvas.camera.position.length() / 10;
+  }
 
-    boundingBox.box.size(this.temp1);
-    this.temp2.copy(direction).subScalar(1).multiplyScalar(-1);
-    this.temp3.set(this.props.size[0], this.props.size[0], this.props.size[0])
-      .multiply(direction)
-      .multiplyScalar(PIXEL_SCALE * 3);
+  private updateArrowScale(scale: number) {
+    this.arrowX.scale.set(scale, scale, scale);
+    this.arrowY.scale.set(scale, scale, scale);
+    this.arrowZ.scale.set(scale, scale, scale);
+  }
 
-    this.drawGuide.scale
-      .copy(this.temp1).multiply(this.temp2)
-      .add(this.temp3);
+  private updateDrawGuideScale(scale: number) {
+    this.drawGuide.scale.copy(this.drawGuideSize).multiplyScalar(scale);
+    this.drawGuide.updateMatrixWorld(false);
+  }
 
+  updateDrawGuide(direction: THREE.Vector3) {
+    const { position } = this.canvas.component.fragmentBoundingBox.edges;
+
+    this.drawGuideSize.copy(direction).multiplyScalar(20 - 1).addScalar(1);
     this.drawGuide.position.copy(position);
 
-    this.drawGuide.updateMatrixWorld(false);
+    this.updateDrawGuideScale(this.getScaleForCamera());
+  }
+
+  onCameraMove() {
+    const scale = this.getScaleForCamera();
+    this.updateArrowScale(scale);
+    if (this.fsm.current instanceof DragState) this.updateDrawGuideScale(scale);
+  }
+
+  onStart() {
+    this.onCameraMove();
   }
 
   /*
@@ -381,7 +397,7 @@ class DragState extends ToolState {
     }
 
     this.tool.getDirection(this.direction);
-    this.tool.updateDrawGuide(this.direction, boundingBox);
+    this.tool.updateDrawGuide(this.direction);
 
     this.cursor.start();
 
