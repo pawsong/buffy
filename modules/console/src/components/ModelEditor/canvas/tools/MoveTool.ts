@@ -73,7 +73,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
 
   arrowScene: THREE.Scene;
 
-  private activeCone: THREE.Object3D;
+  private activeArrow: THREE.Object3D;
   private materialsToRestore: MaterialToRestore[];
 
   drawGuide: THREE.Mesh;
@@ -149,7 +149,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     this.temp3 = new THREE.Vector3();
     this.temp4 = new THREE.Vector3();
 
-    this.activeCone = null;
+    this.activeArrow = null;
     this.materialsToRestore = [];
 
     this.translucentMaterial = new THREE.MeshBasicMaterial({
@@ -161,13 +161,14 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     });
 
     const drawGuideGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const drawGuideMaterial = new THREE.MeshBasicMaterial({
-      visible: false,
-      // color: 0x00ff00,
-      // opacity: 0.5,
-      // transparent: true,
-    });
+    const drawGuideMaterial = new THREE.MeshBasicMaterial();
     this.drawGuide = new THREE.Mesh(drawGuideGeometry, drawGuideMaterial);
+
+    // For debugging
+    drawGuideMaterial.color.setHex(0xff0000);
+    drawGuideMaterial.opacity = 0.5;
+    drawGuideMaterial.transparent = true;
+    this.canvas.scene.add(this.drawGuide);
 
     const origin = new THREE.Vector3(0, 0, 0); // Has no meaning.
 
@@ -192,14 +193,14 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     };
   }
 
-  activateArrow(cone: THREE.Object3D) {
-    if (this.activeCone === cone) return;
+  activateArrow(arrow: THREE.Object3D) {
+    if (this.activeArrow === arrow) return;
 
     this.deactivateArrow();
 
-    this.activeCone = cone;
+    this.activeArrow = arrow;
 
-    this.materialsToRestore = cone.parent.children.map(child => {
+    this.materialsToRestore = arrow.children.map(child => {
       const material = <THREE.MeshBasicMaterial>(<THREE.Line | THREE.Mesh>child).material;
       const color = material.color.getHex();
       material.color.setRGB(1, 1, 1);
@@ -208,42 +209,39 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
   }
 
   deactivateArrow() {
-    if (!this.activeCone) return;
+    if (!this.activeArrow) return;
 
     this.materialsToRestore.forEach(data => data.material.color.setHex(data.color));
     this.materialsToRestore = [];
-    this.activeCone = null;
+    this.activeArrow = null;
   }
 
   getDirection(v: THREE.Vector3) {
-    if (this.activeCone === this.arrowX.cone) {
+    if (this.activeArrow === this.arrowX) {
       v.set(1, 0, 0);
-    } else if (this.activeCone === this.arrowY.cone) {
+    } else if (this.activeArrow === this.arrowY) {
       v.set(0, 1, 0);
-    } else if (this.activeCone === this.arrowZ.cone) {
+    } else if (this.activeArrow === this.arrowZ) {
       v.set(0, 0, 1);
     }
   }
 
   updateDrawGuide(direction: THREE.Vector3, boundingBox: BoundingBoxEdgesHelper) {
-    boundingBox.box.size(this.temp1);
     const { position } = boundingBox.edges;
 
-    this.temp4.set(this.props.size[0], this.props.size[0], this.props.size[0]);
-
+    boundingBox.box.size(this.temp1);
     this.temp2.copy(direction).subScalar(1).multiplyScalar(-1);
+    this.temp3.set(this.props.size[0], this.props.size[0], this.props.size[0])
+      .multiply(direction)
+      .multiplyScalar(PIXEL_SCALE * 3);
 
-    this.drawGuide.scale.copy(this.temp1).multiply(this.temp2)
-      .add(this.temp3.copy(direction).multiply(this.temp4).multiplyScalar(PIXEL_SCALE * DRAW_GUIDE_SCALE));
-    this.drawGuide.position.copy(position).multiply(this.temp2)
-      .add(this.temp3.copy(direction).multiply(this.temp4).multiplyScalar(PIXEL_SCALE_HALF));
+    this.drawGuide.scale
+      .copy(this.temp1).multiply(this.temp2)
+      .add(this.temp3);
+
+    this.drawGuide.position.copy(position);
 
     this.drawGuide.updateMatrixWorld(false);
-  }
-
-  onStart() {
-    super.onStart();
-    this.canvas.scene.add(this.drawGuide);
   }
 
   /*
@@ -253,11 +251,6 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
   onRender() {
     this.canvas.renderer.clearDepth();
     this.canvas.renderer.render(this.arrowScene, this.canvas.camera);
-  }
-
-  onStop() {
-    super.onStop();
-    this.canvas.scene.remove(this.drawGuide);
   }
 
   onDestroy() {
@@ -281,18 +274,17 @@ class WaitState extends ToolState {
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
       cursorOnFace: false,
+      intersectRecursively: true,
       getInteractables: () => [
-        tool.arrowX.cone,
-        tool.arrowY.cone,
-        tool.arrowZ.cone,
+        tool.arrowX,
+        tool.arrowY,
+        tool.arrowZ,
         tool.canvas.component.modelMesh,
       ],
       determineIntersect: intersects => {
         for (let i = 0, len = intersects.length; i < len; ++i) {
           const intersect = intersects[i];
-          if (intersect.object !== tool.canvas.component.modelMesh) {
-            return intersect;
-          }
+          if (intersect.object !== tool.canvas.component.modelMesh) return intersect;
         }
         return intersects[0];
       },
@@ -315,7 +307,7 @@ class WaitState extends ToolState {
     if (intersect.object === this.tool.canvas.component.modelMesh) {
       this.tool.deactivateArrow();
     } else {
-      this.tool.activateArrow(intersect.object);
+      this.tool.activateArrow(intersect.object.parent);
     }
   }
 
@@ -375,7 +367,7 @@ class DragState extends ToolState {
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
       getInteractables: () => intersectables,
-      onHit: params => this.handleHit(params),
+      onHit: () => this.handleHit(),
       onMouseUp: () => this.handleMouseUp(),
     });
   }
@@ -397,9 +389,8 @@ class DragState extends ToolState {
     this.target.copy(this.origin);
   }
 
-  private handleHit(params: CursorEventParams) {
+  private handleHit() {
     const position = this.cursor.getPosition();
-    if (!position) return;
 
     if (this.target.equals(position)) return;
     this.target.copy(position);
@@ -414,6 +405,8 @@ class DragState extends ToolState {
         .add(this.temp1)
     );
     this.tool.updateArrow(this.tool.canvas.component.fragmentBoundingBox);
+    this.tool.drawGuide.position.copy(this.tool.canvas.component.fragmentBoundingBox.edges.position);
+    this.tool.drawGuide.updateMatrixWorld(false);
   }
 
   private handleMouseUp() {

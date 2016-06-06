@@ -50,7 +50,7 @@ class Cursor {
   }
 
   private static getCursorPositionUnderFace(intersect: THREE.Intersection, out: THREE.Vector3) {
-    out.copy(intersect.point).sub(intersect.face.normal);
+    out.copy(intersect.point);
     if (intersect.face) out.sub(intersect.face.normal);
  }
 

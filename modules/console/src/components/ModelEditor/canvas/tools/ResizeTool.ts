@@ -218,6 +218,7 @@ class WaitState extends ToolState {
 
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
+      cursorOnFace: false,
       intersectRecursively: true,
       getInteractables: () => this.tool.handles,
       onHit: params => this.handleHit(params),
