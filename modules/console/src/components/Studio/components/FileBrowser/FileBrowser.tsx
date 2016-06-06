@@ -1,8 +1,8 @@
 import * as React from 'react';
-import IconButton from 'material-ui/lib/icon-button';
-import FlatButton from 'material-ui/lib/flat-button';
+import IconButton from 'material-ui/IconButton';
+import FlatButton from 'material-ui/FlatButton';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
-import Colors from 'material-ui/lib/styles/colors';
+import * as Colors from 'material-ui/styles/colors';
 const update = require('react-addons-update');
 
 import FileList from './FileList';

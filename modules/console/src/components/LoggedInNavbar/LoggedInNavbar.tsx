@@ -1,32 +1,30 @@
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Styles } from 'material-ui';
-import AppBar from 'material-ui/lib/app-bar';
-import FlatButton from 'material-ui/lib/flat-button';
+import FlatButton from 'material-ui/FlatButton';
 import BuffyIcon from '../BuffyIcon';
 
-import Colors from 'material-ui/lib/styles/colors';
+import * as Colors from 'material-ui/styles/colors';
 
-import Avatar from 'material-ui/lib/avatar';
-import Paper from 'material-ui/lib/paper';
-import IconMenu from 'material-ui/lib/menus/icon-menu';
-import IconButton from 'material-ui/lib/icon-button';
-import FontIcon from 'material-ui/lib/font-icon';
-import NavigationExpandMoreIcon from 'material-ui/lib/svg-icons/navigation/expand-more';
-import MenuItem from 'material-ui/lib/menus/menu-item';
-import DropDownMenu from 'material-ui/lib/DropDownMenu';
-import RaisedButton from 'material-ui/lib/raised-button';
-import Toolbar from 'material-ui/lib/toolbar/toolbar';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import ToolbarSeparator from 'material-ui/lib/toolbar/toolbar-separator';
-import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
+import Avatar from 'material-ui/Avatar';
+import Paper from 'material-ui/Paper';
+import IconMenu from 'material-ui/IconMenu';
+import IconButton from 'material-ui/IconButton';
+import FontIcon from 'material-ui/FontIcon';
+import NavigationExpandMoreIcon from 'material-ui/svg-icons/navigation/expand-more';
+import MenuItem from 'material-ui/MenuItem';
+import DropDownMenu from 'material-ui/DropDownMenu';
+import RaisedButton from 'material-ui/RaisedButton';
+import Toolbar from 'material-ui/Toolbar/Toolbar';
+import ToolbarGroup from 'material-ui/Toolbar/ToolbarGroup';
+import ToolbarSeparator from 'material-ui/Toolbar/ToolbarSeparator';
+import ToolbarTitle from 'material-ui/Toolbar/ToolbarTitle';
 
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import Divider from 'material-ui/lib/divider';
-import LogoutIcon from 'material-ui/lib/svg-icons/action/exit-to-app';
-import ProfileIcon from 'material-ui/lib/svg-icons/action/account-box';
-import SettingsIcon from 'material-ui/lib/svg-icons/action/settings';
+import List from 'material-ui/List/List';
+import ListItem from 'material-ui/List/ListItem';
+import Divider from 'material-ui/Divider';
+import LogoutIcon from 'material-ui/svg-icons/action/exit-to-app';
+import ProfileIcon from 'material-ui/svg-icons/action/account-box';
+import SettingsIcon from 'material-ui/svg-icons/action/settings';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';
@@ -198,8 +196,8 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
       <Navbar width={this.props.width}>
         <ToolbarGroup float="left">
           <Link to="/"><BuffyIcon style={styles.logo} color={Colors.darkWhite} /></Link>
+          {leftToolbarGroup}
         </ToolbarGroup>
-        {leftToolbarGroup}
         <ToolbarGroup float="right">
           <ClickAwayListener onClickAway={() => this.handleClickAway()}>
             <IconButton style={styles.avatarButton} iconStyle={styles.avatarButtonIcon} onTouchTap={() => this.handleAvatarClick()}>

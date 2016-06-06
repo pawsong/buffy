@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-import FontIcon from 'material-ui/lib/font-icon';
-import Colors from 'material-ui/lib/styles/colors';
-import Avatar from 'material-ui/lib/avatar';
+import FontIcon from 'material-ui/FontIcon';
+import * as Colors from 'material-ui/styles/colors';
+import Avatar from 'material-ui/Avatar';
 
 import { FileType } from './types';
 

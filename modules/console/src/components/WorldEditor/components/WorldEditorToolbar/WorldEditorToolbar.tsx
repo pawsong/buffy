@@ -1,6 +1,6 @@
 import * as React from 'react';
-import RaisedButton from 'material-ui/lib/raised-button';
-import FlatButton from 'material-ui/lib/flat-button';
+import RaisedButton from 'material-ui/RaisedButton';
+import FlatButton from 'material-ui/FlatButton';
 import {
   WorldEditorState,
   EditorMode,

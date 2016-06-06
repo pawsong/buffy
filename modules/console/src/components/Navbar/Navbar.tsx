@@ -1,22 +1,20 @@
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Styles } from 'material-ui';
-import AppBar from 'material-ui/lib/app-bar';
-import FlatButton from 'material-ui/lib/flat-button';
+import { MuiTheme } from 'material-ui/styles';
+import FlatButton from 'material-ui/FlatButton';
 
-import Colors from 'material-ui/lib/styles/colors';
+import * as Colors from 'material-ui/styles/colors';
 
-import IconMenu from 'material-ui/lib/menus/icon-menu';
-import IconButton from 'material-ui/lib/icon-button';
-import FontIcon from 'material-ui/lib/font-icon';
-import NavigationExpandMoreIcon from 'material-ui/lib/svg-icons/navigation/expand-more';
-import MenuItem from 'material-ui/lib/menus/menu-item';
-import DropDownMenu from 'material-ui/lib/DropDownMenu';
-import RaisedButton from 'material-ui/lib/raised-button';
-import Toolbar from 'material-ui/lib/toolbar/toolbar';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import ToolbarSeparator from 'material-ui/lib/toolbar/toolbar-separator';
-import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
+import IconMenu from 'material-ui/IconMenu';
+import IconButton from 'material-ui/IconButton';
+import FontIcon from 'material-ui/FontIcon';
+import MenuItem from 'material-ui/MenuItem';
+import DropDownMenu from 'material-ui/DropDownMenu';
+import RaisedButton from 'material-ui/RaisedButton';
+import Toolbar from 'material-ui/Toolbar/Toolbar';
+import ToolbarGroup from 'material-ui/Toolbar/ToolbarGroup';
+import ToolbarSeparator from 'material-ui/Toolbar/ToolbarSeparator';
+import ToolbarTitle from 'material-ui/Toolbar/ToolbarTitle';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 
 import Wrapper from '../Wrapper';
@@ -39,7 +37,7 @@ class Navbar extends React.Component<NavbarProps, {}> {
   constructor(props, context) {
     super(props, context);
 
-    const muiTheme: Styles.MuiTheme = context['muiTheme'];
+    const muiTheme: MuiTheme = context['muiTheme'];
     this.backgroundColor = muiTheme.rawTheme.palette.primary1Color;
     this.toolbarStyle = { backgroundColor: this.backgroundColor };
     this.paddingStyle = { height: muiTheme.toolbar.height };

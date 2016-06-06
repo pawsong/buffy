@@ -1,9 +1,9 @@
 import * as React from 'react';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import SelectField from 'material-ui/lib/select-field';
-import MenuItem from 'material-ui/lib/menus/menu-item';
-import RaisedButton from 'material-ui/lib/raised-button';
+import List from 'material-ui/List/List';
+import ListItem from 'material-ui/List/ListItem';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
+import RaisedButton from 'material-ui/RaisedButton';
 
 import { receiveThumbnails, ReceiveThumbnailsProps } from '../../canvas/ModelManager';
 

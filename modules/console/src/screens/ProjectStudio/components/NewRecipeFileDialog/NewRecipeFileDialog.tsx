@@ -1,21 +1,22 @@
 import * as React from 'react';
 
-import Dialog from 'material-ui/lib/dialog';
-import FlatButton from 'material-ui/lib/flat-button';
-import RaisedButton from 'material-ui/lib/raised-button';
-import Colors from 'material-ui/lib/styles/colors';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
+import * as Colors from 'material-ui/styles/colors';
 
-import SelectField from 'material-ui/lib/select-field';
-import MenuItem from 'material-ui/lib/menus/menu-item';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 
-import Tabs from 'material-ui/lib/tabs/tabs';
-import Tab from 'material-ui/lib/tabs/tab';
+import Tabs from 'material-ui/Tabs/Tabs';
+import Tab from 'material-ui/Tabs/Tab';
 
-import GridList from 'material-ui/lib/grid-list/grid-list';
-const GridTile = require('material-ui/lib/grid-list/grid-tile');
+import GridList from 'material-ui/GridList/GridList';
+// import GridTile from 'material-ui/GridList/GridTile';
+const GridTile = require('material-ui/GridList/GridTile').default;
 
-import RadioButton from 'material-ui/lib/radio-button';
-import RadioButtonGroup from 'material-ui/lib/radio-button-group';
+import RadioButton from 'material-ui/RadioButton';
+import RadioButtonGroup from 'material-ui/RadioButton/RadioButtonGroup';
 
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./NewRecipeFileDialog.css');

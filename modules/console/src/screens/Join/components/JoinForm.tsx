@@ -1,18 +1,17 @@
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Styles } from 'material-ui';
-import Colors from 'material-ui/lib/styles/colors';
-const TextField = require('material-ui/lib/text-field');
-const Paper = require('material-ui/lib/paper');
-const Divider = require('material-ui/lib/divider');
-import RaisedButton from 'material-ui/lib/raised-button';
-import FontIcon from 'material-ui/lib/font-icon';
+import * as Colors from 'material-ui/styles/colors';
+import TextField from 'material-ui/TextField';
+import Paper from 'material-ui/Paper';
+import Divider from 'material-ui/Divider';
+import RaisedButton from 'material-ui/RaisedButton';
+import FontIcon from 'material-ui/FontIcon';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import { isCancelError } from 'redux-saga';
 import { call, put } from 'redux-saga/effects';
 import { replace } from 'react-router-redux';
 const isEmail = require('validator/lib/isEmail');
-import CircularProgress from 'material-ui/lib/circular-progress';
+import CircularProgress from 'material-ui/CircularProgress';
 import BuffyIcon from '../../../components/BuffyIcon';
 import { TouchTapEvent } from 'material-ui';
 import { saga, SagaProps, ImmutableTask, request, wait, isRunning, isDone } from '../../../saga';
@@ -42,6 +41,7 @@ const styles = {
     padding: 20,
   },
   facebookLoginButton: {
+    width: '100%',
     marginTop: 17,
   },
   progressOverlay: {
@@ -63,6 +63,7 @@ const styles = {
     width: 'calc(100% - 30px)',
   },
   loginButton: {
+    width: '100%',
     marginTop: 20,
   },
   loginContainer: {
@@ -410,7 +411,7 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
               </div>
 
               <RaisedButton type="submit"
-                            primary={true} fullWidth={true} style={styles.loginButton}
+                            secondary={true} fullWidth={true} style={styles.loginButton}
                             label={this.props.intl.formatMessage(Messages.signup)}
                             disabled={formIsBusy || localLoginSubmitDisabled}
               />

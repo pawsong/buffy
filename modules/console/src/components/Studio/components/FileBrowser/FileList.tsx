@@ -1,9 +1,9 @@
 import * as React from 'react';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import FontIcon from 'material-ui/lib/font-icon';
-import Colors from 'material-ui/lib/styles/colors';
-import Avatar from 'material-ui/lib/avatar';
+import List from 'material-ui/List/List';
+import ListItem from 'material-ui/List/ListItem';
+import FontIcon from 'material-ui/FontIcon';
+import * as Colors from 'material-ui/styles/colors';
+import Avatar from 'material-ui/Avatar';
 import * as classNames from 'classnames';
 
 import { FileDescriptor, FileType, SourceFile } from '../../types';

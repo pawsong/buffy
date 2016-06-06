@@ -12,7 +12,7 @@ import { DropTarget } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
 const update = require('react-addons-update');
 import { EventEmitter, EventSubscription } from 'fbemitter';
-import RaisedButton from 'material-ui/lib/raised-button';
+import RaisedButton from 'material-ui/RaisedButton';
 import { reset, undo, redo } from '@pasta/helper/lib/undoable';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';

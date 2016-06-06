@@ -4,14 +4,12 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import Wrapper from '../../../../../components/Wrapper';
 
-import Colors from 'material-ui/lib/styles/colors';
-import Card from 'material-ui/lib/card/card';
-import CardActions from 'material-ui/lib/card/card-actions';
-import CardHeader from 'material-ui/lib/card/card-header';
-import CardMedia from 'material-ui/lib/card/card-media';
-import CardTitle from 'material-ui/lib/card/card-title';
-import FlatButton from 'material-ui/lib/flat-button';
-import CardText from 'material-ui/lib/card/card-text';
+import * as Colors from 'material-ui/styles/colors';
+import Card from 'material-ui/Card/Card';
+import CardActions from 'material-ui/Card/CardActions';
+import CardMedia from 'material-ui/Card/CardMedia';
+import CardTitle from 'material-ui/Card/CardTitle';
+import FlatButton from 'material-ui/FlatButton';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../../../constants/Messages';
 

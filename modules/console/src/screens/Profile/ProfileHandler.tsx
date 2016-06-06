@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { RouteComponentProps, Link } from 'react-router';
 
-import Colors from 'material-ui/lib/styles/colors';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
+import * as Colors from 'material-ui/styles/colors';
+import List from 'material-ui/List/List';
+import ListItem from 'material-ui/List/ListItem';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 

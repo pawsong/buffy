@@ -8,8 +8,8 @@ import * as axios from 'axios';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
-const MuiThemeProvider = require('material-ui/lib/MuiThemeProvider');
-const getMuiTheme = require('material-ui/lib/styles/getMuiTheme');
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
 import { Provider } from 'react-redux';
 const Hairdresser = require('hairdresser');

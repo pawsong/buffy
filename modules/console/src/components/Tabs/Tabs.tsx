@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Colors from 'material-ui/lib/styles/colors';
+import * as Colors from 'material-ui/styles/colors';
 const warning = require('fbjs/lib/warning');
 
 import Tab, { TabProps } from './Tab';
@@ -36,7 +36,7 @@ class Tabs extends React.Component<TabsProps, {}> {
 
       const props: TabProps = {
         index,
-        key: tab.props.key || index,
+        key: tab.key || index,
         active: tab.props.value === this.props.activeValue,
         value: tab.props.value,
         onClick: () => this.props.onTabClick(tab.props.value),

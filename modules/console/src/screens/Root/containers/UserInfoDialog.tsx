@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Dialog from 'material-ui/lib/dialog';
-import FlatButton from 'material-ui/lib/flat-button';
-import TextField from 'material-ui/lib/text-field';
-import CircularProgress from 'material-ui/lib/circular-progress';
-import Colors from 'material-ui/lib/styles/colors';
-import FontIcon from 'material-ui/lib/font-icon';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
+import TextField from 'material-ui/TextField';
+import CircularProgress from 'material-ui/CircularProgress';
+import * as Colors from 'material-ui/styles/colors';
+import FontIcon from 'material-ui/FontIcon';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../constants/Messages';
 import { State } from '../../../reducers';

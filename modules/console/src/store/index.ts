@@ -38,6 +38,7 @@ export default function configureStore(initialState?: any) {
 
   sagaMiddleware.run(apiSaga);
 
+
   let history = null;
   let onRouterUpdate = null;
   if (__CLIENT__) {

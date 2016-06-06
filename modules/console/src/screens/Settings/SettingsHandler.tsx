@@ -5,14 +5,14 @@ import { RouteComponentProps, Link } from 'react-router';
 import { isCancelError } from 'redux-saga';
 import { call, put } from 'redux-saga/effects';
 
-import Colors from 'material-ui/lib/styles/colors';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import TextField from 'material-ui/lib/text-field';
-import RaisedButton from 'material-ui/lib/raised-button';
-import Dialog from 'material-ui/lib/dialog';
-import FlatButton from 'material-ui/lib/flat-button';
-import Slider from 'material-ui/lib/slider';
+import * as Colors from 'material-ui/styles/colors';
+import List from 'material-ui/List/List';
+import ListItem from 'material-ui/List/ListItem';
+import TextField from 'material-ui/TextField';
+import RaisedButton from 'material-ui/RaisedButton';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
+import Slider from 'material-ui/Slider';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';

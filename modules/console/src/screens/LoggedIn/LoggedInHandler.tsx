@@ -2,9 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { push } from 'react-router-redux';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-const FlatButton = require('material-ui/lib/flat-button');
-import Colors from 'material-ui/lib/styles/colors';
+import ToolbarGroup from 'material-ui/Toolbar/ToolbarGroup';
+import FlatButton from 'material-ui/FlatButton';
+import * as Colors from 'material-ui/styles/colors';
 
 import { State } from '../../reducers';
 import {
@@ -44,7 +44,7 @@ interface LoggedInHandlerProps extends RouteComponentProps<{}, {}> {
 class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
   renderLeftToolbarGroup() {
     return (
-      <ToolbarGroup float="left" style={{ marginLeft: 25 }}>
+      <div style={{ marginLeft: 25 }}>
         <FlatButton label={this.props.intl.formatMessage(Messages.create)}
                     style={styles.button}
                     onTouchTap={() => this.props.push('/create')}
@@ -57,7 +57,7 @@ class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
                     backgroundColor={Colors.pinkA200}
                     hoverColor={Colors.pinkA100}
         />
-      </ToolbarGroup>
+      </div>
     );
   }
 

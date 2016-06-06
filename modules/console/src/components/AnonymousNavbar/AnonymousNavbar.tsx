@@ -4,17 +4,16 @@ import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 const update = require('react-addons-update');
-const FlatButton = require('material-ui/lib/flat-button');
+import FlatButton from 'material-ui/FlatButton';
 import BuffyIcon from '../BuffyIcon';
-import Colors from 'material-ui/lib/styles/colors';
-import Toolbar from 'material-ui/lib/toolbar/toolbar';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
+import * as Colors from 'material-ui/styles/colors';
+import Toolbar from 'material-ui/Toolbar/Toolbar';
+import ToolbarGroup from 'material-ui/Toolbar/ToolbarGroup';
+import ToolbarTitle from 'material-ui/Toolbar/ToolbarTitle';
 import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';
-import RaisedButton from 'material-ui/lib/raised-button';
-import { Styles } from 'material-ui';
-
+import RaisedButton from 'material-ui/RaisedButton';
+import { MuiTheme } from 'material-ui/styles';
 
 import Navbar from '../Navbar';
 
@@ -54,7 +53,7 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
     muiTheme: React.PropTypes.object,
   } as any
 
-  muiTheme: Styles.MuiTheme;
+  muiTheme: MuiTheme;
   toolbarHeight: number;
   logoStyle: React.CSSProperties;
 
@@ -84,8 +83,8 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
       <Navbar width={this.props.width}>
         <ToolbarGroup float="left">
           <Link to="/"><BuffyIcon style={this.logoStyle} color={Colors.darkWhite} /></Link>
+          {leftToolbarGroup}
         </ToolbarGroup>
-        {leftToolbarGroup}
         <ToolbarGroup float="right">
           <FlatButton
             label={this.props.intl.formatMessage(Messages.login)}

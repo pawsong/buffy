@@ -1,10 +1,10 @@
 import * as React from 'react';
-import FlatButton from 'material-ui/lib/flat-button';
-import Colors from 'material-ui/lib/styles/colors';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import Paper from 'material-ui/lib/paper';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
+import FlatButton from 'material-ui/FlatButton';
+import * as Colors from 'material-ui/styles/colors';
+import ToolbarGroup from 'material-ui/Toolbar/ToolbarGroup';
+import Paper from 'material-ui/Paper';
+import List from 'material-ui/List/List';
+import ListItem from 'material-ui/List/ListItem';
 
 import { User } from '../../../reducers/users';
 
@@ -140,7 +140,7 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
     const newFileMenu = this.renderNewFileMenu();
 
     return (
-      <ToolbarGroup float="left" style={{ marginLeft: 25, marginTop: 10 }}>
+      <div style={{ marginLeft: 25, marginTop: 10 }}>
         <div style={{ display: 'inline-block', marginRight: 10 }}>
           <ClickAwayListener onClickAway={() => this.handleClickAway()}>
             <FlatButton
@@ -167,7 +167,7 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
                     backgroundColor={Colors.pinkA200}
                     hoverColor={Colors.pinkA100}
         /> : null}
-      </ToolbarGroup>
+      </div>
     );
   }
 

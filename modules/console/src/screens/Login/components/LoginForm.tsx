@@ -1,16 +1,15 @@
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Styles } from 'material-ui';
-import Colors from 'material-ui/lib/styles/colors';
-import TextField from 'material-ui/lib/text-field';
-import Paper from 'material-ui/lib/paper';
-import Divider from 'material-ui/lib/divider';
-import RaisedButton from 'material-ui/lib/raised-button';
-import FontIcon from 'material-ui/lib/font-icon';
+import * as Colors from 'material-ui/styles/colors';
+import TextField from 'material-ui/TextField';
+import Paper from 'material-ui/Paper';
+import Divider from 'material-ui/Divider';
+import RaisedButton from 'material-ui/RaisedButton';
+import FontIcon from 'material-ui/FontIcon';
 import { isCancelError } from 'redux-saga';
 import { call, put } from 'redux-saga/effects';
 import { replace } from 'react-router-redux';
-import CircularProgress from 'material-ui/lib/circular-progress';
+import CircularProgress from 'material-ui/CircularProgress';
 import BuffyIcon from '../../../components/BuffyIcon';
 import { saga, ImmutableTask, SagaProps, isRunning, isDone } from '../../../saga';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
@@ -37,9 +36,11 @@ const inlineStyles = {
   },
   loginButton: {
     marginTop: 20,
+    width: '100%',
   },
   facebookLoginButton: {
     marginTop: 17,
+    width: '100%',
   },
 };
 
@@ -199,7 +200,7 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
                          disabled={formIsBusy}
               />
               <RaisedButton type="submit"
-                            primary={true} fullWidth={true} style={inlineStyles.loginButton}
+                            secondary={true} fullWidth={true} style={inlineStyles.loginButton}
                             label={this.props.intl.formatMessage(Messages.login)}
                             disabled={formIsBusy}
               />

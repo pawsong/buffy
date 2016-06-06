@@ -8,11 +8,11 @@ import {
   ConnectDragSource,
 } from 'react-dnd';
 
-import { Styles } from 'material-ui';
-import FontIcon from 'material-ui/lib/font-icon';
-import AppBar from 'material-ui/lib/app-bar';
-import Paper from 'material-ui/lib/paper';
-import Colors from 'material-ui/lib/styles/colors';
+import { MuiTheme } from 'material-ui/styles';
+import FontIcon from 'material-ui/FontIcon';
+import AppBar from 'material-ui/AppBar';
+import Paper from 'material-ui/Paper';
+import * as Colors from 'material-ui/styles/colors';
 
 import { FormattedMessage } from 'react-intl';
 
@@ -227,7 +227,7 @@ export function connectSource({
         muiTheme: React.PropTypes.object,
       } as any
 
-      muiTheme: Styles.MuiTheme;
+      muiTheme: MuiTheme;
 
       constructor(props, context) {
         super(props, context);

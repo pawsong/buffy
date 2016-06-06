@@ -1,9 +1,9 @@
 import * as React from 'react';
 const update = require('react-addons-update');
 import { findDOMNode } from 'react-dom';
-import { Styles } from 'material-ui';
-import RaisedButton from 'material-ui/lib/raised-button';
-import IconButton from 'material-ui/lib/icon-button';
+import { MuiTheme } from 'material-ui/styles';
+import RaisedButton from 'material-ui/RaisedButton';
+import IconButton from 'material-ui/IconButton';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
@@ -11,7 +11,7 @@ import { InitParams } from '@pasta/core/lib/packet/ZC';
 import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import { Scripts } from '@pasta/core/lib/types';
 
-import Colors from 'material-ui/lib/styles/colors';
+import * as Colors from 'material-ui/styles/colors';
 
 import ZoneCanvas from '../../canvas/ZoneCanvas';
 
@@ -88,7 +88,7 @@ class FullscreenPlayer extends React.Component<FullscreenPlayerProps, CardboardS
     muiTheme: React.PropTypes.object,
   } as any
 
-  muiTheme: Styles.MuiTheme;
+  muiTheme: MuiTheme;
 
   sandbox: Sandbox;
 

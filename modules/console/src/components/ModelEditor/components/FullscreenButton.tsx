@@ -1,9 +1,9 @@
 import * as React from 'react';
-import IconButton from 'material-ui/lib/icon-button';
-import ThemeManager from 'material-ui/lib/styles/theme-manager';
-import LightRawTheme from 'material-ui/lib/styles/raw-themes/light-raw-theme';
-import Colors from 'material-ui/lib/styles/colors';
+import IconButton from 'material-ui/IconButton';
+import { MuiTheme } from 'material-ui/styles';
+import * as Colors from 'material-ui/styles/colors';
 const cloneDeep = require('lodash/cloneDeep');
+const update = require('react-addons-update');
 
 interface FullscreenButtonProps extends React.Props<FullscreenButton> {
   onTouchTap: () => any;
@@ -11,15 +11,27 @@ interface FullscreenButtonProps extends React.Props<FullscreenButton> {
 }
 
 class FullscreenButton extends React.Component<FullscreenButtonProps, {}> {
+  static contextTypes = {
+    muiTheme: React.PropTypes.object,
+  } as any
+
   static childContextTypes = {
     muiTheme: React.PropTypes.object,
   };
 
+  muiTheme: MuiTheme;
+
+  constructor(props, context) {
+    super(props, context);
+
+    this.muiTheme = update(context.muiTheme, {
+      rawTheme: { spacing: { iconSize: { $set: 36 } } },
+    });
+  }
+
   getChildContext() {
-    const CustomRawTheme = cloneDeep(LightRawTheme);
-    CustomRawTheme.spacing.iconSize = 36;
-    return { muiTheme: ThemeManager.getMuiTheme(CustomRawTheme) };
-  };
+    return { muiTheme: this.muiTheme };
+  }
 
   render() {
     return (

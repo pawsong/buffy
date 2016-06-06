@@ -50,7 +50,7 @@ function* requestCall(apiCall: ApiCall<any>) {
   }
 }
 
-export function* callApiOnServer(getState, apiCall: ApiCall<any>) {
+export function* callApiOnServer(apiCall: ApiCall<any>) {
   yield put<ReferenceCallAction>({
     type: REFERENCE_CALL,
     callId: apiCall.id,

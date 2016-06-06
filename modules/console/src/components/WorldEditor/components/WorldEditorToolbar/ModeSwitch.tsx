@@ -1,7 +1,7 @@
 import * as React from 'react';
-import IconButton from 'material-ui/lib/icon-button';
-const ModeEdit = require('material-ui/lib/svg-icons/editor/mode-edit');
-const PlayArrow = require('material-ui/lib/svg-icons/av/play-arrow');
+import IconButton from 'material-ui/IconButton';
+import ModeEdit from 'material-ui/svg-icons/editor/mode-edit';
+import PlayArrow from 'material-ui/svg-icons/av/play-arrow';
 
 import {
   EditorMode,

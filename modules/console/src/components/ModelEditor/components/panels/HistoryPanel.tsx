@@ -3,10 +3,9 @@ const pure = require('recompose/pure').default;
 
 import { findDOMNode } from 'react-dom';
 import * as ReactDnd from 'react-dnd';
-import RaisedButton from 'material-ui/lib/raised-button';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import AppBar from 'material-ui/lib/app-bar';
+import RaisedButton from 'material-ui/RaisedButton';
+import List from 'material-ui/List/List';
+import ListItem from 'material-ui/List/ListItem';
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
 import {

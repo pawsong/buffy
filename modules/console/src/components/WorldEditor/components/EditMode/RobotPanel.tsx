@@ -1,14 +1,14 @@
 import * as React from 'react';
-import Avatar from 'material-ui/lib/avatar';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import IconButton from 'material-ui/lib/icon-button';
-import MoreVertIcon from 'material-ui/lib/svg-icons/navigation/more-vert';
-import AddCircleIcon from 'material-ui/lib/svg-icons/content/add-circle';
-import IconMenu from 'material-ui/lib/menus/icon-menu';
-import MenuItem from 'material-ui/lib/menus/menu-item';
-import Colors from 'material-ui/lib/styles/colors';
-import RaisedButton from 'material-ui/lib/raised-button';
+import Avatar from 'material-ui/Avatar';
+import List from 'material-ui/List/List';
+import ListItem from 'material-ui/List/ListItem';
+import IconButton from 'material-ui/IconButton';
+import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import AddCircleIcon from 'material-ui/svg-icons/content/add-circle';
+import IconMenu from 'material-ui/IconMenu';
+import MenuItem from 'material-ui/MenuItem';
+import * as Colors from 'material-ui/styles/colors';
+import RaisedButton from 'material-ui/RaisedButton';
 
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 import * as classNames from 'classnames';

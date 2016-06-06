@@ -1,8 +1,8 @@
 import * as React from 'react';
 const pure = require('recompose/pure').default;
 
-import IconButton from 'material-ui/lib/icon-button';
-import Colors from 'material-ui/lib/styles/colors';
+import IconButton from 'material-ui/IconButton';
+import * as Colors from 'material-ui/styles/colors';
 import * as ReactDnd from 'react-dnd';
 const { default: ColorPicker } = require('react-color/lib/components/swatches/Swatches');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';

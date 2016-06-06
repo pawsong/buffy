@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
-import Colors from 'material-ui/lib/styles/colors';
+import * as Colors from 'material-ui/styles/colors';
 import { DragSource, DropTarget } from 'react-dnd';
 import * as classNames from 'classnames';
 

@@ -1,15 +1,14 @@
 import * as React from 'react';
-import IconButton from 'material-ui/lib/icon-button';
-import Dialog from 'material-ui/lib/dialog';
-import FlatButton from 'material-ui/lib/flat-button';
-import RaisedButton from 'material-ui/lib/raised-button';
-import Table from 'material-ui/lib/table/table';
-import TableBody from 'material-ui/lib/table/table-body';
-import TableFooter from 'material-ui/lib/table/table-footer';
-import TableHeader from 'material-ui/lib/table/table-header';
-import TableHeaderColumn from 'material-ui/lib/table/table-header-column';
-import TableRow from 'material-ui/lib/table/table-row';
-import TableRowColumn from 'material-ui/lib/table/table-row-column';
+import IconButton from 'material-ui/IconButton';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
+import Table from 'material-ui/Table/Table';
+import TableBody from 'material-ui/Table/TableBody';
+import TableHeader from 'material-ui/Table/TableHeader';
+import TableHeaderColumn from 'material-ui/Table/TableHeaderColumn';
+import TableRow from 'material-ui/Table/TableRow';
+import TableRowColumn from 'material-ui/Table/TableRowColumn';
 
 import { GameUser } from '../base';
 

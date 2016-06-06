@@ -1,7 +1,7 @@
 import * as React from 'react';
-import FlatButton from 'material-ui/lib/flat-button';
-import Colors from 'material-ui/lib/styles/colors';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
+import FlatButton from 'material-ui/FlatButton';
+import * as Colors from 'material-ui/styles/colors';
+import ToolbarGroup from 'material-ui/Toolbar/ToolbarGroup';
 
 import { User } from '../../../reducers/users';
 
@@ -32,7 +32,7 @@ interface OnlineStudioNavbarProps extends React.Props<OnlineStudioNavbar> {
 class OnlineStudioNavbar extends React.Component<OnlineStudioNavbarProps, void> {
   renderLeftToolbarGroup() {
     return (
-      <ToolbarGroup float="left" style={{ marginLeft: 25 }}>
+      <div style={{ marginLeft: 25 }}>
         <FlatButton label={this.props.intl.formatMessage(Messages.save)}
                     style={styles.button}
                     onTouchTap={this.props.onSave}
@@ -51,7 +51,7 @@ class OnlineStudioNavbar extends React.Component<OnlineStudioNavbarProps, void> 
                     backgroundColor={Colors.pinkA200}
                     hoverColor={Colors.pinkA100}
         />
-      </ToolbarGroup>
+      </div>
     );
   }
 

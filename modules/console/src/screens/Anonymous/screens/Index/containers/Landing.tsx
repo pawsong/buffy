@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
-import RaisedButton from 'material-ui/lib/raised-button';
-import Colors from 'material-ui/lib/styles/colors';
+import RaisedButton from 'material-ui/RaisedButton';
+import * as Colors from 'material-ui/styles/colors';
 import { State } from '../../../../../reducers';
 import Wrapper from '../../../../../components/Wrapper';
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import BuffyIcon from '../BuffyIcon';
-import Colors from 'material-ui/lib/styles/colors';
+import * as Colors from 'material-ui/styles/colors';
 import Wrapper from '../Wrapper';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';

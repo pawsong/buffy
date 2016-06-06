@@ -1,6 +1,6 @@
 import * as React from 'react';
-import IconButton from 'material-ui/lib/icon-button';
-const Contacts = require('material-ui/lib/svg-icons/communication/contacts');
+import IconButton from 'material-ui/IconButton';
+import Contacts from 'material-ui/svg-icons/communication/contacts';
 
 const style = {
   backgroundColor: 'black',

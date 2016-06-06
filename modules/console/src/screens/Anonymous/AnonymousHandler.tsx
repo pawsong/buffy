@@ -2,9 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { push } from 'react-router-redux';
-import FontIcon from 'material-ui/lib/font-icon';
-import Tabs from 'material-ui/lib/tabs/tabs';
-import Tab from 'material-ui/lib/tabs/tab';
+import FontIcon from 'material-ui/FontIcon';
+import Tabs from 'material-ui/Tabs/Tabs';
+import Tab from 'material-ui/Tabs/Tab';
 import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
 
 import { State } from '../../reducers';

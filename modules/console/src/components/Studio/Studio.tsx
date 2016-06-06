@@ -1,11 +1,11 @@
 import './patch';
 
 import * as React from 'react';
-import Toolbar from 'material-ui/lib/toolbar/toolbar';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import RaisedButton from 'material-ui/lib/raised-button';
+import Toolbar from 'material-ui/Toolbar/Toolbar';
+import ToolbarGroup from 'material-ui/Toolbar/ToolbarGroup';
+import RaisedButton from 'material-ui/RaisedButton';
 import { Tabs, Tab } from '../Tabs';
-import Colors from 'material-ui/lib/styles/colors';
+import * as Colors from 'material-ui/styles/colors';
 
 const update = require('react-addons-update');
 import * as shortid from 'shortid';

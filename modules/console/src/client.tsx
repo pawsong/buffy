@@ -10,8 +10,8 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { match } from 'react-router'
 const { Router, RouterContext }  = require('react-router');
-const MuiThemeProvider = require('material-ui/lib/MuiThemeProvider');
-const getMuiTheme = require('material-ui/lib/styles/getMuiTheme');
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const Hairdresser = require('hairdresser');
 import { IntlProvider, addLocaleData } from 'react-intl';
 

@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
-import Colors from 'material-ui/lib/styles/colors';
+import * as Colors from 'material-ui/styles/colors';
 
 import Messages from '../../constants/Messages';
 
 import { State } from '../../reducers';
 import { SnackbarRequest } from '../../reducers/snackbar';
-const Snackbar = require('material-ui/lib/snackbar');
+import Snackbar from 'material-ui/Snackbar';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import rootSaga from './sagas';
 

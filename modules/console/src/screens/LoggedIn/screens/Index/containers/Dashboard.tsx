@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import RaisedButton from 'material-ui/lib/raised-button';
-import ClearFix from 'material-ui/lib/clearfix';
+import RaisedButton from 'material-ui/RaisedButton';
+const ClearFix = require('material-ui/internal/ClearFix').default;
 
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
+import List from 'material-ui/List/List';
+import ListItem from 'material-ui/List/ListItem';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../../../constants/Messages';

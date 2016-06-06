@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import events from 'material-ui/lib/utils/events';
+import Events from 'material-ui/utils/events';
 
 const isDescendant = (el, target) => {
   if (target !== null) {
@@ -10,8 +10,8 @@ const isDescendant = (el, target) => {
 };
 
 const clickAwayEvents = ['mousedown', 'touchstart'];
-const bind = (callback) => clickAwayEvents.forEach((event) => events.on(document as any, event, callback));
-const unbind = (callback) => clickAwayEvents.forEach((event) => events.off(document as any, event, callback));
+const bind = (callback) => clickAwayEvents.forEach((event) => Events.on(document as any, event, callback));
+const unbind = (callback) => clickAwayEvents.forEach((event) => Events.off(document as any, event, callback));
 
 interface ClickAwayListenerProps extends React.Props<ClickAwayListener> {
   onClickAway: (event: Event) => any;

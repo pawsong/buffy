@@ -1,6 +1,6 @@
 import * as React from 'react';
 const pure = require('recompose/pure').default;
-import SvgIcon from 'material-ui/lib/svg-icon';
+import SvgIcon from 'material-ui/SvgIcon';
 
 interface SvgIconProps extends React.SVGAttributes, React.Props<SvgIcon> {
     // <svg/> is the element that get the 'other' properties

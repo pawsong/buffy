@@ -2,9 +2,9 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import Wrapper from '../../../../../components/Wrapper';
 
-import Colors from 'material-ui/lib/styles/colors';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
+import * as Colors from 'material-ui/styles/colors';
+import List from 'material-ui/List/List';
+import ListItem from 'material-ui/List/ListItem';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../../../constants/Messages';
