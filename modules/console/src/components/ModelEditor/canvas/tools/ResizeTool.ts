@@ -48,7 +48,6 @@ interface MaterialToRestore {
 
 interface ResizeToolProps {
   size: Position;
-  maxSize: number;
   fragment: Ndarray;
 }
 
@@ -75,11 +74,9 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
 
   mapParamsToProps(params: ModelEditorState) {
     const { size } = params.file.present.data;
-    const maxSize = Math.sqrt(Math.max(size[0], size[1], size[2]) / 10);
 
     return {
       size,
-      maxSize,
       fragment: params.file.present.data.fragment,
     };
   }
@@ -102,7 +99,6 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
   patch(diff: ResizeToolTree) {
     if (diff.hasOwnProperty('size')) {
       const { size } = this.tree;
-      const { maxSize } = this.props;
 
       this.nxHandle.position.set(0          , size[1] / 2, size[2] / 2).multiplyScalar(PIXEL_SCALE);
       this.pxHandle.position.set(size[0]    , size[1] / 2, size[2] / 2).multiplyScalar(PIXEL_SCALE);
@@ -110,13 +106,6 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
       this.pyHandle.position.set(size[0] / 2, size[1]    , size[2] / 2).multiplyScalar(PIXEL_SCALE);
       this.nzHandle.position.set(size[0] / 2, size[1] / 2, 0          ).multiplyScalar(PIXEL_SCALE);
       this.pzHandle.position.set(size[0] / 2, size[1] / 2, size[2]    ).multiplyScalar(PIXEL_SCALE);
-
-      this.nxHandle.scale.set(maxSize, maxSize, maxSize);
-      this.pxHandle.scale.set(maxSize, maxSize, maxSize);
-      this.nyHandle.scale.set(maxSize, maxSize, maxSize);
-      this.pyHandle.scale.set(maxSize, maxSize, maxSize);
-      this.nzHandle.scale.set(maxSize, maxSize, maxSize);
-      this.pzHandle.scale.set(maxSize, maxSize, maxSize);
 
       this.boundingBox.position.copy(origin);
       this.boundingBox.scale
@@ -167,11 +156,22 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
 
   private createHandle(dir: THREE.Vector3, color: number) {
     const handle = new HandleHelper(dir, origin, PIXEL_SCALE, color);
-    handle.setLength(3 * PIXEL_SCALE, PIXEL_SCALE / 2, PIXEL_SCALE / 2);
+    handle.setLength(3 / 4, 1 / 4, 1 / 4);
     return handle;
   }
 
+  onCameraMove() {
+    const scale = this.canvas.camera.position.length() / 10;
+    this.nxHandle.scale.set(scale, scale, scale);
+    this.pxHandle.scale.set(scale, scale, scale);
+    this.nyHandle.scale.set(scale, scale, scale);
+    this.pyHandle.scale.set(scale, scale, scale);
+    this.nzHandle.scale.set(scale, scale, scale);
+    this.pzHandle.scale.set(scale, scale, scale);
+  }
+
   onStart() {
+    this.onCameraMove();
     this.canvas.scene.add(this.edges);
   }
 
@@ -299,11 +299,10 @@ class DragState extends ToolState {
     const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
     geometry.scale(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
 
-    const material = new THREE.MeshBasicMaterial({ visible: false });
+    const material = new THREE.MeshBasicMaterial();
     this.drawGuide = new THREE.Mesh(geometry, material);
 
     // // For debugging
-    // material.visible = true;
     // material.opacity = 0.5;
     // material.color.setHex(0xff0000);
     // this.tool.canvas.scene.add(this.drawGuide);
