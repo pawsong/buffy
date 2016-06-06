@@ -2,7 +2,7 @@ import * as shortid from 'shortid';
 const objectAssign = require('object-assign');
 const update = require('react-addons-update');
 const findIndex = require('lodash/findIndex');
-const invariant = require('invariant');
+const invariant = require('fbjs/lib/invariant');
 
 import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import ServerGameMap from '@pasta/core/lib/packet/ServerGameMap';

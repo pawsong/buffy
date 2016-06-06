@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Saga, Task } from 'redux-saga';
 import { call } from 'redux-saga/effects';
 
-import * as invariant from 'invariant';
+const invariant = require('fbjs/lib/invariant');
 const hoistStatics = require('hoist-non-react-statics');
 const objectAssign = require('object-assign');
 

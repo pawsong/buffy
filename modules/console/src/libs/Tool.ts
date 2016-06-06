@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as invariant from 'invariant';
+const invariant = require('fbjs/lib/invariant');
 import mapValues from 'lodash/mapValues';
 import { Differ, Schema } from '@pasta/helper/lib/diff';
 import SimpleComponent from './SimpleComponent';

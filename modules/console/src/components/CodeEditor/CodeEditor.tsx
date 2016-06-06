@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
-import * as invariant from 'invariant';
 const objectAssign = require('object-assign');
 const pure = require('recompose/pure').default;
 

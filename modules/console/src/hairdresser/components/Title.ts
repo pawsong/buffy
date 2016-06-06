@@ -1,4 +1,4 @@
-import * as invariant from 'invariant';
+const invariant = require('fbjs/lib/invariant');
 import { Component, Props, PropTypes } from 'react';
 
 interface TitleProps extends Props<Title> {

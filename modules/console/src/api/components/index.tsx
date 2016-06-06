@@ -5,7 +5,7 @@ import shallowEqual from './utils/shallowEqual';
 import wrapActionCreators from './utils/wrapActionCreators';
 import getDisplayName from './utils/getDisplayName';
 const hoistStatics = require('hoist-non-react-statics');
-import * as invariant from 'invariant';
+const invariant = require('fbjs/lib/invariant');
 const objectAssign = require('object-assign');
 const isPlainObject = require('lodash/isPlainObject');
 

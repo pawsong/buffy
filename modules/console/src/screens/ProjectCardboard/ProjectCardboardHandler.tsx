@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { RouteComponentProps, Link } from 'react-router';
-import * as invariant from 'invariant';
+const invariant = require('fbjs/lib/invariant');
 
 import { Scripts } from '@pasta/core/lib/types';
 import { Project } from '@pasta/core/lib/Project';

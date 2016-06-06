@@ -1,5 +1,5 @@
 import * as Immutable from 'immutable';
-import * as invariant from 'invariant';
+const invariant = require('fbjs/lib/invariant');
 import update from '../utils/update';
 import { Action } from '../actions';
 import {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Colors from 'material-ui/lib/styles/colors';
-const warning = require('warning');
+const warning = require('fbjs/lib/warning');
 
 import Tab, { TabProps } from './Tab';
 
