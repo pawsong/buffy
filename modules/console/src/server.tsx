@@ -12,7 +12,6 @@ const MuiThemeProvider = require('material-ui/lib/MuiThemeProvider');
 const getMuiTheme = require('material-ui/lib/styles/getMuiTheme');
 
 import { Provider } from 'react-redux';
-const { ReduxAsyncConnect, loadOnServer } = require('redux-async-connect');
 const Hairdresser = require('hairdresser');
 
 import { IntlProvider } from 'react-intl';

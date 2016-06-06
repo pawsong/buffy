@@ -10,7 +10,6 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { match } from 'react-router'
 const { Router, RouterContext }  = require('react-router');
-const { ReduxAsyncConnect, loadOnServer } = require('redux-async-connect');
 const MuiThemeProvider = require('material-ui/lib/MuiThemeProvider');
 const getMuiTheme = require('material-ui/lib/styles/getMuiTheme');
 const Hairdresser = require('hairdresser');

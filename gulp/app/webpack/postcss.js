@@ -1,4 +1,3 @@
-const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
 
 export const development = webpack => [

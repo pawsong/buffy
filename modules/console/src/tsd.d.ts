@@ -18,18 +18,6 @@ declare module 'lodash/mapValues' {
   export default _.mapValues;
 }
 
-declare module 'http-proxy' {
-  const m: any;
-  module m {}
-  export = m;
-}
-
-declare module 'scriptjs' {
-  const m: any;
-  module m {}
-  export = m;
-}
-
 declare module 'ndarray' {
   function ndarray(data: any, shape?: any, stride?: any, offset?: any): ndarray.Ndarray;
   module ndarray {

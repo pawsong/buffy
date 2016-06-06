@@ -94,6 +94,7 @@
     "source-map-loader": "^0.1.5",
     "source-map-support": "^0.4.0",
     "sprintf-js": "^1.0.3",
+    "style-loader": "^0.13.1",
     "superb": "^1.2.0",
     "tar.gz": "^1.0.2",
     "tcp-port-used": "^0.1.2",
