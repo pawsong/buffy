@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import Colors from 'material-ui/lib/styles/colors';
-const objectAssign = require('object-assign');
 import { DragSource, DropTarget } from 'react-dnd';
 import * as classNames from 'classnames';
 
@@ -109,7 +108,7 @@ class Tab extends React.Component<TabProps, {}> {
     const { isDragging, connectDragSource, connectDropTarget } = this.props;
     const opacity = isDragging ? 0 : 1;
 
-    const style = objectAssign({}, {
+    const style = Object.assign({}, {
       color: this.props.active ? '#282929' : '#939395',
       backgroundColor: this.props.active ? Colors.white : '#e5e5e6',
     }, this.props.style, { opacity });

@@ -1,5 +1,4 @@
 import * as shortid from 'shortid';
-const objectAssign = require('object-assign');
 const update = require('react-addons-update');
 const findIndex = require('lodash/findIndex');
 const invariant = require('fbjs/lib/invariant');

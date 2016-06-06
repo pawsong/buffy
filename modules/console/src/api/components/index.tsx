@@ -6,7 +6,6 @@ import wrapActionCreators from './utils/wrapActionCreators';
 import getDisplayName from './utils/getDisplayName';
 const hoistStatics = require('hoist-non-react-statics');
 const invariant = require('fbjs/lib/invariant');
-const objectAssign = require('object-assign');
 const isPlainObject = require('lodash/isPlainObject');
 
 import { State } from '../../reducers';
@@ -189,7 +188,7 @@ export function connectApi<T>(
         mapCallsToProps ? mapCallsToProps(state, props.parentProps) : {};
 
       const stateProps = mapState(state, props.parentProps);
-      const mergedSpecs = objectAssign({}, specs, props.preloadApiSpecs);
+      const mergedSpecs = Object.assign({}, specs, props.preloadApiSpecs);
 
       const calls: ApiCallDictionary = {};
       Object.keys(mergedSpecs).forEach(key => {
@@ -205,7 +204,7 @@ export function connectApi<T>(
     }, (dispatch, props: ConnectApiOwnProps) => {
       const apiDispatchProps = mapApiDispatchProps(dispatch);
       const dispatchProps = mapDispatch(dispatch, props);
-      return objectAssign({}, apiDispatchProps, { dispatchProps });
+      return Object.assign({}, apiDispatchProps, { dispatchProps });
     }) as any)
     class ConnectApi extends React.Component<ConnectApiProps, {}> {
       static displayName = `ConnectApi(${getDisplayName(WrappedComponent)})`;

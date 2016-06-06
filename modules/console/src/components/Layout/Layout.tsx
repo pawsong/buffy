@@ -1,8 +1,6 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 
-const objectAssign = require('object-assign');
-
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./Layout.css');
 
@@ -177,7 +175,7 @@ class Layout extends React.Component<LayoutProps, LayoutStates> {
       );
     }
 
-    const style = objectAssign({ flexFlow: this.props.flow }, this.props.style);
+    const style = Object.assign({ flexFlow: this.props.flow }, this.props.style);
 
     return (
       <div

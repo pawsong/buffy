@@ -6,7 +6,6 @@ import * as ReactDnd from 'react-dnd';
 import RaisedButton from 'material-ui/lib/raised-button';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
-const objectAssign = require('object-assign');
 import AppBar from 'material-ui/lib/app-bar';
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
@@ -185,7 +184,7 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
         <FormattedMessage {...getActionMessage(state)} />
       </div>;
     }).concat([
-      <div style={objectAssign({ backgroundColor: '#ccc' }, styles.listItem)} key={voxel.present.historyIndex}>
+      <div style={Object.assign({ backgroundColor: '#ccc' }, styles.listItem)} key={voxel.present.historyIndex}>
         <FormattedMessage {...getActionMessage(voxel.present)} />
       </div>
     ]).concat(voxel.future.map(state => {

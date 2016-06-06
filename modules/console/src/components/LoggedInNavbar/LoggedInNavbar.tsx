@@ -28,8 +28,6 @@ import LogoutIcon from 'material-ui/lib/svg-icons/action/exit-to-app';
 import ProfileIcon from 'material-ui/lib/svg-icons/action/account-box';
 import SettingsIcon from 'material-ui/lib/svg-icons/action/settings';
 
-const objectAssign = require('object-assign');
-
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';
 

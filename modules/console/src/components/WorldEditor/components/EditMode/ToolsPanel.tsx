@@ -4,7 +4,6 @@ const pure = require('recompose/pure').default;
 import IconButton from 'material-ui/lib/icon-button';
 import Colors from 'material-ui/lib/styles/colors';
 import * as ReactDnd from 'react-dnd';
-const objectAssign = require('object-assign');
 const { default: ColorPicker } = require('react-color/lib/components/swatches/Swatches');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 
@@ -125,7 +124,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
   };
 
   getIconButtonStyle(style: React.CSSProperties, tool: EditToolType) {
-    return objectAssign({
+    return Object.assign({
       backgroundColor: this.props.selectedTool === tool ? Colors.grey200 : Colors.white,
     }, style);
   }
@@ -190,7 +189,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             <div style={styles.swatch} onMouseDown={() => this.handleColorPickerMouseDown()}
                                         onMouseUp={() => this.handleColorPickerMouseUp()}
             >
-              <div style={objectAssign({
+              <div style={Object.assign({
                 backgroundColor: `rgb(${paletteColor.r}, ${paletteColor.g}, ${paletteColor.b})`,
               }, styles.color)}/>
             </div>

@@ -7,8 +7,6 @@ import SimpleComponent from './SimpleComponent';
 import Fsm, { State, HandlerResult, EventHandlers } from './Fsm';
 export { HandlerResult, EventHandlers }
 
-const objectAssign = require('object-assign');
-
 export interface MouseUpParams {
   event: MouseEvent;
 }
@@ -86,7 +84,7 @@ abstract class Tool<U /* ToolType */, V /* InitParams */, P, S, T> extends Simpl
 
     invariant(states[ToolState.STATE_WAIT], `State ${ToolState.STATE_WAIT} is required`);
 
-    const finalStates: ToolStates = objectAssign({
+    const finalStates: ToolStates = Object.assign({
       [ToolState.STATE_IDLE]: new IdleState(),
       [ToolState.STATE_PAUSE]: new PauseState(),
     }, states);

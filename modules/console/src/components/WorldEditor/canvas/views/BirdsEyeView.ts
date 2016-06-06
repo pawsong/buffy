@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-const objectAssign = require('object-assign');
 
 import {
   PIXEL_SCALE,
@@ -35,7 +34,7 @@ class BirdsEyeView implements View {
 
     // Init controls
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  	controls.mouseButtons = objectAssign({}, controls.mouseButtons, {
+  	controls.mouseButtons = Object.assign({}, controls.mouseButtons, {
       ORBIT: THREE.MOUSE.RIGHT,
       PAN: THREE.MOUSE.LEFT,
     });

@@ -1,7 +1,6 @@
 import { createStore, applyMiddleware, Middleware, compose } from 'redux';
 import { routerMiddleware, push } from 'react-router-redux';
 import createSagaMiddleware from 'redux-saga';
-const objectAssign = require('object-assign');
 import { browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 

@@ -2,7 +2,6 @@ import * as React from 'react';
 import IconButton from 'material-ui/lib/icon-button';
 const ModeEdit = require('material-ui/lib/svg-icons/editor/mode-edit');
 const PlayArrow = require('material-ui/lib/svg-icons/av/play-arrow');
-const objectAssign = require('object-assign');
 
 import {
   EditorMode,
@@ -31,7 +30,7 @@ const ModeRadioButton: React.StatelessComponent<ModeRadioButtonProps> = props =>
     color: '#ffffff',
   });
 
-  const style = objectAssign({}, styles.tool, props.selected ? {
+  const style = Object.assign({}, styles.tool, props.selected ? {
     backgroundColor: `rgba(0, 188, 212, 0.6)`,
   } : {
     backgroundColor: 'rgba(0, 0, 0, 0.6)',

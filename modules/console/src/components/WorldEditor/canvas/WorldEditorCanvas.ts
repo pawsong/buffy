@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
-const objectAssign = require('object-assign');
 import ModelManager from '../../../canvas/ModelManager';
 import ZoneCanvas from '../../../canvas/ZoneCanvas';
 import Fsm from '../../../libs/Fsm';

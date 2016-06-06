@@ -18,7 +18,6 @@ import { FormattedMessage } from 'react-intl';
 
 const hoistStatics = require('hoist-non-react-statics');
 const update = require('react-addons-update');
-const objectAssign = require('object-assign');
 
 const styles = {
   height: 30,
@@ -169,7 +168,7 @@ export function connectTarget(options: ConnectTargetOptions) {
         });
 
         query[panelId] = {
-          $merge: objectAssign({ order: panelIdsLength }, state),
+          $merge: Object.assign({ order: panelIdsLength }, state),
         };
 
         this.setState(update(this.state, { panels: query }), callback);
@@ -248,7 +247,7 @@ export function connectSource({
         const { connectDragPreview, connectDragSource, isDragging } = this.props;
 
         const opacity = isDragging ? DRAGGING_OPACITY : 1;
-        const previewStyle = objectAssign({
+        const previewStyle = Object.assign({
           zIndex: order,
           left: `${left * 100}%`,
           top: `${top * 100}%`,

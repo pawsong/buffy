@@ -8,7 +8,6 @@ const Divider = require('material-ui/lib/divider');
 import RaisedButton from 'material-ui/lib/raised-button';
 import FontIcon from 'material-ui/lib/font-icon';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-const objectAssign = require('object-assign');
 import { isCancelError } from 'redux-saga';
 import { call, put } from 'redux-saga/effects';
 import { replace } from 'react-router-redux';
@@ -389,7 +388,7 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
 
                 {isRunning(this.props.validateEmail) ? <CircularProgress size={0.3} style={styles.progress} /> : null}
 
-                <FontIcon className="material-icons" style={objectAssign({}, styles.textfieldCheck, {
+                <FontIcon className="material-icons" style={Object.assign({}, styles.textfieldCheck, {
                   display: emailValidation.valid ? 'inline-block' : 'none',
                 })}>check</FontIcon>
               </div>
@@ -405,7 +404,7 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
                           disabled={formIsBusy}
                 />
 
-                <FontIcon className="material-icons" style={objectAssign({}, styles.textfieldCheck, {
+                <FontIcon className="material-icons" style={Object.assign({}, styles.textfieldCheck, {
                   display: passwordValidation.valid ? 'inline-block' : 'none',
                 })}>check</FontIcon>
               </div>

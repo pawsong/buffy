@@ -1,5 +1,3 @@
-const objectAssign = require('object-assign');
-
 import { CZ, ZC } from './packet';
 import { RpcResponse } from './packet/base';
 
@@ -29,7 +27,7 @@ class StateLayer {
   private _destroyFuncs: DestroyFunc[];
 
   constructor(options: StateLayerOptions, params: ZC.InitParams = null) {
-    this.options = objectAssign({}, {
+    this.options = Object.assign({}, {
       update: (callback) => {
         let frameId = requestAnimationFrame(update);
         let then = Date.now();

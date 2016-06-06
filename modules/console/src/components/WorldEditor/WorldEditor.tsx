@@ -5,7 +5,6 @@ import * as pako from 'pako';
 
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { createState as createUndoableState } from '@pasta/helper/lib/undoable';
-const objectAssign = require('object-assign');
 
 import * as ndarray from 'ndarray';
 

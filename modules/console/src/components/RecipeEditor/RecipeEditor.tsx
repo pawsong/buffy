@@ -4,7 +4,6 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import SelectField from 'material-ui/lib/select-field';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import RaisedButton from 'material-ui/lib/raised-button';
-const objectAssign = require('object-assign');
 
 import { receiveThumbnails, ReceiveThumbnailsProps } from '../../canvas/ModelManager';
 
@@ -39,7 +38,7 @@ class RecipeEditor extends React.Component<RobotEditorProps, void> {
   static deserialize: (data: SerializedData) => RecipeEditorState;
 
   handleStateChange(editorState: RecipeEditorState) {
-    this.props.onChange(objectAssign({}, this.props.editorState, editorState));
+    this.props.onChange(Object.assign({}, this.props.editorState, editorState));
   }
 
   handleDesignChange(fileId: string) {

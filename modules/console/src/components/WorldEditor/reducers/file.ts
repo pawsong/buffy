@@ -3,7 +3,6 @@ import {
   Position,
   Direction,
 } from '@pasta/core/lib/types';
-const objectAssign = require('object-assign');
 const update = require('react-addons-update');
 
 import {
@@ -44,7 +43,7 @@ function worldDataReducer(state: WorldData, action: Action<any>): WorldData {
         if (id === robotId) return;
         robots[id] = state.robots[id];
       });
-      return objectAssign({}, state, { robots });
+      return Object.assign({}, state, { robots });
     }
     case ADD_ZONE_BLOCK: {
       const { zoneId, x, y, z, color } = <AddZoneBlockAction>action;

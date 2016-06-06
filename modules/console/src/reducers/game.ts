@@ -1,5 +1,4 @@
 import * as Immutable from 'immutable';
-const objectAssign = require('object-assign');
 import update from '../utils/update';
 
 import {
@@ -77,7 +76,7 @@ const initialState: GameState = {
 };
 
 export function initialize(state = <GameState>{}): GameState {
-  return objectAssign({}, state, <GameState>({
+  return Object.assign({}, state, <GameState>({
     users: Immutable.Map<string, GameUser>(state.users),
   }));
 }

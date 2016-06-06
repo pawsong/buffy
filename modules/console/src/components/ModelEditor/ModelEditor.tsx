@@ -12,7 +12,6 @@ import { DropTarget } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
 const update = require('react-addons-update');
 import { EventEmitter, EventSubscription } from 'fbemitter';
-const objectAssign = require('object-assign');
 import RaisedButton from 'material-ui/lib/raised-button';
 import { reset, undo, redo } from '@pasta/helper/lib/undoable';
 

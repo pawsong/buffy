@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux'
 import * as Immutable from 'immutable';
 import update from '../utils/update';
-const objectAssign = require('object-assign');
 
 import { Action } from '../actions';
 // import {
@@ -31,7 +30,7 @@ export interface CourseState {
 }
 
 export function initialize(state = <CourseState>{}): CourseState {
-  return objectAssign({}, state, <CourseState>({
+  return Object.assign({}, state, <CourseState>({
     courses: Immutable.Map<string, Course>(state.courses),
   }));
 }

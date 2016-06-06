@@ -6,7 +6,6 @@ import TextField from 'material-ui/lib/text-field';
 import CircularProgress from 'material-ui/lib/circular-progress';
 import Colors from 'material-ui/lib/styles/colors';
 import FontIcon from 'material-ui/lib/font-icon';
-const objectAssign = require('object-assign');
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../constants/Messages';
 import { State } from '../../../reducers';
@@ -232,7 +231,7 @@ class UserInfoDialog extends React.Component<UserInfoDialogProps, UserInfoDialog
                     errorText={usernameErrorMessage}
           />
           {isRunning(this.props.validateUsername) ? <CircularProgress size={0.3} style={styles.progress} /> : null}
-          <FontIcon className="material-icons" style={objectAssign({}, styles.textfieldCheck, {
+          <FontIcon className="material-icons" style={Object.assign({}, styles.textfieldCheck, {
             display: usernameIsValid ? 'inline-block' : 'none',
           })}>check</FontIcon>
         </div>

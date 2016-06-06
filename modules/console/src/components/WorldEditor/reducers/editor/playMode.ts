@@ -1,5 +1,3 @@
-const objectAssign = require('object-assign');
-
 import {
   EditorMode,
   PlayModeState,
@@ -27,19 +25,19 @@ export function playModeReducer(state = initialState, action: Action<any>): Play
     case CHANGE_EDITOR_MODE: {
       const { mode } = <ChangeEditorModeAction>action;
       if (mode !== EditorMode.PLAY) return state;
-      return objectAssign({}, state, { state: PlayState.READY });
+      return Object.assign({}, state, { state: PlayState.READY });
     }
     case CHANGE_PLAY_TOOL: {
       const { tool } = <ChangePlayToolAction>action;
-      return objectAssign({}, state, { tool });
+      return Object.assign({}, state, { tool });
     }
     case CHANGE_PLAY_VIEW_MODE: {
       const { viewMode } = <ChangePlayViewModeAction>action;
-      return objectAssign({}, state, { viewMode });
+      return Object.assign({}, state, { viewMode });
     }
     case CHANGE_PLAY_STATE: {
       const { playState } = <ChangePlayStateAction>action;
-      return objectAssign({}, state, { state: playState });
+      return Object.assign({}, state, { state: playState });
     }
   }
   return state;

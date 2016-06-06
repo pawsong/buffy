@@ -1,5 +1,4 @@
 import * as React from 'react';
-const objectAssign = require('object-assign');
 
 import Colors from 'material-ui/lib/styles/colors';
 
@@ -16,7 +15,7 @@ interface WrapperProps extends React.Props<Wrapper> {
 @withStyles(styles)
 class Wrapper extends React.Component<WrapperProps, {}> {
   render() {
-    const rootStyle = objectAssign({}, {
+    const rootStyle = Object.assign({}, {
       backgroundColor: this.props.backgroundColor || Colors.white
     }, this.props.style);
 

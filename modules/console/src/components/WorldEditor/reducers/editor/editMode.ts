@@ -3,7 +3,6 @@ import {
   Position,
   Direction,
 } from '@pasta/core/lib/types';
-const objectAssign = require('object-assign');
 
 import {
   EditModeState,
@@ -36,15 +35,15 @@ export function editModeReducer(state = initialState, action: Action<any>): Edit
   switch(action.type) {
     case CHANGE_EDIT_TOOL: {
       const { tool } = <ChangeEditToolAction>action;
-      return objectAssign({}, state, { tool });
+      return Object.assign({}, state, { tool });
     }
     case CHANGE_PALETTE_COLOR: {
       const { color } = <ChangePaletteColorAction>action;
-      return objectAssign({}, state, { paletteColor: color });
+      return Object.assign({}, state, { paletteColor: color });
     }
     case CHANGE_ACTIVE_ZONE: {
       const { zoneId } = <ChangeActiveZoneAction>action;
-      return objectAssign({}, state, { activeZoneId: zoneId });
+      return Object.assign({}, state, { activeZoneId: zoneId });
     }
     case REQUEST_ADD_ROBOT: {
       const { recipeId } = <RequestAddRobotAction>action;
@@ -61,10 +60,10 @@ export function editModeReducer(state = initialState, action: Action<any>): Edit
       });
     }
     case RUN_SCRIPT: {
-      return objectAssign({}, state, { scriptIsRunning: true });
+      return Object.assign({}, state, { scriptIsRunning: true });
     }
     case STOP_SCRIPT: {
-      return objectAssign({}, state, { scriptIsRunning: false });
+      return Object.assign({}, state, { scriptIsRunning: false });
     }
   }
   return state;

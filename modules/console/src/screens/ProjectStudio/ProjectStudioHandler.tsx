@@ -11,7 +11,6 @@ import { Project, ProjectData, SerializedLocalServer } from '@pasta/core/lib/Pro
 import StateLayer from '@pasta/core/lib/StateLayer';
 
 const update = require('react-addons-update');
-const objectAssign = require('object-assign');
 
 import mesher from '../../canvas/meshers/greedy';
 

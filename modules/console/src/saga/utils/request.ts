@@ -1,7 +1,6 @@
 import { take, put, call, fork, cancel, select } from 'redux-saga/effects'
 import { State } from '../../reducers';
 import update from '../../utils/update';
-const objectAssign = require('object-assign');
 
 import * as Promise from 'bluebird';
 import * as axios from 'axios';
@@ -20,7 +19,7 @@ if (__CLIENT__) {
   // Use cookie for token store
   _request = function* (config) {
     try {
-      return yield call(axios as any, objectAssign({
+      return yield call(axios as any, Object.assign({
         withCredentials: true,
       }, config));
     } catch(response) {
@@ -34,8 +33,8 @@ if (__CLIENT__) {
   // Convey token on header
   _request = function* (config) {
     const token = yield select<State>(state => state.auth.token);
-    const _config = !token ? config : objectAssign({}, config, {
-      headers: objectAssign({}, config.headers, {
+    const _config = !token ? config : Object.assign({}, config, {
+      headers: Object.assign({}, config.headers, {
         Authorization: `Bearer ${token}`,
       }),
     });
@@ -55,21 +54,21 @@ const request = _request;
 export default request;
 
 export function* get(url: string, config: RequestOptions = {}) {
-  return yield call(request, objectAssign({}, config, {
+  return yield call(request, Object.assign({}, config, {
     method: 'get',
     url,
   }) as any);
 }
 
 export function* head(url: string, config: RequestOptions = {}) {
-  return yield call(request, objectAssign({}, config, {
+  return yield call(request, Object.assign({}, config, {
     method: 'head',
     url,
   }) as any);
 }
 
 export function* post(url: string, data: any, config: RequestOptions = {}) {
-  return yield call(request, objectAssign({}, config, {
+  return yield call(request, Object.assign({}, config, {
     method: 'post',
     url,
     data,
@@ -77,7 +76,7 @@ export function* post(url: string, data: any, config: RequestOptions = {}) {
 }
 
 export function* put(url: string, data: any, config: RequestOptions = {}) {
-  return yield call(request, objectAssign({}, config, {
+  return yield call(request, Object.assign({}, config, {
     method: 'put',
     url,
     data,

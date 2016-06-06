@@ -2,8 +2,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import Wrapper from '../../../../../components/Wrapper';
 
-const objectAssign = require('object-assign');
-
 import Colors from 'material-ui/lib/styles/colors';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
@@ -43,7 +41,7 @@ class CourseList extends React.Component<CourseListProps, {}> {
   }
 
   getListItem(course, index) {
-    const leftAvatarStyle = objectAssign({}, styles.courseImage, {
+    const leftAvatarStyle = Object.assign({}, styles.courseImage, {
       backgroundImage: `url(${course.thumbnail})`,
     });
 

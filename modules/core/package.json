@@ -36,7 +36,6 @@
     "invariant": "^2.2.1",
     "lodash": "^4.10.0",
     "ndarray": "^1.0.18",
-    "object-assign": "^4.0.1",
     "shortid": "^2.2.6"
   }
 }

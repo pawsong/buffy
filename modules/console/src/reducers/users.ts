@@ -1,6 +1,5 @@
 import * as Immutable from 'immutable';
 import update from '../utils/update';
-const objectAssign = require('object-assign');
 import { Action } from '../actions';
 import {
   USER_ADD, UserAddAction,
@@ -42,7 +41,7 @@ export default function users(state: UsersState = initialize(), action: Action<s
       const { userId, query } = <UserUpdateAction>action;
       const user = state.get(userId);
       if (!user) return state;
-      return state.set(userId, objectAssign({}, user, query));
+      return state.set(userId, Object.assign({}, user, query));
     }
     default: {
       return state;

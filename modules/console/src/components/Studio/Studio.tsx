@@ -8,7 +8,6 @@ import { Tabs, Tab } from '../Tabs';
 import Colors from 'material-ui/lib/styles/colors';
 
 const update = require('react-addons-update');
-const objectAssign = require('object-assign');
 import * as shortid from 'shortid';
 
 import { DragDropContext } from 'react-dnd';
@@ -163,7 +162,7 @@ class Studio extends React.Component<StudioProps, StudioOwnState> {
   }
 
   handleStateChange(nextState: StudioState) {
-    this.props.onChange(objectAssign({}, this.props.studioState, nextState));
+    this.props.onChange(Object.assign({}, this.props.studioState, nextState));
   }
 
   handleFileTabClose(fileId: string) {

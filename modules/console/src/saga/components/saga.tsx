@@ -4,7 +4,6 @@ import { call } from 'redux-saga/effects';
 
 const invariant = require('fbjs/lib/invariant');
 const hoistStatics = require('hoist-non-react-statics');
-const objectAssign = require('object-assign');
 
 import { UnlistenableTask, ImmutableTask } from '../core';
 

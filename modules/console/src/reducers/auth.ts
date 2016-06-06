@@ -1,4 +1,3 @@
-const objectAssign = require('object-assign');
 import update from '../utils/update';
 
 import { Action } from '../actions';

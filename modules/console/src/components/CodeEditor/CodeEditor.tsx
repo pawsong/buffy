@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
-const objectAssign = require('object-assign');
 const pure = require('recompose/pure').default;
 
 import Blockly from '../../blockly';

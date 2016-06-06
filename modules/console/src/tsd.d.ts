@@ -1,6 +1,5 @@
 /// <reference path="../node_modules/axios/axios.d.ts"/>
 /// <reference path="../node_modules/immutable/dist/immutable.d.ts"/>
-/// <reference path="./typings/object-assign/object-assign.d.ts" />
 /// <reference path="./typings/redux-saga/redux-saga.d.ts" />
 /// <reference path="./typings/react-router-redux/react-router-redux.d.ts" />
 
