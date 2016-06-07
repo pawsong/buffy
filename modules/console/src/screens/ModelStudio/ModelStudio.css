@@ -45,3 +45,20 @@
   font-size: 10px;
   margin-right: 2px;
 }
+
+.guideWhenNoFileOpened {
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.guideWhenNoFileOpenedButtonImg {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

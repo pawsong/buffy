@@ -1,6 +1,12 @@
 import * as React from 'react';
+import { defineMessages } from 'react-intl';
+import FontIcon from 'material-ui/FontIcon';
+import { pink200, green300, blue300 } from 'material-ui/styles/colors';
 
+import LargeImageButton from './LargeImageButton';
 import waitForMount from '../../../../components/waitForMount';
+import Messages from '../../../../constants/Messages';
+import FileMultiple from '../../../../components/icons/FileMultiple';
 
 import ModelEditor, {
   ModelCommonState,
@@ -10,11 +16,31 @@ import ModelEditor, {
 
 import { ModelFile, ModelFileMap } from '../../types';
 
+const styles = require('../../ModelStudio.css');
+
 import FileBrowser from './FileBrowser';
 import FileTabs from './FileTabs';
 
 const NAVBAR_HEIGHT = 56;
 const TABS_HEIGHT = 33;
+
+const messages = defineMessages({
+  createNewFile: {
+    id: 'modelstudio.createNewFile',
+    description: 'Create new file',
+    defaultMessage: 'Create new file',
+  },
+  openFileFromWorkingList: {
+    id: 'modelstudio.openFileFromWorkingList',
+    description: 'Open file from working list',
+    defaultMessage: 'Open file from working list',
+  },
+  openFileFromRemoteStore: {
+    id: 'modelstudio.openFileFromRemoteStore',
+    description: 'Open file from remote store',
+    defaultMessage: 'Open file from remote store',
+  },
+});
 
 const inlineStyles = {
   root: {
@@ -38,14 +64,17 @@ interface ModelStudioBodyProps {
   activeFileId: string;
   onFileChange: (body: ModelFileState) => any;
   openedFiles: string[];
+  onFileCreate: () => any;
   onFileClick: (fileId: string) => any;
   onFileClose: (fileId: string) => any;
+  onRequestSnackbar: (message: string) => any;
   onOpenedFileOrderChange: (dragIndex: number, hoverIndex: number) => any;
 }
 
 interface HandlerState {
   editorSizeResivion?: number;
   modelCommonState?: ModelCommonState;
+  browserOpen?: boolean;
 }
 
 const LS_KEY_BROWSER_WIDTH = 'modelstudio.browser.width';
@@ -64,18 +93,51 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
     this.state = {
       editorSizeResivion: 0,
       modelCommonState: ModelEditor.createCommonState(),
+      browserOpen: false,
     };
   }
 
   handleCommonStateChange = (modelCommonState: ModelCommonState) => this.setState({ modelCommonState });
 
+  handleBrowserOpen = () => {
+    if (this.state.browserOpen) {
+      this.props.onRequestSnackbar('Working list has already opened on left side. choose one :)');
+    } else {
+      this.setState({ browserOpen: true });
+    }
+  }
+
   renderEditor() {
     const activeFile = this.props.files.get(this.props.activeFileId);
 
-    if (!activeFile) return null;
-
-    return (
-      <div style={inlineStyles.editor}>
+    if (!activeFile) {
+      return (
+        <div className={styles.guideWhenNoFileOpened}>
+          <LargeImageButton
+            label={messages.createNewFile}
+            onTouchTap={this.props.onFileCreate}
+            backgroundColor={pink200}
+          >
+            <FontIcon className="material-icons" style={{ fontSize: 150 }}>note_add</FontIcon>
+          </LargeImageButton>
+          <LargeImageButton
+            label={messages.openFileFromWorkingList}
+            onTouchTap={this.handleBrowserOpen}
+            backgroundColor={green300}
+          >
+            <FileMultiple style={{ width: 130, height: 130 }} />
+          </LargeImageButton>
+          <LargeImageButton
+            label={messages.openFileFromRemoteStore}
+            onTouchTap={() => console.log('..')}
+            backgroundColor={blue300}
+          >
+            <FontIcon className="material-icons" style={{ fontSize: 150 }}>cloud_download</FontIcon>
+          </LargeImageButton>
+        </div>
+      );
+    } else {
+      return (
         <ModelEditor
           sizeVersion={this.state.editorSizeResivion}
           commonState={this.state.modelCommonState}
@@ -87,8 +149,8 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
             console.log('onApply');
           }}
         />
-      </div>
-    );
+      );
+    }
   }
 
   resizeEditor = () => this.setState({ editorSizeResivion: this.state.editorSizeResivion + 1 })
@@ -96,6 +158,11 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
   handleBrowserWidthResize = (width: number) => {
     this.resizeEditor();
     localStorage.setItem(LS_KEY_BROWSER_WIDTH, '' + width);
+  }
+
+  handleBrowserRequestOpen = (open: boolean) => {
+    if (this.state.browserOpen === open) return;
+    this.setState({ browserOpen: open }, this.resizeEditor);
   }
 
   render() {
@@ -107,8 +174,9 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
           onFileClick={this.props.onFileClick}
           files={this.props.files}
           initialWidth={this.initialBrowserWidth}
-          onToggle={this.resizeEditor}
           onWidthResize={this.handleBrowserWidthResize}
+          open={this.state.browserOpen}
+          onRequestOpen={this.handleBrowserRequestOpen}
         >
           <FileTabs
             onFileClick={this.props.onFileClick}
@@ -117,7 +185,9 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
             onFileClose={this.props.onFileClose}
             onTabOrderChange={this.props.onOpenedFileOrderChange}
           />
-          {this.renderEditor()}
+          <div style={inlineStyles.editor}>
+            {this.renderEditor()}
+          </div>
         </FileBrowser>
       </div>
     );

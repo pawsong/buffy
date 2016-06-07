@@ -308,11 +308,32 @@ export default {
   'logout': '로그아웃',
 
   /**
+   * path: src/screens/ModelStudio/components/ModelStudioBody/ModelStudioBody.json
+   * description: Create new file
+   * defaultMessage: Create new file
+   */
+  'modelstudio.createNewFile': '새 파일 만들기',
+
+  /**
    * path: src/screens/ModelStudio/components/ModelStudioNavbar.json
    * description: New file
    * defaultMessage: New file
    */
   'modelstudio.navbar.new.file': '새 파일',
+
+  /**
+   * path: src/screens/ModelStudio/components/ModelStudioBody/ModelStudioBody.json
+   * description: Open file from remote store
+   * defaultMessage: Open file from remote store
+   */
+  'modelstudio.openFileFromRemoteStore': '클라우드에서 파일 가져오기',
+
+  /**
+   * path: src/screens/ModelStudio/components/ModelStudioBody/ModelStudioBody.json
+   * description: Open file from working list
+   * defaultMessage: Open file from working list
+   */
+  'modelstudio.openFileFromWorkingList': '작업 중인 파일 선택하기',
 
   /**
    * path: src/constants/Messages.json
@@ -343,7 +364,7 @@ export default {
   'navbar.accountinfo.username': '{username}으로 로그인',
 
   /**
-   * path: src/screens/ProjectStudio/components/ProjectStudioNavbar.json
+   * path: src/constants/Messages.json
    * description: New file
    * defaultMessage: New file
    */
@@ -376,6 +397,13 @@ export default {
    * defaultMessage: Popular projects
    */
   'popular.projects': '인기 프로젝트',
+
+  /**
+   * path: src/screens/ProjectStudio/components/ProjectStudioNavbar.json
+   * description: New file
+   * defaultMessage: New file
+   */
+/* translate */ 'projectstudio.new.file': '',
 
   /**
    * path: src/components/Studio/Studio.json

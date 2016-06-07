@@ -13,6 +13,7 @@ import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import generateObjectId from '../../utils/generateObjectId';
 
 import { requestLogout } from '../../actions/auth';
+import { pushSnackbar, PushSnackbarQuery } from '../../actions/snackbar';
 
 import ModelEditor, {
   ModelCommonState,
@@ -40,6 +41,8 @@ interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams> {
   user?: User;
   requestLogout?: () => any;
   push?: (location: HistoryModule.LocationDescriptor) => any;
+  pushSnackbar?: (query: PushSnackbarQuery) => any;
+
 }
 
 interface HandlerState {
@@ -57,6 +60,7 @@ interface HandlerState {
 }), {
   requestLogout,
   push,
+  pushSnackbar,
 }) as any)
 class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   constructor(props) {
@@ -106,7 +110,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.setState({
       files: this.state.files.set(file.id, file),
       activeFileId: file.id,
-      openedFiles: this.state.openedFiles.concat(file.id),
+      openedFiles: [...this.state.openedFiles, file.id],
     });
   }
 
@@ -122,7 +126,16 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     }));
   }
 
-  handleFileClick = (fileId: string) => this.setState({ activeFileId: fileId })
+  handleFileClick = (fileId: string) => {
+    if (this.state.openedFiles.indexOf(fileId) === -1) {
+      this.setState({
+        activeFileId: fileId,
+        openedFiles: [...this.state.openedFiles, fileId],
+      });
+    } else {
+      this.setState({ activeFileId: fileId });
+    }
+  }
 
   handleFileClose = (fileId: string) => {
     const idx = this.state.openedFiles.indexOf(fileId);
@@ -130,12 +143,36 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
     const openedFiles = this.state.openedFiles.slice();
     openedFiles.splice(idx, 1);
-    this.setState({ openedFiles });
+
+    let activeFileId: string;
+
+    if (openedFiles.length === 0) {
+      activeFileId = '';
+    } else {
+      if (fileId === this.state.activeFileId) {
+        if (idx < this.state.openedFiles.length - 1) {
+          activeFileId = this.state.openedFiles[idx + 1];
+        } else if (idx > 0) {
+          activeFileId = this.state.openedFiles[idx - 1];
+        } else {
+          activeFileId = '';
+        }
+      } else {
+        activeFileId = this.state.activeFileId;
+      }
+    }
+
+    this.setState({
+      openedFiles,
+      activeFileId,
+    });
   }
 
   handleSave = () => {
     console.log('handle save');
   }
+
+  handleRequestSnackbar = (message: string) => this.props.pushSnackbar({ message });
 
   render() {
     return (
@@ -151,7 +188,9 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
         <ModelStudioBody
           files={this.state.files}
           openedFiles={this.state.openedFiles}
+          onRequestSnackbar={this.handleRequestSnackbar}
           activeFileId={this.state.activeFileId}
+          onFileCreate={this.handleNewFileButtonClick}
           onFileChange={this.handleFileStateChange}
           onFileClick={this.handleFileClick}
           onFileClose={this.handleFileClose}

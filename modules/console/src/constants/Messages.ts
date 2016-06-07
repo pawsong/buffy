@@ -116,6 +116,11 @@ const messages = defineMessages({
     description: 'Connect to online service button label',
     defaultMessage: 'Connect',
   },
+  newFile: {
+    id: 'new.file',
+    description: 'New file',
+    defaultMessage: 'New file',
+  },
 });
 
 export default messages;

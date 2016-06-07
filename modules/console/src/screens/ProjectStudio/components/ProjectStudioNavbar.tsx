@@ -26,7 +26,7 @@ import generateObjectId from '../../../utils/generateObjectId';
 
 const messages = defineMessages({
   newFile: {
-    id: 'new.file',
+    id: 'projectstudio.new.file',
     description: 'New file',
     defaultMessage: 'New file',
   },

@@ -18,31 +18,15 @@ interface FileBrowserProps extends React.Props<FileBrowser> {
   initialWidth: number;
   onWidthResize: (size: number) => any;
   files: ModelFileMap;
-  onToggle: () => any;
+  open: boolean;
+  onRequestOpen: (open: boolean) => any;
   onFileClick: (fileId: string) => any;
 }
 
-interface FileBrowserState {
-  fileBrowserOpen?: boolean;
-}
-
-class FileBrowser extends React.Component<FileBrowserProps, FileBrowserState> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      fileBrowserOpen: false,
-    };
-  }
-
-  toggleFileBrowser = () => {
-    this.setState({
-      fileBrowserOpen: !this.state.fileBrowserOpen,
-    }, this.props.onToggle);
-  }
+class FileBrowser extends React.Component<FileBrowserProps, void> {
+  toggleFileBrowser = () => this.props.onRequestOpen(!this.props.open);
 
   renderFileBrowserButtons() {
-    const active = this.state.fileBrowserOpen;
-
     return (
       <div className={styles.fileCategoryButtonContainer}>
         <div className={styles.fileCategoryButtons}>
@@ -52,7 +36,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowserState> {
             className={styles.fileCategoryButton}
           >
             <FileMultiple
-              color={active ? Colors.black : Colors.grey500}
+              color={this.props.open ? Colors.black : Colors.grey500}
             />
           </IconButton>
         </div>
@@ -61,7 +45,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowserState> {
   }
 
   renderFileBrowser() {
-    if (!this.state.fileBrowserOpen) return null;
+    if (!this.props.open) return null;
 
     return (
       <div>
@@ -79,7 +63,7 @@ class FileBrowser extends React.Component<FileBrowserProps, FileBrowserState> {
         {this.renderFileBrowserButtons()}
         <Layout flow="row" className={styles.editor}>
           <LayoutContainer
-            hide={!this.state.fileBrowserOpen}
+            hide={!this.props.open}
             size={this.props.initialWidth}
             onResize={this.props.onWidthResize}
           >
