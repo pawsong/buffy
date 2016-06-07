@@ -88,7 +88,9 @@ const compiledIndexHtml = template(minifiedIndexHtml, {
   escape:      /\{\{-(.+?)\}\}/g,
   imports: {
     styles,
-    script: __DEV__ ? `<script src="http://localhost:${conf.consoleClientPort}/bundle.js"></script>` : '',
+    script: __DEV__ ? (() => {
+      return `<script src="http://${require('ip').address()}:${conf.consoleClientPort}/bundle.js"></script>`;
+    })() : '',
   }
 });
 

@@ -4,6 +4,8 @@ const path = require('path');
 
 import * as postcss from './postcss';
 
+const localIp = require('ip').address();
+
 module.exports = options => {
   const babelOptions = JSON.stringify({
     presets: [
@@ -29,7 +31,7 @@ module.exports = options => {
 
     entry: [
       'eventsource-polyfill', // necessary for hot reloading with IE
-      `webpack-hot-middleware/client?path=http://localhost:${options.devServerPort}/__webpack_hmr`,
+      `webpack-hot-middleware/client?path=http://${localIp}:${options.devServerPort}/__webpack_hmr`,
       options.entry,
     ],
 
@@ -52,7 +54,7 @@ module.exports = options => {
     },
 
     output: Object.assign({
-      publicPath: `http://localhost:${options.devServerPort}/`,
+      publicPath: `http://${localIp}:${options.devServerPort}/`,
     }, options.output),
 
     resolve: {

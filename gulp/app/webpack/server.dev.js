@@ -17,11 +17,13 @@ const babelOptions = JSON.stringify({
   babelrc: false,
 });
 
+const localIp = require('ip').address();
+
 module.exports = options => ({
   target: 'node',
   entry: options.entry,
   output: Object.assign({
-    publicPath: `http://localhost:${options.devServerPort}/`,
+    publicPath: `http://${localIp}:${options.devServerPort}/`,
     libraryTarget: 'commonjs2',
   }, options.output),
   module: {

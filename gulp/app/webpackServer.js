@@ -15,6 +15,6 @@ module.exports = (compiler, port) => {
   app.use(require('webpack-hot-middleware')(compiler));
 
   return new Promise((resolve, reject) => {
-    app.listen(port, 'localhost', err => err ? reject(err) : resolve());
+    app.listen(port, '0.0.0.0', err => err ? reject(err) : resolve());
   });
 };
