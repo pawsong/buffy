@@ -20,6 +20,7 @@ import ProjectGameHandler from './screens/ProjectGame';
 import ProfileHandler from './screens/Profile';
 import SettingsHandler from './screens/Settings';
 import NotFoundHandler from './screens/NotFound';
+import ModelStudioHandler from './screens/ModelStudio';
 
 export default function getRoutes(store: Store) {
 
@@ -61,6 +62,12 @@ export default function getRoutes(store: Store) {
             },
           },
         ],
+      },
+      {
+        path: '/model/edit',
+        getComponent: (location, cb) => require.ensure([], require => {
+          cb(null, require<{ default: ModelStudioHandler }>('./screens/ModelStudio').default);
+        }),
       },
       {
         path: '/create',

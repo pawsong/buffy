@@ -308,6 +308,13 @@ export default {
   'logout': '로그아웃',
 
   /**
+   * path: src/screens/ModelStudio/components/ModelStudioNavbar.json
+   * description: New file
+   * defaultMessage: New file
+   */
+  'modelstudio.navbar.new.file': '새 파일',
+
+  /**
    * path: src/constants/Messages.json
    * description: Name
    * defaultMessage: Name
@@ -678,6 +685,7 @@ export default {
    */
   'worldeditor.panels.tools.title': '도구상자',
 
+/* [Warning] Message not in use */ 'modelstudio.new.file': '',
 /* [Warning] Message not in use */ 'voxel-editor.panels.history.voxel.paint': '색칠하기',
 /* [Warning] Message not in use */ 'voxel-editor.panels.preview.title': '프리뷰',
 /* [Warning] Message not in use */ 'worldeditor.panels.zone.title': '지역',

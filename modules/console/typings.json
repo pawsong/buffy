@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "lodash": "registry:npm/lodash#4.0.0+20160416211519",
+    "react-addons-update": "registry:npm/react-addons-update#0.14.0+20160324044346",
     "source-map": "registry:npm/source-map#0.4.0+20160211003958"
   },
   "globalDependencies": {
