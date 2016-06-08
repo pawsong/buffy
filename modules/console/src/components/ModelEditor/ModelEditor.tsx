@@ -31,6 +31,7 @@ import { connectTarget } from '../Panel';
 
 import {
   importVoxFile,
+  exportVoxFile,
 } from './io';
 
 import {
@@ -115,6 +116,11 @@ interface ImportFileResult {
   error?: string;
 }
 
+interface ExportFileResult {
+  result?: Uint8Array;
+  error?: string;
+}
+
 @pure
 @injectIntl
 @connectTarget({
@@ -130,6 +136,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static serialize: (fileState: FileState) => SerializedData;
   static deserialize: (data: SerializedData) => FileState;
   static importVoxFile: (buffer: ArrayBuffer) => ImportFileResult;
+  static exportVoxFile: (fileState: FileState) => ExportFileResult;
 
   canvas: ModelEditorCanvas;
 
@@ -403,5 +410,9 @@ ModelEditor.importVoxFile = buffer => {
     };
   }
 }
+
+ModelEditor.exportVoxFile = fileState => {
+  return exportVoxFile(fileState.present.data.model);
+};
 
 export default ModelEditor;

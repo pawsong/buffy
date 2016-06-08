@@ -40,6 +40,10 @@ export enum ToolType {
   RESIZE,
 }
 
+export enum SupportFileType {
+  MAGICA_VOXEL,
+}
+
 export type Transformation = [
   [number, number, number],
   [number, number, number],

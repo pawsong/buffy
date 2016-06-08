@@ -19,6 +19,7 @@ import ModelEditor, {
   ModelCommonState,
   ModelFileState,
   ModelExtraData,
+  ModelSupportFileType,
 } from '../../components/ModelEditor';
 
 import { State } from '../../reducers';
@@ -32,6 +33,8 @@ import ModelStudioBody from './components/ModelStudioBody';
 import OpenModelFileDialog from './components/OpenModelFileDialog';
 
 const styles = require('./ModelStudio.css');
+
+const saveAs: FileSaver = require('file-saver').saveAs;
 
 interface RouteParams {
   username: string;
@@ -227,6 +230,23 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     })
   }
 
+  handleFileDownload = (fileType: ModelSupportFileType) => {
+    const file = this.state.files.get(this.state.activeFileId);
+    if (!file) return;
+
+    switch(fileType) {
+      case ModelSupportFileType.MAGICA_VOXEL: {
+        const { error, result } = ModelEditor.exportVoxFile(file.body);
+        if (error) {
+          this.props.pushSnackbar({ message: `Export file failed: ${error}` });
+        } else {
+          saveAs(new Blob([result]), `${file.name || 'untitled'}.vox`, true);
+        }
+        return;
+      }
+    }
+  }
+
   render() {
     return (
       <div>
@@ -237,6 +257,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onLogout={this.props.requestLogout}
           onRequestOpenFile={this.handleRequestOpenFile}
           onNewFile={this.handleNewFileButtonClick}
+          onDownload={this.handleFileDownload}
           onSave={this.handleSave}
         />
         <ModelStudioBody
