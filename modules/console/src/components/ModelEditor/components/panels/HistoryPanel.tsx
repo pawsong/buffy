@@ -12,6 +12,7 @@ import {
   undoSeek,
   redoSeek,
   INIT,
+  RESET,
   Snapshot,
 } from '@pasta/helper/lib/undoable';
 
@@ -57,6 +58,11 @@ const messages = defineMessages({
     id: 'voxel-editor.panels.history.voxel.init',
     description: 'Voxel init history label',
     defaultMessage: 'Initialize',
+  },
+  labelVoxelLoad: {
+    id: 'voxel-editor.panels.history.voxel.load',
+    description: 'Voxel load history label',
+    defaultMessage: 'Load',
   },
   labelVoxelAdd: {
     id: 'voxel-editor.panels.history.voxel.add',
@@ -112,6 +118,7 @@ const messages = defineMessages({
 
 const ActionMessages = {
   [INIT]: messages.labelVoxelInit,
+  [RESET]: messages.labelVoxelLoad,
   [VOXEL_ADD_BATCH]: messages.labelVoxelAdd,
   [VOXEL_ADD_LIST]: messages.labelVoxelAdd,
   [VOXEL_REMOVE_BATCH]: messages.labelVoxelRemove,

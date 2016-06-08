@@ -200,6 +200,33 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.setState({ files: this.state.files.remove(fileId) });
   }
 
+  isDialogOpen() {
+    return this.state.openFileDialogOpen;
+  }
+
+  handleFileOpen = (fileState: ModelFileState) => {
+    const id = generateObjectId();
+    const extra = ModelEditor.createExtraData(fileState.present.data.model.shape);
+    const file: ModelFile = {
+      id,
+      name: '',
+      type: FileType.MODEL,
+      created: true,
+      modified: false,
+      readonly: false,
+      savedBody: fileState,
+      body: fileState,
+      extra,
+    };
+
+    this.setState({
+      openFileDialogOpen: false,
+      openedFiles: [...this.state.openedFiles, file.id],
+      activeFileId: file.id,
+      files: this.state.files.set(id, file),
+    })
+  }
+
   render() {
     return (
       <div>
@@ -214,6 +241,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
         />
         <ModelStudioBody
           files={this.state.files}
+          dialogOpen={this.isDialogOpen()}
           openedFiles={this.state.openedFiles}
           onRequestSnackbar={this.handleRequestSnackbar}
           activeFileId={this.state.activeFileId}
@@ -228,6 +256,8 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
         />
         <OpenModelFileDialog
           open={this.state.openFileDialogOpen}
+          onFileOpen={this.handleFileOpen}
+          onRequestSnackbar={this.handleRequestSnackbar}
           onRequestClose={this.handleRequestOpenFileDialogClose}
         />
       </div>

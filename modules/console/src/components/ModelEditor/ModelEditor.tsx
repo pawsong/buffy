@@ -30,6 +30,10 @@ import * as StorageKeys from '../../constants/StorageKeys';
 import { connectTarget } from '../Panel';
 
 import {
+  importVoxFile,
+} from './io';
+
+import {
   rgbToHex,
 } from './canvas/utils';
 
@@ -106,6 +110,11 @@ interface ContainerStates {
   fullscreen?: boolean;
 }
 
+interface ImportFileResult {
+  result?: FileState;
+  error?: string;
+}
+
 @pure
 @injectIntl
 @connectTarget({
@@ -120,6 +129,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
   static serialize: (fileState: FileState) => SerializedData;
   static deserialize: (data: SerializedData) => FileState;
+  static importVoxFile: (buffer: ArrayBuffer) => ImportFileResult;
 
   canvas: ModelEditorCanvas;
 
@@ -374,6 +384,24 @@ ModelEditor.deserialize = data => {
     fragment: null,
     fragmentOffset: [0, 0, 0],
   });
+}
+
+ModelEditor.importVoxFile = buffer => {
+  const { result, error } = importVoxFile(buffer);
+
+  if (error) {
+    return { error };
+  } else {
+    return {
+      result: ModelEditor.createFileState({
+        size: result.shape,
+        model: result,
+        selection: null,
+        fragment: null,
+        fragmentOffset: [0, 0, 0],
+      }),
+    };
+  }
 }
 
 export default ModelEditor;

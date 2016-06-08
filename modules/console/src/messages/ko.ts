@@ -603,6 +603,13 @@ export default {
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Voxel load history label
+   * defaultMessage: Load
+   */
+  'voxel-editor.panels.history.voxel.load': '불러오기',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel move history label
    * defaultMessage: Move voxels
    */

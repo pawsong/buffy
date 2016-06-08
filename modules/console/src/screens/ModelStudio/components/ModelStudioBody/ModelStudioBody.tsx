@@ -61,6 +61,7 @@ const inlineStyles = {
 
 interface ModelStudioBodyProps {
   files: ModelFileMap;
+  dialogOpen: boolean;
   activeFileId: string;
   onFileChange: (body: ModelFileState) => any;
   openedFiles: string[];
@@ -113,7 +114,7 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
   }
 
   isModelEditorFocused() {
-    return !this.state.renameFileId;
+    return !this.props.dialogOpen && !this.state.renameFileId;
   }
 
   renderGetFileButtons() {
