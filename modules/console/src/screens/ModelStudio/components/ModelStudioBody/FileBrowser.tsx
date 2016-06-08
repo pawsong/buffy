@@ -21,6 +21,10 @@ interface FileBrowserProps extends React.Props<FileBrowser> {
   open: boolean;
   onRequestOpen: (open: boolean) => any;
   onFileClick: (fileId: string) => any;
+  onRequestRename: (fileId: string) => any;
+  onFileRename: (fileId: string, name: string) => any;
+  onFileRemove: (fileId: string) => any;
+  renameFileId: string;
 }
 
 class FileBrowser extends React.Component<FileBrowserProps, void> {
@@ -51,7 +55,11 @@ class FileBrowser extends React.Component<FileBrowserProps, void> {
       <div>
         <FileList
           files={this.props.files}
+          renameFileId={this.props.renameFileId}
           onFileTouchTap={this.props.onFileClick}
+          onRequestRename={this.props.onRequestRename}
+          onFileRename={this.props.onFileRename}
+          onFileRemove={this.props.onFileRemove}
         />
       </div>
     );

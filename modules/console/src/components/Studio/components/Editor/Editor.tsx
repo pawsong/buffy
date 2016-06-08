@@ -72,6 +72,7 @@ class Editor extends React.Component<EditorProps, EditorState> {
   renderDesignEditor() {
     return (
       <ModelEditor
+        focus={true}
         commonState={this.state.modelCommonState}
         onCommonStateChange={this.handleModelCommonStateChange}
         fileState={this.props.file.state}

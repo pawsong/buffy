@@ -98,6 +98,7 @@ interface ModelEditorProps extends React.Props<ModelEditor> {
   onApply: () => any;
   sizeVersion: number;
   extraData: ExtraData;
+  focus: boolean;
   intl?: InjectedIntlProps;
 }
 
@@ -154,6 +155,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 
   private handleKeyDown = (e: KeyboardEvent) => {
+    e.preventDefault();
+
     switch(e.keyCode) {
       case 8: // Backspace
       case 46: // delete
@@ -233,7 +236,15 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     });
     this.canvas.init();
 
+    if (this.props.focus) this.bindKeyListener();
+  }
+
+  bindKeyListener() {
     document.addEventListener('keydown', this.handleKeyDown, false);
+  }
+
+  unbindKeyListener() {
+    document.removeEventListener('keydown', this.handleKeyDown, false);
   }
 
   componentDidUpdate(prevProps: ModelEditorProps) {
@@ -250,11 +261,19 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     if (prevProps.extraData !== this.props.extraData) {
       this.canvas.onChangeCamera(this.props.extraData.camera);
     }
+
+    if (prevProps.focus !== this.props.focus) {
+      if (this.props.focus) {
+        this.bindKeyListener();
+      } else {
+        this.unbindKeyListener();
+      }
+    }
   }
 
   componentWillUnmount() {
     this.canvas.destroy();
-    document.removeEventListener('keydown', this.handleKeyDown, false);
+    this.unbindKeyListener();
     this.keyboard.dispose();
   }
 

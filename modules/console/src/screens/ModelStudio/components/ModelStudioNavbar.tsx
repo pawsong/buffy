@@ -32,6 +32,7 @@ interface ModelStudioNavbarProps extends React.Props<ModelStudioNavbar> {
   user: User;
   location: any;
   onNewFile: () => any;
+  onRequestOpenFile: () => any;
   onSave: () => any;
   onLogout: () => any;
   onLinkClick: (location: HistoryModule.LocationDescriptor) => any;
@@ -48,6 +49,14 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, void> {
             label={this.props.intl.formatMessage(messages.newFile)}
             style={styles.button}
             onTouchTap={this.props.onNewFile}
+            hoverColor={Colors.cyan700}
+          />
+        </div>
+        <div style={{ display: 'inline-block', marginRight: 10 }}>
+          <FlatButton
+            label={this.props.intl.formatMessage(Messages.open)}
+            style={styles.button}
+            onTouchTap={this.props.onRequestOpenFile}
             hoverColor={Colors.cyan700}
           />
         </div>

@@ -203,6 +203,13 @@ export default {
   'facebookLoginFailed': '페이스북으로 로그인할 수 없습니다',
 
   /**
+   * path: src/constants/Messages.json
+   * description: Open file
+   * defaultMessage: Open file
+   */
+  'file.open': '파일 열기',
+
+  /**
    * path: src/components/Footer/Footer.json
    * description: About link label
    * defaultMessage: About
@@ -326,7 +333,7 @@ export default {
    * description: Open file from remote store
    * defaultMessage: Open file from remote store
    */
-  'modelstudio.openFileFromRemoteStore': '클라우드에서 파일 가져오기',
+  'modelstudio.openFileFromRemoteStore': '클라우드에서 가져오기',
 
   /**
    * path: src/screens/ModelStudio/components/ModelStudioBody/ModelStudioBody.json

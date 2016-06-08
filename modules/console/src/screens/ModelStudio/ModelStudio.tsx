@@ -29,6 +29,7 @@ import { ModelFile, ModelFileMap } from './types';
 
 import ModelStudioNavbar from './components/ModelStudioNavbar';
 import ModelStudioBody from './components/ModelStudioBody';
+import OpenModelFileDialog from './components/OpenModelFileDialog';
 
 const styles = require('./ModelStudio.css');
 
@@ -51,6 +52,7 @@ interface HandlerState {
   files?: ModelFileMap;
   activeFileId?: string;
   openedFiles?: string[];
+  openFileDialogOpen?: boolean;
 }
 
 @withStyles(styles)
@@ -74,6 +76,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       files: Immutable.Map<string, ModelFile>({ [file.id]: file }),
       activeFileId: file.id,
       openedFiles: [file.id],
+      openFileDialogOpen: false,
     }
   }
 
@@ -169,10 +172,33 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   }
 
   handleSave = () => {
-    console.log('handle save');
+    const b = this.state.files.filter(a => a.created || a.modified).toArray();
+    console.log(b);
   }
 
   handleRequestSnackbar = (message: string) => this.props.pushSnackbar({ message });
+
+  handleRequestOpenFile = () => {
+    if (this.state.openFileDialogOpen) return;
+    this.setState({ openFileDialogOpen: true });
+  };
+
+  handleRequestOpenFileDialogClose = () => {
+    if (!this.state.openFileDialogOpen) return;
+    this.setState({ openFileDialogOpen: false });
+  }
+
+  handleFileRename = (fileId: string, name: string) => {
+    const file = this.state.files.get(fileId);
+    this.setState({
+      files: this.state.files.set(fileId, Object.assign({}, file, { name })),
+    });
+  }
+
+  handleFileRemove = (fileId: string) => {
+    this.handleFileClose(fileId);
+    this.setState({ files: this.state.files.remove(fileId) });
+  }
 
   render() {
     return (
@@ -182,6 +208,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           user={this.props.user}
           onLinkClick={this.props.push}
           onLogout={this.props.requestLogout}
+          onRequestOpenFile={this.handleRequestOpenFile}
           onNewFile={this.handleNewFileButtonClick}
           onSave={this.handleSave}
         />
@@ -193,8 +220,15 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onFileCreate={this.handleNewFileButtonClick}
           onFileChange={this.handleFileStateChange}
           onFileClick={this.handleFileClick}
+          onFileRemove={this.handleFileRemove}
           onFileClose={this.handleFileClose}
+          onFileRename={this.handleFileRename}
+          onRequestOpenFile={this.handleRequestOpenFile}
           onOpenedFileOrderChange={this.handleFileTabOrderChange}
+        />
+        <OpenModelFileDialog
+          open={this.state.openFileDialogOpen}
+          onRequestClose={this.handleRequestOpenFileDialogClose}
         />
       </div>
     );

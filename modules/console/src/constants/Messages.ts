@@ -121,6 +121,11 @@ const messages = defineMessages({
     description: 'New file',
     defaultMessage: 'New file',
   },
+  open: {
+    id: 'file.open',
+    description: 'Open file',
+    defaultMessage: 'Open file',
+  },
 });
 
 export default messages;
