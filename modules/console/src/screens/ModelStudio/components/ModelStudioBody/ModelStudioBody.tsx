@@ -166,9 +166,6 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
             extraData={activeFile.extra}
             onCommonStateChange={this.handleCommonStateChange}
             onFileStateChange={this.props.onFileChange}
-            onApply={() => {
-              console.log('onApply');
-            }}
           />
         </div>
       </div>

@@ -100,7 +100,7 @@ interface ModelEditorProps extends React.Props<ModelEditor> {
   onCommonStateChange: (commonState: CommonState) => any;
   fileState: FileState;
   onFileStateChange: (fileState: FileState) => any;
-  onApply: () => any;
+  onApply?: () => any;
   sizeVersion: number;
   extraData: ExtraData;
   focus: boolean;
@@ -329,9 +329,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           onTouchTap={() => this.handleFullscreenButtonClick()}
           fullscreen={this.state.fullscreen}
         />
-        <ApplyButton
+        {this.props.onApply ? <ApplyButton
           onTouchTap={this.props.onApply}
-        />
+        /> : null}
         {this.renderPanels()}
       </div>
     );
