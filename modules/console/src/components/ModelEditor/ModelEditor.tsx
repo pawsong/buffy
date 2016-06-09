@@ -42,6 +42,8 @@ import {
   PIXEL_SCALE,
 } from '../../canvas/Constants';
 
+import GeometryFactory from '../../canvas/GeometryFactory';
+
 import {
   FileState,
   VoxelData,
@@ -96,6 +98,7 @@ import {
 export { ModelEditorState };
 
 interface ModelEditorProps extends React.Props<ModelEditor> {
+  geometryFactory: GeometryFactory;
   commonState: CommonState;
   onCommonStateChange: (commonState: CommonState) => any;
   fileState: FileState;
@@ -252,6 +255,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       dispatchAction: this.dispatchAction,
       state: this.getEditorState(),
       keyboard: this.keyboard,
+      geometryFactory: this.props.geometryFactory,
     });
     this.canvas.init();
 
@@ -332,7 +336,7 @@ ModelEditor.createFileState = (data): FileState => {
   return data ? fileReducer(undefined, reset(data)) : fileReducer(undefined, { type: '' });
 }
 
-var radius = PIXEL_SCALE * 50, theta = 135, phi = 45;
+const radius = PIXEL_SCALE * 50, theta = 135, phi = 30;
 
 ModelEditor.createExtraData = (size: Position) => {
   const camera = new THREE.PerspectiveCamera();

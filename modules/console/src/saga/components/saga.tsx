@@ -30,13 +30,7 @@ function filterGetState(saga) {
   };
 }
 
-export default function saga(options: SagaDictionary) {
-  const sagas = {};
-  Object.keys(options).forEach(key => {
-    const saga = options[key];
-    sagas[key] = filterGetState(saga);
-  });
-
+export default function saga(sagas: SagaDictionary) {
   return function wrapWithSaga(WrappedComponent) {
     class SagaComponent extends React.Component<{}, SagaComponentState> {
       static displayName = `Saga(${getDisplayName(WrappedComponent)})`

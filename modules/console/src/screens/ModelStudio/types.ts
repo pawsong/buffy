@@ -8,6 +8,8 @@ import ModelEditor, {
 
 import { SourceFile } from '../../types';
 
-export interface ModelFile extends SourceFile<ModelFileState, ModelExtraData> {}
+export interface ModelFile extends SourceFile<ModelFileState, ModelExtraData> {
+  thumbnail: string;
+}
 
 export type ModelFileMap = Immutable.Map<string, ModelFile>;

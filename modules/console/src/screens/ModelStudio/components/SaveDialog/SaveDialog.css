@@ -1,0 +1,31 @@
+.visibilityOptionLabel {
+  & span {
+    vertical-align: middle;
+  }
+}
+
+.visibilityOptionLabelText {
+  margin-left: 3px;
+}
+
+.visibilityOptionDesc {
+  color: #666;
+
+  & span {
+    white-space: pre;
+  }
+
+  & a {
+    position: absolute;
+    z-index: 10;
+  }
+}
+
+.body {
+  display: flex;
+  align-items: center;
+}
+
+.form {
+  flex-grow: 1;
+}

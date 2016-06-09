@@ -14,6 +14,7 @@ const styles = require('./Editor.css');
 import { FileDescriptor, SourceFile, RobotState } from '../../types';
 
 import ModelManager from '../../../../canvas/ModelManager';
+import GeometryFactory from '../../../../canvas/GeometryFactory';
 
 interface EditorProps extends React.Props<Editor> {
   file: SourceFile;
@@ -30,8 +31,12 @@ interface EditorState {
 
 @withStyles(styles)
 class Editor extends React.Component<EditorProps, EditorState> {
+  geometryFactory: GeometryFactory;
+
   constructor(props) {
     super(props);
+    this.geometryFactory = new GeometryFactory();
+
     this.state = {
       modelCommonState: ModelEditor.createCommonState(),
     };
@@ -73,6 +78,7 @@ class Editor extends React.Component<EditorProps, EditorState> {
     return (
       <ModelEditor
         focus={true}
+        geometryFactory={this.geometryFactory}
         commonState={this.state.modelCommonState}
         onCommonStateChange={this.handleModelCommonStateChange}
         fileState={this.props.file.state}

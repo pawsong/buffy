@@ -3,6 +3,8 @@ import { defineMessages } from 'react-intl';
 import FontIcon from 'material-ui/FontIcon';
 import { pink200, green300, blue300 } from 'material-ui/styles/colors';
 
+import GeometryFactory from '../../../../canvas/GeometryFactory';
+
 import LargeImageButton from './LargeImageButton';
 import waitForMount from '../../../../components/waitForMount';
 import Messages from '../../../../constants/Messages';
@@ -65,6 +67,7 @@ interface ModelStudioBodyProps {
   activeFileId: string;
   onFileChange: (body: ModelFileState) => any;
   openedFiles: string[];
+  geometryFactory: GeometryFactory;
   onFileCreate: () => any;
   onFileClick: (fileId: string) => any;
   onFileRemove: (fileId: string) => any;
@@ -159,6 +162,7 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
         />
         <div style={inlineStyles.editor}>
           <ModelEditor
+            geometryFactory={this.props.geometryFactory}
             focus={this.isModelEditorFocused()}
             sizeVersion={this.state.editorSizeResivion}
             commonState={this.state.modelCommonState}

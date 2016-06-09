@@ -10,6 +10,9 @@ const HTML5Backend = require('react-dnd-html5-backend');
 import * as update from 'react-addons-update';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 
+import ThumbnailFactory from '../../canvas/ThumbnailFactory';
+import GeometryFactory from '../../canvas/GeometryFactory';
+
 import generateObjectId from '../../utils/generateObjectId';
 
 import { requestLogout } from '../../actions/auth';
@@ -31,6 +34,7 @@ import { ModelFile, ModelFileMap } from './types';
 import ModelStudioNavbar from './components/ModelStudioNavbar';
 import ModelStudioBody from './components/ModelStudioBody';
 import OpenModelFileDialog from './components/OpenModelFileDialog';
+import SaveDialog from './components/SaveDialog';
 
 const styles = require('./ModelStudio.css');
 
@@ -46,7 +50,6 @@ interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams> {
   requestLogout?: () => any;
   push?: (location: HistoryModule.LocationDescriptor) => any;
   pushSnackbar?: (query: PushSnackbarQuery) => any;
-
 }
 
 interface HandlerState {
@@ -56,6 +59,7 @@ interface HandlerState {
   activeFileId?: string;
   openedFiles?: string[];
   openFileDialogOpen?: boolean;
+  filesOnSaveDialog?: string[];
 }
 
 @withStyles(styles)
@@ -68,19 +72,52 @@ interface HandlerState {
   pushSnackbar,
 }) as any)
 class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
+  thumbnailFactory: ThumbnailFactory;
+  geometryFactory: GeometryFactory;
+
   constructor(props) {
     super(props);
 
-    const file = this.createFile();
+    this.geometryFactory = new GeometryFactory();
 
     this.state = {
       sizeResivion: 0,
       modelCommonState: ModelEditor.createCommonState(),
-      files: Immutable.Map<string, ModelFile>({ [file.id]: file }),
-      activeFileId: file.id,
-      openedFiles: [file.id],
+      files: Immutable.Map<string, ModelFile>(),
+      activeFileId: '',
+      openedFiles: [],
       openFileDialogOpen: false,
+      filesOnSaveDialog: [],
     }
+  }
+
+  componentDidMount() {
+    this.thumbnailFactory = new ThumbnailFactory(this.geometryFactory);
+    this.addFile(ModelEditor.createFileState(), true);
+  }
+
+  private addFile(fileState: ModelFileState, created: boolean) {
+    const id = generateObjectId();
+    const extra = ModelEditor.createExtraData(fileState.present.data.model.shape);
+
+    const file: ModelFile = {
+      id,
+      name: '',
+      thumbnail: this.thumbnailFactory.createThumbnail(fileState.present.data.model),
+      type: FileType.MODEL,
+      created,
+      modified: false,
+      readonly: false,
+      savedBody: fileState,
+      body: fileState,
+      extra,
+    };
+
+    this.setState({
+      openedFiles: [...this.state.openedFiles, file.id],
+      activeFileId: file.id,
+      files: this.state.files.set(id, file),
+    });
   }
 
   handleFileStateChange = (body: ModelFileState) => {
@@ -89,35 +126,13 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       files: this.state.files.set(this.state.activeFileId, Object.assign({}, currentFile, {
         body,
         modified: ModelEditor.isModified(currentFile.savedBody, body),
+        thumbnail: this.thumbnailFactory.createThumbnail(body.present.data.model),
       }))
     });
   }
 
-  private createFile(): ModelFile {
-    const id = generateObjectId();
-    const body = ModelEditor.createFileState();
-    const extra = ModelEditor.createExtraData(body.present.data.size);
-
-    return {
-      id,
-      name: '',
-      type: FileType.MODEL,
-      created: true,
-      modified: false,
-      readonly: false,
-      savedBody: body,
-      body,
-      extra,
-    };
-  }
-
   handleNewFileButtonClick = () => {
-    const file = this.createFile();
-    this.setState({
-      files: this.state.files.set(file.id, file),
-      activeFileId: file.id,
-      openedFiles: [...this.state.openedFiles, file.id],
-    });
+    this.addFile(ModelEditor.createFileState(), true);
   }
 
   handleFileTabOrderChange = (dragIndex: number, hoverIndex: number) => {
@@ -174,14 +189,48 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     });
   }
 
+  private saveFile(fileList: string[]) {
+    const newFiles = [];
+    const oldFiles = [];
+
+    const files = this.state.files.withMutations(files => {
+      fileList.forEach(fileId => {
+        const file = files.get(fileId);
+        if (!file || (!file.created && !file.modified)) return;
+
+        const thumbnail = this.thumbnailFactory.createThumbnail(file.body.present.data.model);
+        const nextFile = Object.assign({}, file, { thumbnail });
+        files.set(file.id, nextFile);
+
+        if (nextFile.created) {
+          newFiles.push(nextFile);
+        } else if (nextFile.modified) {
+          oldFiles.push(nextFile);
+        }
+      });
+    });
+
+    if (files !== this.state.files) this.setState({ files });
+
+    if (newFiles.length > 0) {
+      this.setState({
+        filesOnSaveDialog: this.state.filesOnSaveDialog.concat(newFiles.map(file => file.id)),
+      });
+    }
+
+    if (oldFiles.length > 0) {
+
+    }
+  }
+
   handleSave = () => {
-    const b = this.state.files.filter(a => a.created || a.modified).toArray();
-    console.log(b);
+    const file = this.state.files.get(this.state.activeFileId);
+    if (!file) return;
+    this.saveFile([this.state.activeFileId]);
   }
 
   handleSaveAll = () => {
-    const b = this.state.files.filter(a => a.created || a.modified).toArray();
-    console.log(b);
+    this.saveFile(this.state.files.keySeq().toArray());
   }
 
   handleRequestSnackbar = (message: string) => this.props.pushSnackbar({ message });
@@ -194,6 +243,15 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   handleRequestOpenFileDialogClose = () => {
     if (!this.state.openFileDialogOpen) return;
     this.setState({ openFileDialogOpen: false });
+  }
+
+  handleRequestSaveDialogClose = (fileId: string) => {
+    const index = this.state.filesOnSaveDialog.indexOf(fileId);
+    if (index !== -1) {
+      const filesOnSaveDialog = this.state.filesOnSaveDialog.slice();
+      filesOnSaveDialog.splice(index, 1);
+      this.setState({ filesOnSaveDialog });
+    }
   }
 
   handleFileRename = (fileId: string, name: string) => {
@@ -209,30 +267,15 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   }
 
   isDialogOpen() {
-    return this.state.openFileDialogOpen;
+    return (
+         this.state.filesOnSaveDialog.length > 0
+      || this.state.openFileDialogOpen
+    );
   }
 
-  handleFileOpen = (fileState: ModelFileState) => {
-    const id = generateObjectId();
-    const extra = ModelEditor.createExtraData(fileState.present.data.model.shape);
-    const file: ModelFile = {
-      id,
-      name: '',
-      type: FileType.MODEL,
-      created: true,
-      modified: false,
-      readonly: false,
-      savedBody: fileState,
-      body: fileState,
-      extra,
-    };
-
-    this.setState({
-      openFileDialogOpen: false,
-      openedFiles: [...this.state.openedFiles, file.id],
-      activeFileId: file.id,
-      files: this.state.files.set(id, file),
-    })
+  handleFileOpen = (fileState: ModelFileState, created: boolean) => {
+    this.addFile(fileState, created);
+    this.setState({ openFileDialogOpen: false });
   }
 
   handleFileDownload = (fileType: ModelSupportFileType) => {
@@ -252,7 +295,24 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     }
   }
 
+  handleFileSaveDone = (fileId: string, name: string) => {
+    this.handleRequestSaveDialogClose(fileId);
+
+    const file = this.state.files.get(fileId);
+    if (!file) return;
+
+    const fileUpdate = { created: false } as ModelFile;
+    if (file.name !== name) fileUpdate.name = name;
+    this.setState({
+      files: this.state.files.set(fileId, Object.assign({}, file, fileUpdate)),
+    })
+  }
+
   render() {
+    const fileOnSaveDialog = this.state.filesOnSaveDialog.length > 0
+      ? this.state.files.get(this.state.filesOnSaveDialog[0])
+      : null;
+
     return (
       <div>
         <ModelStudioNavbar
@@ -272,6 +332,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           openedFiles={this.state.openedFiles}
           onRequestSnackbar={this.handleRequestSnackbar}
           activeFileId={this.state.activeFileId}
+          geometryFactory={this.geometryFactory}
           onFileCreate={this.handleNewFileButtonClick}
           onFileChange={this.handleFileStateChange}
           onFileClick={this.handleFileClick}
@@ -286,6 +347,12 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onFileOpen={this.handleFileOpen}
           onRequestSnackbar={this.handleRequestSnackbar}
           onRequestClose={this.handleRequestOpenFileDialogClose}
+        />
+        <SaveDialog
+          user={this.props.user}
+          file={fileOnSaveDialog}
+          onRequestClose={this.handleRequestSaveDialogClose}
+          onSaveDone={this.handleFileSaveDone}
         />
       </div>
     );

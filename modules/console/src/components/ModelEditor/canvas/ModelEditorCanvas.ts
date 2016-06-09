@@ -19,7 +19,7 @@ import SimpleComponent from '../../../libs/SimpleComponent';
 
 import { createGeometryFromMesh } from '../../../canvas/utils';
 import Canvas from '../../../canvas/Canvas';
-import mesher from '../../../canvas/meshers/greedy';
+import GeometryFactory from '../../../canvas/GeometryFactory';
 
 import { Keyboard } from '../../../keyboard';
 
@@ -42,6 +42,7 @@ import {
 
 interface CanvasOptions {
   container: HTMLElement;
+  geometryFactory: GeometryFactory;
   camera: THREE.PerspectiveCamera;
   keyboard: Keyboard;
   dispatchAction: DispatchAction;
@@ -363,8 +364,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         this.modelGridMesh = this.emptyMesh;
       }
 
-      const mesh = mesher(diff.model);
-      const geometry = createGeometryFromMesh(mesh);
+      const geometry = this.canvas.geometryFactory.getGeometry(diff.model);
       if (geometry.vertices.length !== 0) {
         this.modelMesh = new THREE.Mesh(geometry, this.modelMaterial);
         this.modelMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
@@ -384,8 +384,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       }
 
       if (diff.selection) {
-        const mesh = mesher(diff.selection);
-        const geometry = createGeometryFromMesh(mesh);
+        const geometry = this.canvas.geometryFactory.getGeometry(diff.selection);
         this.selectionMesh = new THREE.Mesh(geometry, this.selectionMaterial);
         this.selectionMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
         this.canvas.scene.add(this.selectionMesh);
@@ -406,8 +405,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       }
 
       if (diff.fragment) {
-        const mesh = mesher(diff.fragment);
-        const geometry = createGeometryFromMesh(mesh);
+        const geometry = this.canvas.geometryFactory.getGeometry(diff.fragment);
         this.fragmentMesh = new THREE.Mesh(geometry, this.fragmentMaterial);
         this.fragmentMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
         this.canvas.scene.add(this.fragmentMesh);
@@ -435,6 +433,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
 class ModelEditorCanvas extends Canvas {
   component: ModelEditorCanvasComponent;
+  geometryFactory: GeometryFactory;
 
   controls: any;
 
@@ -454,12 +453,15 @@ class ModelEditorCanvas extends Canvas {
 
   constructor({
     container,
+    geometryFactory,
     dispatchAction,
     state,
     camera,
     keyboard,
   }: CanvasOptions) {
     super(container);
+
+    this.geometryFactory = geometryFactory;
 
     this.dispatchAction = dispatchAction;
     this.state = state;

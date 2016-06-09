@@ -14,7 +14,7 @@ import ModelEditor, { ModelFileState } from '../../../../components/ModelEditor'
 
 interface OpenModelFileDialogProps {
   open: boolean;
-  onFileOpen: (fileState: ModelFileState) => any;
+  onFileOpen: (fileState: ModelFileState, created: boolean) => any;
   onRequestClose: () => any;
   onRequestSnackbar: (message: string) => any;
 }
@@ -108,7 +108,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       if (error) {
         this.props.onRequestSnackbar(`Import failed: ${error}`);
       } else {
-        this.props.onFileOpen(result);
+        this.props.onFileOpen(result, true);
       }
     }
     this.reader.readAsArrayBuffer(file);

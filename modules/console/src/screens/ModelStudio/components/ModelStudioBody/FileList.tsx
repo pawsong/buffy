@@ -3,7 +3,8 @@ import List from 'material-ui/List/List';
 import ListItem from 'material-ui/List/ListItem';
 import FontIcon from 'material-ui/FontIcon';
 import { grey400 } from 'material-ui/styles/colors';
-import Avatar from 'material-ui/Avatar';
+// import Avatar from 'material-ui/Avatar';
+import Avatar from './Avatar';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import IconButton from 'material-ui/IconButton';
 // import IconMenu from 'material-ui/IconMenu';
@@ -64,14 +65,18 @@ class FileList extends React.Component<FileListProps, FileListState> {
     this.setState({ renameValue: event.target.value });
   }
 
+  private submitNewName() {
+    this.props.onFileRename(this.props.renameFileId, this.state.renameValue);
+    this.setState({ renameValue: '' });
+  }
+
   handleRenameTextBlur = (e) => {
-    this.props.onRequestRename('');
+    this.submitNewName();
   }
 
   handleRenameTextKeyDown = (e: React.KeyboardEvent) => {
     if (e.keyCode === 13 /* ENTER */) {
-      this.props.onFileRename(this.props.renameFileId, this.state.renameValue);
-      this.setState({ renameValue: '' });
+      this.submitNewName();
     }
   }
 
@@ -121,7 +126,7 @@ class FileList extends React.Component<FileListProps, FileListState> {
         return (
           <ListItem
             key={file.id}
-            leftAvatar={getFileTypeAvatar(file.type)}
+            leftAvatar={<Avatar src={file.thumbnail} />}
             rightIconButton={rightIconMenu}
             primaryText={primaryText}
             secondaryText={getFileTypeLabel(file.type)}
