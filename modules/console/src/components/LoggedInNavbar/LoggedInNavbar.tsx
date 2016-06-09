@@ -21,6 +21,7 @@ import ToolbarTitle from 'material-ui/Toolbar/ToolbarTitle';
 
 import List from 'material-ui/List/List';
 import ListItem from 'material-ui/List/ListItem';
+import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
 import LogoutIcon from 'material-ui/svg-icons/action/exit-to-app';
 import ProfileIcon from 'material-ui/svg-icons/action/account-box';
@@ -150,12 +151,6 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
     const user = this.props.user;
     const username = (user && user.username) || '';
 
-    const subheader = (
-      <FormattedMessage {...messages.username} values={{
-        username: <span style={{ fontWeight: 'bold' }}>{username}</span>,
-      }} />
-    );
-
     return (
       <div style={styles.accountInfoBox}>
         <div style={styles.accountInfoBoxCaretCont}>
@@ -163,7 +158,12 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
           <div style={styles.accountInfoBoxInnerCaret} />
         </div>
         <Paper zDepth={1}>
-          <List subheader={subheader as any}>
+          <List>
+            <Subheader>
+              <FormattedMessage {...messages.username} values={{
+                username: <span style={{ fontWeight: 'bold' }}>{username}</span>,
+              }} />
+            </Subheader>
             <ListItem primaryText={this.props.intl.formatMessage(messages.profile)}
                       leftIcon={<ProfileIcon />}
                       linkButton={true}
