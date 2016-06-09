@@ -179,6 +179,11 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     console.log(b);
   }
 
+  handleSaveAll = () => {
+    const b = this.state.files.filter(a => a.created || a.modified).toArray();
+    console.log(b);
+  }
+
   handleRequestSnackbar = (message: string) => this.props.pushSnackbar({ message });
 
   handleRequestOpenFile = () => {
@@ -259,6 +264,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onNewFile={this.handleNewFileButtonClick}
           onDownload={this.handleFileDownload}
           onSave={this.handleSave}
+          onSaveAll={this.handleSaveAll}
         />
         <ModelStudioBody
           files={this.state.files}

@@ -336,6 +336,13 @@ export default {
   'modelstudio.navbar.new.file': '새 파일',
 
   /**
+   * path: src/screens/ModelStudio/components/ModelStudioNavbar.json
+   * description: Save All
+   * defaultMessage: Save All
+   */
+  'modelstudio.navbar.saveAll': '모두 저장하기',
+
+  /**
    * path: src/screens/ModelStudio/components/ModelStudioBody/ModelStudioBody.json
    * description: Open file from remote store
    * defaultMessage: Open file from remote store
@@ -734,6 +741,7 @@ export default {
    */
   'worldeditor.panels.tools.title': '도구상자',
 
+/* [Warning] Message not in use */ 'modelstudio.navbar.saveall': '',
 /* [Warning] Message not in use */ 'modelstudio.new.file': '',
 /* [Warning] Message not in use */ 'voxel-editor.panels.history.voxel.paint': '색칠하기',
 /* [Warning] Message not in use */ 'voxel-editor.panels.preview.title': '프리뷰',

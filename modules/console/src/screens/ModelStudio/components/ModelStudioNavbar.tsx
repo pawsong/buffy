@@ -26,6 +26,11 @@ const messages = defineMessages({
     description: 'Download',
     defaultMessage: 'Download',
   },
+  saveAll: {
+    id: 'modelstudio.navbar.saveAll',
+    description: 'Save All',
+    defaultMessage: 'Save All',
+  },
 });
 
 const styles = {
@@ -42,6 +47,7 @@ interface ModelStudioNavbarProps extends React.Props<ModelStudioNavbar> {
   onNewFile: () => any;
   onRequestOpenFile: () => any;
   onSave: () => any;
+  onSaveAll: () => any;
   onLogout: () => any;
   onDownload: (fileType: ModelSupportFileType) => any;
   onLinkClick: (location: HistoryModule.LocationDescriptor) => any;
@@ -125,6 +131,14 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
             label={this.props.intl.formatMessage(Messages.save)}
             style={styles.button}
             onTouchTap={this.props.onSave}
+            hoverColor={Colors.cyan700}
+          />
+        </div>
+        <div style={{ display: 'inline-block', marginRight: 10 }}>
+          <FlatButton
+            label={this.props.intl.formatMessage(messages.saveAll)}
+            style={styles.button}
+            onTouchTap={this.props.onSaveAll}
             hoverColor={Colors.cyan700}
           />
         </div>
