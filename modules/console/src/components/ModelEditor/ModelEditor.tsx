@@ -172,6 +172,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 
   private handleKeyDown = (e: KeyboardEvent) => {
+    if (!this.props.focus) return;
+
     e.preventDefault();
 
     switch(e.keyCode) {
@@ -253,15 +255,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     });
     this.canvas.init();
 
-    if (this.props.focus) this.bindKeyListener();
-  }
-
-  bindKeyListener() {
     document.addEventListener('keydown', this.handleKeyDown, false);
-  }
-
-  unbindKeyListener() {
-    document.removeEventListener('keydown', this.handleKeyDown, false);
   }
 
   componentDidUpdate(prevProps: ModelEditorProps) {
@@ -278,19 +272,11 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     if (prevProps.extraData !== this.props.extraData) {
       this.canvas.onChangeCamera(this.props.extraData.camera);
     }
-
-    if (prevProps.focus !== this.props.focus) {
-      if (this.props.focus) {
-        this.bindKeyListener();
-      } else {
-        this.unbindKeyListener();
-      }
-    }
   }
 
   componentWillUnmount() {
     this.canvas.destroy();
-    this.unbindKeyListener();
+    document.removeEventListener('keydown', this.handleKeyDown, false);
     this.keyboard.dispose();
   }
 
