@@ -51,21 +51,22 @@ export const createFile = wrap(async (req, res) => {
   res.send(file);
 });
 
-export const updateFile = wrap(async (req, res) => {
+export const updateFile = compose(checkLogin, wrap(async (req, res) => {
   const { fileId } = req.params;
-  const { data } = req.body;
+  const params = req.body;
 
-  if (typeof data !== 'string') return res.sendStatus(400);
+  const file = await FileModel.findById(fileId).exec();
+  if (!file) return res.sendStatus(404);
 
-  const file = await FileModel.findByIdAndUpdate(fileId, {
-    data,
-    modifiedAt: Date.now(),
-  }, { new: true }).exec();
+  if (file.owner) {
+    if (!req.user || req.user.id !== file.owner.toHexString()) return res.sendStatus(403);
+  }
 
-  console.log(file);
+  params.modifiedAt = Date.now();
+  await FileModel.findByIdAndUpdate(fileId, params).exec();
 
-  res.send(file);
-});
+  res.sendStatus(200);
+}));
 
 export const createFile2 = compose(checkLogin, wrap(async (req, res) => {
   const owner = req.user ? req.user.id : undefined;

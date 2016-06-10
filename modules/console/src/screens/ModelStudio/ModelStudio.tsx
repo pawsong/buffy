@@ -40,7 +40,7 @@ const styles = require('./ModelStudio.css');
 
 import { saga, SagaProps, ImmutableTask, isRunning } from '../../saga';
 
-import { updateFiles } from './sagas';
+import { updateFiles, updateFileMeta } from './sagas';
 
 const saveAs: FileSaver = require('file-saver').saveAs;
 
@@ -55,6 +55,7 @@ interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams>, Sa
   push?: (location: HistoryModule.LocationDescriptor) => any;
   pushSnackbar?: (query: PushSnackbarQuery) => any;
   updateFiles?: ImmutableTask<any>;
+  updateFileMeta?: ImmutableTask<any>;
 }
 
 interface HandlerState {
@@ -78,6 +79,7 @@ interface HandlerState {
 }) as any)
 @saga({
   updateFiles,
+  updateFileMeta,
 })
 class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   thumbnailFactory: ThumbnailFactory;
@@ -275,10 +277,21 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     }
   }
 
+  private updateFileName(fileId: string, name: string) {
+    const file = this.state.files.get(fileId);
+    this.setState({ files: this.state.files.set(fileId, Object.assign({}, file, { name })) });
+  }
+
   handleFileRename = (fileId: string, name: string) => {
     const file = this.state.files.get(fileId);
-    this.setState({
-      files: this.state.files.set(fileId, Object.assign({}, file, { name })),
+
+    // Optimistic update
+    this.updateFileName(fileId, name);
+
+    if (file.created) return;
+
+    this.props.runSaga(this.props.updateFileMeta, fileId, { name }, () => {
+      // TODO: Error handling
     });
   }
 

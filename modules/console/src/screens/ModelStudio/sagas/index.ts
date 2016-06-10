@@ -89,6 +89,20 @@ export function* loadRemoteFiles(username: string, params: LoadRemoteFilesParams
   callback(response.data);
 }
 
+interface UpdateFileMetaParams {
+  name?: string;
+}
+
+export function* updateFileMeta(fileId: string, params: UpdateFileMetaParams, callback: () => any) {
+  let response;
+  response = yield call(request.put, `${CONFIG_API_SERVER_URL}/files/${fileId}`, params);
+  if (response.status !== 200) {
+    // TODO: Error handling
+    return;
+  }
+  callback();
+}
+
 export function* openRemoteFile(fileId: string, callback: (fileState: ModelFileState) => any) {
   let response;
   response = yield call(request.get, `${__RESOURCE_BASE__}/files/${fileId}`, {
