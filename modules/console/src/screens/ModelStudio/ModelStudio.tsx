@@ -5,6 +5,7 @@ import * as Immutable from 'immutable';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { RouteComponentProps } from 'react-router';
+const withRouter = require('react-router/lib/withRouter');
 import { DragDropContext } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
 import * as update from 'react-addons-update';
@@ -31,6 +32,7 @@ import { User } from '../../reducers/users';
 import { FileType } from '../../types';
 import { ModelFile, ModelFileMap, ModelFileOpenParams } from './types';
 
+import ConfirmLeaveDialog from './components/ConfirmLeaveDialog';
 import ModelStudioNavbar from './components/ModelStudioNavbar';
 import ModelStudioBody from './components/ModelStudioBody';
 import OpenModelFileDialog from './components/OpenModelFileDialog';
@@ -56,6 +58,12 @@ interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams>, Sa
   pushSnackbar?: (query: PushSnackbarQuery) => any;
   updateFiles?: ImmutableTask<any>;
   updateFileMeta?: ImmutableTask<any>;
+  router?: any;
+}
+
+interface LeaveConfirmParams {
+  logout: boolean;
+  location: any;
 }
 
 interface HandlerState {
@@ -66,6 +74,7 @@ interface HandlerState {
   openedFiles?: string[];
   openFileDialogOpen?: boolean;
   filesOnSaveDialog?: string[];
+  leaveConfirmParams?: LeaveConfirmParams;
 }
 
 @withStyles(styles)
@@ -81,12 +90,19 @@ interface HandlerState {
   updateFiles,
   updateFileMeta,
 })
+@withRouter
 class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   thumbnailFactory: ThumbnailFactory;
   geometryFactory: GeometryFactory;
 
+  oldBeforeUnload: any;
+
+  leaveConfirmed: boolean;
+
   constructor(props) {
     super(props);
+
+    this.leaveConfirmed = false;
 
     this.geometryFactory = new GeometryFactory();
 
@@ -98,16 +114,40 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       openedFiles: [],
       openFileDialogOpen: false,
       filesOnSaveDialog: [],
+      leaveConfirmParams: null,
     }
+  }
+
+  unsavedChangeExists() {
+    const files = this.state.files.toArray();
+    for (let i = 0, len = files.length; i < len; ++i) {
+      if (files[i].modified) return true;
+    }
+    return false;
   }
 
   componentDidMount() {
     this.thumbnailFactory = new ThumbnailFactory(this.geometryFactory);
     this.handleNewFileButtonClick();
+
+    this.props.router.setRouteLeaveHook(this.props.route, location => {
+      if (this.leaveConfirmed) return true;
+
+      if (this.unsavedChangeExists()) {
+        this.setState({ leaveConfirmParams: { logout: false, location } });
+        return false;
+      }
+
+      return true;
+    });
+
+    this.oldBeforeUnload = window.onbeforeunload;
+    window.onbeforeunload = () => this.unsavedChangeExists() || undefined;
   }
 
   componentWillUnmount() {
     this.thumbnailFactory.dispose();
+    window.onbeforeunload = this.oldBeforeUnload;
   }
 
   private addFile({
@@ -355,6 +395,29 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     })
   }
 
+  handleConfirmLeaveDialogClose = () => {
+    this.setState({ leaveConfirmParams: null });
+  }
+
+  handleLeaveConfirm = () => {
+    if (!this.state.leaveConfirmParams) return;
+
+    this.leaveConfirmed = true;
+    if (this.state.leaveConfirmParams.logout) {
+      this.props.requestLogout();
+    } else {
+      this.props.push(this.state.leaveConfirmParams.location);
+    }
+  }
+
+  handleLogout = () => {
+    if (this.unsavedChangeExists()) {
+      this.setState({ leaveConfirmParams: { logout: true, location: null } });
+    } else {
+      this.props.requestLogout();
+    }
+  }
+
   render() {
     const fileOnSaveDialog = this.state.filesOnSaveDialog.length > 0
       ? this.state.files.get(this.state.filesOnSaveDialog[0])
@@ -366,7 +429,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           location={this.props.location}
           user={this.props.user}
           onLinkClick={this.props.push}
-          onLogout={this.props.requestLogout}
+          onLogout={this.handleLogout}
           onRequestOpenFile={this.handleRequestOpenFile}
           onNewFile={this.handleNewFileButtonClick}
           onDownload={this.handleFileDownload}
@@ -402,6 +465,11 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           file={fileOnSaveDialog}
           onRequestClose={this.handleRequestSaveDialogClose}
           onSaveDone={this.handleFileSaveDone}
+        />
+        <ConfirmLeaveDialog
+          open={!!this.state.leaveConfirmParams}
+          onRequestClose={this.handleConfirmLeaveDialogClose}
+          onLeaveConfirm={this.handleLeaveConfirm}
         />
       </div>
     );
