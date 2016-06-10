@@ -1,19 +1,9 @@
 {
   "apps": [{
-    "name": "admin",
-    "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev"],
-    "cwd": "modules/admin"
-  }, {
     "name": "api-server",
     "script": "node_modules/.bin/gulp",
     "args": ["serve:dev"],
     "cwd": "modules/api-server"
-  }, {
-    "name": "area-server",
-    "script": "node_modules/.bin/gulp",
-    "args": ["serve:dev"],
-    "cwd": "modules/area-server"
   }, {
     "name": "config",
     "script": "node_modules/.bin/gulp",
