@@ -114,7 +114,6 @@
   "license": "UNLICENSED",
   "deployables": [
     "api-server",
-    "area-server",
     "console",
     "admin"
   ],
