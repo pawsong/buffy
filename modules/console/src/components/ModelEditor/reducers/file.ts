@@ -49,8 +49,6 @@ import {
 const initialSize: Position = [16, 16, 16];
 
 const initialModel = ndarray(new Int32Array(initialSize[0] * initialSize[1] * initialSize[2]), initialSize);
-initialModel.set(0,1,1, 1 << 24 | 0xff << 8);
-initialModel.set(1,1,1, 1 << 24 | 0xff << 8);
 
 const initialState: VoxelData = {
   size: initialSize,
