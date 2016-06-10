@@ -141,6 +141,20 @@ class ThumbnailFactory {
       }));
     }
   }
+
+  dispose() {
+    // Check for ie and edge, which do not support WEBGL_lose_context.
+    const supportLoseContext = !!this.renderer.extensions.get('WEBGL_lose_context');
+    if (supportLoseContext) {
+      this.renderer.forceContextLoss();
+      this.blobRenderer.forceContextLoss();
+    }
+
+    this.renderer.context = null;
+    this.renderer.domElement = null;
+    this.blobRenderer.context = null;
+    this.blobRenderer.domElement = null;
+  }
 }
 
 export default ThumbnailFactory;

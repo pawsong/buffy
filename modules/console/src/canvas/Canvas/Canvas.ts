@@ -75,7 +75,10 @@ abstract class Canvas {
     window.removeEventListener('resize', this.boundOnWindowResize, false);
 
     // Dispose webgl resources
-    this.renderer.forceContextLoss();
+    // Check for ie and edge, which do not support WEBGL_lose_context.
+    const supportLoseContext = !!this.renderer.extensions.get('WEBGL_lose_context');
+    if (supportLoseContext) this.renderer.forceContextLoss();
+
     this.renderer.context = null;
     this.renderer.domElement = null;
   }

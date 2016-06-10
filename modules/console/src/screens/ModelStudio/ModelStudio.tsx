@@ -106,6 +106,10 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.handleNewFileButtonClick();
   }
 
+  componentWillUnmount() {
+    this.thumbnailFactory.dispose();
+  }
+
   private addFile({
     id,
     name,
