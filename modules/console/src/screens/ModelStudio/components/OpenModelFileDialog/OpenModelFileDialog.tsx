@@ -23,13 +23,9 @@ import { openRemoteFile, loadRemoteFiles } from '../../sagas';
 
 const Waypoint = require('react-waypoint');
 
-interface ModelFileDocument {
-  id: string;
-  name: string;
-  thumbnail: string;
-  modifiedAt: string;
-  isPublic: boolean;
-}
+import generateObjectId from '../../../../utils/generateObjectId';
+
+import { ModelFileOpenParams, ModelFileDocument } from '../../types';
 
 const inlineStyles = {
   dropzone: {
@@ -55,7 +51,7 @@ const fileExtPatt = /\.(\w+)$/;
 interface OpenModelFileDialogProps extends SagaProps {
   user: User;
   open: boolean;
-  onFileOpen: (fileState: ModelFileState, created: boolean) => any;
+  onFileOpen: (params: ModelFileOpenParams) => any;
   onRequestClose: () => any;
   onRequestSnackbar: (message: string) => any;
   loadRemoteFiles?: ImmutableTask<any>;
@@ -143,7 +139,13 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       if (error) {
         this.props.onRequestSnackbar(`Import failed: ${error}`);
       } else {
-        this.props.onFileOpen(result, true);
+        this.props.onFileOpen({
+          id: generateObjectId(),
+          name: file.name,
+          body: result,
+          readonly: false,
+          created: true,
+        });
       }
     }
     this.reader.readAsArrayBuffer(file);
@@ -180,9 +182,18 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
   handleOpen = () => {
     switch(this.state.tabType) {
       case TabType.MY_FILE_REMOTE: {
-        this.props.runSaga(this.props.openRemoteFile, this.state.myFileSelectedId, (fileState: ModelFileState) => {
-          this.props.onFileOpen(fileState, false);
-        });
+        this.props.runSaga(this.props.openRemoteFile,
+          this.state.myFileSelectedId,
+          (doc: ModelFileDocument, fileState: ModelFileState) => {
+            this.props.onFileOpen({
+              id: doc.id,
+              name: doc.name,
+              created: false,
+              readonly: false,
+              body: fileState,
+            });
+          }
+        );
         return;
       }
     }

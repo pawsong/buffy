@@ -29,7 +29,7 @@ import { State } from '../../reducers';
 import { User } from '../../reducers/users';
 
 import { FileType } from '../../types';
-import { ModelFile, ModelFileMap } from './types';
+import { ModelFile, ModelFileMap, ModelFileOpenParams } from './types';
 
 import ModelStudioNavbar from './components/ModelStudioNavbar';
 import ModelStudioBody from './components/ModelStudioBody';
@@ -103,24 +103,27 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
   componentDidMount() {
     this.thumbnailFactory = new ThumbnailFactory(this.geometryFactory);
-    this.addFile(ModelEditor.createFileState(), true);
+    this.handleNewFileButtonClick();
   }
 
-  private addFile(fileState: ModelFileState, created: boolean) {
-    const id = generateObjectId();
-    const extra = ModelEditor.createExtraData(fileState.present.data.model.shape);
-
+  private addFile({
+    id,
+    name,
+    body,
+    created,
+    readonly,
+  }: ModelFileOpenParams) {
     const file: ModelFile = {
       id,
-      name: '',
-      thumbnail: this.thumbnailFactory.createThumbnail(fileState.present.data.model),
+      name,
+      thumbnail: this.thumbnailFactory.createThumbnail(body.present.data.model),
       type: FileType.MODEL,
       created,
       modified: false,
-      readonly: false,
-      savedBody: fileState,
-      body: fileState,
-      extra,
+      readonly,
+      savedBody: body,
+      body,
+      extra: ModelEditor.createExtraData(body.present.data.model.shape),
     };
 
     this.setState({
@@ -142,7 +145,13 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   }
 
   handleNewFileButtonClick = () => {
-    this.addFile(ModelEditor.createFileState(), true);
+    this.addFile({
+      id: generateObjectId(),
+      name: '',
+      created: true,
+      readonly: false,
+      body: ModelEditor.createFileState(),
+    });
   }
 
   handleFileTabOrderChange = (dragIndex: number, hoverIndex: number) => {
@@ -307,8 +316,8 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     );
   }
 
-  handleFileOpen = (fileState: ModelFileState, created: boolean) => {
-    this.addFile(fileState, created);
+  handleFileOpen = (params: ModelFileOpenParams) => {
+    this.addFile(params);
     this.setState({ openFileDialogOpen: false });
   }
 

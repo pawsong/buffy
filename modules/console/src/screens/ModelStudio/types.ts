@@ -13,3 +13,19 @@ export interface ModelFile extends SourceFile<ModelFileState, ModelExtraData> {
 }
 
 export type ModelFileMap = Immutable.Map<string, ModelFile>;
+
+export interface ModelFileOpenParams {
+  id: string;
+  name: string;
+  created: boolean;
+  readonly: boolean;
+  body: ModelFileState;
+}
+
+export interface ModelFileDocument {
+  id: string;
+  name: string;
+  thumbnail: string;
+  modifiedAt: string;
+  isPublic: boolean;
+}

@@ -3,7 +3,7 @@ import { isCancelError } from 'redux-saga';
 import { replace } from 'react-router-redux';
 import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import ModelEditor, { ModelFileState } from '../../../components/ModelEditor';
-import { ModelFile } from '../types';
+import { ModelFile, ModelFileDocument } from '../types';
 import { request, wait } from '../../../saga';
 import ThumbnailFactory from '../../../canvas/ThumbnailFactory';
 
@@ -103,18 +103,23 @@ export function* updateFileMeta(fileId: string, params: UpdateFileMetaParams, ca
   callback();
 }
 
-export function* openRemoteFile(fileId: string, callback: (fileState: ModelFileState) => any) {
-  let response;
-  response = yield call(request.get, `${__RESOURCE_BASE__}/files/${fileId}`, {
-    responseType: 'arraybuffer',
-    withCredentials: false,
-  });
-
-  if (response.status !== 200) {
+export function* openRemoteFile(fileId: string, callback: (doc: ModelFileDocument, fileState: ModelFileState) => any) {
+  const [docRes, dataRes] = yield [
+    call(request.get, `${CONFIG_API_SERVER_URL}/files/${fileId}`),
+    call(request.get, `${__RESOURCE_BASE__}/files/${fileId}`, {
+      responseType: 'arraybuffer',
+      withCredentials: false,
+    }),
+  ];
+  if (docRes.status !== 200) {
+    // TODO: Error handling
+    return;
+  }
+  if (dataRes.status !== 200) {
     // TODO: Error handling
     return;
   }
 
-  const fileState = ModelEditor.deserialize(new Uint8Array(response.data));
-  callback(fileState);
+  const fileState = ModelEditor.deserialize(new Uint8Array(dataRes.data));
+  callback(docRes.data, fileState);
 }
