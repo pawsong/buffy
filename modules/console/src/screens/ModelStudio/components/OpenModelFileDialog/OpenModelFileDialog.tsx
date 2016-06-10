@@ -98,7 +98,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
   componentWillReceiveProps(nextProps: OpenModelFileDialogProps) {
     if (!this.props.open && nextProps.open) {
       this.setState({
-        tabType: TabType.MY_FILE_REMOTE,
+        tabType: this.props.user ? TabType.MY_FILE_REMOTE : TabType.MY_FILE_LOCAL,
         myFileSelectedId: '',
         myFiles: [],
         allMyFilesLoaded: false,

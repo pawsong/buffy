@@ -1,75 +1,5 @@
 export default {
   /**
-   * path: src/screens/Anonymous/screens/Index/containers/Landing.json
-   * description: Introduce detailed info for teachers
-   * defaultMessage: Are you a teacher?
-   */
-  'anon.index.areYouTeacher': '혹시 선생님이신가요?',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/containers/Landing.json
-   * description: Label for get started button
-   * defaultMessage: Let's get started
-   */
-  'anon.index.getStarted': '지금 시작해보세요',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/containers/Landing.json
-   * description: Introduce code editor to new users (body)
-   * defaultMessage: You can control your robot with code blocks
-   */
-  'anon.index.introduceCodeEditor.body': '코드 블럭으로 로봇을 움직일 수 있어요',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/containers/Landing.json
-   * description: Introduce code editor to new users (header)
-   * defaultMessage: Tell it to do something!
-   */
-  'anon.index.introduceCodeEditor.header': '로봇을 조종해보세요!',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/containers/Landing.json
-   * description: Introduce voxel editor to new users (body)
-   * defaultMessage: Make your own robot with cubes
-   */
-  'anon.index.introduceVoxelEditor.body': '큐브로 당신만의 로봇을 만들어보세요',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/containers/Landing.json
-   * description: Introduce voxel editor to new users (header)
-   * defaultMessage: Craft your friend!
-   */
-  'anon.index.introduceVoxelEditor.header': '로봇 친구를 만들어보세요!',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/containers/Landing.json
-   * description: Label for teacher info link
-   * defaultMessage: See more info for you
-   */
-  'anon.index.seeTeacherInfo': '선생님을 위한 정보를 소개합니다',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/containers/Landing.json
-   * description: Introduce recommended courses to new users
-   * defaultMessage: Take awesome online courses!
-   */
-  'anon.index.takeCourses': '멋진 온라인 강좌를 들어보세요!',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/containers/Landing.json
-   * description: Tutorial link button label
-   * defaultMessage: Take a live tutorial
-   */
-  'anon.index.takeTutorial': '쉬운 예제로 시작해보세요',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/containers/Landing.json
-   * description: Suggest clicking tutorial link button
-   * defaultMessage: Want to learn more about {service}?
-   */
-  'anon.index.wantToLearnMore': '{service}에 대해 더 알고 싶으세요?',
-
-  /**
    * path: src/screens/Anonymous/AnonymousHandler.json
    * description: Simple question to ask why this service is good
    * defaultMessage: Why?
@@ -131,13 +61,6 @@ export default {
    * defaultMessage: Courses
    */
   'courses': '코스',
-
-  /**
-   * path: src/screens/LoggedIn/screens/Index/containers/Dashboard.json
-   * description: Create a new project button label
-   * defaultMessage: Create a new project
-   */
-  'create.project': '새 프로젝트 만들기',
 
   /**
    * path: src/constants/Messages.json
@@ -257,20 +180,6 @@ export default {
    * defaultMessage: Join {service}
    */
   'join.title': '{service} 가입하기',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/components/Banner.json
-   * description: Landing page banner title
-   * defaultMessage: Buffy the Virtual Robot Platform
-   */
-  'landing.banner.title': '버피: 버추얼 로봇 플랫폼',
-
-  /**
-   * path: src/screens/Anonymous/screens/Index/components/Banner.json
-   * description: Landing page see more button label
-   * defaultMessage: See more
-   */
-  'landing.seeMore': '더 알아보기',
 
   /**
    * path: src/constants/Messages.json
@@ -741,6 +650,19 @@ export default {
    */
   'worldeditor.panels.tools.title': '도구상자',
 
+/* [Warning] Message not in use */ 'anon.index.areYouTeacher': '혹시 선생님이신가요?',
+/* [Warning] Message not in use */ 'anon.index.getStarted': '지금 시작해보세요',
+/* [Warning] Message not in use */ 'anon.index.introduceCodeEditor.body': '코드 블럭으로 로봇을 움직일 수 있어요',
+/* [Warning] Message not in use */ 'anon.index.introduceCodeEditor.header': '로봇을 조종해보세요!',
+/* [Warning] Message not in use */ 'anon.index.introduceVoxelEditor.body': '큐브로 당신만의 로봇을 만들어보세요',
+/* [Warning] Message not in use */ 'anon.index.introduceVoxelEditor.header': '로봇 친구를 만들어보세요!',
+/* [Warning] Message not in use */ 'anon.index.seeTeacherInfo': '선생님을 위한 정보를 소개합니다',
+/* [Warning] Message not in use */ 'anon.index.takeCourses': '멋진 온라인 강좌를 들어보세요!',
+/* [Warning] Message not in use */ 'anon.index.takeTutorial': '쉬운 예제로 시작해보세요',
+/* [Warning] Message not in use */ 'anon.index.wantToLearnMore': '{service}에 대해 더 알고 싶으세요?',
+/* [Warning] Message not in use */ 'create.project': '새 프로젝트 만들기',
+/* [Warning] Message not in use */ 'landing.banner.title': '버피: 버추얼 로봇 플랫폼',
+/* [Warning] Message not in use */ 'landing.seeMore': '더 알아보기',
 /* [Warning] Message not in use */ 'modelstudio.navbar.saveall': '',
 /* [Warning] Message not in use */ 'modelstudio.new.file': '',
 /* [Warning] Message not in use */ 'voxel-editor.panels.history.voxel.paint': '색칠하기',
