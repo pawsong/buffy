@@ -25,7 +25,14 @@ module.exports = options => Object.assign(require('./client.dev')(options), {
       { test: /\.js$/, loader: 'source-map-loader' },
     ],
     loaders: [
-      { test: /\.css$/, loader: 'style-loader!css-loader!postcss-loader' },
+      {
+        test: /\.css$/,
+        loaders: [
+          'isomorphic-style-loader',
+          'css-loader?modules&localIdentName=[name]_[local]_[hash:base64:3]',
+          'postcss-loader',
+        ],
+      },
       { test: /\.json$/, loader: 'json-loader' },
       { test: /\.ts(x?)$/, loader: `babel-loader?${babelOptions}!ts-loader` },
     ],
