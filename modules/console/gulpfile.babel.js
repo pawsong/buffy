@@ -54,7 +54,8 @@ require('../../gulp/app')({
             'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
             'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
             'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdDev,
-            '__RESOURCE_BASE__': conf.resourcePublicPathDev,
+            '__S3_BASE__': conf.s3PublicPathDev,
+            '__CDN_BASE__': conf.cdnPublicPathDev,
           },
           output: {
             path: `${__dirname}/build/dev/client/public`,
@@ -67,7 +68,8 @@ require('../../gulp/app')({
             'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
             'CONFIG_API_SERVER_URL': conf.apiServerUrl,
             'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdProd,
-            '__RESOURCE_BASE__': conf.resourcePublicPathProd,
+            '__S3_BASE__': conf.s3PublicPathProd,
+            '__CDN_BASE__': conf.cdnPublicPathProd,
           },
           output: {
             path: `${__dirname}/build/prod/client/public`,
@@ -95,7 +97,8 @@ require('../../gulp/app')({
             'CONFIG_DOMAIN': '',
             'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
             'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
-            '__RESOURCE_BASE__': conf.resourcePublicPathDev,
+            '__S3_BASE__': conf.s3PublicPathDev,
+            '__CDN_BASE__': conf.cdnPublicPathDev,
           },
           output: {
             path: `${__dirname}/build/dev`,
@@ -107,7 +110,8 @@ require('../../gulp/app')({
             'CONFIG_DOMAIN': conf.domain,
             'CONFIG_GAME_SERVER_URL': conf.gameServerUrl,
             'CONFIG_API_SERVER_URL': conf.apiServerUrl,
-            '__RESOURCE_BASE__': conf.resourcePublicPathProd,
+            '__S3_BASE__': conf.s3PublicPathProd,
+            '__CDN_BASE__': conf.cdnPublicPathProd,
           },
           output: {
             path: `${__dirname}/build/prod`,

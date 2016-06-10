@@ -106,7 +106,7 @@ export function* updateFileMeta(fileId: string, params: UpdateFileMetaParams, ca
 export function* openRemoteFile(fileId: string, callback: (doc: ModelFileDocument, fileState: ModelFileState) => any) {
   const [docRes, dataRes] = yield [
     call(request.get, `${CONFIG_API_SERVER_URL}/files/${fileId}`),
-    call(request.get, `${__RESOURCE_BASE__}/files/${fileId}`, {
+    call(request.get, `${__S3_BASE__}/files/${fileId}`, {
       responseType: 'arraybuffer',
       withCredentials: false,
     }),

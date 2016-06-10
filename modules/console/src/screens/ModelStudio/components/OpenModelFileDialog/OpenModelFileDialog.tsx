@@ -233,7 +233,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
           style={style}
           onTouchTap={onTouchTap}
         >
-          <img src={`${__RESOURCE_BASE__}/${file.thumbnail}`} />
+          <img src={`${__CDN_BASE__}/${file.thumbnail}`} />
         </GridTile>
       )
     });

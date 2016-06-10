@@ -118,6 +118,14 @@ export const facebookAppIdDev: string = '1127122043982378';
 
 export const facebookAppIdProd: string = '1127121857315730';
 
-export const resourcePublicPathDev = `https://${s3Bucket}.s3.ap-northeast-2.amazonaws.com`;
+export const s3BucketDev = 'project-pasta-dev';
 
-export const resourcePublicPathProd = 'https://dut3rr7qk867n.cloudfront.net';
+export const s3BucketProd = 'project-pasta-prod';
+
+export const s3PublicPathDev = `https://${s3BucketDev}.s3.ap-northeast-2.amazonaws.com`;
+
+export const s3PublicPathProd = `https://${s3BucketProd}.s3.ap-northeast-2.amazonaws.com`;
+
+export const cdnPublicPathDev = `https://${s3Bucket}.s3.ap-northeast-2.amazonaws.com`;
+
+export const cdnPublicPathProd = 'https://dut3rr7qk867n.cloudfront.net';
