@@ -72,6 +72,8 @@ interface ConnectTargetOptions {
   limitTop?: number; // px unit
 }
 
+const PANEL_WIDTH = 150; // Maybe
+
 export function connectTarget(options: ConnectTargetOptions) {
   const {
     panelTypes,
@@ -108,8 +110,12 @@ export function connectTarget(options: ConnectTargetOptions) {
     class Connect extends React.Component<TargetProps, TargetState> {
       element: HTMLElement;
 
+      private panelsToReposition: string[];
+
       constructor(props) {
         super(props);
+
+        this.panelsToReposition = [];
 
         const panels: { [index: string]: PanelState } = {};
 
@@ -121,6 +127,8 @@ export function connectTarget(options: ConnectTargetOptions) {
             try {
               panel = JSON.parse(savedPanel);
             } catch(err) {}
+          } else {
+            this.panelsToReposition.push(panelId);
           }
 
           panels[panelId] = {
@@ -149,6 +157,19 @@ export function connectTarget(options: ConnectTargetOptions) {
       componentDidMount() {
         const rootElement = findDOMNode<HTMLElement>(this.refs['root']);
         this.element = (rootElement.firstElementChild || rootElement.firstChild) as HTMLElement;
+
+        if (this.panelsToReposition.length === 0) return;
+
+        // TODO: Use smarter subwindow system
+        const unit = PANEL_WIDTH / this.element.clientWidth / 4;
+        const panels = {};
+        this.panelsToReposition.forEach((panelId, index) => {
+          panels[panelId] = Object.assign({}, this.state.panels[panelId], {
+            top: unit * (index + 1),
+            left: unit * (index + 1),
+          });
+        });
+        this.setState({ panels: Object.assign({}, this.state.panels, panels) });
       }
 
       movePanel(panelId: string, left, top) {
