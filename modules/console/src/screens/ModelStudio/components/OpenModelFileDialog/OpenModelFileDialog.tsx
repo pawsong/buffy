@@ -19,9 +19,16 @@ import { User } from '../../../../reducers/users';
 const styles = require('./OpenModelFileDialog.css');
 
 import ModelEditor, { ModelFileState } from '../../../../components/ModelEditor';
-import { openRemoteFile } from '../../sagas';
+import { openRemoteFile, loadRemoteFiles } from '../../sagas';
 
-const { connect, PromiseState } = require('react-refetch');
+const Waypoint = require('react-waypoint');
+
+interface ModelFileDocument {
+  id: string;
+  name: string;
+  thumbnail: string;
+  modifiedAt: string;
+}
 
 const inlineStyles = {
   dropzone: {
@@ -50,8 +57,7 @@ interface OpenModelFileDialogProps extends SagaProps {
   onFileOpen: (fileState: ModelFileState, created: boolean) => any;
   onRequestClose: () => any;
   onRequestSnackbar: (message: string) => any;
-  fetchMyFileList?: any;
-  myFilesFetch?: any;
+  loadRemoteFiles?: ImmutableTask<any>;
   openRemoteFile?: ImmutableTask<any>;
 }
 
@@ -63,20 +69,14 @@ enum TabType {
 
 interface OpenModelFileDialogState {
   tabType?: TabType;
-  myFilePage?: number;
   myFileSelectedId?: string;
+  myFiles?: ModelFileDocument[];
+  allMyFilesLoaded?: boolean;
 }
 
 @withStyles(styles)
-@connect((props: OpenModelFileDialogProps) => ({
-  fetchMyFileList: (page: number) => ({
-    myFilesFetch: {
-      url: `${CONFIG_API_SERVER_URL}/files/@${props.user.username}?page=${page}`,
-      force: true,
-    },
-  })
-}))
 @saga({
+  loadRemoteFiles,
   openRemoteFile,
 })
 class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, OpenModelFileDialogState> {
@@ -86,15 +86,13 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
     super(props);
     this.state = {
       tabType: TabType.MY_FILE_REMOTE,
-      myFilePage: 1,
       myFileSelectedId: '',
+      myFiles: [],
+      allMyFilesLoaded: false,
     };
   }
 
-  handleTabChange = (tabType: TabType) => this.setState({
-    tabType,
-    myFileSelectedId: '',
-  });
+  handleTabChange = (tabType: TabType) => this.setState({ tabType });
 
   componentDidMount() {
     this.reader = new FileReader();
@@ -104,23 +102,10 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
     if (!this.props.open && nextProps.open) {
       this.setState({
         tabType: TabType.MY_FILE_REMOTE,
-        myFilePage: 1,
         myFileSelectedId: '',
+        myFiles: [],
+        allMyFilesLoaded: false,
       });
-    }
-  }
-
-  componentDidUpdate(prevProps: OpenModelFileDialogProps, prevState: OpenModelFileDialogState) {
-    if (!this.props.open) return;
-
-    if (this.state.tabType === TabType.MY_FILE_REMOTE) {
-      if (
-           this.props.open !== prevProps.open
-        || this.state.tabType !== prevState.tabType
-        || this.state.myFilePage !== prevState.myFilePage
-      ) {
-        this.props.fetchMyFileList(this.state.myFilePage);
-      }
     }
   }
 
@@ -202,41 +187,48 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
     }
   }
 
-  renderMyRemoteBody(disabled: boolean) {
-    if (!this.props.myFilesFetch || this.props.myFilesFetch.pending) {
-      return (
-        <div>Loading</div>
-      );
-    } else if (this.props.myFilesFetch.rejected) {
-      return (
-        <div>Someting wrong :(</div>
-      );
-    } else {
-      const { files, count } = this.props.myFilesFetch.value;
-
-      const tiles = files.map(file => {
-        const onTouchTap = () => disabled || this.setState({ myFileSelectedId: file.id });
-
-        let style: any = { cursor: 'pointer' };
-        if (this.state.myFileSelectedId === file.id) {
-          style.border = `6px solid ${disabled ? grey400 : cyan500}`;
-        } else {
-          style.margin = '6px';
-        }
-
-        return (
-          <GridTile
-            key={file.id}
-            title={file.name}
-            style={style}
-            onTouchTap={onTouchTap}
-          >
-            <img src={`${__RESOURCE_BASE__}/${file.thumbnail}`} />
-          </GridTile>
-        )
+  loadMoreItems = (before: string) => {
+    this.props.runSaga(this.props.loadRemoteFiles, this.props.user.username, {
+      before,
+    }, docs => {
+      this.setState({
+        myFiles: this.state.myFiles.concat(docs),
+        allMyFilesLoaded: docs.length === 0,
       });
+    });
+  }
+
+  handleWaypointEnter = () => {
+    const lastFile = this.state.myFiles[this.state.myFiles.length - 1];
+    console.log(lastFile && lastFile.modifiedAt);
+    this.loadMoreItems(lastFile && lastFile.modifiedAt);
+  }
+
+  renderMyRemoteBody(disabled: boolean) {
+    const tiles = this.state.myFiles.map(file => {
+      const onTouchTap = () => disabled || this.setState({ myFileSelectedId: file.id });
+
+      let style: any = { cursor: 'pointer' };
+      if (this.state.myFileSelectedId === file.id) {
+        style.border = `6px solid ${disabled ? grey400 : cyan500}`;
+      } else {
+        style.margin = '6px';
+      }
 
       return (
+        <GridTile
+          key={file.id}
+          title={file.name}
+          style={style}
+          onTouchTap={onTouchTap}
+        >
+          <img src={`${__RESOURCE_BASE__}/${file.thumbnail}`} />
+        </GridTile>
+      )
+    });
+
+    return (
+      <div>
         <GridList
           cellHeight={150}
           cols={4}
@@ -245,8 +237,20 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
         >
           {tiles}
         </GridList>
-      );
-    }
+        {
+          this.state.allMyFilesLoaded ? null : isRunning(this.props.loadRemoteFiles)
+            ? (
+              <div>Loading...</div>
+            )
+            : (
+              <Waypoint
+                onEnter={this.handleWaypointEnter}
+                threshold={2.0}
+              />
+            )
+        }
+      </div>
+    );
   }
 
   renderMyLocalBody() {

@@ -73,6 +73,20 @@ export function* createFile(thumbnailFactory: ThumbnailFactory, params: CreateFi
   callback();
 }
 
+interface LoadRemoteFilesParams {
+  before?: string;
+}
+
+export function* loadRemoteFiles(username: string, params: LoadRemoteFilesParams, callback: (result: any) => any) {
+  let response;
+  response = yield call(request.get, `${CONFIG_API_SERVER_URL}/files/@${username}?before=${params.before || ''}`);
+  if (response.status !== 200) {
+    // TODO: Error handling
+    return;
+  }
+  callback(response.data);
+}
+
 export function* openRemoteFile(fileId: string, callback: (fileState: ModelFileState) => any) {
   let response;
   response = yield call(request.get, `${__RESOURCE_BASE__}/files/${fileId}`, {

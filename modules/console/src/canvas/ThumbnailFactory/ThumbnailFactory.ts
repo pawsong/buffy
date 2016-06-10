@@ -79,6 +79,10 @@ class ThumbnailFactory {
 
   private render(data: ndarray.Ndarray, renderer: THREE.WebGLRenderer) {
     const geometry = this.geometryFactory.getGeometry(data);
+    if (geometry.vertices.length === 0) {
+      renderer.render(this.scene, this.camera);
+      return;
+    }
 
     geometry.boundingBox.size(this.temp1);
     const scale = 64 / Math.max(this.temp1.x, this.temp1.y, this.temp1.z);

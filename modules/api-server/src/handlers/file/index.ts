@@ -10,7 +10,7 @@ import FileModel, { FileDocument } from '../../models/File';
 
 const EXPIRES = 60;
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 12;
 
 export const getFileList = wrap(async (req, res) => {
   const files = await FileModel.find({}).sort('-modifiedAt').exec();
@@ -23,20 +23,15 @@ export const getUserFileList = wrap(async (req, res) => {
   const user = await User.findOne({ username }).exec();
   if (!user) return res.send(404);
 
-  const page = Math.floor(req.query.page || 1);
-  if (page <= 0) res.send(400);
+  const query: any = { owner: user.id };
+  if (req.query.before) query.modifiedAt = { $lt: req.query.before };
 
-  const [files, count] = await Promise.all([
-    FileModel.find({ owner: user.id }).sort('-modifiedAt')
-      .skip((page - 1) * PAGE_SIZE)
-      .limit(PAGE_SIZE)
-      .exec(),
-    FileModel.find({ owner: user.id })
-      .count()
-      .exec(),
-  ]);
+  const files = await FileModel.find(query)
+    .sort('-modifiedAt')
+    .limit(PAGE_SIZE)
+    .exec();
 
-  res.send({ files, count });
+  res.send(files);
 });
 
 export const getFile = wrap(async (req, res) => {
