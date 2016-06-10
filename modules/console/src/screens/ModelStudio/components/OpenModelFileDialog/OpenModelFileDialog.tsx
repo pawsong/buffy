@@ -28,6 +28,7 @@ interface ModelFileDocument {
   name: string;
   thumbnail: string;
   modifiedAt: string;
+  isPublic: boolean;
 }
 
 const inlineStyles = {
@@ -200,7 +201,6 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
 
   handleWaypointEnter = () => {
     const lastFile = this.state.myFiles[this.state.myFiles.length - 1];
-    console.log(lastFile && lastFile.modifiedAt);
     this.loadMoreItems(lastFile && lastFile.modifiedAt);
   }
 

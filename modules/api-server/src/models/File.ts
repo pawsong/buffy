@@ -15,6 +15,7 @@ export interface FileDocument extends mongoose.Document {
   thumbnail: string;
   createdAt: Date;
   modifiedAt: Date;
+  isPublic: boolean;
 
   // Data
   format: string;
@@ -28,6 +29,7 @@ const FileSchema = new Schema({
   thumbnail: String,
   createdAt: { type: Date, default: Date.now },
   modifiedAt: { type: Date, default: Date.now },
+  isPublic: Boolean,
 
   format: String,
   bucket: String,

@@ -192,6 +192,7 @@ class SaveDialog extends React.Component<SaveDialogProps, SaveDialogState> {
       id: this.props.file.id,
       name: this.state.filename,
       body: this.props.file.body,
+      isPublic: this.state.visibility === VISIBILITY_PUBLIC,
     };
 
     this.props.runSaga(this.props.createFile,

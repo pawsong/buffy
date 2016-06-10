@@ -55,6 +55,7 @@ export function* updateFiles(thumbnailFactory: ThumbnailFactory, paramsList: Upd
 
 interface CreateFileParams extends UpdateFileParams {
   name: string;
+  isPublic: boolean;
 }
 
 export function* createFile(thumbnailFactory: ThumbnailFactory, params: CreateFileParams, callback: () => any) {
@@ -63,6 +64,7 @@ export function* createFile(thumbnailFactory: ThumbnailFactory, params: CreateFi
     id: params.id,
     name: params.name,
     format: 'bfm',
+    isPublic: params.isPublic,
   });
   if (response.status !== 200) {
     // TODO: Error handling

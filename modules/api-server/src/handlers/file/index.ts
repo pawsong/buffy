@@ -55,8 +55,6 @@ export const updateFile = wrap(async (req, res) => {
   const { fileId } = req.params;
   const { data } = req.body;
 
-  console.log(data);
-
   if (typeof data !== 'string') return res.sendStatus(400);
 
   const file = await FileModel.findByIdAndUpdate(fileId, {
@@ -71,9 +69,15 @@ export const updateFile = wrap(async (req, res) => {
 
 export const createFile2 = compose(checkLogin, wrap(async (req, res) => {
   const owner = req.user ? req.user.id : undefined;
-  const { id, name, format } = req.body;
+  const { id, name, format, isPublic } = req.body;
 
-  const file = new FileModel({ _id: id, name, format, owner });
+  const file = new FileModel({
+    _id: id,
+    name,
+    format,
+    owner,
+    isPublic: isPublic === true,
+  });
   await file.save();
 
   res.send(file);
