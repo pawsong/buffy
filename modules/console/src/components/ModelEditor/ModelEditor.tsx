@@ -19,6 +19,8 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 
 import * as ndarray from 'ndarray';
 
+const msgpack = require('msgpack-lite');
+
 import { Keyboard } from '../../keyboard';
 
 import { SimpleStore } from '../../libs';
@@ -136,8 +138,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static createFileState: (data?: VoxelData) => FileState;
   static createExtraData: (size: Position) => ExtraData;
   static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
-  static serialize: (fileState: FileState) => SerializedData;
-  static deserialize: (data: SerializedData) => FileState;
+  static serialize: (fileState: FileState) => Uint8Array;
+  static deserialize: (data: Uint8Array) => FileState;
   static importVoxFile: (buffer: ArrayBuffer) => ImportFileResult;
   static exportVoxFile: (fileState: FileState) => ExportFileResult;
 
@@ -361,16 +363,20 @@ ModelEditor.isModified = function (lhs: FileState, rhs: FileState) {
   return lhs.present !== rhs.present;
 };
 
+const FILE_FORMAT_VERSION = '1.0';
+
 ModelEditor.serialize = (fileState) => {
   const data: any = pako.deflate(fileState.present.data.model.data.buffer);
 
-  return {
+  return msgpack.encode({
+    version: FILE_FORMAT_VERSION,
     data,
     shape: fileState.present.data.model.shape,
-  };
+  });
 }
 
-ModelEditor.deserialize = data => {
+ModelEditor.deserialize = buffer => {
+  const data = msgpack.decode(buffer);
   const inflated = pako.inflate(data.data);
   const model = ndarray(new Int32Array(inflated.buffer), data.shape);
 

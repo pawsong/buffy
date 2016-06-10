@@ -8,8 +8,13 @@ import FontIcon from 'material-ui/FontIcon';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 
 import { User } from '../../../../reducers/users';
+import ModelEditor from '../../../../components/ModelEditor';
 import { ModelFile } from '../../types';
 import { saga, SagaProps, ImmutableTask, wait, isRunning } from '../../../../saga';
+
+import ThumbnailFactory from '../../../../canvas/ThumbnailFactory';
+
+import { createFile } from '../../sagas';
 
 const styles = require('./SaveDialog.css');
 
@@ -30,11 +35,12 @@ const inlineStyles = {
 };
 
 interface SaveDialogProps extends SagaProps {
+  thumbnailFactory: ThumbnailFactory;
   user: User;
   file: ModelFile;
   onRequestClose: (fileId: string) => any;
   onSaveDone: (fileId: string, name: string) => any;
-  save?: ImmutableTask<any>;
+  createFile?: ImmutableTask<any>;
 }
 
 const VISIBILITY_PUBLIC = 'visibility_public';
@@ -52,10 +58,7 @@ const THUMBNAIL_CONTAINER_SIZE = THUMBNAIL_SIZE + 2 * THUMBNAIL_MARGIN;
 
 @withStyles(styles)
 @saga({
-  save: function* (fileId: string, name: string, done: (fileId: string, name: string) => any) {
-    yield wait(1000);
-    done(fileId, name);
-  },
+  createFile,
 })
 class SaveDialog extends React.Component<SaveDialogProps, SaveDialogState> {
   shouldValidateOnChanage: boolean;
@@ -184,11 +187,20 @@ class SaveDialog extends React.Component<SaveDialogProps, SaveDialogState> {
   handleSubmit = () => {
     this.shouldValidateOnChanage = true;
     if (!this.validate()) return;
-    this.props.runSaga(this.props.save, this.props.file.id, this.state.filename, this.props.onSaveDone);
+
+    const params = {
+      id: this.props.file.id,
+      name: this.state.filename,
+      body: this.props.file.body,
+    };
+
+    this.props.runSaga(this.props.createFile,
+      this.props.thumbnailFactory, params, () => this.props.onSaveDone(params.id, params.name)
+    );
   }
 
   render() {
-    const saveIsRunning = isRunning(this.props.save);
+    const saveIsRunning = isRunning(this.props.createFile);
 
     const actions = [
       <FlatButton

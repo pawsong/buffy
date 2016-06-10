@@ -10,6 +10,7 @@ declare const CONFIG_DOMAIN: string;
 declare const CONFIG_GAME_SERVER_URL: string;
 declare const CONFIG_API_SERVER_URL: string;
 declare const CONFIG_FACEBOOK_APP_ID: string;
+declare const __RESOURCE_BASE__: string;
 
 declare module 'lodash/mapValues' {
   import _ = require('lodash');

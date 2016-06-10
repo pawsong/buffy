@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as Promise from 'bluebird';
 const invariant = require('fbjs/lib/invariant');
 import { Mesh } from '@pasta/core/lib/types';
 import * as Immutable from 'immutable';
@@ -16,23 +17,37 @@ const radius = 160, theta = 135, phi = 30;
 
 class ThumbnailFactory {
   private renderer: THREE.WebGLRenderer;
+  private blobRenderer: THREE.WebGLRenderer;
+  private waitingBlobRequests: Set<ndarray.Ndarray>;
+
   private thumbnailMaterial: THREE.Material;
   private scene: THREE.Scene;
   private camera: THREE.Camera;
   private temp1: THREE.Vector3;
 
-  private cache: WeakMap<ndarray.Ndarray, string>; //  Immutable.Map<ndarray.Ndarray, string>;
+  private cache: WeakMap<ndarray.Ndarray, string>;
+  private jpegCache: WeakMap<ndarray.Ndarray, Blob>;
+
   private emptyThumbnail: string;
+
+  private createRenderer(): THREE.WebGLRenderer {
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(THUMBNAIL_SIZE, THUMBNAIL_SIZE);
+    renderer.setClearColor(0xffffff);
+    return renderer;
+  }
 
   constructor(private geometryFactory: GeometryFactory) {
     this.cache = new WeakMap<ndarray.Ndarray, string>();
+    this.jpegCache = new WeakMap<ndarray.Ndarray, Blob>();
+    this.waitingBlobRequests = new Set<ndarray.Ndarray>();
+
     this.temp1 = new THREE.Vector3();
 
     // Setup environment for creating thumbanil.
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(THUMBNAIL_SIZE, THUMBNAIL_SIZE);
-    this.renderer.setClearColor(0xffffff);
+    this.renderer = this.createRenderer();
+    this.blobRenderer = this.createRenderer();
 
     this.thumbnailMaterial = new THREE.MeshLambertMaterial({
       color: 0xffffff,
@@ -62,10 +77,7 @@ class ThumbnailFactory {
     this.emptyThumbnail = this.renderer.domElement.toDataURL();
   }
 
-  createThumbnail(data: ndarray.Ndarray): string {
-    const cached = this.cache.get(data);
-    if (cached) return cached;
-
+  private render(data: ndarray.Ndarray, renderer: THREE.WebGLRenderer) {
     const geometry = this.geometryFactory.getGeometry(data);
 
     geometry.boundingBox.size(this.temp1);
@@ -82,17 +94,48 @@ class ThumbnailFactory {
     object.scale.set(scale, scale, scale);
 
     this.scene.add(object);
-    this.renderer.render(this.scene, this.camera);
-
-    const thumbnailUrl = this.renderer.domElement.toDataURL();
-
+    renderer.render(this.scene, this.camera);
     this.scene.remove(object);
 
     // Do not dispose geometry here. It will be disposed in where it was generated.
     // geometry.dispose();
+  }
+
+  createThumbnail(data: ndarray.Ndarray): string {
+    const cached = this.cache.get(data);
+    if (cached) return cached;
+
+    this.render(data, this.renderer);
+    const thumbnailUrl = this.renderer.domElement.toDataURL();
 
     this.cache.set(data, thumbnailUrl);
     return thumbnailUrl;
+  }
+
+  private pendingPromise: Promise<Blob>;
+
+  private _createThumbnailBlob(data: ndarray.Ndarray, callback: (blob: Blob) => any) {
+    this.render(data, this.blobRenderer);
+    const canvas: any = this.blobRenderer.domElement;
+    canvas.toBlob(blob => {
+      this.jpegCache.set(data, blob);
+      callback(blob);
+    }, 'image/jpeg', 0.95);
+  }
+
+  createThumbnailBlob = (data: ndarray.Ndarray): Promise<Blob> => {
+    const cached = this.jpegCache.get(data);
+    if (cached) return Promise.resolve(cached);
+
+    if (!this.pendingPromise || !this.pendingPromise.isPending()) {
+      return this.pendingPromise = new Promise<Blob>(resolve => {
+        this._createThumbnailBlob(data, resolve);
+      });
+    } else {
+      return this.pendingPromise = this.pendingPromise.then(() => new Promise<Blob>(resolve => {
+        this._createThumbnailBlob(data, resolve);
+      }));
+    }
   }
 }
 

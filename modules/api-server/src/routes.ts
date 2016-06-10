@@ -59,8 +59,10 @@ export default (app: express.Express) => {
 
   app.post('/files', fileHandlers.createFile2);
   app.post('/files/:fileId/issue-update-url', fileHandlers.issueFileUpdateUrl);
+  app.post('/files/:fileId/report-update', fileHandlers.reportUpdate);
 
   app.get ('/files', fileHandlers.getFileList);
+  app.get ('/files/@:username', fileHandlers.getUserFileList);
   app.get ('/files/:fileId', fileHandlers.getFile);
   app.put ('/files/:fileId', fileHandlers.updateFile);
 };

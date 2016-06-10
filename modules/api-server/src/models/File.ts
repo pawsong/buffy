@@ -12,6 +12,7 @@ export interface FileDocument extends mongoose.Document {
   owner: mongoose.Types.ObjectId;
   name: string;
   desc: string;
+  thumbnail: string;
   createdAt: Date;
   modifiedAt: Date;
 
@@ -24,6 +25,7 @@ const FileSchema = new Schema({
   owner: { type: Schema.Types.ObjectId, ref: 'User' },
   name: String,
   desc: String,
+  thumbnail: String,
   createdAt: { type: Date, default: Date.now },
   modifiedAt: { type: Date, default: Date.now },
 

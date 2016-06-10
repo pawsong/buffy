@@ -38,6 +38,10 @@ import SaveDialog from './components/SaveDialog';
 
 const styles = require('./ModelStudio.css');
 
+import { saga, SagaProps, ImmutableTask, isRunning } from '../../saga';
+
+import { updateFiles } from './sagas';
+
 const saveAs: FileSaver = require('file-saver').saveAs;
 
 interface RouteParams {
@@ -45,11 +49,12 @@ interface RouteParams {
   modelId: string;
 }
 
-interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams> {
+interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams>, SagaProps {
   user?: User;
   requestLogout?: () => any;
   push?: (location: HistoryModule.LocationDescriptor) => any;
   pushSnackbar?: (query: PushSnackbarQuery) => any;
+  updateFiles?: ImmutableTask<any>;
 }
 
 interface HandlerState {
@@ -71,6 +76,9 @@ interface HandlerState {
   push,
   pushSnackbar,
 }) as any)
+@saga({
+  updateFiles,
+})
 class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   thumbnailFactory: ThumbnailFactory;
   geometryFactory: GeometryFactory;
@@ -190,8 +198,8 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   }
 
   private saveFile(fileList: string[]) {
-    const newFiles = [];
-    const oldFiles = [];
+    const newFiles: ModelFile[] = [];
+    const oldFiles: ModelFile[] = [];
 
     const files = this.state.files.withMutations(files => {
       fileList.forEach(fileId => {
@@ -219,7 +227,20 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     }
 
     if (oldFiles.length > 0) {
+      this.props.runSaga(this.props.updateFiles, this.thumbnailFactory, oldFiles, () => {
+        const nextFiles = this.state.files.withMutations(files => {
+          oldFiles.forEach(oldFile => {
+            const file = files.get(oldFile.id);
+            if (file) files.set(file.id, Object.assign({}, file, {
+              savedBody: oldFile.body,
+              modified: ModelEditor.isModified(oldFile.body, file.body),
+            }));
+          });
+        });
+        this.setState({ files: nextFiles });
 
+        this.props.pushSnackbar({ message: `Successfully saved ${oldFiles.length} file(s)` });
+      });
     }
   }
 
@@ -343,12 +364,14 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onOpenedFileOrderChange={this.handleFileTabOrderChange}
         />
         <OpenModelFileDialog
+          user={this.props.user}
           open={this.state.openFileDialogOpen}
           onFileOpen={this.handleFileOpen}
           onRequestSnackbar={this.handleRequestSnackbar}
           onRequestClose={this.handleRequestOpenFileDialogClose}
         />
         <SaveDialog
+          thumbnailFactory={this.thumbnailFactory}
           user={this.props.user}
           file={fileOnSaveDialog}
           onRequestClose={this.handleRequestSaveDialogClose}

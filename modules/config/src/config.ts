@@ -117,3 +117,7 @@ export const jwtSecret: string = process.env.PASTA_JWT_SECRET;
 export const facebookAppIdDev: string = '1127122043982378';
 
 export const facebookAppIdProd: string = '1127121857315730';
+
+export const resourcePublicPathDev = `https://${s3Bucket}.s3.ap-northeast-2.amazonaws.com`;
+
+export const resourcePublicPathProd = 'https://dut3rr7qk867n.cloudfront.net';
