@@ -143,17 +143,18 @@ export default function getRoutes(store: Store) {
           }
         },
         indexRoute: {
-          getComponent: (location, cb) => {
-            if (!isLoggedIn()) {
-              return require.ensure([], (require) => {
-                cb(null, require<{ default: AnonymousIndexHandler }>('./screens/Anonymous/screens/Index').default);
-              });
-            } else {
-              return require.ensure([], (require) => {
-                cb(null, require<{ default: LoggedInIndexHandler }>('./screens/LoggedIn/screens/Index').default);
-              });
-            }
-          }
+          onEnter: (nextState, replace) => replace('/model/edit'),
+          // getComponent: (location, cb) => {
+          //   if (!isLoggedIn()) {
+          //     return require.ensure([], (require) => {
+          //       cb(null, require<{ default: AnonymousIndexHandler }>('./screens/Anonymous/screens/Index').default);
+          //     });
+          //   } else {
+          //     return require.ensure([], (require) => {
+          //       cb(null, require<{ default: LoggedInIndexHandler }>('./screens/LoggedIn/screens/Index').default);
+          //     });
+          //   }
+          // }
         },
         childRoutes: [
           {
