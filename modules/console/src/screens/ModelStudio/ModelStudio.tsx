@@ -142,7 +142,8 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     });
 
     this.oldBeforeUnload = window.onbeforeunload;
-    window.onbeforeunload = () => this.unsavedChangeExists() || undefined;
+    window.onbeforeunload = () => this.unsavedChangeExists()
+      ? 'Unsaved changes will be lost' : undefined;
   }
 
   componentWillUnmount() {
