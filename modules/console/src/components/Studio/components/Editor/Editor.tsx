@@ -78,6 +78,7 @@ class Editor extends React.Component<EditorProps, EditorState> {
     return (
       <ModelEditor
         focus={true}
+        onMouseDown={() => {}}
         geometryFactory={this.geometryFactory}
         commonState={this.state.modelCommonState}
         onCommonStateChange={this.handleModelCommonStateChange}

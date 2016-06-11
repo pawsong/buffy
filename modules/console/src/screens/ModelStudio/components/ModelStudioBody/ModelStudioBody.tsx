@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { findDOMNode } from 'react-dom';
 import { defineMessages } from 'react-intl';
 import FontIcon from 'material-ui/FontIcon';
 import { pink200, green300, blue300 } from 'material-ui/styles/colors';
@@ -63,7 +64,6 @@ const inlineStyles = {
 
 interface ModelStudioBodyProps {
   files: ModelFileMap;
-  dialogOpen: boolean;
   activeFileId: string;
   onFileChange: (body: ModelFileState) => any;
   openedFiles: string[];
@@ -83,6 +83,7 @@ interface HandlerState {
   modelCommonState?: ModelCommonState;
   browserOpen?: boolean;
   renameFileId?: string;
+  focused?: boolean;
 }
 
 const LS_KEY_BROWSER_WIDTH = 'modelstudio.browser.width';
@@ -103,6 +104,7 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
       modelCommonState: ModelEditor.createCommonState(),
       browserOpen: false,
       renameFileId: '',
+      focused: false,
     };
   }
 
@@ -114,10 +116,6 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
     } else {
       this.setState({ browserOpen: true });
     }
-  }
-
-  isModelEditorFocused() {
-    return !this.props.dialogOpen && !this.state.renameFileId;
   }
 
   renderGetFileButtons() {
@@ -148,11 +146,23 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
     );
   }
 
+  handleFocus = () => {
+    if (!this.state.focused) this.setState({ focused: true });
+  }
+
+  handleBlur = () => {
+    if (this.state.focused) this.setState({ focused: false });
+  }
+
+  handleEditorMouseDown = () => {
+    if (!this.state.focused) findDOMNode<HTMLElement>(this.refs['editor']).focus();
+  }
+
   renderEditor(activeFile: ModelFile) {
     const files = this.props.openedFiles.map(id => this.props.files.get(id));
 
     return (
-      <div>
+      <div ref="editor" tabIndex="-1" onFocus={this.handleFocus} onBlur={this.handleBlur}>
         <FileTabs
           onFileClick={this.props.onFileClick}
           activeFileId={this.props.activeFileId}
@@ -162,8 +172,9 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
         />
         <div style={inlineStyles.editor}>
           <ModelEditor
+            focus={this.state.focused}
+            onMouseDown={this.handleEditorMouseDown}
             geometryFactory={this.props.geometryFactory}
-            focus={this.isModelEditorFocused()}
             sizeVersion={this.state.editorSizeResivion}
             commonState={this.state.modelCommonState}
             fileState={activeFile.body}

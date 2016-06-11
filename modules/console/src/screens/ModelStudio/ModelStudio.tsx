@@ -354,13 +354,6 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.setState({ files: this.state.files.remove(fileId) });
   }
 
-  isDialogOpen() {
-    return (
-         this.state.filesOnSaveDialog.length > 0
-      || this.state.openFileDialogOpen
-    );
-  }
-
   handleFileOpen = (params: ModelFileOpenParams) => {
     this.addFile(params);
     this.setState({ openFileDialogOpen: false });
@@ -439,7 +432,6 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
         />
         <ModelStudioBody
           files={this.state.files}
-          dialogOpen={this.isDialogOpen()}
           openedFiles={this.state.openedFiles}
           onRequestSnackbar={this.handleRequestSnackbar}
           activeFileId={this.state.activeFileId}

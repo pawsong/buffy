@@ -109,6 +109,7 @@ interface ModelEditorProps extends React.Props<ModelEditor> {
   sizeVersion: number;
   extraData: ExtraData;
   focus: boolean;
+  onMouseDown: (e: MouseEvent) => any;
   intl?: InjectedIntlProps;
 }
 
@@ -315,7 +316,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     });
 
     return (
-      <div style={rootStyle}>
+      <div style={rootStyle} onMouseDown={this.props.onMouseDown}>
         <div style={styles.canvas} ref="canvas"></div>
         <FullscreenButton
           onTouchTap={() => this.handleFullscreenButtonClick()}
