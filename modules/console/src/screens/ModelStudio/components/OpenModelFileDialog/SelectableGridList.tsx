@@ -54,7 +54,7 @@ const SelectableGridList: React.StatelessComponent<SelectableGridListProps> = pr
       <GridTile
         key={item.id}
         title={item.name}
-        subtitle={props.showOwner ? <span>by <b>{item.owner}</b></span> : null}
+        subtitle={props.showOwner && item.owner ? <span>by <b>{item.owner}</b></span> : null}
         style={style}
         onTouchTap={onTouchTap}
       >
