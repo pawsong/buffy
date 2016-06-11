@@ -13,17 +13,7 @@ const EXPIRES = 60;
 const PAGE_SIZE = 12;
 
 export const getFileList = wrap(async (req, res) => {
-  const files = await FileModel.find({}).sort('-modifiedAt').exec();
-  res.send(files);
-});
-
-export const getUserFileList = wrap(async (req, res) => {
-  const { username } = req.params;
-
-  const user = await User.findOne({ username }).exec();
-  if (!user) return res.send(404);
-
-  const query: any = { owner: user.id };
+  const query: any = { isPublic: true };
   if (req.query.before) query.modifiedAt = { $lt: req.query.before };
 
   const files = await FileModel.find(query)
@@ -33,6 +23,24 @@ export const getUserFileList = wrap(async (req, res) => {
 
   res.send(files);
 });
+
+export const getUserFileList = compose(checkLogin, wrap(async (req, res) => {
+  const { username } = req.params;
+
+  const user = await User.findOne({ username }).exec();
+  if (!user) return res.send(404);
+
+  const query: any = { owner: user.id };
+  if (!req.user || req.user.id !== user._id.toHexString()) query.isPublic = true;
+  if (req.query.before) query.modifiedAt = { $lt: req.query.before };
+
+  const files = await FileModel.find(query)
+    .sort('-modifiedAt')
+    .limit(PAGE_SIZE)
+    .exec();
+
+  res.send(files);
+}));
 
 export const getFile = wrap(async (req, res) => {
   const { fileId } = req.params;

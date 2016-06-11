@@ -78,6 +78,19 @@ export function* createFile(thumbnailFactory: ThumbnailFactory, params: CreateFi
   callback();
 }
 
+interface LoadLatestPublicFilesParams {
+  before?: string;
+}
+export function* loadLatestPublicFiles(params: LoadLatestPublicFilesParams, callback: (result: any) => any) {
+  let response;
+  response = yield call(request.get, `${CONFIG_API_SERVER_URL}/files?before=${params.before || ''}`);
+  if (response.status !== 200) {
+    // TODO: Error handling
+    return;
+  }
+  callback(response.data);
+}
+
 interface LoadRemoteFilesParams {
   before?: string;
 }

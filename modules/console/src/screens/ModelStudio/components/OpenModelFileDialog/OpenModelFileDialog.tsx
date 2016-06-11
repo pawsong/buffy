@@ -5,13 +5,13 @@ import Tabs from 'material-ui/Tabs/Tabs';
 import Tab from 'material-ui/Tabs/Tab';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { cyan500, grey400 } from 'material-ui/styles/colors';
+import IconButton from 'material-ui/IconButton';
+import StarBorder from 'material-ui/svg-icons/toggle/star-border';
 // import * as Dropzone from 'react-dropzone';
 const Dropzone = require('react-dropzone');
 import { Ndarray } from 'ndarray';
 
-import GridList from 'material-ui/GridList/GridList';
-// import GridTile from 'material-ui/GridList/GridTile';
-const GridTile = require('material-ui/GridList/GridTile').default;
+import SelectableGridList from './SelectableGridList';
 
 import { saga, SagaProps, ImmutableTask, isRunning } from '../../../../saga';
 import { User } from '../../../../reducers/users';
@@ -19,7 +19,11 @@ import { User } from '../../../../reducers/users';
 const styles = require('./OpenModelFileDialog.css');
 
 import ModelEditor, { ModelFileState } from '../../../../components/ModelEditor';
-import { openRemoteFile, loadRemoteFiles } from '../../sagas';
+import {
+  openRemoteFile,
+  loadRemoteFiles,
+  loadLatestPublicFiles,
+} from '../../sagas';
 
 const Waypoint = require('react-waypoint');
 
@@ -28,6 +32,14 @@ import generateObjectId from '../../../../utils/generateObjectId';
 import { ModelFileOpenParams, ModelFileDocument } from '../../types';
 
 const inlineStyles = {
+  dialogTitle: {
+    marginBottom: 0,
+    borderBottom: 'none',
+  },
+  dialogActionsContainer: {
+    marginTop: 0,
+    borderTop: 'none',
+  },
   dropzone: {
     width: '100%',
     height: 200,
@@ -44,6 +56,16 @@ const inlineStyles = {
     borderStyle: 'solid',
     backgroundColor: '#ffdddd'
   },
+  gridChildImg: {
+    height: '100%',
+    transform: 'translateX(-50%)',
+    position: 'relative',
+    left: '50%',
+  },
+  gridChildImgContent: {
+    width: '100%',
+    height: '100%',
+  },
 }
 
 const fileExtPatt = /\.(\w+)$/;
@@ -56,25 +78,30 @@ interface OpenModelFileDialogProps extends SagaProps {
   onRequestSnackbar: (message: string) => any;
   loadRemoteFiles?: ImmutableTask<any>;
   openRemoteFile?: ImmutableTask<any>;
+  loadLatestPublicFiles?: ImmutableTask<any>;
 }
 
 enum TabType {
   MY_FILE_REMOTE,
+  PUBLIC_REPO,
   MY_FILE_LOCAL,
-  // PUBLIC_REPO,
 }
 
 interface OpenModelFileDialogState {
   tabType?: TabType;
   myFileSelectedId?: string;
   myFiles?: ModelFileDocument[];
+  publicFiles?: ModelFileDocument[];
   allMyFilesLoaded?: boolean;
+  allPublicFilesLoaded?: boolean;
+  publicSelectedId?: string;
 }
 
 @withStyles(styles)
 @saga({
   loadRemoteFiles,
   openRemoteFile,
+  loadLatestPublicFiles,
 })
 class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, OpenModelFileDialogState> {
   private reader: FileReader;
@@ -86,6 +113,9 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       myFileSelectedId: '',
       myFiles: [],
       allMyFilesLoaded: false,
+      publicFiles: [],
+      allPublicFilesLoaded: false,
+      publicSelectedId: '',
     };
   }
 
@@ -98,10 +128,13 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
   componentWillReceiveProps(nextProps: OpenModelFileDialogProps) {
     if (!this.props.open && nextProps.open) {
       this.setState({
-        tabType: this.props.user ? TabType.MY_FILE_REMOTE : TabType.MY_FILE_LOCAL,
+        tabType: this.props.user ? TabType.MY_FILE_REMOTE : TabType.PUBLIC_REPO,
         myFileSelectedId: '',
         myFiles: [],
         allMyFilesLoaded: false,
+        publicSelectedId: '',
+        publicFiles: [],
+        allPublicFilesLoaded: false,
       });
     }
   }
@@ -164,13 +197,13 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       case TabType.MY_FILE_REMOTE: {
         return !!this.state.myFileSelectedId;
       }
+      case TabType.PUBLIC_REPO: {
+        return !!this.state.publicSelectedId;
+      }
       case TabType.MY_FILE_LOCAL: {
         // Use dropzone instead of submit button click.
         return false;
       }
-      // case TabType.PUBLIC_REPO: {
-      //   return false;
-      // }
     }
     return false;
   }
@@ -180,23 +213,33 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
   }
 
   handleOpen = () => {
+    let fileId: string;
     switch(this.state.tabType) {
       case TabType.MY_FILE_REMOTE: {
-        this.props.runSaga(this.props.openRemoteFile,
-          this.state.myFileSelectedId,
-          (doc: ModelFileDocument, fileState: ModelFileState) => {
-            this.props.onFileOpen({
-              id: doc.id,
-              name: doc.name,
-              created: false,
-              readonly: false,
-              body: fileState,
-            });
-          }
-        );
+        fileId = this.state.myFileSelectedId;
+        break;
+      }
+      case TabType.PUBLIC_REPO: {
+        fileId = this.state.publicSelectedId;
+        break;
+      }
+      default: {
         return;
       }
     }
+
+    this.props.runSaga(this.props.openRemoteFile,
+      fileId,
+      (doc: ModelFileDocument, fileState: ModelFileState) => {
+        this.props.onFileOpen({
+          id: doc.id,
+          name: doc.name,
+          created: false,
+          readonly: false,
+          body: fileState,
+        });
+      }
+    );
   }
 
   loadMoreItems = (before: string) => {
@@ -215,52 +258,63 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
     this.loadMoreItems(lastFile && lastFile.modifiedAt);
   }
 
+  handleMyRemoteSelect = (id: string) => this.setState({ myFileSelectedId: id });
+
   renderMyRemoteBody(disabled: boolean) {
-    const tiles = this.state.myFiles.map(file => {
-      const onTouchTap = () => disabled || this.setState({ myFileSelectedId: file.id });
-
-      let style: any = { cursor: 'pointer' };
-      if (this.state.myFileSelectedId === file.id) {
-        style.border = `6px solid ${disabled ? grey400 : cyan500}`;
-      } else {
-        style.margin = '6px';
-      }
-
-      return (
-        <GridTile
-          key={file.id}
-          title={file.name}
-          style={style}
-          onTouchTap={onTouchTap}
-        >
-          <img src={`${__CDN_BASE__}/${file.thumbnail}`} />
-        </GridTile>
-      )
-    });
+    const items = this.state.myFiles.map(file => ({
+      id: file.id,
+      name: file.name,
+      image: `${__CDN_BASE__}/${file.thumbnail}`,
+    }));
 
     return (
-      <div>
-        <GridList
-          cellHeight={150}
-          cols={4}
-          style={{ margin: 10 }}
-          padding={10}
-        >
-          {tiles}
-        </GridList>
-        {
-          this.state.allMyFilesLoaded ? null : isRunning(this.props.loadRemoteFiles)
-            ? (
-              <div>Loading...</div>
-            )
-            : (
-              <Waypoint
-                onEnter={this.handleWaypointEnter}
-                threshold={2.0}
-              />
-            )
-        }
-      </div>
+      <SelectableGridList
+        items={items}
+        disabled={disabled}
+        loadMore={this.handleWaypointEnter}
+        loading={isRunning(this.props.loadRemoteFiles)}
+        useLoad={!this.state.allMyFilesLoaded}
+        selectedItem={this.state.myFileSelectedId}
+        onSelect={this.handleMyRemoteSelect}
+      />
+    );
+  }
+
+  loadMorePublicFiles = (before: string) => {
+    this.props.runSaga(this.props.loadLatestPublicFiles, {
+      before,
+    }, docs => {
+      this.setState({
+        publicFiles: this.state.publicFiles.concat(docs),
+        allPublicFilesLoaded: docs.length === 0,
+      });
+    });
+  }
+
+  handlePublicFilesLoadMore = () => {
+    const lastFile = this.state.publicFiles[this.state.publicFiles.length - 1];
+    this.loadMorePublicFiles(lastFile && lastFile.modifiedAt);
+  };
+
+  handleSelectPublicFile = (id: string) => this.setState({ publicSelectedId: id });
+
+  renderPublicRepoBody(disabled: boolean) {
+    const items = this.state.publicFiles.map(file => ({
+      id: file.id,
+      name: file.name,
+      image: `${__CDN_BASE__}/${file.thumbnail}`,
+    }));
+
+    return (
+      <SelectableGridList
+        items={items}
+        disabled={disabled}
+        loadMore={this.handlePublicFilesLoadMore}
+        loading={isRunning(this.props.loadLatestPublicFiles)}
+        useLoad={!this.state.allPublicFilesLoaded}
+        selectedItem={this.state.publicSelectedId}
+        onSelect={this.handleSelectPublicFile}
+      />
     );
   }
 
@@ -286,14 +340,12 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       case TabType.MY_FILE_REMOTE: {
         return this.renderMyRemoteBody(disabled);
       }
+      case TabType.PUBLIC_REPO: {
+        return this.renderPublicRepoBody(disabled);
+      }
       case TabType.MY_FILE_LOCAL: {
         return this.renderMyLocalBody();
       }
-      // case TabType.PUBLIC_REPO: {
-      //   return (
-      //     <div>PUBLIC_REPO</div>
-      //   );
-      // }
     }
     return null;
   }
@@ -330,16 +382,20 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
               {this.props.user ? (
                 <Tab label="Remote File" className={styles.tab} value={TabType.MY_FILE_REMOTE} disabled={disabled} />
               ): null}
+              <Tab label="search" className={styles.tab} value={TabType.PUBLIC_REPO} disabled={disabled}>
+                <div className={styles.tabHeader}>Sort: Latest</div>
+              </Tab>
               <Tab label="Local File" className={styles.tab} value={TabType.MY_FILE_LOCAL} disabled={disabled} />
-              {/*<Tab label="search" className={styles.tab} value={TabType.PUBLIC_REPO} disabled={disabled} />*/}
             </Tabs>
           </div>
         }
+        titleStyle={inlineStyles.dialogTitle}
         actions={actions}
+        actionsContainerStyle={inlineStyles.dialogActionsContainer}
         modal={disabled}
         open={this.props.open}
         onRequestClose={this.props.onRequestClose}
-        autoScrollBodyContent={true}
+        autoScrollBodyContent={this.state.tabType !== TabType.MY_FILE_LOCAL}
       >
         {this.renderBody(disabled)}
       </Dialog>
