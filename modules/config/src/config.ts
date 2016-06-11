@@ -124,7 +124,7 @@ export const s3BucketProd = 'bfasset';
 
 export const s3PublicPathDev = `https://${s3BucketDev}.s3.ap-northeast-2.amazonaws.com`;
 
-export const s3PublicPathProd = `https://${s3BucketProd}.s3.amazonaws.com`;
+export const s3PublicPathProd = `https://${s3BucketProd}.s3-us-west-2.amazonaws.com`;
 
 export const cdnPublicPathDev = `https://${s3BucketDev}.s3.ap-northeast-2.amazonaws.com`;
 
