@@ -55,7 +55,7 @@ import {
   ApiCallDictionary,
 } from './api';
 
-// To serve style file on webpack server
+const favicon = require('!file!./favicon.ico');
 const styles = require('./styles.js');
 
 const SUPPORTED_LOCALES = ['en', 'ko'];
@@ -87,6 +87,7 @@ const compiledIndexHtml = template(minifiedIndexHtml, {
   interpolate: /\{\{=(.+?)\}\}/g,
   escape:      /\{\{-(.+?)\}\}/g,
   imports: {
+    favicon,
     styles,
     script: __DEV__ ? (() => {
       return `<script src="http://${require('ip').address()}:${conf.consoleClientPort}/bundle.js"></script>`;

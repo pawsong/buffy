@@ -25,7 +25,8 @@ import configureStore from './store';
 
 import { EXPIRE_PRELOAD } from './api';
 
-// To serve style file on webpack server
+// To serve files on webpack server
+require('!file!./favicon.ico');
 require('./styles.js');
 
 const initialState = window['__INTIAL_STATE__'];
