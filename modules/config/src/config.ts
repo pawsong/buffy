@@ -22,7 +22,7 @@ export const consoleDevPort: number = 9001;
 
 export const consoleClientPort: number = 9002;
 
-export const consolePublicPath: string = 'https://dut3rr7qk867n.cloudfront.net';
+export const consolePublicPath: string = 'https://d9bcqgymbcv5c.cloudfront.net';
 
 export const addonConsoleClientPort = 9002;
 
@@ -82,7 +82,7 @@ export const adminServerDevPort: number = 9402;
 /**
 * public path for admin server assets
 */
-export const adminPublicPath: string = 'https://dut3rr7qk867n.cloudfront.net';
+export const adminPublicPath: string = 'https://d9bcqgymbcv5c.cloudfront.net';
 
 /**
  * mongodb server url
@@ -120,12 +120,12 @@ export const facebookAppIdProd: string = '1127121857315730';
 
 export const s3BucketDev = 'project-pasta-dev';
 
-export const s3BucketProd = 'project-pasta-prod';
+export const s3BucketProd = 'bfasset';
 
 export const s3PublicPathDev = `https://${s3BucketDev}.s3.ap-northeast-2.amazonaws.com`;
 
-export const s3PublicPathProd = `https://${s3BucketProd}.s3.ap-northeast-2.amazonaws.com`;
+export const s3PublicPathProd = `https://${s3BucketProd}.s3.amazonaws.com`;
 
-export const cdnPublicPathDev = `https://${s3Bucket}.s3.ap-northeast-2.amazonaws.com`;
+export const cdnPublicPathDev = `https://${s3BucketDev}.s3.ap-northeast-2.amazonaws.com`;
 
-export const cdnPublicPathProd = 'https://dut3rr7qk867n.cloudfront.net';
+export const cdnPublicPathProd = 'https://d3byjvd0ydnotw.cloudfront.net';
