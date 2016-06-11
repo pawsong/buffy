@@ -28,7 +28,6 @@ export interface ModelFileDocument {
   owner: {
     id: string;
     username: string;
-    name: string;
   };
   thumbnail: string;
   modifiedAt: string;

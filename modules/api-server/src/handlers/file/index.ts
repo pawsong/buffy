@@ -17,7 +17,7 @@ export const getFileList = wrap(async (req, res) => {
   if (req.query.before) query.modifiedAt = { $lt: req.query.before };
 
   const files = await FileModel.find(query)
-    .populate('owner', '_id username name')
+    .populate('owner', '_id username')
     .sort('-modifiedAt')
     .limit(PAGE_SIZE)
     .exec();
@@ -36,7 +36,7 @@ export const getUserFileList = compose(checkLogin, wrap(async (req, res) => {
   if (req.query.before) query.modifiedAt = { $lt: req.query.before };
 
   const files = await FileModel.find(query)
-    .populate('owner', '_id username name')
+    .populate('owner', '_id username')
     .sort('-modifiedAt')
     .limit(PAGE_SIZE)
     .exec();

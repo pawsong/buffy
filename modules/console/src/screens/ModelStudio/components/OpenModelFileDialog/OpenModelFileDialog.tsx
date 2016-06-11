@@ -265,7 +265,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       id: file.id,
       name: file.name,
       image: `${__CDN_BASE__}/${file.thumbnail}`,
-      owner: file.owner.username || file.owner.name,
+      owner: file.owner.username,
     }));
 
     return (
@@ -305,7 +305,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       id: file.id,
       name: file.name,
       image: `${__CDN_BASE__}/${file.thumbnail}`,
-      owner: file.owner.username || file.owner.name,
+      owner: file.owner.username,
     }));
 
     return (
