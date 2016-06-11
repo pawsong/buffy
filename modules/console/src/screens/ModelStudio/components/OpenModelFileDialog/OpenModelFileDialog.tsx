@@ -265,11 +265,13 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       id: file.id,
       name: file.name,
       image: `${__CDN_BASE__}/${file.thumbnail}`,
+      owner: file.owner.username || file.owner.name,
     }));
 
     return (
       <SelectableGridList
         items={items}
+        showOwner={false}
         disabled={disabled}
         loadMore={this.handleWaypointEnter}
         loading={isRunning(this.props.loadRemoteFiles)}
@@ -303,11 +305,13 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       id: file.id,
       name: file.name,
       image: `${__CDN_BASE__}/${file.thumbnail}`,
+      owner: file.owner.username || file.owner.name,
     }));
 
     return (
       <SelectableGridList
         items={items}
+        showOwner={true}
         disabled={disabled}
         loadMore={this.handlePublicFilesLoadMore}
         loading={isRunning(this.props.loadLatestPublicFiles)}

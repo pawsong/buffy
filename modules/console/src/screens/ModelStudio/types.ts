@@ -25,6 +25,11 @@ export interface ModelFileOpenParams {
 export interface ModelFileDocument {
   id: string;
   name: string;
+  owner: {
+    id: string;
+    username: string;
+    name: string;
+  };
   thumbnail: string;
   modifiedAt: string;
   isPublic: boolean;
