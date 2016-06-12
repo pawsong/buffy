@@ -154,6 +154,8 @@ export const reportUpdate = compose(checkLogin, wrap(async (req, res) => {
     if (!req.user || req.user.id !== file.owner.toHexString()) return res.sendStatus(403);
   }
 
+  const oldThumbnail = file.thumbnail;
+
   // TODO: Get this update message from aws lambda triggered by s3 event.
   await FileModel.findByIdAndUpdate(fileId, {
     modifiedAt: Date.now(),
@@ -161,4 +163,12 @@ export const reportUpdate = compose(checkLogin, wrap(async (req, res) => {
   }).exec();
 
   res.sendStatus(200);
+
+  if (oldThumbnail) {
+    // TODO: Log error
+    s3.deleteObject({
+      Bucket: conf.s3Bucket,
+      Key: oldThumbnail,
+    }, (err) => err && console.error(err));
+  }
 }));

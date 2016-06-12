@@ -5,6 +5,8 @@ import validateUsername, {
 import User from '../../models/User';
 import { compose } from 'compose-middleware/lib';
 import { requiresLogin } from '../../middlewares/auth';
+import s3 from '../../s3';
+import * as conf from '@pasta/config';
 
 export const usernameExists = wrap(async (req, res) => {
   const { username } = req.params;
@@ -32,7 +34,15 @@ export const updateMyUserData = compose(requiresLogin, wrap(async (req, res) => 
     return res.send(400);
   }
   const user = await User.findByIdAndUpdate(req.user.id, req.body, { runValidators: true } as any).exec();
-  return res.send(user);
+  res.send(user);
+
+  if (req.body.picture && user.picture /* old picture */ && req.body.picture !== user.picture) {
+    // TODO: Log error
+    s3.deleteObject({
+      Bucket: conf.s3Bucket,
+      Key: user.picture,
+    }, (err) => err && console.error(err));
+  }
 }));
 
 export const getFriends = compose(requiresLogin, wrap(async (req, res) => {
