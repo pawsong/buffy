@@ -382,7 +382,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     const file = this.state.files.get(fileId);
     if (!file) return;
 
-    const fileUpdate = { created: false } as ModelFile;
+    const fileUpdate = { created: false, modified: false } as ModelFile;
     if (file.name !== name) fileUpdate.name = name;
     this.setState({
       files: this.state.files.set(fileId, Object.assign({}, file, fileUpdate)),
