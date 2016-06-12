@@ -54,11 +54,12 @@ class ProfileHandler extends React.Component<HandlerProps, {}> {
   renderUserInfo() {
     if (this.props.user.state !== 'fulfilled') return null;
     const user = this.props.user.result;
+    const picture = `${__CDN_BASE__}/${user.picture}`
 
     return (
       <div style={{ margin: '20px 10px' }}>
         <div style={{ textAlign: 'center' }}>
-          <img src={user.picture} style={{ width: '100%' }} />
+          <img src={picture} style={{ width: '100%' }} />
         </div>
         <div className={styles.nameContainer}>
           <div className={styles.name}>{user.name}</div>

@@ -104,10 +104,13 @@ interface HandlerState {
       // TODO: Error handling
       return;
     }
-    const { signedUrl } = response.data;
+    const { signedUrl, key, cacheControl } = response.data;
 
     response = yield call(request.put, signedUrl, blob, {
-      headers: { 'Content-Type': type },
+      headers: {
+        'Content-Type': type,
+        'Cache-Control': cacheControl,
+      },
       withCredentials: false,
     });
 
@@ -116,10 +119,8 @@ interface HandlerState {
       return;
     }
 
-    const picture = signedUrl.split('?')[0];
-
     response = yield call(request.put, `${CONFIG_API_SERVER_URL}/me`, {
-      picture,
+      picture: key,
     });
 
     if (response.status !== 200) {
@@ -127,7 +128,7 @@ interface HandlerState {
       return;
     }
 
-    yield put(userUpdate(userId, { picture }));
+    yield put(userUpdate(userId, { picture: key }));
   },
   submitProfileUpdate: function* (userId: string, name: string) {
     const response = yield call(request.put, `${CONFIG_API_SERVER_URL}/me`, {
@@ -274,13 +275,15 @@ class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
     const { user } = this.props;
     if (!user) return null;
 
+    const picture = `${__CDN_BASE__}/${user.picture}`;
+
     return (
       <Wrapper style={{ marginTop: 15 }}>
         <h1>{this.props.intl.formatMessage(Messages.settings)}</h1>
 
         <div className={styles.fieldLabel}>{this.props.intl.formatMessage(messages.profilePicture)}</div>
         <div className="row start-xs middle-xs" style={{ marginTop: 20, marginLeft: 0 }}>
-          <img src={user.picture} style={{ width: 96, height: 96, marginRight: 15 }} />
+          <img src={picture} style={{ width: 96, height: 96, marginRight: 15 }} />
           <RaisedButton label={this.props.intl.formatMessage(messages.changeProfilePicture)}
                         onTouchTap={() => this.handleProfilePictureClick()}
           />
@@ -297,6 +300,7 @@ class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
 
         <div className={styles.fieldLabel}>{this.props.intl.formatMessage(messages.name)}</div>
         <TextField
+          id="username"
           defaultValue={user.name || ''}
           onChange={e => this.handleNameChange(e.target['value'])}
         />

@@ -179,7 +179,7 @@ class UserInfoDialog extends React.Component<UserInfoDialogProps, UserInfoDialog
     return !this.props.user.username;
   }
 
-  submit() {
+  submit = () => {
     if (isRunning(this.props.submit)) return;
     this.props.runSaga(this.props.submit, this.props.user.id, this.state.username);
   }
@@ -189,6 +189,10 @@ class UserInfoDialog extends React.Component<UserInfoDialogProps, UserInfoDialog
     this.setState({ username });
 
     this.props.runSaga(this.props.validateUsername, this.props.intl.formatMessage, username);
+  }
+
+  handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.keyCode === 13 /* ENTER */) this.submit();
   }
 
   render() {
@@ -202,28 +206,31 @@ class UserInfoDialog extends React.Component<UserInfoDialogProps, UserInfoDialog
     const isSubmitPending = isRunning(this.props.submit);
 
     const actions = [
-      <FlatButton label={this.props.intl.formatMessage(Messages.submit)}
-                  primary={true}
-                  disabled={!formIsValid || isSubmitPending}
-                  onTouchTap={() => this.submit()}
+      <FlatButton
+        label={this.props.intl.formatMessage(Messages.submit)}
+        primary={true}
+        disabled={!formIsValid || isSubmitPending}
+        onTouchTap={this.submit}
       />,
     ];
 
     return (
-      <Dialog title={this.props.intl.formatMessage(messages.modalTitle)}
-              open={true}
-              modal={true}
-              actions={actions}
-              contentStyle={styles.modelContent}
+      <Dialog
+        title={this.props.intl.formatMessage(messages.modalTitle)}
+        open={true}
+        modal={true}
+        actions={actions}
+        contentStyle={styles.modelContent}
       >
         <div>{this.props.intl.formatMessage(messages.createUsername)}</div>
         <div style={styles.inputRow}>
-          <TextField onEnterKeyDown={() => this.submit()}
-                    disabled={isSubmitPending}
-                    onChange={e => this.handleUsernameChange(e)}
-                    floatingLabelText={this.props.intl.formatMessage(Messages.username)}
-                    fullWidth={true}
-                    errorText={usernameErrorMessage}
+          <TextField
+            onKeyDown={this.handleKeyDown}
+            disabled={isSubmitPending}
+            onChange={e => this.handleUsernameChange(e)}
+            floatingLabelText={this.props.intl.formatMessage(Messages.username)}
+            fullWidth={true}
+            errorText={usernameErrorMessage}
           />
           {isRunning(this.props.validateUsername) ? <CircularProgress size={0.3} style={styles.progress} /> : null}
           <FontIcon className="material-icons" style={Object.assign({}, styles.textfieldCheck, {

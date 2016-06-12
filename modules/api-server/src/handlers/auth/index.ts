@@ -1,11 +1,9 @@
-import * as gm from 'gm';
 import * as shortid from 'shortid';
 import * as request from 'request';
 import wrap from '@pasta/helper/lib/wrap';
 import User from '../../models/User';
-import s3 from '../../s3';
+import { getSignedUrlForPutObject } from '../../s3';
 import * as jwt from 'jsonwebtoken';
-import * as axios from 'axios';
 import * as conf from '@pasta/config';
 
 export const checkIfEmailExists = wrap(async (req, res) => {
@@ -59,60 +57,72 @@ export const loginWithLocal = wrap(async (req, res) => {
   res.send(user);
 });
 
+interface GraphApiResult {
+  id: string;
+  picture: {
+    data: {
+      url: string;
+    };
+  };
+}
+
 export const loginWithFacebook = wrap(async (req, res) => {
   const fbToken = (req.body || {}).token;
 
   // Request data with token.
-  let profile;
-  try {
-    profile = await axios.get('https://graph.facebook.com/me', {
-      params: { fields: 'id,name,picture' },
+  const profile = await new Promise<GraphApiResult>((resolve, reject) => {
+    request.get({
+      url: 'https://graph.facebook.com/me',
+      qs: { fields: 'id,name,picture.type(large)' },
       headers: {
         Accept: 'application/json',
         Authorization: `OAuth ${fbToken}`
       },
-    }).then(res => res.data);
-  } catch(err) {
-    if (err.status !== 401) {
-      throw err;
-    }
-    return res.sendStatus(401);
-  }
+      json: true,
+    }, (error, response, body) => {
+      if (error) return reject(error);
+      return resolve(response.statusCode === 200 ? body : null);
+    });
+  });
+
+  if (!profile) return res.sendStatus(400);
 
   let user = await User.findOne({
     fb: profile.id,
   }).exec();
 
   if (!user) {
+    user = new User();
+
     const pictureUrl = profile.picture.data.url;
     const { headers } = await new Promise<{ headers: any }>((resolve, reject) => {
-      request.head(pictureUrl, (err, res) => err ? reject(err) : resolve(res));
+      request.get(pictureUrl, (err, res) => err ? reject(err) : resolve(res));
     });
 
-    const stdout = await new Promise((resolve, reject) => {
-      gm(request(pictureUrl) as any)
-        .resize(128, 128)
-        .stream((err, stdout, stderr) => {
-          if (err) { return reject(err); }
-          resolve(stdout);
-        });
+    const key = `profiles/${user.id}/${shortid.generate()}`;
+
+    const params = {
+      contentType: headers['content-type'],
+      cacheControl: 'public,max-age=31536000',
+    };
+
+    const signedUrl = await getSignedUrlForPutObject(key, params);
+
+    await new Promise((resolve, reject) => {
+      request(pictureUrl)
+        .on('response', resp => { delete resp.headers['cache-control'] })
+        .pipe(request.put({
+          url: signedUrl,
+          headers: {
+            'Content-Type': params.contentType,
+            'Cache-Control': params.cacheControl,
+          },
+        }))
+        .on('response', resp => resp.statusCode === 200 ? resolve() : reject(resp));
     });
 
-    const data = await new Promise<{ Location: any }>((resolve, reject) => {
-      s3.upload({
-        Bucket: conf.s3Bucket,
-        Key: `profiles/${profile.id}/${shortid.generate()}`,
-        Body: stdout, //resp.body,
-        ACL: 'public-read',
-        ContentType: headers['content-type'],
-        CacheControl: 'public,max-age=31536000',
-      }, (err, data) => err ? reject(err) : resolve(data));
-    });
-
-    user = new User({
-      fb: profile.id,
-      picture: data.Location,
-    });
+    user.fb = profile.id;
+    user.picture = key;
     await user.save();
   }
 

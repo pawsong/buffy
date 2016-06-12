@@ -30,7 +30,6 @@
   "license": "UNLICENSED",
   "dependencies": {
     "aws-sdk": "^2.2.30",
-    "axios": "^0.8.1",
     "babel-polyfill": "^6.3.14",
     "basic-auth": "^1.0.3",
     "bluebird": "^3.0.5",
@@ -42,7 +41,6 @@
     "cors": "^2.7.1",
     "express": "^4.13.3",
     "express-jwt": "^3.3.0",
-    "gm": "^1.22.0",
     "http-errors": "^1.4.0",
     "jsonwebtoken": "^5.5.4",
     "kerberos": "0.0.17",

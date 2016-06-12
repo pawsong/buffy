@@ -186,7 +186,7 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
 
   render() {
     const user = this.props.user;
-    const picture = user ? user.picture : '';
+    const picture = user ? `${__CDN_BASE__}/${user.picture}` : '';
 
     const accountInfoBox = this.state.accountInfoBoxOpened ? this.renderAccountBox() : null;
 
