@@ -1,4 +1,3 @@
-import { isCancelError } from 'redux-saga';
 import { take, put, call as _call, fork, cancel, select } from 'redux-saga/effects'
 
 /**
@@ -14,9 +13,6 @@ export function* takeLatest(pattern, saga) {
     }
   } catch (error) {
     if (lastTask) { yield cancel(lastTask); }
-    if (!isCancelError(error)) {
-      throw error;
-    }
   }
 }
 

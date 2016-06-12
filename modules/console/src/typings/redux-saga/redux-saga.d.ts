@@ -43,8 +43,6 @@ declare module 'redux-saga' {
   export function takeEvery(pattern: Pattern, saga: Saga, ...args: any[]): { [Symbol.iterator](): IterableIterator<any> };
 
   export function takeLatest(pattern: Pattern, saga: Saga, ...args: any[]): { [Symbol.iterator](): IterableIterator<any> };
-
-  export function isCancelError(e: any): boolean;
 }
 
 declare module 'redux-saga/effects' {
@@ -86,6 +84,8 @@ declare module 'redux-saga/effects' {
   export function select<T>(selector?: (state: T, ...args: any[]) => any, ...args: any[]): Effect;
 
   export function cancel(task: Task<any>): Effect;
+
+  export function cancelled(): Effect;
 }
 
 declare module 'redux-saga/lib/proc' {

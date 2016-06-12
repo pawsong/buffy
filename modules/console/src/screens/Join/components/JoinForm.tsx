@@ -7,8 +7,7 @@ import Divider from 'material-ui/Divider';
 import RaisedButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-import { isCancelError } from 'redux-saga';
-import { call, put } from 'redux-saga/effects';
+import { call, put, cancelled } from 'redux-saga/effects';
 import { replace } from 'react-router-redux';
 const isEmail = require('validator/lib/isEmail');
 import CircularProgress from 'material-ui/CircularProgress';
@@ -181,59 +180,47 @@ interface LoginResult {
 @injectIntl
 @saga({
   validateEmail: function* (email, formatMessage) {
-    try {
-      // Wait for 1 sec to prevent unnecessary validation
-      yield call(wait, 1000);
+    // Wait for 1 sec to prevent unnecessary validation
+    yield call(wait, 1000);
 
-      if (!isEmail(email)) {
-        return {
-          valid: false,
-          error: formatMessage(messages.invalidEmail),
-        };
-      }
-
-      const response = yield call(request.get, `${CONFIG_API_SERVER_URL}/signup/local/exists/${email}`);
-      const exists = response.data.result;
-      return exists ? {
+    if (!isEmail(email)) {
+      return {
         valid: false,
-        error: formatMessage(messages.emailAlreadyExists),
-      } : {
-        valid: true,
-        error: '',
+        error: formatMessage(messages.invalidEmail),
       };
-    } catch(error) {
-      if (!isCancelError(error)) throw error;
     }
+
+    const response = yield call(request.get, `${CONFIG_API_SERVER_URL}/signup/local/exists/${email}`);
+    const exists = response.data.result;
+    return exists ? {
+      valid: false,
+      error: formatMessage(messages.emailAlreadyExists),
+    } : {
+      valid: true,
+      error: '',
+    };
   },
   localSignUp: function* (email, password) {
-    try {
-      const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/signup/local`, {
-        email,
-        password,
-      });
-      if (response.status !== 200) {
-        return { result: false, descriptor: messages.localSignUpFailed };
-      }
-
-      const result = yield call(localLogin, email, password);
-      if (result) {
-        yield put(replace('/'));
-      }
-      return { result, descriptor: Messages.localLoginFailed };
-    } catch(error) {
-      if (!isCancelError(error)) throw error;
+    const response = yield call(request.post, `${CONFIG_API_SERVER_URL}/signup/local`, {
+      email,
+      password,
+    });
+    if (response.status !== 200) {
+      return { result: false, descriptor: messages.localSignUpFailed };
     }
+
+    const result = yield call(localLogin, email, password);
+    if (result) {
+      yield put(replace('/'));
+    }
+    return { result, descriptor: Messages.localLoginFailed };
   },
   facebookSignUp: function* () {
-    try {
-      const result = yield call(facebookLogin);
-      if (result) {
-        yield put(replace('/'));
-      }
-      return { result, descriptor: Messages.facebookLoginFailed };
-    } catch(error) {
-      if (!isCancelError(error)) throw error;
+    const result = yield call(facebookLogin);
+    if (result) {
+      yield put(replace('/'));
     }
+    return { result, descriptor: Messages.facebookLoginFailed };
   },
 })
 class JoinForm extends React.Component<JoinFormProps, JoinFormState> {

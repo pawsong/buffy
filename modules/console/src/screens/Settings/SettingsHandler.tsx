@@ -2,7 +2,6 @@ import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
 import { RouteComponentProps, Link } from 'react-router';
-import { isCancelError } from 'redux-saga';
 import { call, put } from 'redux-saga/effects';
 
 import * as Colors from 'material-ui/styles/colors';
@@ -95,44 +94,40 @@ interface HandlerState {
 
 @saga({
   uploadProfilePicture: function* (userId: string, blob: Blob, type: string) {
-    try {
-      let response;
+    let response;
 
-      response = yield call(request.post, `${CONFIG_API_SERVER_URL}/cdn/signed-url/profile`, {
-        contentType: type,
-      });
+    response = yield call(request.post, `${CONFIG_API_SERVER_URL}/cdn/signed-url/profile`, {
+      contentType: type,
+    });
 
-      if (response.status !== 200) {
-        // TODO: Error handling
-        return;
-      }
-      const { signedUrl } = response.data;
-
-      response = yield call(request.put, signedUrl, blob, {
-        headers: { 'Content-Type': type },
-        withCredentials: false,
-      });
-
-      if (response.status !== 200) {
-        // TODO: Error handling
-        return;
-      }
-
-      const picture = signedUrl.split('?')[0];
-
-      response = yield call(request.put, `${CONFIG_API_SERVER_URL}/me`, {
-        picture,
-      });
-
-      if (response.status !== 200) {
-        // TODO: Error handling
-        return;
-      }
-
-      yield put(userUpdate(userId, { picture }));
-    } catch(error) {
-      if (!isCancelError(error)) throw error;
+    if (response.status !== 200) {
+      // TODO: Error handling
+      return;
     }
+    const { signedUrl } = response.data;
+
+    response = yield call(request.put, signedUrl, blob, {
+      headers: { 'Content-Type': type },
+      withCredentials: false,
+    });
+
+    if (response.status !== 200) {
+      // TODO: Error handling
+      return;
+    }
+
+    const picture = signedUrl.split('?')[0];
+
+    response = yield call(request.put, `${CONFIG_API_SERVER_URL}/me`, {
+      picture,
+    });
+
+    if (response.status !== 200) {
+      // TODO: Error handling
+      return;
+    }
+
+    yield put(userUpdate(userId, { picture }));
   },
   submitProfileUpdate: function* (userId: string, name: string) {
     const response = yield call(request.put, `${CONFIG_API_SERVER_URL}/me`, {

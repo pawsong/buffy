@@ -6,7 +6,6 @@ import Paper from 'material-ui/Paper';
 import Divider from 'material-ui/Divider';
 import RaisedButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
-import { isCancelError } from 'redux-saga';
 import { call, put } from 'redux-saga/effects';
 import { replace } from 'react-router-redux';
 import CircularProgress from 'material-ui/CircularProgress';
@@ -80,24 +79,16 @@ interface LoginResult {
 @injectIntl
 @saga({
   localLogin: function* (locationDesc: HistoryModule.LocationDescriptor, email: string, password: string) {
-    try {
-      const result = yield call(localLogin, email, password);
-      if (result) yield put(replace(locationDesc));
+    const result = yield call(localLogin, email, password);
+    if (result) yield put(replace(locationDesc));
 
-      return { result };
-    } catch(error) {
-      if (!isCancelError(error)) throw error;
-    }
+    return { result };
   },
   facebookLogin: function* (locationDesc: HistoryModule.LocationDescriptor) {
-    try {
-      const result = yield call(facebookLogin);
-      if (result) yield put(replace(locationDesc));
+    const result = yield call(facebookLogin);
+    if (result) yield put(replace(locationDesc));
 
-      return { result };
-    } catch(error) {
-      if (!isCancelError(error)) throw error;
-    }
+    return { result };
   },
 })
 @withStyles(styles)

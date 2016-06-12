@@ -10,7 +10,6 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 import Messages from '../../../constants/Messages';
 import { State } from '../../../reducers';
 import { saga, SagaProps, ImmutableTask, isRunning, isDone, request, wait } from '../../../saga';
-import { isCancelError } from 'redux-saga';
 import { call, put } from 'redux-saga/effects';
 import { userUpdate } from '../../../actions/users';
 import { User } from '../../../reducers/users';
@@ -130,29 +129,25 @@ const styles = {
 
 @saga({
   validateUsername: function* (formatMessage, username) {
-    try {
-      // Wait for 1 sec to prevent unnecessary validation
-      yield call(wait, 1000);
+    // Wait for 1 sec to prevent unnecessary validation
+    yield call(wait, 1000);
 
-      const usernameValidationResult = validateUsername(username);
+    const usernameValidationResult = validateUsername(username);
 
-      if (usernameValidationResult !== UsernameValidationResult.OK) {
-        const error = getUsernameErrorMessage(formatMessage, usernameValidationResult);
-        return { valid: false, error };
-      }
-
-      const response = yield call(request.get, `${CONFIG_API_SERVER_URL}/username-exists/${username}`);
-      const exists = response.data.result;
-      return exists ? {
-        valid: false,
-        error: formatMessage(messages.usernameAlreadyExists),
-      } : {
-        valid: true,
-        error: '',
-      };
-    } catch(error) {
-      if (!isCancelError(error)) throw error;
+    if (usernameValidationResult !== UsernameValidationResult.OK) {
+      const error = getUsernameErrorMessage(formatMessage, usernameValidationResult);
+      return { valid: false, error };
     }
+
+    const response = yield call(request.get, `${CONFIG_API_SERVER_URL}/username-exists/${username}`);
+    const exists = response.data.result;
+    return exists ? {
+      valid: false,
+      error: formatMessage(messages.usernameAlreadyExists),
+    } : {
+      valid: true,
+      error: '',
+    };
   },
   submit: function* (userId, username) {
     const response = yield call(request.put, `${CONFIG_API_SERVER_URL}/me`, {

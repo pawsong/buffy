@@ -1,5 +1,4 @@
 import { call, fork, put, take, race, select, cancel } from 'redux-saga/effects';
-import { isCancelError } from 'redux-saga';
 import { replace } from 'react-router-redux';
 import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import ModelEditor, { ModelFileState } from '../../../components/ModelEditor';
