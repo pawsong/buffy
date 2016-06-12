@@ -34,6 +34,7 @@
     "axios": "^0.8.1",
     "babel-polyfill": "^6.0.16",
     "bluebird": "^3.1.1",
+    "blueimp-canvas-to-blob": "^3.3.0",
     "bson": "^0.4.23",
     "classnames": "^2.2.5",
     "compression": "^1.6.1",

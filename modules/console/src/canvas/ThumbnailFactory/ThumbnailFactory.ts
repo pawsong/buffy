@@ -39,6 +39,9 @@ class ThumbnailFactory {
   }
 
   constructor(private geometryFactory: GeometryFactory) {
+    // Install canvas.toBlob polyfill
+    if (!HTMLCanvasElement.prototype.toBlob) require('blueimp-canvas-to-blob');
+
     this.cache = new WeakMap<ndarray.Ndarray, string>();
     this.jpegCache = new WeakMap<ndarray.Ndarray, Blob>();
     this.waitingBlobRequests = new Set<ndarray.Ndarray>();
