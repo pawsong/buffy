@@ -138,3 +138,12 @@ export function* openRemoteFile(fileId: string, callback: (doc: ModelFileDocumen
   const fileState = ModelEditor.deserialize(new Uint8Array(dataRes.data));
   callback(docRes.data, fileState);
 }
+
+export function* deleteFile(fileId: string, callback: () => any) {
+  const response = yield call(request.del, `${CONFIG_API_SERVER_URL}/files/${fileId}`);
+  if (response.status !== 200) {
+    // TODO: Error handling
+    return;
+  }
+  callback();
+}

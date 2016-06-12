@@ -174,6 +174,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       } else {
         this.props.onFileOpen({
           id: generateObjectId(),
+          owner: this.props.user || null,
           name: file.name,
           body: result,
           readonly: false,
@@ -233,6 +234,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       (doc: ModelFileDocument, fileState: ModelFileState) => {
         this.props.onFileOpen({
           id: doc.id,
+          owner: doc.owner || null,
           name: doc.name,
           created: false,
           readonly: false,

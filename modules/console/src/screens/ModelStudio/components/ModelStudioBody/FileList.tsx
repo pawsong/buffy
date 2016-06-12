@@ -20,12 +20,14 @@ import { getFileTypeLabel, getFileTypeAvatar } from '../../../../utils/file';
 const styles = require('../../ModelStudio.css');
 
 interface FileListProps extends React.Props<FileList> {
+  userId: string;
   files: ModelFileMap;
   renameFileId: string;
   onFileTouchTap: (fileId: string) => any;
   onRequestRename: (fileId: string) => any;
   onFileRename: (fileId: string, name: string) => any;
   onFileRemove: (fileId: string) => any;
+  onFileDelete: (fileId: string) => any;
 }
 
 const markForModifiedClass = classNames('material-icons', styles.markForModified);
@@ -99,6 +101,11 @@ class FileList extends React.Component<FileListProps, FileListState> {
             >
               Remove from list
             </MenuItem>
+            {!file.created && file.owner && file.owner.id === this.props.userId ? <MenuItem
+              onTouchTap={() => this.props.onFileDelete(file.id)}
+            >
+              Delete permanently
+            </MenuItem> : null}
           </IconMenu>
         );
 
@@ -123,13 +130,15 @@ class FileList extends React.Component<FileListProps, FileListState> {
             </span>
           );
 
+        const secondaryText = file.owner ? <p>by {file.owner.username}</p> : null;
+
         return (
           <ListItem
             key={file.id}
             leftAvatar={<Avatar src={file.thumbnail} />}
             rightIconButton={rightIconMenu}
             primaryText={primaryText}
-            secondaryText={getFileTypeLabel(file.type)}
+            secondaryText={secondaryText}
             onTouchTap={() => this.props.onFileTouchTap(file.id)}
           />
         );

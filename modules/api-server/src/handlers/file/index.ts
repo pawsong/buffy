@@ -1,7 +1,8 @@
+import * as mongoose from 'mongoose';
 import wrap from '@pasta/helper/lib/wrap';
 import { compose } from 'compose-middleware/lib';
 import * as shortid from 'shortid';
-import { checkLogin } from '../../middlewares/auth';
+import { checkLogin, requiresLogin } from '../../middlewares/auth';
 import s3 from '../../s3';
 import * as conf from '@pasta/config';
 
@@ -44,11 +45,23 @@ export const getUserFileList = compose(checkLogin, wrap(async (req, res) => {
   res.send(files);
 }));
 
-export const getFile = wrap(async (req, res) => {
+export const getFile = compose(checkLogin, wrap(async (req, res) => {
   const { fileId } = req.params;
-  const file = await FileModel.findById(fileId).exec();
+
+  const file = await FileModel.findById(fileId)
+    .populate('owner', '_id username')
+    .exec();
+
+  if (!file) {
+    return res.sendStatus(404);
+  } else if (!file.isPublic) {
+    if (!req.user || req.user.id !== (file.owner as any)._id.toHexString()) {
+      return res.sendStatus(404);
+    }
+  }
+
   res.send(file);
-});
+}));
 
 export const createFile = wrap(async (req, res) => {
   const { data } = req.body;
@@ -92,6 +105,30 @@ export const createFile2 = compose(checkLogin, wrap(async (req, res) => {
   await file.save();
 
   res.send(file);
+}));
+
+export const deleteFile = compose(requiresLogin, wrap(async (req, res) => {
+  const { fileId } = req.params;
+
+  const file = await FileModel.findOneAndRemove({
+    _id: fileId,
+    owner: req.user.id,
+  }).exec();
+
+  if (!file) return res.send(400);
+
+  res.send(200);
+
+  // TODO: Log error
+  s3.deleteObject({
+    Bucket: conf.s3Bucket,
+    Key: `files/${fileId}`,
+  }, (err) => err && console.error(err));
+
+  s3.deleteObject({
+    Bucket: conf.s3Bucket,
+    Key: file.thumbnail,
+  }, (err) => err && console.error(err));
 }));
 
 const contentType = 'application/octet-stream';

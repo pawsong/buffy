@@ -36,13 +36,18 @@ import ConfirmLeaveDialog from './components/ConfirmLeaveDialog';
 import ModelStudioNavbar from './components/ModelStudioNavbar';
 import ModelStudioBody from './components/ModelStudioBody';
 import OpenModelFileDialog from './components/OpenModelFileDialog';
+import DeleteFileDialog from './components/DeleteFileDialog';
 import SaveDialog from './components/SaveDialog';
 
 const styles = require('./ModelStudio.css');
 
 import { saga, SagaProps, ImmutableTask, isRunning } from '../../saga';
 
-import { updateFiles, updateFileMeta } from './sagas';
+import {
+  updateFiles,
+  updateFileMeta,
+  deleteFile,
+} from './sagas';
 
 const saveAs: FileSaver = require('file-saver').saveAs;
 
@@ -58,6 +63,7 @@ interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams>, Sa
   pushSnackbar?: (query: PushSnackbarQuery) => any;
   updateFiles?: ImmutableTask<any>;
   updateFileMeta?: ImmutableTask<any>;
+  deleteFile?: ImmutableTask<any>;
   router?: any;
 }
 
@@ -75,6 +81,7 @@ interface HandlerState {
   openFileDialogOpen?: boolean;
   filesOnSaveDialog?: string[];
   leaveConfirmParams?: LeaveConfirmParams;
+  fileToDelete?: string;
 }
 
 @withStyles(styles)
@@ -89,6 +96,7 @@ interface HandlerState {
 @saga({
   updateFiles,
   updateFileMeta,
+  deleteFile,
 })
 @withRouter
 class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
@@ -115,6 +123,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       openFileDialogOpen: false,
       filesOnSaveDialog: [],
       leaveConfirmParams: null,
+      fileToDelete: '',
     }
   }
 
@@ -154,6 +163,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   private addFile({
     id,
     name,
+    owner,
     body,
     created,
     readonly,
@@ -161,6 +171,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     const file: ModelFile = {
       id,
       name,
+      owner,
       thumbnail: this.thumbnailFactory.createThumbnail(body.present.data.model),
       type: FileType.MODEL,
       created,
@@ -193,6 +204,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.addFile({
       id: generateObjectId(),
       name: '',
+      owner: this.props.user || null,
       created: true,
       readonly: false,
       body: ModelEditor.createFileState(),
@@ -354,6 +366,20 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.setState({ files: this.state.files.remove(fileId) });
   }
 
+  handleRequestFileDelete = (fileId: string) => this.setState({ fileToDelete: fileId })
+
+  handleCancelFileDelete = () => this.setState({ fileToDelete: '' });
+
+  handleFileDelete = () => {
+    if (!this.state.fileToDelete) return;
+
+    const fileId = this.state.fileToDelete;
+    this.props.runSaga(this.props.deleteFile, fileId, () => {
+      this.setState({ fileToDelete: '' });
+      this.handleFileRemove(fileId);
+    });
+  }
+
   handleFileOpen = (params: ModelFileOpenParams) => {
     this.addFile(params);
     this.setState({ openFileDialogOpen: false });
@@ -431,6 +457,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onSaveAll={this.handleSaveAll}
         />
         <ModelStudioBody
+          userId={this.props.user && this.props.user.id}
           files={this.state.files}
           openedFiles={this.state.openedFiles}
           onRequestSnackbar={this.handleRequestSnackbar}
@@ -440,6 +467,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onFileChange={this.handleFileStateChange}
           onFileClick={this.handleFileClick}
           onFileRemove={this.handleFileRemove}
+          onFileDelete={this.handleRequestFileDelete}
           onFileClose={this.handleFileClose}
           onFileRename={this.handleFileRename}
           onRequestOpenFile={this.handleRequestOpenFile}
@@ -463,6 +491,12 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           open={!!this.state.leaveConfirmParams}
           onRequestClose={this.handleConfirmLeaveDialogClose}
           onLeaveConfirm={this.handleLeaveConfirm}
+        />
+        <DeleteFileDialog
+          disabled={isRunning(this.props.deleteFile)}
+          fileToDelete={this.state.files.get(this.state.fileToDelete)}
+          onDeleteCancel={this.handleCancelFileDelete}
+          onDeleteConfirm={this.handleFileDelete}
         />
       </div>
     );

@@ -67,6 +67,13 @@ export function* head(url: string, config: RequestOptions = {}) {
   }) as any);
 }
 
+export function* del(url: string, config: RequestOptions = {}) {
+  return yield call(request, Object.assign({}, config, {
+    method: 'delete',
+    url,
+  }) as any);
+}
+
 export function* post(url: string, data: any, config: RequestOptions = {}) {
   return yield call(request, Object.assign({}, config, {
     method: 'post',

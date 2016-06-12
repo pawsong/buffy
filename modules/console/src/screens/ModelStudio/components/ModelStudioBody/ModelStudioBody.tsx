@@ -63,6 +63,7 @@ const inlineStyles = {
 };
 
 interface ModelStudioBodyProps {
+  userId: string;
   files: ModelFileMap;
   activeFileId: string;
   onFileChange: (body: ModelFileState) => any;
@@ -71,6 +72,7 @@ interface ModelStudioBodyProps {
   onFileCreate: () => any;
   onFileClick: (fileId: string) => any;
   onFileRemove: (fileId: string) => any;
+  onFileDelete: (fileId: string) => any;
   onFileClose: (fileId: string) => any;
   onFileRename: (fileId: string, name: string) => any;
   onRequestOpenFile: () => any;
@@ -214,10 +216,12 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
     return (
       <div style={inlineStyles.root}>
         <FileBrowser
+          userId={this.props.userId}
           onFileClick={this.props.onFileClick}
           onRequestRename={this.handleRequestFileRename}
           onFileRename={this.handleFileRename}
           onFileRemove={this.props.onFileRemove}
+          onFileDelete={this.props.onFileDelete}
           files={this.props.files}
           initialWidth={this.initialBrowserWidth}
           onWidthResize={this.handleBrowserWidthResize}

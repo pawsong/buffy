@@ -15,6 +15,7 @@ const styles = require('../../ModelStudio.css');
 import FileList from './FileList';
 
 interface FileBrowserProps extends React.Props<FileBrowser> {
+  userId: string;
   initialWidth: number;
   onWidthResize: (size: number) => any;
   files: ModelFileMap;
@@ -24,6 +25,7 @@ interface FileBrowserProps extends React.Props<FileBrowser> {
   onRequestRename: (fileId: string) => any;
   onFileRename: (fileId: string, name: string) => any;
   onFileRemove: (fileId: string) => any;
+  onFileDelete: (fileId: string) => any;
   renameFileId: string;
 }
 
@@ -54,12 +56,14 @@ class FileBrowser extends React.Component<FileBrowserProps, void> {
     return (
       <div>
         <FileList
+          userId={this.props.userId}
           files={this.props.files}
           renameFileId={this.props.renameFileId}
           onFileTouchTap={this.props.onFileClick}
           onRequestRename={this.props.onRequestRename}
           onFileRename={this.props.onFileRename}
           onFileRemove={this.props.onFileRemove}
+          onFileDelete={this.props.onFileDelete}
         />
       </div>
     );
