@@ -270,14 +270,14 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       this.canvas.resize();
     }
 
+    if (prevProps.extraData !== this.props.extraData) {
+      this.canvas.onChangeCamera(this.props.extraData.camera, this.props.fileState.present.data.size);
+    }
+
     if (this.props.fileState !== prevProps.fileState) {
       this.canvas.onStateChange(this.getEditorState());
     } else if (this.props.commonState !== prevProps.commonState) {
       this.canvas.onStateChange(this.getEditorState());
-    }
-
-    if (prevProps.extraData !== this.props.extraData) {
-      this.canvas.onChangeCamera(this.props.extraData.camera);
     }
   }
 
@@ -342,10 +342,8 @@ ModelEditor.createFileState = (data): FileState => {
 const radius = PIXEL_SCALE * 50, theta = 135, phi = 30;
 
 ModelEditor.createExtraData = (size: Position) => {
-  const camera = new THREE.PerspectiveCamera();
-  camera.fov = 40;
-  camera.near = 1;
-  camera.far = 30000;
+  const camera = new THREE.OrthographicCamera(0, 0, 0, 0, -30000, 30000);
+
   camera.position.set(
     radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
       + size[0] * PIXEL_SCALE / 2,
@@ -354,6 +352,8 @@ ModelEditor.createExtraData = (size: Position) => {
     radius * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
       + size[2] * PIXEL_SCALE / 2
   );
+
+  camera.zoom = 0.3;
 
   return {
     camera,

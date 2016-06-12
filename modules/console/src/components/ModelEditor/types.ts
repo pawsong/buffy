@@ -83,7 +83,7 @@ export interface VoxelData {
 }
 
 export interface ExtraData {
-  camera: THREE.PerspectiveCamera;
+  camera: THREE.OrthographicCamera;
 }
 
 export type FileState = UndoableState<VoxelData>;

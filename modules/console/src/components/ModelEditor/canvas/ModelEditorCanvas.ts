@@ -43,7 +43,7 @@ import {
 interface CanvasOptions {
   container: HTMLElement;
   geometryFactory: GeometryFactory;
-  camera: THREE.PerspectiveCamera;
+  camera: THREE.OrthographicCamera;
   keyboard: Keyboard;
   dispatchAction: DispatchAction;
   state: ModelEditorState;
@@ -341,13 +341,12 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         heightHalf - offsetY,
         depthHalf - offsetZ
       ).multiplyScalar(PIXEL_SCALE);
-      this.canvas.scene.add(this.plane)
+      this.canvas.scene.add(this.plane);
 
-      this.canvas.controls.target.set(
-        size[0] * PIXEL_SCALE_HALF,
-        size[1] * PIXEL_SCALE_HALF,
-        size[2] * PIXEL_SCALE_HALF
-      );
+      // Keep direction
+      this.temp1.subVectors(this.canvas.camera.position, this.canvas.controls.target);
+      this.canvas.updateControlsTarget(size);
+      this.canvas.camera.position.addVectors(this.temp1, this.canvas.controls.target);
       this.canvas.controls.update();
     }
 
@@ -442,7 +441,7 @@ class ModelEditorCanvas extends Canvas {
   cachedTools: { [index: string]: ModelEditorTool<any, any, any> };
   tool: ModelEditorTool<any, any, any>;
 
-  camera: THREE.PerspectiveCamera;
+  camera: THREE.OrthographicCamera;
 
   // plane: THREE.Mesh;
 
@@ -479,7 +478,8 @@ class ModelEditorCanvas extends Canvas {
 
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     this.controls.mouseButtons.ORBIT = THREE.MOUSE.RIGHT;
-    this.controls.maxDistance = 20000;
+    this.controls.minZoom = 0.05;
+    this.controls.maxZoom = 1;
     this.controls.enableKeys = false;
     this.controls.enablePan = false;
 
@@ -522,9 +522,7 @@ class ModelEditorCanvas extends Canvas {
 
     // add this only if there is no animation loop (requestAnimationFrame)
     this.controls.addEventListener('change', () => {
-      this.light.position.copy(this.camera.position);
-      this.light.lookAt(this.controls.target);
-
+      this.syncLightToCamera();
       this.tool.onCameraMove();
       this.render();
     });
@@ -541,6 +539,8 @@ class ModelEditorCanvas extends Canvas {
     const props = this.tool.mapParamsToProps(this.state);
     this.tool.start(props);
 
+    this.updateControlsTarget(this.state.file.present.data.size);
+
     this.controls.update();
     this.syncLightToCamera();
 
@@ -554,23 +554,33 @@ class ModelEditorCanvas extends Canvas {
     this.light.lookAt(this.controls.target);
   }
 
-  initCamera() {
-    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
+  updateCameraOptions() {
+    this.camera.left = this.container.clientWidth / - 2;
+    this.camera.right = this.container.clientWidth / 2;
+    this.camera.top = this.container.clientHeight / 2;
+    this.camera.bottom = this.container.clientHeight / - 2;
     this.camera.updateProjectionMatrix();
+  }
 
+  initCamera() {
+    this.updateCameraOptions();
     return this.camera;
   }
 
-  onChangeCamera(camera: THREE.PerspectiveCamera) {
+  updateControlsTarget(size: Position) {
+    this.controls.target.set(
+      size[0] * PIXEL_SCALE_HALF,
+      size[1] * PIXEL_SCALE_HALF,
+      size[2] * PIXEL_SCALE_HALF
+    );
+  }
+
+  onChangeCamera(camera: THREE.OrthographicCamera, size: Position) {
     this.camera = camera;
     this.controls.object = this.camera;
-
-    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
-    this.camera.updateProjectionMatrix();
-
+    this.updateCameraOptions();
+    this.updateControlsTarget(size);
     this.controls.update();
-    this.syncLightToCamera();
-    this.render();
   }
 
   // Lazy getter
@@ -583,8 +593,7 @@ class ModelEditorCanvas extends Canvas {
   }
 
   onWindowResize() {
-    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
-    this.camera.updateProjectionMatrix();
+    this.updateCameraOptions();
 
     this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
     this.tool.onResize();
