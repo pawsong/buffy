@@ -226,7 +226,7 @@ export default {
   /**
    * path: src/screens/ModelStudio/components/ModelStudioBody/ModelStudioBody.json
    * description: Create new file
-   * defaultMessage: Create new file
+   * defaultMessage: Create New File
    */
   'modelstudio.createNewFile': '새 파일 만들기',
 
@@ -254,14 +254,14 @@ export default {
   /**
    * path: src/screens/ModelStudio/components/ModelStudioBody/ModelStudioBody.json
    * description: Open file from remote store
-   * defaultMessage: Open file from remote store
+   * defaultMessage: Open File
    */
-  'modelstudio.openFileFromRemoteStore': '클라우드에서 가져오기',
+  'modelstudio.openFileFromRemoteStore': '파일 열기',
 
   /**
    * path: src/screens/ModelStudio/components/ModelStudioBody/ModelStudioBody.json
-   * description: Open file from working list
-   * defaultMessage: Open file from working list
+   * description: Choose file from working list
+   * defaultMessage: Choose File from List
    */
   'modelstudio.openFileFromWorkingList': '작업 중인 파일 선택하기',
 

@@ -31,17 +31,17 @@ const messages = defineMessages({
   createNewFile: {
     id: 'modelstudio.createNewFile',
     description: 'Create new file',
-    defaultMessage: 'Create new file',
+    defaultMessage: 'Create New File',
   },
   openFileFromWorkingList: {
     id: 'modelstudio.openFileFromWorkingList',
-    description: 'Open file from working list',
-    defaultMessage: 'Open file from working list',
+    description: 'Choose file from working list',
+    defaultMessage: 'Choose File from List',
   },
   openFileFromRemoteStore: {
     id: 'modelstudio.openFileFromRemoteStore',
     description: 'Open file from remote store',
-    defaultMessage: 'Open file from remote store',
+    defaultMessage: 'Open File',
   },
 });
 
