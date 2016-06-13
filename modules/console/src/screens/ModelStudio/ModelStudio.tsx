@@ -54,10 +54,6 @@ import {
 
 const saveAs: FileSaver = require('file-saver').saveAs;
 
-const KEY_WORKING_LIST = 'modelstudio.workingList';
-const KEY_OPENED_FILES = 'modelstudio.openedFiles';
-const KEY_ACTIVE_FILE = 'modelstudio.activeFile';
-
 interface RouteParams {
   username: string;
   modelId: string;
@@ -140,13 +136,6 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     }
   }
 
-  saveWorkingList = () => {
-    const list = this.state.files.toArray()
-      .filter(file => !file.created)
-      .map(file => file.id).join(',');
-    localStorage.setItem(KEY_WORKING_LIST, list);
-  }
-
   unsavedChangeExists() {
     const files = this.state.files.toArray();
     for (let i = 0, len = files.length; i < len; ++i) {
@@ -173,67 +162,6 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.oldBeforeUnload = window.onbeforeunload;
     window.onbeforeunload = () => this.unsavedChangeExists()
       ? 'Unsaved changes will be lost' : undefined;
-
-    // Load saved working list
-    const list = localStorage.getItem(KEY_WORKING_LIST);
-    if (list) {
-      this.props.runSaga(this.props.openRemoteFiles, list.split(','), results => {
-        if (results.length === 0) return;
-
-        const files = this.state.files.withMutations(files => {
-          results.forEach(result => {
-            const doc: ModelFileDocument = result.doc;
-            const fileState: ModelFileState = result.fileState;
-            const file: ModelFile = {
-              id: doc.id,
-              name: doc.name,
-              owner: doc.owner || null,
-              thumbnail: this.thumbnailFactory.createThumbnail(fileState.present.data.model),
-              type: FileType.MODEL,
-              created: false,
-              modified: false,
-              readonly: false,
-              savedBody: fileState,
-              body: fileState,
-              extra: ModelEditor.createExtraData(fileState.present.data.model.shape),
-              forkParent: doc.forkParent || null,
-            };
-            files.set(file.id, file);
-          });
-        });
-
-        let openedFiles = this.state.openedFiles;
-        const openedFilesStr: string = localStorage.getItem(KEY_OPENED_FILES);
-        if (openedFilesStr) {
-          openedFiles = openedFiles.concat(
-            openedFilesStr.split(',')
-              .filter(fileId => files.has(fileId) && openedFiles.indexOf(fileId) === -1)
-          );
-        }
-
-        let activeFileId = this.state.activeFileId;
-        const activeFileStr: string = localStorage.getItem(KEY_ACTIVE_FILE);
-        if (activeFileStr && openedFiles.indexOf(activeFileStr) !== -1) {
-          activeFileId = activeFileStr;
-        }
-
-        this.setState({
-          files,
-          openedFiles,
-          activeFileId,
-        });
-      });
-    }
-  }
-
-  componentDidUpdate(prevProps: HandlerProps, prevState: HandlerState) {
-    if (this.state.activeFileId !== prevState.activeFileId) {
-      localStorage.setItem(KEY_ACTIVE_FILE, this.state.activeFileId);
-    }
-
-    if (this.state.openedFiles !== prevState.openedFiles) {
-      localStorage.setItem(KEY_OPENED_FILES, this.state.openedFiles.join(','));
-    }
   }
 
   componentWillUnmount() {
@@ -273,8 +201,6 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       openedFiles,
       activeFileId: file.id,
       files: this.state.files.set(id, file),
-    }, () => {
-      if (!created) this.saveWorkingList();
     });
   }
 
@@ -445,7 +371,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
   removeFileFromList(fileId: string) {
     this.handleFileClose(fileId);
-    this.setState({ files: this.state.files.remove(fileId) }, this.saveWorkingList);
+    this.setState({ files: this.state.files.remove(fileId) });
   }
 
   handleRequestFileRemove = (fileId: string) => {
@@ -512,7 +438,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
     this.setState({
       files: this.state.files.set(fileId, Object.assign({}, file, fileUpdate)),
-    }, this.saveWorkingList);
+    });
   }
 
   handleConfirmLeaveDialogClose = () => {
