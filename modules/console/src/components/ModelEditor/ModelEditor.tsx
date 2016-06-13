@@ -141,6 +141,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
   static serialize: (fileState: FileState) => Uint8Array;
   static deserialize: (data: Uint8Array) => FileState;
+  static importBmfFile: (buffer: ArrayBuffer) => ImportFileResult;
   static importVoxFile: (buffer: ArrayBuffer) => ImportFileResult;
   static exportVoxFile: (fileState: FileState) => ExportFileResult;
 
@@ -388,6 +389,16 @@ ModelEditor.deserialize = buffer => {
     fragment: null,
     fragmentOffset: [0, 0, 0],
   });
+}
+
+ModelEditor.importBmfFile = buffer => {
+  try {
+    return {
+      result: ModelEditor.deserialize(new Uint8Array(buffer)),
+    };
+  } catch(error) {
+    return { error };
+  }
 }
 
 ModelEditor.importVoxFile = buffer => {

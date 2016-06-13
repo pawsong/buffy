@@ -156,6 +156,10 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
 
     const ext = result[1].toLowerCase();
     switch(ext) {
+      case 'bmf': {
+        importFn = ModelEditor.importBmfFile;
+        break;
+      }
       case 'vox': {
         importFn = ModelEditor.importVoxFile;
         break;
