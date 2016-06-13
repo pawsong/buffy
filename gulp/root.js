@@ -347,7 +347,7 @@ ROOT_PKG.deployables.forEach(module => {
     const bucket = getEnv('PASTA_DEPLOY_S3_BUCKET');
     const awsAccessKeyId = getEnv('PASTA_AWS_ACCESS_KEY_ID');
     const awsSecretAccessKey = getEnv('PASTA_AWS_SECRET_KEY');
-    const awsS3Region = getEnv('PASTA_AWS_S3_REGION');
+    const awsS3Region = getEnv('PASTA_AWS_S3_REGION_DEPLOY');
 
     const modulePath = `${ROOT}/modules/${module}`;
     const pkg = require(`${modulePath}/package.json`);
