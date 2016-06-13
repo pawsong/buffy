@@ -18,6 +18,7 @@ import { ModelFile, ModelFileMap } from '../../types';
 import { getFileTypeLabel, getFileTypeAvatar } from '../../../../utils/file';
 
 const styles = require('../../ModelStudio.css');
+import { getForkItemLabel } from '../../utils';
 
 interface FileListProps extends React.Props<FileList> {
   userId: string;
@@ -130,7 +131,14 @@ class FileList extends React.Component<FileListProps, FileListState> {
             </span>
           );
 
-        const secondaryText = file.owner ? <p>by {file.owner.username}</p> : null;
+        let secondaryText: React.ReactElement<any>;
+        if (file.forkParent) {
+          secondaryText = (
+            <p>forked from <b>{getForkItemLabel(file.forkParent)}</b></p>
+          );
+        } else {
+          secondaryText = null;
+        }
 
         return (
           <ListItem

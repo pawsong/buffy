@@ -16,6 +16,8 @@ export interface FileDocument extends mongoose.Document {
   createdAt: Date;
   modifiedAt: Date;
   isPublic: boolean;
+  forkRoot: mongoose.Types.ObjectId;
+  forkParent: mongoose.Types.ObjectId;
 
   // Data
   format: string;
@@ -30,6 +32,8 @@ const FileSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   modifiedAt: { type: Date, default: Date.now },
   isPublic: Boolean,
+  forkRoot: { type: Schema.Types.ObjectId, ref: 'File' },
+  forkParent: { type: Schema.Types.ObjectId, ref: 'File' },
 
   format: String,
   bucket: String,

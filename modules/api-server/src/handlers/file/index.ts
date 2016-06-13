@@ -38,6 +38,16 @@ export const getUserFileList = compose(checkLogin, wrap(async (req, res) => {
 
   const files = await FileModel.find(query)
     .populate('owner', '_id username')
+    .populate({
+      path: 'forkParent',
+      model: 'File',
+      select: '_id name owner',
+      populate: {
+        path: 'owner',
+        model: 'User',
+        select: '_id username',
+      },
+    } as any)
     .sort('-modifiedAt')
     .limit(PAGE_SIZE)
     .exec();
@@ -50,6 +60,16 @@ export const getFile = compose(checkLogin, wrap(async (req, res) => {
 
   const file = await FileModel.findById(fileId)
     .populate('owner', '_id username')
+    .populate({
+      path: 'forkParent',
+      model: 'File',
+      select: '_id name owner',
+      populate: {
+        path: 'owner',
+        model: 'User',
+        select: '_id username',
+      },
+    } as any)
     .exec();
 
   if (!file) {
@@ -93,7 +113,7 @@ export const updateFile = compose(checkLogin, wrap(async (req, res) => {
 
 export const createFile2 = compose(checkLogin, wrap(async (req, res) => {
   const owner = req.user ? req.user.id : undefined;
-  const { id, name, format, isPublic } = req.body;
+  const { id, name, format, isPublic, forkParent } = req.body;
 
   const file = new FileModel({
     _id: id,
@@ -102,8 +122,16 @@ export const createFile2 = compose(checkLogin, wrap(async (req, res) => {
     owner,
     isPublic: isPublic === true,
   });
-  await file.save();
 
+  if (forkParent) {
+    const parent = await FileModel.findById(forkParent).exec();
+    if (parent && parent.isPublic) {
+      file.forkParent = parent._id;
+      file.forkRoot = parent.forkRoot || parent._id;
+    }
+  }
+
+  await file.save();
   res.send(file);
 }));
 

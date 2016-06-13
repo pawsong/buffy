@@ -16,6 +16,8 @@ import SelectableGridList from './SelectableGridList';
 import { saga, SagaProps, ImmutableTask, isRunning } from '../../../../saga';
 import { User } from '../../../../reducers/users';
 
+import { getForkItemLabel } from '../../utils';
+
 const styles = require('./OpenModelFileDialog.css');
 
 import ModelEditor, { ModelFileState } from '../../../../components/ModelEditor';
@@ -179,6 +181,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
           body: result,
           readonly: false,
           created: true,
+          forkParent: null,
         });
       }
     }
@@ -232,14 +235,31 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
     this.props.runSaga(this.props.openRemoteFile,
       fileId,
       (doc: ModelFileDocument, fileState: ModelFileState) => {
-        this.props.onFileOpen({
-          id: doc.id,
-          owner: doc.owner || null,
-          name: doc.name,
-          created: false,
-          readonly: false,
-          body: fileState,
-        });
+        if (doc.owner && this.props.user && doc.owner.id === this.props.user.id) {
+          this.props.onFileOpen({
+            id: doc.id,
+            owner: this.props.user || null,
+            name: doc.name,
+            created: false,
+            readonly: false,
+            body: fileState,
+            forkParent: doc.forkParent || null,
+          });
+        } else {
+          this.props.onFileOpen({
+            id: generateObjectId(),
+            owner: this.props.user || null,
+            name: doc.name,
+            created: true,
+            readonly: false,
+            body: fileState,
+            forkParent: {
+              id: doc.id,
+              name: doc.name,
+              owner: doc.owner || null,
+            },
+          });
+        }
       }
     );
   }
@@ -267,13 +287,12 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       id: file.id,
       name: file.name,
       image: `${__CDN_BASE__}/${file.thumbnail}`,
-      owner: file.owner && file.owner.username,
+      subtitle: (file.forkParent ? <div>forked from <b>{getForkItemLabel(file.forkParent)}</b></div> : null),
     }));
 
     return (
       <SelectableGridList
         items={items}
-        showOwner={false}
         disabled={disabled}
         loadMore={this.handleWaypointEnter}
         loading={isRunning(this.props.loadRemoteFiles)}
@@ -307,13 +326,12 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
       id: file.id,
       name: file.name,
       image: `${__CDN_BASE__}/${file.thumbnail}`,
-      owner: file.owner && file.owner.username,
+      subtitle: (file.owner ? <div>by <b>{file.owner.username}</b></div> : null),
     }));
 
     return (
       <SelectableGridList
         items={items}
-        showOwner={true}
         disabled={disabled}
         loadMore={this.handlePublicFilesLoadMore}
         loading={isRunning(this.props.loadLatestPublicFiles)}

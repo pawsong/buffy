@@ -99,7 +99,7 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
 
     const activeFile = this.props.files.get(this.props.activeFileId);
 
-    this.initialBrowserWidth = parseInt(localStorage.getItem(LS_KEY_BROWSER_WIDTH) || 250, 10);
+    this.initialBrowserWidth = parseInt(localStorage.getItem(LS_KEY_BROWSER_WIDTH) || 300, 10);
 
     this.state = {
       editorSizeResivion: 0,

@@ -11,8 +11,8 @@ const Waypoint = require('react-waypoint');
 export interface GridItem {
   id: string;
   name: string;
-  owner: string;
   image: string;
+  subtitle: React.ReactElement<any>;
 }
 
 const inlineStyles = {
@@ -30,7 +30,6 @@ const inlineStyles = {
 
 interface SelectableGridListProps {
   items: GridItem[];
-  showOwner: boolean;
   selectedItem: string;
   useLoad: boolean;
   loading: boolean;
@@ -54,7 +53,7 @@ const SelectableGridList: React.StatelessComponent<SelectableGridListProps> = pr
       <GridTile
         key={item.id}
         title={item.name}
-        subtitle={props.showOwner && item.owner ? <span>by <b>{item.owner}</b></span> : null}
+        subtitle={item.subtitle}
         style={style}
         onTouchTap={onTouchTap}
       >

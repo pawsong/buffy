@@ -137,7 +137,6 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
   componentDidMount() {
     this.thumbnailFactory = new ThumbnailFactory(this.geometryFactory);
-    this.handleNewFileButtonClick();
 
     this.props.router.setRouteLeaveHook(this.props.route, location => {
       if (this.leaveConfirmed) return true;
@@ -167,6 +166,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     body,
     created,
     readonly,
+    forkParent,
   }: ModelFileOpenParams) {
     const file: ModelFile = {
       id,
@@ -180,10 +180,15 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       savedBody: body,
       body,
       extra: ModelEditor.createExtraData(body.present.data.model.shape),
+      forkParent,
     };
 
+    const openedFiles = this.state.openedFiles.indexOf(file.id) === -1
+      ? [...this.state.openedFiles, file.id]
+      : this.state.openedFiles;
+
     this.setState({
-      openedFiles: [...this.state.openedFiles, file.id],
+      openedFiles,
       activeFileId: file.id,
       files: this.state.files.set(id, file),
     });
@@ -208,6 +213,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       created: true,
       readonly: false,
       body: ModelEditor.createFileState(),
+      forkParent: null,
     });
   }
 
@@ -269,24 +275,16 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     const newFiles: ModelFile[] = [];
     const oldFiles: ModelFile[] = [];
 
-    const files = this.state.files.withMutations(files => {
-      fileList.forEach(fileId => {
-        const file = files.get(fileId);
-        if (!file || (!file.created && !file.modified)) return;
+    fileList.forEach(fileId => {
+      const file = this.state.files.get(fileId);
+      if (!file || (!file.created && !file.modified)) return;
 
-        const thumbnail = this.thumbnailFactory.createThumbnail(file.body.present.data.model);
-        const nextFile = Object.assign({}, file, { thumbnail });
-        files.set(file.id, nextFile);
-
-        if (nextFile.created) {
-          newFiles.push(nextFile);
-        } else if (nextFile.modified) {
-          oldFiles.push(nextFile);
-        }
-      });
+      if (file.created) {
+        newFiles.push(file);
+      } else {
+        oldFiles.push(file);
+      }
     });
-
-    if (files !== this.state.files) this.setState({ files });
 
     if (newFiles.length > 0) {
       this.setState({

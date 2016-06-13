@@ -58,6 +58,7 @@ export function* updateFiles(thumbnailFactory: ThumbnailFactory, paramsList: Upd
 interface CreateFileParams extends UpdateFileParams {
   name: string;
   isPublic: boolean;
+  forkParent: string;
 }
 
 export function* createFile(thumbnailFactory: ThumbnailFactory, params: CreateFileParams, callback: () => any) {
@@ -67,6 +68,7 @@ export function* createFile(thumbnailFactory: ThumbnailFactory, params: CreateFi
     name: params.name,
     format: 'bfm',
     isPublic: params.isPublic,
+    forkParent: params.forkParent || undefined,
   });
   if (response.status !== 200) {
     // TODO: Error handling

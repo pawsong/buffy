@@ -1,6 +1,6 @@
 {
-  "ambientDependencies": {
-    "aws-sdk": "registry:dt/aws-sdk#0.0.0+20160316155526",
+  "globalDependencies": {
+    "aws-sdk": "registry:dt/aws-sdk#0.0.0+20160606153210",
     "bluebird": "registry:dt/bluebird#2.0.0+20160319051630",
     "body-parser": "registry:dt/body-parser#0.0.0+20160317120654",
     "compression": "registry:dt/compression#0.0.0+20160317120654",
@@ -11,7 +11,6 @@
     "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160322035842",
     "express-unless": "registry:dt/express-unless#0.0.0+20160317120654",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
-    "mongoose": "registry:dt/mongoose#3.8.5+20160316155526",
     "node": "registry:dt/node#4.0.0+20160423143914",
     "serve-static": "registry:dt/serve-static#0.0.0+20160317120654",
     "shortid": "registry:dt/shortid#0.0.0+20160316155526"
@@ -19,9 +18,7 @@
   "dependencies": {
     "http-errors": "registry:npm/http-errors#1.4.0+20160305200728",
     "jsonwebtoken": "registry:npm/jsonwebtoken#5.5.4+20160208220328",
+    "mongoose": "registry:npm/mongoose#4.3.5+20160610145311",
     "request": "registry:npm/request#2.69.0+20160428223725"
-  },
-  "globalDependencies": {
-    "aws-sdk": "registry:dt/aws-sdk#0.0.0+20160606153210"
   }
 }
