@@ -37,6 +37,7 @@ import ModelStudioNavbar from './components/ModelStudioNavbar';
 import ModelStudioBody from './components/ModelStudioBody';
 import OpenModelFileDialog from './components/OpenModelFileDialog';
 import DeleteFileDialog from './components/DeleteFileDialog';
+import RemoveFileDialog from './components/RemoveFileDialog';
 import SaveDialog from './components/SaveDialog';
 
 const styles = require('./ModelStudio.css');
@@ -88,6 +89,7 @@ interface HandlerState {
   filesOnSaveDialog?: string[];
   leaveConfirmParams?: LeaveConfirmParams;
   fileToDelete?: string;
+  fileToRemove?: string;
 }
 
 @withStyles(styles)
@@ -131,6 +133,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       filesOnSaveDialog: [],
       leaveConfirmParams: null,
       fileToDelete: '',
+      fileToRemove: '',
     }
   }
 
@@ -437,10 +440,27 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     });
   }
 
-  handleFileRemove = (fileId: string) => {
+  removeFileFromList(fileId: string) {
     this.handleFileClose(fileId);
     this.setState({ files: this.state.files.remove(fileId) }, this.saveWorkingList);
   }
+
+  handleRequestFileRemove = (fileId: string) => {
+    const file = this.state.files.get(fileId);
+    if (!file) return;
+
+    if (!this.props.user || file.created || file.modified) {
+      this.setState({ fileToRemove: fileId });
+    } else {
+      this.removeFileFromList(fileId);
+    }
+  }
+
+  handleFileRemove = () => {
+    this.removeFileFromList(this.state.fileToRemove);
+  }
+
+  handleCancelFileRemove = () => this.setState({ fileToRemove: '' });
 
   handleRequestFileDelete = (fileId: string) => this.setState({ fileToDelete: fileId })
 
@@ -452,7 +472,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     const fileId = this.state.fileToDelete;
     this.props.runSaga(this.props.deleteFile, fileId, () => {
       this.setState({ fileToDelete: '' });
-      this.handleFileRemove(fileId);
+      this.removeFileFromList(fileId);
     });
   }
 
@@ -507,6 +527,19 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     }
   }
 
+  handleLoginFromRemoveDialog = () => {
+    this.handleCancelFileRemove();
+    this.props.push({
+      pathname: '/login',
+      query: {
+        n: JSON.stringify({
+          p: this.props.location.pathname,
+          q: this.props.location.query,
+        }),
+      },
+    });
+  }
+
   handleLogout = () => {
     if (this.unsavedChangeExists()) {
       this.setState({ leaveConfirmParams: { logout: true, location: null } });
@@ -543,7 +576,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onFileCreate={this.handleNewFileButtonClick}
           onFileChange={this.handleFileStateChange}
           onFileClick={this.handleFileClick}
-          onFileRemove={this.handleFileRemove}
+          onFileRemove={this.handleRequestFileRemove}
           onFileDelete={this.handleRequestFileDelete}
           onFileClose={this.handleFileClose}
           onFileRename={this.handleFileRename}
@@ -568,6 +601,13 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           open={!!this.state.leaveConfirmParams}
           onRequestClose={this.handleConfirmLeaveDialogClose}
           onLeaveConfirm={this.handleLeaveConfirm}
+        />
+        <RemoveFileDialog
+          loggedIn={!!this.props.user}
+          fileToRemove={this.state.files.get(this.state.fileToRemove)}
+          onLogIn={this.handleLoginFromRemoveDialog}
+          onRemoveCancel={this.handleCancelFileRemove}
+          onRemoveConfirm={this.handleFileRemove}
         />
         <DeleteFileDialog
           disabled={isRunning(this.props.deleteFile)}

@@ -13,7 +13,8 @@ interface DeleteFileDialogProps {
 function renderBody(file: ModelFile) {
   return (
     <div>
-      Are you sure to delete <span style={{ fontWeight: 'bold' }}>{file.name}</span>?
+      Are you sure to delete <span style={{ fontWeight: 'bold' }}>{file.name || '(Untitled)'}</span>?
+      Deleted files cannot be recovered.
     </div>
   );
 }
