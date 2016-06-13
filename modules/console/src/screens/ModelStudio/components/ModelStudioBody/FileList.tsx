@@ -126,7 +126,7 @@ class FileList extends React.Component<FileListProps, FileListState> {
           )
           : (
             <span>
-              {file.modified ? <i className={markForModifiedClass}>fiber_manual_record</i> : null}
+              {file.created || file.modified ? <i className={markForModifiedClass}>fiber_manual_record</i> : null}
               {file.name || '(Untitled)'}
             </span>
           );

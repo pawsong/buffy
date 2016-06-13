@@ -30,7 +30,7 @@ class FileTabs extends React.Component<FileTabsProps, {}> {
         <Tab
           key={file.id}
           value={file.id}
-          modified={file.modified}
+          modified={file.created || file.modified}
           label={
             <span style={styles.labelContainer}>
               {getFileTypeIcon(file.type, styles.fontIcon)}

@@ -120,7 +120,7 @@ export function* updateFileMeta(fileId: string, params: UpdateFileMetaParams, ca
   callback();
 }
 
-export function* openRemoteFile(fileId: string, callback: (doc: ModelFileDocument, fileState: ModelFileState) => any) {
+export function* _openRemoteFile(fileId: string) {
   const [docRes, dataRes] = yield [
     call(request.get, `${CONFIG_API_SERVER_URL}/files/${fileId}`),
     call(request.get, `${__S3_BASE__}/files/${fileId}`, {
@@ -130,15 +130,22 @@ export function* openRemoteFile(fileId: string, callback: (doc: ModelFileDocumen
   ];
   if (docRes.status !== 200) {
     // TODO: Error handling
-    return;
+    return null;
   }
   if (dataRes.status !== 200) {
     // TODO: Error handling
-    return;
+    return null;
   }
 
+  const doc = docRes.data;
   const fileState = ModelEditor.deserialize(new Uint8Array(dataRes.data));
-  callback(docRes.data, fileState);
+
+  return { doc, fileState };
+}
+
+export function* openRemoteFile(fileId: string, callback: (doc: ModelFileDocument, fileState: ModelFileState) => any) {
+  const result = yield call(_openRemoteFile, fileId);
+  callback(result.doc, result.fileState);
 }
 
 export function* deleteFile(fileId: string, callback: () => any) {
@@ -148,4 +155,12 @@ export function* deleteFile(fileId: string, callback: () => any) {
     return;
   }
   callback();
+}
+
+export function* openRemoteFiles(files: string[], callback: (results: {
+  doc: ModelFileDocument;
+  fileState: ModelFileState;
+}[]) => any) {
+  const results: any[] = yield files.map(fileId => call(_openRemoteFile, fileId));
+  callback(results.filter(result => result));
 }
