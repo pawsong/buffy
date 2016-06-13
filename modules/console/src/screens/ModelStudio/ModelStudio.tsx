@@ -16,6 +16,7 @@ import GeometryFactory from '../../canvas/GeometryFactory';
 
 import generateObjectId from '../../utils/generateObjectId';
 
+import { moveToLoginPage } from '../../actions';
 import { requestLogout } from '../../actions/auth';
 import { pushSnackbar, PushSnackbarQuery } from '../../actions/snackbar';
 
@@ -72,6 +73,7 @@ interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams>, Sa
   deleteFile?: ImmutableTask<any>;
   openRemoteFiles?: ImmutableTask<any>;
   router?: any;
+  moveToLoginPage?: typeof moveToLoginPage;
 }
 
 interface LeaveConfirmParams {
@@ -100,6 +102,7 @@ interface HandlerState {
   requestLogout,
   push,
   pushSnackbar,
+  moveToLoginPage,
 }) as any)
 @saga({
   updateFiles,
@@ -529,15 +532,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
   handleLoginFromRemoveDialog = () => {
     this.handleCancelFileRemove();
-    this.props.push({
-      pathname: '/login',
-      query: {
-        n: JSON.stringify({
-          p: this.props.location.pathname,
-          q: this.props.location.query,
-        }),
-      },
-    });
+    this.props.moveToLoginPage(this.props.location);
   }
 
   handleLogout = () => {

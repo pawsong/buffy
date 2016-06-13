@@ -15,6 +15,8 @@ import Messages from '../../constants/Messages';
 import RaisedButton from 'material-ui/RaisedButton';
 import { MuiTheme } from 'material-ui/styles';
 
+import { moveToLoginPage } from '../../actions';
+
 import Navbar from '../Navbar';
 
 const styles = {
@@ -76,6 +78,10 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
     return { muiTheme: this.muiTheme };
   }
 
+  handleMoveToLogin = () => this.props.dispatch(moveToLoginPage(this.props.location));
+
+  handleMoveToJoin = () => this.props.dispatch(push('/join'))
+
   render() {
     const leftToolbarGroup = this.props.leftToolbarGroup || null;
 
@@ -90,21 +96,14 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
             label={this.props.intl.formatMessage(Messages.login)}
             style={styles.button}
             hoverColor={Colors.cyan700}
-            onTouchTap={() => this.props.dispatch(push({
-              pathname: '/login',
-              query: {
-                n: JSON.stringify({
-                  p: this.props.location.pathname,
-                  q: this.props.location.query,
-                }),
-              },
-            }))}
+            onTouchTap={this.handleMoveToLogin}
           />
-          <FlatButton label={this.props.intl.formatMessage(Messages.signup)}
-                      style={styles.button}
-                      onTouchTap={() => this.props.dispatch(push('/join'))}
-                      backgroundColor={Colors.pinkA200}
-                      hoverColor={Colors.pinkA100}
+          <FlatButton
+            label={this.props.intl.formatMessage(Messages.signup)}
+            style={styles.button}
+            onTouchTap={this.handleMoveToJoin}
+            backgroundColor={Colors.pinkA200}
+            hoverColor={Colors.pinkA100}
           />
         </ToolbarGroup>
       </Navbar>
