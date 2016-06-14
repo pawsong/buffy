@@ -2,22 +2,19 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import * as Colors from 'material-ui/styles/colors';
 import TextField from 'material-ui/TextField';
-import Paper from 'material-ui/Paper';
 import Divider from 'material-ui/Divider';
 import RaisedButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
 import { call, put } from 'redux-saga/effects';
 import { replace } from 'react-router-redux';
 import CircularProgress from 'material-ui/CircularProgress';
-import BuffyIcon from '../../../components/BuffyIcon';
 import { saga, ImmutableTask, SagaProps, isRunning, isDone } from '../../../saga';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../constants/Messages';
+import FullscreenForm from '../../../components/FullscreenForm';
 
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./LoginForm.css');
-
-import Wrapper from '../../../components/Wrapper';
 
 import { localLogin, facebookLogin } from '../sagas';
 
@@ -154,72 +151,74 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
     }
 
     return (
-      <div className={styles.root}>
-        <Wrapper width={400}>
-          <div className={styles.logoContainer}>
-            <Link to="/">
-            <BuffyIcon className={styles.logo}/>
-            </Link>
-          </div>
-          <Paper className={styles.paper}>
-            {formIsBusy ? <CircularProgress style={inlineStyles.progressOverlay} /> : null}
+      <FullscreenForm>
+        {formIsBusy ? <CircularProgress style={inlineStyles.progressOverlay} /> : null}
 
-            <h1>
-              {this.props.intl.formatMessage(messages.heading, {
-                service: this.props.intl.formatMessage(Messages.service),
-              })}
-            </h1>
+        <h1 style={{ textAlign: 'left' }}>
+          {this.props.intl.formatMessage(messages.heading, {
+            service: this.props.intl.formatMessage(Messages.service),
+          })}
+        </h1>
 
-            {
-              errorMessage ? (
-                <div className={styles.errorMessage}>
-                  <FontIcon className="material-icons" color={Colors.red500} style={inlineStyles.errorIcon}>error_outline</FontIcon>
-                  {errorMessage}
-                </div>
-              ): null
-            }
-
-            <form onSubmit={e => this.handleLocalLogin(e)} noValidate={true}>
-              <TextField type="email" className={styles.input} fullWidth={true}
-                         hintText={this.props.intl.formatMessage(Messages.email)}
-                         onChange={e => this.handleEmailChange(e)}
-                         disabled={formIsBusy}
-              />
-              <TextField type="password" className={styles.input} fullWidth={true}
-                         hintText={this.props.intl.formatMessage(Messages.password)}
-                         onChange={e => this.handlePasswordChange(e)}
-                         disabled={formIsBusy}
-              />
-              <RaisedButton type="submit"
-                            secondary={true} fullWidth={true} style={inlineStyles.loginButton}
-                            label={this.props.intl.formatMessage(Messages.login)}
-                            disabled={formIsBusy}
-              />
-            </form>
-
-            <RaisedButton label={this.props.intl.formatMessage(Messages.facebookLogin)}
-                          style={inlineStyles.facebookLoginButton}
-                          onTouchTap={() => this.handleLoginWithFacebook()}
-                          backgroundColor={'#3b5998'} labelColor={Colors.white}
-                          fullWidth={true}
-                          disabled={formIsBusy}
-            />
-
-            <div className={styles.joinContainer}>
-              <span className={styles.joinMessage}>{
-                this.props.intl.formatMessage(messages.newToService, {
-                  service: this.props.intl.formatMessage(Messages.service),
-                })
-              } </span>
-              <Link to="/join">
-                <span className={styles.joinLink}>
-                  {this.props.intl.formatMessage(Messages.signup)}
-                </span>
-              </Link>
+        {
+          errorMessage ? (
+            <div className={styles.errorMessage}>
+              <FontIcon className="material-icons" color={Colors.red500} style={inlineStyles.errorIcon}>error_outline</FontIcon>
+              {errorMessage}
             </div>
-          </Paper>
-        </Wrapper>
-      </div>
+          ): null
+        }
+
+        <form onSubmit={e => this.handleLocalLogin(e)} noValidate={true}>
+          <TextField
+            type="email"
+            className={styles.input}
+            fullWidth={true}
+            hintText={this.props.intl.formatMessage(Messages.email)}
+            onChange={e => this.handleEmailChange(e)}
+            disabled={formIsBusy}
+          />
+          <TextField
+            type="password"
+            className={styles.input}
+            fullWidth={true}
+            hintText={this.props.intl.formatMessage(Messages.password)}
+            onChange={e => this.handlePasswordChange(e)}
+            disabled={formIsBusy}
+          />
+          <RaisedButton
+            type="submit"
+            secondary={true}
+            fullWidth={true}
+            style={inlineStyles.loginButton}
+            label={this.props.intl.formatMessage(Messages.login)}
+            disabled={formIsBusy}
+          />
+        </form>
+
+        <RaisedButton
+          label={this.props.intl.formatMessage(Messages.facebookLogin)}
+          style={inlineStyles.facebookLoginButton}
+          onTouchTap={() => this.handleLoginWithFacebook()}
+          backgroundColor={'#3b5998'}
+          labelColor={Colors.white}
+          fullWidth={true}
+          disabled={formIsBusy}
+        />
+
+        <div className={styles.joinContainer}>
+          <span className={styles.joinMessage}>{
+            this.props.intl.formatMessage(messages.newToService, {
+              service: this.props.intl.formatMessage(Messages.service),
+            })
+          } </span>
+          <Link to="/join">
+            <span className={styles.joinLink}>
+              {this.props.intl.formatMessage(Messages.signup)}
+            </span>
+          </Link>
+        </div>
+      </FullscreenForm>
     );
   }
 }

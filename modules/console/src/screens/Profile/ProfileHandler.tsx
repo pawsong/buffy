@@ -7,8 +7,6 @@ import ListItem from 'material-ui/List/ListItem';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 
-import Wrapper from '../../components/Wrapper';
-
 import { connectApi, preloadApi, ApiCall, get } from '../../api';
 
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
@@ -21,6 +19,12 @@ const messages = defineMessages({
     defaultMessage: 'Popular projects',
   },
 });
+
+const rootClass = [
+  'col-xs-12',
+  'col-md-offset-2',
+  'col-md-8',
+].join(' ');
 
 interface RouteParams {
   username: string;
@@ -92,7 +96,7 @@ class ProfileHandler extends React.Component<HandlerProps, {}> {
     const projectList = this.renderProjectList();
 
     return (
-      <Wrapper style={{ marginTop: 30 }}>
+      <div className={rootClass} style={{ marginTop: 30 }}>
         <div className="row">
           <div className="col-md-3">
             {userInfo}
@@ -102,7 +106,7 @@ class ProfileHandler extends React.Component<HandlerProps, {}> {
             <div>{projectList}</div>
           </div>
         </div>
-      </Wrapper>
+      </div>
     );
   }
 }

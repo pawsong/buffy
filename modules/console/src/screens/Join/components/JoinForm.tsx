@@ -15,30 +15,13 @@ import BuffyIcon from '../../../components/BuffyIcon';
 import { TouchTapEvent } from 'material-ui';
 import { saga, SagaProps, ImmutableTask, request, wait, isRunning, isDone } from '../../../saga';
 import Messages from '../../../constants/Messages';
-
-import Wrapper from '../../../components/Wrapper';
+import FullscreenForm from '../../../components/FullscreenForm';
 
 import { localLogin, facebookLogin } from '../../Login/sagas';
 
 const PASSWORD_MIN_LENGTH = 6;
 
 const styles = {
-  root: {
-    marginTop: 70,
-  },
-  logoContainer: {
-    textDecoration: 'none',
-    textAlign: 'center',
-    marginBottom: 36,
-  },
-  logo: {
-    width: 40,
-    height: 40,
-  },
-  paper: {
-    position: 'relative',
-    padding: 20,
-  },
   facebookLoginButton: {
     width: '100%',
     marginTop: 17,
@@ -339,88 +322,88 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
     }
 
     return (
-      <div style={styles.root}>
-        <Wrapper width={400}>
-          <div style={styles.logoContainer}>
-            <Link to="/"><BuffyIcon style={styles.logo} /></Link>
-          </div>
-          <Paper style={styles.paper}>
-            {formIsBusy ? <CircularProgress style={styles.progressOverlay} /> : null}
+      <FullscreenForm>
+        {formIsBusy ? <CircularProgress style={styles.progressOverlay} /> : null}
 
-            <h1>
-              {this.props.intl.formatMessage(messages.heading, {
-                service: this.props.intl.formatMessage(Messages.service),
-              })}
-            </h1>
+        <h1 style={{ textAlign: 'left' }}>
+          {this.props.intl.formatMessage(messages.heading, {
+            service: this.props.intl.formatMessage(Messages.service),
+          })}
+        </h1>
 
-            {
-              errorMessage ? (
-                <div style={styles.errorMessage}>
-                  <FontIcon className="material-icons" color={Colors.red500} style={styles.errorIcon}>error_outline</FontIcon>
-                  {errorMessage}
-                </div>
-              ): null
-            }
+        {
+          errorMessage ? (
+            <div style={styles.errorMessage}>
+              <FontIcon className="material-icons" color={Colors.red500} style={styles.errorIcon}>error_outline</FontIcon>
+              {errorMessage}
+            </div>
+          ): null
+        }
 
-            <form onSubmit={e => this.handleLocalSignUpSubmit(e)} noValidate={true}>
-              <div style={styles.inputRow}>
-                <TextField type="email"
-                          hintText={this.props.intl.formatMessage(Messages.email)}
-                          errorText={emailValidation.error}
-                          onChange={e => this.handleEmailChange(e)}
-                          style={styles.textfield}
-                          inputStyle={styles.input}
-                          errorStyle={styles.textfieldError}
-                          disabled={formIsBusy}
-                />
-
-                {isRunning(this.props.validateEmail) ? <CircularProgress size={0.3} style={styles.progress} /> : null}
-
-                <FontIcon className="material-icons" style={Object.assign({}, styles.textfieldCheck, {
-                  display: emailValidation.valid ? 'inline-block' : 'none',
-                })}>check</FontIcon>
-              </div>
-
-              <div style={styles.inputRow}>
-                <TextField type="password"
-                          hintText={this.props.intl.formatMessage(Messages.password)}
-                          errorText={passwordValidation.error}
-                          onChange={e => this.handlePasswordChange(e)}
-                          style={styles.textfield}
-                          inputStyle={styles.input}
-                          errorStyle={styles.textfieldError}
-                          disabled={formIsBusy}
-                />
-
-                <FontIcon className="material-icons" style={Object.assign({}, styles.textfieldCheck, {
-                  display: passwordValidation.valid ? 'inline-block' : 'none',
-                })}>check</FontIcon>
-              </div>
-
-              <RaisedButton type="submit"
-                            secondary={true} fullWidth={true} style={styles.loginButton}
-                            label={this.props.intl.formatMessage(Messages.signup)}
-                            disabled={formIsBusy || localLoginSubmitDisabled}
-              />
-            </form>
-
-            <RaisedButton label={this.props.intl.formatMessage(Messages.facebookLogin)}
-                          backgroundColor={'#3b5998'} labelColor={Colors.white}
-                          style={styles.facebookLoginButton}
-                          fullWidth={true}
-                          onTouchTap={() => this.handleFacebookSignUpSubmit()}
-                          disabled={formIsBusy}
+        <form onSubmit={e => this.handleLocalSignUpSubmit(e)} noValidate={true}>
+          <div style={styles.inputRow}>
+            <TextField
+              type="email"
+              hintText={this.props.intl.formatMessage(Messages.email)}
+              errorText={emailValidation.error}
+              onChange={e => this.handleEmailChange(e)}
+              style={styles.textfield}
+              inputStyle={styles.input}
+              errorStyle={styles.textfieldError}
+              disabled={formIsBusy}
             />
 
-            <div style={styles.loginContainer}>
-              <span style={styles.loginMessage}><FormattedMessage {...messages.haveAccount} /> </span>
-              <Link to="/login">
-                <span style={styles.loginLink}><FormattedMessage {...Messages.login} /></span>
-              </Link>
-            </div>
-          </Paper>
-        </Wrapper>
-      </div>
+            {isRunning(this.props.validateEmail) ? <CircularProgress size={0.3} style={styles.progress} /> : null}
+
+            <FontIcon className="material-icons" style={Object.assign({}, styles.textfieldCheck, {
+              display: emailValidation.valid ? 'inline-block' : 'none',
+            })}>check</FontIcon>
+          </div>
+
+          <div style={styles.inputRow}>
+            <TextField
+              type="password"
+              hintText={this.props.intl.formatMessage(Messages.password)}
+              errorText={passwordValidation.error}
+              onChange={e => this.handlePasswordChange(e)}
+              style={styles.textfield}
+              inputStyle={styles.input}
+              errorStyle={styles.textfieldError}
+              disabled={formIsBusy}
+            />
+
+            <FontIcon className="material-icons" style={Object.assign({}, styles.textfieldCheck, {
+              display: passwordValidation.valid ? 'inline-block' : 'none',
+            })}>check</FontIcon>
+          </div>
+
+          <RaisedButton
+            type="submit"
+            secondary={true}
+            fullWidth={true}
+            style={styles.loginButton}
+            label={this.props.intl.formatMessage(Messages.signup)}
+            disabled={formIsBusy || localLoginSubmitDisabled}
+          />
+        </form>
+
+        <RaisedButton
+          label={this.props.intl.formatMessage(Messages.facebookLogin)}
+          backgroundColor={'#3b5998'}
+          labelColor={Colors.white}
+          style={styles.facebookLoginButton}
+          fullWidth={true}
+          onTouchTap={() => this.handleFacebookSignUpSubmit()}
+          disabled={formIsBusy}
+        />
+
+        <div style={styles.loginContainer}>
+          <span style={styles.loginMessage}><FormattedMessage {...messages.haveAccount} /> </span>
+          <Link to="/login">
+            <span style={styles.loginLink}><FormattedMessage {...Messages.login} /></span>
+          </Link>
+        </div>
+      </FullscreenForm>
     );
   }
 }

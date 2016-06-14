@@ -5,18 +5,18 @@ import RootHandler from './screens/Root';
 import JoinHandler from './screens/Join';
 import LoginHandler from './screens/Login';
 import AnonymousHandler from './screens/Anonymous';
-import AnonymousIndexHandler from './screens/Anonymous/screens/Index';
+// import AnonymousIndexHandler from './screens/Anonymous/screens/Index';
 import LoggedInHandler from './screens/LoggedIn';
-import LoggedInIndexHandler from './screens/LoggedIn/screens/Index';
-import AboutHandler from './screens/About';
-import ContactHandler from './screens/Contact';
-import GetStartedHandler from './screens/GetStarted';
-import OnlineStudioHandler from './screens/OnlineStudio';
-import OnlineCardboardHandler from './screens/OnlineCardboard';
-import OnlineGameHandler from './screens/OnlineGame';
-import ProjectStudioHandler from './screens/ProjectStudio';
-import ProjectCardboardHandler from './screens/ProjectCardboard';
-import ProjectGameHandler from './screens/ProjectGame';
+// import LoggedInIndexHandler from './screens/LoggedIn/screens/Index';
+// import AboutHandler from './screens/About';
+// import ContactHandler from './screens/Contact';
+// import GetStartedHandler from './screens/GetStarted';
+// import OnlineStudioHandler from './screens/OnlineStudio';
+// import OnlineCardboardHandler from './screens/OnlineCardboard';
+// import OnlineGameHandler from './screens/OnlineGame';
+// import ProjectStudioHandler from './screens/ProjectStudio';
+// import ProjectCardboardHandler from './screens/ProjectCardboard';
+// import ProjectGameHandler from './screens/ProjectGame';
 import ProfileHandler from './screens/Profile';
 import SettingsHandler from './screens/Settings';
 import NotFoundHandler from './screens/NotFound';
@@ -58,7 +58,7 @@ export default function getRoutes(store: Store) {
             path: '/login',
             getComponent: (location, cb) => {
               return require.ensure([], require => {
-                cb(null, require<{ default: JoinHandler }>('./screens/Login').default);
+                cb(null, require<{ default: LoginHandler }>('./screens/Login').default);
               });
             },
           },

@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import BuffyIcon from '../BuffyIcon';
 import * as Colors from 'material-ui/styles/colors';
-import Wrapper from '../Wrapper';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';
@@ -23,11 +22,17 @@ const messages = defineMessages({
   },
 });
 
+const rootClass = [
+  'col-xs-12',
+  'col-md-offset-2',
+  'col-md-8',
+].join(' ');
+
 @withStyles(styles)
 class Footer extends React.Component<{}, {}> {
   render() {
     return (
-      <Wrapper>
+      <div className={rootClass}>
         <div className={styles.root}>
           <ul className={styles.right}>
             <li className={styles.list}>
@@ -40,7 +45,7 @@ class Footer extends React.Component<{}, {}> {
           <Link to="/"><BuffyIcon className={styles.logo} color={Colors.lightBlack} /></Link>
           <ul className={styles.left}><li>© 2016 Buffy, Inc.</li></ul>
         </div>
-      </Wrapper>
+      </div>
     );
   }
 }

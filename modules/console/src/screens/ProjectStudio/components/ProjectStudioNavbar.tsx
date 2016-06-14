@@ -173,7 +173,7 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
 
   renderAnonymousNavbar() {
     return (
-      <AnonymousNavbar location={this.props.location} width="100%"
+      <AnonymousNavbar location={this.props.location} fullWidth={true}
                        leftToolbarGroup={this.renderLeftToolbarGroup()}
       />
     );
@@ -181,7 +181,7 @@ class ProjectStudioNavbar extends React.Component<ProjectStudioNavbarProps, Proj
 
   renderLoggedInNavbar() {
     return (
-      <LoggedInNavbar location={this.props.location} width="100%"
+      <LoggedInNavbar location={this.props.location} fullWidth={true}
                       leftToolbarGroup={this.renderLeftToolbarGroup()}
                       user={this.props.user}
                       onLogout={this.props.onLogout}

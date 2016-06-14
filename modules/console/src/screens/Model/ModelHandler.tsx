@@ -9,7 +9,7 @@ import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import { white } from 'material-ui/styles/colors';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-import Wrapper from '../../components/Wrapper';
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import ModelList from './components/ModelList';
 
 import {
@@ -19,15 +19,7 @@ import {
 import { preloadApi, connectApi, ApiCall, get } from '../../api';
 
 const bannerImgUrl = require('file!./banner.jpg');
-
-const styles = {
-  buttons: {
-    float: 'right',
-  },
-  button: {
-    color: white,
-  },
-};
+const styles = require('./ModelHandler.css');
 
 const messages = defineMessages({
   bannerTitle: {
@@ -44,7 +36,6 @@ interface HandlerProps {
 
 const rootClass = [
   'col-xs-12',
-  'col-md-offset-2',
   'col-md-8',
 ].join(' ');
 
@@ -53,12 +44,13 @@ const rootClass = [
 }))
 @connectApi()
 @injectIntl
+@withStyles(styles)
 class ModelHandler extends React.Component<HandlerProps, {}> {
   render() {
     return (
-      <div className="row">
-        <div className={rootClass}>
-          <Card>
+      <div className="row center-xs" style={{ margin: 0, textAlign: 'inherit' }}>
+        <div className={rootClass} style={{ padding: 0 }}>
+          <Card style={{ marginBottom: 30 }}>
             <CardMedia
               overlay={
                 <div>
@@ -74,7 +66,7 @@ class ModelHandler extends React.Component<HandlerProps, {}> {
               <img src={bannerImgUrl} />
             </CardMedia>
           </Card>
-          <div style={{ textAlign: 'center', marginTop: 30 }}>
+          <div style={{ textAlign: 'center', marginTop: 60, marginBottom: 60 }}>
             <RaisedButton
               containerElement={<Link to="/model/edit" />}
               label="Create a New Model"
@@ -82,12 +74,14 @@ class ModelHandler extends React.Component<HandlerProps, {}> {
             />
           </div>
           <div>
-            <h2>Most forked models</h2>
-            <hr />
+            <h2 className={styles.subtitle}>Most forked models</h2>
+            <ModelList
+              courses={this.props.recentModels.result}
+              fetching={this.props.recentModels.state !== 'fulfilled'}
+            />
           </div>
           <div>
-            <h2>Recently updated models</h2>
-            <hr />
+            <h2 className={styles.subtitle}>Recently updated models</h2>
             <ModelList
               courses={this.props.recentModels.result}
               fetching={this.props.recentModels.state !== 'fulfilled'}

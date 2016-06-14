@@ -17,12 +17,17 @@ import ToolbarSeparator from 'material-ui/Toolbar/ToolbarSeparator';
 import ToolbarTitle from 'material-ui/Toolbar/ToolbarTitle';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 
-import Wrapper from '../Wrapper';
 const styles = require('./Navbar.css');
 
 interface NavbarProps extends React.Props<Navbar> {
-  width?: number | string;
+  fullWidth?: boolean;
 }
+
+const rootClass = [
+  'col-xs-12',
+  'col-md-offset-2',
+  'col-md-8',
+].join(' ');
 
 @withStyles(styles)
 class Navbar extends React.Component<NavbarProps, {}> {
@@ -46,10 +51,10 @@ class Navbar extends React.Component<NavbarProps, {}> {
   render() {
     return (
       <div>
-        <div className={styles.content}>
-          <Wrapper backgroundColor={this.backgroundColor} width={this.props.width}>
+        <div className={styles.content} style={{ backgroundColor: this.backgroundColor }}>
+          <div className={this.props.fullWidth ? '' : rootClass}>
             <Toolbar style={this.toolbarStyle}>{this.props.children}</Toolbar>
-          </Wrapper>
+          </div>
         </div>
         <div style={this.paddingStyle}/>
       </div>

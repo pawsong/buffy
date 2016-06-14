@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import Paper from 'material-ui/Paper';
 import { grey200 } from 'material-ui/styles/colors';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
-import Wrapper from '../../../components/Wrapper';
 
 import * as Colors from 'material-ui/styles/colors';
 import List from 'material-ui/List/List';
@@ -79,19 +78,6 @@ class ModelList extends React.Component<ModelListProps, {}> {
     }
 
     const modelUrl = `/model/${file.id}`;
-      // <Card key={file.id} style={{ backgroundColor: grey200, marginTop: 10, marginBottom: 10 }}>
-      //   <CardMedia>
-      //     <Link to={modelUrl}>
-      //       <img style={{ width: 220 }} src={`${__CDN_BASE__}/${file.thumbnail}`} />
-      //     </Link>
-      //   </CardMedia>
-      //   <CardTitle
-      //     title={<Link to={modelUrl}>{file.name}</Link>}
-      //     subtitle={fork}
-      //     style={{ paddingTop: 0 }}
-      //   />
-      //   {username}
-      // </Card>
 
     return (
       <Paper key={file.id} className={styles.item}>

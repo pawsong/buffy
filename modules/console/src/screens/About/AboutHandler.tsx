@@ -1,12 +1,11 @@
 import * as React from 'react';
-import Wrapper from '../../components/Wrapper';
 
 class AboutHandler extends React.Component<{}, {}> {
   render() {
     return (
-      <Wrapper>
+      <div>
         <div>About</div>
-      </Wrapper>
+      </div>
     );
   }
 }

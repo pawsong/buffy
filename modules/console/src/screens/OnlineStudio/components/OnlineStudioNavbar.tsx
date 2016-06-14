@@ -57,14 +57,14 @@ class OnlineStudioNavbar extends React.Component<OnlineStudioNavbarProps, void> 
 
   renderAnonymousNavbar() {
     return (
-      <AnonymousNavbar location={this.props.location} width="100%"
+      <AnonymousNavbar location={this.props.location} fullWidth={true}
       />
     );
   }
 
   renderLoggedInNavbar() {
     return (
-      <LoggedInNavbar location={this.props.location} width="100%"
+      <LoggedInNavbar location={this.props.location} fullWidth={true}
                       leftToolbarGroup={this.renderLeftToolbarGroup()}
                       user={this.props.user}
                       onLogout={this.props.onLogout}

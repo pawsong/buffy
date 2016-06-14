@@ -18,7 +18,6 @@ import Messages from '../../constants/Messages';
 
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
-import Wrapper from '../../components/Wrapper';
 
 import { userUpdate } from '../../actions/users';
 
@@ -28,6 +27,12 @@ import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./SettingsHandler.css');
 
 const AvatarEditor = require('react-avatar-editor');
+
+const rootClass = [
+  'col-xs-12',
+  'col-md-offset-2',
+  'col-md-8',
+].join(' ');
 
 const messages = defineMessages({
   profilePicture: {
@@ -278,7 +283,7 @@ class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
     const picture = `${__CDN_BASE__}/${user.picture}`;
 
     return (
-      <Wrapper style={{ marginTop: 15 }}>
+      <div className={rootClass} style={{ marginTop: 15 }}>
         <h1>{this.props.intl.formatMessage(Messages.settings)}</h1>
 
         <div className={styles.fieldLabel}>{this.props.intl.formatMessage(messages.profilePicture)}</div>
@@ -312,7 +317,7 @@ class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
                         disabled={!this.hasNameChanged() || isRunning(this.props.submitProfileUpdate)}
           />
         </div>
-      </Wrapper>
+      </div>
     );
   }
 }
