@@ -114,7 +114,7 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
 
   handleBrowserOpen = () => {
     if (this.state.browserOpen) {
-      this.props.onRequestSnackbar('Working list has already opened on left side. choose one :)');
+      this.props.onRequestSnackbar('Working list is already open on left side. Choose one :)');
     } else {
       this.setState({ browserOpen: true });
     }

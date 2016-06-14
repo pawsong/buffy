@@ -16,12 +16,12 @@ export const usernameExists = wrap(async (req, res) => {
   return res.send({ result: !!user });
 });
 
-export const getUserByUsername = compose(requiresLogin, wrap(async (req, res) => {
+export const getUserByUsername = wrap(async (req, res) => {
   const user = await User.findOne({ username: req.params.username }).exec();
   if (!user) return res.send(404);
 
   return res.send(user);
-}));
+});
 
 export const getMyUserData = compose(requiresLogin, wrap(async (req, res) => {
   const user = await User.findById(req.user.id).exec();

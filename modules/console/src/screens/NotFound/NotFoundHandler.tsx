@@ -5,7 +5,8 @@ class NotFoundHandler extends React.Component<{}, {}> {
   render() {
     return (
       <Wrapper>
-        <div>Not found</div>
+        <h1>Sorry</h1>
+        <div>This page is not what you are looking for.</div>
       </Wrapper>
     );
   }

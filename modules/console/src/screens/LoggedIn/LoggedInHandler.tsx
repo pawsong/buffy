@@ -42,20 +42,19 @@ interface LoggedInHandlerProps extends RouteComponentProps<{}, {}> {
 }) as any)
 @injectIntl
 class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
+  handleCreateButtonClick = () => {
+    this.props.push('/model/edit');
+  }
+
   renderLeftToolbarGroup() {
     return (
-      <div style={{ marginLeft: 25 }}>
-        <FlatButton label={this.props.intl.formatMessage(Messages.create)}
-                    style={styles.button}
-                    onTouchTap={() => this.props.push('/create')}
-                    backgroundColor={Colors.pinkA200}
-                    hoverColor={Colors.pinkA100}
-        />
-        <FlatButton label={this.props.intl.formatMessage(Messages.explore)}
-                    style={styles.button}
-                    onTouchTap={() => this.props.push('/explore')}
-                    backgroundColor={Colors.pinkA200}
-                    hoverColor={Colors.pinkA100}
+      <div style={{ marginLeft: 25, marginTop: 10 }}>
+        <FlatButton
+          label={this.props.intl.formatMessage(Messages.create)}
+          style={styles.button}
+          onTouchTap={this.handleCreateButtonClick}
+          backgroundColor={Colors.pinkA200}
+          hoverColor={Colors.pinkA100}
         />
       </div>
     );
@@ -64,10 +63,11 @@ class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
   render() {
     return (
       <div>
-        <LoggedInNavbar user={this.props.user}
-                        onLogout={() => this.props.requestLogout()}
-                        location={this.props.location}
-                        leftToolbarGroup={this.renderLeftToolbarGroup()}
+        <LoggedInNavbar
+          user={this.props.user}
+          onLogout={() => this.props.requestLogout()}
+          location={this.props.location}
+          leftToolbarGroup={this.renderLeftToolbarGroup()}
         />
         {this.props.children}
         <Footer />

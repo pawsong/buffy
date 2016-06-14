@@ -58,30 +58,34 @@ class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
   }
 
   renderLeftToolbarGroup() {
-    // tabItemContainerStyle={{ height: '100%' }} for firefox
-    // Tab style={{ height: '100%' }} for safari
-    return (
-      <Tabs
-        value={this.props.location.pathname}
-        onChange={value => this.handleTabChange(value)}
-        style={{ width: 113, display: 'inline-block', marginLeft: 30 }}
-        tabItemContainerStyle={{ height: '100%' }}
-      >
-        <Tab
-          style={{ height: '100%' }}
-          value="/get-started"
-          icon={<FontIcon className="material-icons">play_arrow</FontIcon>}
-          label={this.props.intl.formatMessage(messages.getStarted)}
-        />
-      </Tabs>
-    );
+    return null;
+
+    // // tabItemContainerStyle={{ height: '100%' }} for firefox
+    // // Tab style={{ height: '100%' }} for safari
+    // return (
+    //   <Tabs
+    //     value={this.props.location.pathname}
+    //     onChange={value => this.handleTabChange(value)}
+    //     style={{ width: 113, display: 'inline-block', marginLeft: 30 }}
+    //     tabItemContainerStyle={{ height: '100%' }}
+    //   >
+    //     <Tab
+    //       style={{ height: '100%' }}
+    //       value="/get-started"
+    //       icon={<FontIcon className="material-icons">play_arrow</FontIcon>}
+    //       label={this.props.intl.formatMessage(messages.getStarted)}
+    //     />
+    //   </Tabs>
+    // );
   }
 
   render() {
     return (
       <div>
-        <AnonymousNavbar location={this.props.location} height={72}
-                         leftToolbarGroup={this.renderLeftToolbarGroup()}
+        <AnonymousNavbar
+          location={this.props.location}
+          height={72}
+          leftToolbarGroup={this.renderLeftToolbarGroup()}
         />
         {this.props.children}
         <Footer />

@@ -42,13 +42,6 @@ export default {
   'cancel': '취소',
 
   /**
-   * path: src/components/Studio/Studio.json
-   * description: Write code for robot with blocks
-   * defaultMessage: Code
-   */
-  'code': '코드',
-
-  /**
    * path: src/constants/Messages.json
    * description: Connect to online service button label
    * defaultMessage: Connect
@@ -68,13 +61,6 @@ export default {
    * defaultMessage: Create
    */
   'create.project.button': '만들기',
-
-  /**
-   * path: src/components/Studio/Studio.json
-   * description: Design robot with blocks
-   * defaultMessage: Design
-   */
-  'design': '설계',
 
   /**
    * path: src/constants/Messages.json
@@ -329,20 +315,6 @@ export default {
   'popular.projects': '인기 프로젝트',
 
   /**
-   * path: src/screens/ProjectStudio/components/ProjectStudioNavbar.json
-   * description: New file
-   * defaultMessage: New file
-   */
-/* translate */ 'projectstudio.new.file': '',
-
-  /**
-   * path: src/components/Studio/Studio.json
-   * description: Run code
-   * defaultMessage: Run
-   */
-  'run': '실행하기',
-
-  /**
    * path: src/constants/Messages.json
    * description: Save
    * defaultMessage: Save
@@ -439,13 +411,6 @@ export default {
    * defaultMessage: Thank you for signing up!
    */
   'signup.modal.title': '가입해 주셔서 감사합니다',
-
-  /**
-   * path: src/components/Studio/Studio.json
-   * description: Stop code
-   * defaultMessage: Stop
-   */
-  'stop': '멈추기',
 
   /**
    * path: src/constants/Messages.json
@@ -601,55 +566,18 @@ export default {
    */
   'vrMode': 'VR 모드',
 
-  /**
-   * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
-   * description: Add robot history label
-   * defaultMessage: Add robot
-   */
-  'worldeditor.panels.history.add.robot': '로봇 추가',
-
-  /**
-   * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
-   * description: Zone block add history label
-   * defaultMessage: Add block
-   */
-  'worldeditor.panels.history.add.zone.block': '블록 추가',
-
-  /**
-   * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
-   * description: Init history label
-   * defaultMessage: Initialize
-   */
-  'worldeditor.panels.history.init': '초기화',
-
-  /**
-   * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
-   * description: Zone block remove history label
-   * defaultMessage: Remove block
-   */
-  'worldeditor.panels.history.remove.zone.block': '블록 제거',
-
-  /**
-   * path: src/components/WorldEditor/components/EditMode/HistoryPanel.json
-   * description: World editor history panel title
-   * defaultMessage: History
-   */
-  'worldeditor.panels.history.title': '히스토리',
-
-  /**
-   * path: src/components/WorldEditor/components/EditMode/RobotPanel.json
-   * description: World editor robot panel title
-   * defaultMessage: Robots
-   */
-  'worldeditor.panels.robot.title': '로봇',
-
-  /**
-   * path: src/components/WorldEditor/components/EditMode/ToolsPanel.json
-   * description: WorldEditor tools panel title
-   * defaultMessage: Tools
-   */
-  'worldeditor.panels.tools.title': '도구상자',
-
+/* [Warning] Message not in use */ 'code': '코드',
+/* [Warning] Message not in use */ 'design': '설계',
+/* [Warning] Message not in use */ 'projectstudio.new.file': '',
+/* [Warning] Message not in use */ 'run': '실행하기',
+/* [Warning] Message not in use */ 'stop': '멈추기',
+/* [Warning] Message not in use */ 'worldeditor.panels.history.add.robot': '로봇 추가',
+/* [Warning] Message not in use */ 'worldeditor.panels.history.add.zone.block': '블록 추가',
+/* [Warning] Message not in use */ 'worldeditor.panels.history.init': '초기화',
+/* [Warning] Message not in use */ 'worldeditor.panels.history.remove.zone.block': '블록 제거',
+/* [Warning] Message not in use */ 'worldeditor.panels.history.title': '히스토리',
+/* [Warning] Message not in use */ 'worldeditor.panels.robot.title': '로봇',
+/* [Warning] Message not in use */ 'worldeditor.panels.tools.title': '도구상자',
 /* [Warning] Message not in use */ 'anon.index.areYouTeacher': '혹시 선생님이신가요?',
 /* [Warning] Message not in use */ 'anon.index.getStarted': '지금 시작해보세요',
 /* [Warning] Message not in use */ 'anon.index.introduceCodeEditor.body': '코드 블럭으로 로봇을 움직일 수 있어요',
