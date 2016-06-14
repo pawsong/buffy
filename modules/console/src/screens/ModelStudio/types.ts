@@ -6,18 +6,12 @@ import ModelEditor, {
   ModelExtraData,
 } from '../../components/ModelEditor';
 
-import { SourceFile } from '../../types';
-
-interface User {
-  id: string;
-  username: string;
-}
-
-export interface ForkItem {
-  id: string;
-  name: string;
-  owner: User;
-}
+import {
+  SourceFile,
+  User,
+  ForkItem,
+  ModelFileDocument,
+} from '../../types';
 
 export interface ModelFile extends SourceFile<ModelFileState, ModelExtraData> {
   owner: User;
@@ -37,12 +31,4 @@ export interface ModelFileOpenParams {
   forkParent: ForkItem;
 }
 
-export interface ModelFileDocument {
-  id: string;
-  name: string;
-  owner: User;
-  thumbnail: string;
-  modifiedAt: string;
-  isPublic: boolean;
-  forkParent: ForkItem;
-}
+export { ForkItem, ModelFileDocument }

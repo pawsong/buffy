@@ -19,6 +19,16 @@ export const getFileList = wrap(async (req, res) => {
 
   const files = await FileModel.find(query)
     .populate('owner', '_id username')
+    .populate({
+      path: 'forkParent',
+      model: 'File',
+      select: '_id name owner',
+      populate: {
+        path: 'owner',
+        model: 'User',
+        select: '_id username',
+      },
+    } as any)
     .sort('-modifiedAt')
     .limit(PAGE_SIZE)
     .exec();

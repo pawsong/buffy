@@ -21,6 +21,7 @@ import ProfileHandler from './screens/Profile';
 import SettingsHandler from './screens/Settings';
 import NotFoundHandler from './screens/NotFound';
 import ModelStudioHandler from './screens/ModelStudio';
+import ModelHandler from './screens/Model';
 
 export default function getRoutes(store: Store) {
 
@@ -143,7 +144,7 @@ export default function getRoutes(store: Store) {
           }
         },
         indexRoute: {
-          onEnter: (nextState, replace) => replace('/model/edit'),
+          onEnter: (nextState, replace) => replace('/model'),
           // getComponent: (location, cb) => {
           //   if (!isLoggedIn()) {
           //     return require.ensure([], (require) => {
@@ -157,6 +158,14 @@ export default function getRoutes(store: Store) {
           // }
         },
         childRoutes: [
+          {
+            path: '/model',
+            getComponent: (location, cb) => {
+              return require.ensure([], require => {
+                cb(null, require<{ default: ModelHandler }>('./screens/Model').default);
+              });
+            },
+          },
           {
             onEnter: redirectToLogin,
             path: '/settings',

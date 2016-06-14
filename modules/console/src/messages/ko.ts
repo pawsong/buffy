@@ -168,6 +168,13 @@ export default {
   'join.title': '{service} 가입하기',
 
   /**
+   * path: src/screens/Model/ModelHandler.json
+   * description: Landing page banner title
+   * defaultMessage: Buffy the Voxel Editor
+   */
+  'landing.banner.title': '버피: 버추얼 로봇 플랫폼',
+
+  /**
    * path: src/constants/Messages.json
    * description: Login with email and password is failed
    * defaultMessage: The email and password do not match.
@@ -566,6 +573,7 @@ export default {
    */
   'vrMode': 'VR 모드',
 
+/* [Warning] Message not in use */ 'landing.seeMore': '더 알아보기',
 /* [Warning] Message not in use */ 'code': '코드',
 /* [Warning] Message not in use */ 'design': '설계',
 /* [Warning] Message not in use */ 'projectstudio.new.file': '',
@@ -589,8 +597,6 @@ export default {
 /* [Warning] Message not in use */ 'anon.index.takeTutorial': '쉬운 예제로 시작해보세요',
 /* [Warning] Message not in use */ 'anon.index.wantToLearnMore': '{service}에 대해 더 알고 싶으세요?',
 /* [Warning] Message not in use */ 'create.project': '새 프로젝트 만들기',
-/* [Warning] Message not in use */ 'landing.banner.title': '버피: 버추얼 로봇 플랫폼',
-/* [Warning] Message not in use */ 'landing.seeMore': '더 알아보기',
 /* [Warning] Message not in use */ 'modelstudio.navbar.saveall': '',
 /* [Warning] Message not in use */ 'modelstudio.new.file': '',
 /* [Warning] Message not in use */ 'voxel-editor.panels.history.voxel.paint': '색칠하기',

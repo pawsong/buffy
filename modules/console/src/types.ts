@@ -17,3 +17,24 @@ export interface SourceFile<T, U> {
   body: T;
   extra?: U;
 }
+
+export interface User {
+  id: string;
+  username: string;
+}
+
+export interface ForkItem {
+  id: string;
+  name: string;
+  owner: User;
+}
+
+export interface ModelFileDocument {
+  id: string;
+  name: string;
+  owner: User;
+  thumbnail: string;
+  modifiedAt: string;
+  isPublic: boolean;
+  forkParent: ForkItem;
+}

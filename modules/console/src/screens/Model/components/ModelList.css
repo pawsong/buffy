@@ -1,0 +1,44 @@
+@import '../../../styles/variables.css';
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.item {
+  background-color: var(--palette-grey-200) !important;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.itemTitleContainer {
+  padding-left: 16px;
+  padding-right: 16px;
+  position: relative;
+}
+
+.itemTitle {
+  font-size: 24px;
+  display: block;
+  line-height: 36px;
+}
+
+.itemSubtitle {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.541176);
+  display: block;
+  padding-bottom: 16px;
+}
+
+.itemContent {
+  text-align: right;
+  padding-right: 16px;
+  padding-bottom: 16px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.870588);
+  align-self: flex-end;
+}
