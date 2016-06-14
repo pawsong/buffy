@@ -3,13 +3,15 @@ import * as Promise from 'bluebird';
 Promise.config({ warnings: false });
 
 require('react-tap-event-plugin')();
+const useScroll = require('react-router-scroll');
+
 import './vendor';
 
 import * as React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { match } from 'react-router'
-const { Router, RouterContext }  = require('react-router');
+const { Router, applyRouterMiddleware }  = require('react-router');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const Hairdresser = require('hairdresser');
@@ -118,10 +120,12 @@ Promise.all<LocaleData>([
           <MuiThemeProvider muiTheme={finalMuiTheme}>
             <Provider store={store}>
               <SagaProvider middleware={sagaMiddleware}>
-                <Router history={history}
-                        onUpdate={onRouterUpdate}
-                        render={props => <RouterContext {...props} />}
-                >{routes}</Router>
+                <Router
+                  history={history}
+                  onUpdate={onRouterUpdate}
+                  routes={routes}
+                  render={applyRouterMiddleware(useScroll())}
+                />
               </SagaProvider>
             </Provider>
           </MuiThemeProvider>

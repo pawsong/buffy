@@ -47,7 +47,7 @@ const messages = defineMessages({
 
 const inlineStyles = {
   root: {
-    position: 'absolute',
+    position: 'fixed',
     top: NAVBAR_HEIGHT,
     bottom: 0,
     left: 0,

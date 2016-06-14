@@ -1,9 +1,6 @@
 @import '../../styles/variables.css';
 
 .root {
-  position: absolute;
-  height: 100%;
-  width: 100%;
 }
 
 .content {

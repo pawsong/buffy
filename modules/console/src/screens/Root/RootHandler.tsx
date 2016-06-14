@@ -76,9 +76,7 @@ class RootHandler extends React.Component<RootProps, {}> {
       <div className={styles.root}>
         <EnhancedTitle>{title}</EnhancedTitle>
         {loadingOverlay}
-        <div className={styles.content}>
-          {this.props.children}
-        </div>
+        <div className={styles.content}>{this.props.children}</div>
         <Snackbar
           open={this.props.snackbarOpen}
           message={this.props.snackbar.message}
