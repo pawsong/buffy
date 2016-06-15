@@ -14,10 +14,10 @@ const EXPIRES = 60;
 const PAGE_SIZE = 12;
 
 export const getFileList = wrap(async (req, res) => {
-  const query: any = { isPublic: true };
-  if (req.query.before) query.modifiedAt = { $lt: req.query.before };
+  const conditions: any = { isPublic: true };
+  if (req.query.before) conditions.modifiedAt = { $lt: req.query.before };
 
-  const files = await FileModel.find(query)
+  const query = FileModel.find(conditions)
     .populate('owner', '_id username')
     .populate({
       path: 'forkParent',
@@ -29,10 +29,21 @@ export const getFileList = wrap(async (req, res) => {
         select: '_id username',
       },
     } as any)
-    .sort('-modifiedAt')
-    .limit(PAGE_SIZE)
-    .exec();
+    .limit(PAGE_SIZE);
 
+  const sort = req.query.sort || '-modifiedAt';
+  switch (sort) {
+    case '-modifiedAt': {
+      query.sort('-modifiedAt');
+      break;
+    }
+    case '-forked': {
+      query.sort('-forked');
+      break;
+    }
+  }
+
+  const files = await query.exec();
   res.send(files);
 });
 
@@ -142,7 +153,14 @@ export const createFile2 = compose(checkLogin, wrap(async (req, res) => {
   }
 
   await file.save();
+
   res.send(file);
+
+  if (file.forkRoot) {
+    await FileModel.findByIdAndUpdate(file.forkRoot.toHexString(), {
+      $inc: { forked: 1 },
+    });
+  }
 }));
 
 export const deleteFile = compose(requiresLogin, wrap(async (req, res) => {
@@ -156,6 +174,12 @@ export const deleteFile = compose(requiresLogin, wrap(async (req, res) => {
   if (!file) return res.send(400);
 
   res.send(200);
+
+  if (file.forkRoot) {
+    await FileModel.findByIdAndUpdate(file.forkRoot.toHexString(), {
+      $inc: { forked: -1 },
+    });
+  }
 
   // TODO: Log error
   s3.deleteObject({

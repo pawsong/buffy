@@ -30,6 +30,7 @@ const messages = defineMessages({
 });
 
 interface HandlerProps {
+  mostForkedModels?: ApiCall<ModelFileDocument[]>;
   recentModels?: ApiCall<ModelFileDocument[]>;
   intl?: InjectedIntlProps
 }
@@ -40,6 +41,9 @@ const rootClass = [
 ].join(' ');
 
 @preloadApi(() => ({
+  mostForkedModels: get(`${CONFIG_API_SERVER_URL}/files`, {
+    qs: { sort: '-forked' },
+  }),
   recentModels: get(`${CONFIG_API_SERVER_URL}/files`),
 }))
 @connectApi()
@@ -76,8 +80,8 @@ class ModelHandler extends React.Component<HandlerProps, {}> {
           <div>
             <h2 className={styles.subtitle}>Most forked models</h2>
             <ModelList
-              courses={this.props.recentModels.result}
-              fetching={this.props.recentModels.state !== 'fulfilled'}
+              courses={this.props.mostForkedModels.result}
+              fetching={this.props.mostForkedModels.state !== 'fulfilled'}
             />
           </div>
           <div>
