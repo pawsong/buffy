@@ -83,7 +83,7 @@ class ModelList extends React.Component<ModelListProps, {}> {
       <Paper key={file.id} className={styles.item}>
         <div>
           <Link to={modelUrl}>
-            <img style={{ width: 220 }} src={`${__CDN_BASE__}/${file.thumbnail}`} />
+            <img src={`${__CDN_BASE__}/${file.thumbnail}`} />
           </Link>
           <div className={styles.itemTitleContainer}>
             <Link to={modelUrl}>
