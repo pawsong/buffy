@@ -16,3 +16,35 @@
   line-height: 24px;
   color: var(--palette-grey-500);
 }
+
+.fileContainer {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--palette-grey-300);
+}
+
+.fileThumbnail {
+  width: 200px;
+  vertical-align:bottom;
+}
+
+.fileInfo {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 120px;
+  margin: 30px;
+
+  & h2 {
+    margin: 0;
+  }
+}
+
+.fileForkInfo {
+  color: rgba(0, 0, 0, 0.541176);
+}
+
+.fileOwner {
+  text-align: right;
+}

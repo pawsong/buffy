@@ -9,14 +9,18 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 
 import { connectApi, preloadApi, ApiCall, get } from '../../api';
 
+import { ModelFileDocument } from '../../types';
+
+import getForkItemLabel from '../../utils/getForkItemLabel';
+
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./ProfileHandler.css');
 
 const messages = defineMessages({
-  popularProjects: {
-    id: 'popular.projects',
-    description: 'Popular projects',
-    defaultMessage: 'Popular projects',
+  recentModels: {
+    id: 'profile.recent.models',
+    description: 'Recent models',
+    defaultMessage: 'Recent Models',
   },
 });
 
@@ -37,20 +41,14 @@ interface User {
   picture: string;
 }
 
-interface ProjectSummary {
-  id: string;
-  name: string;
-  desc: string;
-}
-
 interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams> {
   user?: ApiCall<User>;
-  projects?: ApiCall<ProjectSummary[]>;
+  models?: ApiCall<ModelFileDocument[]>;
 }
 
 @preloadApi<RouteParams>((params) => ({
   user: get(`${CONFIG_API_SERVER_URL}/users/${params.username}`),
-  projects: get(`${CONFIG_API_SERVER_URL}/projects/@${params.username}`),
+  models: get(`${CONFIG_API_SERVER_URL}/files/@${params.username}`),
 }))
 @connectApi()
 @withStyles(styles)
@@ -73,27 +71,40 @@ class ProfileHandler extends React.Component<HandlerProps, {}> {
     );
   }
 
-  renderProjectList() {
-    const projects = this.props.projects.state !== 'fulfilled' ? [] : this.props.projects.result;
+  renderModelList() {
+    const models = this.props.models.state !== 'fulfilled' ? [] : this.props.models.result;
 
-    const listBody = projects.map(project => {
+    const listBody = models.map(file => {
+      const fork = file.forkParent ? (
+        <div className={styles.fileForkInfo}>
+          forked from <Link to={`/model/${file.forkParent.id}`}>{getForkItemLabel(file.forkParent)}</Link>
+        </div>
+      ) : null;
+
       return (
-        <ListItem key={project.id} primaryText={project.id}
-                  linkButton={true}
-                  containerElement={<Link to={`/@${this.props.params.username}/${project.id}/latest/edit`}></Link>}
-        />
+        <div key={file.id} className={styles.fileContainer}>
+          <Link to={`/model/${file.id}`}>
+            <img src={`${__CDN_BASE__}/${file.thumbnail}`} className={styles.fileThumbnail} />
+          </Link>
+          <div className={styles.fileInfo} >
+            <div>
+              <Link to={`/model/${file.id}`}><h2>{file.name}</h2></Link>
+              {fork}
+            </div>
+          </div>
+        </div>
       );
     });
 
     return (
-      <List>{listBody}</List>
+      <div>{listBody}</div>
     );
   }
 
   render() {
     const userInfo = this.renderUserInfo();
 
-    const projectList = this.renderProjectList();
+    const modelList = this.renderModelList();
 
     return (
       <div className={rootClass} style={{ marginTop: 30 }}>
@@ -102,8 +113,8 @@ class ProfileHandler extends React.Component<HandlerProps, {}> {
             {userInfo}
           </div>
           <div className="col-md-9">
-            <FormattedMessage tagName="h2" {...messages.popularProjects} />
-            <div>{projectList}</div>
+            <FormattedMessage tagName="h2" {...messages.recentModels} />
+            <div>{modelList}</div>
           </div>
         </div>
       </div>

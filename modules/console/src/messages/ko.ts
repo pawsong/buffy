@@ -316,10 +316,10 @@ export default {
 
   /**
    * path: src/screens/Profile/ProfileHandler.json
-   * description: Popular projects
-   * defaultMessage: Popular projects
+   * description: Recent models
+   * defaultMessage: Recent Models
    */
-  'popular.projects': '인기 프로젝트',
+/* translate */ 'profile.recent.models': '',
 
   /**
    * path: src/constants/Messages.json
@@ -573,6 +573,8 @@ export default {
    */
   'vrMode': 'VR 모드',
 
+/* [Warning] Message not in use */ 'popular.models': '',
+/* [Warning] Message not in use */ 'popular.projects': '인기 프로젝트',
 /* [Warning] Message not in use */ 'landing.seeMore': '더 알아보기',
 /* [Warning] Message not in use */ 'code': '코드',
 /* [Warning] Message not in use */ 'design': '설계',
