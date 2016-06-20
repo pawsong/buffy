@@ -1,0 +1,15 @@
+.bugReport {
+  margin-right: 10px;
+
+  & button {
+    height: 56px !important;
+  }
+
+  & .bugReportButton {
+    color: rgba(0, 0, 0, 0.4) !important;
+  }
+
+  &:hover .bugReportButton {
+    color: rgba(0, 0, 0, 0.870588) !important;
+  }
+}

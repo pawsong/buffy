@@ -4,6 +4,7 @@ import FlatButton from 'material-ui/FlatButton';
 import BuffyIcon from '../BuffyIcon';
 
 import * as Colors from 'material-ui/styles/colors';
+import * as classNames from 'classnames';
 
 import Avatar from 'material-ui/Avatar';
 import Paper from 'material-ui/Paper';
@@ -27,6 +28,10 @@ import LogoutIcon from 'material-ui/svg-icons/action/exit-to-app';
 import ProfileIcon from 'material-ui/svg-icons/action/account-box';
 import SettingsIcon from 'material-ui/svg-icons/action/settings';
 
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+
+const styles = require('./LoggedInNavbar.css');
+
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';
 
@@ -38,7 +43,7 @@ import {
 
 import Navbar from '../Navbar';
 
-const styles = {
+const inlineStyles = {
   title: {
     color: Colors.white,
   },
@@ -119,6 +124,7 @@ const messages = defineMessages({
 });
 
 @injectIntl
+@withStyles(styles)
 class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbarState> {
   constructor(props, context) {
     super(props, context);
@@ -152,10 +158,10 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
     const username = (user && user.username) || '';
 
     return (
-      <div style={styles.accountInfoBox}>
-        <div style={styles.accountInfoBoxCaretCont}>
-          <div style={styles.accountInfoBoxOuterCaret} />
-          <div style={styles.accountInfoBoxInnerCaret} />
+      <div style={inlineStyles.accountInfoBox}>
+        <div style={inlineStyles.accountInfoBoxCaretCont}>
+          <div style={inlineStyles.accountInfoBoxOuterCaret} />
+          <div style={inlineStyles.accountInfoBoxInnerCaret} />
         </div>
         <Paper zDepth={1}>
           <List>
@@ -195,12 +201,20 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
     return (
       <Navbar fullWidth={this.props.fullWidth}>
         <ToolbarGroup float="left">
-          <Link to="/"><BuffyIcon style={styles.logo} color={Colors.darkWhite} /></Link>
+          <Link to="/"><BuffyIcon style={inlineStyles.logo} color={Colors.darkWhite} /></Link>
           {leftToolbarGroup}
         </ToolbarGroup>
         <ToolbarGroup float="right">
+          <a className={styles.bugReport} target="_blank" href="https://github.com/buffylab/buffy-issues">
+            <IconButton tooltip="Report Issue">
+              <FontIcon
+                className={classNames('material-icons', styles.bugReportButton)}
+                tooltip="Report Bug"
+              >bug_report</FontIcon>
+            </IconButton>
+          </a>
           <ClickAwayListener onClickAway={() => this.handleClickAway()}>
-            <IconButton style={styles.avatarButton} iconStyle={styles.avatarButtonIcon} onTouchTap={() => this.handleAvatarClick()}>
+            <IconButton style={inlineStyles.avatarButton} iconStyle={inlineStyles.avatarButtonIcon} onTouchTap={() => this.handleAvatarClick()}>
               <Avatar size={32} src={picture} />
             </IconButton>
             {accountInfoBox}
