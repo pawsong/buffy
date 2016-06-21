@@ -409,4 +409,7 @@ ModelEditor.exportVoxFile = fileState => {
   return exportVoxFile(fileState.present.data.model);
 };
 
+ModelEditor.createFileState = createFileState;
+ModelEditor.deserialize = deserialize;
+
 export default ModelEditor;
