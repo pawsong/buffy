@@ -1,0 +1,15 @@
+.title {
+  margin-top: 15px;
+  margin-left: 15px;
+
+  & h1 {
+    margin: 0;
+  }
+}
+
+.fork {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.541176);
+  display: block;
+  padding-bottom: 16px;
+}

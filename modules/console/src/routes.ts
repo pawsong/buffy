@@ -22,6 +22,7 @@ import SettingsHandler from './screens/Settings';
 import NotFoundHandler from './screens/NotFound';
 import ModelStudioHandler from './screens/ModelStudio';
 import ModelHandler from './screens/Model';
+import ModelViewerHandler from './screens/ModelViewer';
 
 export default function getRoutes(store: Store) {
 
@@ -163,6 +164,14 @@ export default function getRoutes(store: Store) {
             getComponent: (location, cb) => {
               return require.ensure([], require => {
                 cb(null, require<{ default: ModelHandler }>('./screens/Model').default);
+              });
+            },
+          },
+          {
+            path: '/model/:modelId',
+            getComponent: (location, cb) => {
+              return require.ensure([], require => {
+                cb(null, require<{ default: ModelViewerHandler }>('./screens/ModelViewer').default);
               });
             },
           },

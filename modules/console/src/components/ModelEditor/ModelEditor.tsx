@@ -31,6 +31,9 @@ import * as StorageKeys from '../../constants/StorageKeys';
 
 import { connectTarget } from '../Panel';
 
+import createFileState from './utils/createFileState';
+import deserialize from './utils/deserialize';
+
 import {
   importVoxFile,
   exportVoxFile,
@@ -135,12 +138,13 @@ interface ExportFileResult {
   mapIdToLocalStorageKey: panelId => `${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${panelId}`,
 })
 class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
+  static createFileState = createFileState;
+  static deserialize = deserialize;
+
   static createCommonState: () => CommonState;
-  static createFileState: (data?: VoxelData) => FileState;
   static createExtraData: (size: Position) => ExtraData;
   static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
   static serialize: (fileState: FileState) => Uint8Array;
-  static deserialize: (data: Uint8Array) => FileState;
   static importBmfFile: (buffer: ArrayBuffer) => ImportFileResult;
   static importVoxFile: (buffer: ArrayBuffer) => ImportFileResult;
   static exportVoxFile: (fileState: FileState) => ExportFileResult;
@@ -336,10 +340,6 @@ ModelEditor.createCommonState = () => {
   return commonReducer(undefined, { type: '' });
 };
 
-ModelEditor.createFileState = (data): FileState => {
-  return data ? fileReducer(undefined, reset(data)) : fileReducer(undefined, { type: '' });
-}
-
 const radius = PIXEL_SCALE * 50, theta = 135, phi = 30;
 
 ModelEditor.createExtraData = (size: Position) => {
@@ -374,20 +374,6 @@ ModelEditor.serialize = (fileState) => {
     version: FILE_FORMAT_VERSION,
     data,
     shape: fileState.present.data.model.shape,
-  });
-}
-
-ModelEditor.deserialize = buffer => {
-  const data = msgpack.decode(buffer);
-  const inflated = pako.inflate(data.data);
-  const model = ndarray(new Int32Array(inflated.buffer), data.shape);
-
-  return ModelEditor.createFileState({
-    size: data.shape,
-    model,
-    selection: null,
-    fragment: null,
-    fragmentOffset: [0, 0, 0],
   });
 }
 
