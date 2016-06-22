@@ -2,12 +2,16 @@ import * as React from 'react';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import { RouteComponentProps, Link } from 'react-router';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
-
+import RaisedButton from 'material-ui/RaisedButton';
+// import FlatButton from 'material-ui/FlatButton';
+const FlatButton = require('material-ui/FlatButton').default;
+import { cyan500, cyan200, fullWhite } from 'material-ui/styles/colors';
 import { preloadApi, connectApi, ApiCall, get } from '../../api';
 import { call } from 'redux-saga/effects';
 import { saga, SagaProps, ImmutableTask, isDone, request } from '../../saga';
 import deserialize from '../../components/ModelEditor/utils/deserialize';
 import { FileState as ModelFileState } from '../../components/ModelEditor/types';
+import Fork from '../../components/icons/Fork';
 
 import getForkItemLabel from '../../utils/getForkItemLabel';
 
@@ -83,6 +87,15 @@ class ModelViewerHandler extends React.Component<HandlerProps, {}> {
 
     const model = this.props.model.result;
 
+    let user = null;
+    if (model.owner) {
+      user = (
+        <div className={styles.fork} style={{ display: 'inline-block', paddingBottom: 0, marginLeft: 5 }}>
+          by <Link to={`/@${model.owner.username}`}>{model.owner.username}</Link>
+        </div>
+      );
+    }
+
     let fork = null;
     if (model.forkParent) {
       fork = (
@@ -95,7 +108,37 @@ class ModelViewerHandler extends React.Component<HandlerProps, {}> {
     return (
       <div>
         <div className={styles.title}>
-          <h1>{this.props.model.result.name}</h1>
+          <div style={{ float: 'right' }}>
+            <FlatButton
+              backgroundColor={cyan500}
+              hoverColor={cyan200}
+              style={{
+                minWidth: 0,
+                color: fullWhite,
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+              }}
+              labelStyle={{ paddingLeft: 12, paddingRight: 12 }}
+              label={'fork'}
+              icon={<Fork color={fullWhite} style={{ width: 18, height: 18 }}/>}
+              containerElement={<Link to={`/model/edit?files=${model.id}`} />}
+            />
+            <FlatButton
+              backgroundColor={cyan500}
+              hoverColor={cyan200}
+              style={{
+                minWidth: 0,
+                color: fullWhite,
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+              }}
+              labelStyle={{ paddingLeft: 12, paddingRight: 12 }}
+              label={`${model.forked}`}
+              containerElement={<Link to="/" />}
+            />
+          </div>
+          <h1 style={{ display: 'inline-block' }}>{this.props.model.result.name}</h1>
+          {user}
           {fork}
         </div>
         <ModelViewer

@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 
 class FilppedBoxBufferGeometry extends THREE.BufferGeometry {
   parameters: any;

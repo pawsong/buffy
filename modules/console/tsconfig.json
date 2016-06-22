@@ -6,7 +6,8 @@
     "outDir": ".tsc_out",
     "sourceMap": true,
     "jsx": "preserve",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true
   },
   "files": [
     "src/client.tsx",

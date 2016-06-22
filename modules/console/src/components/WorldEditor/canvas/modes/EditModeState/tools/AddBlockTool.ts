@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 

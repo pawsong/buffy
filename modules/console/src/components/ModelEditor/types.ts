@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 import { Ndarray } from 'ndarray';
 import { UndoableState } from '@pasta/helper/lib/undoable';
 import { SimpleStore } from '../../libs';

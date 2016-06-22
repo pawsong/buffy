@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 import { Ndarray } from 'ndarray';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 import HandleHelper from '../objects/HandleHelper';

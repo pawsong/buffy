@@ -37,4 +37,5 @@ export interface ModelFileDocument {
   modifiedAt: string;
   isPublic: boolean;
   forkParent: ForkItem;
+  forked: number;
 }

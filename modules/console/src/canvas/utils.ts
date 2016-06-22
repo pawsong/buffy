@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 import { Mesh } from '@pasta/core/lib/types';
 
 function createFaceVertexUv(vertices: any[], i: number) {

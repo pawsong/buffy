@@ -58,7 +58,7 @@
     "jsonwebtoken": "^5.4.1",
     "locale": "0.0.21",
     "lodash": "^4.6.1",
-    "material-ui": "^0.15.0",
+    "material-ui": "^0.15.1",
     "msgpack-lite": "^0.1.20",
     "ndarray": "^1.0.18",
     "pako": "^1.0.1",

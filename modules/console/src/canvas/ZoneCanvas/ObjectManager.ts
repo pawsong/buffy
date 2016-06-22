@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 const invariant = require('fbjs/lib/invariant');
 import {
   PIXEL_SCALE,

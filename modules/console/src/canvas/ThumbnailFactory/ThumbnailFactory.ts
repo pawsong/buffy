@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 import * as Promise from 'bluebird';
 const invariant = require('fbjs/lib/invariant');
 import { Mesh } from '@pasta/core/lib/types';

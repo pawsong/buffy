@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 let SPE;
 
 if (__CLIENT__) {

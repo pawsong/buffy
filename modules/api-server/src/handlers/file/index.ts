@@ -157,7 +157,7 @@ export const createFile2 = compose(checkLogin, wrap(async (req, res) => {
   res.send(file);
 
   if (file.forkRoot) {
-    await FileModel.findByIdAndUpdate(file.forkRoot.toHexString(), {
+    await FileModel.findByIdAndUpdate(file.forkParent.toHexString(), {
       $inc: { forked: 1 },
     });
   }
@@ -176,7 +176,7 @@ export const deleteFile = compose(requiresLogin, wrap(async (req, res) => {
   res.send(200);
 
   if (file.forkRoot) {
-    await FileModel.findByIdAndUpdate(file.forkRoot.toHexString(), {
+    await FileModel.findByIdAndUpdate(file.forkParent.toHexString(), {
       $inc: { forked: -1 },
     });
   }

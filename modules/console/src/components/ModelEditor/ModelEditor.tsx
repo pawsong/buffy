@@ -2,7 +2,7 @@ import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 const pure = require('recompose/pure').default;
 
-import * as THREE from 'three';
+import THREE from 'three';
 
 import * as pako from 'pako';
 

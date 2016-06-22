@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 import * as ndarray from 'ndarray';
 
 import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';

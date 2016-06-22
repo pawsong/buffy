@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 import * as Immutable from 'immutable';
 
 import CursorState from './states/CursorState';

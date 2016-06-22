@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 
 import CursorState from './states/CursorState';
 import SelectTraceState, { StateEnterParams } from './states/SelectTraceState';

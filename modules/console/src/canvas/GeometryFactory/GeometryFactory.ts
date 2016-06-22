@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 import * as ndarray from 'ndarray';
 import mesher from '../meshers/greedy';
 import { createGeometryFromMesh } from '../utils';

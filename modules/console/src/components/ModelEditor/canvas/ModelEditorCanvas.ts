@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import THREE from 'three';
 import * as ndarray from 'ndarray';
 const mapValues = require('lodash/mapValues');
 const findLastIndex = require('lodash/findLastIndex');

@@ -162,6 +162,42 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.oldBeforeUnload = window.onbeforeunload;
     window.onbeforeunload = () => this.unsavedChangeExists()
       ? 'Unsaved changes will be lost' : undefined;
+
+    const filesQuery = this.props.location.query['files'];
+    if (!filesQuery) return;
+    const files = filesQuery.split(',');
+
+    this.props.runSaga(this.props.openRemoteFiles, files, results => {
+      results.forEach(result => this.openFile(result.doc, result.fileState));
+    });
+  }
+
+  openFile(doc: ModelFileDocument, fileState: ModelFileState) {
+    if (doc.owner && this.props.user && doc.owner.id === this.props.user.id) {
+      this.addFile({
+        id: doc.id,
+        owner: this.props.user || null,
+        name: doc.name,
+        created: false,
+        readonly: false,
+        body: fileState,
+        forkParent: doc.forkParent || null,
+      });
+    } else {
+      this.addFile({
+        id: generateObjectId(),
+        owner: this.props.user || null,
+        name: doc.name,
+        created: true,
+        readonly: false,
+        body: fileState,
+        forkParent: {
+          id: doc.id,
+          name: doc.name,
+          owner: doc.owner || null,
+        },
+      });
+    }
   }
 
   componentWillUnmount() {
