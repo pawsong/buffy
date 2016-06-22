@@ -10,10 +10,8 @@ import ModelViewerCanvas from '../canvas/ModelViewerCanvas';
 const styles = require('./ModelViewer.css');
 
 const rootClass = [
-  'col-xs-12',
-  'col-md-offset-2',
-  'col-md-8',
-  styles.wrapper,
+  'row',
+  styles.root,
 ].join(' ');
 
 const inlineStyles = {
@@ -49,7 +47,7 @@ class ModelViewer extends React.Component<ModelViewerProps, {}> {
 
   render() {
     return (
-      <div className="row">
+      <div className={rootClass}>
         <div className={styles.wrapper}>
           <div className={styles.main} ref="root"></div>
         </div>

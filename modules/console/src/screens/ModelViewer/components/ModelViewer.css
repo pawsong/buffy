@@ -1,3 +1,8 @@
+.root {
+  width: 100%;
+  margin: 0;
+}
+
 .wrapper {
   width: 100%;
   /* whatever width you want */
