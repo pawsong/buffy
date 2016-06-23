@@ -97,6 +97,11 @@ const compiledIndexHtml = template(minifiedIndexHtml, {
 
 const app = express();
 
+// For site ownership verification
+app.get('/googlec789d0222e8b30cc.html', (req, res) => {
+  res.send('google-site-verification: googlec789d0222e8b30cc.html');
+});
+
 app.use(compress());
 app.use(locale(SUPPORTED_LOCALES));
 app.use(cookieParser());
