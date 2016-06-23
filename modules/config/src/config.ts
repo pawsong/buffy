@@ -34,7 +34,7 @@ export const gameServerPort: number = 9200;
 /**
  * Game zone server public url
  */
-export const gameServerUrl = `http://zone.${domain}`;
+export const gameServerUrl = `https://zone.${domain}`;
 
 /**
  * API server port
@@ -42,17 +42,17 @@ export const gameServerUrl = `http://zone.${domain}`;
 
 export const apiServerPort: number = 9300;
 
-export const apiServerUrl = `http://api.${domain}`;
+export const apiServerUrl = `https://api.${domain}`;
 
 export const addonVoxelEditorServerPort: number = 9300;
 
-export const addonVoxelEditorServerUrl = `http://api.${domain}`;
+export const addonVoxelEditorServerUrl = `https://api.${domain}`;
 
 export const addonVoxelEditorClientPort: number = 9301;
 
 export const addonCodeEditorServerPort: number = 9600;
 
-export const addonCodeEditorServerUrl = `http://code.${domain}`;
+export const addonCodeEditorServerUrl = `https://code.${domain}`;
 
 export const addonCodeEditorClientPort: number = 9601;
 
