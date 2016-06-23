@@ -12,6 +12,7 @@ declare const CONFIG_API_SERVER_URL: string;
 declare const CONFIG_FACEBOOK_APP_ID: string;
 declare const __S3_BASE__: string;
 declare const __CDN_BASE__: string;
+declare const __GA_TRACKING_ID__: string;
 
 declare module 'lodash/mapValues' {
   import _ = require('lodash');

@@ -53,10 +53,6 @@ interface ModelListProps extends React.Props<ModelList> {
 
 @withStyles(styles)
 class ModelList extends React.Component<ModelListProps, {}> {
-  handleClickItem = (course) => {
-    console.log(course);
-  }
-
   getListItem = (file: ModelFileDocument) => {
     let fork = null;
     if (file.forkParent) {
@@ -106,7 +102,7 @@ class ModelList extends React.Component<ModelListProps, {}> {
   }
 
   render() {
-    return this.props.fetching ? <div>Fetching...</div> : this.renderBody();
+    return !this.props.courses ? <div>Fetching...</div> : this.renderBody();
   }
 }
 

@@ -8,8 +8,8 @@ import AnonymousHandler from './screens/Anonymous';
 // import AnonymousIndexHandler from './screens/Anonymous/screens/Index';
 import LoggedInHandler from './screens/LoggedIn';
 // import LoggedInIndexHandler from './screens/LoggedIn/screens/Index';
-// import AboutHandler from './screens/About';
-// import ContactHandler from './screens/Contact';
+import AboutHandler from './screens/About';
+import ContactHandler from './screens/Contact';
 // import GetStartedHandler from './screens/GetStarted';
 // import OnlineStudioHandler from './screens/OnlineStudio';
 // import OnlineCardboardHandler from './screens/OnlineCardboard';
@@ -190,18 +190,18 @@ export default function getRoutes(store: Store) {
               cb(null, require<{ default: ProfileHandler }>('./screens/Profile').default);
             }),
           },
-          // {
-          //   path: '/about',
-          //   getComponent: (location, cb) => require.ensure([], require => {
-          //     cb(null, require<{ default: AboutHandler }>('./screens/About').default);
-          //   }),
-          // },
-          // {
-          //   path: '/contact',
-          //   getComponent: (location, cb) => require.ensure([], require => {
-          //     cb(null, require<{ default: ContactHandler }>('./screens/Contact').default);
-          //   }),
-          // },
+          {
+            path: '/about',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: AboutHandler }>('./screens/About').default);
+            }),
+          },
+          {
+            path: '/contact',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: ContactHandler }>('./screens/Contact').default);
+            }),
+          },
           // {
           //   path: '/get-started',
           //   getComponent: (location, cb) => require.ensure([], require => {

@@ -56,6 +56,7 @@ require('../../gulp/app')({
             'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdDev,
             '__S3_BASE__': conf.s3PublicPathDev,
             '__CDN_BASE__': conf.cdnPublicPathDev,
+            '__GA_TRACKING_ID__': 'UA-79780752-2',
           },
           output: {
             path: `${__dirname}/build/dev/client/public`,
@@ -70,6 +71,7 @@ require('../../gulp/app')({
             'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdProd,
             '__S3_BASE__': conf.s3PublicPathProd,
             '__CDN_BASE__': conf.cdnPublicPathProd,
+            '__GA_TRACKING_ID__': 'UA-79780752-1',
           },
           output: {
             path: `${__dirname}/build/prod/client/public`,

@@ -25,6 +25,7 @@
     "react-dnd": "registry:dt/react-dnd#1.1.4+20160316155526",
     "react-dom": "registry:dt/react-dom#0.14.0+20160412154040",
     "react-dropzone": "registry:dt/react-dropzone#0.0.0+20160316171810",
+    "react-ga": "registry:dt/react-ga#1.4.1+20160524135221",
     "react-intl": "registry:dt/react-intl#2.0.0+20160412155000",
     "react-redux": "registry:dt/react-redux#4.4.0+20160406115600",
     "react-router": "registry:dt/react-router#2.0.0+20160608101747",

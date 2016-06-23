@@ -3,6 +3,7 @@ import { routerMiddleware, push } from 'react-router-redux';
 import createSagaMiddleware from 'redux-saga';
 import { browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
+import ReactGA from 'react-ga';
 
 import rootReducer, { initialize } from '../reducers';
 import apiSaga from '../api/saga';
@@ -42,9 +43,11 @@ export default function configureStore(initialState?: any) {
   let history = null;
   let onRouterUpdate = null;
   if (__CLIENT__) {
+    ReactGA.initialize(__GA_TRACKING_ID__);
     history = syncHistoryWithStore(browserHistory, store);
     onRouterUpdate = function () {
       store.dispatch({ type: LOADING_DONE });
+      ReactGA.pageview(window.location.pathname);
     };
   }
 
