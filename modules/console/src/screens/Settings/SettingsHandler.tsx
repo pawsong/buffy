@@ -34,6 +34,8 @@ const rootClass = [
   'col-md-8',
 ].join(' ');
 
+const anonProfilePicture = require('file!../../ic_pets_black_24dp_2x.png');
+
 const messages = defineMessages({
   profilePicture: {
     id: 'settings.profile.picture',
@@ -280,7 +282,7 @@ class SettingsHandler extends React.Component<HandlerProps, HandlerState> {
     const { user } = this.props;
     if (!user) return null;
 
-    const picture = `${__CDN_BASE__}/${user.picture}`;
+    const picture = user.picture ? `${__CDN_BASE__}/${user.picture}` : anonProfilePicture;
 
     return (
       <div className={rootClass} style={{ marginTop: 15 }}>
