@@ -134,7 +134,8 @@ class ModelViewerHandler extends React.Component<HandlerProps, {}> {
               }}
               labelStyle={{ paddingLeft: 12, paddingRight: 12 }}
               label={`${model.forked}`}
-              containerElement={<Link to="/" />}
+              onTouchTap={() => alert('Sorry, this feature is under construction')}
+              containerElement={<a />}
             />
           </div>
           <h1 style={{ display: 'inline-block' }}>{this.props.model.result.name}</h1>
