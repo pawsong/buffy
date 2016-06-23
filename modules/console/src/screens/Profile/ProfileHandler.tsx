@@ -16,6 +16,8 @@ import getForkItemLabel from '../../utils/getForkItemLabel';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./ProfileHandler.css');
 
+const anonProfilePicture = require('file!../../ic_pets_black_24dp_2x.png');
+
 const messages = defineMessages({
   recentModels: {
     id: 'profile.recent.models',
@@ -56,7 +58,7 @@ class ProfileHandler extends React.Component<HandlerProps, {}> {
   renderUserInfo() {
     if (this.props.user.state !== 'fulfilled') return null;
     const user = this.props.user.result;
-    const picture = `${__CDN_BASE__}/${user.picture}`
+    const picture = user.picture ? `${__CDN_BASE__}/${user.picture}` : anonProfilePicture;
 
     return (
       <div style={{ margin: '20px 10px' }}>

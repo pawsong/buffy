@@ -123,6 +123,8 @@ const messages = defineMessages({
   },
 });
 
+const anonProfilePicture = require('file!../../ic_pets_white_24dp_1x.png');
+
 @injectIntl
 @withStyles(styles)
 class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbarState> {
@@ -192,7 +194,9 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
 
   render() {
     const user = this.props.user;
-    const picture = user ? `${__CDN_BASE__}/${user.picture}` : '';
+    const picture = user
+      ? (user.picture ? `${__CDN_BASE__}/${user.picture}` : anonProfilePicture)
+      : '';
 
     const accountInfoBox = this.state.accountInfoBoxOpened ? this.renderAccountBox() : null;
 
