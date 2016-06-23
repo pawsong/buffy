@@ -40,6 +40,7 @@ const styles = {
   },
   textfield: {
     width: '100%',
+    textAlign: 'left',
   },
   input: {
     width: 'calc(100% - 30px)',

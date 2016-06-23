@@ -21,7 +21,6 @@ describe('validateUsername', () => {
   });
 
   it('should fail with argument with invalid characters', () => {
-    // const ret = validateUsername('a_');
     expect(validateUsername(
       'a_'
     )).to.equal(ValidationResult.INVALID_CHARACTER);
@@ -33,6 +32,12 @@ describe('validateUsername', () => {
     expect(validateUsername(
       '-a'
     )).to.equal(ValidationResult.INVALID_CHARACTER);
+  });
+
+  it('should fail on reserved names', () => {
+    expect(validateUsername(
+      'admin'
+    )).to.equal(ValidationResult.RESERVED);
   });
 
   it('should pass with correct argument', () => {

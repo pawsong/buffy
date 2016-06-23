@@ -172,7 +172,7 @@ export default {
    * description: Landing page banner title
    * defaultMessage: Buffy the Voxel Editor
    */
-  'landing.banner.title': '버피: 버추얼 로봇 플랫폼',
+  'landing.banner.title': '버피: 복셀 에디터',
 
   /**
    * path: src/constants/Messages.json
@@ -449,6 +449,13 @@ export default {
 
   /**
    * path: src/screens/Root/containers/UserInfoDialog.json
+   * description: Error message for reserved usernames
+   * defaultMessage: Cannot use reserved usernames
+   */
+  'username.reserved': '사용할 수 없는 사용자 이름입니다 :(',
+
+  /**
+   * path: src/screens/Root/containers/UserInfoDialog.json
    * description: Error message for too short username
    * defaultMessage: Your username must be at most {maximum} characters.
    */
@@ -573,37 +580,4 @@ export default {
    */
   'vrMode': 'VR 모드',
 
-/* [Warning] Message not in use */ 'popular.models': '',
-/* [Warning] Message not in use */ 'popular.projects': '인기 프로젝트',
-/* [Warning] Message not in use */ 'landing.seeMore': '더 알아보기',
-/* [Warning] Message not in use */ 'code': '코드',
-/* [Warning] Message not in use */ 'design': '설계',
-/* [Warning] Message not in use */ 'projectstudio.new.file': '',
-/* [Warning] Message not in use */ 'run': '실행하기',
-/* [Warning] Message not in use */ 'stop': '멈추기',
-/* [Warning] Message not in use */ 'worldeditor.panels.history.add.robot': '로봇 추가',
-/* [Warning] Message not in use */ 'worldeditor.panels.history.add.zone.block': '블록 추가',
-/* [Warning] Message not in use */ 'worldeditor.panels.history.init': '초기화',
-/* [Warning] Message not in use */ 'worldeditor.panels.history.remove.zone.block': '블록 제거',
-/* [Warning] Message not in use */ 'worldeditor.panels.history.title': '히스토리',
-/* [Warning] Message not in use */ 'worldeditor.panels.robot.title': '로봇',
-/* [Warning] Message not in use */ 'worldeditor.panels.tools.title': '도구상자',
-/* [Warning] Message not in use */ 'anon.index.areYouTeacher': '혹시 선생님이신가요?',
-/* [Warning] Message not in use */ 'anon.index.getStarted': '지금 시작해보세요',
-/* [Warning] Message not in use */ 'anon.index.introduceCodeEditor.body': '코드 블럭으로 로봇을 움직일 수 있어요',
-/* [Warning] Message not in use */ 'anon.index.introduceCodeEditor.header': '로봇을 조종해보세요!',
-/* [Warning] Message not in use */ 'anon.index.introduceVoxelEditor.body': '큐브로 당신만의 로봇을 만들어보세요',
-/* [Warning] Message not in use */ 'anon.index.introduceVoxelEditor.header': '로봇 친구를 만들어보세요!',
-/* [Warning] Message not in use */ 'anon.index.seeTeacherInfo': '선생님을 위한 정보를 소개합니다',
-/* [Warning] Message not in use */ 'anon.index.takeCourses': '멋진 온라인 강좌를 들어보세요!',
-/* [Warning] Message not in use */ 'anon.index.takeTutorial': '쉬운 예제로 시작해보세요',
-/* [Warning] Message not in use */ 'anon.index.wantToLearnMore': '{service}에 대해 더 알고 싶으세요?',
-/* [Warning] Message not in use */ 'create.project': '새 프로젝트 만들기',
-/* [Warning] Message not in use */ 'modelstudio.navbar.saveall': '',
-/* [Warning] Message not in use */ 'modelstudio.new.file': '',
-/* [Warning] Message not in use */ 'voxel-editor.panels.history.voxel.paint': '색칠하기',
-/* [Warning] Message not in use */ 'voxel-editor.panels.preview.title': '프리뷰',
-/* [Warning] Message not in use */ 'worldeditor.panels.zone.title': '지역',
-/* [Warning] Message not in use */ 'vr.start': '시작하기',
-/* [Warning] Message not in use */ 'voxel-editor.panels.workspace.title': '워크스페이스',
 }

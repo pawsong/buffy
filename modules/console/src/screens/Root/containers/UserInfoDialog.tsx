@@ -51,6 +51,11 @@ const messages = defineMessages({
     defaultMessage: 'Usernames must only contain lowercase letters, numbers, ' +
                     'dashes and must start with a letter or number.',
   },
+  usernameReserved: {
+    id: 'username.reserved',
+    description: 'Error message for reserved usernames',
+    defaultMessage: 'Cannot use reserved usernames',
+  },
   usernameUnknownError: {
     id: 'username.unknown.error',
     description: 'Error message for invalid username for unknown reason',
@@ -77,6 +82,9 @@ function getUsernameErrorMessage(formatMessage: any, validationResult: UsernameV
     }
     case UsernameValidationResult.INVALID_CHARACTER: {
       return formatMessage(messages.usernameInvalidCharacter);
+    }
+    case UsernameValidationResult.RESERVED: {
+      return formatMessage(messages.usernameReserved);
     }
   }
   return formatMessage(messages.usernameUnknownError);
