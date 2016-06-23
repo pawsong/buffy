@@ -70,8 +70,16 @@ const contentClass = [
 })
 @withStyles(styles)
 class ModelViewerHandler extends React.Component<HandlerProps, {}> {
-  componentDidMount() {
+  loadModel() {
     this.props.runSaga(this.props.loadModel, this.props.params.modelId);
+  }
+
+  componentDidMount() {
+    this.loadModel();
+  }
+
+  componentDidUpdate(prevProps: HandlerProps) {
+    if (prevProps.location !== this.props.location) this.loadModel();
   }
 
   renderLoading() {
