@@ -20,6 +20,11 @@ const messages = defineMessages({
     description: 'About link label',
     defaultMessage: 'About',
   },
+  reportIssue: {
+    id: 'footer.reportIssue',
+    description: 'Report issue link label',
+    defaultMessage: 'Report Issue',
+  },
 });
 
 const rootClass = [
@@ -35,6 +40,11 @@ class Footer extends React.Component<{}, {}> {
       <div className={rootClass}>
         <div className={styles.root}>
           <ul className={styles.right}>
+            <li className={styles.list}>
+              <a target="_black" href="https://github.com/buffylab/buffy-issues">
+                <FormattedMessage {...messages.reportIssue}></FormattedMessage>
+              </a>
+            </li>
             <li className={styles.list}>
               <Link to="/contact"><FormattedMessage {...messages.contact}></FormattedMessage></Link>
             </li>

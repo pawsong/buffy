@@ -133,6 +133,13 @@ export default {
   'footer.contact': '연락처',
 
   /**
+   * path: src/components/Footer/Footer.json
+   * description: Report issue link label
+   * defaultMessage: Report Issue
+   */
+  'footer.reportIssue': '이슈 보내기',
+
+  /**
    * path: src/constants/Messages.json
    * description: Game mode
    * defaultMessage: Game Mode
@@ -364,49 +371,49 @@ export default {
   'settings': '설정',
 
   /**
-   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
+   * path: src/screens/Settings/screens/Profile/containers/ProfileForm/ProfileForm.json
    * description: Change profile picture button label
    * defaultMessage: Change your picture
    */
   'settings.change.profile.picture': '프로필 사진 바꾸기',
 
   /**
-   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
+   * path: src/screens/Settings/screens/Profile/containers/ProfileForm/ProfileForm.json
    * description: Get image from URL
    * defaultMessage: Get image from URL
    */
   'settings.get.image.from.url': 'URL에서 이미지 가져오기',
 
   /**
-   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
+   * path: src/screens/Settings/screens/Profile/containers/ProfileForm/ProfileForm.json
    * description: Image URL
    * defaultMessage: Image URL
    */
   'settings.image.url': '이미지 URL',
 
   /**
-   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
+   * path: src/screens/Settings/screens/Profile/containers/ProfileForm/ProfileForm.json
    * description: Name area title
    * defaultMessage: Name
    */
   'settings.name': '이름',
 
   /**
-   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
+   * path: src/screens/Settings/screens/Profile/containers/ProfileForm/ProfileForm.json
    * description: Profile picture area title
    * defaultMessage: Profile picture
    */
   'settings.profile.picture': '프로필 사진',
 
   /**
-   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
+   * path: src/screens/Settings/screens/Profile/containers/ProfileForm/ProfileForm.json
    * description: Update profile button label
    * defaultMessage: Update profile
    */
   'settings.update.profile': '프로필 수정',
 
   /**
-   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
+   * path: src/screens/Settings/screens/Profile/containers/ProfileForm/ProfileForm.json
    * description: Upload profile picture button label
    * defaultMessage: Upload your picture
    */
