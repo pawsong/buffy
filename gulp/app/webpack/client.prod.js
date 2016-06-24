@@ -56,5 +56,5 @@ module.exports = options => Object.assign(require('./client.dev')(options), {
 
   postcss: webpackInst => postcss.production(webpackInst),
 
-  devtool: options.devtool || 'source-map',
+  devtool: 'hidden-source-map',
 });
