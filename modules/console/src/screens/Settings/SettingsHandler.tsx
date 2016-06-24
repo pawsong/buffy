@@ -26,7 +26,6 @@ interface HandlerProps extends RouteComponentProps<{}, {}> {
 @withStyles(styles)
 class SettingsHandler extends React.Component<HandlerProps, void> {
   render() {
-    console.log(this.props);
     return (
       <div className={rootClass} style={{ marginTop: 15 }}>
         <div className="col-md-3">
