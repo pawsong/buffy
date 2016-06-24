@@ -126,6 +126,26 @@ const messages = defineMessages({
     description: 'Open file',
     defaultMessage: 'Open file',
   },
+  passwordTooShort: {
+    id: 'passwordTooShort',
+    description: 'Warning message for password value length of which is smaller than given number',
+    defaultMessage: 'Your password must be at least {minimum} characters',
+  },
+  passwordTooLong: {
+    id: 'passwordTooLong',
+    description: 'Warning message for password value length of which is longer than given number',
+    defaultMessage: 'Your password must not be longer than {maximum} characters',
+  },
+  passwordUnknownError: {
+    id: 'passwordUnknownError',
+    description: 'Unknown error message for password validation',
+    defaultMessage: 'Invalid password',
+  },
+  passwordVerifyNotEqual: {
+    id: 'password.verifyNotEqual',
+    description: 'Verify password and new password do not equal',
+    defaultMessage: 'Passwords don\'t match',
+  },
 });
 
 export default messages;

@@ -19,6 +19,8 @@ import ContactHandler from './screens/Contact';
 // import ProjectGameHandler from './screens/ProjectGame';
 import ProfileHandler from './screens/Profile';
 import SettingsHandler from './screens/Settings';
+import SettingsProfileHandler from './screens/Settings/screens/Profile';
+import SettingsAccountHandler from './screens/Settings/screens/Account';
 import NotFoundHandler from './screens/NotFound';
 import ModelStudioHandler from './screens/ModelStudio';
 import ModelHandler from './screens/Model';
@@ -183,6 +185,27 @@ export default function getRoutes(store: Store) {
                 cb(null, require<{ default: SettingsHandler }>('./screens/Settings').default);
               });
             },
+            indexRoute: {
+              onEnter: (nextState, replace) => replace('/settings/profile'),
+            },
+            childRoutes: [
+              {
+                path: 'profile',
+                getComponent: (location, cb) => {
+                  return require.ensure([], require => {
+                    cb(null, require<{ default: SettingsProfileHandler }>('./screens/Settings/screens/Profile').default);
+                  });
+                },
+              },
+              {
+                path: 'account',
+                getComponent: (location, cb) => {
+                  return require.ensure([], require => {
+                    cb(null, require<{ default: SettingsAccountHandler }>('./screens/Settings/screens/Account').default);
+                  });
+                },
+              },
+            ],
           },
           {
             path: '/@:username',

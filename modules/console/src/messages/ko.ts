@@ -301,6 +301,13 @@ export default {
   'password': '패스워드',
 
   /**
+   * path: src/constants/Messages.json
+   * description: Verify password and new password do not equal
+   * defaultMessage: Passwords don't match
+   */
+  'password.verifyNotEqual': '패스워드가 일치하지 않습니다',
+
+  /**
    * path: src/screens/Join/components/JoinForm.json
    * description: Warning message for empty password field
    * defaultMessage: Please enter your password
@@ -308,11 +315,25 @@ export default {
   'passwordRequired': '패스워드를 입력하세요',
 
   /**
-   * path: src/screens/Join/components/JoinForm.json
+   * path: src/constants/Messages.json
+   * description: Warning message for password value length of which is longer than given number
+   * defaultMessage: Your password must not be longer than {maximum} characters
+   */
+  'passwordTooLong': '패스워드는 {maximum} 글자보다 길어질 수 없습니다',
+
+  /**
+   * path: src/constants/Messages.json
    * description: Warning message for password value length of which is smaller than given number
    * defaultMessage: Your password must be at least {minimum} characters
    */
   'passwordTooShort': '패스워드는 최소 {minimum} 글자 이상이어야 합니다',
+
+  /**
+   * path: src/constants/Messages.json
+   * description: Unknown error message for password validation
+   * defaultMessage: Invalid password
+   */
+  'passwordUnknownError': '유효하지 않은 패스워드입니다',
 
   /**
    * path: src/screens/Profile/ProfileHandler.json
@@ -343,49 +364,49 @@ export default {
   'settings': '설정',
 
   /**
-   * path: src/screens/Settings/SettingsHandler.json
+   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
    * description: Change profile picture button label
    * defaultMessage: Change your picture
    */
   'settings.change.profile.picture': '프로필 사진 바꾸기',
 
   /**
-   * path: src/screens/Settings/SettingsHandler.json
+   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
    * description: Get image from URL
    * defaultMessage: Get image from URL
    */
   'settings.get.image.from.url': 'URL에서 이미지 가져오기',
 
   /**
-   * path: src/screens/Settings/SettingsHandler.json
+   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
    * description: Image URL
    * defaultMessage: Image URL
    */
   'settings.image.url': '이미지 URL',
 
   /**
-   * path: src/screens/Settings/SettingsHandler.json
+   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
    * description: Name area title
    * defaultMessage: Name
    */
   'settings.name': '이름',
 
   /**
-   * path: src/screens/Settings/SettingsHandler.json
+   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
    * description: Profile picture area title
    * defaultMessage: Profile picture
    */
   'settings.profile.picture': '프로필 사진',
 
   /**
-   * path: src/screens/Settings/SettingsHandler.json
+   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
    * description: Update profile button label
    * defaultMessage: Update profile
    */
   'settings.update.profile': '프로필 수정',
 
   /**
-   * path: src/screens/Settings/SettingsHandler.json
+   * path: src/screens/Settings/screens/Profile/SettingsProfileHandler.json
    * description: Upload profile picture button label
    * defaultMessage: Upload your picture
    */

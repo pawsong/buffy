@@ -19,7 +19,11 @@ import FullscreenForm from '../../../components/FullscreenForm';
 
 import { localLogin, facebookLogin } from '../../Login/sagas';
 
-const PASSWORD_MIN_LENGTH = 6;
+import validatePassword, {
+  MIN_LENGTH as PASSWORD_MIN_LENGTH,
+  MAX_LENGTH as PASSWORD_MAX_LENGTH,
+  ValidationResult as PasswordValidationResult,
+} from '@pasta/helper/lib/validatePassword';
 
 const styles = {
   facebookLoginButton: {
@@ -125,11 +129,6 @@ const messages = defineMessages({
     id: 'passwordRequired',
     description: 'Warning message for empty password field',
     defaultMessage: 'Please enter your password',
-  },
-  passwordTooShort: {
-    id: 'passwordTooShort',
-    description: 'Warning message for password value length of which is smaller than given number',
-    defaultMessage: 'Your password must be at least {minimum} characters',
   },
   localSignUpFailed: {
     id: 'localSignUpFailed',
@@ -276,10 +275,27 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
       };
     }
 
-    if (this.state.password.length < PASSWORD_MIN_LENGTH) {
+    const result = validatePassword(this.state.password);
+
+    if (result !== PasswordValidationResult.OK) {
+      switch(result) {
+        case PasswordValidationResult.TOO_SHORT: {
+          return {
+            valid: false,
+            error: this.props.intl.formatMessage(Messages.passwordTooShort, { minimum: PASSWORD_MIN_LENGTH }),
+          };
+        }
+        case PasswordValidationResult.TOO_LONG: {
+          return {
+            valid: false,
+            error: this.props.intl.formatMessage(Messages.passwordTooLong, { maximum: PASSWORD_MAX_LENGTH }),
+          };
+        }
+      }
+
       return {
         valid: false,
-        error: this.props.intl.formatMessage(messages.passwordTooShort, { minimum: PASSWORD_MIN_LENGTH }),
+        error: this.props.intl.formatMessage(Messages.passwordUnknownError),
       };
     }
 

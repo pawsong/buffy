@@ -29,6 +29,7 @@ export default (app: express.Express) => {
   app.post('/login/local', authHandlers.loginWithLocal);
   app.post('/login/facebook', authHandlers.loginWithFacebook);
   app.post('/logout', authHandlers.logout);
+  app.post('/password/update', authHandlers.updatePassword);
 
   app.get ('/courses', courseHandlers.getCourseList);
   app.get ('/courses/:courseId', courseHandlers.getCourseById);

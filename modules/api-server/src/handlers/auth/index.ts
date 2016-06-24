@@ -1,10 +1,15 @@
 import * as shortid from 'shortid';
 import * as request from 'request';
 import wrap from '@pasta/helper/lib/wrap';
-import User from '../../models/User';
+import validatePassword, {
+  ValidationResult as PasswordValidateResult,
+} from '@pasta/helper/lib/validatePassword';
+import User, { UserDocument } from '../../models/User';
 import { getSignedUrlForPutObject } from '../../s3';
 import * as jwt from 'jsonwebtoken';
 import * as conf from '@pasta/config';
+import { compose } from 'compose-middleware/lib';
+import { requiresLogin } from '../../middlewares/auth';
 
 export const checkIfEmailExists = wrap(async (req, res) => {
   const { email } = req.params;
@@ -143,3 +148,23 @@ export const logout = wrap(async (req, res) => {
   res.clearCookie('tt', { domain: __DOMAIN__ });
   res.sendStatus(200);
 });
+
+export const updatePassword = compose(requiresLogin, wrap(async (req, res) => {
+  if (!req.body) return res.send(400);
+  const { password, newPassword } = req.body;
+
+  if (validatePassword(newPassword) !== PasswordValidateResult.OK) {
+    return res.sendStatus(400);
+  }
+
+  const user: UserDocument = req['userDoc'];
+
+  if (!user.authenticate(password)) {
+    return res.status(403).send('invalid_password');
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  res.send(200);
+}));
