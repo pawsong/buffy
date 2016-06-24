@@ -13,6 +13,11 @@ import deserialize from '../../components/ModelEditor/utils/deserialize';
 import { FileState as ModelFileState } from '../../components/ModelEditor/types';
 import Fork from '../../components/icons/Fork';
 
+import {
+  EnhancedTitle,
+  MetaImage,
+} from '../../hairdresser';
+
 import getForkItemLabel from '../../utils/getForkItemLabel';
 
 import ModelViewer from './components/ModelViewer';
@@ -113,8 +118,12 @@ class ModelViewerHandler extends React.Component<HandlerProps, {}> {
       );
     }
 
+    const title = model.owner ? `${model.name} by ${model.owner.username}` : model.name;
+
     return (
       <div>
+        <EnhancedTitle>{title}</EnhancedTitle>
+        <MetaImage url={`${__CDN_BASE__}/${model.thumbnail}`} />
         <div className={styles.title}>
           <div style={{ float: 'right' }}>
             <FlatButton

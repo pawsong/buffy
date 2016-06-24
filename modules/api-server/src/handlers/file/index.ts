@@ -263,11 +263,16 @@ export const reportUpdate = compose(checkLogin, wrap(async (req, res) => {
 
   res.sendStatus(200);
 
-  if (oldThumbnail) {
-    // TODO: Log error
-    s3.deleteObject({
-      Bucket: conf.s3Bucket,
-      Key: oldThumbnail,
-    }, (err) => err && console.error(err));
-  }
+  // TODO: Remove old thumbnails properly
+  // Currently we do not delete old thumbnails on file update because there might be
+  // social media caches that still reference old thumbanil images.
+  // This causes storage inflation so we have to find a way to handle this obsolete images properly...
+
+  // if (oldThumbnail) {
+  //   // TODO: Log error
+  //   s3.deleteObject({
+  //     Bucket: conf.s3Bucket,
+  //     Key: oldThumbnail,
+  //   }, (err) => err && console.error(err));
+  // }
 }));

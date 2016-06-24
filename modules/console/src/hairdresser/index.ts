@@ -9,3 +9,6 @@ export { Meta }
 
 import EnhancedTitle from './components/EnhancedTitle';
 export { EnhancedTitle }
+
+import MetaImage from './components/MetaImage';
+export { MetaImage }
