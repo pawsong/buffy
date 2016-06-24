@@ -196,6 +196,7 @@ export const deleteFile = compose(requiresLogin, wrap(async (req, res) => {
 const contentType = 'application/octet-stream';
 const cacheControl = 'no-cache, no-store, must-revalidate';
 const thumbnailContentType = 'image/jpeg';
+const thumbnailCacheControl = 'max-age=1209600, no-transform';
 
 export const issueFileUpdateUrl = compose(checkLogin, wrap(async (req, res) => {
   const { fileId } = req.params;
@@ -222,6 +223,7 @@ export const issueFileUpdateUrl = compose(checkLogin, wrap(async (req, res) => {
     ACL: 'public-read',
     Expires: EXPIRES,
     ContentType: 'image/jpeg',
+    CacheControl: thumbnailCacheControl,
   };
 
   const [signedUrl, thumbnailSignedUrl] = await Promise.all([
@@ -236,7 +238,7 @@ export const issueFileUpdateUrl = compose(checkLogin, wrap(async (req, res) => {
   return res.send({
     signedUrl, contentType, cacheControl,
     thumbnailId,
-    thumbnailSignedUrl, thumbnailContentType,
+    thumbnailSignedUrl, thumbnailContentType, thumbnailCacheControl,
   });
 }));
 

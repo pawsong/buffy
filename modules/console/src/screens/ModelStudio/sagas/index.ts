@@ -25,7 +25,7 @@ export function* updateFiles(thumbnailFactory: ThumbnailFactory, paramsList: Upd
     const {
       signedUrl, contentType, cacheControl,
       thumbnailId,
-      thumbnailSignedUrl, thumbnailContentType,
+      thumbnailSignedUrl, thumbnailContentType, thumbnailCacheControl,
     } = response.data;
 
     const data = ModelEditor.serialize(params.body).buffer;
@@ -41,7 +41,10 @@ export function* updateFiles(thumbnailFactory: ThumbnailFactory, paramsList: Upd
     const thumbnailBlob = yield call(thumbnailFactory.createThumbnailBlob, params.body.present.data.model);
 
     response = yield call(request.put, thumbnailSignedUrl, thumbnailBlob, {
-      headers: { 'Content-Type': thumbnailContentType },
+      headers: {
+        'Content-Type': thumbnailContentType,
+        'Cache-Control': thumbnailCacheControl,
+      },
       withCredentials: false,
     });
 
