@@ -16,6 +16,7 @@ import Fork from '../../components/icons/Fork';
 import {
   EnhancedTitle,
   MetaImage,
+  MetaUrl,
 } from '../../hairdresser';
 
 import getForkItemLabel from '../../utils/getForkItemLabel';
@@ -93,12 +94,10 @@ class ModelViewerHandler extends React.Component<HandlerProps, {}> {
     );
   }
 
-  renderBody() {
-    if (this.props.model.state !== 'fulfilled' || !isDone(this.props.loadModel)) {
+  renderBody(model: ModelFileDocument) {
+    if (!model || !isDone(this.props.loadModel)) {
       return this.renderLoading();
     }
-
-    const model = this.props.model.result;
 
     let user = null;
     if (model.owner) {
@@ -118,12 +117,8 @@ class ModelViewerHandler extends React.Component<HandlerProps, {}> {
       );
     }
 
-    const title = model.owner ? `${model.name} by ${model.owner.username}` : model.name;
-
     return (
       <div>
-        <EnhancedTitle>{title}</EnhancedTitle>
-        <MetaImage url={`${__CDN_BASE__}/${model.thumbnail}`} />
         <div className={styles.title}>
           <div style={{ float: 'right' }}>
             <FlatButton
@@ -167,8 +162,25 @@ class ModelViewerHandler extends React.Component<HandlerProps, {}> {
   }
 
   render() {
+    const model = this.props.model.result;
+
+    let head = null;
+    if (model) {
+      const title = model.owner ? `${model.name} by ${model.owner.username}` : model.name;
+      head = (
+        <div>
+          <EnhancedTitle>{title}</EnhancedTitle>
+          <MetaImage url={`${__CDN_BASE__}/${model.thumbnail}`} />
+        </div>
+      );
+    }
+
     return (
-      <div className={rootClass}>{this.renderBody()}</div>
+      <div className={rootClass}>
+        {head}
+        <MetaUrl url={`${__BASE__}${this.props.location.pathname}`} />
+        {this.renderBody(model)}
+      </div>
     );
   }
 }

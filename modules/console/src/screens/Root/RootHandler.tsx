@@ -75,6 +75,10 @@ class RootHandler extends React.Component<RootProps, {}> {
     return (
       <div className={styles.root}>
         <EnhancedTitle>{title}</EnhancedTitle>
+        <Meta
+          attrs={{ property: 'fb:app_id' }}
+          values={{ content: CONFIG_FACEBOOK_APP_ID }}
+        />
         {loadingOverlay}
         <div className={styles.content}>{this.props.children}</div>
         <Snackbar

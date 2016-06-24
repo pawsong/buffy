@@ -10,6 +10,7 @@ declare const CONFIG_DOMAIN: string;
 declare const CONFIG_GAME_SERVER_URL: string;
 declare const CONFIG_API_SERVER_URL: string;
 declare const CONFIG_FACEBOOK_APP_ID: string;
+declare const __BASE__: string;
 declare const __S3_BASE__: string;
 declare const __CDN_BASE__: string;
 declare const __GA_TRACKING_ID__: string;

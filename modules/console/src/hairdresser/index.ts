@@ -12,3 +12,6 @@ export { EnhancedTitle }
 
 import MetaImage from './components/MetaImage';
 export { MetaImage }
+
+import MetaUrl from './components/MetaUrl';
+export { MetaUrl }

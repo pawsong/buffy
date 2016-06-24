@@ -1,11 +1,11 @@
 import React, { Props, PropTypes } from 'react';
 import Meta from './Meta';
 
-interface MetaImageProps extends Props<Meta> {
+interface MetaUrlProps extends Props<Meta> {
   url: string;
 }
 
-class MetaImage extends React.Component<MetaImageProps, void> {
+class MetaUrl extends React.Component<MetaUrlProps, void> {
   static propTypes = {
     url: PropTypes.string.isRequired,
   };
@@ -13,14 +13,11 @@ class MetaImage extends React.Component<MetaImageProps, void> {
   render() {
     return (
       <Meta
-        attrs={{
-          property: 'og:image',
-          itemprop: 'image primaryImageOfPage',
-        }}
+        attrs={{ property: 'og:url' }}
         values={{ content: this.props.url }}
       />
     );
   }
 }
 
-export default MetaImage;
+export default MetaUrl;
