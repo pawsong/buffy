@@ -180,52 +180,50 @@ class PasswordForm extends React.Component<PasswordFormProps, PasswordFormState>
 
   render() {
     return (
-      <div>
-        <Card>
-          <CardTitle title="Password" />
-          <CardText>
-            <div>
-              <TextField
-                floatingLabelText="Current password"
-                type="password"
-                value={this.state.currentPassword}
-                onChange={this.handleCurrentPasswordChange}
-                disabled={isRunning(this.props.changePassword)}
-              />
-            </div>
-            <div>
-              <TextField
-                floatingLabelText="New password"
-                type="password"
-                value={this.state.newPassword}
-                onChange={this.handleNewPasswordChange}
-                disabled={isRunning(this.props.changePassword)}
-                errorText={this.getNewPasswordErrorText()}
-              />
-            </div>
-            <div>
-              <TextField
-                floatingLabelText="Verify password"
-                type="password"
-                value={this.state.verifyPassword}
-                onChange={this.handleVerifyPasswordChange}
-                disabled={isRunning(this.props.changePassword)}
-                errorText={this.getVerifyPasswordErrorText()}
-              />
-            </div>
-          </CardText>
-          <CardActions>
-            <FlatButton
-              primary={true}
-              label="Change password"
-              onTouchTap={this.submitPasswordChangeRequest}
-              disabled={
-                isRunning(this.props.changePassword) || !this.isReadyToChangePassword()
-              }
+      <Card>
+        <CardTitle title="Password" />
+        <CardText>
+          <div>
+            <TextField
+              floatingLabelText="Current password"
+              type="password"
+              value={this.state.currentPassword}
+              onChange={this.handleCurrentPasswordChange}
+              disabled={isRunning(this.props.changePassword)}
             />
-          </CardActions>
-        </Card>
-      </div>
+          </div>
+          <div>
+            <TextField
+              floatingLabelText="New password"
+              type="password"
+              value={this.state.newPassword}
+              onChange={this.handleNewPasswordChange}
+              disabled={isRunning(this.props.changePassword)}
+              errorText={this.getNewPasswordErrorText()}
+            />
+          </div>
+          <div>
+            <TextField
+              floatingLabelText="Verify password"
+              type="password"
+              value={this.state.verifyPassword}
+              onChange={this.handleVerifyPasswordChange}
+              disabled={isRunning(this.props.changePassword)}
+              errorText={this.getVerifyPasswordErrorText()}
+            />
+          </div>
+        </CardText>
+        <CardActions>
+          <FlatButton
+            primary={true}
+            label="Change password"
+            onTouchTap={this.submitPasswordChangeRequest}
+            disabled={
+              isRunning(this.props.changePassword) || !this.isReadyToChangePassword()
+            }
+          />
+        </CardActions>
+      </Card>
     );
   }
 }
