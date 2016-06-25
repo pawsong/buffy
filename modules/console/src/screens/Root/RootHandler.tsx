@@ -11,7 +11,11 @@ import Snackbar from 'material-ui/Snackbar';
 import { saga, SagaProps, ImmutableTask } from '../../saga';
 import rootSaga from './sagas';
 
-import { EnhancedTitle, Meta } from '../../hairdresser';
+import {
+  EnhancedTitle,
+  Meta,
+  MetaDescription,
+} from '../../hairdresser';
 
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./RootHandler.css');
@@ -79,6 +83,9 @@ class RootHandler extends React.Component<RootProps, {}> {
           attrs={{ property: 'fb:app_id' }}
           values={{ content: CONFIG_FACEBOOK_APP_ID }}
         />
+        <MetaDescription>
+          Buffy is a fun and simple 3D voxel editor where you can build and share 3D models with blocks.
+        </MetaDescription>
         {loadingOverlay}
         <div className={styles.content}>{this.props.children}</div>
         <Snackbar

@@ -15,3 +15,6 @@ export { MetaImage }
 
 import MetaUrl from './components/MetaUrl';
 export { MetaUrl }
+
+import MetaDescription from './components/MetaDescription';
+export { MetaDescription }
