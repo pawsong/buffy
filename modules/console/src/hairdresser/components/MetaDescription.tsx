@@ -5,10 +5,6 @@ interface MetaDescriptionProps extends Props<Meta> {
 }
 
 class MetaDescription extends React.Component<MetaDescriptionProps, void> {
-  static propTypes = {
-    url: PropTypes.string.isRequired,
-  };
-
   render() {
     return (
       <Meta
