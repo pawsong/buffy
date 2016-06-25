@@ -38,7 +38,7 @@ const locale = window['__LOCALE__'];
 delete window['__LOCALE__'];
 
 const { store, history, sagaMiddleware, onRouterUpdate } = configureStore(initialState);
-const routes = getRoutes(store);
+const routes = getRoutes(store, __IS_MOBILE__);
 
 const finalMuiTheme = getMuiTheme(baseTheme, muiTheme);
 const hairdresser = new Hairdresser();

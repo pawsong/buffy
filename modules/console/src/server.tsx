@@ -109,6 +109,7 @@ app.use('/assets', express.static(`${__dirname}/../public`));
 
 app.get('*', async (req, res) => {
   try {
+    const clientIsMobile = isMobile(req.headers['user-agent']).any;
     const locale = req['locale'];
 
     const { store, sagaMiddleware } = configureStore();
@@ -146,7 +147,7 @@ app.get('*', async (req, res) => {
     }
 
     const { redirectLocation, renderProps } = await new Promise<any>((resolve, reject) => {
-      match({ routes: getRoutes(store), location: req.url as any }, (err, redirectLocation, renderProps) => {
+      match({ routes: getRoutes(store, clientIsMobile), location: req.url as any }, (err, redirectLocation, renderProps) => {
         if (err) { return reject(err); }
         resolve({ redirectLocation, renderProps });
       });
@@ -217,8 +218,6 @@ app.get('*', async (req, res) => {
 
     // Delete token because token in store is used only on server
     store.dispatch({ type: DELETE_TOKEN });
-
-    const clientIsMobile = isMobile(req.headers['user-agent']).any;
 
     const html = compiledIndexHtml({
       locale,

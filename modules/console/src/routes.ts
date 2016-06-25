@@ -27,7 +27,7 @@ import ModelHandler from './screens/Model';
 import ModelViewerHandler from './screens/ModelViewer';
 import UnsupportedOnMobileHandler from './screens/UnsupportedOnMobile';
 
-export default function getRoutes(store: Store) {
+export default function getRoutes(store: Store, isMobile: boolean) {
 
   function isLoggedIn() {
     const state: State = store.getState();
@@ -70,7 +70,7 @@ export default function getRoutes(store: Store) {
       },
       {
         onEnter: (nextState, replace) => {
-          if (__IS_MOBILE__) replace('/model/edit/unsupported');
+          if (isMobile) replace('/model/edit/unsupported');
         },
         path: '/model/edit',
         getComponent: (location, cb) => require.ensure([], require => {
