@@ -25,6 +25,7 @@ import NotFoundHandler from './screens/NotFound';
 import ModelStudioHandler from './screens/ModelStudio';
 import ModelHandler from './screens/Model';
 import ModelViewerHandler from './screens/ModelViewer';
+import UnsupportedOnMobileHandler from './screens/UnsupportedOnMobile';
 
 export default function getRoutes(store: Store) {
 
@@ -68,71 +69,14 @@ export default function getRoutes(store: Store) {
         ],
       },
       {
+        onEnter: (nextState, replace) => {
+          if (__IS_MOBILE__) replace('/model/edit/unsupported');
+        },
         path: '/model/edit',
         getComponent: (location, cb) => require.ensure([], require => {
           cb(null, require<{ default: ModelStudioHandler }>('./screens/ModelStudio').default);
         }),
       },
-      // {
-      //   path: '/create',
-      //   getComponent: (location, cb) => require.ensure([], require => {
-      //     cb(null, require<{ default: ProjectStudioHandler }>('./screens/ProjectStudio').default);
-      //   }),
-      // },
-      // {
-      //   path: '/@/:projectId/:revision/edit',
-      //   getComponent: (location, cb) => require.ensure([], require => {
-      //     cb(null, require<{ default: ProjectStudioHandler }>('./screens/ProjectStudio').default);
-      //   }),
-      // },
-      // {
-      //   path: '/@:username/:projectId/:revision/edit',
-      //   getComponent: (location, cb) => require.ensure([], require => {
-      //     cb(null, require<{ default: ProjectStudioHandler }>('./screens/ProjectStudio').default);
-      //   }),
-      // },
-      // {
-      //   path: '/@/:projectId/:revision/game',
-      //   getComponent: (location, cb) => require.ensure([], require => {
-      //     cb(null, require<{ default: ProjectGameHandler }>('./screens/ProjectGame').default);
-      //   }),
-      // },
-      // {
-      //   path: '/@:username/:projectId/:revision/game',
-      //   getComponent: (location, cb) => require.ensure([], require => {
-      //     cb(null, require<{ default: ProjectGameHandler }>('./screens/ProjectGame').default);
-      //   }),
-      // },
-      // {
-      //   path: '/@/:projectId/:revision/vr',
-      //   getComponent: (location, cb) => require.ensure([], require => {
-      //     cb(null, require<{ default: ProjectCardboardHandler }>('./screens/ProjectCardboard').default);
-      //   }),
-      // },
-      // {
-      //   path: '/@:username/:projectId/:revision/vr',
-      //   getComponent: (location, cb) => require.ensure([], require => {
-      //     cb(null, require<{ default: ProjectCardboardHandler }>('./screens/ProjectCardboard').default);
-      //   }),
-      // },
-      // {
-      //   path: '/connect',
-      //   getComponent: (location, cb) => require.ensure([], require => {
-      //     cb(null, require<{ default: OnlineStudioHandler }>('./screens/OnlineStudio').default);
-      //   }),
-      // },
-      // {
-      //   path: '/connect/game',
-      //   getComponent: (location, cb) => require.ensure([], require => {
-      //     cb(null, require<{ default: OnlineGameHandler }>('./screens/OnlineGame').default);
-      //   }),
-      // },
-      // {
-      //   path: '/connect/vr',
-      //   getComponent: (location, cb) => require.ensure([], require => {
-      //     cb(null, require<{ default: OnlineCardboardHandler }>('./screens/OnlineCardboard').default);
-      //   }),
-      // },
       {
         path: '/',
         getComponent: (location, cb) => {
@@ -225,12 +169,12 @@ export default function getRoutes(store: Store) {
               cb(null, require<{ default: ContactHandler }>('./screens/Contact').default);
             }),
           },
-          // {
-          //   path: '/get-started',
-          //   getComponent: (location, cb) => require.ensure([], require => {
-          //     cb(null, require<{ default: GetStartedHandler }>('./screens/GetStarted').default);
-          //   }),
-          // },
+          {
+            path: '/model/edit/unsupported',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: UnsupportedOnMobileHandler }>('./screens/UnsupportedOnMobile').default);
+            }),
+          },
           {
             path: '*',
             getComponent: (location, cb) => require.ensure([], require => {
