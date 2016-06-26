@@ -1,9 +1,6 @@
-import * as React from 'react';
+import React from 'react';
 import IconButton from 'material-ui/IconButton';
-import { MuiTheme } from 'material-ui/styles';
-import * as Colors from 'material-ui/styles/colors';
-const cloneDeep = require('lodash/cloneDeep');
-const update = require('react-addons-update');
+import { white } from 'material-ui/styles/colors';
 
 const styles = {
   root: {
@@ -21,20 +18,22 @@ interface FullscreenButtonProps extends React.Props<FullscreenButton> {
 class FullscreenButton extends React.Component<FullscreenButtonProps, {}> {
   render() {
     return (
-      <IconButton
-        onTouchTap={this.props.onTouchTap}
-        iconStyle={{
-          color: Colors.white,
-          transform: 'scale(1.32)',
-        }}
-        style={styles.root} iconClassName="material-icons" tooltipPosition="bottom-center"
-        tooltip={this.props.fullscreen ? 'Fullscreen exit' : 'Fullscreen'}
-        tooltipStyles={{
-          top: 30,
-        }}
-      >
-        {this.props.fullscreen ? 'fullscreen_exit' : 'fullscreen'}
-      </IconButton>
+      <div style={styles.root}>
+        <IconButton
+          onTouchTap={this.props.onTouchTap}
+          iconStyle={{
+            color: white,
+            transform: 'scale(1.32)',
+          }}
+          iconClassName="material-icons" tooltipPosition="bottom-center"
+          tooltip={this.props.fullscreen ? 'Fullscreen exit' : 'Fullscreen'}
+          tooltipStyles={{
+            top: 30,
+          }}
+        >
+          {this.props.fullscreen ? 'fullscreen_exit' : 'fullscreen'}
+        </IconButton>
+      </div>
     );
   }
 }

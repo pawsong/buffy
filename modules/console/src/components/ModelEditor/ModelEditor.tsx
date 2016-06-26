@@ -83,6 +83,7 @@ import ToolsPanel from './components/panels/ToolsPanel';
 
 import FullscreenButton from './components/FullscreenButton';
 import ApplyButton from './components/ApplyButton';
+import Tips from './components/Tips';
 
 import ModelEditorCanvas from './canvas/ModelEditorCanvas';
 
@@ -334,6 +335,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     return (
       <div ref="root" style={styles.root} onMouseDown={this.props.onMouseDown}>
         <div style={styles.canvas} ref="canvas"></div>
+        <Tips />
         {screenfull.enabled && (
           <FullscreenButton
             onTouchTap={this.handleFullscreenButtonClick}
