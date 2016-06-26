@@ -21,6 +21,11 @@ import * as ndarray from 'ndarray';
 
 const msgpack = require('msgpack-lite');
 
+let screenfull;
+if (__CLIENT__) {
+  screenfull = require('screenfull');
+}
+
 import { Keyboard } from '../../keyboard';
 
 import { SimpleStore } from '../../libs';
@@ -86,6 +91,7 @@ import fileReducer from './reducers/file';
 
 const styles = {
   root: {
+    position: 'absolute',
     top: 0, left: 0, bottom: 0, right: 0,
     overflow: 'hidden',
   },
@@ -159,7 +165,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.keyboard = new Keyboard();
 
     this.state = {
-      fullscreen: false,
+      fullscreen: screenfull.enabled && screenfull.isFullscreen,
     };
   }
 
@@ -171,8 +177,12 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     if (this.props.fileState !== nextFileState) this.props.onFileStateChange(nextFileState);
   }
 
-  handleFullscreenButtonClick() {
-    this.setState({ fullscreen: !this.state.fullscreen }, () => this.canvas.resize());
+  handleFullscreenButtonClick = () => {
+    if (screenfull.isFullscreen) {
+      screenfull.exit();
+    } else {
+      screenfull.request(findDOMNode<HTMLElement>(this.refs['root']));
+    }
   }
 
   getEditorState(): ModelEditorState {
@@ -256,6 +266,12 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     }
   };
 
+  handleFullscreenChange = () => {
+    if (this.state.fullscreen !== screenfull.isFullscreen) {
+      this.setState({ fullscreen: screenfull.isFullscreen }, () => this.canvas.resize());
+    }
+  }
+
   componentDidMount() {
     this.canvas = new ModelEditorCanvas({
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
@@ -268,6 +284,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.canvas.init();
 
     document.addEventListener('keydown', this.handleKeyDown, false);
+    document.addEventListener(screenfull.raw.fullscreenchange, this.handleFullscreenChange, false);
   }
 
   componentDidUpdate(prevProps: ModelEditorProps) {
@@ -289,6 +306,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   componentWillUnmount() {
     this.canvas.destroy();
     document.removeEventListener('keydown', this.handleKeyDown, false);
+    document.removeEventListener(screenfull.raw.fullscreenchange, this.handleFullscreenChange, false);
     this.keyboard.dispose();
   }
 
@@ -313,20 +331,15 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 
   render() {
-    const rootStyle = this.state.fullscreen ? Object.assign({}, styles.root, {
-      position: 'fixed',
-      zIndex: 10000,
-    }) : Object.assign({}, styles.root, {
-      position: 'absolute',
-    });
-
     return (
-      <div style={rootStyle} onMouseDown={this.props.onMouseDown}>
+      <div ref="root" style={styles.root} onMouseDown={this.props.onMouseDown}>
         <div style={styles.canvas} ref="canvas"></div>
-        <FullscreenButton
-          onTouchTap={() => this.handleFullscreenButtonClick()}
-          fullscreen={this.state.fullscreen}
-        />
+        {screenfull.enabled && (
+          <FullscreenButton
+            onTouchTap={this.handleFullscreenButtonClick}
+            fullscreen={this.state.fullscreen}
+          />
+        )}
         {this.props.onApply ? <ApplyButton
           onTouchTap={this.props.onApply}
         /> : null}
