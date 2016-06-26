@@ -264,6 +264,50 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           }
         }
       }
+    } else {
+      // Without CTRL or COMMAND + SHIFT
+      switch(e.keyCode) {
+        case 66: // B
+        {
+          this.dispatchAction(changeTool(ToolType.PENCIL));
+          break;
+        }
+        case 69: // E
+        {
+          this.dispatchAction(changeTool(ToolType.ERASE));
+          break;
+        }
+        case 71: // G
+        {
+          this.dispatchAction(changeTool(ToolType.COLOR_FILL));
+          break;
+        }
+        case 73: // I
+        {
+          this.dispatchAction(changeTool(ToolType.COLORIZE));
+          break;
+        }
+        case 77: // M
+        {
+          this.dispatchAction(changeTool(ToolType.RECTANGLE_SELECT));
+          break;
+        }
+        case 82: // R
+        {
+          this.dispatchAction(changeTool(ToolType.RECTANGLE));
+          break;
+        }
+        case 86: // V
+        {
+          this.dispatchAction(changeTool(ToolType.MOVE));
+          break;
+        }
+        case 87: // W
+        {
+          this.dispatchAction(changeTool(ToolType.MAGIC_WAND));
+          break;
+        }
+      }
     }
   };
 

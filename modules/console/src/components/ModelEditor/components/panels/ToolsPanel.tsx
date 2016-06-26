@@ -145,7 +145,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             style={this.getIconButtonStyle(styles.iconButton, ToolType.MOVE)}
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
-            tooltip={'Move'}
+            tooltip={'Move (V)'}
           >
             <CursorMoveIcon />
           </IconButton>
@@ -154,7 +154,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.RECTANGLE_SELECT)}
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
-            tooltip={'Rectangle select'}
+            tooltip={'Rectangle select (M)'}
           >
             <SelectIcon />
           </IconButton>
@@ -174,7 +174,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.MAGIC_WAND)}
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
-            tooltip={'Magic Wand'}
+            tooltip={'Magic Wand (W)'}
           >
             <AutoFixIcon />
           </IconButton>
@@ -186,7 +186,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             tooltipStyles={styles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
-            tooltip={'Pencil'}
+            tooltip={'Pencil (B)'}
           >
             mode_edit
           </IconButton>
@@ -199,7 +199,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             tooltipStyles={styles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
-            tooltip={'Erase'}
+            tooltip={'Erase (E)'}
           >
             crop_portrait
           </IconButton>
@@ -224,7 +224,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             }}
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
-            tooltip={'Color fill'}
+            tooltip={'Color fill (G)'}
           >
             <FormatColorFill />
           </IconButton>
@@ -252,7 +252,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             }}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
-            tooltip={'Rectangle'}
+            tooltip={'Rectangle (R)'}
           >
             stop
           </IconButton>
@@ -296,7 +296,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             tooltipStyles={styles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
-            tooltip={'Colorize'}
+            tooltip={'Colorize (I)'}
           >
             colorize
           </IconButton>
