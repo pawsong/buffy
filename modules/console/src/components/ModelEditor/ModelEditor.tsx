@@ -66,6 +66,7 @@ import {
   Position,
   CommonState,
   SerializedData,
+  Axis,
 } from './types';
 
 import {
@@ -76,6 +77,8 @@ import {
   voxelClearSelection,
   voxelCopy,
   voxelPaste,
+  enterMode2D,
+  leaveMode2D,
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
@@ -358,6 +361,14 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   selectTool = (selectedTool: ToolType) => this.dispatchAction(changeTool(selectedTool));
   changePaletteColor = (paletteColor: Color) => this.dispatchAction(changePaletteColor(paletteColor));
 
+  handleEnableMode2D = (enabled: boolean) => {
+    if (enabled) {
+      this.dispatchAction(enterMode2D());
+    } else {
+      this.dispatchAction(leaveMode2D());
+    }
+  }
+
   renderPanels() {
     return (
       <div>
@@ -366,6 +377,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           dispatchAction={this.dispatchAction}
         />
         <ToolsPanel
+          mode2D={this.props.fileState.present.data.mode2D.enabled}
+          onEnableMode2D={this.handleEnableMode2D}
           paletteColor={this.props.commonState.paletteColor}
           selectedTool={this.props.commonState.selectedTool}
           changePaletteColor={this.changePaletteColor}
@@ -459,6 +472,11 @@ ModelEditor.importVoxFile = buffer => {
         selection: null,
         fragment: null,
         fragmentOffset: [0, 0, 0],
+        mode2D: {
+          enabled: false,
+          axis: Axis.X,
+          position: 0,
+        }
       }),
     };
   }

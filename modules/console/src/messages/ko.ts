@@ -595,6 +595,20 @@ export default {
   'voxel-editor.panels.history.voxel.transform': '블럭 변환',
 
   /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Enter 2D mode label
+   * defaultMessage: Enter 2D mode
+   */
+/* translate */ 'voxel-editor.panels.mode2D.enter': '',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Leave 2D mode label
+   * defaultMessage: Leave 2D mode
+   */
+/* translate */ 'voxel-editor.panels.mode2D.leave': '',
+
+  /**
    * path: src/components/ModelEditor/components/panels/ToolsPanel.json
    * description: Voxel editor tools panel title
    * defaultMessage: Tools

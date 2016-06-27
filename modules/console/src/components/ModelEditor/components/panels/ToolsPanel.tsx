@@ -2,7 +2,9 @@ import * as React from 'react';
 const pure = require('recompose/pure').default;
 
 import IconButton from 'material-ui/IconButton';
+import Divider from 'material-ui/Divider';
 import * as Colors from 'material-ui/styles/colors';
+import Toggle from 'material-ui/Toggle';
 import * as ReactDnd from 'react-dnd';
 const { default: ColorPicker } = require('react-color/lib/components/swatches/Swatches');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
@@ -78,11 +80,12 @@ const messages = defineMessages({
 });
 
 interface ToolsPanelProps extends React.Props<ToolsPanel> {
+  mode2D: boolean;
+  onEnableMode2D: (enabled: boolean) => any;
   selectedTool: ToolType;
   paletteColor: Color;
   selectTool: (tool: ToolType) => any;
   changePaletteColor: (color: Color) => any;
-
   intl?: InjectedIntlProps;
 }
 
@@ -131,6 +134,10 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
     return Object.assign({
       backgroundColor: this.props.selectedTool === tool ? Colors.grey200 : Colors.white,
     }, style);
+  }
+
+  handleEnableMode2D = (e: any, enabled: boolean) => {
+    this.props.onEnableMode2D(enabled);
   }
 
   render() {
@@ -323,6 +330,22 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
               </ClickAwayListener>
             ) : null}
           </div>
+        </div>
+        <Divider />
+        <div style={styles.iconRow}>
+          <Toggle
+            label="2D"
+            toggled={this.props.mode2D}
+            onToggle={this.handleEnableMode2D}
+            style={{
+              marginTop: 12,
+              marginBottom: 8,
+            }}
+            labelStyle={{
+              marginLeft: 14,
+              width: 44,
+            }}
+          />
         </div>
       </div>
     );

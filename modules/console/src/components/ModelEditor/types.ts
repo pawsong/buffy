@@ -74,12 +74,21 @@ export type Rectangle = [
   number /* loX */, number /* loY */, number /* hiX */, number /* hiY */
 ]
 
+export enum Axis {
+  X, Y, Z,
+}
+
 export interface VoxelData {
+  size: Position;
   model: Ndarray;
   selection: Ndarray;
   fragment: Ndarray;
-  size: Position;
   fragmentOffset: Position;
+  mode2D: {
+    enabled: boolean;
+    axis: Axis;
+    position: number;
+  };
 }
 
 export interface ExtraData {

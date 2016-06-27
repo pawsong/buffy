@@ -46,6 +46,8 @@ import {
   VOXEL_ADD_LIST,
   VOXEL_PAINT,
   VOXEL_PASTE,
+  ENTER_MODE_2D,
+  LEAVE_MODE_2D,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -114,6 +116,16 @@ const messages = defineMessages({
     description: 'Voxel paste label',
     defaultMessage: 'Paste',
   },
+  labelEnterMode2D: {
+    id: 'voxel-editor.panels.mode2D.enter',
+    description: 'Enter 2D mode label',
+    defaultMessage: 'Enter 2D mode',
+  },
+  labelLeaveMode2D: {
+    id: 'voxel-editor.panels.mode2D.leave',
+    description: 'Leave 2D mode label',
+    defaultMessage: 'Leave 2D mode',
+  }
 });
 
 const ActionMessages = {
@@ -136,6 +148,8 @@ const ActionMessages = {
   [VOXEL_COLOR_FILL]: messages.labelVoxelColorFill,
   [VOXEL_PAINT]: messages.labelVoxelColorFill,
   [VOXEL_PASTE]: messages.labelVoxelPaste,
+  [ENTER_MODE_2D]: messages.labelEnterMode2D,
+  [LEAVE_MODE_2D]: messages.labelLeaveMode2D,
 };
 
 function getActionMessage(state: Snapshot<any>) {

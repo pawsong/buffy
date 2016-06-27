@@ -286,3 +286,21 @@ export function changePaletteColor(color: Color) {
     color,
   };
 }
+
+export const ENTER_MODE_2D: 'ENTER_MODE_2D' = 'ENTER_MODE_2D';
+export interface EnterMode2DAction extends Action<typeof ENTER_MODE_2D> {
+}
+export function enterMode2D(): EnterMode2DAction {
+  return {
+    type: ENTER_MODE_2D,
+  };
+}
+
+export const LEAVE_MODE_2D: 'LEAVE_MODE_2D' = 'LEAVE_MODE_2D';
+export interface LeaveMode2DAction extends Action<typeof LEAVE_MODE_2D> {
+}
+export function leaveMode2D(): LeaveMode2DAction {
+  return {
+    type: LEAVE_MODE_2D,
+  };
+}

@@ -23,6 +23,7 @@ import {
   Volumn,
   VoxelData,
   Transformation,
+  Axis,
 } from '../types';
 
 import {
@@ -44,6 +45,8 @@ import {
   VOXEL_COLOR_FILL, VoxelColorFillAction,
   VOXEL_ADD_LIST, VoxelAddListAction,
   VOXEL_PASTE, VoxelPasteAction,
+  ENTER_MODE_2D,
+  LEAVE_MODE_2D,
 } from '../actions';
 
 const initialSize: Position = [16, 16, 16];
@@ -56,6 +59,11 @@ const initialState: VoxelData = {
   selection: null,
   fragment: null,
   fragmentOffset: [0, 0, 0],
+  mode2D: {
+    enabled: false,
+    axis: Axis.X,
+    position: 0,
+  }
 };
 
 function rgbToHex({ r, g, b }) {
@@ -713,6 +721,18 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         size: model.shape,
         model,
         selection,
+      });
+    }
+
+    case ENTER_MODE_2D: {
+      return Object.assign({}, state, {
+        mode2D: Object.assign({}, state.mode2D, { enabled: true }),
+      });
+    }
+
+    case LEAVE_MODE_2D: {
+      return Object.assign({}, state, {
+        mode2D: Object.assign({}, state.mode2D, { enabled: false }),
       });
     }
 

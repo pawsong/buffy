@@ -3,6 +3,10 @@ import * as ndarray from 'ndarray';
 
 const msgpack = require('msgpack-lite');
 
+import {
+  Axis,
+} from '../types';
+
 import createFileState from './createFileState';
 
 function deserialize (buffer: Uint8Array) {
@@ -16,6 +20,11 @@ function deserialize (buffer: Uint8Array) {
     selection: null,
     fragment: null,
     fragmentOffset: [0, 0, 0],
+    mode2D: {
+      enabled: false,
+      axis: Axis.X,
+      position: 0,
+    }
   });
 }
 
