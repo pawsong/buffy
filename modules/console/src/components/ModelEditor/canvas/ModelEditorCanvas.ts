@@ -642,8 +642,8 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     if (diff.hasOwnProperty('mode2d')) {
       if (diff.mode2d.hasOwnProperty('enabled')) {
         if (diff.mode2d.enabled) {
-          this.canvas.scene.remove(this.selectionBoundingBox.edges);
-          this.canvas.scene.remove(this.fragmentBoundingBox.edges);
+          this.canvas.boundingBoxScene.remove(this.selectionBoundingBox.edges);
+          this.canvas.boundingBoxScene.remove(this.fragmentBoundingBox.edges);
           this.canvas.scene.add(this.mode2dPlaneMesh);
 
           this.modelMaterial.transparent = true;
@@ -656,8 +656,8 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
           this.patchSlices();
           this.updateClippingPlane(this.tree.mode2d.axis, this.tree.mode2d.position);
         } else {
-          this.canvas.scene.add(this.selectionBoundingBox.edges);
-          this.canvas.scene.add(this.fragmentBoundingBox.edges);
+          this.canvas.boundingBoxScene.add(this.selectionBoundingBox.edges);
+          this.canvas.boundingBoxScene.add(this.fragmentBoundingBox.edges);
 
           this.removeSlices();
           this.canvas.scene.remove(this.mode2dPlaneMesh);
@@ -821,6 +821,8 @@ class ModelEditorCanvas extends Canvas {
 
   private Mode2dTool: Mode2dTool;
 
+  boundingBoxScene: THREE.Scene;
+
   constructor({
     container,
     geometryFactory,
@@ -830,6 +832,7 @@ class ModelEditorCanvas extends Canvas {
     keyboard,
   }: CanvasOptions) {
     super(container);
+    this.boundingBoxScene = new THREE.Scene();
 
     this.geometryFactory = geometryFactory;
 
@@ -1029,6 +1032,10 @@ class ModelEditorCanvas extends Canvas {
   render() {
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
+
+    this.renderer.clearDepth();
+    this.renderer.render(this.boundingBoxScene, this.camera);
+
     this.tool.onRender();
   }
 
