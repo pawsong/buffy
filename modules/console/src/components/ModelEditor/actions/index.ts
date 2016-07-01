@@ -383,7 +383,7 @@ export interface MoveMode2DPlaneAction extends Action<typeof MOVE_MODE_2D_PLANE>
   axis: Axis;
   position: number;
 }
-export function moveMode2DPlane(axis: Axis, position: number): MoveMode2DPlaneAction {
+export function moveMode2dPlane(axis: Axis, position: number): MoveMode2DPlaneAction {
   return {
     type: MOVE_MODE_2D_PLANE,
     axis,

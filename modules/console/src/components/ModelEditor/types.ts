@@ -48,6 +48,9 @@ export enum ToolType {
   BOX_SELECT,
   TRANSFORM,
   RESIZE,
+
+  // Tools that are always running
+  MODE2D,
 }
 
 export enum SupportFileType {

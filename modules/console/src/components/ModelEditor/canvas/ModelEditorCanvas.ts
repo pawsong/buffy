@@ -241,7 +241,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       polygonOffsetUnits: 1,
     });
     this.modelMaterial = this.modelSliceMaterial.clone();
-    this.modelMaterial.opacity = 0.5;
+    this.modelMaterial.opacity = 0.4;
 
     this.modelGridSliceMaterial = new THREE.ShaderMaterial({
       uniforms: {
@@ -313,7 +313,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     const mode2DPlaneGeometry = new THREE.PlaneGeometry(PIXEL_SCALE, PIXEL_SCALE);
     const mode2DPlaneMaterial = new THREE.MeshBasicMaterial({
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.7,
       side: THREE.DoubleSide,
       polygonOffset: true,
       polygonOffsetFactor: -0.1, // positive value pushes polygon further away
@@ -403,7 +403,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     }
   }
 
-  moveMode2DClippingPlane(axis: Axis, position: number) {
+  moveMode2dClippingPlane(axis: Axis, position: number) {
     this.updateClippingPlane(axis, position);
     this.setState({ mode2d: { axis, position } });
   }
