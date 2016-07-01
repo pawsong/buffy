@@ -20,8 +20,9 @@ function deserialize (buffer: Uint8Array) {
     selection: null,
     fragment: null,
     fragmentOffset: [0, 0, 0],
-    mode2D: {
+    mode2d: {
       enabled: false,
+      initialized: false,
       axis: Axis.X,
       position: 0,
     }

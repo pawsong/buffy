@@ -6,7 +6,13 @@ import {
 
 import {
   ToolType,
+  Position,
+  Color,
 } from '../../../types';
+
+import {
+  voxelAddList2d,
+} from '../../../actions';
 
 import PencilTool from './PencilTool';
 
@@ -28,6 +34,10 @@ class PencilTool2d extends PencilTool {
         ? offset.copy(normal).multiplyScalar(PIXEL_SCALE)
         : origin,
     };
+  }
+
+  getAction(trace: Position[], color: Color) {
+    return voxelAddList2d(trace, color);
   }
 }
 

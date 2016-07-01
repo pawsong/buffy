@@ -86,7 +86,7 @@ interface ComponentTree {
   selection: ndarray.Ndarray;
   fragment: ndarray.Ndarray;
   fragmentOffset: Position;
-  mode2D?: {
+  mode2d?: {
     enabled: boolean;
     axis: Axis;
     position: number;
@@ -166,7 +166,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
   mode2dPlaneMesh: THREE.Mesh;
 
-  mode2DClippingPlane: THREE.Plane;
+  mode2dClippingPlane: THREE.Plane;
   model2DSliceMesh: THREE.Mesh;
   modelGrid2DSliceMesh: THREE.Mesh;
   selectionSliceMesh: THREE.Mesh;
@@ -181,7 +181,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         selection: { type: SchemaType.ANY },
         fragment: { type: SchemaType.ANY },
         fragmentOffset: { type: SchemaType.ANY },
-        mode2D: {
+        mode2d: {
           type: SchemaType.OBJECT,
           properties: {
             enabled: { type: SchemaType.BOOLEAN },
@@ -202,7 +202,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     };
 
     this.temp1 = new THREE.Vector3();
-    this.mode2DClippingPlane = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+    this.mode2dClippingPlane = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
 
     this.planeMaterial = new THREE.ShaderMaterial({
       uniforms: {
@@ -310,15 +310,15 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       this.fragmentSliceMaterial,
     ]);
 
-    const mode2DPlaneGeometry = new THREE.PlaneGeometry(PIXEL_SCALE, PIXEL_SCALE);
-    const mode2DPlaneMaterial = new THREE.MeshBasicMaterial({
+    const mode2dPlaneGeometry = new THREE.PlaneGeometry(PIXEL_SCALE, PIXEL_SCALE);
+    const mode2dPlaneMaterial = new THREE.MeshBasicMaterial({
       transparent: true,
       opacity: 0.7,
       side: THREE.DoubleSide,
       polygonOffset: true,
       polygonOffsetFactor: -0.1, // positive value pushes polygon further away
     })
-    this.mode2dPlaneMesh = new THREE.Mesh(mode2DPlaneGeometry, mode2DPlaneMaterial);
+    this.mode2dPlaneMesh = new THREE.Mesh(mode2dPlaneGeometry, mode2dPlaneMaterial);
     this.mode2dPlaneMesh.renderOrder = -1;
   }
 
@@ -354,9 +354,9 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
     const fragment = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), shape);
 
-    const modelSlice = getSlice(this.props.mode2D.axis, this.props.mode2D.position, this.props.model);
-    const selectionSlice = getSlice(this.props.mode2D.axis, this.props.mode2D.position, this.props.selection);
-    const fragmentSlice = getSlice(this.props.mode2D.axis, this.props.mode2D.position, fragment);
+    const modelSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, this.props.model);
+    const selectionSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, this.props.selection);
+    const fragmentSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, fragment);
 
     select(fragmentSlice, modelSlice, selectionSlice);
     this.setState({ fragment });
@@ -384,17 +384,17 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
     if (this.fragmentSliceMesh.visible) {
       this.fragmentSliceMesh.position.copy(displacement);
-      switch(this.tree.mode2D.axis) {
+      switch(this.tree.mode2d.axis) {
         case Axis.X: {
-          this.fragmentSliceMesh.position.setX(this.tree.mode2D.position);
+          this.fragmentSliceMesh.position.setX(this.tree.mode2d.position);
           break;
         }
         case Axis.Y: {
-          this.fragmentSliceMesh.position.setY(this.tree.mode2D.position);
+          this.fragmentSliceMesh.position.setY(this.tree.mode2d.position);
           break;
         }
         case Axis.Z: {
-          this.fragmentSliceMesh.position.setZ(this.tree.mode2D.position);
+          this.fragmentSliceMesh.position.setZ(this.tree.mode2d.position);
           break;
         }
       }
@@ -405,7 +405,10 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
   moveMode2dClippingPlane(axis: Axis, position: number) {
     this.updateClippingPlane(axis, position);
-    this.setState({ mode2d: { axis, position } });
+
+    if (!this.state.mode2d || this.state.mode2d.axis !== axis || this.state.mode2d.position !== position) {
+      this.setState({ mode2d: { axis, position } });
+    }
   }
 
   updateClippingPlane(axis: Axis, position: number) {
@@ -421,11 +424,11 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         if (this.temp1.x > 0) {
           this.mode2dPlaneMesh.rotation.set(0, - Math.PI / 2, Math.PI / 2);
           this.mode2dPlaneMesh.position.setX((position + 1) * PIXEL_SCALE);
-          this.mode2DClippingPlane.set(px, (- position - 1) * PIXEL_SCALE + CLIPPING_OFFSET);
+          this.mode2dClippingPlane.set(px, (- position - 1) * PIXEL_SCALE + CLIPPING_OFFSET);
         } else {
           this.mode2dPlaneMesh.rotation.set(0, Math.PI / 2, Math.PI / 2);
           this.mode2dPlaneMesh.position.setX(position * PIXEL_SCALE);
-          this.mode2DClippingPlane.set(nx, position * PIXEL_SCALE + CLIPPING_OFFSET);
+          this.mode2dClippingPlane.set(nx, position * PIXEL_SCALE + CLIPPING_OFFSET);
         }
         break;
       }
@@ -437,11 +440,11 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         if (this.temp1.y > 0) {
           this.mode2dPlaneMesh.rotation.set(Math.PI / 2, 0, Math.PI / 2);
           this.mode2dPlaneMesh.position.setY((position + 1) * PIXEL_SCALE);
-          this.mode2DClippingPlane.set(py, (- position - 1) * PIXEL_SCALE + CLIPPING_OFFSET);
+          this.mode2dClippingPlane.set(py, (- position - 1) * PIXEL_SCALE + CLIPPING_OFFSET);
         } else {
           this.mode2dPlaneMesh.rotation.set(- Math.PI / 2, 0, Math.PI / 2);
           this.mode2dPlaneMesh.position.setY(position * PIXEL_SCALE);
-          this.mode2DClippingPlane.set(ny, position * PIXEL_SCALE + CLIPPING_OFFSET);
+          this.mode2dClippingPlane.set(ny, position * PIXEL_SCALE + CLIPPING_OFFSET);
         }
         break;
       }
@@ -453,11 +456,11 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         if (this.temp1.z > 0) {
           this.mode2dPlaneMesh.rotation.set(Math.PI, 0, 0);
           this.mode2dPlaneMesh.position.setZ((position + 1) * PIXEL_SCALE);
-          this.mode2DClippingPlane.set(pz, (- position - 1) * PIXEL_SCALE + CLIPPING_OFFSET);
+          this.mode2dClippingPlane.set(pz, (- position - 1) * PIXEL_SCALE + CLIPPING_OFFSET);
         } else {
           this.mode2dPlaneMesh.rotation.set(0, 0, 0);
           this.mode2dPlaneMesh.position.setZ(position * PIXEL_SCALE);
-          this.mode2DClippingPlane.set(nz, position * PIXEL_SCALE + CLIPPING_OFFSET);
+          this.mode2dClippingPlane.set(nz, position * PIXEL_SCALE + CLIPPING_OFFSET);
         }
         break;
       }
@@ -465,8 +468,8 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   }
 
   onCameraMove() {
-    if (this.tree.mode2D.enabled) {
-      this.updateClippingPlane(this.tree.mode2D.axis, this.tree.mode2D.position);
+    if (this.tree.mode2d.enabled) {
+      this.updateClippingPlane(this.tree.mode2d.axis, this.tree.mode2d.position);
     };
   }
 
@@ -493,7 +496,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       fragment,
       fragmentOffset: this.props.fragmentOffset,
       size: this.props.size,
-      mode2D: Object.assign({}, this.props.mode2D, this.state.mode2d),
+      mode2d: Object.assign({}, this.props.mode2d, this.state.mode2d),
     };
   }
 
@@ -540,9 +543,9 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       this.canvas.camera.position.addVectors(this.temp1, this.canvas.controls.target);
       this.canvas.controls.update();
 
-      if (this.tree.mode2D.enabled) {
+      if (this.tree.mode2d.enabled) {
         this.patchSlices();
-        this.updateClippingPlane(this.tree.mode2D.axis, this.tree.mode2D.position);
+        this.updateClippingPlane(this.tree.mode2d.axis, this.tree.mode2d.position);
       }
     }
 
@@ -572,7 +575,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         this.canvas.scene.add(this.modelGridMesh);
       }
 
-      if (this.tree.mode2D.enabled) this.patchModelSlice();
+      if (this.tree.mode2d.enabled) this.patchModelSlice();
     }
 
     if (diff.hasOwnProperty('selection')) {
@@ -596,7 +599,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         this.selectionBoundingBox.changeTarget(this.selectionMesh);
       }
 
-      if (this.tree.mode2D.enabled) this.patchSelectionSlice();
+      if (this.tree.mode2d.enabled) this.patchSelectionSlice();
     }
 
     if (diff.hasOwnProperty('fragment')) {
@@ -623,7 +626,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         this.fragmentBoundingBox.changeTarget(this.fragmentMesh);
       }
 
-      if (this.tree.mode2D.enabled) this.patchFragmentSlice();
+      if (this.tree.mode2d.enabled) this.patchFragmentSlice();
     } else if (diff.hasOwnProperty('fragmentOffset')) {
       if (this.tree.fragment) {
         const offset = this.tree.fragmentOffset;
@@ -633,12 +636,12 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         this.fragmentBoundingBox.changeTarget(this.fragmentMesh);
       }
 
-      if (this.tree.mode2D.enabled) this.patchFragmentSlice();
+      if (this.tree.mode2d.enabled) this.patchFragmentSlice();
     }
 
-    if (diff.hasOwnProperty('mode2D')) {
-      if (diff.mode2D.hasOwnProperty('enabled')) {
-        if (diff.mode2D.enabled) {
+    if (diff.hasOwnProperty('mode2d')) {
+      if (diff.mode2d.hasOwnProperty('enabled')) {
+        if (diff.mode2d.enabled) {
           this.canvas.scene.remove(this.selectionBoundingBox.edges);
           this.canvas.scene.remove(this.fragmentBoundingBox.edges);
           this.canvas.scene.add(this.mode2dPlaneMesh);
@@ -648,10 +651,10 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
           this.modelMaterial['clippingPlanes'] =
           this.modelGridMaterial['clippingPlanes'] =
           this.selectionMaterial['clippingPlanes'] =
-          this.fragmentMaterial['clippingPlanes'] = [ this.mode2DClippingPlane ];
+          this.fragmentMaterial['clippingPlanes'] = [ this.mode2dClippingPlane ];
 
           this.patchSlices();
-          this.updateClippingPlane(this.tree.mode2D.axis, this.tree.mode2D.position);
+          this.updateClippingPlane(this.tree.mode2d.axis, this.tree.mode2d.position);
         } else {
           this.canvas.scene.add(this.selectionBoundingBox.edges);
           this.canvas.scene.add(this.fragmentBoundingBox.edges);
@@ -668,7 +671,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         }
       } else {
         this.patchSlices();
-        this.updateClippingPlane(this.tree.mode2D.axis, this.tree.mode2D.position);
+        this.updateClippingPlane(this.tree.mode2d.axis, this.tree.mode2d.position);
       }
     }
   }
@@ -712,7 +715,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   private patchModelSlice() {
     this.removeModelSlice();
 
-    const { axis, position } = this.tree.mode2D;
+    const { axis, position } = this.tree.mode2d;
 
     const meshes = this.modelSliceCache.get(this.tree.model, axis, position);
     if (meshes) {
@@ -729,7 +732,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
     if (!this.tree.selection) return;
 
-    const { axis, position } = this.tree.mode2D;
+    const { axis, position } = this.tree.mode2d;
 
     const meshes = this.selectionSliceCache.get(this.tree.selection, axis, position);
     if (meshes) {
@@ -743,7 +746,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
     if (!this.tree.fragment) return;
 
-    const { axis, position } = this.tree.mode2D;
+    const { axis, position } = this.tree.mode2d;
 
     let slicePosition: number;
     switch(axis) {
@@ -897,7 +900,7 @@ class ModelEditorCanvas extends Canvas {
       this.tool.onCameraMove();
       this.component.onCameraMove();
 
-      if (this.state.file.present.data.mode2D.enabled) {
+      if (this.state.file.present.data.mode2d.enabled) {
         this.Mode2dTool.onCameraMove();
       }
 
@@ -987,10 +990,10 @@ class ModelEditorCanvas extends Canvas {
   onStateChange(nextState: ModelEditorState) {
     this.component.updateProps(nextState.file.present.data);
 
-    const currentToolType = this.state.file.present.data.mode2D.enabled
+    const currentToolType = this.state.file.present.data.mode2d.enabled
       ? this.state.common.tool2d : this.state.common.tool3d;
 
-    const nextToolType = nextState.file.present.data.mode2D.enabled
+    const nextToolType = nextState.file.present.data.mode2d.enabled
       ? nextState.common.tool2d : nextState.common.tool3d;
 
     if (currentToolType !== nextToolType) {
@@ -1004,15 +1007,15 @@ class ModelEditorCanvas extends Canvas {
       if (props) this.tool.updateProps(props);
     }
 
-    if (this.state.file.present.data.mode2D.enabled !== nextState.file.present.data.mode2D.enabled) {
-      if (nextState.file.present.data.mode2D.enabled) {
+    if (this.state.file.present.data.mode2d.enabled !== nextState.file.present.data.mode2d.enabled) {
+      if (nextState.file.present.data.mode2d.enabled) {
         const props = this.Mode2dTool.mapParamsToProps(nextState);
         this.Mode2dTool.start(props);
       } else {
         this.Mode2dTool.stop();
       }
     } else {
-      if (this.state.file.present.data.mode2D.enabled) {
+      if (this.state.file.present.data.mode2d.enabled) {
         const props = this.Mode2dTool.mapParamsToProps(nextState);
         if (props) this.Mode2dTool.updateProps(props);
       }

@@ -27,25 +27,13 @@ function multiplyColor({ r, g, b }) {
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 
-interface ColorizeToolProps {
-  mode2D: {
-    enabled: boolean;
-  }
-}
-
 interface ColorizeToolParams {
   getInteractables: () => THREE.Mesh[];
   hitTest?: (intersect: THREE.Intersection, meshPosition: THREE.Vector3) => boolean;
 }
 
-abstract class ColorizeTool extends ModelEditorTool<ColorizeToolProps, void, void> {
+abstract class ColorizeTool extends ModelEditorTool<void, void, void> {
   colorTooltip: HTMLElement;
-
-  mapParamsToProps(params: ModelEditorState) {
-    return {
-      mode2D: params.file.present.data.mode2D,
-    };
-  }
 
   onInit(params: InitParams) {
     super.onInit(params);

@@ -37,7 +37,7 @@ class LineTool2d extends LineTool<LineTool2dProps> {
       size: state.file.present.data.size,
       color: state.common.paletteColor,
       fragment: state.file.present.data.fragment,
-      mode2d: state.file.present.data.mode2D,
+      mode2d: state.file.present.data.mode2d,
     };
   }
 

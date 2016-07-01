@@ -203,7 +203,7 @@ class DragState extends ToolState {
   }
 
   onEnter(params: EnterParams) {
-    const { normal } = this.tool.canvas.component.mode2DClippingPlane;
+    const { normal } = this.tool.canvas.component.mode2dClippingPlane;
     const { size } = this.tool.props;
 
     // Update guides

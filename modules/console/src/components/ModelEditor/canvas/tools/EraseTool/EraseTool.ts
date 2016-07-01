@@ -20,7 +20,6 @@ import {
 } from '../../../types';
 
 import {
-  voxelRemoveBatch,
   voxelMergeFragment,
 } from '../../../actions';
 
@@ -73,6 +72,8 @@ abstract class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
     };
   }
 
+  abstract getAction(trace: Position[]);
+
   onDestroy() {
 
   }
@@ -110,7 +111,7 @@ class DragState extends SelectTraceState {
   }
 
   onTraceSelect(trace: Position[]) {
-    this.tool.dispatchAction(voxelRemoveBatch(trace));
+    this.tool.dispatchAction(this.tool.getAction(trace));
   }
 }
 

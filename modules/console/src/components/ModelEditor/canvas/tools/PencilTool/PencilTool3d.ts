@@ -1,8 +1,14 @@
 import {
   ToolType,
+  Position,
+  Color,
 } from '../../../types';
 
 import PencilTool from './PencilTool';
+
+import {
+  voxelAddList3d,
+} from '../../../actions';
 
 class PencilTool3d extends PencilTool {
   getToolType(): ToolType { return ToolType.PENCIL_3D; }
@@ -17,6 +23,10 @@ class PencilTool3d extends PencilTool {
         this.canvas.component.fragmentMesh,
       ],
     };
+  }
+
+  getAction(trace: Position[], color: Color) {
+    return voxelAddList3d(trace, color);
   }
 }
 

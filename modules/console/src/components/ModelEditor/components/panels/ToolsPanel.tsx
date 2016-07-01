@@ -83,7 +83,7 @@ const messages = defineMessages({
 });
 
 interface ToolsPanelProps extends React.Props<ToolsPanel> {
-  mode2D: boolean;
+  mode2d: boolean;
   onEnableMode2D: (enabled: boolean) => any;
   selectedTool: ToolType;
   tool2d: ToolType;
@@ -509,12 +509,12 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
       <div>
         <div style={styles.iconRow}>
           <Mode2dToggle
-            toggled={this.props.mode2D}
+            toggled={this.props.mode2d}
             onToggle={this.handleEnableMode2D}
           />
         </div>
         <Divider />
-        {this.props.mode2D ? this.render2dTools() : this.render3dTools()}
+        {this.props.mode2d ? this.render2dTools() : this.render3dTools()}
       </div>
     );
   };

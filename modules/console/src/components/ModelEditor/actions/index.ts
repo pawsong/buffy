@@ -44,23 +44,43 @@ export function voxelAddBatch2d(volumn: Volumn, color: Color): VoxelAddBatch2dAc
   };
 }
 
-export const VOXEL_ADD_LIST: 'voxel-editor/VOXEL_ADD_LIST' = 'voxel-editor/VOXEL_ADD_LIST';
-export interface VoxelAddListAction extends Action<typeof VOXEL_ADD_LIST> {
+export const VOXEL_ADD_LIST_2D: 'VOXEL_ADD_LIST_2D' = 'VOXEL_ADD_LIST_2D';
+export interface VoxelAddList2dAction extends Action<typeof VOXEL_ADD_LIST_2D> {
   positions: Position[];
   color: Color;
 }
-export function voxelAddList(positions: Position[], color: Color): VoxelAddListAction {
+export function voxelAddList2d(positions: Position[], color: Color): VoxelAddList2dAction {
   return {
-    type: VOXEL_ADD_LIST,
+    type: VOXEL_ADD_LIST_2D,
     positions,
     color,
   };
 }
 
-export const VOXEL_PAINT = 'VOXEL_PAINT';
-export function voxelPaint(positions: Position[], color: Color): VoxelAddListAction {
-  const action = voxelAddList(positions, color);
-  action.alias = VOXEL_PAINT;
+export const VOXEL_ADD_LIST_3D: 'VOXEL_ADD_LIST_3D' = 'VOXEL_ADD_LIST_3D';
+export interface VoxelAddList3dAction extends Action<typeof VOXEL_ADD_LIST_3D> {
+  positions: Position[];
+  color: Color;
+}
+export function voxelAddList3d(positions: Position[], color: Color): VoxelAddList3dAction {
+  return {
+    type: VOXEL_ADD_LIST_3D,
+    positions,
+    color,
+  };
+}
+
+export const VOXEL_PAINT_2D = 'VOXEL_PAINT_2D';
+export function voxelPaint2d(positions: Position[], color: Color): VoxelAddList2dAction {
+  const action = voxelAddList2d(positions, color);
+  action.alias = VOXEL_PAINT_3D;
+  return action;
+}
+
+export const VOXEL_PAINT_3D = 'VOXEL_PAINT_3D';
+export function voxelPaint3d(positions: Position[], color: Color): VoxelAddList3dAction {
+  const action = voxelAddList3d(positions, color);
+  action.alias = VOXEL_PAINT_3D;
   return action;
 }
 
@@ -183,18 +203,24 @@ export function voxelClearSelection(): VoxelClearSelection {
   };
 }
 
-export const VOXEL_REMOVE: 'voxel-editor/VOXEL_REMOVE' = 'voxel-editor/VOXEL_REMOVE';
-export interface VoxelRemoveAction extends Action<typeof VOXEL_REMOVE> {
-  position: Position;
-}
-
-export const VOXEL_REMOVE_BATCH: 'voxel-editor/VOXEL_REMOVE_BATCH' = 'voxel-editor/VOXEL_REMOVE_BATCH';
-export interface VoxelRemoveBatchAction extends Action<typeof VOXEL_REMOVE_BATCH> {
+export const VOXEL_REMOVE_LIST_2D: 'VOXEL_REMOVE_LIST_2D' = 'VOXEL_REMOVE_LIST_2D';
+export interface VoxelRemoveList2dAction extends Action<typeof VOXEL_REMOVE_LIST_2D> {
   positions: Position[];
 }
-export function voxelRemoveBatch(positions: Position[]): VoxelRemoveBatchAction {
+export function voxelRemoveList2d(positions: Position[]): VoxelRemoveList2dAction {
   return {
-    type: VOXEL_REMOVE_BATCH,
+    type: VOXEL_REMOVE_LIST_2D,
+    positions,
+  };
+}
+
+export const VOXEL_REMOVE_LIST_3D: 'VOXEL_REMOVE_LIST_3D' = 'VOXEL_REMOVE_LIST_3D';
+export interface VoxelRemoveList3dAction extends Action<typeof VOXEL_REMOVE_LIST_3D> {
+  positions: Position[];
+}
+export function voxelRemoveList3d(positions: Position[]): VoxelRemoveList3dAction {
+  return {
+    type: VOXEL_REMOVE_LIST_3D,
     positions,
   };
 }

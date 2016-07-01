@@ -62,7 +62,7 @@ class WaitState extends SelectBlockToolWaitState {
     return {
       size: this.tool.props.size,
       anchor: position,
-      normal: this.tool.canvas.component.mode2DClippingPlane.normal,
+      normal: this.tool.canvas.component.mode2dClippingPlane.normal,
     };
   }
 }

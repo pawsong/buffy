@@ -35,8 +35,8 @@ import {
   VOXEL_ADD, VoxelAddAction,
   VOXEL_ADD_BATCH_3D, VoxelAddBatch3dAction,
   VOXEL_ADD_BATCH_2D, VoxelAddBatch2dAction,
-  VOXEL_REMOVE, VoxelRemoveAction,
-  VOXEL_REMOVE_BATCH, VoxelRemoveBatchAction,
+  VOXEL_REMOVE_LIST_2D, VoxelRemoveList2dAction,
+  VOXEL_REMOVE_LIST_3D, VoxelRemoveList3dAction,
   VOXEL_SELECT_PROJECTION, VoxelSelectProjectionAction,
   VOXEL_SELECT_BOX, VoxelSelectBoxAction,
   VOXEL_SELECT_CONNECTED_2D, VoxelSelectConnected2dAction,
@@ -53,7 +53,8 @@ import {
   VOXEL_TRANSFORM, VoxelTransformAction,
   VOXEL_COLOR_FILL_3D, VoxelColorFill3dAction,
   VOXEL_COLOR_FILL_2D, VoxelColorFill2dAction,
-  VOXEL_ADD_LIST, VoxelAddListAction,
+  VOXEL_ADD_LIST_2D, VoxelAddList2dAction,
+  VOXEL_ADD_LIST_3D, VoxelAddList3dAction,
   VOXEL_PASTE, VoxelPasteAction,
   ENTER_MODE_2D,
   LEAVE_MODE_2D,
@@ -70,8 +71,9 @@ const initialState: VoxelData = {
   selection: null,
   fragment: null,
   fragmentOffset: [0, 0, 0],
-  mode2D: {
+  mode2d: {
     enabled: false,
+    initialized: false,
     axis: Axis.X,
     position: 0,
   }
@@ -452,14 +454,14 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { volumn, color } = <VoxelAddBatch2dAction>action;
       const c = rgbToHex(color);
 
-      const filtered = filterVolumnWithSlice(state.mode2D.axis, state.mode2D.position, volumn);
+      const filtered = filterVolumnWithSlice(state.mode2d.axis, state.mode2d.position, volumn);
       if (!filtered) return state;
 
       const prevState = ensureFragmentMerged(state, true);
 
       return reduceModelUpsertAction(prevState,
         model => ndFill2(model, filtered, c),
-        (model, selection) => isEmptyInSlice(state.mode2D.axis, state.mode2D.position, selection)
+        (model, selection) => isEmptyInSlice(state.mode2d.axis, state.mode2d.position, selection)
           ? ndFill2(model, filtered, c)
           : ndFillWithFilter2(model, filtered, c, selection)
       );
@@ -477,8 +479,49 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       );
     }
 
-    case VOXEL_ADD_LIST: {
-      const { positions, color } = <VoxelAddListAction>action;
+    case VOXEL_ADD_LIST_2D: {
+      const { positions, color } = <VoxelAddList3dAction>action;
+      const c = rgbToHex(color);
+
+      const prevState = ensureFragmentMerged(state, true);
+
+      const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
+
+      const reduceWithoutSelection = (model: ndarray.Ndarray) => {
+        // Skip hit test on the assumption of valid input.
+        let hit = false;
+        for (let i = 0, len = positions.length; i < len; ++i) {
+          const pos = positions[i];
+          if (isValidPosition(pos[0], pos[1], pos[2])) {
+            model.set(pos[0], pos[1], pos[2], c);
+            hit = true;
+          }
+        }
+        return hit;
+      }
+
+      return reduceModelUpsertAction(prevState,
+        model => reduceWithoutSelection(model),
+        (model, selection) => {
+          if (isEmptyInSlice(state.mode2d.axis, state.mode2d.position, selection)) {
+            return reduceWithoutSelection(model);
+          } else {
+            let hit = false;
+            for (let i = 0, len = positions.length; i < len; ++i) {
+              const pos = positions[i];
+              if (isValidPosition(pos[0], pos[1], pos[2]) && selection.get(pos[0], pos[1], pos[2])) {
+                model.set(pos[0], pos[1], pos[2], c);
+                hit = true;
+              }
+            }
+            return hit;
+          }
+        }
+      );
+    }
+
+    case VOXEL_ADD_LIST_3D: {
+      const { positions, color } = <VoxelAddList3dAction>action;
       const c = rgbToHex(color);
 
       const prevState = ensureFragmentMerged(state, true);
@@ -512,7 +555,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       const prevState = ensureFragmentMerged(state, true);
 
-      const isValidPosition = get2dValidator(state.mode2D.axis, state.mode2D.position);
+      const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
 
       return reduceModelUpsertAction(prevState,
         model => ndFloodFill(
@@ -521,7 +564,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         ),
         (model, selection) => ndFloodFill(
           model, c, position,
-          isEmptyInSlice(state.mode2D.axis, state.mode2D.position, selection)
+          isEmptyInSlice(state.mode2d.axis, state.mode2d.position, selection)
             ? (x, y, z) => isValidPosition(x, y, z) ? model.get(x, y, z) : undefined
             : (x, y, z) => isValidPosition(x, y, z) && selection.get(x, y, z) ? model.get(x, y, z) : undefined
         )
@@ -542,8 +585,48 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       );
     }
 
-    case VOXEL_REMOVE_BATCH: {
-      const { positions } = <VoxelRemoveBatchAction>action;
+    case VOXEL_REMOVE_LIST_2D: {
+      const { positions } = <VoxelRemoveList2dAction>action;
+
+      const prevState = ensureFragmentMerged(state, true);
+
+      const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
+
+      const reduceWithoutSelection = (model: ndarray.Ndarray): boolean => {
+        let hit = false;
+        for (let i = 0, len = positions.length; i < len; ++i) {
+          const pos = positions[i];
+          if (isValidPosition(pos[0], pos[1], pos[2])) {
+            model.set(pos[0], pos[1], pos[2], 0);
+            hit = true;
+          }
+        }
+        return hit;
+      }
+
+      return reduceModelRemoveAction(prevState,
+        model => reduceWithoutSelection(model),
+        (model, selection) => {
+          if (isEmptyInSlice(state.mode2d.axis, state.mode2d.position, selection)) {
+            return reduceWithoutSelection(model);
+          } else {
+            let hit = false;
+            for (let i = 0, len = positions.length; i < len; ++i) {
+              const pos = positions[i];
+              if (isValidPosition(pos[0], pos[1], pos[2]) && selection.get(pos[0], pos[1], pos[2])) {
+                model.set(pos[0], pos[1], pos[2], 0);
+                selection.set(pos[0], pos[1], pos[2], 0);
+                hit = true;
+              }
+            }
+            return hit;
+          }
+        }
+      );
+    }
+
+    case VOXEL_REMOVE_LIST_3D: {
+      const { positions } = <VoxelRemoveList3dAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
 
@@ -575,15 +658,15 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const prevState = ensureFragmentMerged(state, true);
       if (!prevState.selection) return prevState;
 
-      const prevSelectionSlice = getSlice(state.mode2D.axis, state.mode2D.position, prevState.selection);
+      const prevSelectionSlice = getSlice(state.mode2d.axis, state.mode2d.position, prevState.selection);
       if (!ndAny(prevSelectionSlice)) return prevState;
 
       const model = ndarray(prevState.model.data.slice(), prevState.model.shape);
-      const modelSlice = getSlice(state.mode2D.axis, state.mode2D.position, model);
+      const modelSlice = getSlice(state.mode2d.axis, state.mode2d.position, model);
       ndExclude(modelSlice, prevSelectionSlice);
 
       const selection = ndarray(prevState.selection.data.slice(), prevState.selection.shape);
-      const selectionSlice = getSlice(state.mode2D.axis, state.mode2D.position, selection);
+      const selectionSlice = getSlice(state.mode2d.axis, state.mode2d.position, selection);
       ndExclude(selectionSlice, prevSelectionSlice);
 
       return Object.assign({}, prevState, {
@@ -637,7 +720,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       const prevState = ensureFragmentMerged(state, true);
 
-      const isValidPosition = get2dValidator(state.mode2D.axis, state.mode2D.position);
+      const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
 
       return reduceSelectAction(prevState, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
@@ -663,7 +746,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       const prevState = ensureFragmentMerged(state, true);
 
-      const isValidPosition = get2dValidator(state.mode2D.axis, state.mode2D.position);
+      const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
@@ -860,27 +943,38 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     }
 
     case ENTER_MODE_2D: {
-      if (state.mode2D.enabled === true) return state;
+      if (state.mode2d.enabled === true) return state;
 
-      return Object.assign({}, state, {
-        mode2D: Object.assign({}, state.mode2D, { enabled: true }),
-      });
+      if (state.mode2d.initialized) {
+        return Object.assign({}, state, {
+          mode2d: Object.assign({}, state.mode2d, { enabled: true }),
+        });
+      } else {
+        return Object.assign({}, state, {
+          mode2d: Object.assign({}, state.mode2d, {
+            enabled: true,
+            initialized: true,
+            axis: Axis.X,
+            position: Math.floor(state.size[0] / 2),
+          }),
+        });
+      }
     }
 
     case LEAVE_MODE_2D: {
-      if (state.mode2D.enabled === false) return state;
+      if (state.mode2d.enabled === false) return state;
 
       return Object.assign({}, state, {
-        mode2D: Object.assign({}, state.mode2D, { enabled: false }),
+        mode2d: Object.assign({}, state.mode2d, { enabled: false }),
       });
     }
 
     case MOVE_MODE_2D_PLANE: {
       const { axis, position } = <MoveMode2DPlaneAction>action;
-      if (state.mode2D.axis === axis && state.mode2D.position === position) return state;
+      if (state.mode2d.axis === axis && state.mode2d.position === position) return state;
 
       return Object.assign({}, state, {
-        mode2D: Object.assign({}, state.mode2D, {
+        mode2d: Object.assign({}, state.mode2d, {
           axis, position,
         }),
       });

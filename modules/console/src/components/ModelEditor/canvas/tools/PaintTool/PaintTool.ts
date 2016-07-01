@@ -22,9 +22,7 @@ import {
 } from '../../../types';
 
 import {
-  voxelRemoveBatch,
   voxelMergeFragment,
-  voxelPaint,
 } from '../../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
@@ -101,6 +99,8 @@ abstract class PaintTool extends ModelEditorTool<PaintToolProps, void, PaintTool
     };
   }
 
+  abstract getAction(trace: Position[], color: Color);
+
   onDestroy() {
 
   }
@@ -138,7 +138,7 @@ class DragState extends SelectTraceState {
   }
 
   onTraceSelect(trace: Position[]) {
-    this.tool.dispatchAction(voxelPaint(trace, this.tool.props.paletteColor));
+    this.tool.dispatchAction(this.tool.getAction(trace, this.tool.props.paletteColor));
   }
 }
 

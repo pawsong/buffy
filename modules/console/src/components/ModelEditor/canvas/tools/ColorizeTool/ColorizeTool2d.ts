@@ -18,8 +18,8 @@ class ColorizeTool2d extends ColorizeTool {
       hitTest: (intersect: THREE.Intersection, meshPosition: THREE.Vector3) => {
         if (intersect.object === this.canvas.component.model2DSliceMesh) return true;
 
-        const pos = this.canvas.component.mode2DClippingPlane.normal.dot(meshPosition);
-        return this.canvas.component.mode2DClippingPlane.constant > - pos;
+        const pos = this.canvas.component.mode2dClippingPlane.normal.dot(meshPosition);
+        return this.canvas.component.mode2dClippingPlane.constant > - pos;
       },
     };
   }

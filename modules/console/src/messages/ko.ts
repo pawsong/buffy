@@ -599,21 +599,21 @@ export default {
    * description: Enter 2D mode label
    * defaultMessage: Enter 2D mode
    */
-/* translate */ 'voxel-editor.panels.mode2D.enter': '',
+/* translate */ 'voxel-editor.panels.mode2d.enter': '',
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Leave 2D mode label
    * defaultMessage: Leave 2D mode
    */
-/* translate */ 'voxel-editor.panels.mode2D.leave': '',
+/* translate */ 'voxel-editor.panels.mode2d.leave': '',
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Move 2D mode plane label
    * defaultMessage: Move 2D plane
    */
-/* translate */ 'voxel-editor.panels.mode2D.movePlane': '',
+/* translate */ 'voxel-editor.panels.mode2d.movePlane': '',
 
   /**
    * path: src/components/ModelEditor/components/panels/ToolsPanel.json

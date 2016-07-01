@@ -208,7 +208,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       case 46: // delete
       {
         if (this.props.fileState.present.data.selection) {
-          if (this.props.fileState.present.data.mode2D.enabled) {
+          if (this.props.fileState.present.data.mode2d.enabled) {
             this.dispatchAction(voxelRemoveSelected2d());
           } else {
             this.dispatchAction(voxelRemoveSelected());
@@ -278,7 +278,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       switch(e.keyCode) {
         case 66: // B
         {
-          if (this.props.fileState.present.data.mode2D.enabled) {
+          if (this.props.fileState.present.data.mode2d.enabled) {
             this.dispatchAction(changeTool2d(ToolType.PENCIL_2D));
           } else {
             this.dispatchAction(changeTool3d(ToolType.PENCIL_3D));
@@ -287,7 +287,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
         case 68: // D
         {
-          if (this.props.fileState.present.data.mode2D.enabled) {
+          if (this.props.fileState.present.data.mode2d.enabled) {
             this.dispatchAction(leaveMode2D());
           } else {
             this.dispatchAction(enterMode2D());
@@ -296,7 +296,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
         case 69: // E
         {
-          if (this.props.fileState.present.data.mode2D.enabled) {
+          if (this.props.fileState.present.data.mode2d.enabled) {
             this.dispatchAction(changeTool2d(ToolType.ERASE_2D));
           } else {
             this.dispatchAction(changeTool3d(ToolType.ERASE_3D));
@@ -305,7 +305,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
         case 71: // G
         {
-          if (this.props.fileState.present.data.mode2D.enabled) {
+          if (this.props.fileState.present.data.mode2d.enabled) {
             this.dispatchAction(changeTool2d(ToolType.COLOR_FILL_2D));
           } else {
             this.dispatchAction(changeTool3d(ToolType.COLOR_FILL_3D));
@@ -314,7 +314,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
         case 73: // I
         {
-          if (this.props.fileState.present.data.mode2D.enabled) {
+          if (this.props.fileState.present.data.mode2d.enabled) {
             this.dispatchAction(changeTool2d(ToolType.COLORIZE_2D));
           } else {
             this.dispatchAction(changeTool3d(ToolType.COLORIZE_3D));
@@ -323,7 +323,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
         case 77: // M
         {
-          if (this.props.fileState.present.data.mode2D.enabled) {
+          if (this.props.fileState.present.data.mode2d.enabled) {
             this.dispatchAction(changeTool2d(ToolType.RECTANGLE_SELECT_2D));
           } else {
             this.dispatchAction(changeTool3d(ToolType.RECTANGLE_SELECT_3D));
@@ -332,7 +332,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
         case 82: // R
         {
-          if (this.props.fileState.present.data.mode2D.enabled) {
+          if (this.props.fileState.present.data.mode2d.enabled) {
             this.dispatchAction(changeTool2d(ToolType.RECTANGLE_2D));
           } else {
             this.dispatchAction(changeTool3d(ToolType.RECTANGLE_3D));
@@ -341,7 +341,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
         case 86: // V
         {
-          if (this.props.fileState.present.data.mode2D.enabled) {
+          if (this.props.fileState.present.data.mode2d.enabled) {
             this.dispatchAction(changeTool2d(ToolType.MOVE_2D));
           } else {
             this.dispatchAction(changeTool3d(ToolType.MOVE_3D));
@@ -350,7 +350,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
         case 87: // W
         {
-          if (this.props.fileState.present.data.mode2D.enabled) {
+          if (this.props.fileState.present.data.mode2d.enabled) {
             this.dispatchAction(changeTool2d(ToolType.MAGIC_WAND_2D));
           } else {
             this.dispatchAction(changeTool3d(ToolType.MAGIC_WAND_3D));
@@ -427,7 +427,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           dispatchAction={this.dispatchAction}
         />
         <ToolsPanel
-          mode2D={this.props.fileState.present.data.mode2D.enabled}
+          mode2d={this.props.fileState.present.data.mode2d.enabled}
           onEnableMode2D={this.handleEnableMode2D}
           paletteColor={this.props.commonState.paletteColor}
           selectedTool={this.props.commonState.tool3d}
@@ -524,8 +524,9 @@ ModelEditor.importVoxFile = buffer => {
         selection: null,
         fragment: null,
         fragmentOffset: [0, 0, 0],
-        mode2D: {
+        mode2d: {
           enabled: false,
+          initialized: false,
           axis: Axis.X,
           position: 0,
         }

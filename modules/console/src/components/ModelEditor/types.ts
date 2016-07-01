@@ -97,8 +97,9 @@ export interface VoxelData {
   selection: Ndarray;
   fragment: Ndarray;
   fragmentOffset: Position;
-  mode2D: {
+  mode2d: {
     enabled: boolean;
+    initialized: boolean;
     axis: Axis;
     position: number;
   };
