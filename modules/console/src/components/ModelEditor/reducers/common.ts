@@ -13,8 +13,8 @@ import {
 } from '../types';
 
 const initialState: CommonState = {
-  tool3d: ToolType.PENCIL,
-  tool2d: ToolType.PENCIL,
+  tool3d: ToolType.PENCIL_3D,
+  tool2d: ToolType.PENCIL_2D,
   paletteColor: { r: 104, g: 204, b: 202 },
   clipboard: null,
 }

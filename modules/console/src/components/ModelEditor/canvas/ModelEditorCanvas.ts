@@ -166,6 +166,12 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
   mode2dPlaneMesh: THREE.Mesh;
 
+  mode2DClippingPlane: THREE.Plane;
+  model2DSliceMesh: THREE.Mesh;
+  modelGrid2DSliceMesh: THREE.Mesh;
+  selectionSliceMesh: THREE.Mesh;
+  fragmentSliceMesh: THREE.Mesh;
+
   getTreeSchema(): Schema {
     return {
       type: SchemaType.OBJECT,
@@ -235,6 +241,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       polygonOffsetUnits: 1,
     });
     this.modelMaterial = this.modelSliceMaterial.clone();
+    this.modelMaterial.opacity = 0.5;
 
     this.modelGridSliceMaterial = new THREE.ShaderMaterial({
       uniforms: {
@@ -351,29 +358,6 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     const selectionSlice = getSlice(this.props.mode2D.axis, this.props.mode2D.position, this.props.selection);
     const fragmentSlice = getSlice(this.props.mode2D.axis, this.props.mode2D.position, fragment);
 
-    // let fragment: ndarray.Ndarray;
-    // let fragmentOffset: Position;
-    // switch(this.props.mode2D.axis) {
-    //   case Axis.X: {
-    //     fragment = ndarray(new Int32Array(1 * shape[1] * shape[2]), [1, shape[1], shape[2]]);
-    //     fragmentOffset = [this.props.mode2D.position, 0, 0];
-    //     break;
-    //   }
-    //   case Axis.Y: {
-    //     fragment = ndarray(new Int32Array(shape[0] * 1 * shape[2]), [shape[0], 1, shape[2]]);
-    //     fragmentOffset = [0, this.props.mode2D.position, 0];
-    //     break;
-    //   }
-    //   case Axis.Z: {
-    //     fragment = ndarray(new Int32Array(shape[0] * shape[1] * 1), [shape[0], shape[1], 1]);
-    //     fragmentOffset = [0, 0, this.props.mode2D.position];
-    //     break;
-    //   }
-    //   default: {
-    //     invariant(false, `invalid axis: ${this.props.mode2D.axis}`);
-    //   }
-    // }
-
     select(fragmentSlice, modelSlice, selectionSlice);
     this.setState({ fragment });
   }
@@ -393,8 +377,6 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
    * Mutation occurred in this function must be reset when props or state changes.
    */
   moveFragmentMesh(displacement: THREE.Vector3) {
-    console.log(displacement);
-
     if (this.fragmentMesh.visible) {
       this.fragmentMesh.position.copy(displacement).multiplyScalar(PIXEL_SCALE);
       this.fragmentBoundingBox.update();
@@ -420,12 +402,6 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       this.fragmentSliceMesh.position.multiplyScalar(PIXEL_SCALE);
     }
   }
-
-  mode2DClippingPlane: THREE.Plane;
-  model2DSliceMesh: THREE.Mesh;
-  modelGrid2DSliceMesh: THREE.Mesh;
-  selectionSliceMesh: THREE.Mesh;
-  fragmentSliceMesh: THREE.Mesh;
 
   moveMode2DClippingPlane(axis: Axis, position: number) {
     this.updateClippingPlane(axis, position);
@@ -487,76 +463,6 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       }
     }
   }
-
-  // updateSlice(axis: Axis, position: number, force: boolean) {
-  //   if (!force && axis === this.axis && position === this.position) return;
-
-  //   this.removeSlices();
-
-  //   {
-  //     const meshes = this.modelSliceCache.get(this.props.model, axis, position);
-  //     if (meshes) {
-  //       this.model2DSliceMesh = meshes[0];
-  //       this.canvas.scene.add(this.model2DSliceMesh);
-
-  //       this.modelGrid2DSliceMesh = meshes[1];
-  //       this.canvas.scene.add(this.modelGrid2DSliceMesh);
-  //     }
-  //   }
-
-  //   if (this.props.selection) {
-  //     const meshes = this.selectionSliceCache.get(this.props.selection, axis, position);
-  //     if (meshes) {
-  //       this.selectionSliceMesh = meshes[0];
-  //       this.canvas.scene.add(this.selectionSliceMesh);
-  //     }
-  //   }
-
-  //   if (this.props.fragment) {
-  //     let slicePosition: number;
-  //     switch(axis) {
-  //       case Axis.X: {
-  //         slicePosition = position - this.props.fragmentOffset[0];
-  //         this.temp1.set(
-  //           position,
-  //           this.props.fragmentOffset[1],
-  //           this.props.fragmentOffset[2]
-  //         );
-  //         break;
-  //       }
-  //       case Axis.Y: {
-  //         slicePosition = position - this.props.fragmentOffset[1];
-  //         this.temp1.set(
-  //           this.props.fragmentOffset[0],
-  //           position,
-  //           this.props.fragmentOffset[2]
-  //         );
-  //         break;
-  //       }
-  //       case Axis.Z: {
-  //         slicePosition = position - this.props.fragmentOffset[2];
-  //         this.temp1.set(
-  //           this.props.fragmentOffset[0],
-  //           this.props.fragmentOffset[1],
-  //           position
-  //         );
-  //         break;
-  //       }
-  //       default: {
-  //         invariant(false, `invalid axis: ${axis}`);
-  //       }
-  //     }
-
-  //     if (slicePosition >= 0) {
-  //       const meshes = this.fragmentSliceCache.get(this.props.fragment, axis, slicePosition);
-  //       if (meshes) {
-  //         this.fragmentSliceMesh = meshes[0];
-  //         this.fragmentSliceMesh.position.copy(this.temp1.multiplyScalar(PIXEL_SCALE));
-  //         this.canvas.scene.add(this.fragmentSliceMesh);
-  //       }
-  //     }
-  //   }
-  // }
 
   onCameraMove() {
     if (this.tree.mode2D.enabled) {
@@ -737,6 +643,8 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
           this.canvas.scene.remove(this.fragmentBoundingBox.edges);
           this.canvas.scene.add(this.mode2dPlaneMesh);
 
+          this.modelMaterial.transparent = true;
+
           this.modelMaterial['clippingPlanes'] =
           this.modelGridMaterial['clippingPlanes'] =
           this.selectionMaterial['clippingPlanes'] =
@@ -750,6 +658,8 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
           this.removeSlices();
           this.canvas.scene.remove(this.mode2dPlaneMesh);
+
+          this.modelMaterial.transparent = false;
 
           this.modelMaterial['clippingPlanes'] =
           this.modelGridMaterial['clippingPlanes'] =

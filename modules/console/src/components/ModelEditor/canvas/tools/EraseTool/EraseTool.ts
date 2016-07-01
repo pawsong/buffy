@@ -1,29 +1,28 @@
 import THREE from 'three';
 
-import CursorState from './states/CursorState';
-import SelectTraceState, { StateEnterParams } from './states/SelectTraceState';
+import CursorState from '../states/CursorState';
+import SelectTraceState, { StateEnterParams } from '../states/SelectTraceState';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
 import ModelEditorTool, {
   InitParams,
   ToolState, ToolStates,
-} from './ModelEditorTool';
+} from '../ModelEditorTool';
 
 import {
   Position,
   ToolType,
   ModelEditorState,
-  Axis,
-} from '../../types';
+} from '../../../types';
 
 import {
   voxelRemoveBatch,
   voxelMergeFragment,
-} from '../../actions';
+} from '../../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
@@ -31,24 +30,22 @@ const STATE_DRAG = 'drag';
 interface EraseToolProps {
   size: Position;
   fragment: any;
-  mode2D: {
-    enabled: boolean;
-    axis: Axis;
-    position: number;
-  };
 }
 
-class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
+interface EraseToolParams {
+  getInteractables: () => THREE.Mesh[];
+}
+
+abstract class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
   cursorGeometry: THREE.Geometry;
   translucentMaterial: THREE.Material;
 
-  getToolType(): ToolType { return ToolType.ERASE; }
+  abstract getParams(): EraseToolParams;
 
   mapParamsToProps(params: ModelEditorState) {
     return {
       size: params.file.present.data.size,
       fragment: params.file.present.data.fragment,
-      mode2D: params.file.present.data.mode2D,
     };
   }
 
@@ -68,28 +65,12 @@ class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
   }
 
   createStates(): ToolStates {
+    const params = this.getParams();
+
     return {
-      [STATE_WAIT]: new WaitState(this),
-      [STATE_DRAG]: new DragState(this),
+      [STATE_WAIT]: new WaitState(this, params),
+      [STATE_DRAG]: new DragState(this, params),
     };
-  }
-
-  hitTest(position: THREE.Vector3) {
-    if (!this.props.mode2D.enabled) return true;
-
-    switch(this.props.mode2D.axis) {
-      case Axis.X: {
-        return this.props.mode2D.position === position.x;
-      }
-      case Axis.Y: {
-        return this.props.mode2D.position === position.y;
-      }
-      case Axis.Z: {
-        return this.props.mode2D.position === position.z;
-      }
-    }
-
-    return false;
   }
 
   onDestroy() {
@@ -98,18 +79,14 @@ class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
 }
 
 class WaitState extends CursorState<StateEnterParams> {
-  constructor(private tool: EraseTool) {
+  constructor(private tool: EraseTool, params: EraseToolParams) {
     super(tool.canvas, {
       cursorOnFace: false,
       cursorGeometry: tool.cursorGeometry,
       cursorMaterial: tool.translucentMaterial,
       getSize: () => tool.props.size,
-      getInteractables: () => [
-        tool.canvas.component.modelMesh,
-        tool.canvas.component.fragmentMesh,
-      ],
+      getInteractables: params.getInteractables,
       transitionRequiresHit: false,
-      hitTest: position => tool.hitTest(position),
     });
   }
 
@@ -122,14 +99,13 @@ class WaitState extends CursorState<StateEnterParams> {
 }
 
 class DragState extends SelectTraceState {
-  constructor(private tool: EraseTool) {
+  constructor(private tool: EraseTool, params: EraseToolParams) {
     super(tool.canvas, {
       cursorOnFace: false,
-      interactablesAreRotated: true,
+      interactablesAreRotated: false,
       getSize: () => tool.props.size,
       traceMaterial: tool.translucentMaterial,
-      getInteractables: () => [tool.canvas.component.modelMesh],
-      hitTest: position => tool.hitTest(position),
+      getInteractables: params.getInteractables,
     });
   }
 

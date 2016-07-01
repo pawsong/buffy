@@ -21,6 +21,7 @@ interface SelectTraceStateOptions {
   interactablesAreRotated: boolean;
   traceMaterial: THREE.Material;
   getInteractables: () => THREE.Mesh[];
+  getOffset?: (intersect: THREE.Intersection, normal: THREE.Vector3) => THREE.Vector3;
   getSize: () => Position;
   hitTest?: (position: THREE.Vector3) => boolean;
 }
@@ -40,6 +41,7 @@ abstract class SelectTraceState extends ToolState {
     interactablesAreRotated,
     traceMaterial,
     getInteractables,
+    getOffset,
     hitTest,
   }: SelectTraceStateOptions) {
     super();
@@ -72,6 +74,7 @@ abstract class SelectTraceState extends ToolState {
         );
       },
       getInteractables,
+      getOffset,
       onHit: params => this.handleHit(params),
       onMouseUp: params => this.handleMouseUp(params),
     });

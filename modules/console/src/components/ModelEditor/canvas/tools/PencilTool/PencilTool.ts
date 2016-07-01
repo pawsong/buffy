@@ -1,63 +1,63 @@
 import THREE from 'three';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
-import CursorState from './states/CursorState';
-import SelectTraceState, { StateEnterParams } from './states/SelectTraceState';
+import CursorState from '../states/CursorState';
+import SelectTraceState, { StateEnterParams } from '../states/SelectTraceState';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
 import ModelEditorTool, {
   InitParams,
   ToolState, ToolStates,
-} from './ModelEditorTool';
+} from '../ModelEditorTool';
 
 import {
   Position,
   ToolType,
   ModelEditorState,
   Color,
-  Axis,
-} from '../../types';
+} from '../../../types';
 
 import {
   voxelRemoveBatch,
   voxelMergeFragment,
-  voxelPaint,
-} from '../../actions';
+  voxelAddList,
+} from '../../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
 
-interface PaintToolProps {
+interface PencilToolProps {
   size: Position;
   paletteColor: Color;
   fragment: any;
-  mode2D: {
-    enabled: boolean;
-    axis: Axis;
-    position: number;
-  };
 }
 
-interface PaintToolTree {
+interface PencilToolTree {
   color: Color;
 }
 
-class PaintTool extends ModelEditorTool<PaintToolProps, void, PaintToolTree> {
+interface PencilToolParams {
+  cursorOnFace: boolean;
+  interactablesAreRotated: boolean;
+  getInteractables: () => THREE.Mesh[];
+  getOffset?: (intersect: THREE.Intersection, normal: THREE.Vector3) => THREE.Vector3;
+}
+
+abstract class PencilTool extends ModelEditorTool<PencilToolProps, void, PencilToolTree> {
   cursorGeometry: THREE.Geometry;
   cursorMaterial: THREE.MeshBasicMaterial;
 
-  getToolType(): ToolType { return ToolType.PAINT; }
+  abstract getParams(): PencilToolParams;
 
   mapParamsToProps(params: ModelEditorState) {
     return {
       paletteColor: params.common.paletteColor,
       size: params.file.present.data.size,
       fragment: params.file.present.data.fragment,
-      mode2D: params.file.present.data.mode2D,
     };
   }
 
@@ -74,7 +74,7 @@ class PaintTool extends ModelEditorTool<PaintToolProps, void, PaintToolTree> {
     return { color: this.props.paletteColor }
   }
 
-  patch(diff: PaintToolTree) {
+  patch(diff: PencilToolTree) {
     if (diff.hasOwnProperty('color')) {
       this.cursorMaterial.color.setRGB(diff.color.r / 0xff, diff.color.g / 0xff, diff.color.b / 0xff);
     }
@@ -96,48 +96,30 @@ class PaintTool extends ModelEditorTool<PaintToolProps, void, PaintToolTree> {
   }
 
   createStates(): ToolStates {
+    const params = this.getParams();
+
     return {
-      [STATE_WAIT]: new WaitState(this),
-      [STATE_DRAG]: new DragState(this),
+      [STATE_WAIT]: new WaitState(this, params),
+      [STATE_DRAG]: new DragState(this, params),
     };
   }
 
   onDestroy() {
 
   }
-
-  hitTest(position: THREE.Vector3) {
-    if (!this.props.mode2D.enabled) return true;
-
-    switch(this.props.mode2D.axis) {
-      case Axis.X: {
-        return this.props.mode2D.position === position.x;
-      }
-      case Axis.Y: {
-        return this.props.mode2D.position === position.y;
-      }
-      case Axis.Z: {
-        return this.props.mode2D.position === position.z;
-      }
-    }
-
-    return false;
-  }
 }
 
 class WaitState extends CursorState<StateEnterParams> {
-  constructor(private tool: PaintTool) {
+  constructor(private tool: PencilTool, params: PencilToolParams) {
     super(tool.canvas, {
-      cursorOnFace: false,
+      cursorOnFace: params.cursorOnFace,
+      interactablesAreRotated: params.interactablesAreRotated,
       cursorGeometry: tool.cursorGeometry,
       cursorMaterial: tool.cursorMaterial,
       getSize: () => tool.props.size,
-      getInteractables: () => [
-        tool.canvas.component.modelMesh,
-        tool.canvas.component.fragmentMesh,
-      ],
+      getInteractables: params.getInteractables,
       transitionRequiresHit: false,
-      hitTest: position => tool.hitTest(position),
+      getOffset: params.getOffset,
     });
   }
 
@@ -150,22 +132,20 @@ class WaitState extends CursorState<StateEnterParams> {
 }
 
 class DragState extends SelectTraceState {
-  constructor(private tool: PaintTool) {
+  constructor(private tool: PencilTool, params: PencilToolParams) {
     super(tool.canvas, {
-      cursorOnFace: false,
-      interactablesAreRotated: true,
+      cursorOnFace: params.cursorOnFace,
+      interactablesAreRotated: params.interactablesAreRotated,
       traceMaterial: tool.cursorMaterial,
       getSize: () => tool.props.size,
-      getInteractables: () => [
-        tool.canvas.component.modelMesh,
-      ],
-      hitTest: position => tool.hitTest(position),
+      getInteractables: params.getInteractables,
+      getOffset: params.getOffset,
     });
   }
 
   onTraceSelect(trace: Position[]) {
-    this.tool.dispatchAction(voxelPaint(trace, this.tool.props.paletteColor));
+    this.tool.dispatchAction(voxelAddList(trace, this.tool.props.paletteColor));
   }
 }
 
-export default PaintTool;
+export default PencilTool;

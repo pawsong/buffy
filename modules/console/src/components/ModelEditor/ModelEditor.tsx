@@ -279,9 +279,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         case 66: // B
         {
           if (this.props.fileState.present.data.mode2D.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.PENCIL));
+            this.dispatchAction(changeTool2d(ToolType.PENCIL_2D));
           } else {
-            this.dispatchAction(changeTool3d(ToolType.PENCIL));
+            this.dispatchAction(changeTool3d(ToolType.PENCIL_3D));
           }
           break;
         }
@@ -297,9 +297,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         case 69: // E
         {
           if (this.props.fileState.present.data.mode2D.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.ERASE));
+            this.dispatchAction(changeTool2d(ToolType.ERASE_2D));
           } else {
-            this.dispatchAction(changeTool3d(ToolType.ERASE));
+            this.dispatchAction(changeTool3d(ToolType.ERASE_3D));
           }
           break;
         }
@@ -342,7 +342,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         case 86: // V
         {
           if (this.props.fileState.present.data.mode2D.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.MOVE_3D));
+            this.dispatchAction(changeTool2d(ToolType.MOVE_2D));
           } else {
             this.dispatchAction(changeTool3d(ToolType.MOVE_3D));
           }

@@ -196,8 +196,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         </div>
         <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.PENCIL)}
-            style={this.getIconButtonStyle(styles.iconButton, ToolType.PENCIL)}
+            onTouchTap={() => this.props.selectTool(ToolType.PENCIL_3D)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.PENCIL_3D)}
             tooltipStyles={styles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
@@ -206,8 +206,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             mode_edit
           </IconButton>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.ERASE)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.ERASE)}
+            onTouchTap={() => this.props.selectTool(ToolType.ERASE_3D)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.ERASE_3D)}
             iconStyle={{
               transform: 'rotate(45deg)',
             }}
@@ -221,8 +221,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         </div>
         <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.PAINT)}
-            style={this.getIconButtonStyle(styles.iconButton, ToolType.PAINT)}
+            onTouchTap={() => this.props.selectTool(ToolType.PAINT_3D)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.PAINT_3D)}
             iconClassName="material-icons"
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
@@ -357,8 +357,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         </div>
         <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool2d(ToolType.PENCIL)}
-            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.PENCIL)}
+            onTouchTap={() => this.props.selectTool2d(ToolType.PENCIL_2D)}
+            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.PENCIL_2D)}
             tooltipStyles={styles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
@@ -367,8 +367,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             mode_edit
           </IconButton>
           <IconButton
-            onTouchTap={() => this.props.selectTool2d(ToolType.ERASE)}
-            style={this.getIconButtonStyle2d(styles.iconButtonRight, ToolType.ERASE)}
+            onTouchTap={() => this.props.selectTool2d(ToolType.ERASE_2D)}
+            style={this.getIconButtonStyle2d(styles.iconButtonRight, ToolType.ERASE_2D)}
             iconStyle={{
               transform: 'rotate(45deg)',
             }}
@@ -382,8 +382,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         </div>
         <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool2d(ToolType.PAINT)}
-            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.PAINT)}
+            onTouchTap={() => this.props.selectTool2d(ToolType.PAINT_2D)}
+            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.PAINT_2D)}
             iconClassName="material-icons"
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"

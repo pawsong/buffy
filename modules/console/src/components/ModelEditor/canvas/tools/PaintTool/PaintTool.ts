@@ -1,58 +1,60 @@
 import THREE from 'three';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
-import CursorState from './states/CursorState';
-import SelectTraceState, { StateEnterParams } from './states/SelectTraceState';
+import CursorState from '../states/CursorState';
+import SelectTraceState, { StateEnterParams } from '../states/SelectTraceState';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
 import ModelEditorTool, {
   InitParams,
   ToolState, ToolStates,
-} from './ModelEditorTool';
+} from '../ModelEditorTool';
 
 import {
   Position,
   ToolType,
   ModelEditorState,
   Color,
-} from '../../types';
+} from '../../../types';
 
 import {
   voxelRemoveBatch,
   voxelMergeFragment,
-  voxelAddList,
-} from '../../actions';
+  voxelPaint,
+} from '../../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
 
-interface PencilToolProps {
+interface PaintToolProps {
   size: Position;
   paletteColor: Color;
   fragment: any;
-  mode2D: { enabled: boolean };
 }
 
-interface PencilToolTree {
+interface PaintToolTree {
   color: Color;
 }
 
-class PencilTool extends ModelEditorTool<PencilToolProps, void, PencilToolTree> {
+interface PaintToolParams {
+  getInteractables: () => THREE.Mesh[];
+}
+
+abstract class PaintTool extends ModelEditorTool<PaintToolProps, void, PaintToolTree> {
   cursorGeometry: THREE.Geometry;
   cursorMaterial: THREE.MeshBasicMaterial;
 
-  getToolType(): ToolType { return ToolType.PENCIL; }
+  abstract getParams(): PaintToolParams;
 
   mapParamsToProps(params: ModelEditorState) {
     return {
       paletteColor: params.common.paletteColor,
       size: params.file.present.data.size,
       fragment: params.file.present.data.fragment,
-      mode2D: params.file.present.data.mode2D,
     };
   }
 
@@ -69,7 +71,7 @@ class PencilTool extends ModelEditorTool<PencilToolProps, void, PencilToolTree> 
     return { color: this.props.paletteColor }
   }
 
-  patch(diff: PencilToolTree) {
+  patch(diff: PaintToolTree) {
     if (diff.hasOwnProperty('color')) {
       this.cursorMaterial.color.setRGB(diff.color.r / 0xff, diff.color.g / 0xff, diff.color.b / 0xff);
     }
@@ -91,9 +93,11 @@ class PencilTool extends ModelEditorTool<PencilToolProps, void, PencilToolTree> 
   }
 
   createStates(): ToolStates {
+    const params = this.getParams();
+
     return {
-      [STATE_WAIT]: new WaitState(this),
-      [STATE_DRAG]: new DragState(this),
+      [STATE_WAIT]: new WaitState(this, params),
+      [STATE_DRAG]: new DragState(this, params),
     };
   }
 
@@ -103,20 +107,13 @@ class PencilTool extends ModelEditorTool<PencilToolProps, void, PencilToolTree> 
 }
 
 class WaitState extends CursorState<StateEnterParams> {
-  constructor(private tool: PencilTool) {
+  constructor(private tool: PaintTool, params: PaintToolParams) {
     super(tool.canvas, {
-      cursorOnFace: true,
-      interactablesAreRotated: true,
+      cursorOnFace: false,
       cursorGeometry: tool.cursorGeometry,
       cursorMaterial: tool.cursorMaterial,
       getSize: () => tool.props.size,
-      getInteractables: () => tool.props.mode2D.enabled ? [
-        tool.canvas.component.mode2dPlaneMesh,
-      ] : [
-        tool.canvas.component.plane,
-        tool.canvas.component.modelMesh,
-        tool.canvas.component.fragmentMesh,
-      ],
+      getInteractables: params.getInteractables,
       transitionRequiresHit: false,
     });
   }
@@ -130,24 +127,19 @@ class WaitState extends CursorState<StateEnterParams> {
 }
 
 class DragState extends SelectTraceState {
-  constructor(private tool: PencilTool) {
+  constructor(private tool: PaintTool, params: PaintToolParams) {
     super(tool.canvas, {
-      cursorOnFace: true,
-      interactablesAreRotated: true,
+      cursorOnFace: false,
+      interactablesAreRotated: false,
       traceMaterial: tool.cursorMaterial,
       getSize: () => tool.props.size,
-      getInteractables: () => tool.props.mode2D.enabled ? [
-        tool.canvas.component.mode2dPlaneMesh,
-      ] :[
-        tool.canvas.component.plane,
-        tool.canvas.component.modelMesh,
-      ],
+      getInteractables: params.getInteractables,
     });
   }
 
   onTraceSelect(trace: Position[]) {
-    this.tool.dispatchAction(voxelAddList(trace, this.tool.props.paletteColor));
+    this.tool.dispatchAction(voxelPaint(trace, this.tool.props.paletteColor));
   }
 }
 
-export default PencilTool;
+export default PaintTool;

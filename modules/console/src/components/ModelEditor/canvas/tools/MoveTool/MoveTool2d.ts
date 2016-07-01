@@ -1,9 +1,7 @@
 import THREE from 'three';
-import * as Immutable from 'immutable';
+import ndarray from 'ndarray';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
-import * as ndarray from 'ndarray';
 
-import { createGeometryFromMesh } from '../../../../../canvas/utils';
 import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
 import {
   PIXEL_SCALE,
@@ -15,12 +13,8 @@ import ModelEditorTool, {
   ToolState, ToolStates,
 } from '../ModelEditorTool';
 
-import BoundingBoxEdgesHelper from '../../objects/BoundingBoxEdgesHelper';
-
 const fragmentVertexShader = require('raw!../../shaders/fragment.vert');
 const fragmentFragmentShader = require('raw!../../shaders/fragment.frag');
-
-const warning = require('fbjs/lib/warning');
 
 import {
   Position,
@@ -60,13 +54,7 @@ interface MoveTool2dTree {
 }
 
 class MoveTool2d extends ModelEditorTool<MoveTool2dProps, void, MoveTool2dTree> {
-  temp1: THREE.Vector3;
-  temp2: THREE.Vector3;
-  temp3: THREE.Vector3;
-  temp4: THREE.Vector3;
-
   drawGuide: THREE.Mesh;
-  drawGuideSize: THREE.Vector3;
 
   getToolType(): ToolType { return ToolType.MOVE_3D; }
 
@@ -92,12 +80,6 @@ class MoveTool2d extends ModelEditorTool<MoveTool2dProps, void, MoveTool2dTree> 
 
   onInit(params: InitParams) {
     super.onInit(params);
-
-    this.temp1 = new THREE.Vector3();
-    this.temp2 = new THREE.Vector3();
-    this.temp3 = new THREE.Vector3();
-    this.temp4 = new THREE.Vector3();
-    this.drawGuideSize = new THREE.Vector3(1, 1, 1);
 
     const drawGuideGeometry = new THREE.BoxGeometry(1, 1, 1);
     drawGuideGeometry.translate(1 / 2, 1 / 2, 1 / 2);
@@ -137,7 +119,6 @@ class WaitState extends ToolState {
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
       cursorOnFace: false,
-      intersectRecursively: true,
       getInteractables: () => [
         // Order is important!
         tool.canvas.component.fragmentSliceMesh,
@@ -154,14 +135,13 @@ class WaitState extends ToolState {
   }
 
   private handleMouseDown({ event, intersect }: CursorEventParams) {
-    if (!intersect) return;
+    if (!intersect || intersect.object === this.tool.canvas.component.model2DSliceMesh) return;
 
     if (intersect.object === this.tool.canvas.component.selectionSliceMesh) {
       this.tool.canvas.component.setTemporaryFragmentSlice();
-      this.transitionTo(STATE_DRAG, <EnterParams>{ event, position: this.cursor.getPosition() });
-    } else if (intersect.object === this.tool.canvas.component.fragmentSliceMesh) {
-      this.transitionTo(STATE_DRAG, <EnterParams>{ event, position: this.cursor.getPosition() });
     }
+
+    this.transitionTo(STATE_DRAG, <EnterParams>{ event, position: this.cursor.getPosition() });
   }
 
   private handleMouseUp({ intersect }: CursorEventParams) {
@@ -206,7 +186,6 @@ class DragState extends ToolState {
 
   constructor(private tool: MoveTool2d) {
     super();
-    // this.direction = new THREE.Vector3();
     this.anchor = new THREE.Vector3();
     this.target = new THREE.Vector3();
 
@@ -214,14 +193,10 @@ class DragState extends ToolState {
     this.temp2 = new THREE.Vector3();
     this.temp3 = new THREE.Vector3();
 
-    // const offset = new THREE.Vector3();
-
-    const intersectables = [this.tool.drawGuide];
-
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
       cursorOnFace: false,
-      getInteractables: () => intersectables,
+      getInteractables: () => [this.tool.drawGuide],
       onHit: this.handleHit,
       onMouseUp: this.handleMouseUp,
     });
