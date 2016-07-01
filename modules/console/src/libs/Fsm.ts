@@ -71,9 +71,9 @@ class Fsm {
     const next = this.states[transition.state];
     if (!next) throw new Error(`Invalid state: ${transition.state}`);
 
-    if (__DEV__) {
-      console.log(`transition from`,  this.current, 'to', next);
-    }
+    // if (__DEV__) {
+    //   console.log(`transition from`,  this.current, 'to', next);
+    // }
 
     this.current.on(State.EVENT_LEAVE);
     this.enterState(next, transition.params);
