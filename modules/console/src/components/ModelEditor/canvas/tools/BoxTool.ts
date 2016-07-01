@@ -13,22 +13,45 @@ import {
 } from '../../types';
 
 import {
-  voxelAddBatch,
+  voxelAddBatch3d,
 } from '../../actions';
 
 import SelectBoxState, { EnterParams } from './states/SelectBoxState';
 
-import AddBlockTool, { AddBlockToolWaitState } from './AddBlockTool';
+import AddBlockTool, {
+  AddBlockToolProps,
+  AddBlockToolWaitState,
+} from './AddBlockTool';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
 
-class BoxTool extends AddBlockTool {
+class BoxTool extends AddBlockTool<AddBlockToolProps> {
   getToolType() { return ToolType.BOX; }
 
-  createStates(): ToolStates {
+  mapParamsToProps(state: ModelEditorState) {
     return {
-      [STATE_WAIT]: new WaitState(this),
+      size: state.file.present.data.size,
+      color: state.common.paletteColor,
+      fragment: state.file.present.data.fragment,
+    };
+  }
+
+  getParams() {
+    return {
+      getInteractables: () => [
+        this.canvas.component.plane,
+        this.canvas.component.modelMesh,
+        this.canvas.component.fragmentMesh,
+      ],
+      interactablesAreRotated: false,
+    };
+  }
+
+  createStates(): ToolStates {
+    const params = this.getParams();
+    return {
+      [STATE_WAIT]: new WaitState(this, params),
       [STATE_DRAW]: new DrawState(this),
     };
   }
@@ -50,8 +73,8 @@ class DrawState extends SelectBoxState {
     super(tool.canvas, tool.selectionBox);
   }
 
-  onBoxSelect(volumn: Volumn) {
-    this.tool.dispatchAction(voxelAddBatch(volumn, this.tool.props.color));
+  onSelect(volumn: Volumn) {
+    this.tool.dispatchAction(voxelAddBatch3d(volumn, this.tool.props.color));
   }
 }
 

@@ -2,52 +2,47 @@ import THREE from 'three';
 
 import ModelEditorTool, {
   ToolState, ToolStates,
-} from './ModelEditorTool';
+} from '../ModelEditorTool';
 
 import {
   ToolType,
   Volumn,
   ModelEditorState,
-} from '../../types';
+} from '../../../types';
 
 import {
   voxelSelectBox,
-} from '../../actions';
+} from '../../../actions';
 
 import {
   PIXEL_SCALE,
-} from '../../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
 import SelectBlockTool, {
   SelectBlockToolWaitState,
-} from './SelectBlockTool';
+} from '../SelectBlockTool';
 
-import SelectBoxState, { EnterParams } from './states/SelectBoxState';
+import SelectRectangleState, { EnterParams } from '../states/SelectRectangleState';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
 
-class BoxSelectTool extends SelectBlockTool {
-  getToolType() { return ToolType.BOX_SELECT; }
+class RectangleSelectTool2d extends SelectBlockTool {
+  getToolType() { return ToolType.RECTANGLE_SELECT_2D; }
 
   getParams() {
     const origin = new THREE.Vector3();
     const offset = new THREE.Vector3();
 
     return {
+      interactablesAreRotated: true,
       getInteractables: () => [
-        this.canvas.component.plane,
-        this.canvas.component.modelMesh,
-        this.canvas.component.fragmentMesh,
+        this.canvas.component.mode2dPlaneMesh,
+        this.canvas.component.model2DSliceMesh,
       ],
-      interactablesAreRotated: false,
-      getOffset: (intersect: THREE.Intersection) => {
-        if (intersect.object === this.canvas.component.plane) {
-          return offset.copy(intersect.face.normal).multiplyScalar(PIXEL_SCALE);
-        } else {
-          return origin;
-        }
-      },
+      getOffset: (intersect, normal) => intersect.object === this.canvas.component.mode2dPlaneMesh
+        ? offset.copy(normal).multiplyScalar(PIXEL_SCALE)
+        : origin,
     };
   }
 
@@ -67,13 +62,13 @@ class WaitState extends SelectBlockToolWaitState {
     return {
       size: this.tool.props.size,
       anchor: position,
-      normal: intersect.face.normal,
+      normal: this.tool.canvas.component.mode2DClippingPlane.normal,
     };
   }
 }
 
-class DrawState extends SelectBoxState {
-  constructor(private tool: BoxSelectTool) {
+class DrawState extends SelectRectangleState {
+  constructor(private tool: RectangleSelectTool2d) {
     super(tool.canvas, tool.selectionBox);
   }
 
@@ -82,4 +77,4 @@ class DrawState extends SelectBoxState {
   }
 }
 
-export default BoxSelectTool;
+export default RectangleSelectTool2d;

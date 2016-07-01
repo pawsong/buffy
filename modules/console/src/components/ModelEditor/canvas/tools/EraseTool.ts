@@ -17,6 +17,7 @@ import {
   Position,
   ToolType,
   ModelEditorState,
+  Axis,
 } from '../../types';
 
 import {
@@ -30,6 +31,11 @@ const STATE_DRAG = 'drag';
 interface EraseToolProps {
   size: Position;
   fragment: any;
+  mode2D: {
+    enabled: boolean;
+    axis: Axis;
+    position: number;
+  };
 }
 
 class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
@@ -42,6 +48,7 @@ class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
     return {
       size: params.file.present.data.size,
       fragment: params.file.present.data.fragment,
+      mode2D: params.file.present.data.mode2D,
     };
   }
 
@@ -67,6 +74,24 @@ class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
     };
   }
 
+  hitTest(position: THREE.Vector3) {
+    if (!this.props.mode2D.enabled) return true;
+
+    switch(this.props.mode2D.axis) {
+      case Axis.X: {
+        return this.props.mode2D.position === position.x;
+      }
+      case Axis.Y: {
+        return this.props.mode2D.position === position.y;
+      }
+      case Axis.Z: {
+        return this.props.mode2D.position === position.z;
+      }
+    }
+
+    return false;
+  }
+
   onDestroy() {
 
   }
@@ -84,6 +109,7 @@ class WaitState extends CursorState<StateEnterParams> {
         tool.canvas.component.fragmentMesh,
       ],
       transitionRequiresHit: false,
+      hitTest: position => tool.hitTest(position),
     });
   }
 
@@ -99,9 +125,11 @@ class DragState extends SelectTraceState {
   constructor(private tool: EraseTool) {
     super(tool.canvas, {
       cursorOnFace: false,
+      interactablesAreRotated: true,
       getSize: () => tool.props.size,
       traceMaterial: tool.translucentMaterial,
       getInteractables: () => [tool.canvas.component.modelMesh],
+      hitTest: position => tool.hitTest(position),
     });
   }
 

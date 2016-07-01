@@ -215,7 +215,7 @@ abstract class SelectBoxState extends ToolState {
     this.selectionBox.resize(cursorSize.x, cursorSize.y, cursorSize.z);
   }
 
-  abstract onBoxSelect(volumn: Volumn);
+  abstract onSelect(volumn: Volumn);
 
   handleMouseUpInStep2 = ({ } : CursorEventParams) => {
     const lo = this.temp1.copy(this.anchor1).multiply(this.normalFilter).add(
@@ -226,7 +226,7 @@ abstract class SelectBoxState extends ToolState {
       this.temp4.copy(this.normal).multiplyScalar(Math.max(this.target2, this.anchor2))
     );
 
-    this.onBoxSelect([lo.x, lo.y, lo.z, hi.x, hi.y, hi.z]);
+    this.onSelect([lo.x, lo.y, lo.z, hi.x, hi.y, hi.z]);
     this.transitionTo(STATE_WAIT);
   }
 

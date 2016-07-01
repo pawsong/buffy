@@ -8,6 +8,9 @@ import Toggle from 'material-ui/Toggle';
 import * as ReactDnd from 'react-dnd';
 const { default: ColorPicker } = require('react-color/lib/components/swatches/Swatches');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
+
+const Tooltip = require('material-ui/internal/Tooltip').default;
+
 import rgbToHex from '../../../../utils/rgbToHex';
 import hexToRgb from '../../../../utils/hexToRgb';
 
@@ -83,8 +86,10 @@ interface ToolsPanelProps extends React.Props<ToolsPanel> {
   mode2D: boolean;
   onEnableMode2D: (enabled: boolean) => any;
   selectedTool: ToolType;
+  tool2d: ToolType;
   paletteColor: Color;
   selectTool: (tool: ToolType) => any;
+  selectTool2d: (tool: ToolType) => any;
   changePaletteColor: (color: Color) => any;
   intl?: InjectedIntlProps;
 }
@@ -136,20 +141,23 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
     }, style);
   }
 
+  getIconButtonStyle2d(style: React.CSSProperties, tool: ToolType) {
+    return Object.assign({
+      backgroundColor: this.props.tool2d === tool ? Colors.grey200 : Colors.white,
+    }, style);
+  }
+
   handleEnableMode2D = (e: any, enabled: boolean) => {
     this.props.onEnableMode2D(enabled);
   }
 
-  render() {
-    const { paletteColor } = this.props;
-    const hex = rgbToHex(paletteColor);
-
+  render3dTools() {
     return (
       <div>
         <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.MOVE)}
-            style={this.getIconButtonStyle(styles.iconButton, ToolType.MOVE)}
+            onTouchTap={() => this.props.selectTool(ToolType.MOVE_3D)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.MOVE_3D)}
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
             tooltip={'Move (V)'}
@@ -157,8 +165,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             <CursorMoveIcon />
           </IconButton>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE_SELECT)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.RECTANGLE_SELECT)}
+            onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE_SELECT_3D)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.RECTANGLE_SELECT_3D)}
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
             tooltip={'Rectangle select (M)'}
@@ -177,8 +185,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             <CubeOutlineIcon />
           </IconButton>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.MAGIC_WAND)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.MAGIC_WAND)}
+            onTouchTap={() => this.props.selectTool(ToolType.MAGIC_WAND_3D)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.MAGIC_WAND_3D)}
             tooltipStyles={styles.tooltips}
             tooltipPosition="bottom-center"
             tooltip={'Magic Wand (W)'}
@@ -223,8 +231,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             brush
           </IconButton>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.COLOR_FILL)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.COLOR_FILL)}
+            onTouchTap={() => this.props.selectTool(ToolType.COLOR_FILL_3D)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.COLOR_FILL_3D)}
             iconStyle={{
               transform: 'scale(1.32)',
               marginTop: 4,
@@ -238,8 +246,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         </div>
         <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.LINE)}
-            style={this.getIconButtonStyle(styles.iconButton, ToolType.LINE)}
+            onTouchTap={() => this.props.selectTool(ToolType.LINE_3D)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.LINE_3D)}
             iconStyle={{
               transform: 'rotate(-45deg) scale(1.50)',
             }}
@@ -251,8 +259,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             remove
           </IconButton>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE)}
-            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.RECTANGLE)}
+            onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE_3D)}
+            style={this.getIconButtonStyle(styles.iconButtonRight, ToolType.RECTANGLE_3D)}
             tooltipStyles={styles.tooltips}
             iconStyle={{
               transform: 'scale(1.32)',
@@ -298,8 +306,8 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         </div>
         <div style={styles.iconRow}>
           <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.COLORIZE)}
-            style={this.getIconButtonStyle(styles.iconButton, ToolType.COLORIZE)}
+            onTouchTap={() => this.props.selectTool(ToolType.COLORIZE_3D)}
+            style={this.getIconButtonStyle(styles.iconButton, ToolType.COLORIZE_3D)}
             tooltipStyles={styles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
@@ -307,49 +315,287 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           >
             colorize
           </IconButton>
-          <ClickAwayListener style={styles.iconButtonRight}
-                              onClickAway={() => this.handleColorPickerClickAway()}
-          >
-            <div style={styles.swatch} onMouseDown={() => this.handleColorPickerMouseDown()}
-                                        onMouseUp={() => this.handleColorPickerMouseUp()}
-            >
-              <div style={Object.assign({
-                backgroundColor: `rgb(${paletteColor.r}, ${paletteColor.g}, ${paletteColor.b})`,
-              }, styles.color)}/>
-            </div>
-          </ClickAwayListener>
-          <div style={styles.colorPickerContainer}>
-            {this.state.displayColorPicker ? (
-              <ClickAwayListener onClickAway={() => this.handleColorPickerClose()}>
-                <ColorPicker hex={hex}
-                              height="100%"
-                              position="right"
-                              display={this.state.displayColorPicker}
-                              onChange={value => this.props.changePaletteColor(value.rgb) }
-                />
-              </ClickAwayListener>
-            ) : null}
-          </div>
+          {this.renderColorPicker()}
         </div>
-        <Divider />
+      </div>
+    );
+  }
+
+  render2dTools() {
+    return (
+      <div>
         <div style={styles.iconRow}>
-          <Toggle
-            label="2D"
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.MOVE_2D)}
+            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.MOVE_2D)}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Move (V)'}
+          >
+            <CursorMoveIcon />
+          </IconButton>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.RECTANGLE_SELECT_2D)}
+            style={this.getIconButtonStyle2d(styles.iconButtonRight, ToolType.RECTANGLE_SELECT_2D)}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Rectangle select (M)'}
+          >
+            <SelectIcon />
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.MAGIC_WAND_2D)}
+            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.MAGIC_WAND_2D)}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Magic Wand (W)'}
+          >
+            <AutoFixIcon />
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.PENCIL)}
+            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.PENCIL)}
+            tooltipStyles={styles.tooltips}
+            iconClassName="material-icons"
+            tooltipPosition="bottom-center"
+            tooltip={'Pencil (B)'}
+          >
+            mode_edit
+          </IconButton>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.ERASE)}
+            style={this.getIconButtonStyle2d(styles.iconButtonRight, ToolType.ERASE)}
+            iconStyle={{
+              transform: 'rotate(45deg)',
+            }}
+            tooltipStyles={styles.tooltips}
+            iconClassName="material-icons"
+            tooltipPosition="bottom-center"
+            tooltip={'Erase (E)'}
+          >
+            crop_portrait
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.PAINT)}
+            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.PAINT)}
+            iconClassName="material-icons"
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Paint'}
+          >
+            brush
+          </IconButton>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.COLOR_FILL_2D)}
+            style={this.getIconButtonStyle2d(styles.iconButtonRight, ToolType.COLOR_FILL_2D)}
+            iconStyle={{
+              transform: 'scale(1.32)',
+              marginTop: 4,
+            }}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Color fill (G)'}
+          >
+            <FormatColorFill />
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.LINE_2D)}
+            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.LINE_2D)}
+            iconStyle={{
+              transform: 'rotate(-45deg) scale(1.50)',
+            }}
+            iconClassName="material-icons"
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Line'}
+          >
+            remove
+          </IconButton>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.RECTANGLE_2D)}
+            style={this.getIconButtonStyle2d(styles.iconButtonRight, ToolType.RECTANGLE_2D)}
+            tooltipStyles={styles.tooltips}
+            iconStyle={{
+              transform: 'scale(1.32)',
+            }}
+            iconClassName="material-icons"
+            tooltipPosition="bottom-center"
+            tooltip={'Rectangle (R)'}
+          >
+            stop
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.TRANSFORM)}
+            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.TRANSFORM)}
+            iconClassName="material-icons"
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Transform'}
+          >
+            rotate_90_degrees_ccw
+          </IconButton>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.RESIZE)}
+            style={this.getIconButtonStyle2d(styles.iconButtonRight, ToolType.RESIZE)}
+            tooltipStyles={styles.tooltips}
+            tooltipPosition="bottom-center"
+            tooltip={'Resize'}
+          >
+            <ArrowExpandIcon />
+          </IconButton>
+        </div>
+        <div style={styles.iconRow}>
+          <IconButton
+            onTouchTap={() => this.props.selectTool2d(ToolType.COLORIZE_2D)}
+            style={this.getIconButtonStyle2d(styles.iconButton, ToolType.COLORIZE_2D)}
+            tooltipStyles={styles.tooltips}
+            iconClassName="material-icons"
+            tooltipPosition="bottom-center"
+            tooltip={'Colorize (I)'}
+          >
+            colorize
+          </IconButton>
+          {this.renderColorPicker()}
+        </div>
+      </div>
+    );
+  }
+
+  renderColorPicker() {
+    const { paletteColor } = this.props;
+    const hex = rgbToHex(paletteColor);
+
+    return (
+      <div style={{ display: 'inline' }}>
+        <ClickAwayListener style={styles.iconButtonRight}
+                            onClickAway={() => this.handleColorPickerClickAway()}
+        >
+          <div style={styles.swatch} onMouseDown={() => this.handleColorPickerMouseDown()}
+                                      onMouseUp={() => this.handleColorPickerMouseUp()}
+          >
+            <div style={Object.assign({
+              backgroundColor: `rgb(${paletteColor.r}, ${paletteColor.g}, ${paletteColor.b})`,
+            }, styles.color)}/>
+          </div>
+        </ClickAwayListener>
+        <div style={styles.colorPickerContainer}>
+          {this.state.displayColorPicker ? (
+            <ClickAwayListener onClickAway={() => this.handleColorPickerClose()}>
+              <ColorPicker hex={hex}
+                            height="100%"
+                            position="right"
+                            display={this.state.displayColorPicker}
+                            onChange={value => this.props.changePaletteColor(value.rgb) }
+              />
+            </ClickAwayListener>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <div>
+        <div style={styles.iconRow}>
+          <Mode2dToggle
             toggled={this.props.mode2D}
             onToggle={this.handleEnableMode2D}
-            style={{
-              marginTop: 12,
-              marginBottom: 8,
-            }}
-            labelStyle={{
-              marginLeft: 14,
-              width: 44,
-            }}
           />
         </div>
+        <Divider />
+        {this.props.mode2D ? this.render2dTools() : this.render3dTools()}
       </div>
     );
   };
 };
+
+interface Mode2dToggleProps {
+  toggled: boolean;
+  onToggle: (event: any, value: boolean) => any;
+}
+
+interface Mode2dToggleState {
+  tooltipShown: boolean;
+}
+
+class Mode2dToggle extends React.Component<Mode2dToggleProps, Mode2dToggleState> {
+  constructor(props) {
+    super(props);
+    this.state = { tooltipShown: false };
+  }
+
+  showTooltip() {
+    this.setState({ tooltipShown: true });
+  }
+
+  hideTooltip() {
+    this.setState({ tooltipShown: false });
+  }
+
+  handleBlur = (event) => this.hideTooltip();
+
+  handleFocus = (event) => this.showTooltip();
+
+  handleMouseLeave = (event) => this.hideTooltip();
+
+  handleMouseOut = (event) => this.hideTooltip();
+
+  handleMouseEnter = (event) => this.showTooltip();
+
+  render() {
+    return (
+      <div style={{
+        position: 'relative',
+      }}>
+        <Toggle
+          label="2D"
+          toggled={this.props.toggled}
+          onToggle={this.props.onToggle}
+          onMouseEnter={this.handleMouseEnter}
+          onMouseLeave={this.handleMouseLeave}
+          onMouseOut={this.handleMouseOut}
+          onBlur={this.handleBlur}
+          onFocus={this.handleFocus}
+          style={{
+            marginTop: 12,
+            marginBottom: 8,
+          }}
+          labelStyle={{
+            marginLeft: 14,
+            width: 44,
+          }}
+        />
+        <div style={{
+          width: 48,
+          margin: 'auto',
+          position: 'relative',
+          top: -50,
+        }}>
+          <Tooltip
+            ref="tooltip"
+            label={'Toggle 2D Mode (D)'}
+            show={this.state.tooltipShown}
+            style={Object.assign({
+              boxSizing: 'border-box',
+            })}
+            verticalPosition={'bottom'}
+            horizontalPosition={'center'}
+          />
+        </div>
+      </div>
+    );
+  }
+}
 
 export default ToolsPanel;

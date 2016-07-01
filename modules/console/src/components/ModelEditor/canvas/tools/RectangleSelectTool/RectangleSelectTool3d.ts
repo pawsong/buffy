@@ -2,31 +2,31 @@ import THREE from 'three';
 import * as ndarray from 'ndarray';
 const cwise = require('cwise');
 
-import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
+import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
 
 import ModelEditorTool, {
   InitParams,
   ToolState, ToolStates,
-} from './ModelEditorTool';
+} from '../ModelEditorTool';
 
 import {
   ToolType,
   Volumn,
   ModelEditorState,
-} from '../../types';
+} from '../../../types';
 
 import {
   voxelSelectBox,
   voxelSelectProjection,
-} from '../../actions';
+} from '../../../actions';
 
 import {
   PIXEL_SCALE,
-} from '../../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
-import CursorState from './states/CursorState';
+import CursorState from '../states/CursorState';
 
-import SelectionBox from '../objects/SelectionBox';
+import SelectionBox from '../../objects/SelectionBox';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
@@ -44,7 +44,7 @@ class RectangleSelectTool extends ModelEditorTool<BoxSelectToolProps, void, void
   canvasElement: HTMLCanvasElement;
   private selectionCtx: CanvasRenderingContext2D;
 
-  getToolType() { return ToolType.RECTANGLE_SELECT; }
+  getToolType() { return ToolType.RECTANGLE_SELECT_3D; }
 
   mapParamsToProps(state: ModelEditorState) {
     return {

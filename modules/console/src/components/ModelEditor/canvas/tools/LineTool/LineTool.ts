@@ -1,38 +1,55 @@
 import THREE from 'three';
 
-import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
+import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
 
 import {
   ToolState, ToolStates,
-} from './ModelEditorTool';
+} from '../ModelEditorTool';
 
 import {
   ToolType,
-} from '../../types';
+  Axis,
+  Volumn,
+  Color,
+} from '../../../types';
 
 import {
-  voxelAddBatch,
-} from '../../actions';
+  voxelAddBatch3d,
+} from '../../../actions';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
-import AddBlockTool, { AddBlockToolWaitState } from './AddBlockTool';
+import AddBlockTool, {
+  AddBlockToolProps,
+  AddBlockToolWaitState,
+} from '../AddBlockTool';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
 
-class LineTool extends AddBlockTool {
-  getToolType() { return ToolType.LINE; }
+interface LineToolParams {
+  onDragEnter?: () => any;
+}
+
+abstract class LineTool<T extends AddBlockToolProps> extends AddBlockTool<T> {
+  drawGuideX: THREE.Mesh;
+  drawGuideY: THREE.Mesh;
+  drawGuideZ: THREE.Mesh;
 
   createStates(): ToolStates {
+    const params = this.getParams();
     return {
-      [STATE_WAIT]: new WaitState(this),
+      [STATE_WAIT]: new WaitState(this, params),
       [STATE_DRAW]: new DrawState(this),
     };
   }
+
+  abstract onDragEnter();
+
+  abstract getAction(volumn: Volumn, color: Color);
 }
 
 class WaitState extends AddBlockToolWaitState<THREE.Vector3> {
@@ -47,11 +64,7 @@ class DrawState extends ToolState {
   private anchor: THREE.Vector3;
   private target: THREE.Vector3;
 
-  private drawGuideX: THREE.Mesh;
-  private drawGuideY: THREE.Mesh;
-  private drawGuideZ: THREE.Mesh;
-
-  constructor(private tool: LineTool) {
+  constructor(private tool: LineTool<AddBlockToolProps>) {
     super();
 
     // Setup draw guides
@@ -61,9 +74,9 @@ class DrawState extends ToolState {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     geometry.translate(1 / 2, 1 / 2, 1 / 2);
 
-    this.drawGuideX = new THREE.Mesh(geometry, drawGuideMaterial);
-    this.drawGuideY = new THREE.Mesh(geometry, drawGuideMaterial);
-    this.drawGuideZ = new THREE.Mesh(geometry, drawGuideMaterial);
+    tool.drawGuideX = new THREE.Mesh(geometry, drawGuideMaterial);
+    tool.drawGuideY = new THREE.Mesh(geometry, drawGuideMaterial);
+    tool.drawGuideZ = new THREE.Mesh(geometry, drawGuideMaterial);
 
     // Setup cursor
 
@@ -72,9 +85,9 @@ class DrawState extends ToolState {
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
       getInteractables: () => [
-        this.drawGuideX,
-        this.drawGuideY,
-        this.drawGuideZ,
+        tool.drawGuideX,
+        tool.drawGuideY,
+        tool.drawGuideZ,
       ],
       getOffset: intersect => offset.set(
         PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.x),
@@ -100,18 +113,18 @@ class DrawState extends ToolState {
 
     const { size } = this.tool.props;
 
-    this.drawGuideX.position.set(0, y, z);
-    this.drawGuideX.scale.set(size[0] * PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+    this.tool.drawGuideX.position.set(0, y, z);
+    this.tool.drawGuideX.scale.set(size[0] * PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
 
-    this.drawGuideY.position.set(x, 0, z);
-    this.drawGuideY.scale.set(PIXEL_SCALE, size[1] * PIXEL_SCALE, PIXEL_SCALE);
+    this.tool.drawGuideY.position.set(x, 0, z);
+    this.tool.drawGuideY.scale.set(PIXEL_SCALE, size[1] * PIXEL_SCALE, PIXEL_SCALE);
 
-    this.drawGuideZ.position.set(x, y, 0);
-    this.drawGuideZ.scale.set(PIXEL_SCALE, PIXEL_SCALE, size[2] * PIXEL_SCALE);
+    this.tool.drawGuideZ.position.set(x, y, 0);
+    this.tool.drawGuideZ.scale.set(PIXEL_SCALE, PIXEL_SCALE, size[2] * PIXEL_SCALE);
 
-    this.drawGuideX.updateMatrixWorld(false);
-    this.drawGuideY.updateMatrixWorld(false);
-    this.drawGuideZ.updateMatrixWorld(false);
+    this.tool.drawGuideX.updateMatrixWorld(false);
+    this.tool.drawGuideY.updateMatrixWorld(false);
+    this.tool.drawGuideZ.updateMatrixWorld(false);
 
     // Init cursor mesh
 
@@ -120,19 +133,8 @@ class DrawState extends ToolState {
     this.tool.selectionBox.resize(1, 1, 1);
 
     this.cursor.start();
-  }
 
-  handleMouseUp({ } : CursorEventParams) {
-    this.tool.dispatchAction(voxelAddBatch([
-      Math.min(this.anchor.x, this.target.x),
-      Math.min(this.anchor.y, this.target.y),
-      Math.min(this.anchor.z, this.target.z),
-      Math.max(this.anchor.x, this.target.x),
-      Math.max(this.anchor.y, this.target.y),
-      Math.max(this.anchor.z, this.target.z),
-    ], this.tool.props.color));
-
-    this.transitionTo(STATE_WAIT);
+    this.tool.onDragEnter();
   }
 
   handleHit({ } : CursorEventParams) {
@@ -155,6 +157,19 @@ class DrawState extends ToolState {
       Math.abs(displacement.y) + 1,
       Math.abs(displacement.z) + 1
     );
+  }
+
+  handleMouseUp({ } : CursorEventParams) {
+    this.tool.dispatchAction(this.tool.getAction([
+      Math.min(this.anchor.x, this.target.x),
+      Math.min(this.anchor.y, this.target.y),
+      Math.min(this.anchor.z, this.target.z),
+      Math.max(this.anchor.x, this.target.x),
+      Math.max(this.anchor.y, this.target.y),
+      Math.max(this.anchor.z, this.target.z),
+    ], this.tool.props.color));
+
+    this.transitionTo(STATE_WAIT);
   }
 
   onLeave() {

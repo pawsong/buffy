@@ -34,6 +34,7 @@ interface PencilToolProps {
   size: Position;
   paletteColor: Color;
   fragment: any;
+  mode2D: { enabled: boolean };
 }
 
 interface PencilToolTree {
@@ -51,6 +52,7 @@ class PencilTool extends ModelEditorTool<PencilToolProps, void, PencilToolTree> 
       paletteColor: params.common.paletteColor,
       size: params.file.present.data.size,
       fragment: params.file.present.data.fragment,
+      mode2D: params.file.present.data.mode2D,
     };
   }
 
@@ -104,10 +106,13 @@ class WaitState extends CursorState<StateEnterParams> {
   constructor(private tool: PencilTool) {
     super(tool.canvas, {
       cursorOnFace: true,
+      interactablesAreRotated: true,
       cursorGeometry: tool.cursorGeometry,
       cursorMaterial: tool.cursorMaterial,
       getSize: () => tool.props.size,
-      getInteractables: () => [
+      getInteractables: () => tool.props.mode2D.enabled ? [
+        tool.canvas.component.mode2dPlaneMesh,
+      ] : [
         tool.canvas.component.plane,
         tool.canvas.component.modelMesh,
         tool.canvas.component.fragmentMesh,
@@ -128,9 +133,12 @@ class DragState extends SelectTraceState {
   constructor(private tool: PencilTool) {
     super(tool.canvas, {
       cursorOnFace: true,
+      interactablesAreRotated: true,
       traceMaterial: tool.cursorMaterial,
       getSize: () => tool.props.size,
-      getInteractables: () => [
+      getInteractables: () => tool.props.mode2D.enabled ? [
+        tool.canvas.component.mode2dPlaneMesh,
+      ] :[
         tool.canvas.component.plane,
         tool.canvas.component.modelMesh,
       ],

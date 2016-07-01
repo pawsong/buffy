@@ -27,7 +27,7 @@ function floodFill(dest: Ndarray, value: number, seed: Position, getter?: Getter
   }
 
   const startNode = finalGetter(seed[0], seed[1], seed[2]);
-  if (!startNode || startNode === value) return false;
+  if (startNode === undefined || startNode === value) return false;
 
   let hit = false;
   let inScanLine;

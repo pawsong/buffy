@@ -35,7 +35,7 @@
     "serve-static": "registry:dt/serve-static#0.0.0+20160317120654",
     "shortid": "registry:dt/shortid#0.0.0+20160316155526",
     "socket.io-client": "registry:dt/socket.io-client#1.4.4+20160317120654",
-    "three": "registry:dt/three#0.0.0+20160417141754",
+    "three": "registry:dt/three#0.0.0+20160621005955",
     "uglify-js": "registry:dt/uglify-js#2.6.1+20160316155526"
   }
 }

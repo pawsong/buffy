@@ -29,25 +29,31 @@ import {
 } from '../../types';
 
 import {
-  VOXEL_ADD_BATCH,
+  VOXEL_ADD_BATCH_2D,
+  VOXEL_ADD_BATCH_3D,
   VOXEL_REMOVE_BATCH,
   VOXEL_SELECT_PROJECTION,
   VOXEL_SELECT_BOX,
+  VOXEL_SELECT_CONNECTED_2D,
   VOXEL_SELECT_CONNECTED,
-  VOXEL_MAGIN_WAND,
+  VOXEL_MAGIN_WAND_2D,
+  VOXEL_MAGIN_WAND_3D,
   VOXEL_CREATE_FRAGMENT,
   VOXEL_MOVE_FRAGMENT,
   VOXEL_MERGE_FRAGMENT,
-  VOXEL_REMOVE_SELECTED,
+  VOXEL_REMOVE_SELECTED_2D,
+  VOXEL_REMOVE_SELECTED_3D,
   VOXEL_CLEAR_SELECTION,
   VOXEL_RESIZE,
   VOXEL_TRANSFORM,
-  VOXEL_COLOR_FILL,
+  VOXEL_COLOR_FILL_2D,
+  VOXEL_COLOR_FILL_3D,
   VOXEL_ADD_LIST,
   VOXEL_PAINT,
   VOXEL_PASTE,
   ENTER_MODE_2D,
   LEAVE_MODE_2D,
+  MOVE_MODE_2D_PLANE,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -125,31 +131,42 @@ const messages = defineMessages({
     id: 'voxel-editor.panels.mode2D.leave',
     description: 'Leave 2D mode label',
     defaultMessage: 'Leave 2D mode',
-  }
+  },
+  labelMoveMode2DPlane: {
+    id: 'voxel-editor.panels.mode2D.movePlane',
+    description: 'Move 2D mode plane label',
+    defaultMessage: 'Move 2D plane',
+  },
 });
 
 const ActionMessages = {
   [INIT]: messages.labelVoxelInit,
   [RESET]: messages.labelVoxelLoad,
-  [VOXEL_ADD_BATCH]: messages.labelVoxelAdd,
+  [VOXEL_ADD_BATCH_2D]: messages.labelVoxelAdd,
+  [VOXEL_ADD_BATCH_3D]: messages.labelVoxelAdd,
   [VOXEL_ADD_LIST]: messages.labelVoxelAdd,
   [VOXEL_REMOVE_BATCH]: messages.labelVoxelRemove,
-  [VOXEL_REMOVE_SELECTED]: messages.labelVoxelRemove,
+  [VOXEL_REMOVE_SELECTED_2D]: messages.labelVoxelRemove,
+  [VOXEL_REMOVE_SELECTED_3D]: messages.labelVoxelRemove,
   [VOXEL_SELECT_PROJECTION]: messages.labelVoxelSelect,
   [VOXEL_SELECT_BOX]: messages.labelVoxelSelect,
+  [VOXEL_SELECT_CONNECTED_2D]: messages.labelVoxelSelect,
   [VOXEL_SELECT_CONNECTED]: messages.labelVoxelSelect,
-  [VOXEL_MAGIN_WAND]: messages.labelVoxelSelect,
+  [VOXEL_MAGIN_WAND_2D]: messages.labelVoxelSelect,
+  [VOXEL_MAGIN_WAND_3D]: messages.labelVoxelSelect,
   [VOXEL_CLEAR_SELECTION]: messages.labelVoxelSelect,
   [VOXEL_CREATE_FRAGMENT]: messages.labelVoxelMove,
   [VOXEL_MOVE_FRAGMENT]: messages.labelVoxelMove,
   [VOXEL_MERGE_FRAGMENT]: messages.labelVoxelMoveFinish,
   [VOXEL_RESIZE]: messages.labelVoxelResize,
   [VOXEL_TRANSFORM]: messages.labelVoxelTransform,
-  [VOXEL_COLOR_FILL]: messages.labelVoxelColorFill,
+  [VOXEL_COLOR_FILL_2D]: messages.labelVoxelColorFill,
+  [VOXEL_COLOR_FILL_3D]: messages.labelVoxelColorFill,
   [VOXEL_PAINT]: messages.labelVoxelColorFill,
   [VOXEL_PASTE]: messages.labelVoxelPaste,
   [ENTER_MODE_2D]: messages.labelEnterMode2D,
   [LEAVE_MODE_2D]: messages.labelLeaveMode2D,
+  [MOVE_MODE_2D_PLANE]: messages.labelMoveMode2DPlane,
 };
 
 function getActionMessage(state: Snapshot<any>) {

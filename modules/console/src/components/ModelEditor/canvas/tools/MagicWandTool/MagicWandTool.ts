@@ -1,29 +1,29 @@
 import THREE from 'three';
-import * as Immutable from 'immutable';
+import Immutable from 'immutable';
 
-import CursorState from './states/CursorState';
-import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
+import CursorState from '../states/CursorState';
+import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
 import ModelEditorTool, {
   InitParams,
   ToolState, ToolStates,
-} from './ModelEditorTool';
+} from '../ModelEditorTool';
 
 import {
   Position,
   ToolType,
   ModelEditorState,
-} from '../../types';
+} from '../../../types';
 
 import {
   voxelMaginWand,
   voxelClearSelection,
   voxelMergeFragment,
-} from '../../actions';
+} from '../../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 
@@ -33,9 +33,11 @@ interface MagicWandToolProps {
   fragment: any;
 }
 
-class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
-  getToolType(): ToolType { return ToolType.MAGIC_WAND; }
+export interface MagicWandToolParams {
+  getInteractables: () => THREE.Mesh[];
+}
 
+abstract class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
   mapParamsToProps(params: ModelEditorState) {
     return {
       size: params.file.present.data.size,
@@ -45,10 +47,16 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
   }
 
   createStates(): ToolStates {
+    const params = this.getParams();
+
     return {
-      [STATE_WAIT]: new WaitState(this),
+      [STATE_WAIT]: new WaitState(this, params),
     };
   }
+
+  abstract getAction(position: THREE.Vector3, merge: boolean);
+
+  abstract getParams(): MagicWandToolParams;
 
   onDestroy() {
 
@@ -56,12 +64,12 @@ class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
 }
 
 class WaitState extends CursorState<void> {
-  constructor(private tool: MagicWandTool) {
+  constructor(private tool: MagicWandTool, params: MagicWandToolParams) {
     super(tool.canvas, {
       cursorVisible: false,
       cursorOnFace: false,
       getSize: () => tool.props.size,
-      getInteractables: () => [tool.canvas.component.modelMesh],
+      getInteractables: params.getInteractables,
     });
   }
 
@@ -70,9 +78,7 @@ class WaitState extends CursorState<void> {
   onMouseUp({ intersect }: CursorEventParams) {
     if (intersect) {
       const position = this.cursor.getPosition();
-      this.tool.dispatchAction(
-        voxelMaginWand(position.x, position.y, position.z, this.tool.keyboard.isShiftPressed())
-      );
+      this.tool.dispatchAction(this.tool.getAction(position, this.tool.keyboard.isShiftPressed()));
     } else {
       if (this.tool.props.fragment) {
         this.tool.dispatchAction(voxelMergeFragment());

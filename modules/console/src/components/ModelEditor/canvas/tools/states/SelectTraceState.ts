@@ -18,9 +18,11 @@ export type StateEnterParams = MouseEvent;
 
 interface SelectTraceStateOptions {
   cursorOnFace: boolean;
+  interactablesAreRotated: boolean;
   traceMaterial: THREE.Material;
   getInteractables: () => THREE.Mesh[];
   getSize: () => Position;
+  hitTest?: (position: THREE.Vector3) => boolean;
 }
 
 abstract class SelectTraceState extends ToolState {
@@ -35,8 +37,10 @@ abstract class SelectTraceState extends ToolState {
   constructor(private canvas: Canvas, {
     getSize,
     cursorOnFace,
+    interactablesAreRotated,
     traceMaterial,
     getInteractables,
+    hitTest,
   }: SelectTraceStateOptions) {
     super();
 
@@ -50,11 +54,16 @@ abstract class SelectTraceState extends ToolState {
 
     const position = new THREE.Vector3();
 
+    const finalHitTest = hitTest || (() => true);
+
     this.cursor = new Cursor(canvas, {
       visible: false,
+      interactablesAreRotated,
       cursorOnFace,
       hitTest: (intersect, meshPosition) => {
         Cursor.getDataPosition(meshPosition, position);
+        if (!finalHitTest(position)) return false;
+
         const size = getSize();
         return (
              position.x >= 0 && position.x < size[0]

@@ -15,6 +15,7 @@ import {
   ToolType,
   ModelEditorState,
   Position,
+  Axis,
 } from '../../types';
 
 import {
@@ -68,7 +69,7 @@ class GridSelectionBox extends SelectionBox {
   }
 }
 
-interface AddBlockToolProps {
+export interface AddBlockToolProps {
   size: Position;
   color: Color;
   fragment: ndarray.Ndarray;
@@ -78,7 +79,12 @@ interface AddBlockToolTree {
   color: Color;
 }
 
-abstract class AddBlockTool extends ModelEditorTool<AddBlockToolProps, void, AddBlockToolTree> {
+interface AddBlockToolParams {
+  getInteractables: () => THREE.Mesh[];
+  interactablesAreRotated: boolean;
+}
+
+abstract class AddBlockTool<T extends AddBlockToolProps> extends ModelEditorTool<T, void, AddBlockToolTree> {
   selectionBox: GridSelectionBox;
 
   getTreeSchema(): Schema {
@@ -90,13 +96,9 @@ abstract class AddBlockTool extends ModelEditorTool<AddBlockToolProps, void, Add
     };
   }
 
-  mapParamsToProps(state: ModelEditorState) {
-    return {
-      size: state.file.present.data.size,
-      color: state.common.paletteColor,
-      fragment: state.file.present.data.fragment,
-    };
-  }
+  abstract getParams(): AddBlockToolParams;
+
+  abstract mapParamsToProps(state: ModelEditorState): T;
 
   render() { return this.props; }
 
@@ -125,16 +127,13 @@ abstract class AddBlockTool extends ModelEditorTool<AddBlockToolProps, void, Add
 }
 
 abstract class AddBlockToolWaitState<T> extends CursorState<T> {
-  constructor(protected tool: AddBlockTool) {
+  constructor(protected tool: AddBlockTool<AddBlockToolProps>, params: AddBlockToolParams) {
     super(tool.canvas, {
       cursorOnFace: true,
+      interactablesAreRotated: params.interactablesAreRotated,
       cursorMesh: tool.selectionBox.mesh,
       getSize: () => tool.props.size,
-      getInteractables: () => [
-        tool.canvas.component.plane,
-        tool.canvas.component.modelMesh,
-        tool.canvas.component.fragmentMesh,
-      ],
+      getInteractables: params.getInteractables,
     });
   }
 

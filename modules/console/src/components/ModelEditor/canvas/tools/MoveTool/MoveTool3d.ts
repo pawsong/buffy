@@ -3,22 +3,22 @@ import * as Immutable from 'immutable';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 import * as ndarray from 'ndarray';
 
-import { createGeometryFromMesh } from '../../../../canvas/utils';
-import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
+import { createGeometryFromMesh } from '../../../../../canvas/utils';
+import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
 import ModelEditorTool, {
   InitParams,
   ToolState, ToolStates,
-} from './ModelEditorTool';
+} from '../ModelEditorTool';
 
-import BoundingBoxEdgesHelper from '../objects/BoundingBoxEdgesHelper';
+import BoundingBoxEdgesHelper from '../../objects/BoundingBoxEdgesHelper';
 
-const fragmentVertexShader = require('raw!../shaders/fragment.vert');
-const fragmentFragmentShader = require('raw!../shaders/fragment.frag');
+const fragmentVertexShader = require('raw!../../shaders/fragment.vert');
+const fragmentFragmentShader = require('raw!../../shaders/fragment.frag');
 
 const warning = require('fbjs/lib/warning');
 
@@ -26,7 +26,7 @@ import {
   Position,
   ToolType,
   ModelEditorState,
-} from '../../types';
+} from '../../../types';
 
 import {
   voxelCreateFragment,
@@ -34,7 +34,7 @@ import {
   voxelMoveFragment,
   voxelMergeFragment,
   voxelClearSelection,
-} from '../../actions';
+} from '../../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAG = 'drag';
@@ -46,20 +46,20 @@ interface MaterialToRestore {
   color: number;
 }
 
-interface MoveToolProps {
+interface MoveTool3dProps {
   size: Position;
   selection: ndarray.Ndarray;
   fragment: ndarray.Ndarray;
   fragmentOffset: Position;
 }
 
-interface MoveToolTree {
+interface MoveTool3dTree {
   selection: ndarray.Ndarray;
   fragment: ndarray.Ndarray;
   fragmentOffset: Position;
 }
 
-class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
+class MoveTool3d extends ModelEditorTool<MoveTool3dProps, void, MoveTool3dTree> {
   translucentMaterial: THREE.Material;
 
   arrowX: THREE.ArrowHelper;
@@ -79,7 +79,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
   drawGuide: THREE.Mesh;
   drawGuideSize: THREE.Vector3;
 
-  getToolType(): ToolType { return ToolType.MOVE; }
+  getToolType(): ToolType { return ToolType.MOVE_3D; }
 
   mapParamsToProps(params: ModelEditorState) {
     return {
@@ -121,7 +121,7 @@ class MoveTool extends ModelEditorTool<MoveToolProps, void, MoveToolTree> {
     return this.props;
   }
 
-  patch(diff: MoveToolTree) {
+  patch(diff: MoveTool3dTree) {
     // Fragment has precedence over selection.
     // Selection must not exist when fragment does.
 
@@ -280,7 +280,7 @@ class WaitState extends ToolState {
   materialsToRestore: MaterialToRestore[];
   activeMeshes: THREE.Mesh[];
 
-  constructor(private tool: MoveTool) {
+  constructor(private tool: MoveTool3d) {
     super();
     this.materialsToRestore = [];
     this.activeMeshes = [];
@@ -367,7 +367,7 @@ class DragState extends ToolState {
   private temp1: THREE.Vector3;
   private temp2: THREE.Vector3;
 
-  constructor(private tool: MoveTool) {
+  constructor(private tool: MoveTool3d) {
     super();
     this.direction = new THREE.Vector3();
     this.origin = new THREE.Vector3();
@@ -448,4 +448,4 @@ class DragState extends ToolState {
   }
 }
 
-export default MoveTool;
+export default MoveTool3d;

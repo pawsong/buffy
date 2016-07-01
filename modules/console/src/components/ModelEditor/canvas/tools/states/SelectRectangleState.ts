@@ -2,58 +2,31 @@ import THREE from 'three';
 
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
-import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
+import { ToolState } from '../../../../../libs/Tool';
+import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
+import Canvas from '../../../../../canvas/Canvas';
 
 import {
-  ToolState, ToolStates,
-} from './ModelEditorTool';
-
-import {
-  ToolType,
-  ModelEditorState,
-} from '../../types';
-
-import {
-  voxelAddBatch,
-} from '../../actions';
+  Volumn,
+  Position,
+} from '../../../types';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
-import AddBlockTool, { AddBlockToolWaitState } from './AddBlockTool';
+import SelectionBox from '../../objects/SelectionBox';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
-const STATE_DRAW = 'draw';
 
-class RectangleTool extends AddBlockTool {
-  getToolType() { return ToolType.RECTANGLE; }
-
-  createStates(): ToolStates {
-    return {
-      [STATE_WAIT]: new WaitState(this),
-      [STATE_DRAW]: new DrawState(this),
-    };
-  }
-}
-
-interface DrawEnterParams {
+export interface EnterParams {
+  size: Position;
   anchor: THREE.Vector3;
   normal: THREE.Vector3;
 }
 
-class WaitState extends AddBlockToolWaitState<DrawEnterParams> {
-  getNextStateName() { return STATE_DRAW; }
-  getNextStateParams(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3) {
-    return {
-      anchor: position,
-      normal: intersect.face.normal,
-    };
-  }
-}
-
-class DrawState extends ToolState {
+abstract class SelectRectangleState extends ToolState {
   private cursor: Cursor;
   private anchor: THREE.Vector3;
   private target: THREE.Vector3;
@@ -61,7 +34,7 @@ class DrawState extends ToolState {
 
   private drawGuide: THREE.Mesh;
 
-  constructor(private tool: RectangleTool) {
+  constructor(private canvas: Canvas, private selectionBox: SelectionBox) {
     super();
 
     this.temp1 = new THREE.Vector3();
@@ -71,16 +44,22 @@ class DrawState extends ToolState {
     const drawGuideGeometry = new THREE.BoxGeometry(1, 1, 1);
     drawGuideGeometry.translate(1 / 2, 1 / 2, 1 / 2);
 
-    const drawGuideMaterial = new THREE.MeshBasicMaterial({ visible: false });
+    const drawGuideMaterial = new THREE.MeshBasicMaterial();
 
     this.drawGuide = new THREE.Mesh(drawGuideGeometry, drawGuideMaterial);
+
+    // Debug
+    // drawGuideMaterial.color.setHex(0x000fff);
+    // drawGuideMaterial.opacity = 0.5;
+    // drawGuideMaterial.transparent = true;
+    // tool.canvas.scene.add(this.drawGuide);
 
     // Setup cursor
 
     const offset = new THREE.Vector3();
     const intersectables = [this.drawGuide];
 
-    this.cursor = new Cursor(tool.canvas, {
+    this.cursor = new Cursor(canvas, {
       visible: false,
       getInteractables: () => intersectables,
       getOffset: intersect => offset.set(
@@ -89,16 +68,14 @@ class DrawState extends ToolState {
         PIXEL_SCALE_HALF * (1 - 2 * intersect.face.normal.z)
       ),
       onMouseUp: params => this.handleMouseUp(params),
-      onHit : params => this.handleHit(params),
+      onHit: params => this.handleHit(params),
     });
 
     this.anchor = new THREE.Vector3();
     this.target = new THREE.Vector3();
   }
 
-  onEnter({ anchor, normal }: DrawEnterParams) {
-    const { size } = this.tool.props;
-
+  onEnter({ anchor, normal, size }: EnterParams) {
     // Init data
 
     this.anchor.copy(anchor);
@@ -107,7 +84,7 @@ class DrawState extends ToolState {
     // Show and move draw guides
 
     const scaledAnchor = anchor.multiplyScalar(PIXEL_SCALE);
-    const absNormal = normal.multiply(normal);
+    const absNormal = this.temp1.copy(normal).multiply(normal);
 
     this.drawGuide.position.copy(absNormal).multiply(scaledAnchor);
     this.drawGuide.scale
@@ -119,31 +96,16 @@ class DrawState extends ToolState {
 
     // Init cursor mesh
 
-    this.tool.selectionBox.show(true);
-    this.tool.selectionBox.mesh.position.copy(scaledAnchor);
-    this.tool.selectionBox.resize(1, 1, 1);
+    this.selectionBox.show(true);
+    this.selectionBox.mesh.position.copy(scaledAnchor);
+    this.selectionBox.resize(1, 1, 1);
 
     this.cursor.start();
   }
 
   onLeave() {
     this.cursor.stop();
-    this.tool.selectionBox.show(false);
-  }
-
-  handleMouseUp({ } : CursorEventParams) {
-    this.tool.props.color;
-
-    this.tool.dispatchAction(voxelAddBatch([
-      Math.min(this.anchor.x, this.target.x),
-      Math.min(this.anchor.y, this.target.y),
-      Math.min(this.anchor.z, this.target.z),
-      Math.max(this.anchor.x, this.target.x),
-      Math.max(this.anchor.y, this.target.y),
-      Math.max(this.anchor.z, this.target.z),
-    ], this.tool.props.color));
-
-    this.transitionTo(STATE_WAIT);
+    this.selectionBox.show(false);
   }
 
   handleHit({ } : CursorEventParams) {
@@ -155,18 +117,32 @@ class DrawState extends ToolState {
 
     const displacement = position.sub(this.anchor);
 
-    this.tool.selectionBox.mesh.position.set(
+    this.selectionBox.mesh.position.set(
       this.anchor.x + Math.min(displacement.x, 0),
       this.anchor.y + Math.min(displacement.y, 0),
       this.anchor.z + Math.min(displacement.z, 0)
     ).multiplyScalar(PIXEL_SCALE);
 
-    this.tool.selectionBox.resize(
+    this.selectionBox.resize(
       Math.abs(displacement.x) + 1,
       Math.abs(displacement.y) + 1,
       Math.abs(displacement.z) + 1
     );
   }
+
+  abstract onSelect(volumn: Volumn);
+
+  handleMouseUp({ } : CursorEventParams) {
+    this.onSelect([
+      Math.min(this.anchor.x, this.target.x),
+      Math.min(this.anchor.y, this.target.y),
+      Math.min(this.anchor.z, this.target.z),
+      Math.max(this.anchor.x, this.target.x),
+      Math.max(this.anchor.y, this.target.y),
+      Math.max(this.anchor.z, this.target.z),
+    ]);
+    this.transitionTo(STATE_WAIT);
+  }
 }
 
-export default RectangleTool;
+export default SelectRectangleState;

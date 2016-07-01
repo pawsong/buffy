@@ -24,20 +24,38 @@ export interface ActionListener {
  *
  */
 export enum ToolType {
-  LINE,
-  COLOR_FILL,
-  RECTANGLE,
+  LINE_2D,
+  LINE_3D,
+  COLOR_FILL_3D,
   PENCIL,
   PAINT,
   ERASE,
-  COLORIZE,
+  COLORIZE_2D,
+  COLORIZE_3D,
   BOX,
   BOX_SELECT,
-  RECTANGLE_SELECT,
-  MAGIC_WAND,
+  RECTANGLE_2D,
+  RECTANGLE_3D,
+  RECTANGLE_SELECT_2D,
+  RECTANGLE_SELECT_3D,
   TRANSFORM,
-  MOVE,
+  MOVE_2D,
+  MOVE_3D,
   RESIZE,
+
+  // 2D tools
+  // LINE_2D,
+  COLOR_FILL_2D,
+  // PENCIL_2D,
+  // PAINT_2D,
+  // ERASE_2D,
+  // COLORIZE_2D,
+  // RECTANGLE_SELECT_2D,
+  MAGIC_WAND_2D,
+  MAGIC_WAND_3D,
+  // TRANSFORM_2D,
+  // MOVE_2D,
+  // RESIZE_2D,
 }
 
 export enum SupportFileType {
@@ -103,7 +121,8 @@ export interface Clipboard {
 }
 
 export interface CommonState {
-  selectedTool: ToolType;
+  tool3d: ToolType;
+  tool2d: ToolType;
   paletteColor: Color;
   clipboard: Clipboard;
 }

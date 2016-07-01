@@ -609,6 +609,13 @@ export default {
 /* translate */ 'voxel-editor.panels.mode2D.leave': '',
 
   /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Move 2D mode plane label
+   * defaultMessage: Move 2D plane
+   */
+/* translate */ 'voxel-editor.panels.mode2D.movePlane': '',
+
+  /**
    * path: src/components/ModelEditor/components/panels/ToolsPanel.json
    * description: Voxel editor tools panel title
    * defaultMessage: Tools

@@ -3,7 +3,6 @@ uniform vec3 color;
 uniform float opacity;
 uniform vec3 scale;
 
-varying vec3 vColor;
 varying vec3 vNorm;
 varying vec3 vPos;
 
@@ -19,5 +18,6 @@ void main(void) {
 
   float c = clamp(fp.x + fp.y + fp.z, 0.0, 0.4) - 1.0;
 
+  // gl_FragColor = vec4(color * -c, opacity);
   gl_FragColor = vec4(color * -c, 0.5);
 }

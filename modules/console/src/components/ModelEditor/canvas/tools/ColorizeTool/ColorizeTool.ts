@@ -1,17 +1,19 @@
+import THREE from 'three';
 import ModelEditorTool, {
   InitParams,
   ToolState, ToolStates,
-} from './ModelEditorTool';
+} from '../ModelEditorTool';
 
 import {
   changePaletteColor,
-} from '../../actions';
+} from '../../../actions';
 
 import {
   ToolType,
-} from '../../types';
+  ModelEditorState,
+} from '../../../types';
 
-import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
+import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
 
 const COLOR_TOOLTIP_RADIUS = 20;
 
@@ -25,10 +27,25 @@ function multiplyColor({ r, g, b }) {
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 
-class ColorizeTool extends ModelEditorTool<void, void, void> {
+interface ColorizeToolProps {
+  mode2D: {
+    enabled: boolean;
+  }
+}
+
+interface ColorizeToolParams {
+  getInteractables: () => THREE.Mesh[];
+  hitTest?: (intersect: THREE.Intersection, meshPosition: THREE.Vector3) => boolean;
+}
+
+abstract class ColorizeTool extends ModelEditorTool<ColorizeToolProps, void, void> {
   colorTooltip: HTMLElement;
 
-  getToolType(): ToolType { return ToolType.COLORIZE; }
+  mapParamsToProps(params: ModelEditorState) {
+    return {
+      mode2D: params.file.present.data.mode2D,
+    };
+  }
 
   onInit(params: InitParams) {
     super.onInit(params);
@@ -45,8 +62,10 @@ class ColorizeTool extends ModelEditorTool<void, void, void> {
   }
 
   createStates(): ToolStates {
+    const params = this.getParams();
+
     return {
-      [STATE_WAIT]: new WaitState(this),
+      [STATE_WAIT]: new WaitState(this, params),
     };
   }
 
@@ -63,6 +82,8 @@ class ColorizeTool extends ModelEditorTool<void, void, void> {
     this.colorTooltip.style.background = `rgb(${c.r},${c.g},${c.b})`;
   }
 
+  abstract getParams(): ColorizeToolParams;
+
   onDestroy() {
     this.colorTooltip.remove();
   }
@@ -71,11 +92,19 @@ class ColorizeTool extends ModelEditorTool<void, void, void> {
 class WaitState extends ToolState {
   cursor: Cursor;
 
-  constructor(private tool: ColorizeTool) {
+  constructor(private tool: ColorizeTool, params: ColorizeToolParams) {
     super();
     this.cursor = new Cursor(tool.canvas, {
       visible: false,
-      getInteractables: () => [tool.canvas.component.modelMesh],
+      determineIntersect: intersects => {
+        const slice = tool.canvas.component.model2DSliceMesh;
+        for (let i = 0, len = intersects.length; i < len; ++i) {
+          if (intersects[i].object === slice) return intersects[i];
+        }
+        return intersects[0];
+      },
+      getInteractables: params.getInteractables,
+      hitTest: params.hitTest,
       onHit: params => this.handleHit(params),
       onMiss: params => this.handleMiss(params),
       onTouchTap: params => this.handleTouchTap(params),

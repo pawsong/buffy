@@ -9,6 +9,7 @@ import {
   Transformation,
   ToolType,
   Rectangle,
+  Axis,
 } from '../types';
 
 export const VOXEL_ADD: 'voxel-editor/VOXEL_ADD' = 'voxel-editor/VOXEL_ADD';
@@ -17,14 +18,27 @@ export interface VoxelAddAction extends Action<typeof VOXEL_ADD> {
   color: Color;
 }
 
-export const VOXEL_ADD_BATCH: 'voxel-editor/VOXEL_ADD_BATCH' = 'voxel-editor/VOXEL_ADD_BATCH';
-export interface VoxelAddBatchAction extends Action<typeof VOXEL_ADD_BATCH> {
+export const VOXEL_ADD_BATCH_3D: 'VOXEL_ADD_BATCH_3D' = 'VOXEL_ADD_BATCH_3D';
+export interface VoxelAddBatch3dAction extends Action<typeof VOXEL_ADD_BATCH_3D> {
   volumn: Volumn;
   color: Color;
 }
-export function voxelAddBatch(volumn: Volumn, color: Color): VoxelAddBatchAction {
+export function voxelAddBatch3d(volumn: Volumn, color: Color): VoxelAddBatch3dAction {
   return {
-    type: VOXEL_ADD_BATCH,
+    type: VOXEL_ADD_BATCH_3D,
+    volumn,
+    color,
+  };
+}
+
+export const VOXEL_ADD_BATCH_2D: 'VOXEL_ADD_BATCH_2D' = 'VOXEL_ADD_BATCH_2D';
+export interface VoxelAddBatch2dAction extends Action<typeof VOXEL_ADD_BATCH_2D> {
+  volumn: Volumn;
+  color: Color;
+}
+export function voxelAddBatch2d(volumn: Volumn, color: Color): VoxelAddBatch2dAction {
+  return {
+    type: VOXEL_ADD_BATCH_2D,
     volumn,
     color,
   };
@@ -82,6 +96,19 @@ export function voxelSelectBox(volumn: Volumn, merge: boolean): VoxelSelectBoxAc
   };
 }
 
+export const VOXEL_SELECT_CONNECTED_2D: 'VOXEL_SELECT_CONNECTED_2D' = 'VOXEL_SELECT_CONNECTED_2D';
+export interface VoxelSelectConnected2dAction extends Action<typeof VOXEL_SELECT_CONNECTED_2D> {
+  position: Position;
+  merge: boolean;
+}
+export function voxelSelectConnected2d(x: number, y: number, z: number, merge: boolean): VoxelSelectConnected2dAction {
+  return {
+    type: VOXEL_SELECT_CONNECTED_2D,
+    position: [x, y, z],
+    merge,
+  };
+}
+
 export const VOXEL_SELECT_CONNECTED: 'VOXEL_SELECT_CONNECTED' = 'VOXEL_SELECT_CONNECTED';
 export interface VoxelSelectConnectedAction extends Action<typeof VOXEL_SELECT_CONNECTED> {
   position: Position;
@@ -95,27 +122,53 @@ export function voxelSelectConnected(x: number, y: number, z: number, merge: boo
   };
 }
 
-export const VOXEL_MAGIN_WAND: 'VOXEL_MAGIN_WAND' = 'VOXEL_MAGIN_WAND';
-export interface VoxelMaginWandAction extends Action<typeof VOXEL_MAGIN_WAND> {
+export const VOXEL_MAGIN_WAND_2D: 'VOXEL_MAGIN_WAND_2D' = 'VOXEL_MAGIN_WAND_2D';
+export interface VoxelMaginWand2dAction extends Action<typeof VOXEL_MAGIN_WAND_2D> {
   position: Position;
   merge: boolean;
 }
-export function voxelMaginWand(x: number, y: number, z: number, merge: boolean): VoxelMaginWandAction {
+export function voxelMaginWand2d(x: number, y: number, z: number, merge: boolean): VoxelMaginWand2dAction {
   return {
-    type: VOXEL_MAGIN_WAND,
+    type: VOXEL_MAGIN_WAND_2D,
     position: [x, y, z],
     merge,
   };
 }
 
-export const VOXEL_COLOR_FILL: 'VOXEL_COLOR_FILL' = 'VOXEL_COLOR_FILL';
-export interface VoxelColorFillAction extends Action<typeof VOXEL_COLOR_FILL> {
+export const VOXEL_MAGIN_WAND_3D: 'VOXEL_MAGIN_WAND' = 'VOXEL_MAGIN_WAND';
+export interface VoxelMaginWand3dAction extends Action<typeof VOXEL_MAGIN_WAND_3D> {
+  position: Position;
+  merge: boolean;
+}
+export function voxelMaginWand(x: number, y: number, z: number, merge: boolean): VoxelMaginWand3dAction {
+  return {
+    type: VOXEL_MAGIN_WAND_3D,
+    position: [x, y, z],
+    merge,
+  };
+}
+
+export const VOXEL_COLOR_FILL_3D: 'VOXEL_COLOR_FILL' = 'VOXEL_COLOR_FILL';
+export interface VoxelColorFill3dAction extends Action<typeof VOXEL_COLOR_FILL_3D> {
   position: Position;
   color: Color;
 }
-export function voxelColorFill(x: number, y: number, z: number, color: Color): VoxelColorFillAction {
+export function voxelColorFill3d(x: number, y: number, z: number, color: Color): VoxelColorFill3dAction {
   return {
-    type: VOXEL_COLOR_FILL,
+    type: VOXEL_COLOR_FILL_3D,
+    position: [x, y, z],
+    color,
+  };
+}
+
+export const VOXEL_COLOR_FILL_2D: 'VOXEL_COLOR_FILL_2D' = 'VOXEL_COLOR_FILL_2D';
+export interface VoxelColorFill2dAction extends Action<typeof VOXEL_COLOR_FILL_2D> {
+  position: Position;
+  color: Color;
+}
+export function voxelColorFill2d(x: number, y: number, z: number, color: Color): VoxelColorFill2dAction {
+  return {
+    type: VOXEL_COLOR_FILL_2D,
     position: [x, y, z],
     color,
   };
@@ -146,12 +199,21 @@ export function voxelRemoveBatch(positions: Position[]): VoxelRemoveBatchAction 
   };
 }
 
-export const VOXEL_REMOVE_SELECTED: 'voxel-editor/VOXEL_REMOVE_SELECTED' = 'voxel-editor/VOXEL_REMOVE_SELECTED';
-export interface VoxelRemoveSelectedAction extends Action<typeof VOXEL_REMOVE_SELECTED> {
+export const VOXEL_REMOVE_SELECTED_3D: 'voxel-editor/VOXEL_REMOVE_SELECTED' = 'voxel-editor/VOXEL_REMOVE_SELECTED';
+export interface VoxelRemoveSelectedAction extends Action<typeof VOXEL_REMOVE_SELECTED_3D> {
 }
 export function voxelRemoveSelected(): VoxelRemoveSelectedAction {
   return {
-    type: VOXEL_REMOVE_SELECTED,
+    type: VOXEL_REMOVE_SELECTED_3D,
+  };
+}
+
+export const VOXEL_REMOVE_SELECTED_2D: 'VOXEL_REMOVE_SELECTED_2D' = 'VOXEL_REMOVE_SELECTED_2D';
+export interface VoxelRemoveSelected2dAction extends Action<typeof VOXEL_REMOVE_SELECTED_2D> {
+}
+export function voxelRemoveSelected2d(): VoxelRemoveSelected2dAction {
+  return {
+    type: VOXEL_REMOVE_SELECTED_2D,
   };
 }
 
@@ -269,9 +331,20 @@ export const CHANGE_TOOL: 'CHANGE_TOOL' = 'CHANGE_TOOL';
 export interface ChangeToolAction extends Action<typeof CHANGE_TOOL> {
   tool: ToolType;
 }
-export function changeTool(tool: ToolType) {
+export function changeTool3d(tool: ToolType) {
   return {
     type: CHANGE_TOOL,
+    tool,
+  };
+}
+
+export const CHANGE_TOOL_2D: 'CHANGE_TOOL_2D' = 'CHANGE_TOOL_2D';
+export interface ChangeTool2dAction extends Action<typeof CHANGE_TOOL_2D> {
+  tool: ToolType;
+}
+export function changeTool2d(tool: ToolType) {
+  return {
+    type: CHANGE_TOOL_2D,
     tool,
   };
 }
@@ -302,5 +375,18 @@ export interface LeaveMode2DAction extends Action<typeof LEAVE_MODE_2D> {
 export function leaveMode2D(): LeaveMode2DAction {
   return {
     type: LEAVE_MODE_2D,
+  };
+}
+
+export const MOVE_MODE_2D_PLANE: 'MOVE_MODE_2D_PLANE' = 'MOVE_MODE_2D_PLANE';
+export interface MoveMode2DPlaneAction extends Action<typeof MOVE_MODE_2D_PLANE> {
+  axis: Axis;
+  position: number;
+}
+export function moveMode2DPlane(axis: Axis, position: number): MoveMode2DPlaneAction {
+  return {
+    type: MOVE_MODE_2D_PLANE,
+    axis,
+    position,
   };
 }

@@ -2,6 +2,8 @@ import * as ndarray from 'ndarray';
 const cwise = require('cwise');
 import { createSelector } from 'reselect';
 
+const invariant = require('fbjs/lib/invariant');
+
 import undoable from '@pasta/helper/lib/undoable';
 
 import ndFloodFill from '../ndops/floodFill';
@@ -14,7 +16,10 @@ import ndCopyWithFilter from '../ndops/copyWithFilter';
 import ndSet from '../ndops/set';
 import ndSetWithFilter2 from '../ndops/setWithFilter2';
 import ndFill from '../ndops/fill';
+import ndFill2 from '../ndops/fill2';
 import ndFillWithFilter2 from '../ndops/fillWithFilter2';
+
+import getSlice from '../utils/getSlice';
 
 import {
   Position,
@@ -28,25 +33,31 @@ import {
 
 import {
   VOXEL_ADD, VoxelAddAction,
-  VOXEL_ADD_BATCH, VoxelAddBatchAction,
+  VOXEL_ADD_BATCH_3D, VoxelAddBatch3dAction,
+  VOXEL_ADD_BATCH_2D, VoxelAddBatch2dAction,
   VOXEL_REMOVE, VoxelRemoveAction,
   VOXEL_REMOVE_BATCH, VoxelRemoveBatchAction,
   VOXEL_SELECT_PROJECTION, VoxelSelectProjectionAction,
   VOXEL_SELECT_BOX, VoxelSelectBoxAction,
+  VOXEL_SELECT_CONNECTED_2D, VoxelSelectConnected2dAction,
   VOXEL_SELECT_CONNECTED, VoxelSelectConnectedAction,
-  VOXEL_MAGIN_WAND, VoxelMaginWandAction,
+  VOXEL_MAGIN_WAND_2D, VoxelMaginWand2dAction,
+  VOXEL_MAGIN_WAND_3D, VoxelMaginWand3dAction,
   VOXEL_CREATE_FRAGMENT, VoxelCreateFragmentAction,
   VOXEL_MOVE_FRAGMENT, VoxelMoveFragmentAction,
   VOXEL_MERGE_FRAGMENT, VoxelMergeFragmentAction,
-  VOXEL_REMOVE_SELECTED, VoxelRemoveSelectedAction,
+  VOXEL_REMOVE_SELECTED_2D, VoxelRemoveSelected2dAction,
+  VOXEL_REMOVE_SELECTED_3D, VoxelRemoveSelectedAction,
   VOXEL_CLEAR_SELECTION, VoxelClearSelection,
   VOXEL_RESIZE, VoxelResizeAction,
   VOXEL_TRANSFORM, VoxelTransformAction,
-  VOXEL_COLOR_FILL, VoxelColorFillAction,
+  VOXEL_COLOR_FILL_3D, VoxelColorFill3dAction,
+  VOXEL_COLOR_FILL_2D, VoxelColorFill2dAction,
   VOXEL_ADD_LIST, VoxelAddListAction,
   VOXEL_PASTE, VoxelPasteAction,
   ENTER_MODE_2D,
   LEAVE_MODE_2D,
+  MOVE_MODE_2D_PLANE, MoveMode2DPlaneAction,
 } from '../actions';
 
 const initialSize: Position = [16, 16, 16];
@@ -345,6 +356,47 @@ function reduceModelRemoveAction(
   }
 }
 
+interface Validate2dPosition {
+  (x: number, y: number, z: number): boolean;
+}
+
+function get2dValidator(axis: Axis, position: number): Validate2dPosition {
+  switch(axis) {
+    case Axis.X: {
+      return (x, y, z) => x === position;
+    }
+    case Axis.Y: {
+      return (x, y, z) => y === position;
+    }
+    case Axis.Z: {
+      return (x, y, z) => z === position;
+    }
+  }
+  invariant(false, `invalid axis: ${axis}`);
+}
+
+function isEmptyInSlice(axis: Axis, position: number, selection: ndarray.Ndarray): boolean {
+  return !ndAny(getSlice(axis, position, selection));
+}
+
+function filterVolumnWithSlice(axis: Axis, position: number, volumn: Volumn): Volumn {
+  switch(axis) {
+    case Axis.X: {
+      if (position < volumn[0] || position > volumn[3]) return null;
+      return [position, volumn[1], volumn[2], position, volumn[4], volumn[5]];
+    }
+    case Axis.Y: {
+      if (position < volumn[1] || position > volumn[4]) return null;
+      return [volumn[0], position, volumn[2], volumn[3], position, volumn[5]];
+    }
+    case Axis.Z: {
+      if (position < volumn[2] || position > volumn[5]) return null;
+      return [volumn[0], volumn[1], position, volumn[3], volumn[4], position];
+    }
+  }
+  invariant(false, `invalid axis: ${axis}`);
+}
+
 enum MergeType {
   NONE,
   OVERWRITE,
@@ -396,18 +448,31 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
      * model update operations
      */
 
-    case VOXEL_ADD_BATCH: {
-      const { volumn, color } = <VoxelAddBatchAction>action;
+    case VOXEL_ADD_BATCH_2D: {
+      const { volumn, color } = <VoxelAddBatch2dAction>action;
+      const c = rgbToHex(color);
+
+      const filtered = filterVolumnWithSlice(state.mode2D.axis, state.mode2D.position, volumn);
+      if (!filtered) return state;
+
+      const prevState = ensureFragmentMerged(state, true);
+
+      return reduceModelUpsertAction(prevState,
+        model => ndFill2(model, filtered, c),
+        (model, selection) => isEmptyInSlice(state.mode2D.axis, state.mode2D.position, selection)
+          ? ndFill2(model, filtered, c)
+          : ndFillWithFilter2(model, filtered, c, selection)
+      );
+    }
+
+    case VOXEL_ADD_BATCH_3D: {
+      const { volumn, color } = <VoxelAddBatch3dAction>action;
       const c = rgbToHex(color);
 
       const prevState = ensureFragmentMerged(state, true);
 
       return reduceModelUpsertAction(prevState,
-        model => {
-          // Skip hit test on the assumption of valid input.
-          ndFill(model, volumn, c);
-          return true;
-        },
+        model => ndFill2(model, volumn, c),
         (model, selection) => ndFillWithFilter2(model, volumn, c, selection)
       );
     }
@@ -441,8 +506,30 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       );
     }
 
-    case VOXEL_COLOR_FILL: {
-      const { position, color } = <VoxelColorFillAction>action;
+    case VOXEL_COLOR_FILL_2D: {
+      const { position, color } = <VoxelColorFill2dAction>action;
+      const c = rgbToHex(color);
+
+      const prevState = ensureFragmentMerged(state, true);
+
+      const isValidPosition = get2dValidator(state.mode2D.axis, state.mode2D.position);
+
+      return reduceModelUpsertAction(prevState,
+        model => ndFloodFill(
+          model, c, position,
+          (x, y, z) => isValidPosition(x, y, z) ? model.get(x, y, z) : undefined
+        ),
+        (model, selection) => ndFloodFill(
+          model, c, position,
+          isEmptyInSlice(state.mode2D.axis, state.mode2D.position, selection)
+            ? (x, y, z) => isValidPosition(x, y, z) ? model.get(x, y, z) : undefined
+            : (x, y, z) => isValidPosition(x, y, z) && selection.get(x, y, z) ? model.get(x, y, z) : undefined
+        )
+      );
+    }
+
+    case VOXEL_COLOR_FILL_3D: {
+      const { position, color } = <VoxelColorFill3dAction>action;
       const c = rgbToHex(color);
 
       const prevState = ensureFragmentMerged(state, true);
@@ -450,7 +537,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       return reduceModelUpsertAction(prevState,
         model => ndFloodFill(model, c, position),
         (model, selection) => ndFloodFill(
-          model, c, position, (x, y, z) => selection.get(x, y, z) && model.get(x, y, z)
+          model, c, position, (x, y, z) => selection.get(x, y, z) ? model.get(x, y, z) : undefined
         )
       );
     }
@@ -484,10 +571,30 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       );
     }
 
-    case VOXEL_REMOVE_SELECTED: {
-      if (!state.selection) return;
-
+    case VOXEL_REMOVE_SELECTED_2D: {
       const prevState = ensureFragmentMerged(state, true);
+      if (!prevState.selection) return prevState;
+
+      const prevSelectionSlice = getSlice(state.mode2D.axis, state.mode2D.position, prevState.selection);
+      if (!ndAny(prevSelectionSlice)) return prevState;
+
+      const model = ndarray(prevState.model.data.slice(), prevState.model.shape);
+      const modelSlice = getSlice(state.mode2D.axis, state.mode2D.position, model);
+      ndExclude(modelSlice, prevSelectionSlice);
+
+      const selection = ndarray(prevState.selection.data.slice(), prevState.selection.shape);
+      const selectionSlice = getSlice(state.mode2D.axis, state.mode2D.position, selection);
+      ndExclude(selectionSlice, prevSelectionSlice);
+
+      return Object.assign({}, prevState, {
+        model,
+        selection: ndAny(selection) ? selection : null,
+      });
+    }
+
+    case VOXEL_REMOVE_SELECTED_3D: {
+      const prevState = ensureFragmentMerged(state, true);
+      if (!prevState.selection) return prevState;
 
       const model = ndarray(prevState.model.data.slice(), prevState.model.shape);
       ndExclude(model, prevState.selection);
@@ -525,6 +632,20 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       });
     }
 
+    case VOXEL_SELECT_CONNECTED_2D: {
+      const { position, merge } = <VoxelSelectConnected2dAction>action;
+
+      const prevState = ensureFragmentMerged(state, true);
+
+      const isValidPosition = get2dValidator(state.mode2D.axis, state.mode2D.position);
+
+      return reduceSelectAction(prevState, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
+        return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
+          return isValidPosition(x, y, z) && (selection.get(x, y, z) || (prevState.model.get(x, y, z) && 1)) || undefined;
+        });
+      });
+    }
+
     case VOXEL_SELECT_CONNECTED: {
       const { position, merge } = <VoxelSelectConnectedAction>action;
 
@@ -537,14 +658,28 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       });
     }
 
-    case VOXEL_MAGIN_WAND: {
-      const { position, merge } = <VoxelMaginWandAction>action;
+    case VOXEL_MAGIN_WAND_2D: {
+      const { position, merge } = <VoxelMaginWand2dAction>action;
+
+      const prevState = ensureFragmentMerged(state, true);
+
+      const isValidPosition = get2dValidator(state.mode2D.axis, state.mode2D.position);
+
+      return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
+        return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
+          return isValidPosition(x, y, z) && (selection.get(x, y, z) || prevState.model.get(x, y, z)) || undefined;
+        });
+      });
+    }
+
+    case VOXEL_MAGIN_WAND_3D: {
+      const { position, merge } = <VoxelMaginWand3dAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return selection.get(x, y, z) || prevState.model.get(x, y, z);
+          return selection.get(x, y, z) || prevState.model.get(x, y, z) || undefined;
         });
       });
     }
@@ -725,14 +860,29 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     }
 
     case ENTER_MODE_2D: {
+      if (state.mode2D.enabled === true) return state;
+
       return Object.assign({}, state, {
         mode2D: Object.assign({}, state.mode2D, { enabled: true }),
       });
     }
 
     case LEAVE_MODE_2D: {
+      if (state.mode2D.enabled === false) return state;
+
       return Object.assign({}, state, {
         mode2D: Object.assign({}, state.mode2D, { enabled: false }),
+      });
+    }
+
+    case MOVE_MODE_2D_PLANE: {
+      const { axis, position } = <MoveMode2DPlaneAction>action;
+      if (state.mode2D.axis === axis && state.mode2D.position === position) return state;
+
+      return Object.assign({}, state, {
+        mode2D: Object.assign({}, state.mode2D, {
+          axis, position,
+        }),
       });
     }
 

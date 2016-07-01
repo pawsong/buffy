@@ -1,30 +1,29 @@
 import THREE from 'three';
 
-import * as Immutable from 'immutable';
+import Immutable from 'immutable';
 
-import CursorState from './states/CursorState';
-import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';
+import CursorState from '../states/CursorState';
+import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
 import ModelEditorTool, {
   InitParams,
   ToolState, ToolStates,
-} from './ModelEditorTool';
+} from '../ModelEditorTool';
 
 import {
   Position,
   ToolType,
   Color,
   ModelEditorState,
-} from '../../types';
+} from '../../../types';
 
 import {
-  voxelColorFill,
   voxelMergeFragment,
-} from '../../actions';
+} from '../../../actions';
 
 const STATE_WAIT = ToolState.STATE_WAIT;
 
@@ -35,9 +34,13 @@ interface ColorFillToolProps {
   paletteColor: Color;
 }
 
-class ColorFillTool extends ModelEditorTool<ColorFillToolProps, void, void> {
-  getToolType(): ToolType { return ToolType.COLOR_FILL; }
+export interface ColorFillToolParams {
+  interactablesAreRotated: boolean;
+  getInteractables: () => THREE.Mesh[];
+  getOffset?: (intersect: THREE.Intersection, normal: THREE.Vector3) => THREE.Vector3;
+}
 
+abstract class ColorFillTool extends ModelEditorTool<ColorFillToolProps, void, void> {
   mapParamsToProps(params: ModelEditorState) {
     return {
       size: params.file.present.data.size,
@@ -48,10 +51,16 @@ class ColorFillTool extends ModelEditorTool<ColorFillToolProps, void, void> {
   }
 
   createStates(): ToolStates {
+    const params = this.getParams();
+
     return {
-      [STATE_WAIT]: new WaitState(this),
+      [STATE_WAIT]: new WaitState(this, params),
     };
   }
+
+  abstract getParams(): ColorFillToolParams;
+
+  abstract getAction(position: THREE.Vector3, color: Color);
 
   onDestroy() {
 
@@ -59,15 +68,14 @@ class ColorFillTool extends ModelEditorTool<ColorFillToolProps, void, void> {
 }
 
 class WaitState extends CursorState<void> {
-  constructor(private tool: ColorFillTool) {
+  constructor(private tool: ColorFillTool, params: ColorFillToolParams) {
     super(tool.canvas, {
       cursorVisible: false,
       cursorOnFace: false,
+      interactablesAreRotated: params.interactablesAreRotated,
       getSize: () => tool.props.size,
-      getInteractables: () => [
-        tool.canvas.component.modelMesh,
-        tool.canvas.component.fragmentMesh,
-      ],
+      getInteractables: params.getInteractables,
+      getOffset: params.getOffset,
     });
   }
 
@@ -76,7 +84,7 @@ class WaitState extends CursorState<void> {
   onMouseUp({ intersect }: CursorEventParams) {
     if (intersect) {
       const position = this.cursor.getPosition();
-      this.tool.dispatchAction(voxelColorFill(position.x, position.y, position.z, this.tool.props.paletteColor));
+      this.tool.dispatchAction(this.tool.getAction(position, this.tool.props.paletteColor));
     } else {
       if (this.tool.props.fragment) this.tool.dispatchAction(voxelMergeFragment());
     }

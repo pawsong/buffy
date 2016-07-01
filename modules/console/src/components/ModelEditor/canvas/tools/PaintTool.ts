@@ -19,6 +19,7 @@ import {
   ToolType,
   ModelEditorState,
   Color,
+  Axis,
 } from '../../types';
 
 import {
@@ -34,6 +35,11 @@ interface PaintToolProps {
   size: Position;
   paletteColor: Color;
   fragment: any;
+  mode2D: {
+    enabled: boolean;
+    axis: Axis;
+    position: number;
+  };
 }
 
 interface PaintToolTree {
@@ -51,6 +57,7 @@ class PaintTool extends ModelEditorTool<PaintToolProps, void, PaintToolTree> {
       paletteColor: params.common.paletteColor,
       size: params.file.present.data.size,
       fragment: params.file.present.data.fragment,
+      mode2D: params.file.present.data.mode2D,
     };
   }
 
@@ -98,6 +105,24 @@ class PaintTool extends ModelEditorTool<PaintToolProps, void, PaintToolTree> {
   onDestroy() {
 
   }
+
+  hitTest(position: THREE.Vector3) {
+    if (!this.props.mode2D.enabled) return true;
+
+    switch(this.props.mode2D.axis) {
+      case Axis.X: {
+        return this.props.mode2D.position === position.x;
+      }
+      case Axis.Y: {
+        return this.props.mode2D.position === position.y;
+      }
+      case Axis.Z: {
+        return this.props.mode2D.position === position.z;
+      }
+    }
+
+    return false;
+  }
 }
 
 class WaitState extends CursorState<StateEnterParams> {
@@ -112,6 +137,7 @@ class WaitState extends CursorState<StateEnterParams> {
         tool.canvas.component.fragmentMesh,
       ],
       transitionRequiresHit: false,
+      hitTest: position => tool.hitTest(position),
     });
   }
 
@@ -127,11 +153,13 @@ class DragState extends SelectTraceState {
   constructor(private tool: PaintTool) {
     super(tool.canvas, {
       cursorOnFace: false,
+      interactablesAreRotated: true,
       traceMaterial: tool.cursorMaterial,
       getSize: () => tool.props.size,
       getInteractables: () => [
         tool.canvas.component.modelMesh,
       ],
+      hitTest: position => tool.hitTest(position),
     });
   }
 

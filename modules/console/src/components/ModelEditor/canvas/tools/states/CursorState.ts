@@ -19,13 +19,15 @@ interface CursorStateOptions {
   getInteractables: () => THREE.Mesh[];
   getSize: () => Position;
   cursorOnFace: boolean;
-  getOffset?: (intersect: THREE.Intersection) => THREE.Vector3;
+  interactablesAreRotated?: boolean;
+  getOffset?: (intersect: THREE.Intersection, normal: THREE.Vector3) => THREE.Vector3;
   cursorVisible?: boolean;
   cursorMesh?: THREE.Mesh;
   cursorGeometry?: THREE.Geometry;
   cursorMaterial?: THREE.Material;
   transitionRequiresHit?: boolean;
   onCursorShow?: (visible: boolean) => any;
+  hitTest?: (position: THREE.Vector3) => boolean;
 }
 
 abstract class CursorState<T> extends ToolState {
@@ -35,7 +37,7 @@ abstract class CursorState<T> extends ToolState {
   private transitionRequiresHit: boolean;
 
   getNextStateName(): string { return ''; }
-  getNextStateParams(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3): T {
+  getNextStateParams(e: MouseEvent, intersect: THREE.Intersection, position: THREE.Vector3, normal: THREE.Vector3): T {
     return null;
   };
 
@@ -50,6 +52,8 @@ abstract class CursorState<T> extends ToolState {
     cursorMaterial,
     transitionRequiresHit,
     onCursorShow,
+    interactablesAreRotated,
+    hitTest,
   }: CursorStateOptions) {
     super();
 
@@ -67,6 +71,8 @@ abstract class CursorState<T> extends ToolState {
     const position = new THREE.Vector3();
     const offset = new THREE.Vector3();
 
+    const finalHitTest = hitTest || (() => true);
+
     this.cursor = new Cursor(canvas, {
       visible: finalCursorVisible,
       mesh: cursorMesh,
@@ -76,8 +82,11 @@ abstract class CursorState<T> extends ToolState {
       getInteractables,
       getOffset,
       onCursorShow,
+      interactablesAreRotated,
       hitTest: (intersect, meshPosition) => {
         Cursor.getDataPosition(meshPosition, position);
+        if (!finalHitTest(position)) return false;
+
         const size = getSize();
         return (
              position.x >= 0 && position.x < size[0]
@@ -99,7 +108,7 @@ abstract class CursorState<T> extends ToolState {
     this.onMouseDown(params.event, params.intersect, position);
 
     if (this.nextState && (!this.transitionRequiresHit || position)) {
-      this.transitionTo(this.nextState, this.getNextStateParams(params.event, params.intersect, position));
+      this.transitionTo(this.nextState, this.getNextStateParams(params.event, params.intersect, position, params.normal));
     }
   }
 
