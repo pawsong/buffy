@@ -41,7 +41,7 @@ import {
   VOXEL_SELECT_PROJECTION, VoxelSelectProjectionAction,
   VOXEL_SELECT_BOX, VoxelSelectBoxAction,
   VOXEL_SELECT_CONNECTED_2D, VoxelSelectConnected2dAction,
-  VOXEL_SELECT_CONNECTED, VoxelSelectConnectedAction,
+  VOXEL_SELECT_CONNECTED_3D, VoxelSelectConnected3dAction,
   VOXEL_MAGIN_WAND_2D, VoxelMaginWand2dAction,
   VOXEL_MAGIN_WAND_3D, VoxelMaginWand3dAction,
   VOXEL_CREATE_FRAGMENT, VoxelCreateFragmentAction,
@@ -322,18 +322,9 @@ interface Validate2dPosition {
 }
 
 function get2dValidator(axis: Axis, position: number): Validate2dPosition {
-  switch(axis) {
-    case Axis.X: {
-      return (x, y, z) => x === position;
-    }
-    case Axis.Y: {
-      return (x, y, z) => y === position;
-    }
-    case Axis.Z: {
-      return (x, y, z) => z === position;
-    }
-  }
-  invariant(false, `invalid axis: ${axis}`);
+  return function(x, y, z) {
+    return arguments[axis] === position;
+  };
 }
 
 function isEmptyInSlice(axis: Axis, position: number, selection: ndarray.Ndarray): boolean {
@@ -341,21 +332,11 @@ function isEmptyInSlice(axis: Axis, position: number, selection: ndarray.Ndarray
 }
 
 function filterVolumnWithSlice(axis: Axis, position: number, volumn: Volumn): Volumn {
-  switch(axis) {
-    case Axis.X: {
-      if (position < volumn[0] || position > volumn[3]) return null;
-      return [position, volumn[1], volumn[2], position, volumn[4], volumn[5]];
-    }
-    case Axis.Y: {
-      if (position < volumn[1] || position > volumn[4]) return null;
-      return [volumn[0], position, volumn[2], volumn[3], position, volumn[5]];
-    }
-    case Axis.Z: {
-      if (position < volumn[2] || position > volumn[5]) return null;
-      return [volumn[0], volumn[1], position, volumn[3], volumn[4], position];
-    }
-  }
-  invariant(false, `invalid axis: ${axis}`);
+  if (position < volumn[axis] || position > volumn[axis + 3]) return null;
+
+  const ret = volumn.slice();
+  ret[axis] = ret[axis + 3] = position;
+  return <Volumn>ret;
 }
 
 enum MergeType {
@@ -688,8 +669,8 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       });
     }
 
-    case VOXEL_SELECT_CONNECTED: {
-      const { position, merge } = <VoxelSelectConnectedAction>action;
+    case VOXEL_SELECT_CONNECTED_3D: {
+      const { position, merge } = <VoxelSelectConnected3dAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
 

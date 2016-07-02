@@ -9,6 +9,8 @@ import {
 import mesher from '../../../canvas/meshers/greedy';
 import { createGeometryFromMesh } from '../../../canvas/utils';
 
+import getSlice from '../utils/getSlice';
+
 import {
   Axis,
 } from '../types';
@@ -36,43 +38,8 @@ class SliceCache {
     const key = `${Axis[axis]}/${position}`;
     if (cache.hasOwnProperty(key)) return cache[key];
 
-    let subarray: ndarray.Ndarray;
-
-    switch(axis) {
-      case Axis.X: {
-        subarray = ndarray(
-          array.data,
-          [1, array.shape[1], array.shape[2]],
-          array.stride,
-          array.stride[0] * position
-        );
-        this.temp1.set(position * PIXEL_SCALE, 0, 0);
-        break;
-      }
-      case Axis.Y: {
-        subarray = ndarray(
-          array.data,
-          [array.shape[1], 1, array.shape[2]],
-          array.stride,
-          array.stride[1] * position
-        );
-        this.temp1.set(0, position * PIXEL_SCALE, 0);
-        break;
-      }
-      case Axis.Z: {
-        subarray = ndarray(
-          array.data,
-          [array.shape[1], array.shape[1], 1],
-          array.stride,
-          array.stride[2] * position
-        );
-        this.temp1.set(0, 0, position * PIXEL_SCALE);
-        break;
-      }
-      default: {
-        invariant(false, `Invalid axis: ${axis}`);
-      }
-    }
+    const subarray = getSlice(axis, position, array);
+    this.temp1.set(0, 0, 0).setComponent(axis, position * PIXEL_SCALE);
 
     const geometry = createGeometryFromMesh(mesher(subarray));
     if (geometry.vertices.length === 0) {

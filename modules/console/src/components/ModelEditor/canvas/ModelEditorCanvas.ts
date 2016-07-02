@@ -383,22 +383,9 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     }
 
     if (this.fragmentSliceMesh.visible) {
-      this.fragmentSliceMesh.position.copy(displacement);
-      switch(this.tree.mode2d.axis) {
-        case Axis.X: {
-          this.fragmentSliceMesh.position.setX(this.tree.mode2d.position);
-          break;
-        }
-        case Axis.Y: {
-          this.fragmentSliceMesh.position.setY(this.tree.mode2d.position);
-          break;
-        }
-        case Axis.Z: {
-          this.fragmentSliceMesh.position.setZ(this.tree.mode2d.position);
-          break;
-        }
-      }
-
+      this.fragmentSliceMesh.position
+        .copy(displacement)
+        .setComponent(this.tree.mode2d.axis, this.tree.mode2d.position);
       this.fragmentSliceMesh.position.multiplyScalar(PIXEL_SCALE);
     }
   }
@@ -414,13 +401,16 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   updateClippingPlane(axis: Axis, position: number) {
     this.canvas.camera.getWorldDirection(this.temp1);
 
+    const u = (axis + 1) % 3;
+    const v = (axis + 2) % 3;
+
+    this.mode2dPlaneMesh.scale.set(this.props.size[u], this.props.size[v], 1);
+    this.mode2dPlaneMesh.position.setComponent(u, this.props.size[u] / 2 * PIXEL_SCALE);
+    this.mode2dPlaneMesh.position.setComponent(v, this.props.size[v] / 2 * PIXEL_SCALE);
+
     // Move clipping plane
     switch(axis) {
       case Axis.X: {
-        this.mode2dPlaneMesh.scale.set(this.props.size[1], this.props.size[2], 1);
-
-        this.mode2dPlaneMesh.position.setY(this.props.size[1] / 2 * PIXEL_SCALE);
-        this.mode2dPlaneMesh.position.setZ(this.props.size[2] / 2 * PIXEL_SCALE);
         if (this.temp1.x > 0) {
           this.mode2dPlaneMesh.rotation.set(0, - Math.PI / 2, Math.PI / 2);
           this.mode2dPlaneMesh.position.setX((position + 1) * PIXEL_SCALE);
@@ -433,10 +423,6 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         break;
       }
       case Axis.Y: {
-        this.mode2dPlaneMesh.scale.set(this.props.size[2], this.props.size[0], 1);
-
-        this.mode2dPlaneMesh.position.setZ(this.props.size[2] / 2 * PIXEL_SCALE);
-        this.mode2dPlaneMesh.position.setX(this.props.size[0] / 2 * PIXEL_SCALE);
         if (this.temp1.y > 0) {
           this.mode2dPlaneMesh.rotation.set(Math.PI / 2, 0, Math.PI / 2);
           this.mode2dPlaneMesh.position.setY((position + 1) * PIXEL_SCALE);
@@ -449,10 +435,6 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         break;
       }
       case Axis.Z: {
-        this.mode2dPlaneMesh.scale.set(this.props.size[0], this.props.size[1], 1);
-
-        this.mode2dPlaneMesh.position.setX(this.props.size[0] / 2 * PIXEL_SCALE);
-        this.mode2dPlaneMesh.position.setY(this.props.size[1] / 2 * PIXEL_SCALE);
         if (this.temp1.z > 0) {
           this.mode2dPlaneMesh.rotation.set(Math.PI, 0, 0);
           this.mode2dPlaneMesh.position.setZ((position + 1) * PIXEL_SCALE);
@@ -748,40 +730,12 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
     const { axis, position } = this.tree.mode2d;
 
-    let slicePosition: number;
-    switch(axis) {
-      case Axis.X: {
-        slicePosition = position - this.tree.fragmentOffset[0];
-        this.temp1.set(
-          position,
-          this.tree.fragmentOffset[1],
-          this.tree.fragmentOffset[2]
-        );
-        break;
-      }
-      case Axis.Y: {
-        slicePosition = position - this.tree.fragmentOffset[1];
-        this.temp1.set(
-          this.tree.fragmentOffset[0],
-          position,
-          this.tree.fragmentOffset[2]
-        );
-        break;
-      }
-      case Axis.Z: {
-        slicePosition = position - this.tree.fragmentOffset[2];
-        this.temp1.set(
-          this.tree.fragmentOffset[0],
-          this.tree.fragmentOffset[1],
-          position
-        );
-        break;
-      }
-      default: {
-        invariant(false, `invalid axis: ${axis}`);
-      }
-    }
+    const slicePosition = position - this.tree.fragmentOffset[axis];
+    this.temp1
+      .set(this.tree.fragmentOffset[0], this.tree.fragmentOffset[1], this.tree.fragmentOffset[2])
+      .setComponent(axis, position);
 
+    // TODO: Check boundary again
     if (slicePosition >= 0) {
       const meshes = this.fragmentSliceCache.get(this.tree.fragment, axis, slicePosition);
       if (meshes) {

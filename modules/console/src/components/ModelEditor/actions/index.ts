@@ -129,14 +129,14 @@ export function voxelSelectConnected2d(x: number, y: number, z: number, merge: b
   };
 }
 
-export const VOXEL_SELECT_CONNECTED: 'VOXEL_SELECT_CONNECTED' = 'VOXEL_SELECT_CONNECTED';
-export interface VoxelSelectConnectedAction extends Action<typeof VOXEL_SELECT_CONNECTED> {
+export const VOXEL_SELECT_CONNECTED_3D: 'VOXEL_SELECT_CONNECTED' = 'VOXEL_SELECT_CONNECTED';
+export interface VoxelSelectConnected3dAction extends Action<typeof VOXEL_SELECT_CONNECTED_3D> {
   position: Position;
   merge: boolean;
 }
-export function voxelSelectConnected(x: number, y: number, z: number, merge: boolean): VoxelSelectConnectedAction {
+export function voxelSelectConnected(x: number, y: number, z: number, merge: boolean): VoxelSelectConnected3dAction {
   return {
-    type: VOXEL_SELECT_CONNECTED,
+    type: VOXEL_SELECT_CONNECTED_3D,
     position: [x, y, z],
     merge,
   };
