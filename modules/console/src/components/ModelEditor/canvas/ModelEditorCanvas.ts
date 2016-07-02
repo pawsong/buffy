@@ -731,16 +731,14 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     const { axis, position } = this.tree.mode2d;
 
     const slicePosition = position - this.tree.fragmentOffset[axis];
-    this.temp1
-      .set(this.tree.fragmentOffset[0], this.tree.fragmentOffset[1], this.tree.fragmentOffset[2])
-      .setComponent(axis, position);
-
-    // TODO: Check boundary again
-    if (slicePosition >= 0) {
+    if (slicePosition >= 0 && slicePosition < this.tree.fragment.shape[axis]) {
       const meshes = this.fragmentSliceCache.get(this.tree.fragment, axis, slicePosition);
       if (meshes) {
         this.fragmentSliceMesh = meshes[0];
-        this.fragmentSliceMesh.position.copy(this.temp1.multiplyScalar(PIXEL_SCALE));
+        this.fragmentSliceMesh.position
+          .set(this.tree.fragmentOffset[0], this.tree.fragmentOffset[1], this.tree.fragmentOffset[2])
+          .setComponent(axis, position);
+        this.fragmentSliceMesh.position.multiplyScalar(PIXEL_SCALE);
         this.canvas.scene.add(this.fragmentSliceMesh);
       }
     }
