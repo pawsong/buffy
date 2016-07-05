@@ -275,18 +275,18 @@ class Cursor {
     return { intersect, normal };
   }
 
-  private handleMouseMove(event: MouseEvent): boolean {
+  private handleMouseMove(event: MouseEvent) {
     const result = this.getCanvasPositionFromMouseEvent(event, this.mesh.position);
     if (result) {
       const { intersect, normal } = result;
       if (!this.mesh.visible) this.onCursorShow(true);
       this.onHit({ event, intersect, normal });
-      return true;
     } else {
       if (this.mesh.visible) this.onCursorShow(false);
       this.onMiss({ event, intersect: null, normal: null });
-      return false;
     }
+
+    return result;
   }
 
   private _onMouseMove = (event: MouseEvent) => {
@@ -307,7 +307,7 @@ class Cursor {
 
     if (event.which !== 1) return;
 
-    const result = this.getCanvasPositionFromMouseEvent(event, this.mesh.position);
+    const result = this.handleMouseMove(event);
     if (result) {
       const { intersect, normal } = result;
 
@@ -324,7 +324,7 @@ class Cursor {
 
     if (event.which !== 1) return;
 
-    const result = this.getCanvasPositionFromMouseEvent(event, this.mesh.position);
+    const result = this.handleMouseMove(event);
     if (result) {
       const { intersect, normal } = result;
 
