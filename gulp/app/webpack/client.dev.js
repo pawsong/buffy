@@ -71,6 +71,10 @@ module.exports = options => {
         __CLIENT__: true,
       }, options.defines || {}), val => JSON.stringify(val))),
 
+      // new webpack.optimize.UglifyJsPlugin({
+      //   compressor: { warnings: false },
+      // }),
+
       new webpack.HotModuleReplacementPlugin(),
 
       ...(options.plugins || []),
