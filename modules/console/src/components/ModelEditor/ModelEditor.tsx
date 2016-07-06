@@ -176,11 +176,26 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 
   dispatchAction = (action: Action<any>, callback?: () => any) => {
+    let prevCommonState = this.props.commonState;
+    let prevFileState = this.props.fileState;
+
     const nextCommonState = commonReducer(this.props.commonState, action);
     if (this.props.commonState !== nextCommonState) this.props.onCommonStateChange(nextCommonState);
 
     const nextFileState = fileReducer(this.props.fileState, action);
     if (this.props.fileState !== nextFileState) this.props.onFileStateChange(nextFileState);
+
+    if (__DEV__) {
+      console.log('[VoxelEditor] Dispatch action:', action);
+
+      if (prevCommonState !== nextCommonState) {
+        console.log('[VoxelEditor] Common state change', prevCommonState, '->', nextCommonState);
+      }
+
+      if (prevFileState !== nextFileState) {
+        console.log('[VoxelEditor] File state change', prevFileState.present.data, '->', nextFileState.present.data);
+      }
+    }
   }
 
   handleFullscreenButtonClick = () => {
