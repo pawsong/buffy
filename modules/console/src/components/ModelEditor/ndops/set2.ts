@@ -11,16 +11,16 @@ interface Set2 {
 
 export default <Set2>cwise({
   args: ['array', 'scalar'],
-  pre: function() {
+  pre: new Function(`
     this.hit = false;
-  },
-  body: function(a, s) {
+  `),
+  body: new Function('a', 's', `
     if (a !== s) {
       a = s;
       this.hit = true;
     }
-  },
-  post: function () {
+  `),
+  post: new Function(`
     return this.hit;
-  },
+  `),
 });

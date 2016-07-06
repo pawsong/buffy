@@ -4,8 +4,6 @@ const mapValues = require('lodash/mapValues');
 const findLastIndex = require('lodash/findLastIndex');
 import { createSelector, Selector } from 'reselect';
 
-const cwise = require('cwise');
-
 import ModelEditorTool from './tools/ModelEditorTool';
 import createTool from './tools';
 

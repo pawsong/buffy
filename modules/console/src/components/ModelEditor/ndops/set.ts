@@ -11,7 +11,7 @@ interface Set {
 
 export default <Set>cwise({
   args: ['array', 'scalar'],
-  body: function(a, s) {
+  body: new Function('a', 's', `
     a = s;
-  },
+  `),
 });

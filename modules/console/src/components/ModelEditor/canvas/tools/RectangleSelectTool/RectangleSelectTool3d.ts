@@ -1,6 +1,5 @@
 import THREE from 'three';
 import * as ndarray from 'ndarray';
-const cwise = require('cwise');
 
 import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
 

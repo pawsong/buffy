@@ -11,7 +11,7 @@ interface FilterAndCopy {
 
 export default <FilterAndCopy>cwise({
   args: ['array', 'array', 'array'],
-  body: function (d, s, f) {
+  body: new Function('d', 's', 'f', `
     if (f) d = s;
-  }
+  `),
 });

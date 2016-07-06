@@ -95,15 +95,14 @@ const filterProjection = (() => {
       'scalar', 'scalar', 'scalar', 'scalar', 'scalar', 'scalar',
       'scalar', 'scalar', 'scalar', 'scalar',
     ],
-    pre: function () {
+    pre: new Function(`
       this.selected = false;
-    },
-    body: function (
-      i, dest, src, value, scale,
-      e0, e1, e3, e4,  e5, e7,
-      e8, e9, e11, e12, e13, e15,
-      lo0, lo1, hi0, hi1
-    ) {
+    `),
+    body: new Function(
+      'i', 'dest', 'src', 'value', 'scale',
+      'e0', 'e1', 'e3', 'e4', 'e5', 'e7',
+      'e8', 'e9', 'e11', 'e12', 'e13', 'e15',
+      'lo0', 'lo1', 'hi0', 'hi1', `
       if (src) {
         // Apply projection
         var x = (i[0] + 0.5) * scale;
@@ -119,10 +118,10 @@ const filterProjection = (() => {
           this.selected = true;
         }
       }
-    },
-    post: function () {
+    `),
+    post: new Function(`
       return this.selected;
-    },
+    `),
   });
 
   return function (
@@ -234,15 +233,15 @@ function ensureFragmentMerged(state: VoxelData, fragmentLeaveSelection: boolean)
 // TODO: Improve algorithm
 const findBounds = cwise({
   args: ['index', 'array'],
-  pre: function () {
+  pre: new Function(`
     this.loX = Infinity;
     this.loY = Infinity;
     this.loZ = Infinity;
     this.hiX = -1;
     this.hiY = -1;
     this.hiZ = -1;
-  },
-  body: function (i, a) {
+  `),
+  body: new Function('i', 'a', `
     if (a) {
       if (this.loX > i[0]) this.loX = i[0];
       if (this.loY > i[1]) this.loY = i[1];
@@ -251,10 +250,10 @@ const findBounds = cwise({
       if (this.hiY < i[1]) this.hiY = i[1];
       if (this.hiZ < i[2]) this.hiZ = i[2];
     }
-  },
-  post: function () {
+  `),
+  post: new Function(`
     return [this.loX, this.loY, this.loZ, this.hiX, this.hiY, this.hiZ];
-  }
+  `),
 });
 
 const clipboardSelector = createSelector(

@@ -11,17 +11,17 @@ interface AssignAndMask2 {
 
 export default <AssignAndMask2>cwise({
   args: ['array', 'array', 'array', 'scalar'],
-  pre: function () {
+  pre: new Function(`
     this.hit = false;
-  },
-  body: function (d, m, s, maskVal) {
+  `),
+  body: new Function('d', 'm', 's', 'maskVal', `
     if (s) {
       d = s;
       m = maskVal;
       this.hit = true;
     }
-  },
-  post: function () {
+  `),
+  post: new Function(`
     return this.hit;
-  },
+  `),
 });

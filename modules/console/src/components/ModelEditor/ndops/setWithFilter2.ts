@@ -11,16 +11,16 @@ interface SetWithFilter2 {
 
 export default <SetWithFilter2>cwise({
   args: ['array', 'scalar', 'array'],
-  pre: function () {
+  pre: new Function(`
     this.hit = false;
-  },
-  body: function(a, s, f) {
+  `),
+  body: new Function('a', 's', 'f', `
     if (f) {
       a = s;
       this.hit = true;
     }
-  },
-  post: function () {
+  `),
+  post: new Function(`
     return this.hit;
-  },
+  `),
 });

@@ -9,9 +9,11 @@ interface Assign {
   (dest: Ndarray, src: Ndarray): void;
 }
 
+// Use new Function to keep code from being uglified.
+
 export default <Assign>cwise({
   args: ['array', 'array'],
-  body: function (d, s) {
+  body: new Function('d', 's', `
     if (s) d = s;
-  }
+  `),
 });

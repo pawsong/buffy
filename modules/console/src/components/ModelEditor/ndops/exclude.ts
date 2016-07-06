@@ -11,7 +11,7 @@ interface Exclude {
 
 export default <Exclude>cwise({
   args: ['array', 'array'],
-  body: function (d, s) {
+  body: new Function('d', 's', `
     if (s) d = 0;
-  }
+  `),
 });

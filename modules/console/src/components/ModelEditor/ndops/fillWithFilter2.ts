@@ -1,5 +1,4 @@
 import * as ndarray from 'ndarray';
-const cwise = require('cwise');
 
 import ndSetWithFilter2 from './setWithFilter2';
 

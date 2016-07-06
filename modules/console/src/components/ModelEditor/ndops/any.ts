@@ -9,12 +9,14 @@ interface Any {
   (array: Ndarray): boolean;
 }
 
+// Use new Function to keep code from being uglified.
+
 export default <Any>cwise({
   args: ['array'],
-  body: function(a) {
+  body: new Function('a', `
     if (a) return true;
-  },
-  post: function() {
-    return false
-  },
+  `),
+  post: new Function(`
+    return false;
+  `),
 });
