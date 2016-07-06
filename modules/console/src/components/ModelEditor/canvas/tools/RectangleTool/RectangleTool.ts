@@ -35,7 +35,7 @@ const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
 
 abstract class RectangleTool extends AddBlockTool<AddBlockToolProps> {
-  getToolType() { return ToolType.RECTANGLE_3D; }
+  getToolType() { return ToolType.RECTANGLE; }
 
   mapParamsToProps(state: ModelEditorState) {
     return {

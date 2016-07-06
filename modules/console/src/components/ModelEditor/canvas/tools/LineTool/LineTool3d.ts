@@ -17,8 +17,6 @@ interface LineTool3dProps extends AddBlockToolProps {
 }
 
 class LineTool3d extends LineTool<LineTool3dProps> {
-  getToolType() { return ToolType.LINE_3D; }
-
   getParams() {
     return {
       getInteractables: () => [

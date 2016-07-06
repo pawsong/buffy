@@ -46,6 +46,8 @@ abstract class PaintTool extends ModelEditorTool<PaintToolProps, void, PaintTool
   cursorGeometry: THREE.Geometry;
   cursorMaterial: THREE.MeshBasicMaterial;
 
+  getToolType(): ToolType { return ToolType.PAINT; }
+
   abstract getParams(): PaintToolParams;
 
   mapParamsToProps(params: ModelEditorState) {

@@ -10,8 +10,6 @@ import {
 import EraseTool from './EraseTool';
 
 class EraseTool3d extends EraseTool {
-  getToolType(): ToolType { return ToolType.ERASE_3D; }
-
   getParams() {
     return {
       getInteractables: () => [

@@ -11,8 +11,6 @@ import {
 import PaintTool from './PaintTool';
 
 class PaintTool2d extends PaintTool {
-  getToolType(): ToolType { return ToolType.PAINT_2D; }
-
   getParams() {
     return {
       getInteractables: () => [

@@ -38,6 +38,8 @@ export interface MagicWandToolParams {
 }
 
 abstract class MagicWandTool extends ModelEditorTool<MagicWandToolProps, void, void> {
+  getToolType(): ToolType { return ToolType.MAGIC_WAND; }
+
   mapParamsToProps(params: ModelEditorState) {
     return {
       size: params.file.present.data.size,

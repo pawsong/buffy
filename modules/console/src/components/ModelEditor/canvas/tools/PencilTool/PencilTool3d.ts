@@ -11,8 +11,6 @@ import {
 } from '../../../actions';
 
 class PencilTool3d extends PencilTool {
-  getToolType(): ToolType { return ToolType.PENCIL_3D; }
-
   getParams() {
     return {
       cursorOnFace: true,

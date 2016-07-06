@@ -44,7 +44,7 @@ class RectangleSelectTool extends ModelEditorTool<BoxSelectToolProps, void, void
   canvasElement: HTMLCanvasElement;
   private selectionCtx: CanvasRenderingContext2D;
 
-  getToolType() { return ToolType.RECTANGLE_SELECT_3D; }
+  getToolType() { return ToolType.RECTANGLE_SELECT; }
 
   mapParamsToProps(state: ModelEditorState) {
     return {

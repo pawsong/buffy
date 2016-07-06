@@ -21,8 +21,6 @@ interface LineTool2dProps extends AddBlockToolProps {
 }
 
 class LineTool2d extends LineTool<LineTool2dProps> {
-  getToolType() { return ToolType.LINE_2D; }
-
   getParams() {
     return {
       getInteractables: () => [

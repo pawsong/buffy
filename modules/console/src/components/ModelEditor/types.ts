@@ -20,10 +20,27 @@ export interface ActionListener {
   <T>(action: Action<T>): any;
 }
 
-/**
- *
- */
 export enum ToolType {
+  MOVE,
+  RECTANGLE_SELECT,
+  MAGIC_WAND,
+  PENCIL,
+  ERASE,
+  PAINT,
+  COLOR_FILL,
+  LINE,
+  RECTANGLE,
+  COLORIZE,
+  BOX,
+  BOX_SELECT,
+  TRANSFORM,
+  RESIZE,
+
+  // Tools that are always running
+  MODE2D,
+}
+
+export enum UniqueToolType {
   MOVE_2D,
   MOVE_3D,
   RECTANGLE_SELECT_2D,
@@ -48,9 +65,6 @@ export enum ToolType {
   BOX_SELECT,
   TRANSFORM,
   RESIZE,
-
-  // Tools that are always running
-  MODE2D,
 }
 
 export enum SupportFileType {
@@ -117,8 +131,7 @@ export interface Clipboard {
 }
 
 export interface CommonState {
-  tool3d: ToolType;
-  tool2d: ToolType;
+  tool: ToolType;
   paletteColor: Color;
   clipboard: Clipboard;
 }

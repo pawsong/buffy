@@ -41,6 +41,8 @@ export interface ColorFillToolParams {
 }
 
 abstract class ColorFillTool extends ModelEditorTool<ColorFillToolProps, void, void> {
+  getToolType(): ToolType { return ToolType.COLOR_FILL; }
+
   mapParamsToProps(params: ModelEditorState) {
     return {
       size: params.file.present.data.size,

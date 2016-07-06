@@ -824,10 +824,15 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         if (!ndAssign2(destSelectionIntersect, srcSelectionIntersect)) destSelection = null;
       }
 
+      const mode2d = prevState.mode2d.position >= size[prevState.mode2d.axis]
+        ? Object.assign({}, prevState.mode2d, { position: size[prevState.mode2d.axis] - 1 })
+        : prevState.mode2d;
+
       return Object.assign({}, prevState, {
         size,
         model: dest,
         selection: destSelection,
+        mode2d,
       });
     }
 
@@ -896,10 +901,17 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         }
       }
 
+      const size = model.shape;
+
+      const mode2d = prevState.mode2d.position >= size[prevState.mode2d.axis]
+        ? Object.assign({}, prevState.mode2d, { position: size[prevState.mode2d.axis] - 1 })
+        : prevState.mode2d;
+
       return Object.assign({}, prevState, {
-        size: model.shape,
+        size,
         model,
         selection,
+        mode2d,
       });
     }
 

@@ -49,6 +49,8 @@ abstract class PencilTool extends ModelEditorTool<PencilToolProps, void, PencilT
   cursorGeometry: THREE.Geometry;
   cursorMaterial: THREE.MeshBasicMaterial;
 
+  getToolType(): ToolType { return ToolType.PENCIL; }
+
   abstract getParams(): PencilToolParams;
 
   mapParamsToProps(params: ModelEditorState) {

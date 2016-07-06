@@ -17,8 +17,6 @@ import {
 import PencilTool from './PencilTool';
 
 class PencilTool2d extends PencilTool {
-  getToolType(): ToolType { return ToolType.PENCIL_2D; }
-
   getParams() {
     const origin = new THREE.Vector3();
     const offset = new THREE.Vector3();

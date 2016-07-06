@@ -1,10 +1,12 @@
 import { Keyboard } from '../../../../keyboard';
 
 import {
-  ToolType,
+  UniqueToolType,
   DispatchAction,
   GetEditorState,
 } from '../../types';
+
+import getUniqueToolType from '../../utils/getUniqueToolType';
 
 import ModelEditorCanvas from '../ModelEditorCanvas';
 
@@ -36,7 +38,7 @@ import TransformTool from './TransformTool';
 import ResizeTool from './ResizeTool';
 
 export default function createTool(
-  toolType: ToolType,
+  toolType: UniqueToolType,
   canvas: ModelEditorCanvas,
   dispatchAction: DispatchAction,
   keyboard: Keyboard
@@ -46,79 +48,79 @@ export default function createTool(
   };
 
   switch(toolType) {
-    case ToolType.MOVE_2D: {
-      return new MoveTool2d(initParams);
-    }
-    case ToolType.MOVE_3D: {
-      return new MoveTool3d(initParams);
-    }
-    case ToolType.RECTANGLE_SELECT_2D: {
-      return new RectangleSelectTool2d(initParams);
-    }
-    case ToolType.RECTANGLE_SELECT_3D: {
-      return new RectangleSelectTool3d(initParams);
-    }
-    case ToolType.MAGIC_WAND_2D: {
-      return new MagicWandTool2d(initParams);
-    }
-    case ToolType.MAGIC_WAND_3D: {
-      return new MagicWandTool3d(initParams);
-    }
-    case ToolType.PENCIL_2D: {
-      return new PencilTool2d(initParams);
-    }
-    case ToolType.PENCIL_3D: {
-      return new PencilTool3d(initParams);
-    }
-    case ToolType.ERASE_2D: {
-      return new EraseTool2d(initParams);
-    }
-    case ToolType.ERASE_3D: {
-      return new EraseTool3d(initParams);
-    }
-    case ToolType.PAINT_2D: {
-      return new PaintTool2d(initParams);
-    }
-    case ToolType.PAINT_3D: {
-      return new PaintTool3d(initParams);
-    }
-    case ToolType.COLOR_FILL_2D: {
-      return new ColorFillTool2d(initParams);
-    }
-    case ToolType.COLOR_FILL_3D: {
-      return new ColorFillTool3d(initParams);
-    }
-    case ToolType.LINE_2D: {
-      return new LineTool2d(initParams);
-    }
-    case ToolType.LINE_3D: {
-      return new LineTool3d(initParams);
-    }
-    case ToolType.RECTANGLE_2D: {
-      return new RectangleTool2d(initParams);
-    }
-    case ToolType.RECTANGLE_3D: {
-      return new RectangleTool3d(initParams);
-    }
-    case ToolType.COLORIZE_2D: {
-      return new ColorizeTool2d(initParams);
-    }
-    case ToolType.COLORIZE_3D: {
-      return new ColorizeTool3d(initParams);
-    }
-    case ToolType.BOX: {
-      return new BoxTool(initParams);
-    }
-    case ToolType.BOX_SELECT: {
-      return new BoxSelectTool(initParams);
-    }
-    case ToolType.TRANSFORM: {
+    case UniqueToolType.TRANSFORM: {
       return new TransformTool(initParams);
     }
-    case ToolType.RESIZE: {
+    case UniqueToolType.RESIZE: {
       return new ResizeTool(initParams);
+    }
+    case UniqueToolType.MOVE_2D: {
+      return new MoveTool2d(initParams);
+    }
+    case UniqueToolType.MOVE_3D: {
+      return new MoveTool3d(initParams);
+    }
+    case UniqueToolType.RECTANGLE_SELECT_2D: {
+      return new RectangleSelectTool2d(initParams);
+    }
+    case UniqueToolType.RECTANGLE_SELECT_3D: {
+      return new RectangleSelectTool3d(initParams);
+    }
+    case UniqueToolType.MAGIC_WAND_2D: {
+      return new MagicWandTool2d(initParams);
+    }
+    case UniqueToolType.MAGIC_WAND_3D: {
+      return new MagicWandTool3d(initParams);
+    }
+    case UniqueToolType.PENCIL_2D: {
+      return new PencilTool2d(initParams);
+    }
+    case UniqueToolType.PENCIL_3D: {
+      return new PencilTool3d(initParams);
+    }
+    case UniqueToolType.ERASE_2D: {
+      return new EraseTool2d(initParams);
+    }
+    case UniqueToolType.ERASE_3D: {
+      return new EraseTool3d(initParams);
+    }
+    case UniqueToolType.PAINT_2D: {
+      return new PaintTool2d(initParams);
+    }
+    case UniqueToolType.PAINT_3D: {
+      return new PaintTool3d(initParams);
+    }
+    case UniqueToolType.COLOR_FILL_2D: {
+      return new ColorFillTool2d(initParams);
+    }
+    case UniqueToolType.COLOR_FILL_3D: {
+      return new ColorFillTool3d(initParams);
+    }
+    case UniqueToolType.LINE_2D: {
+      return new LineTool2d(initParams);
+    }
+    case UniqueToolType.LINE_3D: {
+      return new LineTool3d(initParams);
+    }
+    case UniqueToolType.RECTANGLE_2D: {
+      return new RectangleTool2d(initParams);
+    }
+    case UniqueToolType.RECTANGLE_3D: {
+      return new RectangleTool3d(initParams);
+    }
+    case UniqueToolType.COLORIZE_2D: {
+      return new ColorizeTool2d(initParams);
+    }
+    case UniqueToolType.COLORIZE_3D: {
+      return new ColorizeTool3d(initParams);
+    }
+    case UniqueToolType.BOX: {
+      return new BoxTool(initParams);
+    }
+    case UniqueToolType.BOX_SELECT: {
+      return new BoxSelectTool(initParams);
     }
   }
 
-  throw new Error(`Invalid tool type: ${ToolType[toolType]}`);
+  throw new Error(`Invalid tool type: ${UniqueToolType[toolType]}`);
 }

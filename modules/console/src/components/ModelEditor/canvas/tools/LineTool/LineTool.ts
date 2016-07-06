@@ -39,6 +39,8 @@ abstract class LineTool<T extends AddBlockToolProps> extends AddBlockTool<T> {
   drawGuideY: THREE.Mesh;
   drawGuideZ: THREE.Mesh;
 
+  getToolType() { return ToolType.LINE; }
+
   createStates(): ToolStates {
     const params = this.getParams();
     return {

@@ -15,8 +15,6 @@ import {
 } from '../../../actions';
 
 class ColorFillTool3d extends ColorFillTool {
-  getToolType(): ToolType { return ToolType.COLOR_FILL_3D; }
-
   getParams(): ColorFillToolParams {
     return {
       interactablesAreRotated: false,

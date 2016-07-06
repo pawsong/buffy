@@ -1,6 +1,5 @@
 import {
   CHANGE_TOOL, ChangeToolAction,
-  CHANGE_TOOL_2D, ChangeTool2dAction,
   CHANGE_PALETTE_COLOR, ChangePaletteColorAction,
   VOXEL_COPY, VoxelCopyAction,
 } from '../actions';
@@ -13,8 +12,7 @@ import {
 } from '../types';
 
 const initialState: CommonState = {
-  tool3d: ToolType.PENCIL_3D,
-  tool2d: ToolType.PENCIL_2D,
+  tool: ToolType.PENCIL,
   paletteColor: { r: 104, g: 204, b: 202 },
   clipboard: null,
 }
@@ -22,12 +20,8 @@ const initialState: CommonState = {
 export default function common(state = initialState, action: Action<any>) {
   switch(action.type) {
     case CHANGE_TOOL: {
-      const { tool: tool3d } = <ChangeToolAction>action;
-      return Object.assign({}, state, { tool3d });
-    }
-    case CHANGE_TOOL_2D: {
-      const { tool: tool2d } = <ChangeTool2dAction>action;
-      return Object.assign({}, state, { tool2d });
+      const { tool } = <ChangeToolAction>action;
+      return Object.assign({}, state, { tool });
     }
     case CHANGE_PALETTE_COLOR: {
       const { color: paletteColor } = <ChangePaletteColorAction>action;

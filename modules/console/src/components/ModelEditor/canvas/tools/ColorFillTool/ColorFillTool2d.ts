@@ -15,8 +15,6 @@ import {
 } from '../../../actions';
 
 class ColorFillTool2d extends ColorFillTool {
-  getToolType(): ToolType { return ToolType.COLOR_FILL_2D; }
-
   getParams(): ColorFillToolParams {
     const origin = new THREE.Vector3();
     const offset = new THREE.Vector3();

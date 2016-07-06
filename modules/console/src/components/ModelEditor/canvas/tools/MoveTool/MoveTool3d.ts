@@ -79,7 +79,7 @@ class MoveTool3d extends ModelEditorTool<MoveTool3dProps, void, MoveTool3dTree> 
   drawGuide: THREE.Mesh;
   drawGuideSize: THREE.Vector3;
 
-  getToolType(): ToolType { return ToolType.MOVE_3D; }
+  getToolType(): ToolType { return ToolType.MOVE; }
 
   mapParamsToProps(params: ModelEditorState) {
     return {

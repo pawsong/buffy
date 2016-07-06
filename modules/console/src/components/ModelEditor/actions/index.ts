@@ -361,20 +361,9 @@ export const CHANGE_TOOL: 'CHANGE_TOOL' = 'CHANGE_TOOL';
 export interface ChangeToolAction extends Action<typeof CHANGE_TOOL> {
   tool: ToolType;
 }
-export function changeTool3d(tool: ToolType) {
+export function changeTool(tool: ToolType) {
   return {
     type: CHANGE_TOOL,
-    tool,
-  };
-}
-
-export const CHANGE_TOOL_2D: 'CHANGE_TOOL_2D' = 'CHANGE_TOOL_2D';
-export interface ChangeTool2dAction extends Action<typeof CHANGE_TOOL_2D> {
-  tool: ToolType;
-}
-export function changeTool2d(tool: ToolType) {
-  return {
-    type: CHANGE_TOOL_2D,
     tool,
   };
 }

@@ -23,6 +23,7 @@ if (__CLIENT__) {
 const invariant = require('fbjs/lib/invariant');
 
 import getSlice from '../utils/getSlice';
+import getUniqueToolType from '../utils/getUniqueToolType';
 
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 import SimpleComponent from '../../../libs/SimpleComponent';
@@ -865,7 +866,7 @@ class ModelEditorCanvas extends Canvas {
       updateControlsState();
     });
 
-    this.tool = this.getTool(this.state.common.tool3d);
+    this.tool = this.getTool(this.state.file.present.data.mode2d.enabled, this.state.common.tool);
     const props = this.tool.mapParamsToProps(this.state);
     this.tool.start(props);
 
@@ -921,12 +922,14 @@ class ModelEditorCanvas extends Canvas {
   }
 
   // Lazy getter
-  getTool(toolType: ToolType): ModelEditorTool<any, any, any> {
-    const tool = this.cachedTools[toolType];
+  getTool(mode2d: boolean, toolType: ToolType): ModelEditorTool<any, any, any> {
+    const uniqueToolType = getUniqueToolType(mode2d, toolType);
+
+    const tool = this.cachedTools[uniqueToolType];
     if (tool) return tool;
 
-    return this.cachedTools[toolType] =
-      createTool(toolType, this, this.dispatchAction, this.keyboard);
+    return this.cachedTools[uniqueToolType] =
+      createTool(uniqueToolType, this, this.dispatchAction, this.keyboard);
   }
 
   onWindowResize() {
@@ -940,14 +943,13 @@ class ModelEditorCanvas extends Canvas {
   onStateChange(nextState: ModelEditorState) {
     this.component.updateProps(nextState.file.present.data);
 
-    const currentToolType = this.state.file.present.data.mode2d.enabled
-      ? this.state.common.tool2d : this.state.common.tool3d;
-
-    const nextToolType = nextState.file.present.data.mode2d.enabled
-      ? nextState.common.tool2d : nextState.common.tool3d;
-
-    if (currentToolType !== nextToolType) {
-      const nextTool = this.getTool(nextToolType);
+    if (
+         this.state.file.present.data.mode2d.enabled !== nextState.file.present.data.mode2d.enabled
+      || this.state.common.tool !== nextState.common.tool
+    ) {
+      const nextTool = this.getTool(
+        nextState.file.present.data.mode2d.enabled, nextState.common.tool
+      );
       this.tool.stop();
       this.tool = nextTool;
       const props = this.tool.mapParamsToProps(nextState);

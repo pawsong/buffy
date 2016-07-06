@@ -9,8 +9,6 @@ import {
 import MagicWandTool, { MagicWandToolParams } from './MagicWandTool';
 
 class MagicWandTool3d extends MagicWandTool {
-  getToolType(): ToolType { return ToolType.MAGIC_WAND_3D; }
-
   getParams(): MagicWandToolParams {
     return {
       getInteractables: () => [

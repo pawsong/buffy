@@ -39,6 +39,8 @@ abstract class EraseTool extends ModelEditorTool<EraseToolProps, void, void> {
   cursorGeometry: THREE.Geometry;
   translucentMaterial: THREE.Material;
 
+  getToolType(): ToolType { return ToolType.ERASE; }
+
   abstract getParams(): EraseToolParams;
 
   mapParamsToProps(params: ModelEditorState) {

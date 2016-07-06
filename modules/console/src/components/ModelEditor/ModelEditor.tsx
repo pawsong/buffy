@@ -38,6 +38,7 @@ import { connectTarget } from '../Panel';
 
 import createFileState from './utils/createFileState';
 import deserialize from './utils/deserialize';
+import getUniqueToolType from './utils/getUniqueToolType';
 
 import {
   importVoxFile,
@@ -70,8 +71,7 @@ import {
 } from './types';
 
 import {
-  changeTool3d,
-  changeTool2d,
+  changeTool,
   changePaletteColor,
   voxelRemoveSelected2d,
   voxelRemoveSelected,
@@ -293,11 +293,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       switch(e.keyCode) {
         case 66: // B
         {
-          if (this.props.fileState.present.data.mode2d.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.PENCIL_2D));
-          } else {
-            this.dispatchAction(changeTool3d(ToolType.PENCIL_3D));
-          }
+          this.dispatchAction(changeTool(ToolType.PENCIL));
           break;
         }
         case 68: // D
@@ -311,65 +307,37 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
         case 69: // E
         {
-          if (this.props.fileState.present.data.mode2d.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.ERASE_2D));
-          } else {
-            this.dispatchAction(changeTool3d(ToolType.ERASE_3D));
-          }
+          this.dispatchAction(changeTool(ToolType.ERASE));
           break;
         }
         case 71: // G
         {
-          if (this.props.fileState.present.data.mode2d.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.COLOR_FILL_2D));
-          } else {
-            this.dispatchAction(changeTool3d(ToolType.COLOR_FILL_3D));
-          }
+          this.dispatchAction(changeTool(ToolType.COLOR_FILL));
           break;
         }
         case 73: // I
         {
-          if (this.props.fileState.present.data.mode2d.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.COLORIZE_2D));
-          } else {
-            this.dispatchAction(changeTool3d(ToolType.COLORIZE_3D));
-          }
+          this.dispatchAction(changeTool(ToolType.COLORIZE));
           break;
         }
         case 77: // M
         {
-          if (this.props.fileState.present.data.mode2d.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.RECTANGLE_SELECT_2D));
-          } else {
-            this.dispatchAction(changeTool3d(ToolType.RECTANGLE_SELECT_3D));
-          }
+          this.dispatchAction(changeTool(ToolType.RECTANGLE_SELECT));
           break;
         }
         case 82: // R
         {
-          if (this.props.fileState.present.data.mode2d.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.RECTANGLE_2D));
-          } else {
-            this.dispatchAction(changeTool3d(ToolType.RECTANGLE_3D));
-          }
+          this.dispatchAction(changeTool(ToolType.RECTANGLE));
           break;
         }
         case 86: // V
         {
-          if (this.props.fileState.present.data.mode2d.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.MOVE_2D));
-          } else {
-            this.dispatchAction(changeTool3d(ToolType.MOVE_3D));
-          }
+          this.dispatchAction(changeTool(ToolType.MOVE));
           break;
         }
         case 87: // W
         {
-          if (this.props.fileState.present.data.mode2d.enabled) {
-            this.dispatchAction(changeTool2d(ToolType.MAGIC_WAND_2D));
-          } else {
-            this.dispatchAction(changeTool3d(ToolType.MAGIC_WAND_3D));
-          }
+          this.dispatchAction(changeTool(ToolType.MAGIC_WAND));
           break;
         }
       }
@@ -420,9 +388,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.keyboard.dispose();
   }
 
-  selectTool = (selectedTool: ToolType) => this.dispatchAction(changeTool3d(selectedTool));
-
-  selectTool2d = (selectedTool: ToolType) => this.dispatchAction(changeTool2d(selectedTool));
+  selectTool = (selectedTool: ToolType) => this.dispatchAction(changeTool(selectedTool));
 
   changePaletteColor = (paletteColor: Color) => this.dispatchAction(changePaletteColor(paletteColor));
 
@@ -445,11 +411,11 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           mode2d={this.props.fileState.present.data.mode2d.enabled}
           onEnableMode2D={this.handleEnableMode2D}
           paletteColor={this.props.commonState.paletteColor}
-          selectedTool={this.props.commonState.tool3d}
+          selectedTool={
+            getUniqueToolType(this.props.fileState.present.data.mode2d.enabled, this.props.commonState.tool)
+          }
           changePaletteColor={this.changePaletteColor}
           selectTool={this.selectTool}
-          selectTool2d={this.selectTool2d}
-          tool2d={this.props.commonState.tool2d}
         />
       </div>
     );

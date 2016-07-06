@@ -28,7 +28,7 @@ const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
 
 class RectangleSelectTool2d extends SelectBlockTool {
-  getToolType() { return ToolType.RECTANGLE_SELECT_2D; }
+  getToolType() { return ToolType.RECTANGLE_SELECT; }
 
   getParams() {
     const origin = new THREE.Vector3();

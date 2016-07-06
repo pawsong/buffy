@@ -35,6 +35,8 @@ interface ColorizeToolParams {
 abstract class ColorizeTool extends ModelEditorTool<void, void, void> {
   colorTooltip: HTMLElement;
 
+  getToolType(): ToolType { return ToolType.COLORIZE; }
+
   onInit(params: InitParams) {
     super.onInit(params);
 

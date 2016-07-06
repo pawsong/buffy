@@ -5,8 +5,6 @@ import {
 import ColorizeTool from './ColorizeTool';
 
 class ColorizeTool3d extends ColorizeTool {
-  getToolType(): ToolType { return ToolType.COLORIZE_3D; }
-
   getParams() {
     return {
       getInteractables: () => [

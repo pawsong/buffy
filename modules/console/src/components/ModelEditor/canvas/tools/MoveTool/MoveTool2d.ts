@@ -61,7 +61,7 @@ interface MoveTool2dTree {
 class MoveTool2d extends ModelEditorTool<MoveTool2dProps, void, MoveTool2dTree> {
   drawGuide: THREE.Mesh;
 
-  getToolType(): ToolType { return ToolType.MOVE_3D; }
+  getToolType(): ToolType { return ToolType.MOVE; }
 
   mapParamsToProps(params: ModelEditorState) {
     return {

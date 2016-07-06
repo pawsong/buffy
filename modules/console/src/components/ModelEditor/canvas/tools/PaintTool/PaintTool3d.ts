@@ -11,8 +11,6 @@ import {
 import PaintTool from './PaintTool';
 
 class PaintTool3d extends PaintTool {
-  getToolType(): ToolType { return ToolType.PAINT_3D; }
-
   getParams() {
     return {
       getInteractables: () => [
