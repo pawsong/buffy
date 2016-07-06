@@ -144,6 +144,8 @@ class Mode2dTool extends ModelEditorTool<Mode2dToolProps, void, Mode2dToolTree> 
     z2[OFFSET_KEY] = Axis.X;
     this.scrollBars.push(z2);
 
+    this.scrollBars.forEach(mesh => mesh.renderOrder = - 5);
+
     this.scrollBarGuides = this.scrollBars.map(scrollbar => {
       const guide = scrollbar.clone();
       guide[SCROLLBAR_KEY] = scrollbar;

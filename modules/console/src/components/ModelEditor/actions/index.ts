@@ -246,13 +246,17 @@ export function voxelRemoveSelected2d(): VoxelRemoveSelected2dAction {
 export const VOXEL_CREATE_FRAGMENT: 'VOXEL_CREATE_FRAGMENT' = 'VOXEL_CREATE_FRAGMENT';
 export interface VoxelCreateFragmentAction extends Action<typeof VOXEL_CREATE_FRAGMENT> {
   model: Ndarray;
+  selection: Ndarray;
   fragment: Ndarray;
   fragmentOffset: Position;
 }
-export function voxelCreateFragment(model: Ndarray, fragment: Ndarray, x: number, y: number, z: number): VoxelCreateFragmentAction {
+export function voxelCreateFragment(
+  model: Ndarray, selection: Ndarray, fragment: Ndarray, x: number, y: number, z: number
+): VoxelCreateFragmentAction {
   return {
     type: VOXEL_CREATE_FRAGMENT,
     model,
+    selection,
     fragment,
     fragmentOffset: [x, y, z],
   };

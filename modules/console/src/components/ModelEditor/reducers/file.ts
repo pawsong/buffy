@@ -175,12 +175,12 @@ function mergeFragment(state: VoxelData, leaveSelection: boolean): MergeFragment
     shape,
   } = calculateIntersection(model.shape, state.fragment.shape, state.fragmentOffset);
 
-  const modelOffset =
+  const modelOffset = model.offset +
     model.stride[0] * destOffset[0] +
     model.stride[1] * destOffset[1] +
     model.stride[2] * destOffset[2];
 
-  const fragmentOffset =
+  const fragmentOffset = state.fragment.offset +
     state.fragment.stride[0] * srcOffset[0] +
     state.fragment.stride[1] * srcOffset[1] +
     state.fragment.stride[2] * srcOffset[2];
@@ -189,18 +189,31 @@ function mergeFragment(state: VoxelData, leaveSelection: boolean): MergeFragment
   const intersectInFragment = ndarray(state.fragment.data, shape, state.fragment.stride, fragmentOffset);
 
   if (leaveSelection) {
-    const selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
+    const selection = state.selection
+      ? ndarray(state.selection.data.slice(), model.shape)
+      : ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
     const intersectInSelection = ndarray(selection.data, shape, selection.stride, modelOffset);
+
     if (ndAssignAndMask2(intersectInModel, intersectInSelection, intersectInFragment, SELECTION_VALUE)) {
       return { model, selection };
     } else {
-      return { model: state.model, selection: null };
+      return { model: state.model, selection: state.selection };
     }
   } else {
     if (ndAssign2(intersectInModel, intersectInFragment)) {
-      return { model, selection: null };
+      let selection: ndarray.Ndarray = null;
+
+      if (state.selection) {
+        const nextSelection = ndarray(state.selection.data.slice(), model.shape);
+        const intersectInSelection = ndarray(nextSelection.data, shape, nextSelection.stride, modelOffset);
+
+        ndExclude(intersectInSelection, intersectInFragment);
+        selection = ndAny(nextSelection) ? nextSelection : null;
+      }
+
+      return { model, selection };
     } else {
-      return { model: state.model, selection: null };
+      return { model: state.model, selection: state.selection };
     }
   }
 }
@@ -717,12 +730,14 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
      */
 
     case VOXEL_CREATE_FRAGMENT: {
-      const { model, fragment, fragmentOffset } = <VoxelCreateFragmentAction>action;
+      const { model, selection, fragment, fragmentOffset } = <VoxelCreateFragmentAction>action;
+
+      if (!model || !fragment) return state;
 
       // Reuse ndarray params for performance reason.
       return Object.assign({}, state, {
         model,
-        selection: null,
+        selection,
         fragment,
         fragmentOffset,
       });
@@ -749,6 +764,12 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
     case VOXEL_MOVE_FRAGMENT: {
       const { offset } = <VoxelMoveFragmentAction>action;
+
+      if (   offset[0] === state.fragmentOffset[0]
+          && offset[1] === state.fragmentOffset[1]
+          && offset[2] === state.fragmentOffset[2]) {
+        return state;
+      }
 
       return Object.assign({}, state, {
         fragmentOffset: offset,

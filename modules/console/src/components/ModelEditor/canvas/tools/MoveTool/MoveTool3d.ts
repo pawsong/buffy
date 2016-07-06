@@ -123,10 +123,6 @@ class MoveTool3d extends ModelEditorTool<MoveTool3dProps, void, MoveTool3dTree> 
 
   patch(diff: MoveTool3dTree) {
     // Fragment has precedence over selection.
-    // Selection must not exist when fragment does.
-
-    warning(!(diff.selection && this.tree.fragment), 'Selection must not exist when fragment does');
-
     if (this.tree.fragment) {
       this.updateArrow(this.canvas.component.fragmentBoundingBox);
     } else if (this.tree.selection) {
@@ -435,6 +431,7 @@ class DragState extends ToolState {
       this.tool.canvas.component.getFragmentPosition(this.temp1);
       this.tool.dispatchAction(voxelCreateFragment(
         this.tool.canvas.component.tree.model,
+        null,
         this.tool.canvas.component.tree.fragment,
         this.temp1.x, this.temp1.y, this.temp1.z
       ));

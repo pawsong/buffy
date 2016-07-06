@@ -20,6 +20,7 @@ import {
   Position,
   ToolType,
   ModelEditorState,
+  Axis,
 } from '../../../types';
 
 import {
@@ -45,6 +46,10 @@ interface MoveTool2dProps {
   selection: ndarray.Ndarray;
   fragment: ndarray.Ndarray;
   fragmentOffset: Position;
+  mode2d: {
+    axis: Axis;
+    position: number;
+  }
 }
 
 interface MoveTool2dTree {
@@ -64,6 +69,7 @@ class MoveTool2d extends ModelEditorTool<MoveTool2dProps, void, MoveTool2dTree> 
       selection: params.file.present.data.selection,
       fragment: params.file.present.data.fragment,
       fragmentOffset: params.file.present.data.fragmentOffset,
+      mode2d: params.file.present.data.mode2d,
     };
   }
 
@@ -74,7 +80,7 @@ class MoveTool2d extends ModelEditorTool<MoveTool2dProps, void, MoveTool2dTree> 
         selection: { type: SchemaType.ANY },
         fragment: { type: SchemaType.ANY },
         fragmentOffset: { type: SchemaType.ANY },
-      }
+      },
     };
   }
 
@@ -135,10 +141,15 @@ class WaitState extends ToolState {
   }
 
   private handleMouseDown({ event, intersect }: CursorEventParams) {
-    if (!intersect || intersect.object === this.tool.canvas.component.model2DSliceMesh) return;
+    if (!intersect) return;
 
-    if (intersect.object === this.tool.canvas.component.selectionSliceMesh) {
+    if (intersect.object === this.tool.canvas.component.fragmentSliceMesh) {
+      if (this.tool.canvas.component.fragmentSliceMesh.userData.data !== this.tool.props.fragment) return;
+    } else if (intersect.object === this.tool.canvas.component.selectionSliceMesh) {
+      if (this.tool.props.fragment) return;
       this.tool.canvas.component.setTemporaryFragmentSlice();
+    } else {
+      return;
     }
 
     this.transitionTo(STATE_DRAG, <EnterParams>{ event, position: this.cursor.getPosition() });
@@ -241,7 +252,7 @@ class DragState extends ToolState {
     const offset = this.tool.props.fragmentOffset;
     this.temp1.set(offset[0], offset[1], offset[2]);
 
-    this.tool.canvas.component.moveFragmentMesh(
+    this.tool.canvas.component.moveFragmentSliceMesh(
       this.temp2
         .subVectors(this.target, this.anchor)
         .add(this.temp1)
@@ -249,16 +260,19 @@ class DragState extends ToolState {
   }
 
   private handleMouseUp = () => {
-    if (this.tool.props.fragment) {
+    this.tool.canvas.component.getFragmentSlicePosition(this.temp1);
+    this.temp1.setComponent(this.tool.props.mode2d.axis, this.tool.props.mode2d.position);
+    const fragment = this.tool.canvas.component.fragmentSliceMesh.userData.data;
+
+    if (fragment === this.tool.props.fragment) {
       // Update fragment position.
-      this.tool.canvas.component.getFragmentPosition(this.temp1);
       this.tool.dispatchAction(voxelMoveFragment(this.temp1.x, this.temp1.y, this.temp1.z));
     } else {
       // Create fragment from selection with current view offset.
-      this.tool.canvas.component.getFragmentPosition(this.temp1);
       this.tool.dispatchAction(voxelCreateFragment(
         this.tool.canvas.component.tree.model,
-        this.tool.canvas.component.tree.fragment,
+        this.tool.canvas.component.tree.selection,
+        fragment,
         this.temp1.x, this.temp1.y, this.temp1.z
       ));
     }

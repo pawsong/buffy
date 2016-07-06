@@ -9,6 +9,10 @@ const cwise = require('cwise');
 import ModelEditorTool from './tools/ModelEditorTool';
 import createTool from './tools';
 
+import ndAny from '../ndops/any';
+import ndExclude from '../ndops/exclude';
+import ndCopyWithFilter from '../ndops/copyWithFilter';
+
 import Mode2dTool from './tools/Mode2dTool';
 
 if (__CLIENT__) {
@@ -93,32 +97,6 @@ interface ComponentTree {
   }
 }
 
-const subtract = (() => {
-  const _subtract = cwise({
-    args: ['array', 'array'],
-    body: function(a1, a2) {
-      if (a2) a1 = 0;
-    },
-  });
-
-  return function (array1: ndarray.Ndarray, array2: ndarray.Ndarray) {
-    _subtract(array1, array2);
-  };
-})();
-
-const select = (() => {
-  const _select = cwise({
-    args: ['array', 'array', 'array'],
-    body: function(a1, a2, a3) {
-      if (a3) a1 = a2;
-    },
-  });
-
-  return function (array1: ndarray.Ndarray, array2: ndarray.Ndarray, array3: ndarray.Ndarray) {
-    _select(array1, array2, array3);
-  };
-})();
-
 const PLANE_GRID_STEP = 4;
 
 const px = new THREE.Vector3(   1 ,   0  ,   0 );
@@ -157,6 +135,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   fragmentBoundingBox: BoundingBoxEdgesHelper;
 
   fragmentedModelSelector: Selector<any, any>;
+  fragmentedSelectionSelector: Selector<any, any>;
 
   private temp1: THREE.Vector3;
 
@@ -229,8 +208,18 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       (props: ComponentProps, state: ComponentState) => state.fragment,
       (model, fragment) => {
         const fragmentedModel = ndarray(model.data.slice(), model.shape);
-        subtract(fragmentedModel, this.state.fragment);
+        ndExclude(fragmentedModel, this.state.fragment);
         return fragmentedModel;
+      }
+    );
+
+    this.fragmentedSelectionSelector = createSelector(
+      (props: ComponentProps, state: ComponentState) => props.selection,
+      (props: ComponentProps, state: ComponentState) => state.fragment,
+      (selection, fragment) => {
+        const fragmentedSelection = ndarray(selection.data.slice(), selection.shape);
+        ndExclude(fragmentedSelection, this.state.fragment);
+        return ndAny(fragmentedSelection) ? fragmentedSelection : null;
       }
     );
 
@@ -342,7 +331,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
     const { shape } = this.props.model;
     const fragment = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), this.props.model.shape);
-    select(fragment, this.props.model, this.props.selection);
+    ndCopyWithFilter(fragment, this.props.model, this.props.selection);
 
     this.setState({ fragment });
   }
@@ -358,7 +347,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     const selectionSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, this.props.selection);
     const fragmentSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, fragment);
 
-    select(fragmentSlice, modelSlice, selectionSlice);
+    ndCopyWithFilter(fragmentSlice, modelSlice, selectionSlice);
     this.setState({ fragment });
   }
 
@@ -381,7 +370,9 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       this.fragmentMesh.position.copy(displacement).multiplyScalar(PIXEL_SCALE);
       this.fragmentBoundingBox.update();
     }
+  }
 
+  moveFragmentSliceMesh(displacement: THREE.Vector3) {
     if (this.fragmentSliceMesh.visible) {
       this.fragmentSliceMesh.position
         .copy(displacement)
@@ -462,13 +453,19 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     v.copy(this.fragmentMesh.position).divideScalar(PIXEL_SCALE).round();
   }
 
+  getFragmentSlicePosition(v: THREE.Vector3) {
+    v.copy(this.fragmentSliceMesh.position).divideScalar(PIXEL_SCALE).round();
+  }
+
   render() {
     const model = this.state.fragment
       ? this.fragmentedModelSelector(this.props, this.state)
       : this.props.model;
 
     // Hide selection when temporary fragment exists.
-    const selection = this.state.fragment ? null : this.props.selection;
+    const selection = this.state.fragment && this.props.selection
+      ? this.fragmentedSelectionSelector(this.props, this.state)
+      : this.props.selection;
 
     const fragment = this.state.fragment || this.props.fragment;
 
@@ -802,8 +799,6 @@ class ModelEditorCanvas extends Canvas {
     this.renderer['localClippingEnabled'] = true;
     this.renderer.setClearColor(0x333333);
     this.renderer.autoClear = false;
-
-    console.log(this.renderer);
 
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     this.controls.mouseButtons.ORBIT = THREE.MOUSE.RIGHT;

@@ -50,6 +50,7 @@ class SliceCache {
       const mesh = new THREE.Mesh(geometry, material);
       mesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
       mesh.position.copy(this.temp1);
+      mesh.userData.data = subarray;
       return mesh;
     });
 
