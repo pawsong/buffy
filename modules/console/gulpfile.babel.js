@@ -19,6 +19,8 @@ require('babel-helpers/lib/helpers').interopRequireWildcard = template(`
 
 require('babel-polyfill');
 
+const localIp = require('ip').address();
+
 const del = require('del');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -51,10 +53,10 @@ require('../../gulp/app')({
       env: {
         development: {
           defines: {
-            'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
-            'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
+            'CONFIG_GAME_SERVER_URL': `http://${localIp}:${conf.gameServerPort}`,
+            'CONFIG_API_SERVER_URL': `http://${localIp}:${conf.apiServerPort}`,
             'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdDev,
-            '__BASE__': `http://localhost:${conf.consolePort}`,
+            '__BASE__': `http://${localIp}:${conf.consolePort}`,
             '__S3_BASE__': conf.s3PublicPathDev,
             '__CDN_BASE__': conf.cdnPublicPathDev,
             '__GA_TRACKING_ID__': 'UA-79780752-2',
@@ -99,10 +101,10 @@ require('../../gulp/app')({
         development: {
           defines: {
             'CONFIG_DOMAIN': '',
-            'CONFIG_GAME_SERVER_URL': `http://localhost:${conf.gameServerPort}`,
-            'CONFIG_API_SERVER_URL': `http://localhost:${conf.apiServerPort}`,
+            'CONFIG_GAME_SERVER_URL': `http://${localIp}:${conf.gameServerPort}`,
+            'CONFIG_API_SERVER_URL': `http://${localIp}:${conf.apiServerPort}`,
             'CONFIG_FACEBOOK_APP_ID': conf.facebookAppIdDev,
-            '__BASE__': `http://localhost:${conf.consolePort}`,
+            '__BASE__': `http://${localIp}:${conf.consolePort}`,
             '__S3_BASE__': conf.s3PublicPathDev,
             '__CDN_BASE__': conf.cdnPublicPathDev,
           },
