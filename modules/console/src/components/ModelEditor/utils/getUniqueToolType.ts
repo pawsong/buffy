@@ -47,6 +47,9 @@ function getUniqueToolType(mode2d: boolean, toolType: ToolType): UniqueToolType 
       case ToolType.COLORIZE: {
         return UniqueToolType.COLORIZE_2D;
       }
+      default: {
+        return UniqueToolType.PENCIL_2D;
+      }
     }
   } else {
     switch(toolType) {
