@@ -31,9 +31,6 @@ const STATE_WAIT = ToolState.STATE_WAIT;
 const STATE_DRAW = 'draw';
 
 interface BoxSelectToolProps {
-  model: ndarray.Ndarray;
-  selection: ndarray.Ndarray;
-  fragment: ndarray.Ndarray;
 }
 
 const T = 2; // Selection thickness
@@ -44,14 +41,6 @@ class RectangleSelectTool extends ModelEditorTool<BoxSelectToolProps, void, void
   private selectionCtx: CanvasRenderingContext2D;
 
   getToolType() { return ToolType.RECTANGLE_SELECT; }
-
-  mapParamsToProps(state: ModelEditorState) {
-    return {
-      model: state.file.present.data.model,
-      selection: state.file.present.data.selection,
-      fragment: state.file.present.data.fragment,
-    };
-  }
 
   resetSelectionCanvas() {
     this.selectionCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);

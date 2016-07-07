@@ -48,7 +48,7 @@ abstract class ColorFillTool extends ModelEditorTool<ColorFillToolProps, void, v
       size: params.file.present.data.size,
       selection: params.file.present.data.selection,
       fragment: params.file.present.data.fragment,
-      paletteColor: params.common.paletteColor,
+      paletteColor: params.common.paletteColors[params.file.present.data.activeMap],
     };
   }
 

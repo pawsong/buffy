@@ -12,6 +12,7 @@ import ndAssign from '../ndops/assign';
 import ndAssign2 from '../ndops/assign2';
 import ndAssignAndMask2 from '../ndops/assignAndMask2';
 import ndExclude from '../ndops/exclude';
+import ndExclude2 from '../ndops/exclude2';
 import ndCopyWithFilter from '../ndops/copyWithFilter';
 import ndSet from '../ndops/set';
 import ndSetWithFilter2 from '../ndops/setWithFilter2';
@@ -31,6 +32,11 @@ import {
   Transformation,
   Axis,
 } from '../types';
+
+import {
+  ModelFileType,
+  MaterialMapType,
+} from '../../../types';
 
 import {
   VOXEL_ADD, VoxelAddAction,
@@ -60,6 +66,8 @@ import {
   ENTER_MODE_2D,
   LEAVE_MODE_2D,
   MOVE_MODE_2D_PLANE, MoveMode2DPlaneAction,
+  EDIT_AS_TROVE,
+  ACTIVATE_MAP, ActivateMapAction,
 } from '../actions';
 
 const initialSize: Position = [16, 16, 16];
@@ -67,8 +75,12 @@ const initialSize: Position = [16, 16, 16];
 const initialModel = ndarray(new Int32Array(initialSize[0] * initialSize[1] * initialSize[2]), initialSize);
 
 const initialState: VoxelData = {
+  type: ModelFileType.DEFAULT,
   size: initialSize,
-  model: initialModel,
+  maps: {
+    [MaterialMapType.DEFAULT]: initialModel,
+  },
+  activeMap: MaterialMapType.DEFAULT,
   selection: null,
   fragment: null,
   fragmentOffset: [0, 0, 0],
@@ -162,11 +174,13 @@ interface MergeFragmentResult {
 }
 
 function mergeFragment(state: VoxelData, leaveSelection: boolean): MergeFragmentResult {
-  if (!hasIntersection(state.model.shape, state.fragment.shape, state.fragmentOffset)) {
-    return { model: state.model, selection: null };
+  const prevModel = state.maps[MaterialMapType.DEFAULT];
+
+  if (!hasIntersection(prevModel.shape, state.fragment.shape, state.fragmentOffset)) {
+    return { model: prevModel, selection: null };
   }
 
-  const model = ndarray(state.model.data.slice(), state.model.shape);
+  const model = ndarray(prevModel.data.slice(), prevModel.shape);
 
   const {
     srcOffset,
@@ -196,7 +210,7 @@ function mergeFragment(state: VoxelData, leaveSelection: boolean): MergeFragment
     if (ndAssignAndMask2(intersectInModel, intersectInSelection, intersectInFragment, SELECTION_VALUE)) {
       return { model, selection };
     } else {
-      return { model: state.model, selection: state.selection };
+      return { model: prevModel, selection: state.selection };
     }
   } else {
     if (ndAssign2(intersectInModel, intersectInFragment)) {
@@ -212,7 +226,7 @@ function mergeFragment(state: VoxelData, leaveSelection: boolean): MergeFragment
 
       return { model, selection };
     } else {
-      return { model: state.model, selection: state.selection };
+      return { model: prevModel, selection: state.selection };
     }
   }
 }
@@ -222,8 +236,8 @@ function ensureFragmentMerged(state: VoxelData, fragmentLeaveSelection: boolean)
 
   const { model, selection } = mergeFragment(state, fragmentLeaveSelection);
 
-  return Object.assign({}, state, {
-    model,
+  return Object.assign({}, state, <VoxelData>{
+    maps: Object.assign({}, state.maps, { [MaterialMapType.DEFAULT]: model }),
     selection,
     fragment: null,
     fragmentOffset: initialState.fragmentOffset,
@@ -287,7 +301,8 @@ function reduceModelUpsertAction(
   updateFn: (model: ndarray.Ndarray) => boolean,
   updateWithSelectionFn: (model: ndarray.Ndarray, selection: ndarray.Ndarray) => boolean
 ): VoxelData {
-  const model = ndarray(state.model.data.slice(), state.model.shape);
+  const mapType = state.activeMap === MaterialMapType.ALL ? MaterialMapType.DEFAULT : state.activeMap;
+  const model = ndarray(state.maps[mapType].data.slice(), state.maps[mapType].shape);
 
   let hit: boolean;
 
@@ -299,7 +314,9 @@ function reduceModelUpsertAction(
 
   if (!hit) return state;
 
-  return Object.assign({}, state, { model });
+  return Object.assign({}, state, <VoxelData>{
+    maps: Object.assign({}, state.maps, { [mapType]: model }),
+  });
 }
 
 function reduceModelRemoveAction(
@@ -307,25 +324,44 @@ function reduceModelRemoveAction(
   removeFn: (model: ndarray.Ndarray) => boolean,
   removeWithSelectionFn: (model: ndarray.Ndarray, selection: ndarray.Ndarray) => boolean
 ): VoxelData {
-  const model = ndarray(state.model.data.slice(), state.model.shape);
-
   if (!state.selection) {
-    if (removeFn(model)) {
-      return Object.assign({}, state, { model });
-    } else {
-      return state;
-    }
+    const maps = {};
+
+    let hit = false;
+    Object.keys(state.maps).forEach(key => {
+      const map = state.maps[key];
+      const nextMap = ndarray(map.data.slice(), map.shape);
+      if (removeFn(nextMap)) {
+        maps[key] = nextMap;
+        hit = true;
+      }
+    });
+
+    if (!hit) return state;
+
+    return Object.assign({}, state, <VoxelData>{
+      maps: Object.assign({}, state.maps, maps),
+    });
   } else {
+    const maps = {};
+
+    let hit = false;
+    Object.keys(state.maps).forEach(key => {
+      const map = state.maps[key];
+      const nextMap = ndarray(map.data.slice(), map.shape);
+      if (removeWithSelectionFn(nextMap, state.selection)) {
+        maps[key] = nextMap;
+        hit = true;
+      }
+    });
+
+    if (!hit) return state;
+
     const selection = ndarray(state.selection.data.slice(), state.selection.shape);
-    if (removeWithSelectionFn(model, selection)) {
-      const selectionIsValid = ndAny(selection);
-      return Object.assign({}, state, {
-        model,
-        selection: selectionIsValid ? selection : null,
-      });
-    } else {
-      return state;
-    }
+    return Object.assign({}, state, <VoxelData>{
+      maps: Object.assign({}, state.maps, maps),
+      selection: removeFn(selection) ? (ndAny(selection) ? selection : null) : state.selection,
+    });
   }
 }
 
@@ -358,17 +394,21 @@ enum MergeType {
 }
 
 function reduceSelectAction(state: VoxelData, merge: MergeType, selectFn: (selection: ndarray.Ndarray) => boolean): VoxelData {
-  const model = state.model;
+  const model = state.maps[MaterialMapType.DEFAULT];
 
   switch(merge) {
     case MergeType.NONE: {
       const selection = ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
 
       if (selectFn(selection)) {
-        return Object.assign({}, state, { selection });
+        return Object.assign({}, state, <VoxelData>{
+          selection,
+        });
       } else {
         if (state.selection) {
-          return Object.assign({}, state, { selection: null });
+          return Object.assign({}, state, <VoxelData>{
+            selection: null,
+          });
         } else {
           return state;
         }
@@ -378,7 +418,9 @@ function reduceSelectAction(state: VoxelData, merge: MergeType, selectFn: (selec
       const selection = ndarray(state.selection.data.slice(), model.shape);
 
       if (selectFn(selection)) {
-        return Object.assign({}, state, { selection });
+        return Object.assign({}, state, <VoxelData>{
+          selection,
+        });
       } else {
         return state;
       }
@@ -388,7 +430,9 @@ function reduceSelectAction(state: VoxelData, merge: MergeType, selectFn: (selec
 
       if (selectFn(selection)) {
         ndAssign(selection, state.selection);
-        return Object.assign({}, state, { selection });
+        return Object.assign({}, state, <VoxelData>{
+          selection,
+        });
       } else {
         return state;
       }
@@ -444,7 +488,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         let hit = false;
         for (let i = 0, len = positions.length; i < len; ++i) {
           const pos = positions[i];
-          if (isValidPosition(pos[0], pos[1], pos[2])) {
+          if (   isValidPosition(pos[0], pos[1], pos[2])
+              && model.get(pos[0], pos[1], pos[2]) !== c
+          ) {
             model.set(pos[0], pos[1], pos[2], c);
             hit = true;
           }
@@ -461,7 +507,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
             let hit = false;
             for (let i = 0, len = positions.length; i < len; ++i) {
               const pos = positions[i];
-              if (isValidPosition(pos[0], pos[1], pos[2]) && selection.get(pos[0], pos[1], pos[2])) {
+              if (   isValidPosition(pos[0], pos[1], pos[2])
+                  && selection.get(pos[0], pos[1], pos[2]) && model.get(pos[0], pos[1], pos[2]) !== c
+              ) {
                 model.set(pos[0], pos[1], pos[2], c);
                 hit = true;
               }
@@ -480,18 +528,21 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return reduceModelUpsertAction(prevState,
         model => {
-          // Skip hit test on the assumption of valid input.
+          let hit = false;
           for (let i = 0, len = positions.length; i < len; ++i) {
             const pos = positions[i];
-            model.set(pos[0], pos[1], pos[2], c);
+            if (model.get(pos[0], pos[1], pos[2]) !== c) {
+              model.set(pos[0], pos[1], pos[2], c);
+              hit = true;
+            }
           }
-          return true;
+          return hit;
         },
         (model, selection) => {
           let hit = false;
           for (let i = 0, len = positions.length; i < len; ++i) {
             const pos = positions[i];
-            if (selection.get(pos[0], pos[1], pos[2])) {
+            if (selection.get(pos[0], pos[1], pos[2]) && model.get(pos[0], pos[1], pos[2]) !== c) {
               model.set(pos[0], pos[1], pos[2], c);
               hit = true;
             }
@@ -548,7 +599,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         let hit = false;
         for (let i = 0, len = positions.length; i < len; ++i) {
           const pos = positions[i];
-          if (isValidPosition(pos[0], pos[1], pos[2])) {
+          if (isValidPosition(pos[0], pos[1], pos[2]) && model.get(pos[0], pos[1], pos[2])) {
             model.set(pos[0], pos[1], pos[2], 0);
             hit = true;
           }
@@ -565,9 +616,10 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
             let hit = false;
             for (let i = 0, len = positions.length; i < len; ++i) {
               const pos = positions[i];
-              if (isValidPosition(pos[0], pos[1], pos[2]) && selection.get(pos[0], pos[1], pos[2])) {
+              if (   isValidPosition(pos[0], pos[1], pos[2])
+                  && model.get(pos[0], pos[1], pos[2] && selection.get(pos[0], pos[1], pos[2]))
+              ) {
                 model.set(pos[0], pos[1], pos[2], 0);
-                selection.set(pos[0], pos[1], pos[2], 0);
                 hit = true;
               }
             }
@@ -584,20 +636,22 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return reduceModelRemoveAction(prevState,
         model => {
-          // Skip hit test on the assumption of valid input.
+          let hit = false;
           for (let i = 0, len = positions.length; i < len; ++i) {
             const pos = positions[i];
-            model.set(pos[0], pos[1], pos[2], 0);
+            if (model.get(pos[0], pos[1], pos[2])) {
+              model.set(pos[0], pos[1], pos[2], 0);
+              hit = true;
+            }
           }
-          return true;
+          return hit;
         },
         (model, selection) => {
           let hit = false;
           for (let i = 0, len = positions.length; i < len; ++i) {
             const pos = positions[i];
-            if (selection.get(pos[0], pos[1], pos[2])) {
+            if (model.get(pos[0], pos[1], pos[2]) && selection.get(pos[0], pos[1], pos[2])) {
               model.set(pos[0], pos[1], pos[2], 0);
-              selection.set(pos[0], pos[1], pos[2], 0);
               hit = true;
             }
           }
@@ -613,16 +667,20 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const prevSelectionSlice = getSlice(state.mode2d.axis, state.mode2d.position, prevState.selection);
       if (!ndAny(prevSelectionSlice)) return prevState;
 
-      const model = ndarray(prevState.model.data.slice(), prevState.model.shape);
-      const modelSlice = getSlice(state.mode2d.axis, state.mode2d.position, model);
-      ndExclude(modelSlice, prevSelectionSlice);
+      const maps = {};
+      Object.keys(prevState.maps).forEach(key => {
+        const map = prevState.maps[key];
+        const nextMap = ndarray(map.data.slice(), map.shape);
+        const nextMapSlice = getSlice(state.mode2d.axis, state.mode2d.position, nextMap);
+        if (ndExclude2(nextMapSlice, prevSelectionSlice)) maps[key] = nextMap;
+      });
 
       const selection = ndarray(prevState.selection.data.slice(), prevState.selection.shape);
       const selectionSlice = getSlice(state.mode2d.axis, state.mode2d.position, selection);
       ndExclude(selectionSlice, prevSelectionSlice);
 
-      return Object.assign({}, prevState, {
-        model,
+      return Object.assign({}, prevState, <VoxelData>{
+        maps: Object.assign({}, state.maps, maps),
         selection: ndAny(selection) ? selection : null,
       });
     }
@@ -631,11 +689,17 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const prevState = ensureFragmentMerged(state, true);
       if (!prevState.selection) return prevState;
 
-      const model = ndarray(prevState.model.data.slice(), prevState.model.shape);
-      ndExclude(model, prevState.selection);
+      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
-      return Object.assign({}, prevState, {
-        model,
+      const maps = {};
+      Object.keys(prevState.maps).forEach(key => {
+        const map = prevState.maps[key];
+        const nextMap = ndarray(map.data.slice(), map.shape);
+        if (ndExclude2(nextMap, prevState.selection)) maps[key] = nextMap;
+      });
+
+      return Object.assign({}, prevState, <VoxelData>{
+        maps: Object.assign({}, prevState.maps, maps),
         selection: null,
       });
     }
@@ -648,10 +712,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { projectionMatrix, scale, bounds, merge } = <VoxelSelectProjectionAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
+      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
         return filterProjection(
-          selection, prevState.model, SELECTION_VALUE, scale, projectionMatrix,
+          selection, prevModel, SELECTION_VALUE, scale, projectionMatrix,
           bounds[0], bounds[1], bounds[2], bounds[3]
         );
       });
@@ -661,9 +726,10 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { volumn, merge } = <VoxelSelectBoxAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
+      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
-        return ndFillWithFilter2(selection, volumn, SELECTION_VALUE, prevState.model);
+        return ndFillWithFilter2(selection, volumn, SELECTION_VALUE, prevModel);
       });
     }
 
@@ -671,12 +737,13 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { position, merge } = <VoxelSelectConnected2dAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
+      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
 
       return reduceSelectAction(prevState, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return isValidPosition(x, y, z) && (selection.get(x, y, z) || (prevState.model.get(x, y, z) && 1)) || undefined;
+          return isValidPosition(x, y, z) && (selection.get(x, y, z) || (prevModel.get(x, y, z) && 1)) || undefined;
         });
       });
     }
@@ -685,10 +752,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { position, merge } = <VoxelSelectConnected3dAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
+      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       return reduceSelectAction(prevState, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return selection.get(x, y, z) || (prevState.model.get(x, y, z) && 1);
+          return selection.get(x, y, z) || (prevModel.get(x, y, z) && 1);
         });
       });
     }
@@ -697,12 +765,13 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { position, merge } = <VoxelMaginWand2dAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
+      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return isValidPosition(x, y, z) && (selection.get(x, y, z) || prevState.model.get(x, y, z)) || undefined;
+          return isValidPosition(x, y, z) && (selection.get(x, y, z) || prevModel.get(x, y, z)) || undefined;
         });
       });
     }
@@ -711,17 +780,20 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { position, merge } = <VoxelMaginWand3dAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
+      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return selection.get(x, y, z) || prevState.model.get(x, y, z) || undefined;
+          return selection.get(x, y, z) || prevModel.get(x, y, z) || undefined;
         });
       });
     }
 
     case VOXEL_CLEAR_SELECTION: {
       if (!state.selection) return state;
-      return Object.assign({}, state, { selection: null });
+      return Object.assign({}, state, <VoxelData>{
+        selection: null,
+      });
     }
 
     /*
@@ -734,8 +806,8 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       if (!model || !fragment) return state;
 
       // Reuse ndarray params for performance reason.
-      return Object.assign({}, state, {
-        model,
+      return Object.assign({}, state, <VoxelData>{
+        maps: Object.assign({}, state.maps, { [MaterialMapType.DEFAULT]: model }),
         selection,
         fragment,
         fragmentOffset,
@@ -746,15 +818,16 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const fragment = clipboardSelector(<VoxelPasteAction>action);
 
       const prevState = ensureFragmentMerged(state, false);
+      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       const fragmentOffset = [
-        Math.floor((prevState.model.shape[0] - fragment.shape[0]) / 2),
-        Math.floor((prevState.model.shape[1] - fragment.shape[1]) / 2),
-        Math.floor((prevState.model.shape[2] - fragment.shape[2]) / 2),
+        Math.floor((prevModel.shape[0] - fragment.shape[0]) / 2),
+        Math.floor((prevModel.shape[1] - fragment.shape[1]) / 2),
+        Math.floor((prevModel.shape[2] - fragment.shape[2]) / 2),
       ];
 
-      return Object.assign({}, state, {
-        model: prevState.model,
+      return Object.assign({}, state, <VoxelData>{
+        maps: Object.assign({}, state.maps, { [MaterialMapType.DEFAULT]: prevModel }),
         selection: null,
         fragment,
         fragmentOffset,
@@ -770,7 +843,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         return state;
       }
 
-      return Object.assign({}, state, {
+      return Object.assign({}, state, <VoxelData>{
         fragmentOffset: offset,
       });
     }
@@ -787,8 +860,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { size, offset } = <VoxelResizeAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
+      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
-      const src = prevState.model;
+      const src = prevModel;
       const dest = ndarray(new Int32Array(size[0] * size[1] * size[2]), size);
 
       const {
@@ -827,9 +901,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         ? Object.assign({}, prevState.mode2d, { position: size[prevState.mode2d.axis] - 1 })
         : prevState.mode2d;
 
-      return Object.assign({}, prevState, {
+      return Object.assign({}, prevState, <VoxelData>{
         size,
-        model: dest,
+        maps: Object.assign({}, prevState.maps, { [MaterialMapType.DEFAULT]: dest }),
         selection: destSelection,
         mode2d,
       });
@@ -839,9 +913,10 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { transform } = <VoxelTransformAction>action;
 
       const prevState = ensureFragmentMerged(state, true);
+      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       // Infer next shape from transform and current size
-      const { shape } = prevState.model;
+      const { shape } = prevModel;
       const w = Math.abs(shape[0] * transform[0][0] + shape[1] * transform[1][0] + shape[2] * transform[2][0]);
       const h = Math.abs(shape[0] * transform[0][1] + shape[1] * transform[1][1] + shape[2] * transform[2][1]);
       const d = Math.abs(shape[0] * transform[0][2] + shape[1] * transform[1][2] + shape[2] * transform[2][2]);
@@ -859,7 +934,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       for (let i = 0; i < shape[0]; ++i) {
         for (let j = 0; j < shape[1]; ++j) {
           for (let k = 0; k < shape[2]; ++k) {
-            const c = prevState.model.get(i, j, k);
+            const c = prevModel.get(i, j, k);
             if (c) {
               const x0 = i - ox0;
               const y0 = j - oy0;
@@ -906,9 +981,9 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         ? Object.assign({}, prevState.mode2d, { position: size[prevState.mode2d.axis] - 1 })
         : prevState.mode2d;
 
-      return Object.assign({}, prevState, {
+      return Object.assign({}, prevState, <VoxelData>{
         size,
-        model,
+        maps: Object.assign({}, state.maps, { [MaterialMapType.DEFAULT]: model }),
         selection,
         mode2d,
       });
@@ -918,11 +993,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       if (state.mode2d.enabled === true) return state;
 
       if (state.mode2d.initialized) {
-        return Object.assign({}, state, {
+        return Object.assign({}, state, <VoxelData>{
           mode2d: Object.assign({}, state.mode2d, { enabled: true }),
         });
       } else {
-        return Object.assign({}, state, {
+        return Object.assign({}, state, <VoxelData>{
           mode2d: Object.assign({}, state.mode2d, {
             enabled: true,
             initialized: true,
@@ -936,7 +1011,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case LEAVE_MODE_2D: {
       if (state.mode2d.enabled === false) return state;
 
-      return Object.assign({}, state, {
+      return Object.assign({}, state, <VoxelData>{
         mode2d: Object.assign({}, state.mode2d, { enabled: false }),
       });
     }
@@ -945,10 +1020,36 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { axis, position } = <MoveMode2DPlaneAction>action;
       if (state.mode2d.axis === axis && state.mode2d.position === position) return state;
 
-      return Object.assign({}, state, {
+      return Object.assign({}, state, <VoxelData>{
         mode2d: Object.assign({}, state.mode2d, {
           axis, position,
         }),
+      });
+    }
+
+    case EDIT_AS_TROVE: {
+      if (state.type === ModelFileType.TROVE) return state;
+
+      const { size } = state;
+      const dataLen = size[0] * size [1] * size[2];
+
+      return Object.assign({}, state, <VoxelData>{
+        type: ModelFileType.TROVE,
+        maps: Object.assign({}, state.maps, {
+          [MaterialMapType.TROVE_ALPHA]: ndarray(new Int32Array(dataLen), size),
+          [MaterialMapType.TROVE_SPECULAR]: ndarray(new Int32Array(dataLen), size),
+          [MaterialMapType.TROVE_TYPE]: ndarray(new Int32Array(dataLen), size),
+        }),
+      });
+    }
+
+    case ACTIVATE_MAP: {
+      const { activeMap } = <ActivateMapAction>action;
+
+      if (state.activeMap === activeMap) return state;
+
+      return Object.assign({}, state, <VoxelData>{
+        activeMap,
       });
     }
 

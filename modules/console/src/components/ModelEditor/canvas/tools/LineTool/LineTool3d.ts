@@ -31,7 +31,7 @@ class LineTool3d extends LineTool<LineTool3dProps> {
   mapParamsToProps(state: ModelEditorState) {
     return {
       size: state.file.present.data.size,
-      color: state.common.paletteColor,
+      color: state.common.paletteColors[state.file.present.data.activeMap],
       fragment: state.file.present.data.fragment,
     };
   }

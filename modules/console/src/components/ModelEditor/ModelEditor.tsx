@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
+import { grey600 } from 'material-ui/styles/colors';
 const pure = require('recompose/pure').default;
 
 import THREE from 'three';
@@ -18,6 +19,11 @@ import { reset, undo, redo } from '@pasta/helper/lib/undoable';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 
 import * as ndarray from 'ndarray';
+
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./ModelEditor.css');
+
+import mapinfo from './mapinfo';
 
 const msgpack = require('msgpack-lite');
 
@@ -68,7 +74,13 @@ import {
   CommonState,
   SerializedData,
   Axis,
+  ColorPickerType,
 } from './types';
+
+import {
+  ModelFileType,
+  MaterialMapType,
+} from '../../types';
 
 import {
   changeTool,
@@ -81,10 +93,14 @@ import {
   voxelPaste,
   enterMode2D,
   leaveMode2D,
+  editAsTrove,
+  activateMap,
+  changeColorPicker,
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
 import ToolsPanel from './components/panels/ToolsPanel';
+import MapPanel from './components/panels/MapPanel';
 
 import FullscreenButton from './components/FullscreenButton';
 import ApplyButton from './components/ApplyButton';
@@ -94,18 +110,6 @@ import ModelEditorCanvas from './canvas/ModelEditorCanvas';
 
 import commonReducer from './reducers/common';
 import fileReducer from './reducers/file';
-
-const styles = {
-  root: {
-    position: 'absolute',
-    top: 0, left: 0, bottom: 0, right: 0,
-    overflow: 'hidden',
-  },
-  canvas: {
-    position: 'absolute',
-    top: 0, left: 0, bottom: 0, right: 0,
-  },
-};
 
 import {
   PanelTypes,
@@ -149,9 +153,12 @@ interface ExportFileResult {
   panelIds: Object.keys(Panels).map(key => Panels[key]),
   mapIdToLocalStorageKey: panelId => `${StorageKeys.VOXEL_EDITOR_PANEL_PREFIX}.${panelId}`,
 })
+@withStyles(styles)
 class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static createFileState = createFileState;
   static deserialize = deserialize;
+
+  static editAsTrove: (fileState: FileState) => FileState;
 
   static createCommonState: () => CommonState;
   static createExtraData: (size: Position) => ExtraData;
@@ -262,7 +269,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           case 67: // C
           {
             const { clipboard } = this.props.commonState;
-            const { model, selection } = this.props.fileState.present.data;
+            const { selection } = this.props.fileState.present.data;
+            const model = this.props.fileState.present.data.maps[MaterialMapType.DEFAULT];
 
             if (selection) {
               if (!clipboard || clipboard.model !== model || clipboard.selection !== selection) {
@@ -390,7 +398,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
   selectTool = (selectedTool: ToolType) => this.dispatchAction(changeTool(selectedTool));
 
-  changePaletteColor = (paletteColor: Color) => this.dispatchAction(changePaletteColor(paletteColor));
+  changePaletteColor = (paletteColor: Color) => this.dispatchAction(
+    changePaletteColor(this.props.fileState.present.data.activeMap, paletteColor)
+  );
 
   handleEnableMode2D = (enabled: boolean) => {
     if (enabled) {
@@ -398,6 +408,14 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     } else {
       this.dispatchAction(leaveMode2D());
     }
+  }
+
+  handleActivateMap = (activeMap: MaterialMapType) => {
+    this.dispatchAction(activateMap(activeMap));
+  }
+
+  handleChangeColorPicker = (colorPicker: ColorPickerType) => {
+    this.dispatchAction(changeColorPicker(colorPicker));
   }
 
   renderPanels() {
@@ -408,34 +426,58 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           dispatchAction={this.dispatchAction}
         />
         <ToolsPanel
+          fileType={this.props.fileState.present.data.type}
+          activeMap={this.props.fileState.present.data.activeMap}
+          colorPicker={this.props.commonState.colorPicker}
           mode2d={this.props.fileState.present.data.mode2d.enabled}
           onEnableMode2D={this.handleEnableMode2D}
-          paletteColor={this.props.commonState.paletteColor}
+          paletteColor={this.props.commonState.paletteColors[this.props.fileState.present.data.activeMap]}
           selectedTool={
             getUniqueToolType(this.props.fileState.present.data.mode2d.enabled, this.props.commonState.tool)
           }
           changePaletteColor={this.changePaletteColor}
           selectTool={this.selectTool}
+          onChangeColorPicker={this.handleChangeColorPicker}
         />
+        {this.props.fileState.present.data.type === ModelFileType.TROVE ? (
+          <MapPanel
+            activeMap={this.props.fileState.present.data.activeMap}
+            onActivateMap={this.handleActivateMap}
+          />
+        ) : null}
       </div>
     );
   }
 
   render() {
     return (
-      <div ref="root" style={styles.root} onMouseDown={this.props.onMouseDown}>
-        <div style={styles.canvas} ref="canvas"></div>
-        <Tips />
-        {screenfull.enabled && (
-          <FullscreenButton
-            onTouchTap={this.handleFullscreenButtonClick}
-            fullscreen={this.state.fullscreen}
-          />
-        )}
-        {this.props.onApply ? <ApplyButton
-          onTouchTap={this.props.onApply}
-        /> : null}
-        {this.renderPanels()}
+      <div ref="root" className={styles.root} onMouseDown={this.props.onMouseDown}>
+        <div className={styles.main}>
+          <div className={styles.canvas} ref="canvas"></div>
+          <Tips />
+          {screenfull.enabled && (
+            <FullscreenButton
+              onTouchTap={this.handleFullscreenButtonClick}
+              fullscreen={this.state.fullscreen}
+            />
+          )}
+          {this.props.onApply ? <ApplyButton
+            onTouchTap={this.props.onApply}
+          /> : null}
+          {this.renderPanels()}
+        </div>
+        <div className={styles.sidebar}>
+          <div className={styles.sidebarInner}>
+            <div className={styles.itemLabel}>Canvas Size</div>
+            <div className={styles.itemBody}>
+              <span>{this.props.fileState.present.data.size[0]}</span>
+              <span> x </span>
+              <span>{this.props.fileState.present.data.size[1]}</span>
+              <span> x </span>
+              <span>{this.props.fileState.present.data.size[2]}</span>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -473,12 +515,13 @@ ModelEditor.isModified = function (lhs: FileState, rhs: FileState) {
 const FILE_FORMAT_VERSION = '1.0';
 
 ModelEditor.serialize = (fileState) => {
-  const data: any = pako.deflate(fileState.present.data.model.data.buffer);
+  const model = fileState.present.data.maps[MaterialMapType.DEFAULT];
+  const data: any = pako.deflate(model.data.buffer);
 
   return msgpack.encode({
     version: FILE_FORMAT_VERSION,
     data,
-    shape: fileState.present.data.model.shape,
+    shape: model.shape,
   });
 }
 
@@ -500,8 +543,12 @@ ModelEditor.importVoxFile = buffer => {
   } else {
     return {
       result: ModelEditor.createFileState({
+        type: ModelFileType.DEFAULT,
         size: result.shape,
-        model: result,
+        maps: {
+          [MaterialMapType.DEFAULT]: result,
+        },
+        activeMap: MaterialMapType.DEFAULT,
         selection: null,
         fragment: null,
         fragmentOffset: [0, 0, 0],
@@ -517,10 +564,14 @@ ModelEditor.importVoxFile = buffer => {
 }
 
 ModelEditor.exportVoxFile = fileState => {
-  return exportVoxFile(fileState.present.data.model);
+  return exportVoxFile(fileState.present.data.maps[MaterialMapType.DEFAULT]);
 };
 
 ModelEditor.createFileState = createFileState;
 ModelEditor.deserialize = deserialize;
+
+ModelEditor.editAsTrove = (fileState: FileState): FileState => {
+  return fileReducer(fileState, editAsTrove());
+}
 
 export default ModelEditor;

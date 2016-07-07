@@ -57,6 +57,8 @@ import {
   ENTER_MODE_2D,
   LEAVE_MODE_2D,
   MOVE_MODE_2D_PLANE,
+  EDIT_AS_TROVE,
+  ACTIVATE_MAP,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -140,6 +142,16 @@ const messages = defineMessages({
     description: 'Move 2D mode plane label',
     defaultMessage: 'Move 2D plane',
   },
+  labelEditAsTrove: {
+    id: 'voxel-editor.panels.history.editAsTrove',
+    description: 'Edit as Trove label',
+    defaultMessage: 'Edit as Trove',
+  },
+  labelActivateMap: {
+    id: 'voxel-editor.panels.history.activateMap',
+    description: 'Change Map label',
+    defaultMessage: 'Change Map',
+  },
 });
 
 const ActionMessages = {
@@ -173,6 +185,8 @@ const ActionMessages = {
   [ENTER_MODE_2D]: messages.labelEnterMode2D,
   [LEAVE_MODE_2D]: messages.labelLeaveMode2D,
   [MOVE_MODE_2D_PLANE]: messages.labelMoveMode2DPlane,
+  [EDIT_AS_TROVE]: messages.labelEditAsTrove,
+  [ACTIVATE_MAP]: messages.labelActivateMap,
 };
 
 function getActionMessage(state: Snapshot<any>) {

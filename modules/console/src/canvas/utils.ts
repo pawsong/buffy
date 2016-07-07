@@ -90,13 +90,19 @@ export function createGeometryFromMesh({ vertices, faces }: Mesh) {
 
     const uv = createFaceVertexUv(vertices, i);
 
+    const materialIndex = (q[4] & 0xff000000) >> 24;
+
     const f = new THREE.Face3(q[0], q[1], q[3]);
     f.color = new THREE.Color(q[4]);
+    f.materialIndex = materialIndex;
+
     geometry.faces.push(f);
     geometry.faceVertexUvs[0].push([uv[0], uv[1], uv[3]]);
 
     const g = new THREE.Face3(q[1], q[2], q[3]);
     g.color = new THREE.Color(q[4]);
+    g.materialIndex = materialIndex;
+
     geometry.faces.push(g);
     geometry.faceVertexUvs[0].push([uv[1], uv[2], uv[3]]);
   }

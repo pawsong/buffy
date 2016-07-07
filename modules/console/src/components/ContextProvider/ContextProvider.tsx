@@ -6,18 +6,22 @@ interface ContextProviderProps {
   insertCss: any;
 }
 
-const ContextProvider: React.StatelessComponent<ContextProviderProps> = withContext(
-  {
+class ContextProvider extends React.Component<ContextProviderProps, void> {
+  static childContextTypes = {
     hairdresser: React.PropTypes.object.isRequired,
     insertCss: React.PropTypes.func.isRequired,
-  },
-  ({
-    hairdresser,
-    insertCss,
-  }: ContextProviderProps) => ({
-    hairdresser,
-    insertCss,
-  })
-)('div');
+  };
+
+  getChildContext() {
+    return {
+      hairdresser: this.props.hairdresser,
+      insertCss: this.props.insertCss,
+    };
+  }
+
+  render() {
+    return React.Children.only(this.props.children);
+  }
+}
 
 export default ContextProvider;

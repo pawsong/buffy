@@ -26,6 +26,11 @@ const messages = defineMessages({
     description: 'Download',
     defaultMessage: 'Download',
   },
+  advanced: {
+    id: 'modelstudio.navbar.advanced',
+    description: 'Advanced',
+    defaultMessage: 'Advanced',
+  },
   saveAll: {
     id: 'modelstudio.navbar.saveAll',
     description: 'Save All',
@@ -50,6 +55,7 @@ interface ModelStudioNavbarProps extends React.Props<ModelStudioNavbar> {
   onSaveAll: () => any;
   onLogout: () => any;
   onDownload: (fileType: ModelSupportFileType) => any;
+  onEditAsTroveFile: () => any;
   onLinkClick: (location: HistoryModule.LocationDescriptor) => any;
   intl?: InjectedIntlProps;
 }
@@ -57,6 +63,7 @@ interface ModelStudioNavbarProps extends React.Props<ModelStudioNavbar> {
 enum SubmenuType {
   NONE,
   DOWNLOAD,
+  ADVANCED,
 }
 
 interface ModelStudioState {
@@ -107,6 +114,41 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
     }
   }
 
+  renderAdvancedFileMenu() {
+    if (this.state.submenuType !== SubmenuType.ADVANCED) return null;
+
+    return (
+      <Paper zDepth={3} style={{ position: 'absolute' }}>
+        <List>
+          <ListItem
+            innerDivStyle={{ whiteSpace: 'nowrap' }}
+            primaryText={'Edit as Trove File'}
+            onTouchTap={this.handleEditAsTroveFileClick}
+          />
+        </List>
+      </Paper>
+    );
+  }
+
+  handleAdvancedMenuToggle = () => {
+    if (this.state.submenuType === SubmenuType.ADVANCED) {
+      this.setState({ submenuType: SubmenuType.NONE });
+    } else {
+      this.setState({ submenuType: SubmenuType.ADVANCED });
+    }
+  }
+
+  handleAdvancedMenuClose = () => {
+    if (this.state.submenuType === SubmenuType.ADVANCED) {
+      this.setState({ submenuType: SubmenuType.NONE });
+    }
+  }
+
+  handleEditAsTroveFileClick = () => {
+    this.props.onEditAsTroveFile();
+    this.handleAdvancedMenuClose();
+  }
+
   renderLeftToolbarGroup() {
     return (
       <div style={{ marginLeft: 25, marginTop: 10 }}>
@@ -152,6 +194,18 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
               hoverColor={Colors.cyan700}
             />
             {this.renderDownloadFileMenu()}
+          </ClickAwayListener>
+        </div>
+        <div style={{ display: 'inline-block', marginRight: 10 }}>
+          <ClickAwayListener onClickAway={this.handleAdvancedMenuClose}>
+            <FlatButton
+              label={this.props.intl.formatMessage(messages.advanced)}
+              style={styles.button}
+              onTouchTap={this.handleAdvancedMenuToggle}
+              backgroundColor={this.state.submenuType === SubmenuType.ADVANCED ? Colors.cyan700 : Colors.cyan500}
+              hoverColor={Colors.cyan700}
+            />
+            {this.renderAdvancedFileMenu()}
           </ClickAwayListener>
         </div>
       </div>

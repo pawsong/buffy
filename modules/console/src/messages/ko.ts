@@ -232,6 +232,13 @@ export default {
 
   /**
    * path: src/screens/ModelStudio/components/ModelStudioNavbar.json
+   * description: Advanced
+   * defaultMessage: Advanced
+   */
+/* translate */ 'modelstudio.navbar.advanced': '',
+
+  /**
+   * path: src/screens/ModelStudio/components/ModelStudioNavbar.json
    * description: Download
    * defaultMessage: Download
    */
@@ -505,6 +512,20 @@ export default {
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Change Map label
+   * defaultMessage: Change Map
+   */
+/* translate */ 'voxel-editor.panels.history.activateMap': '',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Edit as Trove label
+   * defaultMessage: Edit as Trove
+   */
+/* translate */ 'voxel-editor.panels.history.editAsTrove': '',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel editor history panel title
    * defaultMessage: History
    */
@@ -593,6 +614,13 @@ export default {
    * defaultMessage: Transform
    */
   'voxel-editor.panels.history.voxel.transform': '블럭 변환',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/MapPanel.json
+   * description: Voxel editor map panel title
+   * defaultMessage: Map
+   */
+/* translate */ 'voxel-editor.panels.map.title': '',
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json

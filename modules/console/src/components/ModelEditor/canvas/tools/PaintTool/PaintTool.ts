@@ -52,7 +52,7 @@ abstract class PaintTool extends ModelEditorTool<PaintToolProps, void, PaintTool
 
   mapParamsToProps(params: ModelEditorState) {
     return {
-      paletteColor: params.common.paletteColor,
+      paletteColor: params.common.paletteColors[params.file.present.data.activeMap],
       size: params.file.present.data.size,
       fragment: params.file.present.data.fragment,
     };

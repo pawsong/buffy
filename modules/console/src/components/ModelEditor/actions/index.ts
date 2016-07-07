@@ -10,7 +10,12 @@ import {
   ToolType,
   Rectangle,
   Axis,
+  ColorPickerType,
 } from '../types';
+
+import {
+  MaterialMapType,
+} from '../../../types';
 
 export const VOXEL_ADD: 'voxel-editor/VOXEL_ADD' = 'voxel-editor/VOXEL_ADD';
 export interface VoxelAddAction extends Action<typeof VOXEL_ADD> {
@@ -370,11 +375,13 @@ export function changeTool(tool: ToolType) {
 
 export const CHANGE_PALETTE_COLOR: 'CHANGE_PALETTE_COLOR' = 'CHANGE_PALETTE_COLOR';
 export interface ChangePaletteColorAction extends Action<typeof CHANGE_PALETTE_COLOR> {
+  mapType: MaterialMapType;
   color: Color;
 }
-export function changePaletteColor(color: Color) {
+export function changePaletteColor(mapType: MaterialMapType, color: Color) {
   return {
     type: CHANGE_PALETTE_COLOR,
+    mapType,
     color,
   };
 }
@@ -407,5 +414,36 @@ export function moveMode2dPlane(axis: Axis, position: number): MoveMode2DPlaneAc
     type: MOVE_MODE_2D_PLANE,
     axis,
     position,
+  };
+}
+
+export const EDIT_AS_TROVE: 'EDIT_AS_TROVE' = 'EDIT_AS_TROVE';
+export interface EditAsTroveAction extends Action<typeof EDIT_AS_TROVE> {
+}
+export function editAsTrove(): EditAsTroveAction {
+  return {
+    type: EDIT_AS_TROVE,
+  };
+}
+
+export const ACTIVATE_MAP: 'ACTIVATE_MAP' = 'ACTIVATE_MAP';
+export interface ActivateMapAction extends Action<typeof ACTIVATE_MAP> {
+  activeMap: MaterialMapType;
+}
+export function activateMap(activeMap: MaterialMapType): ActivateMapAction {
+  return {
+    type: ACTIVATE_MAP,
+    activeMap,
+  };
+}
+
+export const CHANGE_COLOR_PICKER: 'CHANGE_COLOR_PICKER' = 'CHANGE_COLOR_PICKER';
+export interface ChangeColorPickerAction extends Action<typeof CHANGE_COLOR_PICKER> {
+  colorPicker: ColorPickerType;
+}
+export function changeColorPicker(colorPicker: ColorPickerType): ChangeColorPickerAction {
+  return {
+    type: CHANGE_COLOR_PICKER,
+    colorPicker,
   };
 }

@@ -5,6 +5,9 @@ import ModelEditor, { ModelFileState } from '../../../components/ModelEditor';
 import { ModelFile, ModelFileDocument } from '../types';
 import { request, wait } from '../../../saga';
 import ThumbnailFactory from '../../../canvas/ThumbnailFactory';
+import {
+  MaterialMapType,
+} from '../../../types';
 
 interface UpdateFileParams {
   id: string;
@@ -38,7 +41,7 @@ export function* updateFiles(thumbnailFactory: ThumbnailFactory, paramsList: Upd
       withCredentials: false,
     });
 
-    const thumbnailBlob = yield call(thumbnailFactory.createThumbnailBlob, params.body.present.data.model);
+    const thumbnailBlob = yield call(thumbnailFactory.createThumbnailBlob, params.body.present.data.maps[MaterialMapType.DEFAULT]);
 
     response = yield call(request.put, thumbnailSignedUrl, thumbnailBlob, {
       headers: {

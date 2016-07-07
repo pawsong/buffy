@@ -33,7 +33,7 @@ class LineTool2d extends LineTool<LineTool2dProps> {
   mapParamsToProps(state: ModelEditorState) {
     return {
       size: state.file.present.data.size,
-      color: state.common.paletteColor,
+      color: state.common.paletteColors[state.file.present.data.activeMap],
       fragment: state.file.present.data.fragment,
       mode2d: state.file.present.data.mode2d,
     };

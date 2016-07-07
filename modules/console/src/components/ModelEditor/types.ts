@@ -2,6 +2,10 @@ import THREE from 'three';
 import { Ndarray } from 'ndarray';
 import { UndoableState } from '@pasta/helper/lib/undoable';
 import { SimpleStore } from '../../libs';
+import {
+  ModelFileType,
+  MaterialMapType,
+} from '../../types';
 
 /**
  * Flux
@@ -106,8 +110,12 @@ export enum Axis {
 }
 
 export interface VoxelData {
+  type: ModelFileType;
   size: Position;
-  model: Ndarray;
+  maps: {
+    [index: number /* MaterialMapType */]: Ndarray,
+  };
+  activeMap: MaterialMapType;
   selection: Ndarray;
   fragment: Ndarray;
   fragmentOffset: Position;
@@ -130,9 +138,17 @@ export interface Clipboard {
   selection: Ndarray;
 }
 
+export enum ColorPickerType {
+  SIMPLE,
+  ADVANCED,
+}
+
 export interface CommonState {
   tool: ToolType;
-  paletteColor: Color;
+  paletteColors: {
+    [index: number /* MaterialMapType */]: Color,
+  };
+  colorPicker: ColorPickerType;
   clipboard: Clipboard;
 }
 

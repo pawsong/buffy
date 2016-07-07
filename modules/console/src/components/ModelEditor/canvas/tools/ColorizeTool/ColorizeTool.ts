@@ -13,6 +13,10 @@ import {
   ModelEditorState,
 } from '../../../types';
 
+import {
+  MaterialMapType,
+} from '../../../../../types';
+
 import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';
 
 const COLOR_TOOLTIP_RADIUS = 20;
@@ -32,8 +36,18 @@ interface ColorizeToolParams {
   hitTest?: (intersect: THREE.Intersection, meshPosition: THREE.Vector3) => boolean;
 }
 
-abstract class ColorizeTool extends ModelEditorTool<void, void, void> {
+interface ColorizeToolProps {
+  activeMap: MaterialMapType;
+}
+
+abstract class ColorizeTool extends ModelEditorTool<ColorizeToolProps, void, void> {
   colorTooltip: HTMLElement;
+
+  mapParamsToProps(params: ModelEditorState) {
+    return {
+      activeMap: params.file.present.data.activeMap,
+    };
+  }
 
   getToolType(): ToolType { return ToolType.COLORIZE; }
 
@@ -123,7 +137,7 @@ class WaitState extends ToolState {
     if (!intersect) return;
 
     const { face } = intersect;
-    this.tool.dispatchAction(changePaletteColor(multiplyColor(face.color)));
+    this.tool.dispatchAction(changePaletteColor(this.tool.props.activeMap, multiplyColor(face.color)));
   }
 }
 

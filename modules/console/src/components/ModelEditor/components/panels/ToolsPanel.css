@@ -1,0 +1,33 @@
+.colorPickerContainer {
+  position: absolute;
+  bottom: 0;
+  left: 100%;
+  margin-left: 8px;
+  z-index: 999;
+}
+
+.swatch {
+  margin-top: 15px;
+  padding: 5px;
+  background: #ffffff;
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.1);
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* This is too hacky... */
+.colorPickerTypeMap > div > div > div > div > div > div > div:first-child {
+  width: 38px !important;
+  height: 22px !important;
+  border: 1px solid #9e9e9e !important;
+}
+
+.colorPickerButtons {
+  white-space: nowrap;
+  margin-top: 8px;
+}
+
+.colorPickerButton + .colorPickerButton {
+  margin-left: 8px;
+}

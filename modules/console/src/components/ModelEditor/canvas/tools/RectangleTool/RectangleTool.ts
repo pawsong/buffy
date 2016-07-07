@@ -40,7 +40,7 @@ abstract class RectangleTool extends AddBlockTool<AddBlockToolProps> {
   mapParamsToProps(state: ModelEditorState) {
     return {
       size: state.file.present.data.size,
-      color: state.common.paletteColor,
+      color: state.common.paletteColors[state.file.present.data.activeMap],
       fragment: state.file.present.data.fragment,
     };
   }

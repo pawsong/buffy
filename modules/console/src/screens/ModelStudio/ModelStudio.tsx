@@ -30,7 +30,7 @@ import ModelEditor, {
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
 
-import { FileType } from '../../types';
+import { FileType, MaterialMapType } from '../../types';
 import { ModelFile, ModelFileMap, ModelFileOpenParams, ModelFileDocument } from './types';
 
 import ConfirmLeaveDialog from './components/ConfirmLeaveDialog';
@@ -214,18 +214,19 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     readonly,
     forkParent,
   }: ModelFileOpenParams) {
+    const model = body.present.data.maps[MaterialMapType.DEFAULT];
     const file: ModelFile = {
       id,
       name,
       owner,
-      thumbnail: this.thumbnailFactory.createThumbnail(body.present.data.model),
+      thumbnail: this.thumbnailFactory.createThumbnail(model),
       type: FileType.MODEL,
       created,
       modified: false,
       readonly,
       savedBody: body,
       body,
-      extra: ModelEditor.createExtraData(body.present.data.model.shape),
+      extra: ModelEditor.createExtraData(model.shape),
       forkParent,
     };
 
@@ -241,12 +242,13 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   }
 
   handleFileStateChange = (body: ModelFileState) => {
+    const model = body.present.data.maps[MaterialMapType.DEFAULT];
     const currentFile = this.state.files.get(this.state.activeFileId);
     this.setState({
       files: this.state.files.set(this.state.activeFileId, Object.assign({}, currentFile, {
         body,
         modified: ModelEditor.isModified(currentFile.savedBody, body),
-        thumbnail: this.thumbnailFactory.createThumbnail(body.present.data.model),
+        thumbnail: this.thumbnailFactory.createThumbnail(model),
       }))
     });
   }
@@ -505,6 +507,13 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     }
   }
 
+  handleEditAsTroveFile = () => {
+    const currentFile = this.state.files.get(this.state.activeFileId);
+    if (!currentFile) return;
+
+    this.handleFileStateChange(ModelEditor.editAsTrove(currentFile.body));
+  }
+
   render() {
     const fileOnSaveDialog = this.state.filesOnSaveDialog.length > 0
       ? this.state.files.get(this.state.filesOnSaveDialog[0])
@@ -520,6 +529,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onRequestOpenFile={this.handleRequestOpenFile}
           onNewFile={this.handleNewFileButtonClick}
           onDownload={this.handleFileDownload}
+          onEditAsTroveFile={this.handleEditAsTroveFile}
           onSave={this.handleSave}
           onSaveAll={this.handleSaveAll}
         />

@@ -27,6 +27,7 @@ const styles = require('./ModelViewerHandler.css');
 
 import {
   ModelFileDocument,
+  MaterialMapType,
 } from '../../types';
 
 interface RouteParams {
@@ -155,7 +156,7 @@ class ModelViewerHandler extends React.Component<HandlerProps, {}> {
           {fork}
         </div>
         <ModelViewer
-          data={this.props.loadModel.result.present.data.model}
+          data={this.props.loadModel.result.present.data.maps[MaterialMapType.DEFAULT]}
         />
       </div>
     );

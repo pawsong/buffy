@@ -7,6 +7,11 @@ import {
   Axis,
 } from '../types';
 
+import {
+  ModelFileType,
+  MaterialMapType,
+} from '../../../types';
+
 import createFileState from './createFileState';
 
 function deserialize (buffer: Uint8Array) {
@@ -15,8 +20,12 @@ function deserialize (buffer: Uint8Array) {
   const model = ndarray(new Int32Array(inflated.buffer), data.shape);
 
   return createFileState({
+    type: ModelFileType.DEFAULT,
     size: data.shape,
-    model,
+    maps: {
+      [MaterialMapType.DEFAULT]: model,
+    },
+    activeMap: MaterialMapType.DEFAULT,
     selection: null,
     fragment: null,
     fragmentOffset: [0, 0, 0],

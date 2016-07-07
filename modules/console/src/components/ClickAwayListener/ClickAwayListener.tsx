@@ -16,6 +16,7 @@ const unbind = (callback) => clickAwayEvents.forEach((event) => Events.off(docum
 interface ClickAwayListenerProps extends React.Props<ClickAwayListener> {
   onClickAway: (event: Event) => any;
   style?: React.CSSProperties;
+  className?: string;
 }
 
 export default class ClickAwayListener extends React.Component<ClickAwayListenerProps, {}> {
@@ -53,6 +54,6 @@ export default class ClickAwayListener extends React.Component<ClickAwayListener
   };
 
   render() {
-    return <div style={this.props.style || {}}>{this.props.children}</div>;
+    return <div style={this.props.style || {}} className={this.props.className}>{this.props.children}</div>;
   }
 }

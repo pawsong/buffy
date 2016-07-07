@@ -1,0 +1,46 @@
+@import '../../styles/variables.css';
+
+:root {
+  --sidebar-width: 200px;
+}
+
+.root {
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  overflow: hidden;
+}
+
+.canvas {
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+}
+
+.main {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: var(--sidebar-width);
+}
+
+.sidebar {
+  position: absolute;
+  width: var(--sidebar-width);
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background-color: var(--palette-grey-600);
+  color: var(--palette-white);
+}
+
+.itemLabel {
+  margin-bottom: 3px;
+}
+
+.itemBody {
+  font-weight: bold;
+}
+
+.sidebarInner {
+  padding: 15px;
+}
