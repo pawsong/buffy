@@ -407,7 +407,7 @@ class JoinForm extends React.Component<JoinFormProps, JoinFormState> {
         <RaisedButton
           label={this.props.intl.formatMessage(Messages.facebookLogin)}
           backgroundColor={'#3b5998'}
-          labelColor={Colors.white}
+          labelStyle={{ color: Colors.white }}
           style={styles.facebookLoginButton}
           fullWidth={true}
           onTouchTap={() => this.handleFacebookSignUpSubmit()}

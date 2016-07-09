@@ -174,12 +174,10 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
             </Subheader>
             <ListItem primaryText={this.props.intl.formatMessage(messages.profile)}
                       leftIcon={<ProfileIcon />}
-                      linkButton={true}
                       containerElement={<Link to={`/@${username}`}></Link>}
             />
             <ListItem primaryText={this.props.intl.formatMessage(Messages.settings)}
                       leftIcon={<SettingsIcon />}
-                      linkButton={true}
                       containerElement={<Link to={`/settings`}></Link>}
             />
             <ListItem primaryText={this.props.intl.formatMessage(Messages.logout)}
@@ -204,16 +202,15 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
 
     return (
       <Navbar fullWidth={this.props.fullWidth}>
-        <ToolbarGroup float="left">
+        <ToolbarGroup>
           <Link to="/"><BuffyIcon style={inlineStyles.logo} color={Colors.darkWhite} /></Link>
           {leftToolbarGroup}
         </ToolbarGroup>
-        <ToolbarGroup float="right">
+        <ToolbarGroup>
           <a className={styles.bugReport} target="_blank" href="https://github.com/buffylab/buffy-issues">
             <IconButton tooltip="Report Issue">
               <FontIcon
                 className={classNames('material-icons', styles.bugReportButton)}
-                tooltip="Report Bug"
               >bug_report</FontIcon>
             </IconButton>
           </a>

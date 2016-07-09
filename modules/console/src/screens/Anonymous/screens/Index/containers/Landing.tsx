@@ -101,7 +101,6 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
           marginBottom: 100,
         }}>
           <RaisedButton secondary={true}
-                        linkButton={true}
                         containerElement={<Link to="/create" />}
                         label={this.props.intl.formatMessage(messages.getStarted)}
           />
@@ -126,7 +125,6 @@ class IndexHandler extends React.Component<IndexHandlerProps, {}> {
             }} />
           </h1>
           <RaisedButton secondary={true}
-                        linkButton={true}
                         containerElement={<Link to="/create" />}
                         label={this.props.intl.formatMessage(messages.takeTutorial)}
           />

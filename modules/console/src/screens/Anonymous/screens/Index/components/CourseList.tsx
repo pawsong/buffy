@@ -57,7 +57,6 @@ class CourseList extends React.Component<CourseListProps, {}> {
         secondaryTextLines={2}
         leftAvatar={<div style={leftAvatarStyle}></div>}
         innerDivStyle={styles.courseInnerDiv}
-        linkButton={true}
         containerElement={<Link to={`/courses/${course.id}`}></Link>}
       />
     );

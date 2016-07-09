@@ -64,7 +64,6 @@ class Dashboard extends React.Component<DashboardProps, {}> {
     const listBody = projects.map(project => {
       return (
         <ListItem key={project.id} primaryText={project.id}
-                  linkButton={true}
                   containerElement={<Link to={`/@${this.props.user.username}/${project.id}/latest/edit`}></Link>}
         />
       );
@@ -83,7 +82,6 @@ class Dashboard extends React.Component<DashboardProps, {}> {
         <Wrapper>
           <RaisedButton style={styles.button}
                         secondary={true}
-                        linkButton={true}
                         containerElement={<Link to="/create" />}
                         label={this.props.intl.formatMessage(messages.createProject)}
           />

@@ -87,11 +87,11 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
 
     return (
       <Navbar fullWidth={this.props.fullWidth}>
-        <ToolbarGroup float="left">
+        <ToolbarGroup>
           <Link to="/"><BuffyIcon style={this.logoStyle} color={Colors.darkWhite} /></Link>
           {leftToolbarGroup}
         </ToolbarGroup>
-        <ToolbarGroup float="right">
+        <ToolbarGroup>
           <FlatButton
             label={this.props.intl.formatMessage(Messages.login)}
             style={styles.button}

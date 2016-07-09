@@ -34,14 +34,12 @@ class SettingsHandler extends React.Component<HandlerProps, void> {
             onChange={emptyFunction}
           >
             <ListItem
-              linkButton={true}
               containerElement={<Link to="/settings/profile" />}
               value={'/settings/profile'}
               primaryText="Profile"
 
             />
             <ListItem
-              linkButton={true}
               containerElement={<Link to="/settings/account" />}
               value={'/settings/account'}
               primaryText="Account"

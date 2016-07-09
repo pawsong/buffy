@@ -27,9 +27,6 @@ class FullscreenButton extends React.Component<FullscreenButtonProps, {}> {
           }}
           iconClassName="material-icons" tooltipPosition="bottom-center"
           tooltip={this.props.fullscreen ? 'Fullscreen exit' : 'Fullscreen'}
-          tooltipStyles={{
-            top: 30,
-          }}
         >
           {this.props.fullscreen ? 'fullscreen_exit' : 'fullscreen'}
         </IconButton>

@@ -61,17 +61,14 @@ const inlineStyles = {
     margin: '0 auto',
   },
   iconButton: {
-    display: 'inline-block',
     margin: '5px 0',
   },
   iconButtonRight: {
-    display: 'inline-block',
     margin: '5px 0',
     float: 'right',
   },
   tooltips: {
     top: 24,
-    zIndex: 1,
   },
 };
 

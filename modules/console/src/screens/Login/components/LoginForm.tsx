@@ -201,7 +201,7 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
           style={inlineStyles.facebookLoginButton}
           onTouchTap={() => this.handleLoginWithFacebook()}
           backgroundColor={'#3b5998'}
-          labelColor={Colors.white}
+          labelStyle={{ color: Colors.white }}
           fullWidth={true}
           disabled={formIsBusy}
         />
