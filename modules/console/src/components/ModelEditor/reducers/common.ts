@@ -73,9 +73,9 @@ export default function common(state = initialState, action: Action<any>) {
       });
     }
     case VOXEL_COPY: {
-      const { model, selection } = <VoxelCopyAction>action;
+      const { maps, selection } = <VoxelCopyAction>action;
       return Object.assign({}, state, <CommonState>{
-        clipboard: { model, selection },
+        clipboard: { maps, selection },
       });
     }
   }

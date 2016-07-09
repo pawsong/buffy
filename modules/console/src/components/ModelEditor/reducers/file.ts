@@ -31,6 +31,7 @@ import {
   VoxelData,
   Transformation,
   Axis,
+  MaterialMaps,
 } from '../types';
 
 import {
@@ -169,75 +170,71 @@ function hasIntersection(destShape: Position, srcShape: Position, offset: Positi
 }
 
 interface MergeFragmentResult {
-  model: ndarray.Ndarray;
+  maps: MaterialMaps;
   selection: ndarray.Ndarray;
 }
 
-function mergeFragment(state: VoxelData, leaveSelection: boolean): MergeFragmentResult {
-  const prevModel = state.maps[MaterialMapType.DEFAULT];
+function mergeFragment(state: VoxelData): MergeFragmentResult {
+  const defaultFragment = state.fragment[MaterialMapType.DEFAULT];
 
-  if (!hasIntersection(prevModel.shape, state.fragment.shape, state.fragmentOffset)) {
-    return { model: prevModel, selection: null };
+  if (!hasIntersection(state.size, defaultFragment.shape, state.fragmentOffset)) {
+    return null;
   }
-
-  const model = ndarray(prevModel.data.slice(), prevModel.shape);
 
   const {
     srcOffset,
     destOffset,
     shape,
-  } = calculateIntersection(model.shape, state.fragment.shape, state.fragmentOffset);
+  } = calculateIntersection(state.size, defaultFragment.shape, state.fragmentOffset);
 
-  const modelOffset = model.offset +
-    model.stride[0] * destOffset[0] +
-    model.stride[1] * destOffset[1] +
-    model.stride[2] * destOffset[2];
+  const prevModel = state.maps[MaterialMapType.DEFAULT];
 
-  const fragmentOffset = state.fragment.offset +
-    state.fragment.stride[0] * srcOffset[0] +
-    state.fragment.stride[1] * srcOffset[1] +
-    state.fragment.stride[2] * srcOffset[2];
+  const offset = prevModel.offset +
+    prevModel.stride[0] * destOffset[0] +
+    prevModel.stride[1] * destOffset[1] +
+    prevModel.stride[2] * destOffset[2];
 
-  const intersectInModel = ndarray(model.data, shape, model.stride, modelOffset);
-  const intersectInFragment = ndarray(state.fragment.data, shape, state.fragment.stride, fragmentOffset);
+  const fragmentOffset = defaultFragment.offset +
+    defaultFragment.stride[0] * srcOffset[0] +
+    defaultFragment.stride[1] * srcOffset[1] +
+    defaultFragment.stride[2] * srcOffset[2];
 
-  if (leaveSelection) {
-    const selection = state.selection
-      ? ndarray(state.selection.data.slice(), model.shape)
-      : ndarray(new Int32Array(model.shape[0] * model.shape[1] * model.shape[2]), model.shape);
-    const intersectInSelection = ndarray(selection.data, shape, selection.stride, modelOffset);
+  const selection = state.selection
+    ? ndarray(state.selection.data.slice(), state.selection.shape)
+    : ndarray(new Int32Array(state.size[0] * state.size[1] * state.size[2]), state.size);
 
-    if (ndAssignAndMask2(intersectInModel, intersectInSelection, intersectInFragment, SELECTION_VALUE)) {
-      return { model, selection };
-    } else {
-      return { model: prevModel, selection: state.selection };
-    }
-  } else {
-    if (ndAssign2(intersectInModel, intersectInFragment)) {
-      let selection: ndarray.Ndarray = null;
+  const intersectInSelection = ndarray(selection.data, shape, selection.stride, offset);
+  const intersectInDefaultFragment = ndarray(
+    state.fragment[MaterialMapType.DEFAULT].data, shape,
+    state.fragment[MaterialMapType.DEFAULT].stride, fragmentOffset
+  );
+  if (!ndSetWithFilter2(intersectInSelection, SELECTION_VALUE, intersectInDefaultFragment)) return null;
 
-      if (state.selection) {
-        const nextSelection = ndarray(state.selection.data.slice(), model.shape);
-        const intersectInSelection = ndarray(nextSelection.data, shape, nextSelection.stride, modelOffset);
+  const maps = <MaterialMaps>{};
+  Object.keys(state.maps).forEach(key => {
+    const map = ndarray(state.maps[key].data.slice(), state.maps[key].shape);
+    const intersectInModel = ndarray(map.data, shape, map.stride, offset);
+    const intersectInFragment = ndarray(state.fragment[key].data, shape, state.fragment[key].stride, fragmentOffset);
+    if (ndAssign2(intersectInModel, intersectInFragment)) maps[key] = map;
+  });
 
-        ndExclude(intersectInSelection, intersectInFragment);
-        selection = ndAny(nextSelection) ? nextSelection : null;
-      }
-
-      return { model, selection };
-    } else {
-      return { model: prevModel, selection: state.selection };
-    }
-  }
+  return { maps, selection };
 }
 
-function ensureFragmentMerged(state: VoxelData, fragmentLeaveSelection: boolean): VoxelData {
+function ensureFragmentMerged(state: VoxelData): VoxelData {
   if (!state.fragment) return state;
 
-  const { model, selection } = mergeFragment(state, fragmentLeaveSelection);
+  const result = mergeFragment(state);
+  if (!result) {
+    return Object.assign({}, state, <VoxelData>{
+      fragment: null,
+      fragmentOffset: initialState.fragmentOffset,
+    });
+  }
 
+  const { maps, selection } = result;
   return Object.assign({}, state, <VoxelData>{
-    maps: Object.assign({}, state.maps, { [MaterialMapType.DEFAULT]: model }),
+    maps: Object.keys(maps).length > 0 ? Object.assign({}, state.maps, maps) : state.maps,
     selection,
     fragment: null,
     fragmentOffset: initialState.fragmentOffset,
@@ -271,9 +268,9 @@ const findBounds = cwise({
 });
 
 const clipboardSelector = createSelector(
-  (clipboard: VoxelPasteAction) => clipboard.model,
+  (clipboard: VoxelPasteAction) => clipboard.maps,
   (clipboard: VoxelPasteAction) => clipboard.selection,
-  (model, selection) => {
+  (maps, selection) => {
     const bounds = findBounds(selection);
 
     const shape = [
@@ -287,11 +284,17 @@ const clipboardSelector = createSelector(
       + bounds[1] * selection.stride[1]
       + bounds[2] * selection.stride[2];
 
-    const fragment = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), shape);
-    const partialModel = ndarray(model.data, shape, model.stride, offset);
-    const partialSelection = ndarray(selection.data, shape, selection.stride, offset);
+    const fragment = <MaterialMaps>{};
+    Object.keys(maps).forEach(key => {
+      const map = maps[key];
+      const partialModel = ndarray(map.data, shape, map.stride, offset);
+      const partialSelection = ndarray(selection.data, shape, selection.stride, offset);
 
-    ndCopyWithFilter(fragment, partialModel, partialSelection);
+      const result = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), shape);
+      ndCopyWithFilter(result, partialModel, partialSelection);
+      fragment[key] = result;
+    });
+
     return fragment;
   }
 );
@@ -453,7 +456,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const filtered = filterVolumnWithSlice(state.mode2d.axis, state.mode2d.position, volumn);
       if (!filtered) return state;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
 
       return reduceModelUpsertAction(prevState,
         model => ndFill2(model, filtered, c),
@@ -467,7 +470,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { volumn, color } = <VoxelAddBatch3dAction>action;
       const c = rgbToHex(color);
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
 
       return reduceModelUpsertAction(prevState,
         model => ndFill2(model, volumn, c),
@@ -479,7 +482,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { positions, color } = <VoxelAddList3dAction>action;
       const c = rgbToHex(color);
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
 
       const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
 
@@ -524,7 +527,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { positions, color } = <VoxelAddList3dAction>action;
       const c = rgbToHex(color);
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
 
       return reduceModelUpsertAction(prevState,
         model => {
@@ -556,7 +559,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { position, color } = <VoxelColorFill2dAction>action;
       const c = rgbToHex(color);
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
 
       const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
 
@@ -578,7 +581,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { position, color } = <VoxelColorFill3dAction>action;
       const c = rgbToHex(color);
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
 
       return reduceModelUpsertAction(prevState,
         model => ndFloodFill(model, c, position),
@@ -591,7 +594,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_REMOVE_LIST_2D: {
       const { positions } = <VoxelRemoveList2dAction>action;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
 
       const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
 
@@ -632,7 +635,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_REMOVE_LIST_3D: {
       const { positions } = <VoxelRemoveList3dAction>action;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
 
       return reduceModelRemoveAction(prevState,
         model => {
@@ -661,7 +664,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     }
 
     case VOXEL_REMOVE_SELECTED_2D: {
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
       if (!prevState.selection) return prevState;
 
       const prevSelectionSlice = getSlice(state.mode2d.axis, state.mode2d.position, prevState.selection);
@@ -686,7 +689,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     }
 
     case VOXEL_REMOVE_SELECTED_3D: {
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
       if (!prevState.selection) return prevState;
 
       const prevModel = prevState.maps[MaterialMapType.DEFAULT];
@@ -711,7 +714,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_SELECT_PROJECTION: {
       const { projectionMatrix, scale, bounds, merge } = <VoxelSelectProjectionAction>action;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
       const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
@@ -725,7 +728,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_SELECT_BOX: {
       const { volumn, merge } = <VoxelSelectBoxAction>action;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
       const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.OVERWRITE : MergeType.NONE, selection => {
@@ -736,7 +739,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_SELECT_CONNECTED_2D: {
       const { position, merge } = <VoxelSelectConnected2dAction>action;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
       const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
@@ -751,7 +754,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_SELECT_CONNECTED_3D: {
       const { position, merge } = <VoxelSelectConnected3dAction>action;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
       const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       return reduceSelectAction(prevState, state.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
@@ -764,7 +767,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_MAGIN_WAND_2D: {
       const { position, merge } = <VoxelMaginWand2dAction>action;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
       const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
@@ -779,7 +782,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_MAGIN_WAND_3D: {
       const { position, merge } = <VoxelMaginWand3dAction>action;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
       const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
@@ -816,18 +819,17 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
     case VOXEL_PASTE: {
       const fragment = clipboardSelector(<VoxelPasteAction>action);
+      const fragmentShape = fragment[MaterialMapType.DEFAULT].shape;
 
-      const prevState = ensureFragmentMerged(state, false);
-      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
+      const prevState = ensureFragmentMerged(state);
 
       const fragmentOffset = [
-        Math.floor((prevModel.shape[0] - fragment.shape[0]) / 2),
-        Math.floor((prevModel.shape[1] - fragment.shape[1]) / 2),
-        Math.floor((prevModel.shape[2] - fragment.shape[2]) / 2),
+        Math.floor((prevState.size[0] - fragmentShape[0]) / 2),
+        Math.floor((prevState.size[1] - fragmentShape[1]) / 2),
+        Math.floor((prevState.size[2] - fragmentShape[2]) / 2),
       ];
 
-      return Object.assign({}, state, <VoxelData>{
-        maps: Object.assign({}, state.maps, { [MaterialMapType.DEFAULT]: prevModel }),
+      return Object.assign({}, prevState, <VoxelData>{
         selection: null,
         fragment,
         fragmentOffset,
@@ -849,7 +851,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     }
 
     case VOXEL_MERGE_FRAGMENT: {
-      return ensureFragmentMerged(state, true);
+      return ensureFragmentMerged(state);
     }
 
     /*
@@ -859,7 +861,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_RESIZE: {
       const { size, offset } = <VoxelResizeAction>action;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
       const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       const src = prevModel;
@@ -912,7 +914,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
     case VOXEL_TRANSFORM: {
       const { transform } = <VoxelTransformAction>action;
 
-      const prevState = ensureFragmentMerged(state, true);
+      const prevState = ensureFragmentMerged(state);
       const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       // Infer next shape from transform and current size

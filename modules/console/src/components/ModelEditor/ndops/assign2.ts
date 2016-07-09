@@ -6,7 +6,7 @@ const cwise = require('cwise');
  */
 
 interface Assign {
-  (dest: Ndarray, src: Ndarray): void;
+  (dest: Ndarray, src: Ndarray): boolean;
 }
 
 // Use new Function to keep code from being uglified.

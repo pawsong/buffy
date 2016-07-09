@@ -24,5 +24,12 @@ void main(void) {
     f = smoothstep(f - delta, f + delta, thickness);
 
     float c = clamp(f.x + f.y, 0.0, 1.0);
-    gl_FragColor = vec4(vColor.rgb / 2.0, c);
+
+    float luma = 0.2126 * vColor.r + 0.7152 * vColor.g + 0.0722 * vColor.b;
+
+    if (luma < 0.16) {
+      gl_FragColor = vec4(clamp(vColor.rgb * 5.0, 0.0, 1.0), c);
+    } else {
+      gl_FragColor = vec4(vColor.rgb / 2.0, c);
+    }
 }

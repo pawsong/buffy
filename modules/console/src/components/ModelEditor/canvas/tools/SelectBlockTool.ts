@@ -13,6 +13,7 @@ import {
   Volumn,
   ModelEditorState,
   Position,
+  MaterialMaps,
 } from '../../types';
 
 import {
@@ -62,7 +63,7 @@ class EdgesSelectionBox extends SelectionBox {
 interface SelectBoxToolProps {
   size: Position;
   selection: ndarray.Ndarray;
-  fragment: ndarray.Ndarray;
+  fragment: MaterialMaps;
 }
 
 interface SelectBoxToolParams {

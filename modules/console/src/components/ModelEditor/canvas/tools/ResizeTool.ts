@@ -15,6 +15,7 @@ import {
   ModelEditorState,
   Volumn,
   Position,
+  MaterialMaps,
 } from '../../types';
 
 import {
@@ -48,7 +49,7 @@ interface MaterialToRestore {
 
 interface ResizeToolProps {
   size: Position;
-  fragment: Ndarray;
+  fragment: MaterialMaps;
 }
 
 interface ResizeToolTree {

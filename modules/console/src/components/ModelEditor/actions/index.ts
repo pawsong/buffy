@@ -11,6 +11,7 @@ import {
   Rectangle,
   Axis,
   ColorPickerType,
+  MaterialMaps,
 } from '../types';
 
 import {
@@ -252,11 +253,11 @@ export const VOXEL_CREATE_FRAGMENT: 'VOXEL_CREATE_FRAGMENT' = 'VOXEL_CREATE_FRAG
 export interface VoxelCreateFragmentAction extends Action<typeof VOXEL_CREATE_FRAGMENT> {
   model: Ndarray;
   selection: Ndarray;
-  fragment: Ndarray;
+  fragment: MaterialMaps;
   fragmentOffset: Position;
 }
 export function voxelCreateFragment(
-  model: Ndarray, selection: Ndarray, fragment: Ndarray, x: number, y: number, z: number
+  model: Ndarray, selection: Ndarray, fragment: MaterialMaps, x: number, y: number, z: number
 ): VoxelCreateFragmentAction {
   return {
     type: VOXEL_CREATE_FRAGMENT,
@@ -316,26 +317,26 @@ export function voxelTransform(transform: Transformation): VoxelTransformAction 
 
 export const VOXEL_COPY: 'VOXEL_COPY' = 'VOXEL_COPY';
 export interface VoxelCopyAction extends Action<typeof VOXEL_COPY> {
-  model: Ndarray;
+  maps: MaterialMaps;
   selection: Ndarray;
 }
-export function voxelCopy(model: Ndarray, selection: Ndarray): VoxelCopyAction {
+export function voxelCopy(maps: MaterialMaps, selection: Ndarray): VoxelCopyAction {
   return {
     type: VOXEL_COPY,
-    model,
+    maps,
     selection,
   };
 }
 
 export const VOXEL_PASTE: 'VOXEL_PASTE' = 'VOXEL_PASTE';
 export interface VoxelPasteAction extends Action<typeof VOXEL_PASTE> {
-  model: Ndarray;
+  maps: MaterialMaps;
   selection: Ndarray;
 }
-export function voxelPaste(model: Ndarray, selection: Ndarray): VoxelPasteAction {
+export function voxelPaste(maps: MaterialMaps, selection: Ndarray): VoxelPasteAction {
   return {
     type: VOXEL_PASTE,
-    model,
+    maps,
     selection,
   };
 }

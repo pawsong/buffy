@@ -109,15 +109,17 @@ export enum Axis {
   X, Y, Z,
 }
 
+export interface MaterialMaps {
+  [index: number /* MaterialMapType */]: Ndarray;
+}
+
 export interface VoxelData {
   type: ModelFileType;
   size: Position;
-  maps: {
-    [index: number /* MaterialMapType */]: Ndarray,
-  };
+  maps: MaterialMaps;
   activeMap: MaterialMapType;
   selection: Ndarray;
-  fragment: Ndarray;
+  fragment: MaterialMaps;
   fragmentOffset: Position;
   mode2d: {
     enabled: boolean;
@@ -134,7 +136,7 @@ export interface ExtraData {
 export type FileState = UndoableState<VoxelData>;
 
 export interface Clipboard {
-  model: Ndarray;
+  maps: MaterialMaps;
   selection: Ndarray;
 }
 

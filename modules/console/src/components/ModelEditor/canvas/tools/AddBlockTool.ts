@@ -16,6 +16,7 @@ import {
   ModelEditorState,
   Position,
   Axis,
+  MaterialMaps,
 } from '../../types';
 
 import {
@@ -72,7 +73,7 @@ class GridSelectionBox extends SelectionBox {
 export interface AddBlockToolProps {
   size: Position;
   color: Color;
-  fragment: ndarray.Ndarray;
+  fragment: MaterialMaps;
 }
 
 interface AddBlockToolTree {

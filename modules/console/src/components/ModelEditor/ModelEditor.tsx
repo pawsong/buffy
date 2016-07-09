@@ -270,11 +270,11 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           {
             const { clipboard } = this.props.commonState;
             const { selection } = this.props.fileState.present.data;
-            const model = this.props.fileState.present.data.maps[MaterialMapType.DEFAULT];
+            const { maps} = this.props.fileState.present.data;
 
             if (selection) {
-              if (!clipboard || clipboard.model !== model || clipboard.selection !== selection) {
-                this.dispatchAction(voxelCopy(model, selection));
+              if (!clipboard || clipboard.maps !== maps || clipboard.selection !== selection) {
+                this.dispatchAction(voxelCopy(maps, selection));
               }
             }
             break;
@@ -283,7 +283,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           {
             const { clipboard } = this.props.commonState;
             if (clipboard) {
-              this.dispatchAction(voxelPaste(clipboard.model, clipboard.selection));
+              this.dispatchAction(voxelPaste(clipboard.maps, clipboard.selection));
             }
             break;
           }

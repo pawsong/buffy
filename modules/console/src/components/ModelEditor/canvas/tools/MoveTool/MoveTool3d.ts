@@ -17,16 +17,18 @@ import ModelEditorTool, {
 
 import BoundingBoxEdgesHelper from '../../objects/BoundingBoxEdgesHelper';
 
-const fragmentVertexShader = require('raw!../../shaders/fragment.vert');
-const fragmentFragmentShader = require('raw!../../shaders/fragment.frag');
-
 const warning = require('fbjs/lib/warning');
 
 import {
   Position,
   ToolType,
   ModelEditorState,
+  MaterialMaps,
 } from '../../../types';
+
+import {
+  MaterialMapType,
+} from '../../../../../types';
 
 import {
   voxelCreateFragment,
@@ -49,13 +51,13 @@ interface MaterialToRestore {
 interface MoveTool3dProps {
   size: Position;
   selection: ndarray.Ndarray;
-  fragment: ndarray.Ndarray;
+  fragment: MaterialMaps;
   fragmentOffset: Position;
 }
 
 interface MoveTool3dTree {
   selection: ndarray.Ndarray;
-  fragment: ndarray.Ndarray;
+  fragment: MaterialMaps;
   fragmentOffset: Position;
 }
 

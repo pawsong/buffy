@@ -8,6 +8,8 @@ import { createSelector, Selector } from 'reselect';
 import ModelEditorTool from './tools/ModelEditorTool';
 import createTool from './tools';
 
+import getTroveMaterial from './materials/getTroveMaterial';
+
 import ndAny from '../ndops/any';
 import ndExclude from '../ndops/exclude';
 import ndCopyWithFilter from '../ndops/copyWithFilter';
@@ -30,6 +32,7 @@ import SimpleComponent from '../../../libs/SimpleComponent';
 import { createGeometryFromMesh } from '../../../canvas/utils';
 import Canvas from '../../../canvas/Canvas';
 import GeometryFactory from '../../../canvas/GeometryFactory';
+import { OutlineGeometryFactory } from '../../../canvas/GeometryFactory';
 import MaskGeometryFactory from '../../../canvas/MaskGeometryFactory';
 import TroveGeometryFactory from '../../../canvas/TroveGeometryFactory';
 
@@ -53,6 +56,7 @@ import {
   VoxelData,
   Position,
   Axis,
+  MaterialMaps,
 } from '../types';
 
 import {
@@ -77,20 +81,15 @@ const gridFragmentShader = require('raw!./shaders/grid3.frag');
 const gridVertexShader4 = require('raw!./shaders/grid4.vert');
 const gridFragmentShader4 = require('raw!./shaders/grid4.frag');
 
-const fragmentVertexShader = require('raw!./shaders/fragment.vert');
-const fragmentFragmentShader = require('raw!./shaders/fragment.frag');
-
-const tiledGlassVertexShader = require('raw!./shaders/tiledGlass.vert');
-const tiledGlassFragmentShader = require('raw!./shaders/tiledGlass.frag');
-
 import SliceCache from './SliceCache';
 import MaskSliceCache from './MaskSliceCache';
+import OutlineSliceCache from './OutlineSliceCache';
 import TroveSliceCache from './TroveSliceCache';
 
 type ComponentProps = VoxelData;
 
 interface ComponentState {
-  fragment?: ndarray.Ndarray;
+  fragment?: MaterialMaps;
   mode2d?: {
     axis: Axis;
     position: number;
@@ -99,13 +98,11 @@ interface ComponentState {
 
 interface ComponentTree {
   activeMap: MaterialMapType;
-  maps: {
-    [index: number]: ndarray.Ndarray;
-  };
+  maps: MaterialMaps;
   size: Position;
   model: ndarray.Ndarray;
   selection: ndarray.Ndarray;
-  fragment: ndarray.Ndarray;
+  fragment: MaterialMaps;
   fragmentOffset: Position;
   mode2d?: {
     enabled: boolean;
@@ -141,20 +138,27 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   private modelMaterial: THREE.Material;
   private modelSliceMaterial: THREE.Material;
   modelMesh: THREE.Mesh;
+  model2DSliceMesh: THREE.Mesh;
 
   private modelGridMaterial: THREE.ShaderMaterial;
   private modelGridSliceMaterial: THREE.ShaderMaterial;
   modelGridMesh: THREE.Mesh;
+  modelGrid2DSliceMesh: THREE.Mesh;
 
   private selectionMaterial: THREE.ShaderMaterial;
   private selectionSliceMaterial: THREE.ShaderMaterial;
   selectionMesh: THREE.Mesh;
+  selectionSliceMesh: THREE.Mesh;
   selectionBoundingBox: BoundingBoxEdgesHelper;
 
-  private fragmentMaterial: THREE.ShaderMaterial;
-  private fragmentSliceMaterial: THREE.ShaderMaterial;
   fragmentMesh: THREE.Mesh;
+  fragmentSliceMesh: THREE.Mesh;
   fragmentBoundingBox: BoundingBoxEdgesHelper;
+
+  private fragmentGridMaterial: THREE.ShaderMaterial;
+  private fragmentGridSliceMaterial: THREE.ShaderMaterial;
+  fragmentGridMesh: THREE.Mesh;
+  fragmentGridSliceMesh: THREE.Mesh;
 
   fragmentedModelSelector: Selector<any, any>;
   fragmentedSelectionSelector: Selector<any, any>;
@@ -162,26 +166,30 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   private temp1: THREE.Vector3;
 
   private modelSliceCache: SliceCache;
+  private typeMaskSliceCache: MaskSliceCache;
+  private alphaMaskSliceCache: MaskSliceCache;
+  private specularMaskSliceCache: MaskSliceCache;
+  private troveSliceCache: TroveSliceCache;
+
   private selectionSliceCache: SliceCache;
+
   private fragmentSliceCache: SliceCache;
+  private fragmentTypeMaskSliceCache: MaskSliceCache;
+  private fragmentAlphaMaskSliceCache: MaskSliceCache;
+  private fragmentSpecularMaskSliceCache: MaskSliceCache;
+  private fragmentTroveSliceCache: TroveSliceCache;
+  private fragmentGridSliceCache: OutlineSliceCache;
+
+  outlineGeometryFactory: OutlineGeometryFactory;
 
   typeMaskGeometryFactory: MaskGeometryFactory;
   alphaMaskGeometryFactory: MaskGeometryFactory;
   specularMaskGeometryFactory: MaskGeometryFactory;
   troveGeometryFactory: TroveGeometryFactory;
 
-  private typeMaskSliceCache: MaskSliceCache;
-  private alphaMaskSliceCache: MaskSliceCache;
-  private specularMaskSliceCache: MaskSliceCache;
-  private troveSliceCache: TroveSliceCache;
-
   mode2dPlaneMesh: THREE.Mesh;
 
   mode2dClippingPlane: THREE.Plane;
-  model2DSliceMesh: THREE.Mesh;
-  modelGrid2DSliceMesh: THREE.Mesh;
-  selectionSliceMesh: THREE.Mesh;
-  fragmentSliceMesh: THREE.Mesh;
 
   getTreeSchema(): Schema {
     return {
@@ -242,20 +250,20 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
     this.fragmentedModelSelector = createSelector(
       (props: ComponentProps, state: ComponentState) => props.maps[MaterialMapType.DEFAULT],
-      (props: ComponentProps, state: ComponentState) => state.fragment,
+      (props: ComponentProps, state: ComponentState) => state.fragment[MaterialMapType.DEFAULT],
       (model, fragment) => {
         const fragmentedModel = ndarray(model.data.slice(), model.shape);
-        ndExclude(fragmentedModel, this.state.fragment);
+        ndExclude(fragmentedModel, fragment);
         return fragmentedModel;
       }
     );
 
     this.fragmentedSelectionSelector = createSelector(
       (props: ComponentProps, state: ComponentState) => props.selection,
-      (props: ComponentProps, state: ComponentState) => state.fragment,
+      (props: ComponentProps, state: ComponentState) => state.fragment[MaterialMapType.DEFAULT],
       (selection, fragment) => {
         const fragmentedSelection = ndarray(selection.data.slice(), selection.shape);
-        ndExclude(fragmentedSelection, this.state.fragment);
+        ndExclude(fragmentedSelection, fragment);
         return ndAny(fragmentedSelection) ? fragmentedSelection : null;
       }
     );
@@ -269,213 +277,14 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     this.modelMaterial = this.modelSliceMaterial.clone();
     this.modelMaterial.opacity = 0.4;
 
+    this.outlineGeometryFactory = new OutlineGeometryFactory();
+
     this.typeMaskGeometryFactory = new MaskGeometryFactory(mapinfo[MaterialMapType.TROVE_TYPE].defaultColor);
     this.alphaMaskGeometryFactory = new MaskGeometryFactory(mapinfo[MaterialMapType.TROVE_ALPHA].defaultColor);
     this.specularMaskGeometryFactory = new MaskGeometryFactory(mapinfo[MaterialMapType.TROVE_SPECULAR].defaultColor);
     this.troveGeometryFactory = new TroveGeometryFactory();
 
-    // MultiMaterial
-
-    let mType1Alpha1Specular1: THREE.MeshPhongMaterial;
-    let mType1Alpha1Specular2: THREE.MeshPhongMaterial;
-    let mType1Alpha1Specular3: THREE.MeshPhongMaterial;
-    let mType1Alpha1Specular4: THREE.MeshPhongMaterial;
-    let mType1Alpha1Specular5: THREE.MeshPhongMaterial;
-
-    let mType2Alpha1Specular1: THREE.MeshPhongMaterial;
-    let mType2Alpha2Specular1: THREE.MeshPhongMaterial;
-    let mType2Alpha3Specular1: THREE.MeshPhongMaterial;
-    let mType2Alpha4Specular1: THREE.MeshPhongMaterial;
-    let mType2Alpha5Specular1: THREE.MeshPhongMaterial;
-    let mType2Alpha6Specular1: THREE.MeshPhongMaterial;
-    let mType2Alpha7Specular1: THREE.MeshPhongMaterial;
-    let mType2Alpha8Specular1: THREE.MeshPhongMaterial;
-
-    let mType3Alpha1Specular1: THREE.ShaderMaterial;
-    let mType3Alpha2Specular1: THREE.ShaderMaterial;
-    let mType3Alpha3Specular1: THREE.ShaderMaterial;
-    let mType3Alpha4Specular1: THREE.ShaderMaterial;
-    let mType3Alpha5Specular1: THREE.ShaderMaterial;
-    let mType3Alpha6Specular1: THREE.ShaderMaterial;
-    let mType3Alpha7Specular1: THREE.ShaderMaterial;
-    let mType3Alpha8Specular1: THREE.ShaderMaterial;
-
-    let mType4Alpha1Specular1: THREE.MeshPhongMaterial;
-
-    let mType5Alpha1Specular1: THREE.MeshPhongMaterial;
-    let mType5Alpha2Specular1: THREE.MeshPhongMaterial;
-    let mType5Alpha3Specular1: THREE.MeshPhongMaterial;
-    let mType5Alpha4Specular1: THREE.MeshPhongMaterial;
-    let mType5Alpha5Specular1: THREE.MeshPhongMaterial;
-    let mType5Alpha6Specular1: THREE.MeshPhongMaterial;
-    let mType5Alpha7Specular1: THREE.MeshPhongMaterial;
-    let mType5Alpha8Specular1: THREE.MeshPhongMaterial;
-
-    // TYPE 1
-
-    // Rough (default)
-    mType1Alpha1Specular1 = new THREE.MeshPhongMaterial({
-      vertexColors: THREE.VertexColors,
-    });
-
-    // Metal
-    mType1Alpha1Specular2 = new THREE.MeshPhongMaterial({
-      vertexColors: THREE.VertexColors,
-    });
-    mType1Alpha1Specular2.specular = mType1Alpha1Specular2.color.multiplyScalar(0.5);
-
-    // TODO: Water
-    mType1Alpha1Specular3 = new THREE.MeshPhongMaterial({
-      vertexColors: THREE.VertexColors,
-    });
-
-    // TODO: Iridescent
-    mType1Alpha1Specular4 = new THREE.MeshPhongMaterial({
-      vertexColors: THREE.VertexColors,
-    });
-
-    // TODO: Waxy
-    mType1Alpha1Specular5 = new THREE.MeshPhongMaterial({
-      vertexColors: THREE.VertexColors,
-    });
-
-    // TYPE 2
-
-    mType2Alpha1Specular1 = new THREE.MeshPhongMaterial({
-      vertexColors: THREE.VertexColors,
-    });
-    mType2Alpha1Specular1.transparent = true;
-    mType2Alpha1Specular1.opacity = 0x10 / 0xff;
-
-    mType2Alpha2Specular1 = mType2Alpha1Specular1.clone();
-    mType2Alpha2Specular1.opacity = 0x30 / 0xff;
-
-    mType2Alpha3Specular1 = mType2Alpha1Specular1.clone();
-    mType2Alpha3Specular1.opacity = 0x50 / 0xff;
-
-    mType2Alpha4Specular1 = mType2Alpha1Specular1.clone();
-    mType2Alpha4Specular1.opacity = 0x70 / 0xff;
-
-    mType2Alpha5Specular1 = mType2Alpha1Specular1.clone();
-    mType2Alpha5Specular1.opacity = 0x90 / 0xff;
-
-    mType2Alpha6Specular1 = mType2Alpha1Specular1.clone();
-    mType2Alpha6Specular1.opacity = 0xb0 / 0xff;
-
-    mType2Alpha7Specular1 = mType2Alpha1Specular1.clone();
-    mType2Alpha7Specular1.opacity = 0xd0 / 0xff;
-
-    mType2Alpha8Specular1 = mType2Alpha1Specular1.clone();
-    mType2Alpha8Specular1.opacity = 0xf0 / 0xff;
-
-    // TYPE 3
-
-    mType3Alpha1Specular1 = new THREE.ShaderMaterial({
-      vertexShader: tiledGlassVertexShader,
-      fragmentShader: tiledGlassFragmentShader,
-      transparent: true,
-    });
-    mType3Alpha1Specular1.extensions.derivatives = true;
-    mType3Alpha1Specular1.uniforms = { opacity: { type: 'f', value: 0x10 / 0xff } };
-
-    mType3Alpha2Specular1 = mType3Alpha1Specular1.clone();
-    mType3Alpha2Specular1.uniforms = { opacity: { type: 'f', value: 0x30 / 0xff } };
-
-    mType3Alpha3Specular1 = mType3Alpha1Specular1.clone();
-    mType3Alpha3Specular1.uniforms = { opacity: { type: 'f', value: 0x50 / 0xff } };
-
-    mType3Alpha4Specular1 = mType3Alpha1Specular1.clone();
-    mType3Alpha4Specular1.uniforms = { opacity: { type: 'f', value: 0x70 / 0xff } };
-
-    mType3Alpha5Specular1 = mType3Alpha1Specular1.clone();
-    mType3Alpha5Specular1.uniforms = { opacity: { type: 'f', value: 0x90 / 0xff } };
-
-    mType3Alpha6Specular1 = mType3Alpha1Specular1.clone();
-    mType3Alpha6Specular1.uniforms = { opacity: { type: 'f', value: 0xb0 / 0xff } };
-
-    mType3Alpha7Specular1 = mType3Alpha1Specular1.clone();
-    mType3Alpha7Specular1.uniforms = { opacity: { type: 'f', value: 0xd0 / 0xff } };
-
-    mType3Alpha8Specular1 = mType3Alpha1Specular1.clone();
-    mType3Alpha8Specular1.uniforms = { opacity: { type: 'f', value: 0xf0 / 0xff } };
-
-    // TYPE 4
-
-    mType4Alpha1Specular1 = new THREE.MeshPhongMaterial({
-      vertexColors: THREE.VertexColors,
-    });
-    mType4Alpha1Specular1.emissive = mType4Alpha1Specular1.color.multiplyScalar(0.5);
-
-    // TYPE 5
-
-    mType5Alpha1Specular1 = new THREE.MeshPhongMaterial({
-      vertexColors: THREE.VertexColors,
-    });
-    mType5Alpha1Specular1.emissive = mType5Alpha1Specular1.color.multiplyScalar(0.5);
-    mType5Alpha1Specular1.transparent = true;
-    mType5Alpha1Specular1.opacity = 0x10 / 0xff;
-
-    mType5Alpha2Specular1 = mType5Alpha1Specular1.clone();
-    mType5Alpha2Specular1.opacity = 0x30 / 0xff;
-
-    mType5Alpha3Specular1 = mType5Alpha1Specular1.clone();
-    mType5Alpha3Specular1.opacity = 0x50 / 0xff;
-
-    mType5Alpha4Specular1 = mType5Alpha1Specular1.clone();
-    mType5Alpha4Specular1.opacity = 0x70 / 0xff;
-
-    mType5Alpha5Specular1 = mType5Alpha1Specular1.clone();
-    mType5Alpha5Specular1.opacity = 0x90 / 0xff;
-
-    mType5Alpha6Specular1 = mType5Alpha1Specular1.clone();
-    mType5Alpha6Specular1.opacity = 0xb0 / 0xff;
-
-    mType5Alpha7Specular1 = mType5Alpha1Specular1.clone();
-    mType5Alpha7Specular1.opacity = 0xd0 / 0xff;
-
-    mType5Alpha8Specular1 = mType5Alpha1Specular1.clone();
-    mType5Alpha8Specular1.opacity = 0xf0 / 0xff;
-
-    // Multi Material
-
-    this.modelSliceMultiMaterial = new THREE.MultiMaterial([
-      new THREE.MeshBasicMaterial({ visible: false }), // PADDING
-
-      mType1Alpha1Specular1, // const TYPE1_ALPHA1_SPECULAR1 = 0x01000000; // 01
-      mType1Alpha1Specular2, // const TYPE1_ALPHA1_SPECULAR2 = 0x02000000; // 02
-      mType1Alpha1Specular3, // const TYPE1_ALPHA1_SPECULAR3 = 0x03000000; // 03
-      mType1Alpha1Specular4, // const TYPE1_ALPHA1_SPECULAR4 = 0x04000000; // 04
-      mType1Alpha1Specular5, // const TYPE1_ALPHA1_SPECULAR5 = 0x05000000; // 05
-
-      mType4Alpha1Specular1, // const TYPE4_ALPHA1_SPECULAR1 = 0x06000000; // 06
-
-      mType2Alpha1Specular1, // const TYPE2_ALPHA1_SPECULAR1 = 0x07000000; // 07
-      mType2Alpha2Specular1, // const TYPE2_ALPHA2_SPECULAR1 = 0x08000000; // 08
-      mType2Alpha3Specular1, // const TYPE2_ALPHA3_SPECULAR1 = 0x09000000; // 09
-      mType2Alpha4Specular1, // const TYPE2_ALPHA4_SPECULAR1 = 0x0a000000; // 10
-      mType2Alpha5Specular1, // const TYPE2_ALPHA5_SPECULAR1 = 0x0b000000; // 11
-      mType2Alpha6Specular1, // const TYPE2_ALPHA6_SPECULAR1 = 0x0c000000; // 12
-      mType2Alpha7Specular1, // const TYPE2_ALPHA7_SPECULAR1 = 0x0d000000; // 13
-      mType2Alpha8Specular1, // const TYPE2_ALPHA8_SPECULAR1 = 0x0e000000; // 14
-
-      mType3Alpha1Specular1, // const TYPE3_ALPHA1_SPECULAR1 = 0x0f000000; // 15
-      mType3Alpha2Specular1, // const TYPE3_ALPHA2_SPECULAR1 = 0x10000000; // 16
-      mType3Alpha3Specular1, // const TYPE3_ALPHA3_SPECULAR1 = 0x11000000; // 17
-      mType3Alpha4Specular1, // const TYPE3_ALPHA4_SPECULAR1 = 0x12000000; // 18
-      mType3Alpha5Specular1, // const TYPE3_ALPHA5_SPECULAR1 = 0x13000000; // 19
-      mType3Alpha6Specular1, // const TYPE3_ALPHA6_SPECULAR1 = 0x14000000; // 20
-      mType3Alpha7Specular1, // const TYPE3_ALPHA7_SPECULAR1 = 0x15000000; // 21
-      mType3Alpha8Specular1, // const TYPE3_ALPHA8_SPECULAR1 = 0x16000000; // 22
-
-      mType5Alpha1Specular1, // const TYPE5_ALPHA1_SPECULAR1 = 0x17000000; // 23
-      mType5Alpha2Specular1, // const TYPE5_ALPHA2_SPECULAR1 = 0x18000000; // 24
-      mType5Alpha3Specular1, // const TYPE5_ALPHA3_SPECULAR1 = 0x19000000; // 25
-      mType5Alpha4Specular1, // const TYPE5_ALPHA4_SPECULAR1 = 0x1a000000; // 26
-      mType5Alpha5Specular1, // const TYPE5_ALPHA5_SPECULAR1 = 0x1b000000; // 27
-      mType5Alpha6Specular1, // const TYPE5_ALPHA6_SPECULAR1 = 0x1c000000; // 28
-      mType5Alpha7Specular1, // const TYPE5_ALPHA7_SPECULAR1 = 0x1d000000; // 29
-      mType5Alpha8Specular1, // const TYPE5_ALPHA8_SPECULAR1 = 0x1e000000; // 30
-    ]);
+    this.modelSliceMultiMaterial = getTroveMaterial(true);
     this.modelSliceMultiMaterial.materials.forEach(material => material['clipping'] = true);
 
     this.modelMultiMaterial = this.modelSliceMultiMaterial.clone();
@@ -511,19 +320,10 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     this.selectionMaterial = this.selectionSliceMaterial.clone();
     this.selectionMaterial['clipping'] = true;
 
-    this.fragmentSliceMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        opacity: { type: 'f', value: 0.5 },
-        gridColor: { value: new THREE.Vector3(0.91, 0.12, 0.39) }, // 0xE91E63
-        gridThickness: { type: 'f', value: 0.05 },
-      },
-      vertexShader: fragmentVertexShader,
-      fragmentShader: fragmentFragmentShader,
-      transparent: true,
-    });
-    this.fragmentSliceMaterial.extensions.derivatives = true;
-    this.fragmentMaterial = this.fragmentSliceMaterial.clone();
-    this.fragmentMaterial['clipping'] = true;
+    this.fragmentGridMaterial = this.selectionMaterial.clone();
+    this.fragmentGridMaterial.uniforms.gridColor = { value: new THREE.Vector3(0.91, 0.12, 0.39) }, // 0xE91E63
+    this.fragmentGridSliceMaterial = this.selectionSliceMaterial.clone();
+    this.fragmentGridSliceMaterial.uniforms.gridColor = { value: new THREE.Vector3(0.91, 0.12, 0.39) }, // 0xE91E63
 
     this.emptyMesh = new THREE.Mesh();
     this.emptyMesh.visible = false;
@@ -544,7 +344,24 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     ]);
 
     this.fragmentSliceCache = new SliceCache([
-      this.fragmentSliceMaterial,
+      this.modelSliceMaterial,
+    ]);
+
+    this.fragmentTypeMaskSliceCache = new MaskSliceCache([
+      this.modelSliceMaterial,
+    ], mapinfo[MaterialMapType.TROVE_TYPE].defaultColor);
+    this.fragmentAlphaMaskSliceCache = new MaskSliceCache([
+      this.modelSliceMaterial,
+    ], mapinfo[MaterialMapType.TROVE_ALPHA].defaultColor);
+    this.fragmentSpecularMaskSliceCache = new MaskSliceCache([
+      this.modelSliceMaterial,
+    ], mapinfo[MaterialMapType.TROVE_SPECULAR].defaultColor);
+    this.fragmentTroveSliceCache = new TroveSliceCache([
+      this.modelSliceMultiMaterial,
+    ]);
+
+    this.fragmentGridSliceCache = new OutlineSliceCache([
+      this.fragmentGridSliceMaterial,
     ]);
 
     this.typeMaskSliceCache = new MaskSliceCache([
@@ -579,25 +396,34 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     super.onStart();
 
     this.plane = this.emptyMesh;
-    this.modelMesh = this.emptyMesh;
-    this.modelGridMesh = this.emptyMesh;
-    this.selectionMesh = this.emptyMesh;
-    this.fragmentMesh = this.emptyMesh;
 
+    this.modelMesh = this.emptyMesh;
     this.model2DSliceMesh = this.emptyMesh;
+
+    this.modelGridMesh = this.emptyMesh;
     this.modelGrid2DSliceMesh = this.emptyMesh;
+
+    this.selectionMesh = this.emptyMesh;
     this.selectionSliceMesh = this.emptyMesh;
+
+    this.fragmentMesh = this.emptyMesh;
     this.fragmentSliceMesh = this.emptyMesh;
+
+    this.fragmentGridMesh = this.emptyMesh;
+    this.fragmentGridSliceMesh = this.emptyMesh;
   }
 
   setTemporaryFragment() {
     if (!this.props.selection) return;
 
-    const model = this.props.maps[MaterialMapType.DEFAULT];
+    const shape = this.props.size;
+    const fragment = <MaterialMaps>{};
 
-    const { shape } = model;
-    const fragment = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), model.shape);
-    ndCopyWithFilter(fragment, model, this.props.selection);
+    Object.keys(this.props.maps).forEach(key => {
+      const result = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), shape);
+      ndCopyWithFilter(result, this.props.maps[key], this.props.selection);
+      fragment[key] = result;
+    });
 
     this.setState({ fragment });
   }
@@ -605,17 +431,21 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   setTemporaryFragmentSlice() {
     if (!this.props.selection) return;
 
-    const model = this.props.maps[MaterialMapType.DEFAULT];
+    const shape = this.props.size;
+    const fragment = <MaterialMaps>{};
 
-    const { shape } = model;
-
-    const fragment = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), shape);
-
-    const modelSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, model);
     const selectionSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, this.props.selection);
-    const fragmentSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, fragment);
 
-    ndCopyWithFilter(fragmentSlice, modelSlice, selectionSlice);
+    Object.keys(this.props.maps).forEach(key => {
+      const result = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), shape);
+
+      const modelSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, this.props.maps[key]);
+      const fragmentSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, result);
+
+      ndCopyWithFilter(fragmentSlice, modelSlice, selectionSlice);
+      fragment[key] = result;
+    });
+
     this.setState({ fragment });
   }
 
@@ -638,6 +468,10 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       this.fragmentMesh.position.copy(displacement).multiplyScalar(PIXEL_SCALE);
       this.fragmentBoundingBox.update();
     }
+
+    if (this.fragmentGridMesh.visible) {
+      this.fragmentGridMesh.position.copy(displacement).multiplyScalar(PIXEL_SCALE);
+    }
   }
 
   moveFragmentSliceMesh(displacement: THREE.Vector3) {
@@ -646,6 +480,13 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         .copy(displacement)
         .setComponent(this.tree.mode2d.axis, this.tree.mode2d.position);
       this.fragmentSliceMesh.position.multiplyScalar(PIXEL_SCALE);
+    }
+
+    if (this.fragmentGridSliceMesh.visible) {
+      this.fragmentGridSliceMesh.position
+        .copy(displacement)
+        .setComponent(this.tree.mode2d.axis, this.tree.mode2d.position);
+      this.fragmentGridSliceMesh.position.multiplyScalar(PIXEL_SCALE);
     }
   }
 
@@ -801,7 +642,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     if (
          diff.hasOwnProperty('model')
       || diff.hasOwnProperty('activeMap')
-      || (diff.maps && diff.maps.hasOwnProperty(this.tree.activeMap))
+      || (diff.maps && (this.tree.activeMap === MaterialMapType.ALL || diff.maps.hasOwnProperty(this.tree.activeMap)))
     ) {
       if (this.modelMesh.visible) {
         this.canvas.scene.remove(this.modelMesh);
@@ -878,8 +719,8 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         this.selectionMesh = this.emptyMesh;
       }
 
-      if (diff.selection) {
-        const geometry = this.canvas.geometryFactory.getGeometry(diff.selection);
+      if (this.tree.selection) {
+        const geometry = this.canvas.geometryFactory.getGeometry(this.tree.selection);
         this.selectionMesh = new THREE.Mesh(geometry, this.selectionMaterial);
         this.selectionMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
         this.selectionMesh.renderOrder = - 2;
@@ -895,19 +736,75 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       if (this.tree.mode2d.enabled) this.patchSelectionSlice();
     }
 
-    if (diff.hasOwnProperty('fragment')) {
+    if (
+         diff.hasOwnProperty('fragment')
+      || diff.hasOwnProperty('activeMap')
+    ) {
+
       if (this.fragmentMesh.visible) {
         this.canvas.scene.remove(this.fragmentMesh);
         this.fragmentMesh.geometry.dispose();
         this.fragmentMesh = this.emptyMesh;
       }
 
-      if (diff.fragment) {
-        const geometry = this.canvas.geometryFactory.getGeometry(diff.fragment);
-        this.fragmentMesh = new THREE.Mesh(geometry, this.fragmentMaterial);
+      if (this.fragmentGridMesh.visible) {
+        this.canvas.scene.remove(this.fragmentGridMesh);
+        this.fragmentGridMesh.geometry.dispose();
+        this.fragmentGridMesh = this.emptyMesh;
+      }
+
+      if (this.tree.fragment) {
+        let geometry: THREE.Geometry;
+
+        switch(this.tree.activeMap) {
+          case MaterialMapType.DEFAULT: {
+            geometry = this.canvas.geometryFactory.getGeometry(
+              this.tree.fragment[MaterialMapType.DEFAULT]
+            );
+            break;
+          }
+          case MaterialMapType.ALL: {
+            // TODO: Use MultiMaterial
+            geometry = this.troveGeometryFactory.getGeometry(
+              this.tree.fragment[MaterialMapType.DEFAULT],
+              this.tree.fragment[MaterialMapType.TROVE_TYPE],
+              this.tree.fragment[MaterialMapType.TROVE_ALPHA],
+              this.tree.fragment[MaterialMapType.TROVE_SPECULAR]
+            );
+            break;
+          }
+          case MaterialMapType.TROVE_TYPE: {
+            geometry = this.typeMaskGeometryFactory.getGeometry(
+              this.tree.fragment[MaterialMapType.TROVE_TYPE], this.tree.fragment[MaterialMapType.DEFAULT]
+            );
+            break;
+          }
+          case MaterialMapType.TROVE_ALPHA: {
+            geometry = this.alphaMaskGeometryFactory.getGeometry(
+              this.tree.fragment[MaterialMapType.TROVE_ALPHA], this.tree.fragment[MaterialMapType.DEFAULT]
+            );
+            break;
+          }
+          case MaterialMapType.TROVE_SPECULAR: {
+            geometry = this.specularMaskGeometryFactory.getGeometry(
+              this.tree.fragment[MaterialMapType.TROVE_SPECULAR], this.tree.fragment[MaterialMapType.DEFAULT]
+            );
+            break;
+          }
+        }
+
+        this.fragmentMesh = new THREE.Mesh(geometry,
+          this.tree.activeMap === MaterialMapType.ALL ? this.modelMultiMaterial : this.modelMaterial
+        );
         this.fragmentMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
         this.fragmentMesh.renderOrder = - 2;
         this.canvas.scene.add(this.fragmentMesh);
+
+        const outlineGeometry = this.outlineGeometryFactory.getGeometry(this.tree.fragment[MaterialMapType.DEFAULT]);
+        this.fragmentGridMesh = new THREE.Mesh(outlineGeometry, this.fragmentGridMaterial);
+        this.fragmentGridMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+        this.fragmentGridMesh.renderOrder = - 2;
+        this.canvas.scene.add(this.fragmentGridMesh);
 
         const offset = this.tree.fragmentOffset;
         this.moveFragmentMesh(this.temp1.set(offset[0], offset[1], offset[2]));
@@ -934,7 +831,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
     if (diff.hasOwnProperty('mode2d')) {
       if (diff.mode2d.hasOwnProperty('enabled')) {
-        if (diff.mode2d.enabled) {
+        if (this.tree.mode2d.enabled) {
           this.canvas.boundingBoxScene.remove(this.selectionBoundingBox.edges);
           this.canvas.boundingBoxScene.remove(this.fragmentBoundingBox.edges);
           this.canvas.scene.add(this.mode2dPlaneMesh);
@@ -946,7 +843,8 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
           this.modelMaterial['clippingPlanes'] =
           this.modelGridMaterial['clippingPlanes'] =
           this.selectionMaterial['clippingPlanes'] =
-          this.fragmentMaterial['clippingPlanes'] = clippingPlanes;
+          this.fragmentGridMaterial['clippingPlanes'] = clippingPlanes;
+
           this.modelMultiMaterial.materials.forEach(material => material['clippingPlanes'] = clippingPlanes);
 
           this.patchSlices();
@@ -963,7 +861,8 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
           this.modelMaterial['clippingPlanes'] =
           this.modelGridMaterial['clippingPlanes'] =
           this.selectionMaterial['clippingPlanes'] =
-          this.fragmentMaterial['clippingPlanes'] = [];
+          this.fragmentGridMaterial['clippingPlanes'] = [];
+
           this.modelMultiMaterial.materials.forEach(material => material['clippingPlanes'] = []);
         }
       } else {
@@ -1000,6 +899,12 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       this.canvas.scene.remove(this.fragmentSliceMesh);
       this.fragmentSliceMesh.geometry.dispose();
       this.fragmentSliceMesh = this.emptyMesh;
+    }
+
+    if (this.fragmentGridSliceMesh.visible) {
+      this.canvas.scene.remove(this.fragmentGridSliceMesh);
+      this.fragmentGridSliceMesh.geometry.dispose();
+      this.fragmentGridSliceMesh = this.emptyMesh;
     }
   }
 
@@ -1084,8 +989,44 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     const { axis, position } = this.tree.mode2d;
 
     const slicePosition = position - this.tree.fragmentOffset[axis];
-    if (slicePosition >= 0 && slicePosition < this.tree.fragment.shape[axis]) {
-      const meshes = this.fragmentSliceCache.get(this.tree.fragment, axis, slicePosition);
+    if (slicePosition >= 0 && slicePosition < this.tree.fragment[MaterialMapType.DEFAULT].shape[axis]) {
+      let meshes: THREE.Mesh[];
+
+      switch(this.tree.activeMap) {
+        case MaterialMapType.DEFAULT: {
+          meshes = this.modelSliceCache.get(this.tree.fragment[MaterialMapType.DEFAULT], axis, position);
+          break;
+        }
+        case MaterialMapType.ALL: {
+          meshes = this.fragmentTroveSliceCache.get(
+            this.tree.fragment[MaterialMapType.DEFAULT],
+            this.tree.fragment[MaterialMapType.TROVE_TYPE],
+            this.tree.fragment[MaterialMapType.TROVE_ALPHA],
+            this.tree.fragment[MaterialMapType.TROVE_SPECULAR],
+            axis, position
+          );
+          break;
+        }
+        case MaterialMapType.TROVE_TYPE: {
+          meshes = this.fragmentTypeMaskSliceCache.get(
+            this.tree.fragment[MaterialMapType.TROVE_TYPE], this.tree.model, axis, position
+          );
+          break;
+        }
+        case MaterialMapType.TROVE_ALPHA: {
+          meshes = this.fragmentAlphaMaskSliceCache.get(
+            this.tree.fragment[MaterialMapType.TROVE_ALPHA], this.tree.model, axis, position
+          );
+          break;
+        }
+        case MaterialMapType.TROVE_SPECULAR: {
+          meshes = this.fragmentSpecularMaskSliceCache.get(
+            this.tree.fragment[MaterialMapType.TROVE_SPECULAR], this.tree.model, axis, position
+          );
+          break;
+        }
+      }
+
       if (meshes) {
         this.fragmentSliceMesh = meshes[0];
         this.fragmentSliceMesh.position
@@ -1093,6 +1034,16 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
           .setComponent(axis, position);
         this.fragmentSliceMesh.position.multiplyScalar(PIXEL_SCALE);
         this.canvas.scene.add(this.fragmentSliceMesh);
+      }
+
+      meshes = this.fragmentGridSliceCache.get(this.tree.fragment[MaterialMapType.DEFAULT], axis, slicePosition);
+      if (meshes) {
+        this.fragmentGridSliceMesh = meshes[0];
+        this.fragmentGridSliceMesh.position
+          .set(this.tree.fragmentOffset[0], this.tree.fragmentOffset[1], this.tree.fragmentOffset[2])
+          .setComponent(axis, position);
+        this.fragmentGridSliceMesh.position.multiplyScalar(PIXEL_SCALE);
+        this.canvas.scene.add(this.fragmentGridSliceMesh);
       }
     }
   }
