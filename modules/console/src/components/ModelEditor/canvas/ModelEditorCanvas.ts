@@ -1,3 +1,4 @@
+import { grey200, grey900 } from 'material-ui/styles/colors';
 import THREE from 'three';
 import * as ndarray from 'ndarray';
 const mapValues = require('lodash/mapValues');
@@ -125,6 +126,8 @@ const nz = new THREE.Vector3(   0 ,   0  , - 1 );
 
 // Prevent flickering
 const CLIPPING_OFFSET = 1;
+
+const VIEW_CUBE_SIZE = 70;
 
 class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, ComponentState, ComponentTree> {
   private emptyMesh: THREE.Mesh;
@@ -1101,7 +1104,35 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   }
 }
 
+function createViewCubeTexture(text: string) {
+  const canvas = document.createElement('canvas');
+  canvas.style.background = 'white';
+  canvas.width = 128;
+  canvas.height = 128;
+
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = grey200;
+  ctx.fillRect(0, 0, 128, 128);
+
+  ctx.textAlign = 'center';
+  ctx.font = '28px \'Roboto\'';
+  ctx.textBaseline = 'middle';
+  ctx.scale(1,1);
+
+  ctx.fillStyle = grey900;
+  ctx.fillText(text, 64, 64);
+
+  const texture = new THREE.Texture(canvas);
+  texture.needsUpdate = true;
+
+  return texture;
+}
+
 class ModelEditorCanvas extends Canvas {
+  private viewCubeCamera: THREE.OrthographicCamera;
+  private viewCube: THREE.Mesh;
+  private viewCubeScene: THREE.Scene;
+
   component: ModelEditorCanvasComponent;
   geometryFactory: GeometryFactory;
 
@@ -1148,7 +1179,30 @@ class ModelEditorCanvas extends Canvas {
   }
 
   init() {
+    this.viewCubeCamera = new THREE.OrthographicCamera(0, 0, 0, 0, -100, 100);
+    const viewCubeGeoemtry = new THREE.BoxGeometry(VIEW_CUBE_SIZE, VIEW_CUBE_SIZE, VIEW_CUBE_SIZE);
+
+    const textureLoader = new THREE.TextureLoader();
+    const viewCubeMaterial = new THREE.MultiMaterial([
+      new THREE.MeshLambertMaterial({ map: createViewCubeTexture('LEFT') }),
+      new THREE.MeshLambertMaterial({ map: createViewCubeTexture('RIGHT') }),
+      new THREE.MeshLambertMaterial({ map: createViewCubeTexture('TOP') }),
+      new THREE.MeshLambertMaterial({ map: createViewCubeTexture('BOTTOM') }),
+      new THREE.MeshLambertMaterial({ map: createViewCubeTexture('FRONT') }),
+      new THREE.MeshLambertMaterial({ map: createViewCubeTexture('BACK') }),
+    ]);
+
+    this.viewCube = new THREE.Mesh(viewCubeGeoemtry, viewCubeMaterial);
+
+    this.viewCubeScene = new THREE.Scene();
+    this.viewCubeScene.add(this.viewCube);
+
+    const light = new THREE.DirectionalLight(0xffffff, 0.5);
+    light.position.set(0, 0, 1);
+    this.viewCubeScene.add(light);
+
     super.init();
+
     this.renderer['localClippingEnabled'] = true;
     this.renderer.setClearColor(0x333333);
     this.renderer.autoClear = false;
@@ -1197,6 +1251,9 @@ class ModelEditorCanvas extends Canvas {
     this.light.shadow.camera['far'] = 2000;
     this.scene.add(this.light);
 
+    const ambientLight = new THREE.AmbientLight(0x888888);
+    this.viewCubeScene.add(ambientLight);
+
     // add this only if there is no animation loop (requestAnimationFrame)
     this.controls.addEventListener('change', () => {
       this.syncLightToCamera();
@@ -1206,6 +1263,8 @@ class ModelEditorCanvas extends Canvas {
       if (this.state.file.present.data.mode2d.enabled) {
         this.Mode2dTool.onCameraMove();
       }
+
+      this.viewCube.quaternion.copy(this.camera.quaternion).inverse();
 
       this.render();
     });
@@ -1245,11 +1304,18 @@ class ModelEditorCanvas extends Canvas {
   }
 
   updateCameraOptions() {
-    this.camera.left = this.container.clientWidth / - 2;
-    this.camera.right = this.container.clientWidth / 2;
-    this.camera.top = this.container.clientHeight / 2;
-    this.camera.bottom = this.container.clientHeight / - 2;
+    this.viewCubeCamera.left = this.camera.left = this.container.clientWidth / - 2;
+    this.viewCubeCamera.right = this.camera.right = this.container.clientWidth / 2;
+    this.viewCubeCamera.top = this.camera.top = this.container.clientHeight / 2;
+    this.viewCubeCamera.bottom = this.camera.bottom = this.container.clientHeight / - 2;
     this.camera.updateProjectionMatrix();
+    this.viewCubeCamera.updateProjectionMatrix();
+
+    this.viewCube.position.set(
+      this.viewCubeCamera.right - VIEW_CUBE_SIZE,
+      this.viewCubeCamera.top - VIEW_CUBE_SIZE,
+      0
+    );
   }
 
   initCamera() {
@@ -1338,6 +1404,7 @@ class ModelEditorCanvas extends Canvas {
     this.renderer.render(this.boundingBoxScene, this.camera);
 
     this.tool.onRender();
+    this.renderer.render(this.viewCubeScene, this.viewCubeCamera);
   }
 
   destroy() {
