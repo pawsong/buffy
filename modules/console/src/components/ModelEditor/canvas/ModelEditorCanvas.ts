@@ -121,6 +121,16 @@ const nx = new THREE.Vector3( - 1 ,   0  ,   0 );
 const ny = new THREE.Vector3(   0 , - 1  ,   0 );
 const nz = new THREE.Vector3(   0 ,   0  , - 1 );
 
+const units = [px, nx, py, ny, pz, nz];
+const rotations = [
+  new THREE.Euler(  0           , - Math.PI / 2 , Math.PI / 2),
+  new THREE.Euler(  0           ,   Math.PI / 2 , Math.PI / 2),
+  new THREE.Euler(  Math.PI / 2 ,   0           , Math.PI / 2),
+  new THREE.Euler(- Math.PI / 2 ,   0           , Math.PI / 2),
+  new THREE.Euler(  Math.PI     ,   0           , 0          ),
+  new THREE.Euler(  0           ,   0           , 0          ),
+];
+
 // Prevent flickering
 const CLIPPING_OFFSET = 1;
 
@@ -508,44 +518,16 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     this.mode2dPlaneMesh.position.setComponent(u, this.props.size[u] / 2 * PIXEL_SCALE);
     this.mode2dPlaneMesh.position.setComponent(v, this.props.size[v] / 2 * PIXEL_SCALE);
 
-    // Move clipping plane
-    switch(axis) {
-      case Axis.X: {
-        if (this.temp1.x > 0) {
-          this.mode2dPlaneMesh.rotation.set(0, - Math.PI / 2, Math.PI / 2);
-          this.mode2dPlaneMesh.position.setX((position + 1) * PIXEL_SCALE);
-          this.mode2dClippingPlane.set(px, (- position - 1) * PIXEL_SCALE + CLIPPING_OFFSET);
-        } else {
-          this.mode2dPlaneMesh.rotation.set(0, Math.PI / 2, Math.PI / 2);
-          this.mode2dPlaneMesh.position.setX(position * PIXEL_SCALE);
-          this.mode2dClippingPlane.set(nx, position * PIXEL_SCALE + CLIPPING_OFFSET);
-        }
-        break;
-      }
-      case Axis.Y: {
-        if (this.temp1.y > 0) {
-          this.mode2dPlaneMesh.rotation.set(Math.PI / 2, 0, Math.PI / 2);
-          this.mode2dPlaneMesh.position.setY((position + 1) * PIXEL_SCALE);
-          this.mode2dClippingPlane.set(py, (- position - 1) * PIXEL_SCALE + CLIPPING_OFFSET);
-        } else {
-          this.mode2dPlaneMesh.rotation.set(- Math.PI / 2, 0, Math.PI / 2);
-          this.mode2dPlaneMesh.position.setY(position * PIXEL_SCALE);
-          this.mode2dClippingPlane.set(ny, position * PIXEL_SCALE + CLIPPING_OFFSET);
-        }
-        break;
-      }
-      case Axis.Z: {
-        if (this.temp1.z > 0) {
-          this.mode2dPlaneMesh.rotation.set(Math.PI, 0, 0);
-          this.mode2dPlaneMesh.position.setZ((position + 1) * PIXEL_SCALE);
-          this.mode2dClippingPlane.set(pz, (- position - 1) * PIXEL_SCALE + CLIPPING_OFFSET);
-        } else {
-          this.mode2dPlaneMesh.rotation.set(0, 0, 0);
-          this.mode2dPlaneMesh.position.setZ(position * PIXEL_SCALE);
-          this.mode2dClippingPlane.set(nz, position * PIXEL_SCALE + CLIPPING_OFFSET);
-        }
-        break;
-      }
+    if (this.temp1.getComponent(axis) > 0) {
+      const i = 2 * axis;
+      this.mode2dPlaneMesh.rotation.copy(rotations[i]);
+      this.mode2dPlaneMesh.position.setComponent(axis, (position + 1) * PIXEL_SCALE);
+      this.mode2dClippingPlane.set(units[i], (- position - 1) * PIXEL_SCALE + CLIPPING_OFFSET);
+    } else {
+      const i = 2 * axis + 1;
+      this.mode2dPlaneMesh.rotation.copy(rotations[i]);
+      this.mode2dPlaneMesh.position.setComponent(axis, position * PIXEL_SCALE);
+      this.mode2dClippingPlane.set(units[i], position * PIXEL_SCALE + CLIPPING_OFFSET);
     }
   }
 
