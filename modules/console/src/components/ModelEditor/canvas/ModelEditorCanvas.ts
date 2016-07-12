@@ -66,6 +66,7 @@ import {
 interface CanvasOptions {
   container: HTMLElement;
   geometryFactory: GeometryFactory;
+  troveGeometryFactory: TroveGeometryFactory;
   camera: THREE.OrthographicCamera;
   keyboard: Keyboard;
   dispatchAction: DispatchAction;
@@ -196,7 +197,6 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   typeMaskGeometryFactory: MaskGeometryFactory;
   alphaMaskGeometryFactory: MaskGeometryFactory;
   specularMaskGeometryFactory: MaskGeometryFactory;
-  troveGeometryFactory: TroveGeometryFactory;
 
   mode2dPlaneMesh: THREE.Mesh;
 
@@ -293,7 +293,6 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     this.typeMaskGeometryFactory = new MaskGeometryFactory(mapinfo[MaterialMapType.TROVE_TYPE].defaultColor);
     this.alphaMaskGeometryFactory = new MaskGeometryFactory(mapinfo[MaterialMapType.TROVE_ALPHA].defaultColor);
     this.specularMaskGeometryFactory = new MaskGeometryFactory(mapinfo[MaterialMapType.TROVE_SPECULAR].defaultColor);
-    this.troveGeometryFactory = new TroveGeometryFactory();
 
     this.modelSliceMultiMaterial = getTroveMaterial(true);
     this.modelSliceMultiMaterial.materials.forEach(material => material['clipping'] = true);
@@ -648,7 +647,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         }
         case MaterialMapType.ALL: {
           // TODO: Use MultiMaterial
-          geometry = this.troveGeometryFactory.getGeometry(
+          geometry = this.canvas.troveGeometryFactory.getGeometry(
             this.tree.model,
             this.tree.maps[MaterialMapType.TROVE_TYPE],
             this.tree.maps[MaterialMapType.TROVE_ALPHA],
@@ -748,7 +747,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
           }
           case MaterialMapType.ALL: {
             // TODO: Use MultiMaterial
-            geometry = this.troveGeometryFactory.getGeometry(
+            geometry = this.canvas.troveGeometryFactory.getGeometry(
               this.tree.fragment[MaterialMapType.DEFAULT],
               this.tree.fragment[MaterialMapType.TROVE_TYPE],
               this.tree.fragment[MaterialMapType.TROVE_ALPHA],
@@ -1069,6 +1068,7 @@ class ModelEditorCanvas extends Canvas {
 
   component: ModelEditorCanvasComponent;
   geometryFactory: GeometryFactory;
+  troveGeometryFactory: TroveGeometryFactory;
 
   controls: any;
 
@@ -1095,6 +1095,7 @@ class ModelEditorCanvas extends Canvas {
   constructor({
     container,
     geometryFactory,
+    troveGeometryFactory,
     dispatchAction,
     state,
     camera,
@@ -1105,6 +1106,7 @@ class ModelEditorCanvas extends Canvas {
     this.boundingBoxScene = new THREE.Scene();
 
     this.geometryFactory = geometryFactory;
+    this.troveGeometryFactory = troveGeometryFactory;
 
     this.dispatchAction = dispatchAction;
     this.state = state;

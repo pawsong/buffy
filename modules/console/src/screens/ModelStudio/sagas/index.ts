@@ -41,7 +41,7 @@ export function* updateFiles(thumbnailFactory: ThumbnailFactory, paramsList: Upd
       withCredentials: false,
     });
 
-    const thumbnailBlob = yield call(thumbnailFactory.createThumbnailBlob, params.body.present.data.maps[MaterialMapType.DEFAULT]);
+    const thumbnailBlob = yield call(thumbnailFactory.createThumbnailBlob, params.body.present.data);
 
     response = yield call(request.put, thumbnailSignedUrl, thumbnailBlob, {
       headers: {

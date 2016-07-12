@@ -68,6 +68,7 @@ import {
 } from '../../canvas/Constants';
 
 import GeometryFactory from '../../canvas/GeometryFactory';
+import TroveGeometryFactory from '../../canvas/TroveGeometryFactory';
 
 import {
   FileState,
@@ -136,6 +137,7 @@ export { ModelEditorState };
 
 interface ModelEditorProps extends React.Props<ModelEditor> {
   geometryFactory: GeometryFactory;
+  troveGeometryFactory: TroveGeometryFactory;
   commonState: CommonState;
   onCommonStateChange: (commonState: CommonState) => any;
   fileState: FileState;
@@ -386,6 +388,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       state: this.getEditorState(),
       keyboard: this.keyboard,
       geometryFactory: this.props.geometryFactory,
+      troveGeometryFactory: this.props.troveGeometryFactory,
       onTemporarySizeUpdate: this.handleTemporarySizeUpdate,
     });
     this.canvas.init();

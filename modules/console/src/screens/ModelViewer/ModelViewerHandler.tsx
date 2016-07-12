@@ -156,7 +156,7 @@ class ModelViewerHandler extends React.Component<HandlerProps, {}> {
           {fork}
         </div>
         <ModelViewer
-          data={this.props.loadModel.result.present.data.maps[MaterialMapType.DEFAULT]}
+          fileState={this.props.loadModel.result}
         />
       </div>
     );

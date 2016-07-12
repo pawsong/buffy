@@ -1,10 +1,20 @@
 import THREE from 'three';
 import Canvas from '../../../canvas/Canvas';
+import GeometryFactory from '../../../canvas/GeometryFactory';
+import TroveGeometryFactory from '../../../canvas/TroveGeometryFactory';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
 } from '../../../canvas/Constants';
+
+import {
+  ModelFileType,
+  MaterialMapType,
+} from '../../../types';
+
+import getTroveMaterial from '../../../components/ModelEditor/canvas/materials/getTroveMaterial';
+import { FileState } from '../../../components/ModelEditor/types';
 
 if (__CLIENT__) {
   window['THREE'] = THREE;
@@ -15,15 +25,15 @@ const THUMBNAIL_SIZE = 256;
 const radius = 80, theta = 135, phi = 30;
 
 class ModelViewerCanvas extends Canvas {
-  geometry: THREE.Geometry;
+  fileState: FileState;
   camera: THREE.PerspectiveCamera;
   controls: any;
 
   private light: THREE.DirectionalLight;
 
-  constructor(container: HTMLElement, geometry: THREE.Geometry) {
+  constructor(container: HTMLElement, fileState: FileState) {
     super(container);
-    this.geometry = geometry;
+    this.fileState = fileState;
   }
 
   init() {
@@ -40,12 +50,34 @@ class ModelViewerCanvas extends Canvas {
     this.light.shadow.camera['far'] = 2000;
     this.scene.add(this.light);
 
-    const material = new THREE.MeshLambertMaterial({
-      color: 0xffffff,
-      vertexColors: THREE.VertexColors,
-    });
+    const { type, maps } = this.fileState.present.data;
 
-    const mesh = new THREE.Mesh(this.geometry, material);
+    let mesh: THREE.Mesh;
+    switch(this.fileState.present.data.type) {
+      case ModelFileType.DEFAULT: {
+        const geometryFactory = new GeometryFactory();
+        const geometry = geometryFactory.getGeometry(maps[MaterialMapType.DEFAULT]);
+        const material = new THREE.MeshLambertMaterial({
+          color: 0xffffff,
+          vertexColors: THREE.VertexColors,
+        });
+
+        mesh = new THREE.Mesh(geometry, material);
+        break;
+      }
+      case ModelFileType.TROVE: {
+        const geometryFactory = new TroveGeometryFactory();
+        const geometry = geometryFactory.getGeometry(
+          maps[MaterialMapType.DEFAULT],
+          maps[MaterialMapType.TROVE_TYPE],
+          maps[MaterialMapType.TROVE_ALPHA],
+          maps[MaterialMapType.TROVE_SPECULAR]
+        );
+        const material = getTroveMaterial(false);
+        mesh = new THREE.Mesh(geometry, material);
+        break;
+      }
+    }
     this.scene.add(mesh);
 
 		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
@@ -54,7 +86,7 @@ class ModelViewerCanvas extends Canvas {
       this.render();
     });
 
-    const size = this.geometry.boundingBox.size();
+    const size = mesh.geometry.boundingBox.size();
     this.controls.target.copy(size).divideScalar(2);
     this.controls.update();
 

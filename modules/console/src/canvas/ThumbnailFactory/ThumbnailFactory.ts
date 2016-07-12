@@ -6,6 +6,10 @@ import * as Immutable from 'immutable';
 import * as ndarray from 'ndarray';
 
 import GeometryFactory from '../GeometryFactory';
+import TroveGeometryFactory from '../TroveGeometryFactory';
+import { VoxelData, MaterialMaps } from '../../components/ModelEditor/types';
+import getTroveMaterial from '../../components/ModelEditor/canvas/materials/getTroveMaterial';
+import { ModelFileType, MaterialMapType } from '../../types';
 
 import {
   PIXEL_SCALE,
@@ -25,8 +29,8 @@ class ThumbnailFactory {
   private camera: THREE.Camera;
   private temp1: THREE.Vector3;
 
-  private cache: WeakMap<ndarray.Ndarray, string>;
-  private jpegCache: WeakMap<ndarray.Ndarray, Blob>;
+  private cache: WeakMap<MaterialMaps, string>;
+  private jpegCache: WeakMap<MaterialMaps, Blob>;
 
   private emptyThumbnail: string;
 
@@ -38,12 +42,12 @@ class ThumbnailFactory {
     return renderer;
   }
 
-  constructor(private geometryFactory: GeometryFactory) {
+  constructor(private geometryFactory: GeometryFactory, private troveGeometryFactory: TroveGeometryFactory) {
     // Install canvas.toBlob polyfill
     if (!HTMLCanvasElement.prototype.toBlob) require('blueimp-canvas-to-blob');
 
-    this.cache = new WeakMap<ndarray.Ndarray, string>();
-    this.jpegCache = new WeakMap<ndarray.Ndarray, Blob>();
+    this.cache = new WeakMap<MaterialMaps, string>();
+    this.jpegCache = new WeakMap<MaterialMaps, Blob>();
     this.waitingBlobRequests = new Set<ndarray.Ndarray>();
 
     this.temp1 = new THREE.Vector3();
@@ -80,9 +84,29 @@ class ThumbnailFactory {
     this.emptyThumbnail = this.renderer.domElement.toDataURL();
   }
 
-  private render(data: ndarray.Ndarray, renderer: THREE.WebGLRenderer) {
-    const geometry = this.geometryFactory.getGeometry(data);
-    if (geometry.vertices.length === 0) {
+  private render(data: VoxelData, renderer: THREE.WebGLRenderer) {
+    let geometry: THREE.Geometry;
+    let material: THREE.Material;
+
+    switch (data.type) {
+      case ModelFileType.DEFAULT: {
+        geometry = this.geometryFactory.getGeometry(data.maps[MaterialMapType.DEFAULT]);
+        material = this.thumbnailMaterial;
+        break;
+      }
+      case ModelFileType.TROVE: {
+        geometry = this.troveGeometryFactory.getGeometry(
+          data.maps[MaterialMapType.DEFAULT],
+          data.maps[MaterialMapType.TROVE_TYPE],
+          data.maps[MaterialMapType.TROVE_ALPHA],
+          data.maps[MaterialMapType.TROVE_SPECULAR]
+        );
+        material = getTroveMaterial(false);
+        break;
+      }
+    }
+
+    if (!geometry || geometry.vertices.length === 0) {
       renderer.render(this.scene, this.camera);
       return;
     }
@@ -90,7 +114,7 @@ class ThumbnailFactory {
     geometry.boundingBox.size(this.temp1);
     const scale = 64 / Math.max(this.temp1.x, this.temp1.y, this.temp1.z);
 
-    const object = new THREE.Mesh(geometry, this.thumbnailMaterial);
+    const object = new THREE.Mesh(geometry, material);
     object.position.set(
       -geometry.boundingBox.min.x - this.temp1.x / 2,
       -geometry.boundingBox.min.y - this.temp1.y / 2,
@@ -108,30 +132,30 @@ class ThumbnailFactory {
     // geometry.dispose();
   }
 
-  createThumbnail(data: ndarray.Ndarray): string {
-    const cached = this.cache.get(data);
+  createThumbnail(data: VoxelData): string {
+    const cached = this.cache.get(data.maps);
     if (cached) return cached;
 
     this.render(data, this.renderer);
     const thumbnailUrl = this.renderer.domElement.toDataURL();
 
-    this.cache.set(data, thumbnailUrl);
+    this.cache.set(data.maps, thumbnailUrl);
     return thumbnailUrl;
   }
 
   private pendingPromise: Promise<Blob>;
 
-  private _createThumbnailBlob(data: ndarray.Ndarray, callback: (blob: Blob) => any) {
+  private _createThumbnailBlob(data: VoxelData, callback: (blob: Blob) => any) {
     this.render(data, this.blobRenderer);
     const canvas: any = this.blobRenderer.domElement;
     canvas.toBlob(blob => {
-      this.jpegCache.set(data, blob);
+      this.jpegCache.set(data.maps, blob);
       callback(blob);
     }, 'image/jpeg', 0.95);
   }
 
-  createThumbnailBlob = (data: ndarray.Ndarray): Promise<Blob> => {
-    const cached = this.jpegCache.get(data);
+  createThumbnailBlob = (data: VoxelData): Promise<Blob> => {
+    const cached = this.jpegCache.get(data.maps);
     if (cached) return Promise.resolve(cached);
 
     if (!this.pendingPromise || !this.pendingPromise.isPending()) {

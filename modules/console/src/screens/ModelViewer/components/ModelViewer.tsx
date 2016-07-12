@@ -4,8 +4,8 @@ import * as ndarray from 'ndarray';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import * as classNames from 'classnames';
 
-import GeometryFactory from '../../../canvas/GeometryFactory';
 import ModelViewerCanvas from '../canvas/ModelViewerCanvas';
+import { FileState } from '../../../components/ModelEditor/types';
 
 const styles = require('./ModelViewer.css');
 
@@ -22,21 +22,17 @@ const inlineStyles = {
 }
 
 interface ModelViewerProps {
-  data: ndarray.Ndarray;
+  fileState: FileState;
 }
 
 @withStyles(styles)
 class ModelViewer extends React.Component<ModelViewerProps, {}> {
-  geometryFactory: GeometryFactory;
   canvas: ModelViewerCanvas;
 
   componentDidMount() {
     const container = findDOMNode<HTMLElement>(this.refs['root']);
 
-    this.geometryFactory = new GeometryFactory();
-    const geometry = this.geometryFactory.getGeometry(this.props.data);
-
-    this.canvas = new ModelViewerCanvas(container, geometry);
+    this.canvas = new ModelViewerCanvas(container, this.props.fileState);
     this.canvas.init();
   }
 

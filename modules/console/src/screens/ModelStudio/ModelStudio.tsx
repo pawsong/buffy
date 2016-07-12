@@ -13,6 +13,7 @@ import withStyles from 'isomorphic-style-loader/lib/withStyles';
 
 import ThumbnailFactory from '../../canvas/ThumbnailFactory';
 import GeometryFactory from '../../canvas/GeometryFactory';
+import TroveGeometryFactory from '../../canvas/TroveGeometryFactory';
 
 import generateObjectId from '../../utils/generateObjectId';
 
@@ -110,6 +111,7 @@ interface HandlerState {
 class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   thumbnailFactory: ThumbnailFactory;
   geometryFactory: GeometryFactory;
+  troveGeometryFactory: TroveGeometryFactory;
 
   oldBeforeUnload: any;
 
@@ -121,6 +123,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.leaveConfirmed = false;
 
     this.geometryFactory = new GeometryFactory();
+    this.troveGeometryFactory = new TroveGeometryFactory();
 
     this.state = {
       sizeResivion: 0,
@@ -146,7 +149,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   }
 
   componentDidMount() {
-    this.thumbnailFactory = new ThumbnailFactory(this.geometryFactory);
+    this.thumbnailFactory = new ThumbnailFactory(this.geometryFactory, this.troveGeometryFactory);
 
     this.props.router.setRouteLeaveHook(this.props.route, location => {
       if (this.leaveConfirmed) return true;
@@ -219,7 +222,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       id,
       name,
       owner,
-      thumbnail: this.thumbnailFactory.createThumbnail(model),
+      thumbnail: this.thumbnailFactory.createThumbnail(body.present.data),
       type: FileType.MODEL,
       created,
       modified: false,
@@ -248,7 +251,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       files: this.state.files.set(this.state.activeFileId, Object.assign({}, currentFile, {
         body,
         modified: ModelEditor.isModified(currentFile.savedBody, body),
-        thumbnail: this.thumbnailFactory.createThumbnail(model),
+        thumbnail: this.thumbnailFactory.createThumbnail(body.present.data),
       }))
     });
   }
@@ -546,6 +549,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onRequestSnackbar={this.handleRequestSnackbar}
           activeFileId={this.state.activeFileId}
           geometryFactory={this.geometryFactory}
+          troveGeometryFactory={this.troveGeometryFactory}
           onFileCreate={this.handleNewFileButtonClick}
           onFileChange={this.handleFileStateChange}
           onFileClick={this.handleFileClick}
