@@ -84,6 +84,11 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
     this.handleDownloadMenuClose();
   }
 
+  handleDownloadAsQubicleClick = () => {
+    this.props.onDownload(ModelSupportFileType.QUBICLE);
+    this.handleDownloadMenuClose();
+  }
+
   renderDownloadFileMenu() {
     if (this.state.submenuType !== SubmenuType.DOWNLOAD) return null;
 
@@ -94,6 +99,11 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
             innerDivStyle={{ whiteSpace: 'nowrap' }}
             primaryText={'MagicaVoxel (.vox)'}
             onTouchTap={this.handleDownloadAsMagicaVoxelClick}
+          />
+          <ListItem
+            innerDivStyle={{ whiteSpace: 'nowrap' }}
+            primaryText={'Qubicle (.qb)'}
+            onTouchTap={this.handleDownloadAsQubicleClick}
           />
         </List>
       </Paper>

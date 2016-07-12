@@ -1,13 +1,13 @@
 import * as ndarray from 'ndarray';
 
 import {
+  ImportResult,
+  ExportResult,
+} from '../types';
+
+import {
   rgbToHex,
 } from '../canvas/utils';
-
-interface ImportResult {
-  result?: ndarray.Ndarray;
-  error?: string;
-}
 
 const defaultPalette = [ // default palette
   {r: 255, g: 255, b: 255, a: 255, t: 0, s: 0}, {r: 255, g: 255, b: 204, a: 255, t: 0, s: 0}, {r: 255, g: 255, b: 153, a: 255, t: 0, s: 0},
@@ -223,11 +223,6 @@ export function importVoxFile(ab: ArrayBuffer): ImportResult {
   }
 
   return { result };
-}
-
-interface ExportResult {
-  result?: Uint8Array;
-  error?: string;
 }
 
 export function exportVoxFile(model: ndarray.Ndarray): ExportResult {

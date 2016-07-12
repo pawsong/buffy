@@ -49,6 +49,8 @@ import getUniqueToolType from './utils/getUniqueToolType';
 import {
   importVoxFile,
   exportVoxFile,
+  importQbFile,
+  exportQbFile,
 } from './io';
 
 import {
@@ -75,6 +77,7 @@ import {
   SerializedData,
   Axis,
   ColorPickerType,
+  ImportResult,
 } from './types';
 
 import {
@@ -166,7 +169,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static serialize: (fileState: FileState) => Uint8Array;
   static importBmfFile: (buffer: ArrayBuffer) => ImportFileResult;
   static importVoxFile: (buffer: ArrayBuffer) => ImportFileResult;
+  static importQbFile: (buffer: ArrayBuffer) => ImportFileResult;
   static exportVoxFile: (fileState: FileState) => ExportFileResult;
+  static exportQbFile: (fileState: FileState) => ExportFileResult;
 
   canvas: ModelEditorCanvas;
 
@@ -535,9 +540,7 @@ ModelEditor.importBmfFile = buffer => {
   }
 }
 
-ModelEditor.importVoxFile = buffer => {
-  const { result, error } = importVoxFile(buffer);
-
+function importFile({ error, result }: ImportResult): ImportFileResult {
   if (error) {
     return { error };
   } else {
@@ -563,8 +566,20 @@ ModelEditor.importVoxFile = buffer => {
   }
 }
 
+ModelEditor.importVoxFile = buffer => {
+  return importFile(importVoxFile(buffer));
+}
+
+ModelEditor.importQbFile = buffer => {
+  return importFile(importQbFile(buffer));
+}
+
 ModelEditor.exportVoxFile = fileState => {
   return exportVoxFile(fileState.present.data.maps[MaterialMapType.DEFAULT]);
+};
+
+ModelEditor.exportQbFile = fileState => {
+  return exportQbFile(fileState.present.data.maps[MaterialMapType.DEFAULT]);
 };
 
 ModelEditor.createFileState = createFileState;

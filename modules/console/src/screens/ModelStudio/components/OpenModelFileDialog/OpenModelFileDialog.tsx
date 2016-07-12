@@ -164,6 +164,10 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
         importFn = ModelEditor.importVoxFile;
         break;
       }
+      case 'qb': {
+        importFn = ModelEditor.importQbFile;
+        break;
+      }
       default: {
         // TODO: Noti
         this.props.onRequestSnackbar(`Unsupported file extension: ${ext}`);

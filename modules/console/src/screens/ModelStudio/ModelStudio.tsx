@@ -462,6 +462,15 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
         }
         return;
       }
+      case ModelSupportFileType.QUBICLE: {
+        const { error, result } = ModelEditor.exportQbFile(file.body);
+        if (error) {
+          this.props.pushSnackbar({ message: `Export file failed: ${error}` });
+        } else {
+          saveAs(new Blob([result]), `${file.name || 'untitled'}.qb`, true);
+        }
+        return;
+      }
     }
   }
 

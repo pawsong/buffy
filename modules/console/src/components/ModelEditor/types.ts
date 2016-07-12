@@ -73,6 +73,7 @@ export enum UniqueToolType {
 
 export enum SupportFileType {
   MAGICA_VOXEL,
+  QUBICLE,
 }
 
 export type Transformation = [
@@ -169,4 +170,14 @@ export interface SerializedData {
  */
 export interface GetEditorState {
   (): ModelEditorState;
+}
+
+export interface ImportResult {
+  result?: Ndarray;
+  error?: string;
+}
+
+export interface ExportResult {
+  result?: Uint8Array;
+  error?: string;
 }
