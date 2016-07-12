@@ -304,7 +304,8 @@ class DragState extends ToolState {
     const material = new THREE.MeshBasicMaterial();
     this.drawGuide = new THREE.Mesh(geometry, material);
 
-    // // For debugging
+    // For debugging
+    // material.transparent = true;
     // material.opacity = 0.5;
     // material.color.setHex(0xff0000);
     // this.tool.canvas.scene.add(this.drawGuide);

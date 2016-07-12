@@ -518,10 +518,10 @@ ModelEditor.createCommonState = () => {
   return commonReducer(undefined, { type: '' });
 };
 
-const radius = PIXEL_SCALE * 50, theta = 135, phi = 30;
+const radius = PIXEL_SCALE * 500, theta = 135, phi = 30;
 
 ModelEditor.createExtraData = (size: Position) => {
-  const camera = new THREE.OrthographicCamera(0, 0, 0, 0, -30000, 30000);
+  const camera = new THREE.OrthographicCamera(0, 0, 0, 0, -100000, 100000);
 
   camera.position.set(
     radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
