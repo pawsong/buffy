@@ -71,7 +71,7 @@ class ThumbnailFactory {
     const ambientLight = new THREE.AmbientLight(0x666666);
     this.scene.add(ambientLight);
 
-    const light = new THREE.DirectionalLight(0xffffff);
+    const light = new THREE.DirectionalLight(0xffffff, 0.5);
     light.position.copy(this.camera.position);
     light.lookAt(this.scene.position);
 

@@ -1174,7 +1174,7 @@ class ModelEditorCanvas extends Canvas {
       };
     })();
 
-    this.light = new THREE.DirectionalLight(0xffffff);
+    this.light = new THREE.DirectionalLight(0xffffff, 0.5);
 
     const d = 15 * PIXEL_SCALE;
     this.light.shadow.camera['left'] = - d;
