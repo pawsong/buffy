@@ -30,6 +30,8 @@ import mapinfo from './mapinfo';
 
 const msgpack = require('msgpack-lite');
 
+import { serialize, deserialize } from './utils/serdez';
+
 import troveMap from './ndops/troveMap';
 
 let screenfull;
@@ -48,7 +50,6 @@ import * as StorageKeys from '../../constants/StorageKeys';
 import { connectTarget } from '../Panel';
 
 import createFileState from './utils/createFileState';
-import deserialize from './utils/deserialize';
 import getUniqueToolType from './utils/getUniqueToolType';
 
 import {
@@ -172,14 +173,14 @@ interface ExportFileResult {
 @withStyles(styles)
 class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static createFileState = createFileState;
-  static deserialize = deserialize;
 
   static editAsTrove: (fileState: FileState) => FileState;
 
   static createCommonState: () => CommonState;
   static createExtraData: (size: Position) => ExtraData;
   static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
-  static serialize: (fileState: FileState) => Uint8Array;
+  static serialize = serialize;
+  static deserialize = deserialize;
   static importBmfFile: (buffer: ArrayBuffer) => ImportFileResult;
   static importVoxFile: (buffer: ArrayBuffer) => ImportFileResult;
   static importQbFile: (buffer: ArrayBuffer) => ImportFileResult;
@@ -543,19 +544,6 @@ ModelEditor.isModified = function (lhs: FileState, rhs: FileState) {
   return lhs.present !== rhs.present;
 };
 
-const FILE_FORMAT_VERSION = '1.0';
-
-ModelEditor.serialize = (fileState) => {
-  const model = fileState.present.data.maps[MaterialMapType.DEFAULT];
-  const data: any = pako.deflate(model.data.buffer);
-
-  return msgpack.encode({
-    version: FILE_FORMAT_VERSION,
-    data,
-    shape: model.shape,
-  });
-}
-
 ModelEditor.importBmfFile = buffer => {
   try {
     return {
@@ -660,6 +648,8 @@ ModelEditor.exportQbFile = (fileState, filename, username) => {
 };
 
 ModelEditor.createFileState = createFileState;
+
+ModelEditor.serialize = serialize;
 ModelEditor.deserialize = deserialize;
 
 ModelEditor.editAsTrove = (fileState: FileState): FileState => {

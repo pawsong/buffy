@@ -114,6 +114,10 @@ export interface MaterialMaps {
   [index: number /* MaterialMapType */]: Ndarray;
 }
 
+/*
+ * DO NOT CHANGE NAME OF THIS ENUM PROPERTIES.
+ * THIS IS SAVED IN PERSISTENT FILES.
+ */
 export enum TroveItemType {
   BLUNT,
   SWORD,

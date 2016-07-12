@@ -9,7 +9,7 @@ import { cyan500, cyan200, fullWhite } from 'material-ui/styles/colors';
 import { preloadApi, connectApi, ApiCall, get } from '../../api';
 import { call } from 'redux-saga/effects';
 import { saga, SagaProps, ImmutableTask, isDone, request } from '../../saga';
-import deserialize from '../../components/ModelEditor/utils/deserialize';
+import { deserialize } from '../../components/ModelEditor/utils/serdez';
 import { FileState as ModelFileState } from '../../components/ModelEditor/types';
 import Fork from '../../components/icons/Fork';
 
