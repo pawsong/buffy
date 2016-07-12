@@ -182,12 +182,15 @@ function isTransparent(v: number) {
 let mask = new Int32Array(4096);
 let invMask = new Int32Array(4096);
 
+const ATTACHMENT_COLOR = 0x01FF00FF;
+
 export default function(
   array: ndarray.Ndarray, typeArray: ndarray.Ndarray, alphaArray: ndarray.Ndarray, specularArray: ndarray.Ndarray
 ) {
   function f(i,j,k) {
     const c = array.get(i, j, k);
-    if (!c) return c;
+    if (!c) return;
+    else if (c === ATTACHMENT_COLOR) return ATTACHMENT_COLOR;
 
     const type = (typeArray.get(i, j, k) & 0xffffff) || TYPE1;
     const alpha = (alphaArray.get(i, j, k) & 0xffffff) || ALPHA1;

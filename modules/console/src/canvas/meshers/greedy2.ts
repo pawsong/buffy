@@ -26,10 +26,16 @@ var GreedyMesh = (function() {
 //Cache buffer internally
 var mask = new Int32Array(4096);
 
+const ATTACHMENT_COLOR = 0x01FF00FF;
+
 return function(array: ndarray.Ndarray, maskArray: ndarray.Ndarray, defaultVal: number) {
   function f(i,j,k) {
-    return maskArray.get(i, j, k) ? array.get(i, j ,k) || defaultVal : undefined;
+    const c = maskArray.get(i, j, k);
+    if (!c) return;
+    else if (c === ATTACHMENT_COLOR) return ATTACHMENT_COLOR;
+    else return array.get(i, j ,k) || defaultVal;
   }
+
   const dims = array.shape;
 
   //Sweep over 3-axes
