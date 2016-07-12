@@ -367,6 +367,14 @@ class DragState extends ToolState {
     this.tool.boundingBox.scale.copy(this.pdir).multiplyScalar(this.result * PIXEL_SCALE).add(this.temp1);
 
     this.tool.boundingBox.updateMatrixWorld(false);
+
+    // Update temporary text
+    const { size } = this.tool.props;
+    this.temp1.set(size[0], size[1], size[2])
+      .multiply(this.uv)
+      .add(this.temp2.copy(this.pdir).multiplyScalar(this.result));
+
+    this.tool.canvas.onTemporarySizeUpdate([this.temp1.x, this.temp1.y, this.temp1.z]);
   };
 
   private handleMouseUp = (params: CursorEventParams) => {

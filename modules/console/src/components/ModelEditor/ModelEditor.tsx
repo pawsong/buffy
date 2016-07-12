@@ -149,6 +149,7 @@ interface ModelEditorProps extends React.Props<ModelEditor> {
 
 interface ContainerStates {
   fullscreen?: boolean;
+  size?: Position;
 }
 
 interface ImportFileResult {
@@ -196,6 +197,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
     this.state = {
       fullscreen: screenfull.enabled && screenfull.isFullscreen,
+      size: null,
     };
   }
 
@@ -383,11 +385,27 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       state: this.getEditorState(),
       keyboard: this.keyboard,
       geometryFactory: this.props.geometryFactory,
+      onTemporarySizeUpdate: this.handleTemporarySizeUpdate,
     });
     this.canvas.init();
 
     document.addEventListener('keydown', this.handleKeyDown, false);
     document.addEventListener(screenfull.raw.fullscreenchange, this.handleFullscreenChange, false);
+  }
+
+  componentWillReceiveProps() {
+    if (this.state.size) this.setState({ size: null });
+  }
+
+  handleTemporarySizeUpdate = (size: Position) => {
+    if (
+         !this.state.size
+      || this.state.size[0] !== size[0]
+      || this.state.size[1] !== size[1]
+      || this.state.size[2] !== size[2]
+    ) {
+      this.setState({ size });
+    }
   }
 
   componentDidUpdate(prevProps: ModelEditorProps) {
@@ -488,7 +506,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         <Sidebar
           fileType={this.props.fileState.present.data.type}
           trove={this.props.fileState.present.data.trove}
-          size={this.props.fileState.present.data.size}
+          size={this.state.size || this.props.fileState.present.data.size}
           onTroveItemTypeChange={this.handleTroveItemTypeChange}
         />
       </div>

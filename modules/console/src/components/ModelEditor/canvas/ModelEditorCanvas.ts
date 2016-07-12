@@ -70,6 +70,7 @@ interface CanvasOptions {
   keyboard: Keyboard;
   dispatchAction: DispatchAction;
   state: ModelEditorState;
+  onTemporarySizeUpdate: (size: Position) => any;
 }
 
 const modelVertexShader = require('raw!./shaders/grid.vert');
@@ -1089,6 +1090,8 @@ class ModelEditorCanvas extends Canvas {
 
   boundingBoxScene: THREE.Scene;
 
+  onTemporarySizeUpdate: (size: Position) => any;
+
   constructor({
     container,
     geometryFactory,
@@ -1096,6 +1099,7 @@ class ModelEditorCanvas extends Canvas {
     state,
     camera,
     keyboard,
+    onTemporarySizeUpdate,
   }: CanvasOptions) {
     super(container);
     this.boundingBoxScene = new THREE.Scene();
@@ -1109,6 +1113,7 @@ class ModelEditorCanvas extends Canvas {
     this.keyboard = keyboard;
 
     this.cachedTools = {};
+    this.onTemporarySizeUpdate = onTemporarySizeUpdate;
   }
 
   init() {
