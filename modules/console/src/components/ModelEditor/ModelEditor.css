@@ -33,14 +33,18 @@
   color: var(--palette-white);
 }
 
+.sidebarInner {
+  padding: 15px;
+}
+
+.item + .item {
+  margin-top: 20px;
+}
+
 .itemLabel {
   margin-bottom: 3px;
 }
 
 .itemBody {
   font-weight: bold;
-}
-
-.sidebarInner {
-  padding: 15px;
 }

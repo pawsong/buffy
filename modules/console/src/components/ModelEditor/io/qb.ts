@@ -192,9 +192,9 @@ export function exportQbFile(model: ndarray.Ndarray): ExportResult {
     writeInt32LE(data, shape[i]);
   }
 
-  for (let i = 0; i < shape.length; ++i) {
-    writeInt32LE(data, Math.floor(- shape[i] / 2));
-  }
+  writeInt32LE(data, Math.floor(- shape[0] / 2));
+  writeInt32LE(data, 0);
+  writeInt32LE(data, Math.floor(- shape[2] / 2));
 
   if (comp) {
     for (let z = 0, lenZ = shape[2]; z < lenZ; ++z) {

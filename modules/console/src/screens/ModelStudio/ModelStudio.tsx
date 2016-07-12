@@ -452,23 +452,20 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     const file = this.state.files.get(this.state.activeFileId);
     if (!file) return;
 
+    const username = this.props.user && this.props.user.username || 'anonymous';
+    const filename = file.name || 'untitled';
+
     switch(fileType) {
       case ModelSupportFileType.MAGICA_VOXEL: {
-        const { error, result } = ModelEditor.exportVoxFile(file.body);
-        if (error) {
-          this.props.pushSnackbar({ message: `Export file failed: ${error}` });
-        } else {
-          saveAs(new Blob([result]), `${file.name || 'untitled'}.vox`, true);
-        }
+        ModelEditor.exportVoxFile(file.body, filename, username)
+          .then(({ extension, data }) => saveAs(new Blob([data]), `${file.name || 'untitled'}.${extension}`, true))
+          .catch(error => this.props.pushSnackbar({ message: `Export file failed: ${error}` }));
         return;
       }
       case ModelSupportFileType.QUBICLE: {
-        const { error, result } = ModelEditor.exportQbFile(file.body);
-        if (error) {
-          this.props.pushSnackbar({ message: `Export file failed: ${error}` });
-        } else {
-          saveAs(new Blob([result]), `${file.name || 'untitled'}.qb`, true);
-        }
+        ModelEditor.exportQbFile(file.body, filename, username)
+          .then(({ extension, data }) => saveAs(new Blob([data]), `${file.name || 'untitled'}.${extension}`, true))
+          .catch(error => this.props.pushSnackbar({ message: `Export file failed: ${error}` }));
         return;
       }
     }

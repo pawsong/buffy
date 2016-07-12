@@ -32,6 +32,7 @@ import {
   Transformation,
   Axis,
   MaterialMaps,
+  TroveItemType,
 } from '../types';
 
 import {
@@ -69,6 +70,7 @@ import {
   MOVE_MODE_2D_PLANE, MoveMode2DPlaneAction,
   EDIT_AS_TROVE,
   ACTIVATE_MAP, ActivateMapAction,
+  TROVE_ITEM_TYPE_CHANGE, TroveItemTypeChangeAction,
 } from '../actions';
 
 const initialSize: Position = [16, 16, 16];
@@ -90,7 +92,10 @@ const initialState: VoxelData = {
     initialized: false,
     axis: Axis.X,
     position: 0,
-  }
+  },
+  trove: {
+    itemType: TroveItemType.SWORD,
+  },
 };
 
 function rgbToHex({ r, g, b }) {
@@ -1052,6 +1057,16 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, state, <VoxelData>{
         activeMap,
+      });
+    }
+
+    case TROVE_ITEM_TYPE_CHANGE: {
+      const { itemType } = <TroveItemTypeChangeAction>action;
+
+      if (state.trove.itemType === itemType) return state;
+
+      return Object.assign({}, state, <VoxelData>{
+        trove: Object.assign({}, state.trove, { itemType }),
       });
     }
 

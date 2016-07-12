@@ -5,6 +5,7 @@ const msgpack = require('msgpack-lite');
 
 import {
   Axis,
+  TroveItemType,
 } from '../types';
 
 import {
@@ -34,7 +35,10 @@ function deserialize (buffer: Uint8Array) {
       initialized: false,
       axis: Axis.X,
       position: 0,
-    }
+    },
+    trove: {
+      itemType: TroveItemType.SWORD,
+    },
   });
 }
 

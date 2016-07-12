@@ -5,9 +5,12 @@ const pure = require('recompose/pure').default;
 
 import THREE from 'three';
 
+import JSZip from 'jszip';
 import * as pako from 'pako';
 
 import * as Immutable from 'immutable';
+
+import pascalCase from 'pascal-case';
 
 import { DropTarget } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
@@ -26,6 +29,8 @@ const styles = require('./ModelEditor.css');
 import mapinfo from './mapinfo';
 
 const msgpack = require('msgpack-lite');
+
+import troveMap from './ndops/troveMap';
 
 let screenfull;
 if (__CLIENT__) {
@@ -78,12 +83,17 @@ import {
   Axis,
   ColorPickerType,
   ImportResult,
+  ExportResult,
+  TroveMetaData,
+  TroveItemType,
 } from './types';
 
 import {
   ModelFileType,
   MaterialMapType,
 } from '../../types';
+
+import troveItemType from './trove/itemType';
 
 import {
   changeTool,
@@ -99,11 +109,13 @@ import {
   editAsTrove,
   activateMap,
   changeColorPicker,
+  troveItemTypeChange,
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
 import ToolsPanel from './components/panels/ToolsPanel';
 import MapPanel from './components/panels/MapPanel';
+import Sidebar from './components/Sidebar';
 
 import FullscreenButton from './components/FullscreenButton';
 import ApplyButton from './components/ApplyButton';
@@ -145,8 +157,8 @@ interface ImportFileResult {
 }
 
 interface ExportFileResult {
-  result?: Uint8Array;
-  error?: string;
+  extension: string;
+  data: Uint8Array;
 }
 
 @pure
@@ -170,8 +182,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static importBmfFile: (buffer: ArrayBuffer) => ImportFileResult;
   static importVoxFile: (buffer: ArrayBuffer) => ImportFileResult;
   static importQbFile: (buffer: ArrayBuffer) => ImportFileResult;
-  static exportVoxFile: (fileState: FileState) => ExportFileResult;
-  static exportQbFile: (fileState: FileState) => ExportFileResult;
+  static exportVoxFile: (fileState: FileState, filename: string, username: string) => Promise<ExportFileResult>;
+  static exportQbFile: (fileState: FileState, filename: string, username: string) => Promise<ExportFileResult>;
 
   canvas: ModelEditorCanvas;
 
@@ -454,6 +466,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     );
   }
 
+  handleTroveItemTypeChange = (itemType: TroveItemType) => this.dispatchAction(troveItemTypeChange(itemType));
+
   render() {
     return (
       <div ref="root" className={styles.root} onMouseDown={this.props.onMouseDown}>
@@ -471,18 +485,12 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           /> : null}
           {this.renderPanels()}
         </div>
-        <div className={styles.sidebar}>
-          <div className={styles.sidebarInner}>
-            <div className={styles.itemLabel}>Canvas Size</div>
-            <div className={styles.itemBody}>
-              <span>{this.props.fileState.present.data.size[0]}</span>
-              <span> x </span>
-              <span>{this.props.fileState.present.data.size[1]}</span>
-              <span> x </span>
-              <span>{this.props.fileState.present.data.size[2]}</span>
-            </div>
-          </div>
-        </div>
+        <Sidebar
+          fileType={this.props.fileState.present.data.type}
+          trove={this.props.fileState.present.data.trove}
+          size={this.props.fileState.present.data.size}
+          onTroveItemTypeChange={this.handleTroveItemTypeChange}
+        />
       </div>
     );
   }
@@ -560,7 +568,10 @@ function importFile({ error, result }: ImportResult): ImportFileResult {
           initialized: false,
           axis: Axis.X,
           position: 0,
-        }
+        },
+        trove: {
+          itemType: TroveItemType.SWORD,
+        },
       }),
     };
   }
@@ -574,12 +585,60 @@ ModelEditor.importQbFile = buffer => {
   return importFile(importQbFile(buffer));
 }
 
-ModelEditor.exportVoxFile = fileState => {
-  return exportVoxFile(fileState.present.data.maps[MaterialMapType.DEFAULT]);
+const TROVE_MAPS = [
+  { type: MaterialMapType.TROVE_TYPE, postfix: 't' },
+  { type: MaterialMapType.TROVE_ALPHA, postfix: 'a' },
+  { type: MaterialMapType.TROVE_SPECULAR, postfix: 's' },
+];
+
+function exportFile(
+  fileState: FileState, filename: string, username: string, extension: string, exporter: (data: ndarray.Ndarray) => ExportResult
+) {
+  return Promise.resolve().then<ExportFileResult>(() => {
+    switch(fileState.present.data.type) {
+      case ModelFileType.TROVE: {
+        const zip = new JSZip();
+
+        const finalFilename =
+          `${troveItemType[fileState.present.data.trove.itemType].typename}_${pascalCase(filename)}_${username}`;
+        let result: ExportResult;
+
+        // Default
+        const defaultMap = fileState.present.data.maps[MaterialMapType.DEFAULT];
+        result = exporter(defaultMap);
+        if (result.error) throw result.error;
+        zip.file(`${finalFilename}.${extension}`, result.result);
+
+        for (let i = 0; i < TROVE_MAPS.length; ++i) {
+          const { type, postfix } = TROVE_MAPS[i];
+          const map = fileState.present.data.maps[type];
+
+          const processedMap = ndarray(map.data.slice(), map.shape);
+          troveMap(processedMap, defaultMap, mapinfo[type].defaultColor);
+
+          result = exporter(processedMap);
+          if (result.error) throw result.error;
+
+          zip.file(`${finalFilename}_${postfix}.${extension}`, result.result);
+        }
+
+        return zip.generateAsync({ type: 'uint8array' }).then(data => ({ extension: 'zip', data }));
+      }
+      default: {
+        const { error, result } = exporter(fileState.present.data.maps[MaterialMapType.DEFAULT]);
+        if (error) throw(error);
+        return { extension, data: result };
+      }
+    }
+  });
+}
+
+ModelEditor.exportVoxFile = (fileState, filename, username) => {
+  return exportFile(fileState, filename, username, 'vox', exportVoxFile);
 };
 
-ModelEditor.exportQbFile = fileState => {
-  return exportQbFile(fileState.present.data.maps[MaterialMapType.DEFAULT]);
+ModelEditor.exportQbFile = (fileState, filename, username) => {
+  return exportFile(fileState, filename, username, 'qb', exportQbFile);
 };
 
 ModelEditor.createFileState = createFileState;

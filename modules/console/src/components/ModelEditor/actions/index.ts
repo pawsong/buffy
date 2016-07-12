@@ -12,6 +12,7 @@ import {
   Axis,
   ColorPickerType,
   MaterialMaps,
+  TroveItemType,
 } from '../types';
 
 import {
@@ -446,5 +447,16 @@ export function changeColorPicker(colorPicker: ColorPickerType): ChangeColorPick
   return {
     type: CHANGE_COLOR_PICKER,
     colorPicker,
+  };
+}
+
+export const TROVE_ITEM_TYPE_CHANGE: 'TROVE_ITEM_TYPE_CHANGE' = 'TROVE_ITEM_TYPE_CHANGE';
+export interface TroveItemTypeChangeAction extends Action<typeof TROVE_ITEM_TYPE_CHANGE> {
+  itemType: TroveItemType;
+}
+export function troveItemTypeChange(itemType: TroveItemType): TroveItemTypeChangeAction {
+  return {
+    type: TROVE_ITEM_TYPE_CHANGE,
+    itemType,
   };
 }

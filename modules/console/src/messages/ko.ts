@@ -533,6 +533,13 @@ export default {
 
   /**
    * path: src/components/ModelEditor/components/panels/HistoryPanel.json
+   * description: Trove label
+   * defaultMessage: Trove
+   */
+/* translate */ 'voxel-editor.panels.history.trove': '',
+
+  /**
+   * path: src/components/ModelEditor/components/panels/HistoryPanel.json
    * description: Voxel add history label
    * defaultMessage: Add voxels
    */

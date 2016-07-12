@@ -114,6 +114,26 @@ export interface MaterialMaps {
   [index: number /* MaterialMapType */]: Ndarray;
 }
 
+export enum TroveItemType {
+  BLUNT,
+  SWORD,
+  AXE,
+  PISTOL,
+  STAFF,
+  BOW,
+  SPEAR,
+  MASK,
+  HAT,
+  HAIR,
+  DECO, // (For cornerstone decorations)
+  LAIR,
+  DUNGEON,
+}
+
+export interface TroveMetaData {
+  itemType: TroveItemType;
+}
+
 export interface VoxelData {
   type: ModelFileType;
   size: Position;
@@ -128,6 +148,7 @@ export interface VoxelData {
     axis: Axis;
     position: number;
   };
+  trove: TroveMetaData;
 }
 
 export interface ExtraData {

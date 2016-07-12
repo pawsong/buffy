@@ -59,6 +59,7 @@ import {
   MOVE_MODE_2D_PLANE,
   EDIT_AS_TROVE,
   ACTIVATE_MAP,
+  TROVE_ITEM_TYPE_CHANGE,
 } from '../../actions';
 
 const messages = defineMessages({
@@ -152,6 +153,11 @@ const messages = defineMessages({
     description: 'Change Map label',
     defaultMessage: 'Change Map',
   },
+  labelTrove: {
+    id: 'voxel-editor.panels.history.trove',
+    description: 'Trove label',
+    defaultMessage: 'Trove',
+  },
 });
 
 const ActionMessages = {
@@ -187,6 +193,7 @@ const ActionMessages = {
   [MOVE_MODE_2D_PLANE]: messages.labelMoveMode2DPlane,
   [EDIT_AS_TROVE]: messages.labelEditAsTrove,
   [ACTIVATE_MAP]: messages.labelActivateMap,
+  [TROVE_ITEM_TYPE_CHANGE]: messages.labelTrove,
 };
 
 function getActionMessage(state: Snapshot<any>) {
