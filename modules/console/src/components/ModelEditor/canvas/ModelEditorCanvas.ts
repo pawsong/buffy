@@ -1217,7 +1217,10 @@ class ModelEditorCanvas extends Canvas {
       updateControlsState();
     });
 
-    this.tool = this.getTool(this.state.file.present.data.mode2d.enabled, this.state.common.tool);
+    this.tool = this.getTool(
+      this.state.file.present.data.mode2d.enabled, this.state.common.tool,
+      this.state.file.present.data.activeMap
+    );
     const props = this.tool.mapParamsToProps(this.state);
     this.tool.start(props);
 
@@ -1280,8 +1283,8 @@ class ModelEditorCanvas extends Canvas {
   }
 
   // Lazy getter
-  getTool(mode2d: boolean, toolType: ToolType): ModelEditorTool<any, any, any> {
-    const uniqueToolType = getUniqueToolType(mode2d, toolType);
+  getTool(mode2d: boolean, toolType: ToolType, mapType: MaterialMapType): ModelEditorTool<any, any, any> {
+    const uniqueToolType = getUniqueToolType(mode2d, toolType, mapType);
 
     const tool = this.cachedTools[uniqueToolType];
     if (tool) return tool;
@@ -1303,10 +1306,11 @@ class ModelEditorCanvas extends Canvas {
 
     if (
          this.state.file.present.data.mode2d.enabled !== nextState.file.present.data.mode2d.enabled
+      || this.state.file.present.data.activeMap !== nextState.file.present.data.activeMap
       || this.state.common.tool !== nextState.common.tool
     ) {
       const nextTool = this.getTool(
-        nextState.file.present.data.mode2d.enabled, nextState.common.tool
+        nextState.file.present.data.mode2d.enabled, nextState.common.tool, nextState.file.present.data.activeMap
       );
       this.tool.stop();
       this.tool = nextTool;

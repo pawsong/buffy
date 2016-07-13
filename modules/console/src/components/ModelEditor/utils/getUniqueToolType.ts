@@ -5,7 +5,11 @@ import {
   UniqueToolType,
 } from '../types';
 
-function getUniqueToolType(mode2d: boolean, toolType: ToolType): UniqueToolType {
+import {
+  MaterialMapType,
+} from '../../../types';
+
+function _getUniqueToolType(mode2d: boolean, toolType: ToolType): UniqueToolType {
   switch(toolType) {
     case ToolType.TRANSFORM: {
       return UniqueToolType.TRANSFORM;
@@ -93,6 +97,23 @@ function getUniqueToolType(mode2d: boolean, toolType: ToolType): UniqueToolType 
   }
 
   invariant(false, `invariant tool: ${mode2d}/${toolType}`);
+}
+
+function getUniqueToolType(mode2d: boolean, toolType: ToolType, mapType: MaterialMapType): UniqueToolType {
+  const uniqueToolType = _getUniqueToolType(mode2d, toolType);
+
+  if (mapType !== MaterialMapType.DEFAULT && mapType !== MaterialMapType.ALL) {
+    switch(uniqueToolType) {
+      case UniqueToolType.PENCIL_2D: {
+        return UniqueToolType.PAINT_2D;
+      }
+      case UniqueToolType.PENCIL_3D: {
+        return UniqueToolType.PAINT_3D;
+      }
+    }
+  }
+
+  return uniqueToolType;
 }
 
 export default getUniqueToolType;

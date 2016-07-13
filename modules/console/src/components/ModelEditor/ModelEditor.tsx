@@ -471,9 +471,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           mode2d={this.props.fileState.present.data.mode2d.enabled}
           onEnableMode2D={this.handleEnableMode2D}
           paletteColor={this.props.commonState.paletteColors[this.props.fileState.present.data.activeMap]}
-          selectedTool={
-            getUniqueToolType(this.props.fileState.present.data.mode2d.enabled, this.props.commonState.tool)
-          }
+          selectedTool={this.props.commonState.tool}
           changePaletteColor={this.changePaletteColor}
           selectTool={this.selectTool}
           onChangeColorPicker={this.handleChangeColorPicker}

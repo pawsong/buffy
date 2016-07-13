@@ -10,6 +10,7 @@ import * as ReactDnd from 'react-dnd';
 const { default: Swatches } = require('react-color/lib/components/swatches/Swatches');
 const { default: Sketch } = require('react-color/lib/components/sketched/Sketch');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
+import getUniqueToolType from '../../utils/getUniqueToolType';
 
 const Tooltip = require('material-ui/internal/Tooltip').default;
 
@@ -50,23 +51,23 @@ import FormatColorFill from '../../../icons/FormatColorFill';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./ToolsPanel.css');
 
+const toolStyle = {
+  margin: '5px 0',
+};
+
 const inlineStyles = {
   color: {
     width: 38,
     height: 16,
     borderRadius: 1,
   },
-  iconRow: {
-    width: 110,
-    margin: '0 auto',
-  },
-  iconButton: {
-    margin: '5px 0',
-  },
-  iconButtonRight: {
-    margin: '5px 0',
-    float: 'right',
-  },
+  tool: toolStyle,
+  toolActive: Object.assign({}, toolStyle, {
+    backgroundColor: Colors.grey200,
+  }),
+  toolInactive: Object.assign({}, toolStyle, {
+    backgroundColor: Colors.white,
+  }),
   tooltips: {
     top: 24,
   },
@@ -86,7 +87,7 @@ interface ToolsPanelProps extends React.Props<ToolsPanel> {
   activeMap: MaterialMapType;
   mode2d: boolean;
   onEnableMode2D: (enabled: boolean) => any;
-  selectedTool: UniqueToolType;
+  selectedTool: ToolType;
   paletteColor: Color;
   selectTool: (tool: ToolType) => any;
   changePaletteColor: (color: Color) => any;
@@ -96,6 +97,10 @@ interface ToolsPanelProps extends React.Props<ToolsPanel> {
 
 interface ToolsPanelState {
   displayColorPicker: boolean;
+}
+
+function getToolStyle(active: boolean) {
+  return active && inlineStyles.toolActive || inlineStyles.toolInactive;
 }
 
 @connectSource({
@@ -136,173 +141,19 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
     this.setState({ displayColorPicker: false });
   };
 
-  getIconButtonStyle(style: React.CSSProperties, tool: UniqueToolType) {
-    return Object.assign({
-      backgroundColor: this.props.selectedTool === tool ? Colors.grey200 : Colors.white,
-    }, style);
-  }
-
   handleEnableMode2D = (e: any, enabled: boolean) => {
     this.props.onEnableMode2D(enabled);
   }
 
-  render2dTools() {
-    return (
-      <div>
-        <div style={inlineStyles.iconRow}>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.MOVE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.MOVE_2D)}
-            tooltipStyles={inlineStyles.tooltips}
-            tooltipPosition="bottom-center"
-            tooltip={'Move (V)'}
-          >
-            <CursorMoveIcon />
-          </IconButton>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE_SELECT)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.RECTANGLE_SELECT_2D)}
-            tooltipStyles={inlineStyles.tooltips}
-            tooltipPosition="bottom-center"
-            tooltip={'Rectangle select (M)'}
-          >
-            <SelectIcon />
-          </IconButton>
-        </div>
-        <div style={inlineStyles.iconRow}>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.MAGIC_WAND)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.MAGIC_WAND_2D)}
-            tooltipStyles={inlineStyles.tooltips}
-            tooltipPosition="bottom-center"
-            tooltip={'Magic Wand (W)'}
-          >
-            <AutoFixIcon />
-          </IconButton>
-        </div>
-        <div style={inlineStyles.iconRow}>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.PENCIL)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.PENCIL_2D)}
-            tooltipStyles={inlineStyles.tooltips}
-            iconClassName="material-icons"
-            tooltipPosition="bottom-center"
-            tooltip={'Pencil (B)'}
-          >
-            mode_edit
-          </IconButton>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.ERASE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.ERASE_2D)}
-            iconStyle={{
-              transform: 'rotate(45deg)',
-            }}
-            tooltipStyles={inlineStyles.tooltips}
-            iconClassName="material-icons"
-            tooltipPosition="bottom-center"
-            tooltip={'Erase (E)'}
-          >
-            crop_portrait
-          </IconButton>
-        </div>
-        <div style={inlineStyles.iconRow}>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.PAINT)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.PAINT_2D)}
-            iconClassName="material-icons"
-            tooltipStyles={inlineStyles.tooltips}
-            tooltipPosition="bottom-center"
-            tooltip={'Paint'}
-          >
-            brush
-          </IconButton>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.COLOR_FILL)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.COLOR_FILL_2D)}
-            iconStyle={{
-              transform: 'scale(1.32)',
-              marginTop: 4,
-            }}
-            tooltipStyles={inlineStyles.tooltips}
-            tooltipPosition="bottom-center"
-            tooltip={'Color fill (G)'}
-          >
-            <FormatColorFill />
-          </IconButton>
-        </div>
-        <div style={inlineStyles.iconRow}>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.LINE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.LINE_2D)}
-            iconStyle={{
-              transform: 'rotate(-45deg) scale(1.50)',
-            }}
-            iconClassName="material-icons"
-            tooltipStyles={inlineStyles.tooltips}
-            tooltipPosition="bottom-center"
-            tooltip={'Line'}
-          >
-            remove
-          </IconButton>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.RECTANGLE_2D)}
-            tooltipStyles={inlineStyles.tooltips}
-            iconStyle={{
-              transform: 'scale(1.32)',
-            }}
-            iconClassName="material-icons"
-            tooltipPosition="bottom-center"
-            tooltip={'Rectangle (R)'}
-          >
-            stop
-          </IconButton>
-        </div>
-        <div style={inlineStyles.iconRow}>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.TRANSFORM)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.TRANSFORM)}
-            iconClassName="material-icons"
-            tooltipStyles={inlineStyles.tooltips}
-            tooltipPosition="bottom-center"
-            tooltip={'Transform'}
-          >
-            rotate_90_degrees_ccw
-          </IconButton>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.RESIZE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.RESIZE)}
-            tooltipStyles={inlineStyles.tooltips}
-            tooltipPosition="bottom-center"
-            tooltip={'Resize'}
-          >
-            <ArrowExpandIcon />
-          </IconButton>
-        </div>
-        <div style={inlineStyles.iconRow}>
-          <IconButton
-            onTouchTap={() => this.props.selectTool(ToolType.COLORIZE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.COLORIZE_2D)}
-            tooltipStyles={inlineStyles.tooltips}
-            iconClassName="material-icons"
-            tooltipPosition="bottom-center"
-            tooltip={'Colorize (I)'}
-          >
-            colorize
-          </IconButton>
-          {this.renderColorPicker()}
-        </div>
-      </div>
-    );
-  }
+  renderTools() {
+    const tool = getUniqueToolType(this.props.mode2d, this.props.selectedTool, this.props.activeMap);
 
-  render3dTools() {
     return (
       <div>
-        <div style={inlineStyles.iconRow}>
+        <div className={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.MOVE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.MOVE_3D)}
+            style={getToolStyle(tool === UniqueToolType.MOVE_2D || tool === UniqueToolType.MOVE_3D)}
             tooltipStyles={inlineStyles.tooltips}
             tooltipPosition="bottom-center"
             tooltip={'Move (V)'}
@@ -311,7 +162,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           </IconButton>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE_SELECT)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.RECTANGLE_SELECT_3D)}
+            style={getToolStyle(tool === UniqueToolType.RECTANGLE_SELECT_2D || tool === UniqueToolType.RECTANGLE_SELECT_3D )}
             tooltipStyles={inlineStyles.tooltips}
             tooltipPosition="bottom-center"
             tooltip={'Rectangle select (M)'}
@@ -319,19 +170,20 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             <SelectIcon />
           </IconButton>
         </div>
-        <div style={inlineStyles.iconRow}>
+        <div className={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.BOX_SELECT)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.BOX_SELECT)}
+            style={getToolStyle(tool === UniqueToolType.BOX_SELECT)}
             tooltipStyles={inlineStyles.tooltips}
             tooltipPosition="bottom-center"
             tooltip={'Box Select'}
+            disabled={this.props.mode2d}
           >
             <CubeOutlineIcon />
           </IconButton>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.MAGIC_WAND)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.MAGIC_WAND_3D)}
+            style={getToolStyle(tool === UniqueToolType.MAGIC_WAND_2D || tool ===UniqueToolType.MAGIC_WAND_3D)}
             tooltipStyles={inlineStyles.tooltips}
             tooltipPosition="bottom-center"
             tooltip={'Magic Wand (W)'}
@@ -339,20 +191,21 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             <AutoFixIcon />
           </IconButton>
         </div>
-        <div style={inlineStyles.iconRow}>
+        <div className={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.PENCIL)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.PENCIL_3D)}
+            style={getToolStyle(tool === UniqueToolType.PENCIL_2D || tool ===UniqueToolType.PENCIL_3D)}
             tooltipStyles={inlineStyles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
             tooltip={'Pencil (B)'}
+            disabled={this.props.activeMap !== MaterialMapType.DEFAULT && this.props.activeMap !== MaterialMapType.ALL}
           >
             mode_edit
           </IconButton>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.ERASE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.ERASE_3D)}
+            style={getToolStyle(tool === UniqueToolType.ERASE_2D || tool === UniqueToolType.ERASE_3D)}
             iconStyle={{
               transform: 'rotate(45deg)',
             }}
@@ -364,10 +217,10 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             crop_portrait
           </IconButton>
         </div>
-        <div style={inlineStyles.iconRow}>
+        <div className={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.PAINT)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.PAINT_3D)}
+            style={getToolStyle(tool === UniqueToolType.PAINT_2D || tool === UniqueToolType.PAINT_3D)}
             iconClassName="material-icons"
             tooltipStyles={inlineStyles.tooltips}
             tooltipPosition="bottom-center"
@@ -377,7 +230,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           </IconButton>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.COLOR_FILL)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.COLOR_FILL_3D)}
+            style={getToolStyle(tool === UniqueToolType.COLOR_FILL_2D || tool === UniqueToolType.COLOR_FILL_3D)}
             iconStyle={{
               transform: 'scale(1.32)',
               marginTop: 4,
@@ -389,10 +242,10 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             <FormatColorFill />
           </IconButton>
         </div>
-        <div style={inlineStyles.iconRow}>
+        <div className={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.LINE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.LINE_3D)}
+            style={getToolStyle(tool === UniqueToolType.LINE_2D || tool === UniqueToolType.LINE_3D)}
             iconStyle={{
               transform: 'rotate(-45deg) scale(1.50)',
             }}
@@ -405,7 +258,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           </IconButton>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.RECTANGLE_3D)}
+            style={getToolStyle(tool === UniqueToolType.RECTANGLE_2D || tool === UniqueToolType.RECTANGLE_3D)}
             tooltipStyles={inlineStyles.tooltips}
             iconStyle={{
               transform: 'scale(1.32)',
@@ -417,21 +270,22 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             stop
           </IconButton>
         </div>
-        <div style={inlineStyles.iconRow}>
+        <div className={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.BOX)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.BOX)}
+            style={getToolStyle(tool === UniqueToolType.BOX)}
             tooltipStyles={inlineStyles.tooltips}
             tooltipPosition="bottom-center"
             tooltip={'Box'}
+            disabled={this.props.mode2d}
           >
             <CubeIcon />
           </IconButton>
         </div>
-        <div style={inlineStyles.iconRow}>
+        <div className={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.TRANSFORM)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.TRANSFORM)}
+            style={getToolStyle(tool === UniqueToolType.TRANSFORM)}
             iconClassName="material-icons"
             tooltipStyles={inlineStyles.tooltips}
             tooltipPosition="bottom-center"
@@ -441,7 +295,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           </IconButton>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.RESIZE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButtonRight, UniqueToolType.RESIZE)}
+            style={getToolStyle(tool === UniqueToolType.RESIZE)}
             tooltipStyles={inlineStyles.tooltips}
             tooltipPosition="bottom-center"
             tooltip={'Resize'}
@@ -449,10 +303,10 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             <ArrowExpandIcon />
           </IconButton>
         </div>
-        <div style={inlineStyles.iconRow}>
+        <div className={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.COLORIZE)}
-            style={this.getIconButtonStyle(inlineStyles.iconButton, UniqueToolType.COLORIZE_3D)}
+            style={getToolStyle(tool === UniqueToolType.COLORIZE_2D || tool === UniqueToolType.COLOR_FILL_3D)}
             tooltipStyles={inlineStyles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
@@ -474,7 +328,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
     return (
       <div style={{ display: 'inline' }}>
         <ClickAwayListener
-          style={inlineStyles.iconButtonRight}
+          style={inlineStyles.tool}
           onClickAway={() => this.handleColorPickerClickAway()}
         >
           <div
@@ -565,14 +419,14 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
   render() {
     return (
       <div>
-        <div style={inlineStyles.iconRow}>
+        <div className={styles.iconRow}>
           <Mode2dToggle
             toggled={this.props.mode2d}
             onToggle={this.handleEnableMode2D}
           />
         </div>
         <Divider />
-        {this.props.mode2d ? this.render2dTools() : this.render3dTools()}
+        {this.renderTools()}
       </div>
     );
   };
