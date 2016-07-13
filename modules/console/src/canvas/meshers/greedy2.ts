@@ -20,23 +20,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import ndarray from 'ndarray';
+import {Ndarray} from 'ndarray';
+
+const ATTACHMENT_COLOR = 0x01FF00FF;
+
+function makeGetter(array: Ndarray, maskArray: Ndarray, defaultVal: number): (x: number, y: number, z: number) => number {
+  const getArrayValue = array
+    ? (x: number, y: number, z: number) => array.get(x, y, z) || defaultVal
+    : () => defaultVal;
+
+  return (x: number, y: number, z: number) => {
+    const c = maskArray.get(x, y, z);
+    if (!c) return;
+    else if (c === ATTACHMENT_COLOR) return ATTACHMENT_COLOR;
+    else return getArrayValue(x, y ,z) || defaultVal;
+  };
+}
 
 var GreedyMesh = (function() {
 //Cache buffer internally
 var mask = new Int32Array(4096);
 
-const ATTACHMENT_COLOR = 0x01FF00FF;
+return function(array: Ndarray, maskArray: Ndarray, defaultVal: number) {
+  const f = makeGetter(array, maskArray, defaultVal);
 
-return function(array: ndarray.Ndarray, maskArray: ndarray.Ndarray, defaultVal: number) {
-  function f(i,j,k) {
-    const c = maskArray.get(i, j, k);
-    if (!c) return;
-    else if (c === ATTACHMENT_COLOR) return ATTACHMENT_COLOR;
-    else return array.get(i, j ,k) || defaultVal;
-  }
-
-  const dims = array.shape;
+  const dims = maskArray.shape;
 
   //Sweep over 3-axes
   var vertices = [], faces = [];

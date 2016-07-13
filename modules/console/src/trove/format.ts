@@ -181,16 +181,24 @@ export function isTransparent(v: number) {
 }
 
 export function makeGetter(base: Ndarray, typeMap: Ndarray, alphaMap: Ndarray, specularMap: Ndarray) {
+  const getTypeMap = typeMap
+    ? (x: number, y: number, z: number) => (typeMap.get(x, y, z) & 0xffffff) || TYPE1
+    : () => TYPE1;
+
+  const getAlphaMap = alphaMap
+    ? (x: number, y: number, z: number) => (alphaMap.get(x, y, z) & 0xffffff) || ALPHA1
+    : () => ALPHA1;
+
+  const getSpecularMap = specularMap
+    ? (x: number, y: number, z: number) => (specularMap.get(x, y, z) & 0xffffff) || SPECULAR1
+    : () => SPECULAR1;
+
   return (x: number, y: number, z: number) => {
     const c = base.get(x, y, z);
     if (!c) return;
     else if (c === ATTACHMENT_COLOR) return ATTACHMENT_COLOR;
 
-    const type = (typeMap.get(x, y, z) & 0xffffff) || TYPE1;
-    const alpha = (alphaMap.get(x, y, z) & 0xffffff) || ALPHA1;
-    const specular = (specularMap.get(x, y, z) & 0xffffff) || SPECULAR1;
-
-    const m = getMeta(type, alpha, specular);
+    const m = getMeta(getTypeMap(x, y, z), getAlphaMap(x, y, z), getSpecularMap(x, y, z));
     return m | (c & 0xffffff);
   }
 }

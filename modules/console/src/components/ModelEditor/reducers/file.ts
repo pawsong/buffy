@@ -11,6 +11,7 @@ import ndAny from '../ndops/any';
 import ndAssign from '../ndops/assign';
 import ndAssign2 from '../ndops/assign2';
 import ndAssignAndMask2 from '../ndops/assignAndMask2';
+import ndAssignWithDefault2 from '../ndops/assignWithDefault2';
 import ndExclude from '../ndops/exclude';
 import ndExclude2 from '../ndops/exclude2';
 import ndCopyWithFilter from '../ndops/copyWithFilter';
@@ -225,8 +226,21 @@ function mergeFragment(state: VoxelData): MergeFragmentResult {
   Object.keys(state.maps).forEach(key => {
     const map = ndarray(state.maps[key].data.slice(), state.maps[key].shape);
     const intersectInModel = ndarray(map.data, shape, map.stride, offset);
-    const intersectInFragment = ndarray(state.fragment[key].data, shape, state.fragment[key].stride, fragmentOffset);
-    if (ndAssign2(intersectInModel, intersectInFragment)) maps[key] = map;
+
+    const fragment = state.fragment[key];
+
+    if (fragment === defaultFragment) {
+      if (!ndAssign2(intersectInModel, intersectInDefaultFragment)) return;
+    } else if (fragment) {
+      const intersectInFragment = ndarray(fragment.data, shape, fragment.stride, fragmentOffset);
+      if (!ndAssignWithDefault2(
+        intersectInModel, intersectInFragment, intersectInDefaultFragment, mapinfo[key].defaultColor
+      )) return;
+    } else {
+      if (!ndSetWithFilter2(intersectInModel, mapinfo[key].defaultColor, intersectInDefaultFragment)) return;
+    }
+
+    maps[key] = map;
   });
 
   return { maps, selection };
@@ -431,6 +445,43 @@ function filterVolumnWithSlice(axis: Axis, position: number, volumn: Volumn): Vo
   const ret = volumn.slice();
   ret[axis] = ret[axis + 3] = position;
   return <Volumn>ret;
+}
+
+function transformArray(
+  data: ndarray.Ndarray, transform: Transformation, nextSize: Position, p0: Position, p1: Position
+) {
+  const size = data.shape;
+  const nextData = ndarray(new Int32Array(nextSize[0] * nextSize[1] * nextSize[2]), nextSize);
+
+  for (let i = 0; i < size[0]; ++i) {
+    for (let j = 0; j < size[1]; ++j) {
+      for (let k = 0; k < size[2]; ++k) {
+        const c = data.get(i, j, k);
+        if (c) {
+          const x0 = i - p0[0];
+          const y0 = j - p0[1];
+          const z0 = k - p0[2];
+
+          const x1 = x0 * transform[0][0] + y0 * transform[1][0] + z0 * transform[2][0];
+          const y1 = x0 * transform[0][1] + y0 * transform[1][1] + z0 * transform[2][1];
+          const z1 = x0 * transform[0][2] + y0 * transform[1][2] + z0 * transform[2][2];
+
+          nextData.set(x1 + p1[0], y1 + p1[1], z1 + p1[2], c);
+        }
+      }
+    }
+  }
+
+  return nextData;
+}
+
+function ndResize(
+  dest: ndarray.Ndarray, src: ndarray.Ndarray, intersectSize: Position, destOffset: number, srcOffset: number
+) {
+  const srcIntersect = ndarray(src.data, intersectSize, src.stride, srcOffset);
+  const destIntersect = ndarray(dest.data, intersectSize, dest.stride, destOffset);
+
+  ndAssign(destIntersect, srcIntersect);
 }
 
 enum MergeType {
@@ -915,18 +966,23 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
     case VOXEL_RESIZE: {
       const { size, offset } = <VoxelResizeAction>action;
+      if (state.size[0] === size[0] && state.size[1] === size[2] && state.size[2] === size[2]) return state;
 
       const prevState = ensureFragmentMerged(state);
-      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
-      const src = prevModel;
-      const dest = ndarray(new Int32Array(size[0] * size[1] * size[2]), size);
+      const maps: MaterialMaps = {};
+      Object.keys(prevState.maps).forEach(key => {
+        maps[key] = ndarray(new Int32Array(size[0] * size[1] * size[2]), size);
+      });
+
+      const src = prevState.maps[MaterialMapType.DEFAULT];
+      const dest = maps[MaterialMapType.DEFAULT];
 
       const {
         srcOffset,
         destOffset,
         shape,
-      } = calculateIntersection(dest.shape, src.shape, offset);
+      } = calculateIntersection(size, src.shape, offset);
 
       const destOffsetSum =
         dest.stride[0] * destOffset[0] +
@@ -938,20 +994,17 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
         src.stride[1] * srcOffset[1] +
         src.stride[2] * srcOffset[2];
 
-      const srcIntersect = ndarray(src.data, shape, src.stride, srcOffsetSum);
-      const destIntersect = ndarray(dest.data, shape, dest.stride, destOffsetSum);
+      Object.keys(prevState.maps).forEach(key => {
+        const srcMap = prevState.maps[key];
+        const destMap = maps[key];
+        ndResize(destMap, srcMap, <Position>shape, destOffsetSum, srcOffsetSum);
+      });
 
-      ndAssign(destIntersect, srcIntersect);
-
-      let destSelection = null;
+      let selection = null;
       if (prevState.selection) {
-        const srcSelection = prevState.selection;
-        destSelection = ndarray(new Int32Array(size[0] * size[1] * size[2]), size);
-
-        const srcSelectionIntersect = ndarray(srcSelection.data, shape, srcSelection.stride, srcOffsetSum);
-        const destSelectionIntersect = ndarray(destSelection.data, shape, destSelection.stride, destOffsetSum);
-
-        if (!ndAssign2(destSelectionIntersect, srcSelectionIntersect)) destSelection = null;
+        selection = ndarray(new Int32Array(size[0] * size[1] * size[2]), size);
+        ndResize(selection, prevState.selection, <Position>shape, destOffsetSum, srcOffsetSum);
+        if (!ndAny(selection)) selection = null;
       }
 
       const mode2d = prevState.mode2d.position >= size[prevState.mode2d.axis]
@@ -960,8 +1013,8 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
       return Object.assign({}, prevState, <VoxelData>{
         size,
-        maps: Object.assign({}, prevState.maps, { [MaterialMapType.DEFAULT]: dest }),
-        selection: destSelection,
+        maps,
+        selection,
         mode2d,
       });
     }
@@ -973,74 +1026,30 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const prevModel = prevState.maps[MaterialMapType.DEFAULT];
 
       // Infer next shape from transform and current size
-      const { shape } = prevModel;
+      const shape = prevState.size;
+
       const w = Math.abs(shape[0] * transform[0][0] + shape[1] * transform[1][0] + shape[2] * transform[2][0]);
       const h = Math.abs(shape[0] * transform[0][1] + shape[1] * transform[1][1] + shape[2] * transform[2][1]);
       const d = Math.abs(shape[0] * transform[0][2] + shape[1] * transform[1][2] + shape[2] * transform[2][2]);
 
-      const ox0 = (shape[0] / 2) - 0.5;
-      const oy0 = (shape[1] / 2) - 0.5;
-      const oz0 = (shape[2] / 2) - 0.5;
+      const nextSize: Position = [w, h, d];
+      const p0: Position = [(shape[0] / 2) - 0.5, (shape[1] / 2) - 0.5, (shape[2] / 2) - 0.5];
+      const p1: Position = [(w / 2) - 0.5, (h / 2) - 0.5, (d / 2) - 0.5];
 
-      const ox1 = (w / 2) - 0.5;
-      const oy1 = (h / 2) - 0.5;
-      const oz1 = (d / 2) - 0.5;
+      const maps: MaterialMaps = {};
+      Object.keys(prevState.maps).forEach(key => {
+        maps[key] = transformArray(prevState.maps[key], transform, nextSize, p0, p1);
+      });
 
-      const model = ndarray(new Int32Array(w * h * d), [w, h ,d]);
+      const selection = prevState.selection ? transformArray(prevState.selection, transform, nextSize, p0, p1) : null;
 
-      for (let i = 0; i < shape[0]; ++i) {
-        for (let j = 0; j < shape[1]; ++j) {
-          for (let k = 0; k < shape[2]; ++k) {
-            const c = prevModel.get(i, j, k);
-            if (c) {
-              const x0 = i - ox0;
-              const y0 = j - oy0;
-              const z0 = k - oz0;
-
-              const x1 = x0 * transform[0][0] + y0 * transform[1][0] + z0 * transform[2][0];
-              const y1 = x0 * transform[0][1] + y0 * transform[1][1] + z0 * transform[2][1];
-              const z1 = x0 * transform[0][2] + y0 * transform[1][2] + z0 * transform[2][2];
-
-              model.set(x1 + ox1, y1 + oy1, z1 + oz1, c);
-            }
-          }
-        }
-      }
-
-      let selection = null;
-
-      if (prevState.selection) {
-        selection = ndarray(new Int32Array(w * h * d), [w, h ,d]);
-
-        for (let i = 0; i < shape[0]; ++i) {
-          for (let j = 0; j < shape[1]; ++j) {
-            for (let k = 0; k < shape[2]; ++k) {
-              const c = prevState.selection.get(i, j, k);
-              if (c) {
-                const x0 = i - ox0;
-                const y0 = j - oy0;
-                const z0 = k - oz0;
-
-                const x1 = x0 * transform[0][0] + y0 * transform[1][0] + z0 * transform[2][0];
-                const y1 = x0 * transform[0][1] + y0 * transform[1][1] + z0 * transform[2][1];
-                const z1 = x0 * transform[0][2] + y0 * transform[1][2] + z0 * transform[2][2];
-
-                selection.set(x1 + ox1, y1 + oy1, z1 + oz1, 1);
-              }
-            }
-          }
-        }
-      }
-
-      const size = model.shape;
-
-      const mode2d = prevState.mode2d.position >= size[prevState.mode2d.axis]
-        ? Object.assign({}, prevState.mode2d, { position: size[prevState.mode2d.axis] - 1 })
+      const mode2d = prevState.mode2d.position >= nextSize[prevState.mode2d.axis]
+        ? Object.assign({}, prevState.mode2d, { position: nextSize[prevState.mode2d.axis] - 1 })
         : prevState.mode2d;
 
       return Object.assign({}, prevState, <VoxelData>{
-        size,
-        maps: Object.assign({}, state.maps, { [MaterialMapType.DEFAULT]: model }),
+        size: nextSize,
+        maps,
         selection,
         mode2d,
       });

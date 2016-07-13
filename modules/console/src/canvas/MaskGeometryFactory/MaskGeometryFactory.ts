@@ -5,6 +5,8 @@ import { createGeometryFromMesh } from '../utils';
 
 import { WeakTable2 } from '../WeakTable';
 
+const nullArray: any = {};
+
 class MaskGeometryFactory {
   private cache: WeakTable2<ndarray.Ndarray, ndarray.Ndarray, THREE.Geometry>;
   private defaultValue: number;
@@ -15,13 +17,15 @@ class MaskGeometryFactory {
   }
 
   getGeometry(data: ndarray.Ndarray, mask: ndarray.Ndarray) {
-    const cached = this.cache.get(data, mask);
+    const key = data || nullArray;
+
+    const cached = this.cache.get(key, mask);
     if (cached) return cached;
 
     const mesh = mesher(data, mask, this.defaultValue);
     const geometry = createGeometryFromMesh(mesh);
 
-    this.cache.set(data, mask, geometry);
+    this.cache.set(key, mask, geometry);
     return geometry;
   }
 }
