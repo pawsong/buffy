@@ -165,7 +165,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             style={getToolStyle(tool === UniqueToolType.RECTANGLE_SELECT_2D || tool === UniqueToolType.RECTANGLE_SELECT_3D )}
             tooltipStyles={inlineStyles.tooltips}
             tooltipPosition="bottom-center"
-            tooltip={'Rectangle select (M)'}
+            tooltip={'Rectangle Select (M)'}
           >
             <SelectIcon />
           </IconButton>
@@ -237,7 +237,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             }}
             tooltipStyles={inlineStyles.tooltips}
             tooltipPosition="bottom-center"
-            tooltip={'Color fill (G)'}
+            tooltip={'Color Fill (G)'}
           >
             <FormatColorFill />
           </IconButton>
