@@ -43,7 +43,7 @@ const tips = [
   {
     id: 'tip.scene.rotation',
     title: 'Tip - Scene rotation',
-    body: 'To rotate the scene, drag mouse cursor while right button is pressed :)',
+    body: 'To rotate the scene, move the mouse cursor while right button is pressed :)',
   }
 ];
 
