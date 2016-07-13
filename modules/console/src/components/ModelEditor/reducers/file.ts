@@ -23,6 +23,12 @@ import ndFillWithFilter2 from '../ndops/fillWithFilter2';
 import getSlice from '../utils/getSlice';
 import calculateIntersection from '../utils/calculateIntersection';
 
+import mapinfo from '../mapinfo';
+
+import {
+  makeGetter as makeTroveGetter,
+} from '../../../trove/format';
+
 import {
   Position,
   Action,
@@ -246,6 +252,34 @@ function ensureFragmentMerged(state: VoxelData): VoxelData {
   });
 }
 
+function makeVoxelGetter(mapType: MaterialMapType, maps: MaterialMaps): (x: number, y: number, z: number) => number {
+  const defaultMap = maps[MaterialMapType.DEFAULT];
+
+  switch (mapType) {
+    case MaterialMapType.TROVE_TYPE:
+    case MaterialMapType.TROVE_ALPHA:
+    case MaterialMapType.TROVE_SPECULAR:
+    {
+      const {defaultColor} = mapinfo[mapType];
+      const map = maps[mapType];
+      return (x: number, y: number, z: number) => {
+        return defaultMap.get(x, y, z) ? (map.get(x, y, z) || defaultColor) : undefined;
+      }
+    }
+    case MaterialMapType.ALL:
+    {
+      return makeTroveGetter(
+        maps[MaterialMapType.DEFAULT],
+        maps[MaterialMapType.TROVE_TYPE],
+        maps[MaterialMapType.TROVE_ALPHA],
+        maps[MaterialMapType.TROVE_SPECULAR]
+      );
+    }
+  }
+
+  return (x: number, y: number, z: number) => defaultMap.get(x, y, z) || undefined;
+}
+
 // TODO: Improve algorithm
 const findBounds = cwise({
   args: ['index', 'array'],
@@ -312,12 +346,16 @@ function reduceModelUpsertAction(
   const mapType = state.activeMap === MaterialMapType.ALL ? MaterialMapType.DEFAULT : state.activeMap;
   const model = ndarray(state.maps[mapType].data.slice(), state.maps[mapType].shape);
 
+  const selection = mapType !== MaterialMapType.DEFAULT
+    ? state.selection || state.maps[MaterialMapType.DEFAULT]
+    : state.selection;
+
   let hit: boolean;
 
-  if (!state.selection) {
+  if (!selection) {
     hit = updateFn(model);
   } else {
-    hit = updateWithSelectionFn(model, state.selection);
+    hit = updateWithSelectionFn(model, selection);
   }
 
   if (!hit) return state;
@@ -565,20 +603,27 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const c = rgbToHex(color);
 
       const prevState = ensureFragmentMerged(state);
+      const mapType = prevState.activeMap === MaterialMapType.ALL ? MaterialMapType.DEFAULT : prevState.activeMap;
 
       const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
 
       return reduceModelUpsertAction(prevState,
-        model => ndFloodFill(
-          model, c, position,
-          (x, y, z) => isValidPosition(x, y, z) ? model.get(x, y, z) : undefined
-        ),
-        (model, selection) => ndFloodFill(
-          model, c, position,
-          isEmptyInSlice(state.mode2d.axis, state.mode2d.position, selection)
-            ? (x, y, z) => isValidPosition(x, y, z) ? model.get(x, y, z) : undefined
-            : (x, y, z) => isValidPosition(x, y, z) && selection.get(x, y, z) ? model.get(x, y, z) : undefined
-        )
+        model => {
+          const getter = makeVoxelGetter(prevState.activeMap, Object.assign({}, prevState.maps, { [mapType]: model }));
+          return ndFloodFill(
+            model, c, position,
+            (x, y, z) => isValidPosition(x, y, z) ? getter(x, y, z) : undefined
+          )
+        },
+        (model, selection) => {
+          const getter = makeVoxelGetter(prevState.activeMap, Object.assign({}, prevState.maps, { [mapType]: model }));
+          return ndFloodFill(
+            model, c, position,
+            isEmptyInSlice(state.mode2d.axis, state.mode2d.position, selection)
+              ? (x, y, z) => isValidPosition(x, y, z) ? getter(x, y, z) : undefined
+              : (x, y, z) => isValidPosition(x, y, z) && selection.get(x, y, z) ? getter(x, y, z) : undefined
+          );
+        }
       );
     }
 
@@ -587,12 +632,19 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const c = rgbToHex(color);
 
       const prevState = ensureFragmentMerged(state);
+      const mapType = prevState.activeMap === MaterialMapType.ALL ? MaterialMapType.DEFAULT : prevState.activeMap;
 
       return reduceModelUpsertAction(prevState,
-        model => ndFloodFill(model, c, position),
-        (model, selection) => ndFloodFill(
-          model, c, position, (x, y, z) => selection.get(x, y, z) ? model.get(x, y, z) : undefined
-        )
+        model => {
+          const getter = makeVoxelGetter(prevState.activeMap, Object.assign({}, prevState.maps, { [mapType]: model }));
+          return ndFloodFill(model, c, position, getter)
+        },
+        (model, selection) => {
+          const getter = makeVoxelGetter(prevState.activeMap, Object.assign({}, prevState.maps, { [mapType]: model }));
+          return ndFloodFill(
+            model, c, position, (x, y, z) => selection.get(x, y, z) ? model.get(x, y, z) : undefined
+          );
+        }
       );
     }
 
@@ -697,8 +749,6 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const prevState = ensureFragmentMerged(state);
       if (!prevState.selection) return prevState;
 
-      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
-
       const maps = {};
       Object.keys(prevState.maps).forEach(key => {
         const map = prevState.maps[key];
@@ -773,13 +823,13 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { position, merge } = <VoxelMaginWand2dAction>action;
 
       const prevState = ensureFragmentMerged(state);
-      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
+      const getter = makeVoxelGetter(prevState.activeMap, prevState.maps);
 
       const isValidPosition = get2dValidator(state.mode2d.axis, state.mode2d.position);
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return isValidPosition(x, y, z) && (selection.get(x, y, z) || prevModel.get(x, y, z)) || undefined;
+          return isValidPosition(x, y, z) && (selection.get(x, y, z) || getter(x, y, z));
         });
       });
     }
@@ -788,11 +838,11 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
       const { position, merge } = <VoxelMaginWand3dAction>action;
 
       const prevState = ensureFragmentMerged(state);
-      const prevModel = prevState.maps[MaterialMapType.DEFAULT];
+      const getter = makeVoxelGetter(prevState.activeMap, prevState.maps);
 
       return reduceSelectAction(prevState, prevState.selection && merge ? MergeType.ASSIGN : MergeType.NONE, selection => {
         return ndFloodFill(selection, SELECTION_VALUE, position, (x, y, z) => {
-          return selection.get(x, y, z) || prevModel.get(x, y, z) || undefined;
+          return selection.get(x, y, z) || getter(x, y, z);
         });
       });
     }
