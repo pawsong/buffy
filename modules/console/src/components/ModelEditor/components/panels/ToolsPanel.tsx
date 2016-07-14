@@ -306,7 +306,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
         <div className={styles.iconRow}>
           <IconButton
             onTouchTap={() => this.props.selectTool(ToolType.COLORIZE)}
-            style={getToolStyle(tool === UniqueToolType.COLORIZE_2D || tool === UniqueToolType.COLOR_FILL_3D)}
+            style={getToolStyle(tool === UniqueToolType.COLORIZE_2D || tool === UniqueToolType.COLORIZE_3D)}
             tooltipStyles={inlineStyles.tooltips}
             iconClassName="material-icons"
             tooltipPosition="bottom-center"
