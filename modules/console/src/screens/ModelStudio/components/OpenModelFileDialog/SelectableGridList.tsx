@@ -39,10 +39,6 @@ interface SelectableGridListProps {
 }
 
 class SelectableGridList extends React.Component<SelectableGridListProps, void> {
-  componentDidMount() {
-    if (this.props.useLoad) this.props.loadMore();
-  }
-
   render() {
     const tiles = this.props.items.map(item => {
       const onTouchTap = () => this.props.disabled || this.props.onSelect(item.id);
@@ -76,20 +72,12 @@ class SelectableGridList extends React.Component<SelectableGridListProps, void> 
           cellHeight={225}
           cols={3}
           padding={10}
+          style={{ margin: 0 }}
         >
           {tiles}
         </GridList>
-        {
-          !this.props.useLoad ? null : this.props.loading
-            ? (
-              <div>Loading...</div>
-            )
-            : (
-              <Waypoint
-                onEnter={this.props.loadMore}
-              />
-            )
-        }
+        {this.props.useLoad && <Waypoint onEnter={this.props.loadMore} />}
+        {this.props.loading && <div>Loading...</div>}
       </div>
     );
   }
