@@ -30,6 +30,7 @@ const messages = defineMessages({
 });
 
 interface HandlerProps {
+  mostLikedModels?: ApiCall<ModelFileDocument[]>;
   mostForkedModels?: ApiCall<ModelFileDocument[]>;
   recentModels?: ApiCall<ModelFileDocument[]>;
   intl?: InjectedIntlProps
@@ -41,6 +42,9 @@ const rootClass = [
 ].join(' ');
 
 @preloadApi(() => ({
+  mostLikedModels: get(`${CONFIG_API_SERVER_URL}/files`, {
+    qs: { sort: '-likeCount' },
+  }),
   mostForkedModels: get(`${CONFIG_API_SERVER_URL}/files`, {
     qs: { sort: '-forked' },
   }),
@@ -75,6 +79,13 @@ class ModelHandler extends React.Component<HandlerProps, {}> {
               containerElement={<Link to="/model/edit" />}
               label="Create a New Model"
               secondary={true}
+            />
+          </div>
+          <div>
+            <h2 className={styles.subtitle}>Most liked models</h2>
+            <ModelList
+              courses={this.props.mostLikedModels.result}
+              fetching={this.props.mostLikedModels.state !== 'fulfilled'}
             />
           </div>
           <div>

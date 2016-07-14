@@ -38,6 +38,10 @@ export const getFileList = wrap(async (req, res) => {
       query.sort('-modifiedAt');
       break;
     }
+    case '-likeCount': {
+      query.sort('-likeCount');
+      break;
+    }
     case '-forked': {
       query.sort('-forked');
       break;
