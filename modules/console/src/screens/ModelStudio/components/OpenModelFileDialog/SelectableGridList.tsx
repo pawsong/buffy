@@ -85,11 +85,9 @@ class SelectableGridList extends React.Component<SelectableGridListProps, void> 
               <div>Loading...</div>
             )
             : (
-              <div style={{ height: 100 }}>
-                <Waypoint
-                  onEnter={this.props.loadMore}
-                />
-              </div>
+              <Waypoint
+                onEnter={this.props.loadMore}
+              />
             )
         }
       </div>

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { RouteComponentProps, Link } from 'react-router';
+import { call } from 'redux-saga/effects';
 
 import * as Colors from 'material-ui/styles/colors';
 import List from 'material-ui/List/List';
@@ -15,6 +16,9 @@ import getForkItemLabel from '../../utils/getForkItemLabel';
 
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./ProfileHandler.css');
+
+const Waypoint = require('react-waypoint');
+import { saga, SagaProps, ImmutableTask, isRunning, request } from '../../saga';
 
 const anonProfilePicture = require('file!../../ic_pets_black_24dp_2x.png');
 
@@ -43,9 +47,14 @@ interface User {
   picture: string;
 }
 
-interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams> {
+interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams>, SagaProps {
   user?: ApiCall<User>;
   models?: ApiCall<ModelFileDocument[]>;
+  loadMoreFiles?: ImmutableTask<any>;
+}
+
+interface HandlerState {
+  models?: ModelFileDocument[];
 }
 
 @preloadApi<RouteParams>((params) => ({
@@ -53,8 +62,29 @@ interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams> {
   models: get(`${CONFIG_API_SERVER_URL}/files/@${params.username}`),
 }))
 @connectApi()
+@saga({
+  loadMoreFiles: function* (username: string, before: string = '', callback: (models: any[]) => any) {
+    const response = yield call(request.get, `${CONFIG_API_SERVER_URL}/files/@${username}?before=${before || ''}`);
+    if (response.status !== 200) {
+      // TODO: Error handling
+      return;
+    }
+    callback(response.data);
+  },
+})
 @withStyles(styles)
-class ProfileHandler extends React.Component<HandlerProps, {}> {
+class ProfileHandler extends React.Component<HandlerProps, HandlerState> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      models: [],
+    };
+  }
+
+  getModels() {
+    return (this.props.models.state !== 'fulfilled' ? [] : this.props.models.result).concat(this.state.models);
+  }
+
   renderUserInfo() {
     if (this.props.user.state !== 'fulfilled') return null;
     const user = this.props.user.result;
@@ -74,7 +104,7 @@ class ProfileHandler extends React.Component<HandlerProps, {}> {
   }
 
   renderModelList() {
-    const models = this.props.models.state !== 'fulfilled' ? [] : this.props.models.result;
+    const models = this.getModels();
 
     const listBody = models.map(file => {
       const fork = file.forkParent ? (
@@ -103,9 +133,21 @@ class ProfileHandler extends React.Component<HandlerProps, {}> {
     );
   }
 
+  handleLoadMore = () => {
+    if (this.props.user.state !== 'fulfilled') return;
+    if (this.props.models.state !== 'fulfilled') return;
+
+    const user = this.props.user.result;
+    const models = this.getModels();
+    const lastModel = models[models.length - 1];
+
+    this.props.runSaga(this.props.loadMoreFiles, user.username, lastModel && lastModel.modifiedAt, (files: any) => {
+      this.setState({ models: this.state.models.concat(files) });
+    });
+  }
+
   render() {
     const userInfo = this.renderUserInfo();
-
     const modelList = this.renderModelList();
 
     return (
@@ -117,6 +159,12 @@ class ProfileHandler extends React.Component<HandlerProps, {}> {
           <div className="col-md-9">
             <FormattedMessage tagName="h2" {...messages.recentModels} />
             <div>{modelList}</div>
+            <Waypoint
+              onEnter={this.handleLoadMore}
+            />
+            {
+              isRunning(this.props.loadMoreFiles) && <div>Loading...</div>
+            }
           </div>
         </div>
       </div>

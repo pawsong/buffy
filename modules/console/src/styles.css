@@ -24,6 +24,10 @@ h1, h2, h3, h4, h5 {
   font-weight: normal;
 }
 
+#content {
+  height: 100%;
+}
+
 /* Spinkit START */
 .sk-folding-cube {
   width: 60px;
