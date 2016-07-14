@@ -1,20 +1,20 @@
 import THREE from 'three';
-import Canvas from '../../../canvas/Canvas';
-import GeometryFactory from '../../../canvas/GeometryFactory';
-import TroveGeometryFactory from '../../../canvas/TroveGeometryFactory';
+import Canvas from '../../../../../canvas/Canvas';
+import GeometryFactory from '../../../../../canvas/GeometryFactory';
+import TroveGeometryFactory from '../../../../../canvas/TroveGeometryFactory';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../canvas/Constants';
+} from '../../../../../canvas/Constants';
 
 import {
   ModelFileType,
   MaterialMapType,
-} from '../../../types';
+} from '../../../../../types';
 
-import getTroveMaterial from '../../../components/ModelEditor/canvas/materials/getTroveMaterial';
-import { FileState } from '../../../components/ModelEditor/types';
+import getTroveMaterial from '../../../../../components/ModelEditor/canvas/materials/getTroveMaterial';
+import { FileState } from '../../../../../components/ModelEditor/types';
 
 if (__CLIENT__) {
   window['THREE'] = THREE;

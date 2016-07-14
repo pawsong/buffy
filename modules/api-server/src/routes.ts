@@ -69,4 +69,5 @@ export default (app: express.Express) => {
   app.delete ('/files/:fileId', fileHandlers.deleteFile);
   app.put    ('/files/:fileId/likes', fileHandlers.changeLikeStatus);
   app.get    ('/files/:fileId/likes/:username', fileHandlers.checkLikeStatus);
+  app.get    ('/files/:fileId/likes', fileHandlers.getLikes);
 };

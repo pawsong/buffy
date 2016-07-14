@@ -20,4 +20,18 @@ const FileLikeSchema = new Schema({
 });
 FileLikeSchema.index({ file: true, user: true }, { unique: true });
 
+// Duplicate the ID field.
+FileLikeSchema.virtual('id').get(function(){
+  return this._id.toHexString();
+});
+
+FileLikeSchema.set('toJSON', {
+  virtuals: true,
+  transform: function (doc, ret) {
+    secrets.forEach(secret => {
+      delete ret[secret];
+    });
+  },
+});
+
 export default mongoose.model<FileLikeDocument>('FileLike', FileLikeSchema);

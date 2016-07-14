@@ -25,6 +25,8 @@ import NotFoundHandler from './screens/NotFound';
 import ModelStudioHandler from './screens/ModelStudio';
 import ModelHandler from './screens/Model';
 import ModelViewerHandler from './screens/ModelViewer';
+import ModelViewerIndexHandler from './screens/ModelViewer/screens/Index';
+import ModelViewerLikesHandler from './screens/ModelViewer/screens/Likes';
 import UnsupportedOnMobileHandler from './screens/UnsupportedOnMobile';
 
 export default function getRoutes(store: Store, isMobile: boolean) {
@@ -120,6 +122,19 @@ export default function getRoutes(store: Store, isMobile: boolean) {
                 cb(null, require<{ default: ModelViewerHandler }>('./screens/ModelViewer').default);
               });
             },
+            indexRoute: {
+              getComponent: (location, cb) => require.ensure([], require => {
+                cb(null, require<{ default: ModelViewerIndexHandler }>('./screens/ModelViewer/screens/Index').default);
+              }),
+            },
+            childRoutes: [
+              {
+                path: 'likes',
+                getComponent: (location, cb) => require.ensure([], require => {
+                  cb(null, require<{ default: ModelViewerLikesHandler }>('./screens/ModelViewer/screens/Likes').default);
+                }),
+              },
+            ],
           },
           {
             onEnter: redirectToLogin,

@@ -5,7 +5,7 @@ import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import * as classNames from 'classnames';
 
 import ModelViewerCanvas from '../canvas/ModelViewerCanvas';
-import { FileState } from '../../../components/ModelEditor/types';
+import { FileState } from '../../../../../components/ModelEditor/types';
 
 const styles = require('./ModelViewer.css');
 

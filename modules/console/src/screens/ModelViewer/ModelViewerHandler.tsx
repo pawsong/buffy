@@ -4,8 +4,6 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 import { RouteComponentProps, Link } from 'react-router';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import RaisedButton from 'material-ui/RaisedButton';
-// import FlatButton from 'material-ui/FlatButton';
-const FlatButton = require('material-ui/FlatButton').default;
 import { cyan500, cyan200, fullWhite } from 'material-ui/styles/colors';
 import { preloadApi, connectApi, ApiCall, get, ApiDispatchProps } from '../../api';
 import { call } from 'redux-saga/effects';
@@ -29,8 +27,6 @@ import {
 
 import getForkItemLabel from '../../utils/getForkItemLabel';
 
-import ModelViewer from './components/ModelViewer';
-
 const styles = require('./ModelViewerHandler.css');
 
 import {
@@ -44,7 +40,6 @@ interface RouteParams {
 
 interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams>, SagaProps, ApiDispatchProps {
   model?: ApiCall<ModelFileDocument>;
-  loadModel?: ImmutableTask<ModelFileState>;
   changeLikeStatus?: ImmutableTask<ModelFileState>;
   user?: User;
   like?: ApiCall<{ liked: boolean }>;
@@ -81,22 +76,6 @@ const contentClass = [
   moveToLoginPage,
 })
 @saga({
-  loadModel: function* (modelId) {
-    const response = yield call(request.get, `${__S3_BASE__}/files/${modelId}`, {
-      responseType: 'arraybuffer',
-      withCredentials: false,
-    });
-
-    if (response.status !== 200) {
-      // TODO: Error handling
-      return null;
-    }
-
-    const doc = response.data;
-    const fileState = deserialize(new Uint8Array(response.data));
-
-    return fileState;
-  },
   changeLikeStatus: function* (modelId: string, liked: boolean, callback: any) {
     const response = yield call(request.put, `${CONFIG_API_SERVER_URL}/files/${modelId}/likes`, { liked });
 
@@ -117,17 +96,8 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
     }
   }
 
-  loadModel() {
-    this.props.runSaga(this.props.loadModel, this.props.params.modelId);
-  }
-
   componentDidMount() {
-    this.loadModel();
     if (this.props.like) this.props.request(this.props.like);
-  }
-
-  componentDidUpdate(prevProps: HandlerProps) {
-    if (prevProps.location !== this.props.location) this.loadModel();
   }
 
   renderLoading() {
@@ -158,7 +128,7 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
   renderBody(model: ModelFileDocument) {
     const liked = this.checkIfFileLiked();
 
-    if (!model || !isDone(this.props.loadModel)) {
+    if (!model) {
       return this.renderLoading();
     }
 
@@ -190,7 +160,7 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
               leftLabel={liked ? 'unlike' : 'like'}
               leftOnTouchTap={this.handleLikeButtonClick}
               rightLabel={`${model.likeCount}`}
-              rightHref={`/model/edit?files=${model.id}`}
+              rightHref={`/model/${model.id}/likes`}
             />
             <DualButton
               className={styles.dualButton}
@@ -201,13 +171,15 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
               rightOnTouchTap={() => alert('Sorry, this feature is under construction')}
             />
           </div>
-          <h1 style={{ display: 'inline-block' }}>{this.props.model.result.name}</h1>
+          <Link to={`/model/${model.id}`} >
+            <h1 style={{ display: 'inline-block' }}>
+              {this.props.model.result.name}
+            </h1>
+          </Link>
           {user}
           {fork}
         </div>
-        <ModelViewer
-          fileState={this.props.loadModel.result}
-        />
+        {this.props.children}
       </div>
     );
   }

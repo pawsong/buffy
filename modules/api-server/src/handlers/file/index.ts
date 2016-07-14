@@ -312,3 +312,18 @@ export const checkLikeStatus = wrap(async (req, res) => {
 
   res.send({ liked: !!result });
 });
+
+export const getLikes = wrap(async (req, res) => {
+  const { fileId } = req.params;
+  const conditions: any = { file: fileId };
+  if (req.query.before) conditions.createdAt = { $lt: req.query.before };
+
+  const results = await FileLikeModel
+    .find(conditions)
+    .populate('user', '_id name username picture')
+    .sort('-createdAt')
+    .limit(PAGE_SIZE)
+    .exec();
+
+  res.send(results);
+});

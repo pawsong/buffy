@@ -1,0 +1,27 @@
+.title {
+  font-size: 20px;
+}
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.item {
+  background-color: var(--palette-grey-200) !important;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  width: 300px;
+  height: 150px;
+  & a {
+    width: 120px;
+  }
+  & img {
+    width: 120px;
+  }
+}
