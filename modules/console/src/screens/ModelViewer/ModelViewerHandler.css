@@ -13,3 +13,7 @@
   display: block;
   padding-bottom: 16px;
 }
+
+.dualButton + .dualButton {
+  margin-left: 10px;
+}

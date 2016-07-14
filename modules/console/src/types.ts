@@ -38,6 +38,7 @@ export interface ModelFileDocument {
   isPublic: boolean;
   forkParent: ForkItem;
   forked: number;
+  likeCount: number;
 }
 
 /*

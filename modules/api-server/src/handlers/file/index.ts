@@ -8,6 +8,7 @@ import * as conf from '@pasta/config';
 
 import User, { UserDocument } from '../../models/User';
 import FileModel, { FileDocument } from '../../models/File';
+import FileLikeModel, { FileLikeDocument } from '../../models/FileLike';
 
 const EXPIRES = 60;
 
@@ -278,3 +279,36 @@ export const reportUpdate = compose(checkLogin, wrap(async (req, res) => {
   //   }, (err) => err && console.error(err));
   // }
 }));
+
+export const changeLikeStatus = compose(requiresLogin, wrap(async (req, res) => {
+  const { fileId } = req.params;
+  const { liked } = req.body;
+
+  if (liked) {
+    const doc = await FileLikeModel.findOneAndUpdate({ file: fileId, user: req.user.id }, {
+      createdAt: Date.now(),
+    }, { upsert: true }).exec();
+    if (!doc) {
+      // Document is created
+      await FileModel.findByIdAndUpdate(fileId, { $inc: { likeCount: 1 } });
+    }
+  } else {
+    const doc: any = await FileLikeModel.remove({ file: fileId, user: req.user.id }).exec();
+    const deletedCount = doc.result.n;
+    if (deletedCount > 0) {
+      await FileModel.findByIdAndUpdate(fileId, { $inc: { likeCount: -deletedCount } });
+    }
+  }
+
+  return res.sendStatus(200);
+}));
+
+export const checkLikeStatus = wrap(async (req, res) => {
+  const { fileId, username } = req.params;
+  const user = await User.findOne({ username }).exec();
+  if (!user) return res.sendStatus(400);
+
+  const result = await FileLikeModel.findOne({ file: fileId, user: user._id }).exec();
+
+  res.send({ liked: !!result });
+});
