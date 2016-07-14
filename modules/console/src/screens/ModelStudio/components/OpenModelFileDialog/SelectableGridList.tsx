@@ -38,56 +38,63 @@ interface SelectableGridListProps {
   onSelect: (id: string) => any;
 }
 
-const SelectableGridList: React.StatelessComponent<SelectableGridListProps> = props => {
-  const tiles = props.items.map(item => {
-    const onTouchTap = () => props.disabled || props.onSelect(item.id);
+class SelectableGridList extends React.Component<SelectableGridListProps, void> {
+  componentDidMount() {
+    if (this.props.useLoad) this.props.loadMore();
+  }
 
-    let style: any = { cursor: 'pointer' };
-    if (props.selectedItem === item.id) {
-      style.border = `6px solid ${props.disabled  ? grey400 : cyan500}`;
-    } else {
-      style.margin = '6px';
-    }
+  render() {
+    const tiles = this.props.items.map(item => {
+      const onTouchTap = () => this.props.disabled || this.props.onSelect(item.id);
+
+      let style: any = { cursor: 'pointer' };
+      if (this.props.selectedItem === item.id) {
+        style.border = `6px solid ${this.props.disabled  ? grey400 : cyan500}`;
+      } else {
+        style.margin = '6px';
+      }
+
+      return (
+        <GridTile
+          key={item.id}
+          title={item.name}
+          subtitle={item.subtitle}
+          style={style}
+          onTouchTap={onTouchTap}
+        >
+          <div style={inlineStyles.gridChildImg}>
+            <img src={item.image} style={inlineStyles.gridChildImgContent}/>
+            {/* Meta data here */}
+          </div>
+        </GridTile>
+      )
+    });
 
     return (
-      <GridTile
-        key={item.id}
-        title={item.name}
-        subtitle={item.subtitle}
-        style={style}
-        onTouchTap={onTouchTap}
-      >
-        <div style={inlineStyles.gridChildImg}>
-          <img src={item.image} style={inlineStyles.gridChildImgContent}/>
-          {/* Meta data here */}
-        </div>
-      </GridTile>
-    )
-  });
-
-  return (
-    <div>
-      <GridList
-        cellHeight={225}
-        cols={3}
-        padding={10}
-      >
-        {tiles}
-      </GridList>
-      {
-        !props.useLoad ? null : props.loading
-          ? (
-            <div>Loading...</div>
-          )
-          : (
-            <Waypoint
-              onEnter={props.loadMore}
-              threshold={2.0}
-            />
-          )
-      }
-    </div>
-  );
-};
+      <div>
+        <GridList
+          cellHeight={225}
+          cols={3}
+          padding={10}
+        >
+          {tiles}
+        </GridList>
+        {
+          !this.props.useLoad ? null : this.props.loading
+            ? (
+              <div>Loading...</div>
+            )
+            : (
+              <div style={{ height: 100 }}>
+                <Waypoint
+                  onEnter={this.props.loadMore}
+                />
+              </div>
+            )
+        }
+      </div>
+    );
+  }
+}
 
 export default SelectableGridList;
