@@ -109,7 +109,7 @@ app.use('/assets', express.static(`${__dirname}/../public`));
 
 app.get('*', async (req, res) => {
   try {
-    const clientIsMobile = isMobile(req.headers['user-agent']).any;
+    const clientIsMobile = req.headers['user-agent'] && isMobile(req.headers['user-agent']).any || false;
     const locale = req['locale'];
 
     const { store, sagaMiddleware } = configureStore();
