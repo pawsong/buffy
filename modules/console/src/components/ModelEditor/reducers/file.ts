@@ -966,7 +966,7 @@ function voxelDataReducer(state = initialState, action: Action<any>): VoxelData 
 
     case VOXEL_RESIZE: {
       const { size, offset } = <VoxelResizeAction>action;
-      if (state.size[0] === size[0] && state.size[1] === size[2] && state.size[2] === size[2]) return state;
+      if (state.size[0] === size[0] && state.size[1] === size[1] && state.size[2] === size[2]) return state;
 
       const prevState = ensureFragmentMerged(state);
 
