@@ -33,6 +33,10 @@
   color: var(--palette-white);
 }
 
+.sizeInput {
+  width: 30px;
+}
+
 .sidebarInner {
   padding: 15px;
 }

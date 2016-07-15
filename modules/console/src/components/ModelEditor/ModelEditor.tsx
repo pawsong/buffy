@@ -112,6 +112,7 @@ import {
   activateMap,
   changeColorPicker,
   troveItemTypeChange,
+  voxelResize,
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
@@ -488,6 +489,10 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
   handleTroveItemTypeChange = (itemType: TroveItemType) => this.dispatchAction(troveItemTypeChange(itemType));
 
+  handleSizeChange = (width: number, height: number, depth: number) => {
+    this.dispatchAction(voxelResize(width, height, depth, 0, 0, 0));
+  }
+
   handleFocus = () => {
     if (!this.state.focused) this.setState({ focused: true });
   }
@@ -529,6 +534,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           trove={this.props.fileState.present.data.trove}
           size={this.state.size || this.props.fileState.present.data.size}
           onTroveItemTypeChange={this.handleTroveItemTypeChange}
+          onSizeChange={this.handleSizeChange}
         />
       </div>
     );
