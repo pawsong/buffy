@@ -96,8 +96,16 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
     }
   }
 
-  componentDidMount() {
+  reloadLike() {
     if (this.props.like) this.props.request(this.props.like);
+  }
+
+  componentDidMount() {
+    this.reloadLike();
+  }
+
+  componentDidUpdate(prevProps: HandlerProps) {
+    if (this.props.location !== prevProps.location) this.reloadLike();
   }
 
   renderLoading() {
