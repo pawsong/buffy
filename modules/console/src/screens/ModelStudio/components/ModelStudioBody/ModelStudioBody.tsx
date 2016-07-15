@@ -150,23 +150,11 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
     );
   }
 
-  handleFocus = () => {
-    if (!this.state.focused) this.setState({ focused: true });
-  }
-
-  handleBlur = () => {
-    if (this.state.focused) this.setState({ focused: false });
-  }
-
-  handleEditorMouseDown = () => {
-    if (!this.state.focused) findDOMNode<HTMLElement>(this.refs['editor']).focus();
-  }
-
   renderEditor(activeFile: ModelFile) {
     const files = this.props.openedFiles.map(id => this.props.files.get(id));
 
     return (
-      <div ref="editor" tabIndex="-1" onFocus={this.handleFocus} onBlur={this.handleBlur}>
+      <div>
         <FileTabs
           onFileClick={this.props.onFileClick}
           activeFileId={this.props.activeFileId}
@@ -176,8 +164,6 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
         />
         <div style={inlineStyles.editor}>
           <ModelEditor
-            focus={this.state.focused}
-            onMouseDown={this.handleEditorMouseDown}
             geometryFactory={this.props.geometryFactory}
             troveGeometryFactory={this.props.troveGeometryFactory}
             sizeVersion={this.state.editorSizeResivion}

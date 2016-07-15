@@ -145,14 +145,13 @@ interface ModelEditorProps extends React.Props<ModelEditor> {
   onApply?: () => any;
   sizeVersion: number;
   extraData: ExtraData;
-  focus: boolean;
-  onMouseDown: (e: MouseEvent) => any;
   intl?: InjectedIntlProps;
 }
 
 interface ContainerStates {
   fullscreen?: boolean;
   size?: Position;
+  focused?: boolean;
 }
 
 interface ImportFileResult {
@@ -201,6 +200,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.state = {
       fullscreen: screenfull.enabled && screenfull.isFullscreen,
       size: null,
+      focused: false,
     };
   }
 
@@ -243,7 +243,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 
   private handleKeyDown = (e: KeyboardEvent) => {
-    if (!this.props.focus) return;
+    if (!this.state.focused) return;
 
     e.preventDefault();
 
@@ -488,10 +488,29 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
   handleTroveItemTypeChange = (itemType: TroveItemType) => this.dispatchAction(troveItemTypeChange(itemType));
 
+  handleFocus = () => {
+    if (!this.state.focused) this.setState({ focused: true });
+  }
+
+  handleBlur = () => {
+    if (this.state.focused) this.setState({ focused: false });
+  }
+
+  handleMouseDown = () => {
+    if (!this.state.focused) findDOMNode<HTMLElement>(this.refs['editor']).focus();
+  }
+
   render() {
     return (
-      <div ref="root" className={styles.root} onMouseDown={this.props.onMouseDown}>
-        <div className={styles.main}>
+      <div ref="root" className={styles.root}>
+        <div
+          className={styles.main}
+          ref="editor"
+          tabIndex="-1"
+          onFocus={this.handleFocus}
+          onBlur={this.handleBlur}
+          onMouseDown={this.handleMouseDown}
+        >
           <div className={styles.canvas} ref="canvas"></div>
           <Tips />
           {screenfull.enabled && (
