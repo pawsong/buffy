@@ -239,10 +239,10 @@ export default {
 
   /**
    * path: src/screens/ModelStudio/components/ModelStudioNavbar.json
-   * description: Download
-   * defaultMessage: Download
+   * description: Export
+   * defaultMessage: Export
    */
-  'modelstudio.navbar.download': '다운로드',
+/* translate */ 'modelstudio.navbar.export': '',
 
   /**
    * path: src/screens/ModelStudio/components/ModelStudioNavbar.json
@@ -664,4 +664,5 @@ export default {
    */
   'vrMode': 'VR 모드',
 
+/* [Warning] Message not in use */ 'modelstudio.navbar.download': '다운로드',
 }

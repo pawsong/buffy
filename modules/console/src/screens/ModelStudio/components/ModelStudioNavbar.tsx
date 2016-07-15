@@ -3,6 +3,7 @@ import FlatButton from 'material-ui/FlatButton';
 import * as Colors from 'material-ui/styles/colors';
 import List from 'material-ui/List/List';
 import ListItem from 'material-ui/List/ListItem';
+import Divider from 'material-ui/Divider';
 import Paper from 'material-ui/Paper';
 
 import { User } from '../../../reducers/users';
@@ -21,10 +22,10 @@ const messages = defineMessages({
     description: 'New file',
     defaultMessage: 'New file',
   },
-  download: {
-    id: 'modelstudio.navbar.download',
-    description: 'Download',
-    defaultMessage: 'Download',
+  export: {
+    id: 'modelstudio.navbar.export',
+    description: 'Export',
+    defaultMessage: 'Export',
   },
   advanced: {
     id: 'modelstudio.navbar.advanced',
@@ -49,6 +50,7 @@ const styles = {
 interface ModelStudioNavbarProps extends React.Props<ModelStudioNavbar> {
   user: User;
   location: any;
+  onGetLink: () => any;
   onNewFile: () => any;
   onRequestOpenFile: () => any;
   onSave: () => any;
@@ -62,7 +64,7 @@ interface ModelStudioNavbarProps extends React.Props<ModelStudioNavbar> {
 
 enum SubmenuType {
   NONE,
-  DOWNLOAD,
+  EXPORT,
   ADVANCED,
 }
 
@@ -79,6 +81,11 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
     }
   }
 
+  handleGetLink = () => {
+    this.props.onGetLink();
+    this.handleDownloadMenuClose();
+  }
+
   handleDownloadAsMagicaVoxelClick = () => {
     this.props.onDownload(ModelSupportFileType.MAGICA_VOXEL);
     this.handleDownloadMenuClose();
@@ -90,11 +97,17 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
   }
 
   renderDownloadFileMenu() {
-    if (this.state.submenuType !== SubmenuType.DOWNLOAD) return null;
+    if (this.state.submenuType !== SubmenuType.EXPORT) return null;
 
     return (
       <Paper zDepth={3} style={{ position: 'absolute' }}>
         <List>
+          <ListItem
+            innerDivStyle={{ whiteSpace: 'nowrap' }}
+            primaryText={'Get a Link (URL)'}
+            onTouchTap={this.handleGetLink}
+          />
+          <Divider />
           <ListItem
             innerDivStyle={{ whiteSpace: 'nowrap' }}
             primaryText={'MagicaVoxel (.vox)'}
@@ -111,15 +124,15 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
   }
 
   handleDownloadMenuToggle = () => {
-    if (this.state.submenuType === SubmenuType.DOWNLOAD) {
+    if (this.state.submenuType === SubmenuType.EXPORT) {
       this.setState({ submenuType: SubmenuType.NONE });
     } else {
-      this.setState({ submenuType: SubmenuType.DOWNLOAD });
+      this.setState({ submenuType: SubmenuType.EXPORT });
     }
   }
 
   handleDownloadMenuClose = () => {
-    if (this.state.submenuType === SubmenuType.DOWNLOAD) {
+    if (this.state.submenuType === SubmenuType.EXPORT) {
       this.setState({ submenuType: SubmenuType.NONE });
     }
   }
@@ -197,10 +210,10 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
         <div style={{ display: 'inline-block', marginRight: 10 }}>
           <ClickAwayListener onClickAway={this.handleDownloadMenuClose}>
             <FlatButton
-              label={this.props.intl.formatMessage(messages.download)}
+              label={this.props.intl.formatMessage(messages.export)}
               style={styles.button}
               onTouchTap={this.handleDownloadMenuToggle}
-              backgroundColor={this.state.submenuType === SubmenuType.DOWNLOAD ? Colors.cyan700 : Colors.cyan500}
+              backgroundColor={this.state.submenuType === SubmenuType.EXPORT ? Colors.cyan700 : Colors.cyan500}
               hoverColor={Colors.cyan700}
             />
             {this.renderDownloadFileMenu()}

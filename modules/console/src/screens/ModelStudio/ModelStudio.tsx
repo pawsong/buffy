@@ -523,6 +523,20 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.handleFileStateChange(ModelEditor.editAsTrove(currentFile.body));
   }
 
+  handleGetLink = () => {
+    const currentFile = this.state.files.get(this.state.activeFileId);
+    if (!currentFile) return;
+
+    if (currentFile.created) {
+      this.props.pushSnackbar({
+        message: 'Model should be saved to get a link.',
+      });
+      return;
+    }
+
+    window.open(`/model/${currentFile.id}`, '_blank');
+  }
+
   render() {
     const fileOnSaveDialog = this.state.filesOnSaveDialog.length > 0
       ? this.state.files.get(this.state.filesOnSaveDialog[0])
@@ -533,6 +547,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
         <ModelStudioNavbar
           location={this.props.location}
           user={this.props.user}
+          onGetLink={this.handleGetLink}
           onLinkClick={this.props.push}
           onLogout={this.handleLogout}
           onRequestOpenFile={this.handleRequestOpenFile}
