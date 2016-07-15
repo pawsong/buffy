@@ -40,6 +40,7 @@
     "compression": "^1.6.1",
     "cookie-parser": "^1.4.0",
     "cwise": "^1.0.9",
+    "draft-js": "^0.7.0",
     "eventemitter3": "^1.1.1",
     "express": "^4.13.3",
     "fbemitter": "^2.0.1",

@@ -9,6 +9,7 @@ import * as conf from '@pasta/config';
 import User, { UserDocument } from '../../models/User';
 import FileModel, { FileDocument } from '../../models/File';
 import FileLikeModel, { FileLikeDocument } from '../../models/FileLike';
+import FileCommentModel, { FileCommentDocument } from '../../models/FileComment';
 
 const EXPIRES = 60;
 
@@ -331,3 +332,64 @@ export const getLikes = wrap(async (req, res) => {
 
   res.send(results);
 });
+
+export const getComments = wrap(async (req, res) => {
+  const { fileId } = req.params;
+  const conditions: any = { file: fileId };
+  if (req.query.before) conditions.createdAt = { $lt: req.query.before };
+
+  const results = await FileCommentModel
+    .find(conditions)
+    .populate('user', '_id name username picture')
+    .sort('-createdAt')
+    .limit(PAGE_SIZE)
+    .exec();
+
+  res.send(results);
+});
+
+export const createComment = compose(requiresLogin, wrap(async (req, res) => {
+  const { fileId } = req.params;
+  const { body } = req.body;
+
+  const comment = new FileCommentModel({
+    file: fileId,
+    user: req.user.id,
+    body,
+  });
+
+  await comment.save();
+
+  res.send(Object.assign(comment.toJSON(), {
+    user: req['userDoc'],
+  }));
+}));
+
+export const updateComment = compose(requiresLogin, wrap(async (req, res) => {
+  const { fileId, commentId, version } = req.params;
+  const { body } = req.body;
+
+  const comment = await FileCommentModel.findOneAndUpdate({
+    _id: commentId,
+    __v: version,
+    user: req.user.id,
+  }, { body }, { new: true })
+    .populate('user', '_id name username picture')
+    .exec();
+
+  if (!comment) return res.sendStatus(400);
+
+  res.send(comment);
+}));
+
+export const deleteComment = compose(requiresLogin, wrap(async (req, res) => {
+  const { fileId, commentId } = req.params;
+
+  const comment = await FileCommentModel.findOneAndRemove({
+    _id: commentId,
+    user: req.user.id,
+  }).exec();
+  if (!comment) return res.sendStatus(400);
+
+  res.sendStatus(200);
+}));

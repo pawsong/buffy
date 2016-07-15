@@ -1,0 +1,16 @@
+.editor {
+  border: 1px solid #ddd;
+  padding: 8px;
+  margin: 8px 0;
+
+  & :global(.public-DraftEditorPlaceholder-root) {
+    position: absolute;
+    color: #9E9E9E;
+    z-index: 0;
+  }
+
+  & :global(.DraftEditor-editorContainer) {
+    position: relative;
+    z-index: 1;
+  }
+}

@@ -70,4 +70,8 @@ export default (app: express.Express) => {
   app.put    ('/files/:fileId/likes', fileHandlers.changeLikeStatus);
   app.get    ('/files/:fileId/likes/:username', fileHandlers.checkLikeStatus);
   app.get    ('/files/:fileId/likes', fileHandlers.getLikes);
+  app.get    ('/files/:fileId/comments', fileHandlers.getComments);
+  app.post   ('/files/:fileId/comments', fileHandlers.createComment);
+  app.put    ('/files/:fileId/comments/:commentId/:version', fileHandlers.updateComment);
+  app.delete ('/files/:fileId/comments/:commentId', fileHandlers.deleteComment);
 };

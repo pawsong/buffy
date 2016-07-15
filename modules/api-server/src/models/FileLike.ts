@@ -9,7 +9,7 @@ const { Schema } = mongoose;
 
 export interface FileLikeDocument extends mongoose.Document {
   user: mongoose.Types.ObjectId;
-  file: string;
+  file: mongoose.Types.ObjectId;
   createdAt: Date;
 }
 
