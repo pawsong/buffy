@@ -85,6 +85,9 @@ class ModelViewerLikesHandler extends React.Component<HandlerProps, HandlerState
         </h2>
         <div className={styles.root}>
           {this.renderLikes()}
+          {/* Paddings */}
+          <div className={styles.item} style={{ height: 0 }} />
+          <div className={styles.item} style={{ height: 0 }} />
         </div>
         <Waypoint
           onEnter={this.handleLoadMore}
