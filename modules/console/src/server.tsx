@@ -191,6 +191,8 @@ app.get('*', async (req, res) => {
     const userAgent = req.headers['user-agent'];
     const finalMuiTheme = getMuiTheme(baseTheme, Object.assign({}, muiTheme, { userAgent }));
 
+    const isMac = /Mac OS X/.test(userAgent);
+
     const hairdresser = new Hairdresser();
 
     const messages = loadLocaleData(locale);
@@ -202,7 +204,7 @@ app.get('*', async (req, res) => {
 
     const body = renderToString(
       <IntlProvider locale={locale} messages={messages}>
-        <ContextProvider hairdresser={hairdresser} insertCss={insertCss}>
+        <ContextProvider hairdresser={hairdresser} insertCss={insertCss} isMac={isMac}>
           <MuiThemeProvider muiTheme={finalMuiTheme}>
             <Provider store={store}>
               <SagaProvider middleware={sagaMiddleware}>
@@ -225,6 +227,7 @@ app.get('*', async (req, res) => {
       head,
       body,
       isMobile: clientIsMobile,
+      isMac,
       initialState: JSON.stringify(store.getState()),
     });
 

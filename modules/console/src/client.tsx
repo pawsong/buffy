@@ -37,6 +37,9 @@ delete window['__INTIAL_STATE__'];
 const locale = window['__LOCALE__'];
 delete window['__LOCALE__'];
 
+const isMac = window['__IS_MAC__'];
+delete window['__IS_MAC__'];
+
 const { store, history, sagaMiddleware, onRouterUpdate } = configureStore(initialState);
 const routes = getRoutes(store, __IS_MOBILE__);
 
@@ -116,7 +119,7 @@ Promise.all<LocaleData>([
   try {
     render(
       <IntlProvider locale={locale} messages={localeData.messages}>
-        <ContextProvider hairdresser={hairdresser} insertCss={styles => styles._insertCss()}>
+        <ContextProvider hairdresser={hairdresser} insertCss={styles => styles._insertCss()} isMac={isMac}>
           <MuiThemeProvider muiTheme={finalMuiTheme}>
             <Provider store={store}>
               <SagaProvider middleware={sagaMiddleware}>
