@@ -28,6 +28,7 @@ export function showSnackback(open: boolean): ShowSnackbarAction {
 export const PUSH_SNACKBAR: 'snackbar/PUSH_SNACKBAR' = 'snackbar/PUSH_SNACKBAR';
 export interface PushSnackbarQuery {
   message: string;
+  timeout?: number;
 }
 export interface PushSnackbarAction extends Action<typeof PUSH_SNACKBAR> {
   query: PushSnackbarQuery;

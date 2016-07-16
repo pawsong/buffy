@@ -20,8 +20,11 @@ export default function* watchSnackbar() {
 
     while(true) {
       yield put(popSnackbar());
+      const current = yield select<State>(state => state.snackbar.current);
+      const timeout = current && current.timeout || 3000;
+
       yield race({
-        timeout: call(sleep, 3000),
+        timeout: call(sleep, timeout),
         cancel: take(CLOSE_SNACKBAR),
       });
 
