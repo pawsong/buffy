@@ -17,7 +17,7 @@ const msgpack = require('msgpack-lite');
 const VERSION_1_0 = '1.0';
 const VERSION_1_1 = '1.1';
 
-function serialize(fileState: FileState) {
+function serialize(fileState: FileState): Uint8Array {
   const maps = {};
   Object.keys(fileState.present.data.maps).forEach(key => {
     const map = fileState.present.data.maps[key];
