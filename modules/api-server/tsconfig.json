@@ -4,7 +4,8 @@
     "moduleResolution": "node",
     "target": "es6",
     "outDir": ".tsc_out",
-    "sourceMap": true
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true
   },
   "files": [
     "src/server.ts",

@@ -1,0 +1,26 @@
+.profile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  & a {
+    text-decoration: none;
+  }
+
+  & img {
+    width: 32px;
+    vertical-align: bottom;
+  }
+}
+
+.profilePicture {
+  margin-left: 10px;
+}
+
+.profileUsername {
+  margin-left: 4px;
+}
+
+.body {
+  margin-top: 60px;
+}

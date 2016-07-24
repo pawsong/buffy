@@ -13,8 +13,7 @@ import * as projectHandlers from './handlers/project';
 import * as userHandlers from './handlers/user';
 import * as voxelWorkspaceHandlers from './handlers/voxelWorkspace';
 import * as fileHandlers from './handlers/file';
-
-import * as a from './middlewares/auth';
+import * as blogHandlers from './handlers/blog';
 
 export default (app: express.Express) => {
   app.get('/', (req, res) => {
@@ -74,4 +73,7 @@ export default (app: express.Express) => {
   app.post   ('/files/:fileId/comments', fileHandlers.createComment);
   app.put    ('/files/:fileId/comments/:commentId/:version', fileHandlers.updateComment);
   app.delete ('/files/:fileId/comments/:commentId', fileHandlers.deleteComment);
+
+  app.get    ('/blog/posts', blogHandlers.getPostList);
+  app.get    ('/blog/posts/:slug', blogHandlers.getPost);
 };

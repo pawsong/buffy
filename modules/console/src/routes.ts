@@ -27,6 +27,9 @@ import ModelHandler from './screens/Model';
 import ModelViewerHandler from './screens/ModelViewer';
 import ModelViewerIndexHandler from './screens/ModelViewer/screens/Index';
 import ModelViewerLikesHandler from './screens/ModelViewer/screens/Likes';
+import BlogHandler from './screens/Blog';
+import BlogIndexHandler from './screens/Blog/screens/BlogIndex';
+import BlogPostHandler from './screens/Blog/screens/BlogPost';
 import UnsupportedOnMobileHandler from './screens/UnsupportedOnMobile';
 
 export default function getRoutes(store: Store, isMobile: boolean) {
@@ -132,6 +135,25 @@ export default function getRoutes(store: Store, isMobile: boolean) {
                 path: 'likes',
                 getComponent: (location, cb) => require.ensure([], require => {
                   cb(null, require<{ default: ModelViewerLikesHandler }>('./screens/ModelViewer/screens/Likes').default);
+                }),
+              },
+            ],
+          },
+          {
+            path: '/blog',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: BlogHandler }>('./screens/Blog').default);
+            }),
+            indexRoute: {
+              getComponent: (location, cb) => require.ensure([], require => {
+                cb(null, require<{ default: BlogIndexHandler }>('./screens/Blog/screens/BlogIndex').default);
+              }),
+            },
+            childRoutes: [
+              {
+                path: ':slug',
+                getComponent: (location, cb) => require.ensure([], require => {
+                  cb(null, require<{ default: BlogPostHandler }>('./screens/Blog/screens/BlogPost').default);
                 }),
               },
             ],
