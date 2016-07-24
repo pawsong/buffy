@@ -180,10 +180,6 @@ class SettingsProfileHandler extends React.Component<HandlerProps, HandlerState>
       profilePictureScale: 1,
     });
     this.props.cancelSaga(this.props.uploadProfilePicture);
-
-    const input = findDOMNode(this.refs['fileUpload']);
-    const clickEvent = new MouseEvent('click');
-    input.dispatchEvent(clickEvent);
   }
 
   handleProfilePictureDialogClose = () => {
