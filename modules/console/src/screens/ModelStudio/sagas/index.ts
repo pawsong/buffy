@@ -1,6 +1,5 @@
 import { call, fork, put, take, race, select, cancel } from 'redux-saga/effects';
 import { replace } from 'react-router-redux';
-import { SerializedGameMap } from '@pasta/core/lib/classes/GameMap';
 import ModelEditor, { ModelFileState } from '../../../components/ModelEditor';
 import { ModelFile, ModelFileDocument } from '../types';
 import { request, wait } from '../../../saga';
@@ -8,6 +7,14 @@ import ThumbnailFactory from '../../../canvas/ThumbnailFactory';
 import {
   MaterialMapType,
 } from '../../../types';
+
+import {
+  PORT as TROFFY_PORT,
+  HEADER_ERROR_REASON,
+  HEADER_CLIPBOARD,
+  REASON_TRUFFY_NOT_FOUND,
+  TruffyError,
+} from '../truffy';
 
 interface UpdateFileParams {
   id: string;
@@ -169,4 +176,33 @@ export function* openRemoteFiles(files: string[], callback: (results: {
 }[]) => any) {
   const results: any[] = yield files.map(fileId => call(_openRemoteFile, fileId));
   callback(results.filter(result => result));
+}
+
+export function* requestTruffyAction(
+  action: string, file: ModelFile, username: string, filename: string, clipboard, callback: (data?: any) => any
+) {
+  const { data } = yield call(ModelEditor.exportQbFile, file.body, filename, username);
+
+  try {
+    const response = yield call(request.post, `http://localhost:${TROFFY_PORT}/blueprints/${filename}/${action}`, data, {
+      headers: {
+        'content-type' : 'application/octet-stream',
+        [HEADER_CLIPBOARD]: clipboard,
+      },
+    });
+
+    if (response.status !== 200) {
+      const reason = response.headers[HEADER_ERROR_REASON];
+      const message = response.data;
+      return <TruffyError>{ file, action, reason, message };
+    }
+
+    callback(response.data);
+  } catch(error) {
+    console.log(error);
+
+    return <TruffyError>{ file, action, reason: REASON_TRUFFY_NOT_FOUND, message: '' };
+  }
+
+  return null;
 }

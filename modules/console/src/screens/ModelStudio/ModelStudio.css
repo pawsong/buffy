@@ -62,3 +62,19 @@
   justify-content: center;
   align-items: center;
 }
+
+.bold {
+  font-weight: bold;
+}
+
+.menu {
+  display: inline-block;
+}
+
+.menuList {
+  position: absolute;
+}
+
+.menuItem {
+  cursor: pointer !important;
+}

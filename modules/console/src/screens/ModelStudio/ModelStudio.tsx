@@ -10,6 +10,7 @@ import { DragDropContext } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
 import * as update from 'react-addons-update';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
+import snakeCase from 'snake-case';
 
 import ThumbnailFactory from '../../canvas/ThumbnailFactory';
 import GeometryFactory from '../../canvas/GeometryFactory';
@@ -19,7 +20,7 @@ import generateObjectId from '../../utils/generateObjectId';
 
 import { moveToLoginPage } from '../../actions';
 import { requestLogout } from '../../actions/auth';
-import { pushSnackbar, PushSnackbarQuery } from '../../actions/snackbar';
+import { pushSnackbar } from '../../actions/snackbar';
 
 import ModelEditor, {
   ModelCommonState,
@@ -27,11 +28,13 @@ import ModelEditor, {
   ModelExtraData,
   ModelSupportFileType,
 } from '../../components/ModelEditor';
+import itemType from '../../components/ModelEditor/trove/itemType';
 
 import { State } from '../../reducers';
 import { User } from '../../reducers/users';
 
-import { FileType, MaterialMapType } from '../../types';
+
+import { FileType, ModelFileType, MaterialMapType } from '../../types';
 import { ModelFile, ModelFileMap, ModelFileOpenParams, ModelFileDocument } from './types';
 
 import ConfirmLeaveDialog from './components/ConfirmLeaveDialog';
@@ -41,17 +44,25 @@ import OpenModelFileDialog from './components/OpenModelFileDialog';
 import DeleteFileDialog from './components/DeleteFileDialog';
 import RemoveFileDialog from './components/RemoveFileDialog';
 import SaveDialog from './components/SaveDialog';
+import TruffyErrorDialog from './components/TruffyErrorDialog';
 
 const styles = require('./ModelStudio.css');
 
-import { saga, SagaProps, ImmutableTask, isRunning } from '../../saga';
+import { saga, SagaProps, ImmutableTask, isRunning, isDone } from '../../saga';
 
 import {
   updateFiles,
   updateFileMeta,
   deleteFile,
   openRemoteFiles,
+  requestTruffyAction,
 } from './sagas';
+
+import {
+  TruffyError,
+  ACTION_INSTALL,
+  ACTION_DOWNLOAD,
+} from './truffy';
 
 const saveAs: FileSaver = require('file-saver').saveAs;
 
@@ -64,11 +75,12 @@ interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams>, Sa
   user?: User;
   requestLogout?: () => any;
   push?: (location: HistoryModule.LocationDescriptor) => any;
-  pushSnackbar?: (query: PushSnackbarQuery) => any;
+  pushSnackbar?: typeof pushSnackbar;
   updateFiles?: ImmutableTask<any>;
   updateFileMeta?: ImmutableTask<any>;
   deleteFile?: ImmutableTask<any>;
   openRemoteFiles?: ImmutableTask<any>;
+  requestTruffyAction?: ImmutableTask<TruffyError>;
   router?: any;
   moveToLoginPage?: typeof moveToLoginPage;
 }
@@ -106,9 +118,14 @@ interface HandlerState {
   updateFileMeta,
   deleteFile,
   openRemoteFiles,
+  requestTruffyAction,
 })
 @withRouter
 class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
+  static contextTypes = {
+    isMac: React.PropTypes.bool.isRequired,
+  };
+
   thumbnailFactory: ThumbnailFactory;
   geometryFactory: GeometryFactory;
   troveGeometryFactory: TroveGeometryFactory;
@@ -117,8 +134,12 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
   leaveConfirmed: boolean;
 
-  constructor(props) {
-    super(props);
+  isMac: boolean;
+
+  constructor(props, context) {
+    super(props, context);
+
+    this.isMac = context.isMac;
 
     this.leaveConfirmed = false;
 
@@ -173,6 +194,35 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.props.runSaga(this.props.openRemoteFiles, files, results => {
       results.forEach(result => this.openFile(result.doc, result.fileState));
     });
+
+    document.addEventListener('keydown', this.handleKeyDown, false);
+  }
+
+  componentWillUnmount() {
+    this.thumbnailFactory.dispose();
+    window.onbeforeunload = this.oldBeforeUnload;
+    document.removeEventListener('keydown', this.handleKeyDown, false);
+  }
+
+  handleKeyDown = (e: KeyboardEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+        // CTRL or COMMAND
+
+        switch(e.keyCode) {
+          case 66: // B
+          {
+            e.preventDefault();
+            this.handleInstallBlueprintRequest();
+            break;
+          }
+          case 83: // S
+          {
+            e.preventDefault();
+            this.handleSave();
+            break;
+          }
+      }
+    }
   }
 
   openFile(doc: ModelFileDocument, fileState: ModelFileState) {
@@ -201,11 +251,6 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
         },
       });
     }
-  }
-
-  componentWillUnmount() {
-    this.thumbnailFactory.dispose();
-    window.onbeforeunload = this.oldBeforeUnload;
   }
 
   private addFile({
@@ -537,14 +582,115 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     window.open(`/model/${currentFile.id}`, '_blank');
   }
 
+  installBlueprint(file: ModelFile) {
+    if (file.body.present.data.type !== ModelFileType.TROVE) return;
+
+    const username = this.props.user && this.props.user.username || 'anonymous';
+    const filename = file.name || 'untitled';
+
+    const snakeCased = snakeCase(filename) || 'mesh';
+
+    // Build snackbar message
+    const messages = [
+      <span key={0}>
+        <span>Blueprint </span><span className={styles.bold}>{filename}</span><span> successfully installed.</span>
+      </span>
+    ];
+
+    const commands = itemType[file.body.present.data.trove.itemType].commands.map(cmd => `/${cmd} ${snakeCased}`);
+
+    {
+      if (commands.length > 0) {
+        const copyCommand = this.isMac ? 'control+V' : 'Ctrl+V';
+        const finalCommands = commands.map(cmd => `${cmd}`).concat([copyCommand]);
+
+        let keyidx = 0;
+        const commandMessages = [<span key={keyidx++} className={styles.bold}>{finalCommands[0]}</span>];
+        for (let i = 1, len = finalCommands.length - 1; i < len; ++i) {
+          commandMessages.push(<span key={keyidx++}>, </span>);
+          commandMessages.push(<span key={keyidx++} className={styles.bold}>{finalCommands[i]}</span>);
+        }
+        commandMessages.push(<span key={keyidx++}> or </span>);
+        commandMessages.push(<span key={keyidx++} className={styles.bold}>{finalCommands[finalCommands.length - 1]}</span>);
+
+        messages.push(
+          <span key={1}>
+            <span> Type </span>{commandMessages}<span> in game chat.</span>
+          </span>
+        );
+      }
+    }
+
+    // TODO: Change message on Safari. Clipboard.js does not support Safari.
+    this.props.runSaga(
+      this.props.requestTruffyAction, ACTION_INSTALL, file, username, snakeCased, commands[0] || '',
+      () => this.props.pushSnackbar({
+        message: <span>{messages}</span> as any,
+        bodyStyle: {
+          lineHeight: '20px',
+          padding: '10px 24px',
+          height: 'inherit',
+        },
+        timeout: 7000,
+      })
+    );
+  }
+
+  handleInstallBlueprintRequest = () => {
+    const file = this.state.files.get(this.state.activeFileId);
+    if (!file) return;
+
+    this.installBlueprint(file);
+  }
+
+  downloadBlueprint(file: ModelFile) {
+    if (file.body.present.data.type !== ModelFileType.TROVE) return;
+
+    const username = this.props.user && this.props.user.username || 'anonymous';
+    const filename = file.name || 'untitled';
+
+    const snakeCased = snakeCase(filename) || 'mesh';
+
+    // TODO: Change message on Safari. Clipboard.js does not support Safari.
+    this.props.runSaga(
+      this.props.requestTruffyAction, ACTION_DOWNLOAD, file, username, snakeCased, '',
+      (data: ArrayBuffer) => saveAs(new Blob([data]), `${snakeCased}.blueprint`, true)
+    );
+  }
+
+  handleDownloadBlueprintRequest = () => {
+    const file = this.state.files.get(this.state.activeFileId);
+    if (!file) return;
+
+    this.downloadBlueprint(file);
+  }
+
+  handleInstallBlueprintRetry = (file: ModelFile, action: string) => {
+    switch(action) {
+      case ACTION_INSTALL: {
+        return this.installBlueprint(file);
+      }
+      case ACTION_DOWNLOAD: {
+        return this.downloadBlueprint(file);
+      }
+    }
+  }
+
+  handleInstallBlueprintDialogClose = () => {
+    this.props.cancelSaga(this.props.requestTruffyAction);
+  }
+
   render() {
     const fileOnSaveDialog = this.state.filesOnSaveDialog.length > 0
       ? this.state.files.get(this.state.filesOnSaveDialog[0])
       : null;
 
+    const file = this.state.files.get(this.state.activeFileId);
+
     return (
       <div>
         <ModelStudioNavbar
+          file={file}
           location={this.props.location}
           user={this.props.user}
           onGetLink={this.handleGetLink}
@@ -554,6 +700,8 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onNewFile={this.handleNewFileButtonClick}
           onDownload={this.handleFileDownload}
           onEditAsTroveFile={this.handleEditAsTroveFile}
+          onInstallBlueprint={this.handleInstallBlueprintRequest}
+          onDownloadBlueprint={this.handleDownloadBlueprintRequest}
           onSave={this.handleSave}
           onSaveAll={this.handleSaveAll}
         />
@@ -606,6 +754,11 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           fileToDelete={this.state.files.get(this.state.fileToDelete)}
           onDeleteCancel={this.handleCancelFileDelete}
           onDeleteConfirm={this.handleFileDelete}
+        />
+        <TruffyErrorDialog
+          error={isDone(this.props.requestTruffyAction) &&  this.props.requestTruffyAction.result}
+          onRequestClose={this.handleInstallBlueprintDialogClose}
+          onRetry={this.handleInstallBlueprintRetry}
         />
       </div>
     );

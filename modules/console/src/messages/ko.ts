@@ -259,6 +259,13 @@ export default {
   'modelstudio.navbar.saveAll': '모두 저장하기',
 
   /**
+   * path: src/screens/ModelStudio/components/ModelStudioNavbar.json
+   * description: Trove
+   * defaultMessage: Trove
+   */
+/* translate */ 'modelstudio.navbar.trove': '',
+
+  /**
    * path: src/screens/ModelStudio/components/ModelStudioBody/ModelStudioBody.json
    * description: Open file from remote store
    * defaultMessage: Open File

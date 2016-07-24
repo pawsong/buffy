@@ -6,6 +6,10 @@ import ListItem from 'material-ui/List/ListItem';
 import Divider from 'material-ui/Divider';
 import Paper from 'material-ui/Paper';
 
+import Menu from 'material-ui/Menu';
+import MenuItem from 'material-ui/MenuItem';
+import ArrowDropDown from 'material-ui/svg-icons/navigation/arrow-drop-down';
+
 import { User } from '../../../reducers/users';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
@@ -15,6 +19,11 @@ import { ModelSupportFileType } from '../../../components/ModelEditor';
 import LoggedInNavbar from '../../../components/LoggedInNavbar';
 import AnonymousNavbar from '../../../components/AnonymousNavbar';
 import ClickAwayListener from '../../../components/ClickAwayListener';
+
+import { ModelFile } from '../types';
+import { ModelFileType } from '../../../types';
+
+const styles = require('../ModelStudio.css');
 
 const messages = defineMessages({
   newFile: {
@@ -32,6 +41,11 @@ const messages = defineMessages({
     description: 'Advanced',
     defaultMessage: 'Advanced',
   },
+  trove: {
+    id: 'modelstudio.navbar.trove',
+    description: 'Trove',
+    defaultMessage: 'Trove',
+  },
   saveAll: {
     id: 'modelstudio.navbar.saveAll',
     description: 'Save All',
@@ -39,7 +53,7 @@ const messages = defineMessages({
   },
 });
 
-const styles = {
+const inlineStyles = {
   button: {
     color: Colors.white,
     // marginLeft: 25,
@@ -48,6 +62,7 @@ const styles = {
 };
 
 interface ModelStudioNavbarProps extends React.Props<ModelStudioNavbar> {
+  file: ModelFile;
   user: User;
   location: any;
   onGetLink: () => any;
@@ -58,6 +73,8 @@ interface ModelStudioNavbarProps extends React.Props<ModelStudioNavbar> {
   onLogout: () => any;
   onDownload: (fileType: ModelSupportFileType) => any;
   onEditAsTroveFile: () => any;
+  onInstallBlueprint: () => any;
+  onDownloadBlueprint: () => any;
   onLinkClick: (location: HistoryModule.LocationDescriptor) => any;
   intl?: InjectedIntlProps;
 }
@@ -66,6 +83,7 @@ enum SubmenuType {
   NONE,
   EXPORT,
   ADVANCED,
+  TROVE,
 }
 
 interface ModelStudioState {
@@ -74,163 +92,244 @@ interface ModelStudioState {
 
 @injectIntl
 class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStudioState> {
-  constructor(props) {
-    super(props);
+  static contextTypes = {
+    isMac: React.PropTypes.bool.isRequired,
+  };
+
+  isMac: boolean;
+
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       submenuType: SubmenuType.NONE,
     }
+    this.isMac = context.isMac;
   }
 
-  handleGetLink = () => {
-    this.props.onGetLink();
-    this.handleDownloadMenuClose();
-  }
+  /* Export Menu */
 
-  handleDownloadAsMagicaVoxelClick = () => {
-    this.props.onDownload(ModelSupportFileType.MAGICA_VOXEL);
-    this.handleDownloadMenuClose();
-  }
-
-  handleDownloadAsQubicleClick = () => {
-    this.props.onDownload(ModelSupportFileType.QUBICLE);
-    this.handleDownloadMenuClose();
-  }
-
-  renderDownloadFileMenu() {
+  renderExportMenu() {
     if (this.state.submenuType !== SubmenuType.EXPORT) return null;
 
     return (
-      <Paper zDepth={3} style={{ position: 'absolute' }}>
-        <List>
-          <ListItem
-            innerDivStyle={{ whiteSpace: 'nowrap' }}
+      <Paper className={styles.menuList}>
+        <Menu desktop={true}>
+          <MenuItem
+            className={styles.menuItem}
             primaryText={'Get a Link (URL)'}
             onTouchTap={this.handleGetLink}
+            disabled={!this.props.file}
           />
           <Divider />
-          <ListItem
-            innerDivStyle={{ whiteSpace: 'nowrap' }}
+          <MenuItem
+            className={styles.menuItem}
             primaryText={'MagicaVoxel (.vox)'}
-            onTouchTap={this.handleDownloadAsMagicaVoxelClick}
+            onTouchTap={this.handleExportAsMagicaVoxelClick}
+            disabled={!this.props.file}
           />
-          <ListItem
-            innerDivStyle={{ whiteSpace: 'nowrap' }}
+          <MenuItem
+            className={styles.menuItem}
             primaryText={'Qubicle (.qb)'}
-            onTouchTap={this.handleDownloadAsQubicleClick}
+            onTouchTap={this.handleExportAsQubicleClick}
+            disabled={!this.props.file}
           />
-        </List>
+        </Menu>
       </Paper>
     );
   }
 
-  handleDownloadMenuToggle = () => {
-    if (this.state.submenuType === SubmenuType.EXPORT) {
-      this.setState({ submenuType: SubmenuType.NONE });
-    } else {
-      this.setState({ submenuType: SubmenuType.EXPORT });
-    }
-  }
-
-  handleDownloadMenuClose = () => {
+  closeExportMenu() {
     if (this.state.submenuType === SubmenuType.EXPORT) {
       this.setState({ submenuType: SubmenuType.NONE });
     }
   }
 
-  renderAdvancedFileMenu() {
+  handleExportMenuMouseEnter = () => {
+    this.setState({ submenuType: SubmenuType.EXPORT });
+  }
+
+  handleExportMenuMouseLeave = () => this.closeExportMenu();
+
+  handleGetLink = () => {
+    this.props.onGetLink();
+    this.closeExportMenu();
+  }
+
+  handleExportAsMagicaVoxelClick = () => {
+    this.props.onDownload(ModelSupportFileType.MAGICA_VOXEL);
+    this.closeExportMenu();
+  }
+
+  handleExportAsQubicleClick = () => {
+    this.props.onDownload(ModelSupportFileType.QUBICLE);
+    this.closeExportMenu();
+  }
+
+  /* Advanced Menu */
+
+  renderAdvancedMenu() {
     if (this.state.submenuType !== SubmenuType.ADVANCED) return null;
 
     return (
-      <Paper zDepth={3} style={{ position: 'absolute' }}>
-        <List>
-          <ListItem
-            innerDivStyle={{ whiteSpace: 'nowrap' }}
+      <Paper className={styles.menuList}>
+        <Menu desktop={true}>
+          <MenuItem
+            className={styles.menuItem}
             primaryText={'Edit as Trove File'}
             onTouchTap={this.handleEditAsTroveFileClick}
+            disabled={!this.props.file || this.props.file.body.present.data.type === ModelFileType.TROVE}
           />
-        </List>
+        </Menu>
       </Paper>
     );
   }
 
-  handleAdvancedMenuToggle = () => {
+  closeAdvancedMenu() {
     if (this.state.submenuType === SubmenuType.ADVANCED) {
       this.setState({ submenuType: SubmenuType.NONE });
-    } else {
-      this.setState({ submenuType: SubmenuType.ADVANCED });
     }
   }
 
-  handleAdvancedMenuClose = () => {
-    if (this.state.submenuType === SubmenuType.ADVANCED) {
-      this.setState({ submenuType: SubmenuType.NONE });
-    }
+  handleAdvancedMenuMouseEnter = () => {
+    this.setState({ submenuType: SubmenuType.ADVANCED });
   }
+
+  handleAdvancedMenuMouseLeave = () => this.closeAdvancedMenu();
 
   handleEditAsTroveFileClick = () => {
     this.props.onEditAsTroveFile();
-    this.handleAdvancedMenuClose();
+    this.closeAdvancedMenu();
+  }
+
+  /* Trove Menu */
+
+  renderTroveMenu() {
+    if (this.state.submenuType !== SubmenuType.TROVE) return null;
+
+    const installBlueprintShortcut = this.isMac ? '⌘B' : 'Ctrl+B';
+
+    return (
+      <Paper className={styles.menuList}>
+        <Menu desktop={true}>
+          <MenuItem
+            className={styles.menuItem}
+            primaryText="Install Blueprint"
+            secondaryText={installBlueprintShortcut}
+            onTouchTap={this.handleInstallTroveBlueprint}
+          />
+          <MenuItem
+            className={styles.menuItem}
+            primaryText="Download Blueprint"
+            onTouchTap={this.handleDownloadTroveBlueprint}
+          />
+        </Menu>
+      </Paper>
+    );
+  }
+
+  closeTroveMenu() {
+    if (this.state.submenuType === SubmenuType.TROVE) this.setState({ submenuType: SubmenuType.NONE });
+  }
+
+  handleTroveMenuMouseEnter = () => {
+    this.setState({ submenuType: SubmenuType.TROVE });
+  }
+
+  handleTroveMenuMouseLeave = () => this.closeTroveMenu();
+
+  handleInstallTroveBlueprint = () => {
+    this.props.onInstallBlueprint();
+    this.closeTroveMenu();
+  }
+
+  handleDownloadTroveBlueprint = () => {
+    this.props.onDownloadBlueprint();
+    this.closeTroveMenu();
   }
 
   renderLeftToolbarGroup() {
     return (
       <div style={{ marginLeft: 25, marginTop: 10 }}>
-        <div style={{ display: 'inline-block', marginRight: 10 }}>
+        <div className={styles.menu}>
           <FlatButton
             label={this.props.intl.formatMessage(messages.newFile)}
-            style={styles.button}
+            style={inlineStyles.button}
             onTouchTap={this.props.onNewFile}
             hoverColor={Colors.cyan700}
           />
         </div>
-        <div style={{ display: 'inline-block', marginRight: 10 }}>
+        <div className={styles.menu}>
           <FlatButton
             label={this.props.intl.formatMessage(Messages.open)}
-            style={styles.button}
+            style={inlineStyles.button}
             onTouchTap={this.props.onRequestOpenFile}
             hoverColor={Colors.cyan700}
           />
         </div>
-        <div style={{ display: 'inline-block', marginRight: 10 }}>
+        <div className={styles.menu}>
           <FlatButton
             label={this.props.intl.formatMessage(Messages.save)}
-            style={styles.button}
+            style={inlineStyles.button}
             onTouchTap={this.props.onSave}
             hoverColor={Colors.cyan700}
+            disabled={!this.props.file || (!this.props.file.created && !this.props.file.modified)}
           />
         </div>
-        <div style={{ display: 'inline-block', marginRight: 10 }}>
+        <div className={styles.menu}>
           <FlatButton
             label={this.props.intl.formatMessage(messages.saveAll)}
-            style={styles.button}
+            style={inlineStyles.button}
             onTouchTap={this.props.onSaveAll}
             hoverColor={Colors.cyan700}
           />
         </div>
-        <div style={{ display: 'inline-block', marginRight: 10 }}>
-          <ClickAwayListener onClickAway={this.handleDownloadMenuClose}>
+        <div
+          className={styles.menu}
+          onMouseEnter={this.handleExportMenuMouseEnter}
+          onMouseLeave={this.handleExportMenuMouseLeave}
+        >
+          <FlatButton
+            label={this.props.intl.formatMessage(messages.export)}
+            labelPosition="before"
+            icon={<ArrowDropDown />}
+            style={inlineStyles.button}
+            backgroundColor={this.state.submenuType === SubmenuType.EXPORT ? Colors.cyan700 : Colors.cyan500}
+            hoverColor={Colors.cyan700}
+          />
+          {this.renderExportMenu()}
+        </div>
+        <div
+          className={styles.menu}
+          onMouseEnter={this.handleAdvancedMenuMouseEnter}
+          onMouseLeave={this.handleAdvancedMenuMouseLeave}
+        >
+          <FlatButton
+            label={this.props.intl.formatMessage(messages.advanced)}
+            labelPosition="before"
+            icon={<ArrowDropDown />}
+            style={inlineStyles.button}
+            backgroundColor={this.state.submenuType === SubmenuType.ADVANCED ? Colors.cyan700 : Colors.cyan500}
+            hoverColor={Colors.cyan700}
+          />
+          {this.renderAdvancedMenu()}
+        </div>
+        {this.props.file && this.props.file.body.present.data.type === ModelFileType.TROVE && (
+          <div
+            className={styles.menu}
+            onMouseEnter={this.handleTroveMenuMouseEnter}
+            onMouseLeave={this.handleTroveMenuMouseLeave}
+          >
             <FlatButton
-              label={this.props.intl.formatMessage(messages.export)}
-              style={styles.button}
-              onTouchTap={this.handleDownloadMenuToggle}
-              backgroundColor={this.state.submenuType === SubmenuType.EXPORT ? Colors.cyan700 : Colors.cyan500}
+              label={this.props.intl.formatMessage(messages.trove)}
+              labelPosition="before"
+              icon={<ArrowDropDown />}
+              style={inlineStyles.button}
+              backgroundColor={this.state.submenuType === SubmenuType.TROVE ? Colors.cyan700 : Colors.cyan500}
               hoverColor={Colors.cyan700}
             />
-            {this.renderDownloadFileMenu()}
-          </ClickAwayListener>
-        </div>
-        <div style={{ display: 'inline-block', marginRight: 10 }}>
-          <ClickAwayListener onClickAway={this.handleAdvancedMenuClose}>
-            <FlatButton
-              label={this.props.intl.formatMessage(messages.advanced)}
-              style={styles.button}
-              onTouchTap={this.handleAdvancedMenuToggle}
-              backgroundColor={this.state.submenuType === SubmenuType.ADVANCED ? Colors.cyan700 : Colors.cyan500}
-              hoverColor={Colors.cyan700}
-            />
-            {this.renderAdvancedFileMenu()}
-          </ClickAwayListener>
-        </div>
+            {this.renderTroveMenu()}
+          </div>
+        )}
       </div>
     );
   }
