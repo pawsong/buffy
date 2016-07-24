@@ -173,7 +173,7 @@ class SettingsProfileHandler extends React.Component<HandlerProps, HandlerState>
     return this.props.user.name !== this.state.name;
   }
 
-  handleProfilePictureClick() {
+  handleProfilePictureClick = () => {
     // Reset dialog state
     this.setState({
       profilePictureUrl: '',
@@ -186,7 +186,7 @@ class SettingsProfileHandler extends React.Component<HandlerProps, HandlerState>
     input.dispatchEvent(clickEvent);
   }
 
-  handleProfilePictureDialogClose() {
+  handleProfilePictureDialogClose = () => {
     this.setState({ profilePictureUrl: '' });
   }
 
@@ -221,7 +221,7 @@ class SettingsProfileHandler extends React.Component<HandlerProps, HandlerState>
         label={this.props.intl.formatMessage(Messages.cancel)}
         secondary={true}
         disabled={isUploading}
-        onTouchTap={() => this.handleProfilePictureDialogClose()}
+        onTouchTap={this.handleProfilePictureDialogClose}
       />,
       <FlatButton
         label={this.props.intl.formatMessage(Messages.submit)}
@@ -238,7 +238,7 @@ class SettingsProfileHandler extends React.Component<HandlerProps, HandlerState>
         actions={actions}
         modal={isUploading}
         open={this.state.profilePictureUrl.length > 0 && !isDone(this.props.uploadProfilePicture)}
-        onRequestClose={() => this.handleProfilePictureDialogClose()}
+        onRequestClose={this.handleProfilePictureDialogClose}
         contentClassName={styles.dialogContent}
       >
         <div style={{ textAlign: 'center' }}>
@@ -260,7 +260,7 @@ class SettingsProfileHandler extends React.Component<HandlerProps, HandlerState>
     );
   }
 
-  handleProfileImageChange(e: React.FormEvent) {
+  handleProfileImageChange = (e: React.FormEvent) => {
     const file = e.target['files'][0];
     if (!file) return;
 
@@ -290,16 +290,19 @@ class SettingsProfileHandler extends React.Component<HandlerProps, HandlerState>
             </div>
             <div className="row start-xs middle-xs" style={{ marginTop: 20, marginLeft: 0 }}>
               <img src={picture} style={{ width: 96, height: 96, marginRight: 15 }} />
-              <RaisedButton label={this.props.intl.formatMessage(messages.changeProfilePicture)}
-                            onTouchTap={() => this.handleProfilePictureClick()}
-              />
-              <input
-                ref="fileUpload"
-                type="file"
-                accept="image/*"
-                style={{ display : 'none' }}
-                onChange={e => this.handleProfileImageChange(e)}
-              />
+              <RaisedButton
+                label={this.props.intl.formatMessage(messages.changeProfilePicture)}
+                labelPosition="before"
+                onTouchTap={this.handleProfilePictureClick}
+              >
+                <input
+                  ref="fileUpload"
+                  type="file"
+                  accept="image/*"
+                  className={styles.input}
+                  onChange={this.handleProfileImageChange}
+                />
+              </RaisedButton>
             </div>
             {this.renderProfilePictureDialog()}
           </div>
