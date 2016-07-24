@@ -6,8 +6,6 @@ html {
 html, body {
   margin: 0;
   padding: 0;
-  position: relative;
-  height: 100%;
 }
 
 a {
@@ -25,7 +23,6 @@ h1, h2, h3, h4, h5 {
 }
 
 #content {
-  height: 100%;
 }
 
 /* Spinkit START */

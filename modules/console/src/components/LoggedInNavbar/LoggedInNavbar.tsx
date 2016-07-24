@@ -60,6 +60,7 @@ const inlineStyles = {
     position: 'absolute',
     right: 0,
     width: 200,
+    zIndex: 1000,
   },
   accountInfoBoxCaretCont: {
     position: 'absolute',

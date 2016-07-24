@@ -56,7 +56,6 @@ class Navbar extends React.Component<NavbarProps, {}> {
             <Toolbar style={this.toolbarStyle}>{this.props.children}</Toolbar>
           </div>
         </div>
-        <div style={this.paddingStyle}/>
       </div>
     );
   }
