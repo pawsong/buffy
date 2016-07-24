@@ -9,6 +9,8 @@ import {
 
 export interface SnackbarRequest {
   message: string;
+  bodyStyle?: React.CSSProperties;
+  timeout?: number;
 }
 
 export interface SnackbarState {

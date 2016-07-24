@@ -21,7 +21,6 @@ import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./RootHandler.css');
 
 import {
-  pushSnackbar, PushSnackbarQuery,
   closeSnackbar,
 } from '../../actions/snackbar';
 
@@ -31,7 +30,6 @@ interface RootProps extends React.Props<RootHandler>, SagaProps {
   snackbarOpen?: boolean;
   snackbar?: SnackbarRequest;
   loading?: boolean;
-  pushSnackbar?: (query: PushSnackbarQuery) => any;
   closeSnackbar?: () => any;
   init?: ImmutableTask<any>;
   intl?: InjectedIntlProps;
@@ -46,7 +44,6 @@ interface RootProps extends React.Props<RootHandler>, SagaProps {
   snackbar: state.snackbar.current,
   loading: state.loading,
 }), {
-  pushSnackbar,
   closeSnackbar,
 }) as any)
 @withStyles(styles)
@@ -91,7 +88,8 @@ class RootHandler extends React.Component<RootProps, {}> {
         <Snackbar
           open={this.props.snackbarOpen}
           message={this.props.snackbar.message}
-          onRequestClose={() => this.props.closeSnackbar()}
+          bodyStyle={this.props.snackbar.bodyStyle}
+          onRequestClose={this.props.closeSnackbar}
         />
         <UserInfoDialog />
       </div>

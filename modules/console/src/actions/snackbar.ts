@@ -1,5 +1,7 @@
 import { Action } from './';
 
+import { SnackbarRequest } from '../reducers/snackbar';
+
 export const SHOW_SNACKBAR: 'snackbar/SHOW_SNACKBAR' = 'snackbar/SHOW_SNACKBAR';
 export interface ShowSnackbarAction extends Action<typeof SHOW_SNACKBAR> {
   open: boolean;
@@ -26,14 +28,10 @@ export function showSnackback(open: boolean): ShowSnackbarAction {
 // }
 
 export const PUSH_SNACKBAR: 'snackbar/PUSH_SNACKBAR' = 'snackbar/PUSH_SNACKBAR';
-export interface PushSnackbarQuery {
-  message: string;
-  timeout?: number;
-}
 export interface PushSnackbarAction extends Action<typeof PUSH_SNACKBAR> {
-  query: PushSnackbarQuery;
+  query: SnackbarRequest;
 }
-export function pushSnackbar(query: PushSnackbarQuery): PushSnackbarAction {
+export function pushSnackbar(query: SnackbarRequest): PushSnackbarAction {
   return {
     type: PUSH_SNACKBAR,
     query: query,
