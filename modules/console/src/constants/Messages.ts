@@ -146,6 +146,11 @@ const messages = defineMessages({
     description: 'Verify password and new password do not equal',
     defaultMessage: 'Passwords don\'t match',
   },
+  blog: {
+    id: 'blog',
+    description: 'Blog',
+    defaultMessage: 'Blog',
+  },
 });
 
 export default messages;

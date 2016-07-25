@@ -1,6 +1,13 @@
 export default {
   /**
    * path: src/screens/Anonymous/AnonymousHandler.json
+   * description: Label for create button
+   * defaultMessage: Create
+   */
+/* translate */ 'anon.navbar.create': '',
+
+  /**
+   * path: src/screens/Anonymous/AnonymousHandler.json
    * description: Simple question to ask why this service is good
    * defaultMessage: Why?
    */
@@ -33,6 +40,13 @@ export default {
    * defaultMessage: Apply
    */
   'apply': '적용하기',
+
+  /**
+   * path: src/constants/Messages.json
+   * description: Blog
+   * defaultMessage: Blog
+   */
+/* translate */ 'blog': '',
 
   /**
    * path: src/constants/Messages.json
@@ -671,5 +685,6 @@ export default {
    */
   'vrMode': 'VR 모드',
 
+/* [Warning] Message not in use */ 'anon.navbar.blog': '',
 /* [Warning] Message not in use */ 'modelstudio.navbar.download': '다운로드',
 }

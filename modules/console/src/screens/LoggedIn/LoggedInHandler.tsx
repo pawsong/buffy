@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps, Link } from 'react-router';
 import { push } from 'react-router-redux';
 import ToolbarGroup from 'material-ui/Toolbar/ToolbarGroup';
-import FlatButton from 'material-ui/FlatButton';
+// import FlatButton from 'material-ui/FlatButton';
+const FlatButton = require('material-ui/FlatButton').default;
 import * as Colors from 'material-ui/styles/colors';
 
 import { State } from '../../reducers';
@@ -22,7 +23,7 @@ import Messages from '../../constants/Messages';
 const styles = {
   button: {
     color: Colors.white,
-    marginLeft: 25,
+    marginLeft: 10,
     marginRight: 0,
   },
 };
@@ -42,19 +43,21 @@ interface LoggedInHandlerProps extends RouteComponentProps<{}, {}> {
 }) as any)
 @injectIntl
 class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
-  handleCreateButtonClick = () => {
-    this.props.push('/model/edit');
-  }
-
   renderLeftToolbarGroup() {
     return (
       <div style={{ marginLeft: 25, marginTop: 10 }}>
         <FlatButton
           label={this.props.intl.formatMessage(Messages.create)}
           style={styles.button}
-          onTouchTap={this.handleCreateButtonClick}
           backgroundColor={Colors.pinkA200}
           hoverColor={Colors.pinkA100}
+          containerElement={<Link to="/model/edit" />}
+        />
+        <FlatButton
+          label={this.props.intl.formatMessage(Messages.blog)}
+          style={styles.button}
+          hoverColor={Colors.cyan700}
+          containerElement={<Link to="/blog" />}
         />
       </div>
     );
