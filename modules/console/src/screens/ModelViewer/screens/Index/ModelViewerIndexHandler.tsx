@@ -7,8 +7,6 @@ import { saga, SagaProps, ImmutableTask, isDone, isRunning, request, wait } from
 import { deserialize } from '../../../../components/ModelEditor/utils/serdez';
 import { FileState as ModelFileState } from '../../../../components/ModelEditor/types';
 
-import CommentForm from './components/CommentForm';
-import CommentList from './components/CommentList';
 import ModelViewer from './components/ModelViewer';
 import {EditorState} from 'draft-js';
 
@@ -18,7 +16,11 @@ import { User } from '../../../../reducers/users';
 const Waypoint = require('react-waypoint');
 const styles = require('./ModelViewerIndexHandler.css');
 
-import { CommentDocument } from './types';
+import {
+  CommentForm,
+  CommentList,
+  CommentDocument,
+} from '../../../../components/Comment';
 
 interface RouteParams {
   modelId: string;

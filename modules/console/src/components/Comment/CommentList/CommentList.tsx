@@ -5,12 +5,12 @@ const pure = require('recompose/pure').default;
 import { FormattedRelative } from 'react-intl';
 import {Editor, EditorState, ContentState} from 'draft-js';
 
-const anonProfilePicture = require('file!../../../../../../ic_pets_black_24dp_2x.png');
+const anonProfilePicture = require('file!../../../ic_pets_black_24dp_2x.png');
 const styles = require('./CommentList.css');
 
 import CommentForm from '../CommentForm';
 
-import { CommentDocument } from '../../types';
+import { CommentDocument } from '../types';
 
 interface CommentListProps {
   userId: string;
