@@ -22,15 +22,33 @@ interface InstallBlueprintDialogProps extends SagaProps {
 }
 
 class InstallBlueprintDialog extends React.Component<InstallBlueprintDialogProps, void> {
+  static contextTypes = {
+    isMac: React.PropTypes.bool.isRequired,
+  };
+
+  isMac: boolean;
+
+  constructor(props, context) {
+    super(props, context);
+    this.isMac = context.isMac;
+  }
+
   renderTruffyNotFound() {
     return (
       <div>
-        <div>Cannot find running Truffy is not running :(</div>
-        <div>Truffy is an application that helps Buffy install a model file into Trove.</div>
-        <div>Have you installed Truffy?</div>
-        <div>If not, please download it from here and make sure it is running.</div>
-        <div>If you already have one, please start it.</div>
-        <div>For more information, refer to this article</div>
+        <p style={{fontWeight: 500, fontSize: '18px'}}>
+          Cannot find running Truffy
+        </p>
+        <p>
+          Truffy is a small desktop app that enables Buffy's special features for Trove.
+        </p>
+        <p>
+          Please make sure Truffy is running.
+          If you have not yet installed Truffy, you can get it <a href="/truffy" target="_blank">here</a>!
+        </p>
+        <p>
+          For more information, refer to <a href="/blog/trove-creation-made-easy" target="_blank">this blog post</a>.
+        </p>
       </div>
     );
   }
@@ -38,10 +56,15 @@ class InstallBlueprintDialog extends React.Component<InstallBlueprintDialogProps
   renderTroveNotFound() {
     return (
       <div>
-        <div>Truffy is working, but it cannot find installed Trove client :(</div>
-        <div>Have you installed Trove?</div>
-        <div>If so, please let Buffy client for Trove know the installation path.</div>
-        <div>If not, please install Trove.</div>
+        <p style={{fontWeight: 500, fontSize: '18px'}}>
+          Truffy is running, but it cannot find installed Trove
+        </p>
+        <p>
+          Please make sure that Trove is installed on your {this.isMac ? 'Mac' : 'PC'}.
+        </p>
+        <p>
+          If you have already installed Trove, please enter the install folder on Truffy.
+        </p>
       </div>
     );
   }
@@ -49,7 +72,12 @@ class InstallBlueprintDialog extends React.Component<InstallBlueprintDialogProps
   renderUnexpectedError() {
     return (
       <div>
-        <div>Unknown error occurred on Truffy :( Please blame the developer</div>
+        <p style={{fontWeight: 500, fontSize: '18px'}}>
+          Unknown error from Truffy :(
+        </p>
+        <p>
+          Please blame <a href="mailto:giff@buffy.run" target="_blank">the developer</a> for this error.
+        </p>
         <pre style={{ overflow: 'scroll' }}>{this.props.error.message}</pre>
       </div>
     );
