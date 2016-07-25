@@ -505,13 +505,13 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
     switch(fileType) {
       case ModelSupportFileType.MAGICA_VOXEL: {
-        ModelEditor.exportVoxFile(file.body, filename, username)
+        ModelEditor.exportVoxFile(this.thumbnailFactory, file.body, filename, username)
           .then(({ extension, data }) => saveAs(new Blob([data]), `${file.name || 'untitled'}.${extension}`, true))
           .catch(error => this.props.pushSnackbar({ message: `Export file failed: ${error}` }));
         return;
       }
       case ModelSupportFileType.QUBICLE: {
-        ModelEditor.exportQbFile(file.body, filename, username)
+        ModelEditor.exportQbFile(this.thumbnailFactory, file.body, filename, username)
           .then(({ extension, data }) => saveAs(new Blob([data]), `${file.name || 'untitled'}.${extension}`, true))
           .catch(error => this.props.pushSnackbar({ message: `Export file failed: ${error}` }));
         return;
@@ -623,7 +623,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
     // TODO: Change message on Safari. Clipboard.js does not support Safari.
     this.props.runSaga(
-      this.props.requestTruffyAction, ACTION_INSTALL, file, username, snakeCased, commands[0] || '',
+      this.props.requestTruffyAction, ACTION_INSTALL, this.thumbnailFactory, file, username, snakeCased, commands[0] || '',
       () => this.props.pushSnackbar({
         message: <span>{messages}</span> as any,
         bodyStyle: {
@@ -653,7 +653,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
     // TODO: Change message on Safari. Clipboard.js does not support Safari.
     this.props.runSaga(
-      this.props.requestTruffyAction, ACTION_DOWNLOAD, file, username, snakeCased, '',
+      this.props.requestTruffyAction, ACTION_DOWNLOAD, this.thumbnailFactory, file, username, snakeCased, '',
       (data: ArrayBuffer) => saveAs(new Blob([data]), `${snakeCased}.blueprint`, true)
     );
   }

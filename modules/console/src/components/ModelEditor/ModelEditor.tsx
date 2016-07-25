@@ -70,6 +70,8 @@ import {
 import GeometryFactory from '../../canvas/GeometryFactory';
 import TroveGeometryFactory from '../../canvas/TroveGeometryFactory';
 
+import ThumbnailFactory from '../../canvas/ThumbnailFactory';
+
 import {
   FileState,
   VoxelData,
@@ -186,8 +188,12 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   static importBmfFile: (buffer: ArrayBuffer) => ImportFileResult;
   static importVoxFile: (buffer: ArrayBuffer) => ImportFileResult;
   static importQbFile: (buffer: ArrayBuffer) => ImportFileResult;
-  static exportVoxFile: (fileState: FileState, filename: string, username: string) => Promise<ExportFileResult>;
-  static exportQbFile: (fileState: FileState, filename: string, username: string) => Promise<ExportFileResult>;
+  static exportVoxFile: (
+    thumbnailFactory: ThumbnailFactory, fileState: FileState, filename: string, username: string
+  ) => Promise<ExportFileResult>;
+  static exportQbFile: (
+    thumbnailFactory: ThumbnailFactory, fileState: FileState, filename: string, username: string
+  ) => Promise<ExportFileResult>;
 
   canvas: ModelEditorCanvas;
 
@@ -624,7 +630,9 @@ const TROVE_MAPS = [
 ];
 
 function exportFile(
-  fileState: FileState, filename: string, username: string, extension: string, exporter: (data: ndarray.Ndarray) => ExportResult
+  thumbnailFactory: ThumbnailFactory,
+  fileState: FileState, filename: string, username: string, extension: string,
+  exporter: (data: ndarray.Ndarray) => ExportResult
 ) {
   return Promise.resolve().then<ExportFileResult>(() => {
     switch(fileState.present.data.type) {
@@ -654,6 +662,9 @@ function exportFile(
           zip.file(`${finalFilename}_${postfix}.${extension}`, result.result);
         }
 
+        const thumbnailUrl = thumbnailFactory.createThumbnail(fileState.present.data);
+        zip.file('thumbnail.png', thumbnailUrl.substr(thumbnailUrl.indexOf(',') + 1), {base64: true});
+
         return zip.generateAsync({ type: 'uint8array' }).then(data => ({ extension: 'zip', data }));
       }
       default: {
@@ -665,12 +676,12 @@ function exportFile(
   });
 }
 
-ModelEditor.exportVoxFile = (fileState, filename, username) => {
-  return exportFile(fileState, filename, username, 'vox', exportVoxFile);
+ModelEditor.exportVoxFile = (thumbnailFactory, fileState, filename, username) => {
+  return exportFile(thumbnailFactory, fileState, filename, username, 'vox', exportVoxFile);
 };
 
-ModelEditor.exportQbFile = (fileState, filename, username) => {
-  return exportFile(fileState, filename, username, 'qb', exportQbFile);
+ModelEditor.exportQbFile = (thumbnailFactory, fileState, filename, username) => {
+  return exportFile(thumbnailFactory, fileState, filename, username, 'qb', exportQbFile);
 };
 
 ModelEditor.createFileState = createFileState;

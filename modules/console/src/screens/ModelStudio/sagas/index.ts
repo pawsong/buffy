@@ -179,9 +179,10 @@ export function* openRemoteFiles(files: string[], callback: (results: {
 }
 
 export function* requestTruffyAction(
-  action: string, file: ModelFile, username: string, filename: string, clipboard, callback: (data?: any) => any
+  action: string, thumbnailFactory: ThumbnailFactory,
+  file: ModelFile, username: string, filename: string, clipboard, callback: (data?: any) => any
 ) {
-  const { data } = yield call(ModelEditor.exportQbFile, file.body, filename, username);
+  const { data } = yield call(ModelEditor.exportQbFile, thumbnailFactory, file.body, filename, username);
 
   try {
     const response = yield call(request.post, `http://localhost:${TROFFY_PORT}/blueprints/${filename}/${action}`, data, {
