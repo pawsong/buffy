@@ -50,7 +50,7 @@ class BlogIndexHandler extends React.Component<HandlerProps, {}> {
   render() {
     return (
       <div>
-        <h1>Truffy Blog</h1>
+        <h1>Buffy Blog</h1>
         {this.renderPostList()}
       </div>
     );
