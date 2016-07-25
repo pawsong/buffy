@@ -13,14 +13,9 @@ import {EditorState} from 'draft-js';
 import { State } from '../../../../reducers';
 import { User } from '../../../../reducers/users';
 
-const Waypoint = require('react-waypoint');
 const styles = require('./ModelViewerIndexHandler.css');
 
-import {
-  CommentForm,
-  CommentList,
-  CommentDocument,
-} from '../../../../components/Comment';
+import Comments, {CommentDocument} from '../../../../components/Comments';
 
 interface RouteParams {
   modelId: string;
@@ -115,15 +110,10 @@ class ModelViewerIndexHandler extends React.Component<HandlerProps, HandlerState
     this.props.runSaga(this.props.loadModel, this.props.params.modelId);
   }
 
-  loadMoreComments(before: string = '') {
+  handleLoadMoreComments = (before: string = '') => {
     this.props.runSaga(this.props.loadComments, this.props.params.modelId, before, (comments: CommentDocument[]) => {
       this.setState({ comments: this.state.comments.concat(comments) });
     });
-  }
-
-  handleLoadMoreComments = () => {
-    const lastComment = this.state.comments[this.state.comments.length - 1];
-    this.loadMoreComments(lastComment && lastComment.createdAt);
   }
 
   componentDidMount() {
@@ -151,10 +141,7 @@ class ModelViewerIndexHandler extends React.Component<HandlerProps, HandlerState
     );
   }
 
-  handleCommentFormChange = (commentFormState: EditorState) => this.setState({ commentFormState });
-
-  handleCommentFormSubmit = () => {
-    const text = this.state.commentFormState.getCurrentContent().getPlainText();
+  handleCommentAdd = (text: string) => {
     this.props.runSaga(this.props.addComment, this.props.params.modelId, text, (comment) => {
       this.setState({
         commentFormState: EditorState.createEmpty(),
@@ -170,7 +157,7 @@ class ModelViewerIndexHandler extends React.Component<HandlerProps, HandlerState
     return -1;
   }
 
-  handleCommentUpdate = (commentId: string, version: number, body: string) => {
+  handleUpdateComment = (commentId: string, version: number, body: string) => {
     this.props.runSaga(this.props.updateComment, this.props.params.modelId, commentId, version, body, comment => {
       const index = this.getCommentIndex(commentId);
       if (index === -1) return;
@@ -184,7 +171,7 @@ class ModelViewerIndexHandler extends React.Component<HandlerProps, HandlerState
     });
   }
 
-  handleCommentDelete = (commentId: string) => {
+  handleDeleteComment = (commentId: string) => {
     this.props.runSaga(this.props.deleteComment, this.props.params.modelId, commentId, () => {
       const index = this.getCommentIndex(commentId);
       if (index === -1) return;
@@ -195,7 +182,9 @@ class ModelViewerIndexHandler extends React.Component<HandlerProps, HandlerState
     });
   }
 
-  handleCommentRequestEdit = (editingComment: string) => this.setState({ editingComment })
+  handleCommentFormChange = (commentFormState: EditorState) => this.setState({ commentFormState });
+
+  onEditingCommentChange = (editingComment: string) => this.setState({ editingComment })
 
   render() {
     if (!isDone(this.props.loadModel)) return this.renderLoading();
@@ -205,28 +194,18 @@ class ModelViewerIndexHandler extends React.Component<HandlerProps, HandlerState
         <ModelViewer
           fileState={this.props.loadModel.result}
         />
-        <div className={styles.commentsHeader}>
-          Comments
-        </div>
-        <CommentForm
-          state={this.state.commentFormState}
-          onChange={this.handleCommentFormChange}
-          onSubmit={this.handleCommentFormSubmit}
-          buttonLabel={'Comment'}
-          placeholder={this.props.user ? 'Write a comment...' : 'Log in to leave a comment'}
-          disabled={!this.props.user || isRunning(this.props.addComment)}
-        />
-        <CommentList
-          userId={this.props.user && this.props.user.id}
+        <Comments
+          commentFormState={this.state.commentFormState}
           comments={this.state.comments}
           editingComment={this.state.editingComment}
-          onCommentRequestEdit={this.handleCommentRequestEdit}
-          commentUpdating={isRunning(this.props.updateComment)}
-          onCommentUpdate={this.handleCommentUpdate}
-          onCommentDelete={this.handleCommentDelete}
-        />
-        <Waypoint
-          onEnter={this.handleLoadMoreComments}
+          userId={this.props.user && this.props.user.id}
+          onLoadComments={this.handleLoadMoreComments}
+          onAddComment={this.handleCommentAdd}
+          onUpdateComment={this.handleUpdateComment}
+          onDeleteComment={this.handleDeleteComment}
+          onCommentFormChange={this.handleCommentFormChange}
+          onEditingCommentChange={this.onEditingCommentChange}
+          disabled={isRunning(this.props.addComment, this.props.updateComment)}
         />
         {
           isRunning(this.props.loadComments) && <div>Loading...</div>

@@ -1,5 +1,7 @@
 import * as mongoose from 'mongoose';
 
+import comment from './plugins/comment';
+
 const secrets = [
   '_id',
   '__v',
@@ -23,7 +25,7 @@ const BlogPostSchema = new Schema({
   body: String,
   createdAt: { type: Date, default: Date.now },
 });
-BlogPostSchema.index('slug');
+BlogPostSchema.index('slug', { unique: true });
 
 // Duplicate the ID field.
 BlogPostSchema.virtual('id').get(function(){
@@ -39,4 +41,10 @@ BlogPostSchema.set('toJSON', {
   },
 });
 
-export default mongoose.model<BlogPostDocument>('BlogPost', BlogPostSchema);
+BlogPostSchema.plugin(comment);
+
+const BlogPost = mongoose.model<BlogPostDocument>('BlogPost', BlogPostSchema);
+export default BlogPost;
+
+const BlogPostComment = (BlogPost as any).createCommentModel();
+export { BlogPostComment }

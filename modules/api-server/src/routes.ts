@@ -74,6 +74,10 @@ export default (app: express.Express) => {
   app.put    ('/files/:fileId/comments/:commentId/:version', fileHandlers.updateComment);
   app.delete ('/files/:fileId/comments/:commentId', fileHandlers.deleteComment);
 
-  app.get    ('/blog/posts', blogHandlers.getPostList);
-  app.get    ('/blog/posts/:slug', blogHandlers.getPost);
+  app.get    ('/blog-posts', blogHandlers.getPostList);
+  app.get    ('/blog-posts/:slug', blogHandlers.getPost);
+  app.get    ('/blog-posts/:blogId/comments', blogHandlers.getComments);
+  app.post   ('/blog-posts/:blogId/comments', blogHandlers.createComment);
+  app.put    ('/blog-posts/:blogId/comments/:commentId/:version', blogHandlers.updateComment);
+  app.delete ('/blog-posts/:blogId/comments/:commentId', blogHandlers.deleteComment);
 };

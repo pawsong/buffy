@@ -50,8 +50,11 @@ export interface ImmutableTask<T> {
   task?: UnlistenableTask;
 }
 
-export function isRunning(sagaTask: ImmutableTask<any>) {
-  return sagaTask.state === 'running';
+export function isRunning(...sagaTasks: ImmutableTask<any>[]) {
+  for (let i = 0, len = sagaTasks.length; i < len; ++i) {
+    if (sagaTasks[i].state === 'running') return true;
+  }
+  return false;
 }
 
 export function isDone(sagaTask: ImmutableTask<any>) {

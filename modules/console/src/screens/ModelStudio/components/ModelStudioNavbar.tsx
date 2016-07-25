@@ -337,6 +337,7 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
   renderAnonymousNavbar() {
     return (
       <AnonymousNavbar
+        className={styles.navbar}
         location={this.props.location}
         fullWidth={true}
         leftToolbarGroup={this.renderLeftToolbarGroup()}
@@ -347,6 +348,7 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
   renderLoggedInNavbar() {
     return (
       <LoggedInNavbar
+        className={styles.navbar}
         location={this.props.location}
         fullWidth={true}
         leftToolbarGroup={this.renderLeftToolbarGroup()}

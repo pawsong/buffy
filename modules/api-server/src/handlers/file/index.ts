@@ -7,9 +7,11 @@ import s3 from '../../s3';
 import * as conf from '@pasta/config';
 
 import User, { UserDocument } from '../../models/User';
-import FileModel, { FileDocument } from '../../models/File';
+import FileModel, {
+  FileDocument,
+  FileComment,
+} from '../../models/File';
 import FileLikeModel, { FileLikeDocument } from '../../models/FileLike';
-import FileCommentModel, { FileCommentDocument } from '../../models/FileComment';
 
 const EXPIRES = 60;
 
@@ -335,10 +337,10 @@ export const getLikes = wrap(async (req, res) => {
 
 export const getComments = wrap(async (req, res) => {
   const { fileId } = req.params;
-  const conditions: any = { file: fileId };
+  const conditions: any = { parent: fileId };
   if (req.query.before) conditions.createdAt = { $lt: req.query.before };
 
-  const results = await FileCommentModel
+  const results = await FileComment
     .find(conditions)
     .populate('user', '_id name username picture')
     .sort('-createdAt')
@@ -352,8 +354,8 @@ export const createComment = compose(requiresLogin, wrap(async (req, res) => {
   const { fileId } = req.params;
   const { body } = req.body;
 
-  const comment = new FileCommentModel({
-    file: fileId,
+  const comment = new FileComment({
+    parent: fileId,
     user: req.user.id,
     body,
   });
@@ -369,7 +371,7 @@ export const updateComment = compose(requiresLogin, wrap(async (req, res) => {
   const { fileId, commentId, version } = req.params;
   const { body } = req.body;
 
-  const comment = await FileCommentModel.findOneAndUpdate({
+  const comment = await FileComment.findOneAndUpdate({
     _id: commentId,
     __v: version,
     user: req.user.id,
@@ -385,7 +387,7 @@ export const updateComment = compose(requiresLogin, wrap(async (req, res) => {
 export const deleteComment = compose(requiresLogin, wrap(async (req, res) => {
   const { fileId, commentId } = req.params;
 
-  const comment = await FileCommentModel.findOneAndRemove({
+  const comment = await FileComment.findOneAndRemove({
     _id: commentId,
     user: req.user.id,
   }).exec();

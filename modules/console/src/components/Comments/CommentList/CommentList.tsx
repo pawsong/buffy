@@ -16,7 +16,7 @@ interface CommentListProps {
   userId: string;
   comments: CommentDocument[];
   editingComment: string;
-  commentUpdating: boolean;
+  disabled: boolean;
   onCommentRequestEdit: (commentId: string) => any;
   onCommentUpdate: (commentId: string, version: number, body: string) => any;
   onCommentDelete: (commentId: string) => any;
@@ -62,7 +62,7 @@ class CommentList extends React.Component<CommentListProps, void> {
                 initialState={comment.body}
                 onCancel={this.handleEditCancel}
                 onSubmit={body => this.props.onCommentUpdate(comment.id, comment.__v, body)}
-                disabled={this.props.commentUpdating}
+                disabled={this.props.disabled}
               />
             )
             : (

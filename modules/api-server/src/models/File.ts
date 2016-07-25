@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import comment from './plugins/comment';
 
 const secrets = [
   '_id',
@@ -57,4 +58,10 @@ FileSchema.set('toJSON', {
   },
 });
 
-export default mongoose.model<FileDocument>('File', FileSchema);
+FileSchema.plugin(comment);
+
+const File = mongoose.model<FileDocument>('File', FileSchema);
+export default File;
+
+const FileComment = (File as any).createCommentModel();
+export { FileComment }

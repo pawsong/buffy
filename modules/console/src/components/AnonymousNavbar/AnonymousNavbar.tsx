@@ -40,6 +40,7 @@ interface AnonymousNavbarProps extends React.Props<AnonymousNavbar> {
   fullWidth?: boolean;
   intl?: InjectedIntlProps;
   dispatch?: Dispatch;
+  className?: string;
   location: HistoryModule.Location;
 }
 
@@ -86,7 +87,7 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
     const leftToolbarGroup = this.props.leftToolbarGroup || null;
 
     return (
-      <Navbar fullWidth={this.props.fullWidth}>
+      <Navbar fullWidth={this.props.fullWidth} className={this.props.className}>
         <ToolbarGroup>
           <Link to="/"><BuffyIcon style={this.logoStyle} color={Colors.darkWhite} /></Link>
           {leftToolbarGroup}

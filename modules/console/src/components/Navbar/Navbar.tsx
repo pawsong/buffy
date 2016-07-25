@@ -21,6 +21,7 @@ const styles = require('./Navbar.css');
 
 interface NavbarProps extends React.Props<Navbar> {
   fullWidth?: boolean;
+  className?: string;
 }
 
 const rootClass = [
@@ -50,7 +51,7 @@ class Navbar extends React.Component<NavbarProps, {}> {
 
   render() {
     return (
-      <div>
+      <div className={this.props.className}>
         <div className={styles.content} style={{ backgroundColor: this.backgroundColor }}>
           <div className={this.props.fullWidth ? '' : rootClass}>
             <Toolbar style={this.toolbarStyle}>{this.props.children}</Toolbar>

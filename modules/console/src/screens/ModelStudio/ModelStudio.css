@@ -4,6 +4,12 @@
   --file-category-button-container-width: 60px;
 }
 
+.navbar {
+  position: fixed;
+  z-index: 1000;
+  width: 100%;
+}
+
 .fileCategoryButtonContainer {
   position: absolute;
   top: 0;

@@ -104,6 +104,7 @@ interface LoggedInNavbarProps extends React.Props<LoggedInNavbar> {
   onLogout: () => any;
   leftToolbarGroup?: React.ReactElement<any>;
   fullWidth?: boolean;
+  className?: string;
   intl?: InjectedIntlProps;
 }
 
@@ -202,7 +203,7 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
     const leftToolbarGroup = this.props.leftToolbarGroup || null;
 
     return (
-      <Navbar fullWidth={this.props.fullWidth}>
+      <Navbar fullWidth={this.props.fullWidth} className={this.props.className}>
         <ToolbarGroup>
           <Link to="/"><BuffyIcon style={inlineStyles.logo} color={Colors.darkWhite} /></Link>
           {leftToolbarGroup}
