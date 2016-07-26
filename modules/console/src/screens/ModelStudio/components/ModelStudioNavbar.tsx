@@ -204,6 +204,8 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
   /* Trove Menu */
 
   renderTroveMenu() {
+    if (1===1) return null;
+
     if (this.state.submenuType !== SubmenuType.TROVE) return null;
 
     const installBlueprintShortcut = this.isMac ? '⌘B' : 'Ctrl+B';
