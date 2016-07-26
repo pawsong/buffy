@@ -6,6 +6,15 @@ const ReactMarkdown = require('react-markdown');
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { FormattedDate } from 'react-intl';
 import {EditorState} from 'draft-js';
+import { createSelector } from 'reselect';
+
+const removeMd = require('remove-markdown');
+
+import {
+  EnhancedTitle,
+  Meta,
+  MetaDescription,
+} from '../../../../hairdresser';
 
 import {BlogPostDocument} from '../../types';
 
@@ -39,6 +48,15 @@ interface HandleState {
   commentFormState?: EditorState;
   editingComment?: string;
 }
+
+const descriptionSelector = createSelector(
+  (props: HandlerProps) => props.post.result,
+  post => {
+    if (!post) return '';
+    const plainText = removeMd(post.body);
+    return plainText.length > 300 ? `${plainText.substr(0, 300)}...` : plainText;
+  }
+);
 
 @preloadApi<RouteParams>(params => ({
   post: get(`${CONFIG_API_SERVER_URL}/blog-posts/${params.slug}`),
@@ -162,15 +180,20 @@ class BlogPostHandler extends React.Component<HandlerProps, HandleState> {
 
   onEditingCommentChange = (editingComment: string) => this.setState({ editingComment })
 
-  renderBody() {
+  render() {
     const post = this.props.post.result;
     if (!post) return null;
 
+    const description = descriptionSelector(this.props);
     const picture = post.author.picture ? `${__CDN_BASE__}/${post.author.picture}` : anonProfilePicture;
 
     return (
       <div>
-        <h1>{post.title}</h1>
+        <EnhancedTitle>{post.title}</EnhancedTitle>
+        <MetaDescription>{description}</MetaDescription>
+        <h1 className={styles.title}>
+          {post.title}
+        </h1>
         <div className={styles.profile}>
           <FormattedDate
             value={new Date(post.createdAt)}
@@ -185,7 +208,11 @@ class BlogPostHandler extends React.Component<HandlerProps, HandleState> {
             {post.author.username}
           </Link>
         </div>
-        <ReactMarkdown source={post.body} className={styles.body} />
+        <ReactMarkdown
+          className={styles.body}
+          source={post.body}
+          renderers={{Link: props => <a href={props.href} target="_blank">{props.children}</a>}}
+        />
         <Comments
           commentFormState={this.state.commentFormState}
           comments={this.state.comments}
@@ -202,14 +229,6 @@ class BlogPostHandler extends React.Component<HandlerProps, HandleState> {
         {
           isRunning(this.props.loadComments) && <div>Loading...</div>
         }
-      </div>
-    );
-  }
-
-  render() {
-    return (
-      <div>
-        {this.renderBody()}
       </div>
     );
   }

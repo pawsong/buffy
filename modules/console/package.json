@@ -86,6 +86,7 @@
     "recompose": "^0.20.2",
     "redux": "^3.1.7",
     "redux-saga": "^0.10.4",
+    "remove-markdown": "^0.1.0",
     "request": "^2.65.0",
     "reselect": "^2.5.1",
     "screenfull": "^3.0.0",

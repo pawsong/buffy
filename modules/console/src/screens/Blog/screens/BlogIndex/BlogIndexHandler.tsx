@@ -26,9 +26,16 @@ class BlogIndexHandler extends React.Component<HandlerProps, {}> {
       return (
         <ListItem
           key={post.id}
-          primaryText={post.title}
+          primaryText={
+            <div style={{
+              fontSize: '26px',
+            }}>{post.title}</div>
+          }
           secondaryText={
-            <div>
+            <div style={{
+              fontSize: '16px',
+              marginTop: 10,
+            }}>
               <FormattedDate
                 value={new Date(post.createdAt)}
                 year='numeric'
@@ -37,7 +44,15 @@ class BlogIndexHandler extends React.Component<HandlerProps, {}> {
               />
             </div>
           }
-          leftAvatar={<Avatar src={picture} />}
+          innerDivStyle={{
+            paddingTop: 30,
+            paddingBottom: 30,
+          }}
+          leftAvatar={
+            <Avatar src={picture} style={{
+              marginTop: 10,
+            }} />
+          }
           containerElement={<Link to={`/blog/${post.slug}`} />}
         />
       );

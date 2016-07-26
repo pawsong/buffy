@@ -21,6 +21,17 @@
   margin-left: 4px;
 }
 
+.title {
+  font-size: 36px;
+}
+
 .body {
   margin-top: 60px;
+  font-size: 21px;
+  font-weight: 300;
+  line-height: 1.58;
+
+  & strong {
+    font-weight: 500;
+  }
 }
