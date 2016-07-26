@@ -259,7 +259,7 @@ class HistoryPanel extends React.Component<HistoryPanelProps, {}> {
     }));
 
     return (
-      <div ref="list" style={{ height: 180, overflow: 'scroll'}}>
+      <div ref="list" style={{ height: 180, overflowY: 'scroll'}}>
         {listItems}
       </div>
     );
