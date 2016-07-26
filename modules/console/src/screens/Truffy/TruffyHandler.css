@@ -1,0 +1,44 @@
+.root {
+  font-weight: 300;
+}
+
+.leftPane {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  & h1 {
+    margin: 0;
+  }
+}
+
+.header {
+  width: 100%;
+  margin-top: 40px;
+
+  & .sub {
+    margin-top: 5px;
+    font-size: 17px;
+  }
+}
+
+.desc {
+  font-size: 21px;
+  line-height: 1.58;
+  margin-top: 40px;
+}
+
+.downloadButton {
+  margin-top: 70px;
+}
+
+.rightPane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & img {
+    width: 400px;
+    margin: 30px;
+  }
+}

@@ -1,12 +1,20 @@
 import React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 
+const screenshot = require('file!./temp.png');
+
 import { preloadApi, connectApi, ApiCall, get } from '../../api';
+
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+const styles = require('./TruffyHandler.css');
+
+import { EnhancedTitle } from '../../hairdresser';
 
 const rootClass = [
   'col-xs-12',
   'col-md-offset-2',
   'col-md-8',
+  styles.root,
 ].join(' ');
 
 interface HandlerProps {
@@ -17,6 +25,7 @@ interface HandlerProps {
   channels: get('https://download.buffy.run/api/channels'),
 }))
 @connectApi()
+@withStyles(styles)
 class TruffyHandler extends React.Component<HandlerProps, {}> {
   static contextTypes = {
     isMac: React.PropTypes.bool.isRequired,
@@ -41,18 +50,27 @@ class TruffyHandler extends React.Component<HandlerProps, {}> {
 
     return (
       <div className={rootClass}>
+        <EnhancedTitle>Meet Truffy</EnhancedTitle>
         <div className="row">
-          <div className="col-xs">
-            <h1>Meet Truffy</h1>
-            <div>Trove Creation Made Easy</div>
+          <div className={`col-xs ${styles.leftPane}`}>
+            <div className={styles.header}>
+              <h1>Truffy</h1>
+              <div className={styles.sub}>Trove Creation Made Easy</div>
+              <div className={styles.desc}>
+                Truffy is a desktop app that enables Buffy's special features for Trove Creation.
+              </div>
+            </div>
+            <div className={styles.downloadButton}>
+              <RaisedButton
+                label="Get Truffy"
+                href={link}
+                primary={true}
+                disabled={!link}
+              />
+            </div>
           </div>
-          <div className="col-xs">
-            <RaisedButton
-              label="Get Truffy"
-              href={link}
-              primary={true}
-              disabled={!link}
-            />
+          <div className={`col-xs ${styles.rightPane}`}>
+            <img src={screenshot} />
           </div>
         </div>
       </div>
