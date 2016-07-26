@@ -185,7 +185,7 @@ export function* requestTruffyAction(
   const { data } = yield call(ModelEditor.exportQbFile, thumbnailFactory, file.body, filename, username);
 
   try {
-    const response = yield call(request.post, `http://localhost:${TROFFY_PORT}/blueprints/${filename}/${action}`, data, {
+    const response = yield call(request.post, `https://buffylocal.com:${TROFFY_PORT}/blueprints/${filename}/${action}`, data, {
       headers: {
         'content-type' : 'application/octet-stream',
         [HEADER_CLIPBOARD]: clipboard,
