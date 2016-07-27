@@ -4,9 +4,12 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 import { RouteComponentProps, Link } from 'react-router';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import RaisedButton from 'material-ui/RaisedButton';
+// import FlatButton from 'material-ui/FlatButton';
+const FlatButton = require('material-ui/FlatButton').default;
 import { cyan500, cyan200, fullWhite } from 'material-ui/styles/colors';
 import { preloadApi, connectApi, ApiCall, get, ApiDispatchProps } from '../../api';
 import { call } from 'redux-saga/effects';
+import ModeEdit from 'material-ui/svg-icons/editor/mode-edit';
 import { saga, SagaProps, ImmutableTask, isDone, request } from '../../saga';
 import { deserialize } from '../../components/ModelEditor/utils/serdez';
 import { FileState as ModelFileState } from '../../components/ModelEditor/types';
@@ -158,6 +161,27 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
       );
     }
 
+    let edit = null;
+    if (this.props.user && model.owner && this.props.user.id === model.owner.id) {
+      edit = (
+        <div className={styles.dualButton} style={{ display: 'inline-block' }}>
+          <FlatButton
+            backgroundColor={cyan500}
+            hoverColor={cyan200}
+            style={{color: fullWhite}}
+            icon={
+              <ModeEdit
+                color={fullWhite}
+                style={{ width: 18, height: 18 }}
+              />
+            }
+            label={'Edit'}
+            containerElement={<Link to={`/model/edit?files=${model.id}`} />}
+          />
+        </div>
+      );
+    }
+
     return (
       <div>
         <div className={styles.title}>
@@ -178,6 +202,7 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
               rightLabel={`${model.forked}`}
               rightOnTouchTap={() => alert('Sorry, this feature is under construction')}
             />
+            {edit}
           </div>
           <Link to={`/model/${model.id}`} >
             <h1 style={{ display: 'inline-block' }}>
