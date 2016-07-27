@@ -46,3 +46,30 @@
   color: rgba(0, 0, 0, 0.870588);
   align-self: flex-end;
 }
+
+.itemSocialCont {
+  display: flex;
+  flex-direction: row;
+  padding-left: 12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  font-size: 14px;
+}
+
+.itemSocial {
+  display: flex;
+  align-items: center;
+  color: var(--palette-grey-700);
+}
+
+.itemSocialNumber {
+  margin-left: 2px;
+}
+
+.itemSocial + .itemSocial {
+  margin-left: 12px;
+}
+
+.itemSocialIcon {
+
+}

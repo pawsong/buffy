@@ -21,6 +21,7 @@ export interface FileDocument extends mongoose.Document {
   forkParent: mongoose.Types.ObjectId;
   forked: number;
   likeCount: number;
+  commentCount: number;
 
   // Data
   format: string;
@@ -39,6 +40,7 @@ const FileSchema = new Schema({
   forkParent: { type: Schema.Types.ObjectId, ref: 'File' },
   forked: { type: Number, default: 0 },
   likeCount: { type: Number, default: 0 },
+  commentCount: { type: Number, default: 0 },
 
   format: String,
   bucket: String,

@@ -54,6 +54,8 @@ export const createComment = compose(requiresLogin, wrap(async (req, res) => {
 
   await comment.save();
 
+  await BlogPost.findByIdAndUpdate(blogId, { $inc: { commentCount: 1 } }).exec();
+
   res.send(Object.assign(comment.toJSON(), {
     user: req['userDoc'],
   }));
@@ -84,6 +86,8 @@ export const deleteComment = compose(requiresLogin, wrap(async (req, res) => {
     user: req.user.id,
   }).exec();
   if (!comment) return res.sendStatus(400);
+
+  await BlogPost.findByIdAndUpdate(blogId, { $inc: { commentCount: -1 } }).exec();
 
   res.sendStatus(200);
 }));

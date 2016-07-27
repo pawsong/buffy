@@ -15,6 +15,7 @@ export interface BlogPostDocument extends mongoose.Document {
   slug: string;
   title: string;
   body: string;
+  commentCount: number;
   createdAt: Date;
 }
 
@@ -23,6 +24,7 @@ const BlogPostSchema = new Schema({
   slug: String,
   title: String,
   body: String,
+  commentCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 BlogPostSchema.index('slug', { unique: true });

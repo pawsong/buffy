@@ -5,9 +5,14 @@ import { grey200 } from 'material-ui/styles/colors';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 
 import * as Colors from 'material-ui/styles/colors';
+import {grey700} from 'material-ui/styles/colors';
 import List from 'material-ui/List/List';
 import ListItem from 'material-ui/List/ListItem';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
+
+import Heart from '../../../components/icons/Heart';
+import Fork from '../../../components/icons/Fork';
+import ModeComment from 'material-ui/svg-icons/editor/mode-comment';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../../constants/Messages';
@@ -44,6 +49,10 @@ const inlineStyles = {
     height: 180,
     margin: 10,
   },
+  socialIcon: {
+    width: 16,
+    height: 16,
+  }
 };
 
 interface ModelListProps extends React.Props<ModelList> {
@@ -89,6 +98,20 @@ class ModelList extends React.Component<ModelListProps, {}> {
           </div>
         </div>
         {username}
+        <div className={styles.itemSocialCont}>
+          <div className={styles.itemSocial}>
+            <Heart style={inlineStyles.socialIcon} color={grey700} />
+            <div className={styles.itemSocialNumber}>{file.likeCount}</div>
+          </div>
+          <div className={styles.itemSocial}>
+            <Fork style={inlineStyles.socialIcon} color={grey700} />
+            <div className={styles.itemSocialNumber}>{file.forked}</div>
+          </div>
+          <div className={styles.itemSocial}>
+            <ModeComment style={inlineStyles.socialIcon} color={grey700} />
+            <div className={styles.itemSocialNumber}>{file.commentCount}</div>
+          </div>
+        </div>
       </Paper>
     );
   }

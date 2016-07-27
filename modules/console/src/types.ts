@@ -39,6 +39,7 @@ export interface ModelFileDocument {
   forkParent: ForkItem;
   forked: number;
   likeCount: number;
+  commentCount: number;
 }
 
 /*
