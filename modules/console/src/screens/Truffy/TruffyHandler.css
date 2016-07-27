@@ -32,6 +32,12 @@
   margin-top: 70px;
 }
 
+.learnMore {
+  margin-top: 16px;
+  font-weight: 400;
+  text-align: center;
+}
+
 .rightPane {
   display: flex;
   align-items: center;

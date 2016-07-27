@@ -67,6 +67,9 @@ class TruffyHandler extends React.Component<HandlerProps, {}> {
                 primary={true}
                 disabled={!link}
               />
+              <div className={styles.learnMore}>
+                <a href="/blog/trove-creation-made-easy" target="_blank">Learn more</a>
+              </div>
             </div>
           </div>
           <div className={`col-xs ${styles.rightPane}`}>

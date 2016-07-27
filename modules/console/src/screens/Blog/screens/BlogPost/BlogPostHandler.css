@@ -22,7 +22,8 @@
 }
 
 .title {
-  font-size: 36px;
+  font-size: 38px;
+  line-height: 1.15;
 }
 
 .body {
@@ -33,5 +34,17 @@
 
   & strong {
     font-weight: 500;
+  }
+
+  & h2 {
+    font-size: 32px;
+    margin-top: 52px;
+    line-height: 1.15;
+  }
+
+  & h3 {
+    font-size: 28px;
+    margin-top: 48px;
+    line-height: 1.15;
   }
 }
