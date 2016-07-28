@@ -10,20 +10,20 @@ import List from 'material-ui/List/List';
 import ListItem from 'material-ui/List/ListItem';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 
-import Heart from '../../../components/icons/Heart';
-import Fork from '../../../components/icons/Fork';
+import Heart from '../icons/Heart';
+import Fork from '../icons/Fork';
 import ModeComment from 'material-ui/svg-icons/editor/mode-comment';
 
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
-import Messages from '../../../constants/Messages';
+import Messages from '../../constants/Messages';
 
-import getForkItemLabel from '../../../utils/getForkItemLabel';
+import getForkItemLabel from '../../utils/getForkItemLabel';
 
 const styles = require('./ModelList.css');
 
 import {
   ModelFileDocument,
-} from '../../../types';
+} from '../../types';
 
 const inlineStyles = {
   root: {
@@ -56,8 +56,7 @@ const inlineStyles = {
 };
 
 interface ModelListProps extends React.Props<ModelList> {
-  fetching: boolean;
-  courses: ModelFileDocument[];
+  files: ModelFileDocument[];
 }
 
 @withStyles(styles)
@@ -117,7 +116,7 @@ class ModelList extends React.Component<ModelListProps, {}> {
   }
 
   renderBody() {
-    const rows = this.props.courses.map(course => this.getListItem(course));
+    const rows = this.props.files.map(course => this.getListItem(course));
 
     return (
       <div className={styles.root}>{rows}</div>
@@ -125,7 +124,7 @@ class ModelList extends React.Component<ModelListProps, {}> {
   }
 
   render() {
-    return !this.props.courses ? <div>Fetching...</div> : this.renderBody();
+    return !this.props.files ? <div>Fetching...</div> : this.renderBody();
   }
 }
 

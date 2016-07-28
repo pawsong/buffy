@@ -10,7 +10,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import { white } from 'material-ui/styles/colors';
 import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 'react-intl';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
-import ModelList from './components/ModelList';
+import ModelList from '../../components/ModelList';
 
 import {
   ModelFileDocument,
@@ -84,22 +84,19 @@ class ModelHandler extends React.Component<HandlerProps, {}> {
           <div>
             <h2 className={styles.subtitle}>Most liked models</h2>
             <ModelList
-              courses={this.props.mostLikedModels.result}
-              fetching={this.props.mostLikedModels.state !== 'fulfilled'}
+              files={this.props.mostLikedModels.result}
             />
           </div>
           <div>
             <h2 className={styles.subtitle}>Most forked models</h2>
             <ModelList
-              courses={this.props.mostForkedModels.result}
-              fetching={this.props.mostForkedModels.state !== 'fulfilled'}
+              files={this.props.mostForkedModels.result}
             />
           </div>
           <div>
             <h2 className={styles.subtitle}>Recently updated models</h2>
             <ModelList
-              courses={this.props.recentModels.result}
-              fetching={this.props.recentModels.state !== 'fulfilled'}
+              files={this.props.recentModels.result}
             />
           </div>
         </div>
