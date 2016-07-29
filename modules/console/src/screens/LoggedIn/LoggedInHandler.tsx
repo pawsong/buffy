@@ -54,6 +54,12 @@ class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
           containerElement={<Link to="/model/edit" />}
         />
         <FlatButton
+          label={this.props.intl.formatMessage(Messages.explore)}
+          style={styles.button}
+          hoverColor={Colors.cyan700}
+          containerElement={<Link to="/explore" />}
+        />
+        <FlatButton
           label={this.props.intl.formatMessage(Messages.blog)}
           style={styles.button}
           hoverColor={Colors.cyan700}

@@ -51,6 +51,10 @@ export const getFileList = wrap(async (req, res) => {
     }
   }
 
+  if (req.query.skip) {
+    query.skip(parseInt(req.query.skip, 10) || 0);
+  }
+
   const files = await query.exec();
   res.send(files);
 });

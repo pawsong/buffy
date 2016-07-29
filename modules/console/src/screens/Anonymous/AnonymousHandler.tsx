@@ -65,6 +65,8 @@ class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
 
   handleCreateClick = () => this.props.push('/model/edit');
 
+  handleExploreClick = () => this.props.push('/explore');
+
   handleBlogClick = () => this.props.push('/blog');
 
   renderLeftToolbarGroup() {
@@ -76,7 +78,7 @@ class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
     return (
       <Tabs
         value={rootpath}
-        style={{ width: 200, display: 'inline-block', marginLeft: 30 }}
+        style={{ width: 300, display: 'inline-block', marginLeft: 30 }}
         tabItemContainerStyle={{ height: '100%' }}
       >
         <Tab
@@ -85,6 +87,13 @@ class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
           onActive={this.handleCreateClick}
           icon={<FontIcon className="material-icons">brush</FontIcon>}
           label={this.props.intl.formatMessage(messages.create)}
+        />
+        <Tab
+          style={{ height: '100%' }}
+          value="/explore"
+          onActive={this.handleExploreClick}
+          icon={<FontIcon className="material-icons">explore</FontIcon>}
+          label={this.props.intl.formatMessage(Messages.explore)}
         />
         <Tab
           style={{ height: '100%' }}

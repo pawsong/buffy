@@ -32,6 +32,7 @@ import BlogIndexHandler from './screens/Blog/screens/BlogIndex';
 import BlogPostHandler from './screens/Blog/screens/BlogPost';
 import UnsupportedOnMobileHandler from './screens/UnsupportedOnMobile';
 import TruffyHandler from './screens/Truffy';
+import ExploreHandler from './screens/Explore';
 
 export default function getRoutes(store: Store, isMobile: boolean) {
 
@@ -217,6 +218,12 @@ export default function getRoutes(store: Store, isMobile: boolean) {
             path: '/truffy',
             getComponent: (location, cb) => require.ensure([], require => {
               cb(null, require<{ default: TruffyHandler }>('./screens/Truffy').default);
+            }),
+          },
+          {
+            path: '/explore',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: ExploreHandler }>('./screens/Explore').default);
             }),
           },
           {
