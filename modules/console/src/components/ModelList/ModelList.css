@@ -29,6 +29,13 @@
   font-size: 24px;
   display: block;
   line-height: 36px;
+
+  /* Careful, this breaks the word wherever it is without a hyphen */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  /* Adds a hyphen where the word breaks */
+  hyphens: auto;
 }
 
 .itemSubtitle {
