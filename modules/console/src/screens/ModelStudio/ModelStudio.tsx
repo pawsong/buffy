@@ -28,6 +28,11 @@ import ModelEditor, {
   ModelExtraData,
   ModelSupportFileType,
 } from '../../components/ModelEditor';
+
+import AnimationEditor, {
+
+} from '../../components/AnimationEditor';
+
 import itemType from '../../components/ModelEditor/trove/itemType';
 
 import { State } from '../../reducers';
@@ -35,7 +40,7 @@ import { User } from '../../reducers/users';
 
 
 import { FileType, ModelFileType, MaterialMapType } from '../../types';
-import { ModelFile, ModelFileMap, ModelFileOpenParams, ModelFileDocument } from './types';
+import { ModelFile, ModelFileMap, ModelFileOpenParams, ModelFileDocument, EditorMode } from './types';
 
 import ConfirmLeaveDialog from './components/ConfirmLeaveDialog';
 import ModelStudioNavbar from './components/ModelStudioNavbar';
@@ -101,6 +106,7 @@ interface HandlerState {
   leaveConfirmParams?: LeaveConfirmParams;
   fileToDelete?: string;
   fileToRemove?: string;
+  editorMode?: EditorMode;
 }
 
 @withStyles(styles)
@@ -136,7 +142,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
   isMac: boolean;
 
-  constructor(props, context) {
+  constructor(props: HandlerProps, context) {
     super(props, context);
 
     this.isMac = context.isMac;
@@ -145,6 +151,8 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
 
     this.geometryFactory = new GeometryFactory();
     this.troveGeometryFactory = new TroveGeometryFactory();
+
+    const modeQuery = props.location.query['mode'];
 
     this.state = {
       sizeResivion: 0,
@@ -157,8 +165,11 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       leaveConfirmParams: null,
       fileToDelete: '',
       fileToRemove: '',
+      editorMode: modeQuery === 'animation' ? EditorMode.ANIMATE : EditorMode.DRAW,
     }
   }
+
+  handleChangeEditorMode = (editorMode: EditorMode) => this.setState({ editorMode });
 
   unsavedChangeExists() {
     const files = this.state.files.toArray();
@@ -276,6 +287,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       body,
       extra: ModelEditor.createExtraData(model.shape),
       forkParent,
+      animation: AnimationEditor.createExtraData(''),
     };
 
     const openedFiles = this.state.openedFiles.indexOf(file.id) === -1
@@ -722,6 +734,8 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onFileRename={this.handleFileRename}
           onRequestOpenFile={this.handleRequestOpenFile}
           onOpenedFileOrderChange={this.handleFileTabOrderChange}
+          editorMode={this.state.editorMode}
+          onChangeEditorMode={this.handleChangeEditorMode}
         />
         <OpenModelFileDialog
           user={this.props.user}

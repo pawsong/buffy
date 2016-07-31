@@ -7,6 +7,10 @@ import ModelEditor, {
 } from '../../components/ModelEditor';
 
 import {
+  AnimationExtraData,
+} from '../../components/AnimationEditor';
+
+import {
   SourceFile,
   User,
   ForkItem,
@@ -17,6 +21,7 @@ export interface ModelFile extends SourceFile<ModelFileState, ModelExtraData> {
   owner: User;
   thumbnail: string;
   forkParent: ForkItem;
+  animation: AnimationExtraData;
 }
 
 export type ModelFileMap = Immutable.Map<string, ModelFile>;
@@ -29,6 +34,11 @@ export interface ModelFileOpenParams {
   readonly: boolean;
   body: ModelFileState;
   forkParent: ForkItem;
+}
+
+export enum EditorMode {
+  DRAW,
+  ANIMATE,
 }
 
 export { ForkItem, ModelFileDocument }

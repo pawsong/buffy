@@ -1,18 +1,10 @@
 <xml>
-  <block type="when_run"></block>
-  <block type="on_keydown"></block>
-  <block type="wait"></block>
-  <block type="move"></block>
-  <block type="turn"></block>
-  <block type="color_sensor_center"></block>
-  <block type="color_sensor_front_left"></block>
-  <block type="color_sensor_front_right"></block>
-  <block type="controls_if"></block>
+  <block type="when_start"></block>
+  <block type="concurrently"></block>
   <block type="controls_repeat_ext"></block>
-  <block type="logic_compare"></block>
   <block type="math_number"></block>
-  <block type="math_arithmetic"></block>
-  <block type="text"></block>
-  <block type="text_print"></block>
-  <block type="boom"></block>
+  <block type="move"></block>
+  <block type="scaleX"></block>
+  <block type="scaleY"></block>
+  <block type="scaleZ"></block>
 </xml>

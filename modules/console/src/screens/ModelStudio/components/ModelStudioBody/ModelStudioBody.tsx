@@ -18,7 +18,11 @@ import ModelEditor, {
   ModelExtraData,
 } from '../../../../components/ModelEditor';
 
-import { ModelFile, ModelFileMap } from '../../types';
+import AnimationEditor, {
+
+} from '../../../../components/AnimationEditor';
+
+import { ModelFile, ModelFileMap, EditorMode } from '../../types';
 
 const styles = require('../../ModelStudio.css');
 
@@ -80,6 +84,8 @@ interface ModelStudioBodyProps {
   onRequestOpenFile: () => any;
   onRequestSnackbar: (message: string) => any;
   onOpenedFileOrderChange: (dragIndex: number, hoverIndex: number) => any;
+  editorMode: EditorMode;
+  onChangeEditorMode: (mode: EditorMode) => any;
 }
 
 interface HandlerState {
@@ -150,6 +156,35 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
     );
   }
 
+  renderEditorBody(activeFile: ModelFile) {
+    switch(this.props.editorMode) {
+      case EditorMode.DRAW: {
+        return (
+          <ModelEditor
+            geometryFactory={this.props.geometryFactory}
+            troveGeometryFactory={this.props.troveGeometryFactory}
+            sizeVersion={this.state.editorSizeResivion}
+            commonState={this.state.modelCommonState}
+            fileState={activeFile.body}
+            extraData={activeFile.extra}
+            onCommonStateChange={this.handleCommonStateChange}
+            onFileStateChange={this.props.onFileChange}
+          />
+        );
+      }
+      case EditorMode.ANIMATE: {
+        return (
+          <AnimationEditor
+            fileState={activeFile.body}
+            extraData={activeFile.animation}
+          />
+        );
+      }
+    }
+
+    return null;
+  }
+
   renderEditor(activeFile: ModelFile) {
     const files = this.props.openedFiles.map(id => this.props.files.get(id));
 
@@ -163,16 +198,7 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
           onTabOrderChange={this.props.onOpenedFileOrderChange}
         />
         <div style={inlineStyles.editor}>
-          <ModelEditor
-            geometryFactory={this.props.geometryFactory}
-            troveGeometryFactory={this.props.troveGeometryFactory}
-            sizeVersion={this.state.editorSizeResivion}
-            commonState={this.state.modelCommonState}
-            fileState={activeFile.body}
-            extraData={activeFile.extra}
-            onCommonStateChange={this.handleCommonStateChange}
-            onFileStateChange={this.props.onFileChange}
-          />
+          {this.renderEditorBody(activeFile)}
         </div>
       </div>
     );
@@ -217,6 +243,8 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
           open={this.state.browserOpen}
           onRequestOpen={this.handleBrowserRequestOpen}
           renameFileId={this.state.renameFileId}
+          editorMode={this.props.editorMode}
+          onChangeEditorMode={this.props.onChangeEditorMode}
         >
           {activeFile ? this.renderEditor(activeFile) : this.renderGetFileButtons()}
         </FileBrowser>

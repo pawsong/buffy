@@ -4,11 +4,14 @@ import FlatButton from 'material-ui/FlatButton';
 import * as Colors from 'material-ui/styles/colors';
 import * as update from 'react-addons-update';
 
+import PlayArrow from 'material-ui/svg-icons/av/play-arrow';
+import Palette from 'material-ui/svg-icons/image/palette';
+
 import Layout, { LayoutContainer } from '../../../../components/Layout';
 import FileMultiple from '../../../../components/icons/FileMultiple';
 import { getFileTypeLabel, getFileTypeAvatar } from '../../../../utils/file';
 
-import { ModelFile, ModelFileMap } from '../../types';
+import { ModelFile, ModelFileMap, EditorMode } from '../../types';
 
 const styles = require('../../ModelStudio.css');
 
@@ -26,18 +29,45 @@ interface FileBrowserProps extends React.Props<FileBrowser> {
   onFileRename: (fileId: string, name: string) => any;
   onFileRemove: (fileId: string) => any;
   onFileDelete: (fileId: string) => any;
+  editorMode: EditorMode;
+  onChangeEditorMode: (mode: EditorMode) => any;
   renameFileId: string;
 }
 
 class FileBrowser extends React.Component<FileBrowserProps, void> {
   toggleFileBrowser = () => this.props.onRequestOpen(!this.props.open);
 
+  handleSelectDrawMode = () => this.props.onChangeEditorMode(EditorMode.DRAW);
+
+  handleSelectAnimateMode = () => this.props.onChangeEditorMode(EditorMode.ANIMATE);
+
   renderFileBrowserButtons() {
     return (
       <div className={styles.fileCategoryButtonContainer}>
         <div className={styles.fileCategoryButtons}>
           <IconButton
-            tooltip={'files'}
+            tooltip={'Animate'}
+            onTouchTap={this.handleSelectAnimateMode}
+            className={styles.fileCategoryButton}
+            iconStyle={{
+              transform: 'scale(1.32)',
+            }}
+          >
+            <PlayArrow
+              color={this.props.editorMode === EditorMode.ANIMATE ? Colors.black : Colors.grey500}
+            />
+          </IconButton>
+          <IconButton
+            tooltip={'Draw'}
+            onTouchTap={this.handleSelectDrawMode}
+            className={styles.fileCategoryButton}
+          >
+            <Palette
+              color={this.props.editorMode === EditorMode.DRAW ? Colors.black : Colors.grey500}
+            />
+          </IconButton>
+          <IconButton
+            tooltip={'Files'}
             onTouchTap={this.toggleFileBrowser}
             className={styles.fileCategoryButton}
           >

@@ -39,6 +39,7 @@
     "shortid": "registry:dt/shortid#0.0.0+20160316155526",
     "socket.io-client": "registry:dt/socket.io-client#1.4.4+20160317120654",
     "three": "registry:dt/three#0.0.0+20160621005955",
+    "tween.js": "registry:dt/tween.js#0.0.0+20160608102153",
     "uglify-js": "registry:dt/uglify-js#2.6.1+20160316155526"
   }
 }

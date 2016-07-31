@@ -12,8 +12,8 @@ export function compileBlocklyXml(workspace: any): Scripts {
     let event;
 
     switch(block.type) {
-      case 'when_run': {
-        event = 'when_run';
+      case 'when_start': {
+        event = 'when_start';
         break;
       }
       case 'on_keydown': {
