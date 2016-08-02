@@ -52,9 +52,9 @@ interface AnimationEditorState {
 
 function estimateWorkspaceTime(workspace: any) {
   const result = compileBlocklyXml(workspace);
-  if (!result['when_start']) return 0;
+  if (!result['when_run']) return 0;
 
-  return result['when_start']
+  return result['when_run']
     .map(code => estimateTime(code))
     .reduce((prev, cur) => Math.max(prev, cur), 0);
 }
@@ -153,8 +153,8 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
 
     const result = compileBlocklyXml(this.props.extraData.workspace);
 
-    if (result['when_start']) {
-      result['when_start'].forEach(code => this.sandbox.execute(code));
+    if (result['when_run']) {
+      result['when_run'].forEach(code => this.sandbox.execute(code));
     }
   }
 

@@ -1,3 +1,5 @@
+import {cyanA700, blueGrey200, pink300} from 'material-ui/styles/colors';
+
 import Blockly from './';
 import { Keys } from './constants';
 
@@ -9,23 +11,88 @@ function nonnegativeNumberValidator(text) {
   return n;
 }
 
+/* Styling */
+Blockly.Blocks.math.HUE = blueGrey200;
+
 /**
  * whenRun block
  */
 
-Blockly.Blocks['when_start'] = {
+Blockly.Blocks['when_run'] = {
   // Block to handle event where mouse is clicked
   helpUrl: '',
   init: function () {
-    this.setColour(160);
-    this.appendDummyInput().appendField('when start');
+    this.setColour(pink300);
+    this.appendDummyInput().appendField('when run');
     this.setPreviousStatement(false);
     this.setNextStatement(true);
   },
   shouldBeGrayedOut: () => false,
 };
 
-Blockly.JavaScript['when_start'] = () => '\n';
+Blockly.JavaScript['when_run'] = () => '\n';
+
+/**
+ * move block
+ */
+
+Blockly.Blocks['move'] = {
+  init: function() {
+    this.setColour(cyanA700);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setInputsInline(false);
+
+    this.appendDummyInput()
+        .appendField('move')
+        .appendField(new Blockly.FieldDropdown([
+          ['forward', 'FORWARD'],
+          ['back', 'BACK'],
+          ['up', 'UP'],
+          ['down', 'DOWN'],
+          ['left', 'LEFT'],
+          ['right', 'RIGHT'],
+        ]), 'DIRECTION')
+
+    this.appendValueInput('DISTANCE')
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField('by (meters)');
+
+    this.appendValueInput('DURATION')
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField('for (seconds)');
+
+    this.setTooltip('move');
+    // this.setHelpUrl('http://www.example.com');
+  }
+};
+
+const DIRECTIONS = {
+  'FORWARD': '[0, 0, 1]',
+  'BACK': '[0, 0, -1]',
+  'UP': '[0, 1, 0]',
+  'DOWN': '[0, -1, 0]',
+  'LEFT': '[1, 0, 0]',
+  'RIGHT': '[-1, 0, 0]',
+};
+
+Blockly.JavaScript['move'] = block => {
+  const direction = DIRECTIONS[block.getFieldValue('DIRECTION')];
+
+  let distance: string;
+  if (!(distance = Blockly.JavaScript.valueToCode(block, 'DISTANCE', Blockly.JavaScript.ORDER_ADDITION))) {
+    return '';
+  }
+
+  let duration: string;
+  if (!(duration = Blockly.JavaScript.valueToCode(block, 'DURATION', Blockly.JavaScript.ORDER_ADDITION))) {
+    return '';
+  }
+
+  return `window.moveLocal(${duration} * 1000, ${direction}, ${distance});\n`;
+};
 
 /**
  * on_keydown block
@@ -94,38 +161,6 @@ Blockly.Blocks['wait'] = {
 
 Blockly.JavaScript['wait'] = block => {
   return `window.wait(${block.getFieldValue('SECS')});\n`;
-};
-
-/**
- * move block
- */
-
-Blockly.Blocks['move'] = {
-  init: function() {
-    this.setColour(160);
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setInputsInline(false);
-
-    this.appendDummyInput()
-      .appendField('move forward by')
-      .appendField(new Blockly.FieldTextInput('3', nonnegativeNumberValidator), 'DISTANCE')
-      .appendField('meter(s)')
-    this.appendDummyInput()
-      .appendField('for')
-      .appendField(new Blockly.FieldTextInput('1', nonnegativeNumberValidator), 'DURATION')
-      .appendField('sec(s)');
-
-    this.setTooltip('move');
-    this.setHelpUrl('http://www.example.com');
-  }
-};
-
-Blockly.JavaScript['move'] = block => {
-  const duration = block.getFieldValue('DURATION') * 1000;
-  const distance = block.getFieldValue('DISTANCE');
-
-  return `window.moveForward(${duration}, ${distance});\n`;
 };
 
 /**

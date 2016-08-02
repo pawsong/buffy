@@ -1,12 +1,15 @@
 <xml>
-  <block type="when_start"></block>
-  <block type="concurrently"></block>
-  <block type="controls_repeat_ext"></block>
-  <block type="math_number"></block>
-  <block type="move"></block>
-  <block type="jump"></block>
-  <block type="rotate"></block>
-  <block type="scaleX"></block>
-  <block type="scaleY"></block>
-  <block type="scaleZ"></block>
+  <block type="when_run"></block>
+  <block type="move">
+    <value name="DISTANCE">
+      <block type="math_number">
+        <field name="NUM">5</field>
+      </block>
+    </value>
+    <value name="DURATION">
+      <block type="math_number">
+        <field name="NUM">1</field>
+      </block>
+    </value>
+  </block>
 </xml>

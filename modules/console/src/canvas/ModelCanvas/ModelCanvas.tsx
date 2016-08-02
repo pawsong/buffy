@@ -255,6 +255,18 @@ class ModelViewerCanvas extends Canvas {
       this.component.mesh.position.add(direction.multiplyScalar(value));
     };
   })();
+
+  moveLocal = (() => {
+    const matrix = new THREE.Matrix4();
+    const direction = new THREE.Vector3();
+
+    return (dir: [number, number, number], value: number) => {
+      matrix.extractRotation(this.component.mesh.matrix);
+      direction.set(dir[0], dir[1], dir[2]);
+      direction.applyMatrix4(matrix);
+      this.component.mesh.position.add(direction.multiplyScalar(value));
+    };
+  })();
 }
 
 export default ModelViewerCanvas;
