@@ -179,6 +179,7 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
             fileState={activeFile.body}
             extraData={activeFile.animation}
             onUpdate={this.props.onAnimationChange}
+            sizeVersion={this.state.editorSizeResivion}
           />
         );
       }

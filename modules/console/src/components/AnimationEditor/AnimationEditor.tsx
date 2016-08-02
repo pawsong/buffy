@@ -57,6 +57,7 @@ if (__CLIENT__) {
 interface AnimationEditorProps {
   fileState: ModelFileState;
   extraData: ExtraData;
+  sizeVersion: number;
   onUpdate: () => any;
 }
 
@@ -128,6 +129,13 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     if (this.props.fileState !== nextProps.fileState) {
       this.stop();
       this.canvas.onStateChange(nextProps.fileState);
+    }
+  }
+
+  componentDidUpdate(prevProps: AnimationEditorProps) {
+    if (prevProps.sizeVersion !== this.props.sizeVersion) {
+      Blockly.svgResize(this.props.extraData.workspace);
+      this.canvas.resize();
     }
   }
 
