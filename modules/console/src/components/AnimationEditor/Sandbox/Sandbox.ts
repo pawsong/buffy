@@ -1,5 +1,5 @@
 import { EventEmitter } from 'fbemitter';
-import AnimationEditorCanvas from '../canvas/AnimationEditorCanvas';
+import ModelCanvas from '../../../canvas/ModelCanvas';
 import Interpreter from './Interpreter';
 
 class Animation {
@@ -171,7 +171,7 @@ class Sandbox {
   private frameId: number;
   private then: number;
 
-  constructor(public canvas: AnimationEditorCanvas) {
+  constructor(public canvas: ModelCanvas) {
     this.processId = 0;
     this.processes = [];
   }

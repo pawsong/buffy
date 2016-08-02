@@ -16,7 +16,7 @@ if (__CLIENT__) {
   _TWEEN = require('tween.js');
 }
 
-import AnimationEditorCanvas from './canvas/AnimationEditorCanvas';
+import ModelCanvas from '../../canvas/ModelCanvas';
 
 const styles = require('./AnimationEditor.css');
 
@@ -61,7 +61,7 @@ function estimateWorkspaceTime(workspace: any) {
 class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEditorState> {
   static createExtraData: (xml?: string) => ExtraData;
 
-  canvas: AnimationEditorCanvas;
+  canvas: ModelCanvas;
   editorElement: HTMLElement;
 
   private sandbox: Sandbox;
@@ -87,7 +87,7 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     this.updateEstimatedTime(this.props.extraData.workspace);
 
     const container = findDOMNode<HTMLCanvasElement>(this.refs['canvas']);
-    this.canvas = new AnimationEditorCanvas(container, this.props.fileState);
+    this.canvas = new ModelCanvas(container, this.props.fileState);
     this.canvas.init();
 
     this.sandbox = new Sandbox(this.canvas);

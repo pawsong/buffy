@@ -1,24 +1,24 @@
 import THREE from 'three';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
-import Canvas from '../../../canvas/Canvas';
-import GeometryFactory from '../../../canvas/GeometryFactory';
-import TroveGeometryFactory from '../../../canvas/TroveGeometryFactory';
+import Canvas from '../Canvas';
+import GeometryFactory from '../GeometryFactory';
+import TroveGeometryFactory from '../TroveGeometryFactory';
 
 import {
   PIXEL_SCALE,
   PIXEL_SCALE_HALF,
-} from '../../../canvas/Constants';
+} from '../Constants';
 
 import {
   ModelFileType,
   MaterialMapType,
-} from '../../../types';
+} from '../../types';
 
-import getTroveMaterial from '../../../components/ModelEditor/canvas/materials/getTroveMaterial';
-import { FileState, VoxelData } from '../../../components/ModelEditor/types';
+import getTroveMaterial from '../../components/ModelEditor/canvas/materials/getTroveMaterial';
+import { FileState, VoxelData } from '../../components/ModelEditor/types';
 
-import SimpleComponent from '../../../libs/SimpleComponent';
+import SimpleComponent from '../../libs/SimpleComponent';
 
 if (__CLIENT__) {
   window['THREE'] = THREE;

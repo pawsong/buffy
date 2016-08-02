@@ -4,7 +4,7 @@ import * as ndarray from 'ndarray';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import * as classNames from 'classnames';
 
-import ModelViewerCanvas from '../canvas/ModelViewerCanvas';
+import ModelCanvas from '../../../../../canvas/ModelCanvas';
 import { FileState } from '../../../../../components/ModelEditor/types';
 
 const styles = require('./ModelViewer.css');
@@ -27,12 +27,12 @@ interface ModelViewerProps {
 
 @withStyles(styles)
 class ModelViewer extends React.Component<ModelViewerProps, {}> {
-  canvas: ModelViewerCanvas;
+  canvas: ModelCanvas;
 
   componentDidMount() {
     const container = findDOMNode<HTMLElement>(this.refs['root']);
 
-    this.canvas = new ModelViewerCanvas(container, this.props.fileState);
+    this.canvas = new ModelCanvas(container, this.props.fileState);
     this.canvas.init();
   }
 
