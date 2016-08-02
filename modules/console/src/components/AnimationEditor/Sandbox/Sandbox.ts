@@ -31,6 +31,8 @@ export function estimateTime(code: string): number {
 
   const interpreter = new Interpreter(code, (interpreter, scope) => {
     interpreter.setProperty(scope, 'moveForward', interpreter.createNativeFunction((duration) => time += duration));
+    interpreter.setProperty(scope, 'jump', interpreter.createNativeFunction((duration) => time += duration));
+    interpreter.setProperty(scope, 'rotateLeft', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'scaleX', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'scaleY', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'scaleZ', interpreter.createNativeFunction((duration) => time += duration));
@@ -73,6 +75,26 @@ class SandboxProcess {
       interpreter.setProperty(scope, 'moveForward', interpreter.createAsyncFunction((duration, distance, callback) => {
         this.requestAnimation(duration, (dt: number) => {
           this.sandbox.canvas.moveForward(distance * dt / duration);
+        }, () => callback.call(interpreter));
+      }));
+
+      interpreter.setProperty(scope, 'jump', interpreter.createAsyncFunction((duration, height, callback) => {
+        const origin = this.sandbox.canvas.component.mesh.position.y;
+        const dest = origin + height;
+
+        let elapsed = 0;
+        this.requestAnimation(duration, (dt: number) => {
+          elapsed += dt;
+          const value = (height / (duration * duration / 4)) * (- elapsed * elapsed + duration * elapsed) + origin;
+          this.sandbox.canvas.moveY(value);
+        }, () => callback.call(interpreter));
+      }));
+
+      interpreter.setProperty(scope, 'rotateLeft', interpreter.createAsyncFunction((duration, degree, callback) => {
+        const angle = degree * Math.PI / 180;
+
+        this.requestAnimation(duration, (dt: number) => {
+          this.sandbox.canvas.rotateLeft(angle * dt / duration);
         }, () => callback.call(interpreter));
       }));
 

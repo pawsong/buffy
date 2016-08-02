@@ -225,6 +225,70 @@ Blockly.JavaScript['scaleZ'] = block => {
 };
 
 /**
+ * rotate block
+ */
+
+Blockly.Blocks['rotate'] = {
+  init: function() {
+    this.setColour(160);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setInputsInline(false);
+
+    this.appendDummyInput()
+      .appendField('rotate by')
+      .appendField(new Blockly.FieldTextInput('3', nonnegativeNumberValidator), 'VALUE')
+      .appendField('degree(s)')
+    this.appendDummyInput()
+      .appendField('for')
+      .appendField(new Blockly.FieldTextInput('1', nonnegativeNumberValidator), 'DURATION')
+      .appendField('sec(s)');
+
+    this.setTooltip('move');
+    this.setHelpUrl('http://www.example.com');
+  }
+};
+
+Blockly.JavaScript['rotate'] = block => {
+  const duration = block.getFieldValue('DURATION') * 1000;
+  const value = block.getFieldValue('VALUE');
+
+  return `window.rotateLeft(${duration}, ${value});\n`;
+};
+
+/**
+ * jump block
+ */
+
+Blockly.Blocks['jump'] = {
+  init: function() {
+    this.setColour(160);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setInputsInline(false);
+
+    this.appendDummyInput()
+      .appendField('jump by')
+      .appendField(new Blockly.FieldTextInput('3', nonnegativeNumberValidator), 'VALUE')
+      .appendField('meter(s)')
+    this.appendDummyInput()
+      .appendField('for')
+      .appendField(new Blockly.FieldTextInput('1', nonnegativeNumberValidator), 'DURATION')
+      .appendField('sec(s)');
+
+    this.setTooltip('jump');
+    this.setHelpUrl('http://www.example.com');
+  }
+};
+
+Blockly.JavaScript['jump'] = block => {
+  const duration = block.getFieldValue('DURATION') * 1000;
+  const value = block.getFieldValue('VALUE');
+
+  return `window.jump(${duration}, ${value});\n`;
+};
+
+/**
  * turn block
  */
 

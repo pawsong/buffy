@@ -218,6 +218,10 @@ class ModelViewerCanvas extends Canvas {
     this.component.mesh.rotateY(angle);
   }
 
+  rotateLeft(angle: number) {
+    this.component.mesh.rotateY(angle);
+  }
+
   scaleX(value: number) {
     this.component.mesh.scale.setX(value);
   }
@@ -248,7 +252,7 @@ class ModelViewerCanvas extends Canvas {
       direction.applyMatrix4(matrix);
       this.component.mesh.position.add(direction.multiplyScalar(value));
     };
-  })()
+  })();
 }
 
 export default ModelViewerCanvas;
