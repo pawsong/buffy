@@ -137,6 +137,7 @@ class ModelViewerCanvas extends Canvas {
     this.initMesh();
 
 		this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableKeys = false;
     this.controls.addEventListener('change', () => {
       this.syncLightToCamera();
       this.render();
