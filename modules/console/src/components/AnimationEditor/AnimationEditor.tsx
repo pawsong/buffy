@@ -7,6 +7,8 @@ import ActionHome from 'material-ui/svg-icons/action/home';
 import PlayArrow from 'material-ui/svg-icons/av/play-arrow';
 import Stop from 'material-ui/svg-icons/av/stop';
 import Pause from 'material-ui/svg-icons/av/pause';
+import RaisedButton from 'material-ui/RaisedButton';
+import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 
 import Sandbox, {SandboxProcess, estimateTime} from './Sandbox';
 
@@ -108,7 +110,7 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     }
 
     if (this.props.fileState !== nextProps.fileState) {
-      this.handleClickStop();
+      this.stop();
       this.canvas.onStateChange(nextProps.fileState);
     }
   }
@@ -133,7 +135,20 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     this.props.onUpdate();
   };
 
-  handleClickPlay = () => {
+  handleRunTouchTap = () => {
+    switch(this.state.progress) {
+      case ProgressState.STOPPED: {
+        this.run();
+        break;
+      }
+      case ProgressState.PLAYING: {
+        this.stop();
+        break;
+      }
+    }
+  }
+
+  run() {
     this.setState({ progress: ProgressState.PLAYING });
 
     const result = compileBlocklyXml(this.props.extraData.workspace);
@@ -143,7 +158,7 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     }
   }
 
-  handleClickStop = () => {
+  stop() {
     this.sandbox.killAll();
 
     this.canvas.initMesh();
@@ -155,43 +170,32 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
   render() {
     return (
       <div className={styles.root}>
-        <div className={styles.leftPane} ref="editor" />
-        <div className={styles.rightPane}>
-          <div ref="canvas" className={styles.canvas} />
-          {this.renderOverlay()}
+        <div className={styles.leftPane}>
+          <div className={styles.canvasCont}>
+            <div ref="canvas" className={styles.canvas} />
+            {this.renderOverlay()}
+          </div>
+          <div className={styles.canvasControl}>
+            <Toolbar>
+              <ToolbarGroup firstChild={true}>
+                <RaisedButton
+                  label={this.state.progress === ProgressState.STOPPED ? 'Run' : 'Reset'}
+                  primary={this.state.progress === ProgressState.STOPPED}
+                  secondary={this.state.progress !== ProgressState.STOPPED}
+                  onTouchTap={this.handleRunTouchTap}
+                />
+              </ToolbarGroup>
+            </Toolbar>
+          </div>
         </div>
+        <div className={styles.rightPane} ref="editor" />
       </div>
     );
-  }
-
-  renderControlButton() {
-    switch(this.state.progress) {
-      case ProgressState.STOPPED: {
-        return (
-          <IconButton
-            onTouchTap={this.handleClickPlay}
-          >
-            <PlayArrow />
-          </IconButton>
-        );
-      }
-      case ProgressState.PLAYING: {
-        return (
-          <IconButton
-            onTouchTap={this.handleClickStop}
-          >
-            <Stop />
-          </IconButton>
-        );
-      }
-    }
-    return null;
   }
 
   renderOverlay() {
     return (
       <div className={styles.controls}>
-        {this.renderControlButton()}
         <ProgressBar
           className={styles.progressBar}
           maxValue={this.state.estimatedTime}

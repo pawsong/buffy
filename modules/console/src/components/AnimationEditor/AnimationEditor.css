@@ -6,21 +6,32 @@
 
 .leftPane {
   position: relative;
-  width: 50%;
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+}
+
+.rightPane {
+  flex-grow: 1;
+  position: relative;
 
   & :global(.blocklySvg) {
     vertical-align: bottom;
   }
 }
 
-.rightPane {
-  flex-grow: 1;
+.canvasCont {
   position: relative;
+  flex-grow: 1;
 }
 
 .canvas {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
+}
+
+.canvasControl {
+  height: 250px;
 }
 
 .playButton {
@@ -49,5 +60,10 @@
 
 .progressBar {
   flex-grow: 1;
-  margin-right: 18px;
+  padding: 12px;
+}
+
+:global(.blocklyText) {
+  font-family: 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
