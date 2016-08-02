@@ -28,8 +28,7 @@ if (__CLIENT__) {
 const unitZ = new THREE.Vector3(0, 0, 1);
 
 const THUMBNAIL_SIZE = 256;
-const radius = 60, theta = 135, phi = 30;
-
+const radius = 40, theta = 135, phi = 30;
 
 type ComponentProps = VoxelData;
 
@@ -97,7 +96,15 @@ class ModelViewerCanvasComponent extends SimpleComponent<ComponentProps, void, C
       this.mesh = this.emptyMesh;
     }
 
-    this.mesh = new THREE.Mesh(this.tree.geometry, this.tree.material);
+    const geometry = this.tree.geometry.clone();
+    geometry.computeBoundingBox();
+    geometry.translate(
+      - 0.5 * (geometry.boundingBox.min.x + geometry.boundingBox.max.x),
+      - 0.5 * (geometry.boundingBox.min.y + geometry.boundingBox.max.y),
+      - 0.5 * (geometry.boundingBox.min.z + geometry.boundingBox.max.z)
+    );
+
+    this.mesh = new THREE.Mesh(geometry, this.tree.material);
     this.canvas.scene.add(this.mesh);
   }
 }
@@ -142,11 +149,6 @@ class ModelViewerCanvas extends Canvas {
       this.syncLightToCamera();
       this.render();
     });
-
-    // TODO: Handle camera per file
-    // const size = this.mesh.geometry.boundingBox.size();
-    // this.controls.target.copy(size).divideScalar(2);
-    // this.controls.update();
 
     this.onWindowResize();
     this.syncLightToCamera();
