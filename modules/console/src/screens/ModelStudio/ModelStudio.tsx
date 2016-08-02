@@ -203,7 +203,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     const files = filesQuery.split(',');
 
     this.props.runSaga(this.props.openRemoteFiles, files, results => {
-      results.forEach(result => this.openFile(result.doc, result.fileState));
+      results.forEach(result => this.openFile(result.doc, result.fileState, result.blockly));
     });
 
     document.addEventListener('keydown', this.handleKeyDown, false);
@@ -236,7 +236,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     }
   }
 
-  openFile(doc: ModelFileDocument, fileState: ModelFileState) {
+  openFile(doc: ModelFileDocument, fileState: ModelFileState, blockly: string) {
     if (doc.owner && this.props.user && doc.owner.id === this.props.user.id) {
       this.addFile({
         id: doc.id,
@@ -246,6 +246,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
         readonly: false,
         body: fileState,
         forkParent: doc.forkParent || null,
+        blockly,
       });
     } else {
       this.addFile({
@@ -260,6 +261,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           name: doc.name,
           owner: doc.owner || null,
         },
+        blockly,
       });
     }
   }
@@ -272,6 +274,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     created,
     readonly,
     forkParent,
+    blockly,
   }: ModelFileOpenParams) {
     const model = body.present.data.maps[MaterialMapType.DEFAULT];
     const file: ModelFile = {
@@ -282,12 +285,13 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       type: FileType.MODEL,
       created,
       modified: false,
+      animationModified: false,
       readonly,
       savedBody: body,
       body,
       extra: ModelEditor.createExtraData(model.shape),
       forkParent,
-      animation: AnimationEditor.createExtraData(''),
+      animation: AnimationEditor.createExtraData(blockly),
     };
 
     const openedFiles = this.state.openedFiles.indexOf(file.id) === -1
@@ -302,14 +306,13 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
   }
 
   handleFileStateChange = (body: ModelFileState) => {
-    const model = body.present.data.maps[MaterialMapType.DEFAULT];
     const currentFile = this.state.files.get(this.state.activeFileId);
     this.setState({
       files: this.state.files.set(this.state.activeFileId, Object.assign({}, currentFile, {
         body,
-        modified: ModelEditor.isModified(currentFile.savedBody, body),
+        modified: ModelEditor.isModified(currentFile.savedBody, body) || currentFile.animationModified,
         thumbnail: this.thumbnailFactory.createThumbnail(body.present.data),
-      }))
+      })),
     });
   }
 
@@ -322,6 +325,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
       readonly: false,
       body: ModelEditor.createFileState(),
       forkParent: null,
+      blockly: '',
     });
   }
 
@@ -408,6 +412,10 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
             if (file) files.set(file.id, Object.assign({}, file, {
               savedBody: oldFile.body,
               modified: ModelEditor.isModified(oldFile.body, file.body),
+
+              // TODO: This is invalid if the animation is modified during the ajax request.
+              //       Smarter modification detection is needed.
+              animationModified: false,
             }));
           });
         });
@@ -692,6 +700,16 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
     this.props.cancelSaga(this.props.requestTruffyAction);
   }
 
+  handleAnimationChange = () => {
+    const currentFile = this.state.files.get(this.state.activeFileId);
+    this.setState({
+      files: this.state.files.set(this.state.activeFileId, Object.assign({}, currentFile, {
+        animationModified: true,
+        modified: true,
+      })),
+    });
+  }
+
   render() {
     const fileOnSaveDialog = this.state.filesOnSaveDialog.length > 0
       ? this.state.files.get(this.state.filesOnSaveDialog[0])
@@ -736,6 +754,7 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           onOpenedFileOrderChange={this.handleFileTabOrderChange}
           editorMode={this.state.editorMode}
           onChangeEditorMode={this.handleChangeEditorMode}
+          onAnimationChange={this.handleAnimationChange}
         />
         <OpenModelFileDialog
           user={this.props.user}

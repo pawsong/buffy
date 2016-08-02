@@ -86,8 +86,7 @@ interface HandlerState {
       return null;
     }
 
-    const doc = response.data;
-    const fileState = deserialize(new Uint8Array(response.data));
+    const { model: fileState } = deserialize(new Uint8Array(response.data));
 
     return fileState;
   },

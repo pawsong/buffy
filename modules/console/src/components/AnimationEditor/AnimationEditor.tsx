@@ -40,6 +40,7 @@ import { ExtraData } from './types';
 interface AnimationEditorProps {
   fileState: ModelFileState;
   extraData: ExtraData;
+  onUpdate: () => any;
 }
 
 interface AnimationEditorState {
@@ -75,11 +76,13 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
 
   componentDidMount() {
     this.editorElement = findDOMNode<HTMLElement>(this.refs['editor']);
+
     this.editorElement.appendChild(this.props.extraData.container);
     Blockly.svgResize(this.props.extraData.workspace);
     Blockly.JavaScript.init(this.props.extraData.workspace);
 
-    this.props.extraData.workspace.addChangeListener(this.handleBlocklyChange);
+    // Ignore events fired during initialization.
+    setTimeout(() => this.props.extraData.workspace.addChangeListener(this.handleBlocklyChange), 0);
 
     this.updateEstimatedTime(this.props.extraData.workspace);
 
@@ -113,6 +116,8 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
   componentWillUnmount() {
     this.sandbox.killAll();
     this.sandbox = null;
+
+    this.props.extraData.workspace.removeChangeListener(this.handleBlocklyChange);
     this.canvas.destroy();
   }
 
@@ -120,9 +125,11 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     this.setState({ estimatedTime: estimateWorkspaceTime(workspace) })
   }
 
-  handleBlocklyChange = (event: any, b, c, d) => {
+  handleBlocklyChange = (event: any) => {
     if (event.type === Blockly.Events.UI) return;
     this.updateEstimatedTime(this.props.extraData.workspace);
+
+    this.props.onUpdate();
   };
 
   handleClickPlay = () => {
@@ -195,13 +202,20 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
   }
 }
 
+let blocklyRoot: HTMLElement;
+if (__CLIENT__) {
+  blocklyRoot = document.createElement('div');
+  document.body.appendChild(blocklyRoot);
+  blocklyRoot.style.visibility = 'hidden';
+}
+
 AnimationEditor.createExtraData = (xml?: string) => {
   const container = document.createElement('div');
   container.style.position = 'absolute';
   container.style.height = '100%';
   container.style.width = '100%';
 
-  document.body.appendChild(container);
+  blocklyRoot.appendChild(container);
 
   const workspace = Blockly.inject(container, {
     toolbox,
@@ -216,7 +230,12 @@ AnimationEditor.createExtraData = (xml?: string) => {
   const dom = Blockly.Xml.textToDom(xml || initBlock);
   Blockly.Xml.domToWorkspace(dom, workspace);
 
-  document.body.removeChild(container);
+  // Blockly requires parent element until next frame.
+  // If parent element is disconnected in this frame,
+  // block element will be set to a weird position.
+  setTimeout(() => {
+    if (container.parentElement === blocklyRoot) blocklyRoot.removeChild(container);
+  }, 0);
 
   return {
     container,

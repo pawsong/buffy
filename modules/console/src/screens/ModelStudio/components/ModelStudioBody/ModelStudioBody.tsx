@@ -86,6 +86,7 @@ interface ModelStudioBodyProps {
   onOpenedFileOrderChange: (dragIndex: number, hoverIndex: number) => any;
   editorMode: EditorMode;
   onChangeEditorMode: (mode: EditorMode) => any;
+  onAnimationChange: () => any;
 }
 
 interface HandlerState {
@@ -177,6 +178,7 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
           <AnimationEditor
             fileState={activeFile.body}
             extraData={activeFile.animation}
+            onUpdate={this.props.onAnimationChange}
           />
         );
       }

@@ -190,6 +190,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
           readonly: false,
           created: true,
           forkParent: null,
+          blockly: '',
         });
       }
     }
@@ -242,7 +243,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
 
     this.props.runSaga(this.props.openRemoteFile,
       fileId,
-      (doc: ModelFileDocument, fileState: ModelFileState) => {
+      (doc: ModelFileDocument, fileState: ModelFileState, blockly: string) => {
         if (doc.owner && this.props.user && doc.owner.id === this.props.user.id) {
           this.props.onFileOpen({
             id: doc.id,
@@ -252,6 +253,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
             readonly: false,
             body: fileState,
             forkParent: doc.forkParent || null,
+            blockly,
           });
         } else {
           this.props.onFileOpen({
@@ -266,6 +268,7 @@ class OpenModelFileDialog extends React.Component<OpenModelFileDialogProps, Open
               name: doc.name,
               owner: doc.owner || null,
             },
+            blockly,
           });
         }
       }

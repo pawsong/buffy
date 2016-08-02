@@ -11,18 +11,22 @@ import {
   MaterialMaps,
 } from '../types';
 import createFileState from './createFileState';
+import Blockly from '../../../blockly';
 
 const msgpack = require('msgpack-lite');
 
 const VERSION_1_0 = '1.0';
 const VERSION_1_1 = '1.1';
 
-function serialize(fileState: FileState): Uint8Array {
+function serialize(fileState: FileState, workspace: any): Uint8Array {
   const maps = {};
   Object.keys(fileState.present.data.maps).forEach(key => {
     const map = fileState.present.data.maps[key];
     maps[MaterialMapType[key]] = pako.deflate(map.data.buffer);
   });
+
+  const dom = Blockly.Xml.workspaceToDom(workspace);
+  const xml = Blockly.Xml.domToText(dom);
 
   return msgpack.encode({
     version: VERSION_1_1,
@@ -32,6 +36,7 @@ function serialize(fileState: FileState): Uint8Array {
     trove: {
       itemType: TroveItemType[fileState.present.data.trove.itemType],
     },
+    blockly: xml,
   });
 }
 
@@ -43,26 +48,29 @@ function deserialize(buffer: Uint8Array) {
       const inflated = pako.inflate(data.data);
       const model = ndarray(new Int32Array(inflated.buffer), data.shape);
 
-      return createFileState({
-        type: ModelFileType.DEFAULT,
-        size: data.shape,
-        maps: {
-          [MaterialMapType.DEFAULT]: model,
-        },
-        activeMap: MaterialMapType.DEFAULT,
-        selection: null,
-        fragment: null,
-        fragmentOffset: [0, 0, 0],
-        mode2d: {
-          enabled: false,
-          initialized: false,
-          axis: Axis.X,
-          position: 0,
-        },
-        trove: {
-          itemType: TroveItemType.SWORD,
-        },
-      });
+      return {
+        model: createFileState({
+          type: ModelFileType.DEFAULT,
+          size: data.shape,
+          maps: {
+            [MaterialMapType.DEFAULT]: model,
+          },
+          activeMap: MaterialMapType.DEFAULT,
+          selection: null,
+          fragment: null,
+          fragmentOffset: [0, 0, 0],
+          mode2d: {
+            enabled: false,
+            initialized: false,
+            axis: Axis.X,
+            position: 0,
+          },
+          trove: {
+            itemType: TroveItemType.SWORD,
+          },
+        }),
+        blockly: '',
+      }
     }
     case VERSION_1_1: {
       const maps: MaterialMaps = {};
@@ -71,24 +79,27 @@ function deserialize(buffer: Uint8Array) {
         maps[MaterialMapType[key]] = ndarray(new Int32Array(inflated.buffer), data.shape);
       });
 
-      return createFileState({
-        type: ModelFileType[data.type] as any,
-        size: data.shape,
-        maps,
-        activeMap: MaterialMapType.DEFAULT,
-        selection: null,
-        fragment: null,
-        fragmentOffset: [0, 0, 0],
-        mode2d: {
-          enabled: false,
-          initialized: false,
-          axis: Axis.X,
-          position: 0,
-        },
-        trove: {
-          itemType: TroveItemType[data.trove.itemType] as any,
-        },
-      });
+      return {
+        model: createFileState({
+          type: ModelFileType[data.type] as any,
+          size: data.shape,
+          maps,
+          activeMap: MaterialMapType.DEFAULT,
+          selection: null,
+          fragment: null,
+          fragmentOffset: [0, 0, 0],
+          mode2d: {
+            enabled: false,
+            initialized: false,
+            axis: Axis.X,
+            position: 0,
+          },
+          trove: {
+            itemType: TroveItemType[data.trove.itemType] as any,
+          },
+        }),
+        blockly: data.blockly || '',
+      }
     }
   }
 }

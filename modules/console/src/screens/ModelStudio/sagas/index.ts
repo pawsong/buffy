@@ -19,6 +19,9 @@ import {
 interface UpdateFileParams {
   id: string;
   body: ModelFileState;
+  animation: {
+    workspace: any;
+  };
 }
 
 export function* updateFiles(thumbnailFactory: ThumbnailFactory, paramsList: UpdateFileParams[], callback?: () => any) {
@@ -38,7 +41,7 @@ export function* updateFiles(thumbnailFactory: ThumbnailFactory, paramsList: Upd
       thumbnailSignedUrl, thumbnailContentType, thumbnailCacheControl,
     } = response.data;
 
-    const data = ModelEditor.serialize(params.body).buffer;
+    const data = ModelEditor.serialize(params.body, params.animation.workspace).buffer;
 
     response = yield call(request.put, signedUrl, data, {
       headers: {
@@ -151,14 +154,16 @@ export function* _openRemoteFile(fileId: string) {
   }
 
   const doc = docRes.data;
-  const fileState = ModelEditor.deserialize(new Uint8Array(dataRes.data));
+  const { model: fileState, blockly } = ModelEditor.deserialize(new Uint8Array(dataRes.data));
 
-  return { doc, fileState };
+  return { doc, fileState, blockly };
 }
 
-export function* openRemoteFile(fileId: string, callback: (doc: ModelFileDocument, fileState: ModelFileState) => any) {
+export function* openRemoteFile(
+  fileId: string, callback: (doc: ModelFileDocument, fileState: ModelFileState, blockly: string) => any
+) {
   const result = yield call(_openRemoteFile, fileId);
-  callback(result.doc, result.fileState);
+  callback(result.doc, result.fileState, result.blockly);
 }
 
 export function* deleteFile(fileId: string, callback: () => any) {
@@ -173,6 +178,7 @@ export function* deleteFile(fileId: string, callback: () => any) {
 export function* openRemoteFiles(files: string[], callback: (results: {
   doc: ModelFileDocument;
   fileState: ModelFileState;
+  blockly: string;
 }[]) => any) {
   const results: any[] = yield files.map(fileId => call(_openRemoteFile, fileId));
   callback(results.filter(result => result));

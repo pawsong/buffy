@@ -579,7 +579,7 @@ ModelEditor.isModified = function (lhs: FileState, rhs: FileState) {
 ModelEditor.importBmfFile = buffer => {
   try {
     return {
-      result: ModelEditor.deserialize(new Uint8Array(buffer)),
+      result: ModelEditor.deserialize(new Uint8Array(buffer)).model,
     };
   } catch(error) {
     return { error };

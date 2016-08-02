@@ -22,6 +22,7 @@ export interface ModelFile extends SourceFile<ModelFileState, ModelExtraData> {
   thumbnail: string;
   forkParent: ForkItem;
   animation: AnimationExtraData;
+  animationModified: boolean;
 }
 
 export type ModelFileMap = Immutable.Map<string, ModelFile>;
@@ -34,6 +35,7 @@ export interface ModelFileOpenParams {
   readonly: boolean;
   body: ModelFileState;
   forkParent: ForkItem;
+  blockly: string;
 }
 
 export enum EditorMode {
