@@ -35,9 +35,24 @@ import {
 
 import Blockly from '../../blockly';
 import { compileBlocklyXml } from '../../blockly/utils';
-if (__CLIENT__) require('../../blockly/blocks');
 
 import { ExtraData } from './types';
+
+let blocklyRoot: HTMLElement;
+let defaultWorkspace: any;
+
+if (__CLIENT__) {
+  require('../../blockly/blocks');
+
+  blocklyRoot = document.createElement('div');
+  document.body.appendChild(blocklyRoot);
+  blocklyRoot.style.visibility = 'hidden';
+
+  const container = document.createElement('div');
+  blocklyRoot.appendChild(container);
+  defaultWorkspace = Blockly.inject(container, { readOnly: true });
+  setTimeout(() => blocklyRoot.removeChild(container), 0);
+}
 
 interface AnimationEditorProps {
   fileState: ModelFileState;
@@ -82,6 +97,7 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     this.editorElement.appendChild(this.props.extraData.container);
     Blockly.svgResize(this.props.extraData.workspace);
     Blockly.JavaScript.init(this.props.extraData.workspace);
+    this.props.extraData.workspace.markFocused();
 
     // Ignore events fired during initialization.
     setTimeout(() => this.props.extraData.workspace.addChangeListener(this.handleBlocklyChange), 0);
@@ -97,13 +113,13 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
 
   componentWillReceiveProps(nextProps: AnimationEditorProps) {
     if (this.props.extraData.container !== nextProps.extraData.container) {
+      this.props.extraData.workspace.removeChangeListener(this.handleBlocklyChange);
       this.editorElement.removeChild(this.props.extraData.container);
+
       this.editorElement.appendChild(nextProps.extraData.container);
       Blockly.svgResize(nextProps.extraData.workspace);
-      nextProps.extraData.workspace.markFocused();
       Blockly.JavaScript.init(nextProps.extraData.workspace);
-
-      this.props.extraData.workspace.removeChangeListener(this.handleBlocklyChange);
+      nextProps.extraData.workspace.markFocused();
       nextProps.extraData.workspace.addChangeListener(this.handleBlocklyChange);
 
       this.updateEstimatedTime(nextProps.extraData.workspace);
@@ -119,8 +135,12 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     this.sandbox.killAll();
     this.sandbox = null;
 
+    // Deactivate workspace
+    defaultWorkspace.markFocused();
     this.editorElement.removeChild(this.props.extraData.container);
     this.props.extraData.workspace.removeChangeListener(this.handleBlocklyChange);
+
+    // Destory canvas
     this.canvas.destroy();
   }
 
@@ -207,33 +227,35 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
   }
 }
 
-let blocklyRoot: HTMLElement;
-if (__CLIENT__) {
-  blocklyRoot = document.createElement('div');
-  document.body.appendChild(blocklyRoot);
-  blocklyRoot.style.visibility = 'hidden';
-}
-
 AnimationEditor.createExtraData = (xml?: string) => {
   const container = document.createElement('div');
   container.style.position = 'absolute';
   container.style.height = '100%';
   container.style.width = '100%';
 
-  blocklyRoot.appendChild(container);
+  let workspace: any;
 
-  const workspace = Blockly.inject(container, {
-    toolbox,
-    grid: {
-      spacing: 20,
-      length: 3,
-      colour: '#ccc',
-    },
-    trashcan: true,
-  });
+  try {
+    blocklyRoot.appendChild(container);
 
-  const dom = Blockly.Xml.textToDom(xml || initBlock);
-  Blockly.Xml.domToWorkspace(dom, workspace);
+    workspace = Blockly.inject(container, {
+      toolbox,
+      grid: {
+        spacing: 20,
+        length: 3,
+        colour: '#ccc',
+      },
+      trashcan: true,
+    });
+
+    const dom = Blockly.Xml.textToDom(xml || initBlock);
+    Blockly.Xml.domToWorkspace(dom, workspace);
+  } catch(error) {
+    if (typeof error !== 'string') throw error;
+
+    // Blockly throws string :(
+    throw new Error(error);
+  }
 
   // Blockly requires parent element until next frame.
   // If parent element is disconnected in this frame,
