@@ -117,6 +117,7 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     this.sandbox.killAll();
     this.sandbox = null;
 
+    this.editorElement.removeChild(this.props.extraData.container);
     this.props.extraData.workspace.removeChangeListener(this.handleBlocklyChange);
     this.canvas.destroy();
   }
