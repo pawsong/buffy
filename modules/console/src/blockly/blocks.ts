@@ -1,4 +1,4 @@
-import {cyanA700, blueGrey200, pink300, greenA700} from 'material-ui/styles/colors';
+import {cyanA700, blueGrey200, pink300, greenA700, orangeA400} from 'material-ui/styles/colors';
 
 import Blockly from './';
 import { Keys } from './constants';
@@ -28,6 +28,8 @@ const DIRECTIONS = {
 
 Blockly.Blocks.math.HUE = blueGrey200;
 Blockly.Blocks.loops.HUE = greenA700;
+
+const FLOW_CONTROL_COLOR = orangeA400;
 
 /**
  * whenRun block
@@ -187,6 +189,203 @@ Blockly.JavaScript['rotate'] = block => {
   }
 
   return `window.rotate(${duration} * 1000, ${direction}, ${degree});\n`;
+};
+
+/**
+ * concurrently block
+ */
+
+Blockly.Blocks['concurrently'] = {
+  /**
+   * Block for if/elseif/else condition.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.setHelpUrl(Blockly.Msg.CONTROLS_IF_HELPURL);
+    this.setColour(FLOW_CONTROL_COLOR);
+
+    this.appendDummyInput()
+        .appendField('concurrently' /* Blockly.Msg.CONTROLS_IF_IF_TITLE_IF */);
+
+    this.appendStatementInput('DO_A')
+        .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
+    this.appendStatementInput('DO_B')
+        .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
+
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setMutator(new Blockly.Mutator(['concurrently_do']));
+
+    this.setTooltip(() => {
+      if (!this.additionalDoCount_) {
+        return Blockly.Msg.CONTROLS_IF_TOOLTIP_1;
+      } else {
+        return Blockly.Msg.CONTROLS_IF_TOOLTIP_3;
+      }
+    });
+    this.additionalDoCount_ = 0;
+  },
+  /**
+   * Create XML to represent the number of else-if and else inputs.
+   * @return {Element} XML storage element.
+   * @this Blockly.Block
+   */
+  mutationToDom: function() {
+    if (!this.additionalDoCount_) return null;
+
+    const container = document.createElement('mutation');
+    if (this.additionalDoCount_) {
+      container.setAttribute('do', this.additionalDoCount_);
+    }
+    return container;
+  },
+  /**
+   * Parse XML to restore the else-if and else inputs.
+   * @param {!Element} xmlElement XML storage element.
+   * @this Blockly.Block
+   */
+  domToMutation: function(xmlElement) {
+    this.additionalDoCount_ = parseInt(xmlElement.getAttribute('do'), 10) || 0;
+    this.updateShape_();
+  },
+  /**
+   * Populate the mutator's dialog with this block's components.
+   * @param {!Blockly.Workspace} workspace Mutator's workspace.
+   * @return {!Blockly.Block} Root block in mutator.
+   * @this Blockly.Block
+   */
+  decompose: function(workspace) {
+    const containerBlock = workspace.newBlock('concurrently_root');
+    containerBlock.initSvg();
+
+    let connection = containerBlock.nextConnection;
+    for (let i = 1; i <= this.additionalDoCount_; i++) {
+      const doBlock = workspace.newBlock('concurrently_do');
+      doBlock.initSvg();
+      connection.connect(doBlock.previousConnection);
+      connection = doBlock.nextConnection;
+    }
+    return containerBlock;
+  },
+  /**
+   * Reconfigure this block based on the mutator dialog's components.
+   * @param {!Blockly.Block} containerBlock Root block in mutator.
+   * @this Blockly.Block
+   */
+  compose: function(containerBlock) {
+    let clauseBlock = containerBlock.nextConnection.targetBlock();
+
+    // Count number of inputs.
+    this.additionalDoCount_ = 0;
+
+    const statementConnections = [null];
+
+    while (clauseBlock) {
+      switch (clauseBlock.type) {
+        case 'concurrently_do': {
+          this.additionalDoCount_++;
+          statementConnections.push(clauseBlock.statementConnection_);
+          break;
+        }
+        default:
+          throw 'Unknown block type.';
+      }
+      clauseBlock = clauseBlock.nextConnection && clauseBlock.nextConnection.targetBlock();
+    }
+
+    this.updateShape_();
+
+    // Reconnect any child blocks.
+    for (let i = 1; i <= this.additionalDoCount_; i++) {
+      Blockly.Mutator.reconnect(statementConnections[i], this, 'DO' + i);
+    }
+  },
+
+  /**
+   * Store pointers to any connected child blocks.
+   * @param {!Blockly.Block} containerBlock Root block in mutator.
+   * @this Blockly.Block
+   */
+  saveConnections: function(containerBlock) {
+    let clauseBlock = containerBlock.nextConnection.targetBlock();
+    let i = 1;
+    while (clauseBlock) {
+      switch (clauseBlock.type) {
+        case 'concurrently_do': {
+          const inputDo = this.getInput('DO' + i);
+          clauseBlock.statementConnection_ = inputDo && inputDo.connection.targetConnection;
+          i++;
+          break;
+        }
+        default:
+          throw 'Unknown block type.';
+      }
+      clauseBlock = clauseBlock.nextConnection && clauseBlock.nextConnection.targetBlock();
+    }
+  },
+
+  /**
+   * Modify this block to have the correct number of inputs.
+   * @private
+   * @this Blockly.Block
+   */
+  updateShape_: function() {
+    // Delete everything.
+    for (let i = 1; this.getInput('DO' + i); ++i) {
+      this.removeInput('DO' + i);
+    }
+
+    // Rebuild block.
+    for (let i = 1; i <= this.additionalDoCount_; i++) {
+      this.appendStatementInput('DO' + i)
+          .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
+    }
+  }
+};
+
+Blockly.Blocks['concurrently_root'] = {
+  /**
+   * Mutator block for if container.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.setColour(FLOW_CONTROL_COLOR);
+    this.appendDummyInput()
+        .appendField('concurrently' /* Blockly.Msg.CONTROLS_IF_IF_TITLE_IF */);
+    this.setNextStatement(true);
+    // this.setTooltip(Blockly.Msg.CONTROLS_IF_IF_TOOLTIP);
+    this.contextMenu = false;
+  }
+};
+
+Blockly.Blocks['concurrently_do'] = {
+  /**
+   * Mutator bolck for else-if condition.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.setColour(FLOW_CONTROL_COLOR);
+    this.appendDummyInput()
+        .appendField('do' /* Blockly.Msg.CONTROLS_IF_ELSEIF_TITLE_ELSEIF */);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    // this.setTooltip(Blockly.Msg.CONTROLS_IF_ELSEIF_TOOLTIP);
+    this.contextMenu = false;
+  }
+};
+
+Blockly.JavaScript['concurrently'] = function(block) {
+  const scripts = [
+    Blockly.JavaScript.statementToCode(block, 'DO_A'),
+    Blockly.JavaScript.statementToCode(block, 'DO_B'),
+  ];
+
+  for (let i = 1; i <= block.additionalDoCount_; ++i) {
+    scripts.push(Blockly.JavaScript.statementToCode(block, 'DO' + i));
+  }
+
+  const result = scripts.filter(text => text).map(text => JSON.stringify(text));
+  return `window.runConcurrently([${result.join(',')}]);\n`;
 };
 
 /**
@@ -433,201 +632,4 @@ Blockly.Blocks['color_sensor_front_right'] = {
 
 Blockly.JavaScript['color_sensor_front_right'] = block => {
   return [`window.getFloorColor(2/16, 2/16)`, Blockly.JavaScript.ORDER_NONE];
-};
-
-/**
- * concurrently block
- */
-
-Blockly.Blocks['concurrently'] = {
-  /**
-   * Block for if/elseif/else condition.
-   * @this Blockly.Block
-   */
-  init: function() {
-    this.setHelpUrl(Blockly.Msg.CONTROLS_IF_HELPURL);
-    this.setColour(Blockly.Blocks.logic.HUE);
-
-    this.appendDummyInput()
-        .appendField('concurrently' /* Blockly.Msg.CONTROLS_IF_IF_TITLE_IF */);
-
-    this.appendStatementInput('DO_A')
-        .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
-    this.appendStatementInput('DO_B')
-        .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
-
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setMutator(new Blockly.Mutator(['concurrently_do']));
-
-    this.setTooltip(() => {
-      if (!this.additionalDoCount_) {
-        return Blockly.Msg.CONTROLS_IF_TOOLTIP_1;
-      } else {
-        return Blockly.Msg.CONTROLS_IF_TOOLTIP_3;
-      }
-    });
-    this.additionalDoCount_ = 0;
-  },
-  /**
-   * Create XML to represent the number of else-if and else inputs.
-   * @return {Element} XML storage element.
-   * @this Blockly.Block
-   */
-  mutationToDom: function() {
-    if (!this.additionalDoCount_) return null;
-
-    const container = document.createElement('mutation');
-    if (this.additionalDoCount_) {
-      container.setAttribute('do', this.additionalDoCount_);
-    }
-    return container;
-  },
-  /**
-   * Parse XML to restore the else-if and else inputs.
-   * @param {!Element} xmlElement XML storage element.
-   * @this Blockly.Block
-   */
-  domToMutation: function(xmlElement) {
-    this.additionalDoCount_ = parseInt(xmlElement.getAttribute('do'), 10) || 0;
-    this.updateShape_();
-  },
-  /**
-   * Populate the mutator's dialog with this block's components.
-   * @param {!Blockly.Workspace} workspace Mutator's workspace.
-   * @return {!Blockly.Block} Root block in mutator.
-   * @this Blockly.Block
-   */
-  decompose: function(workspace) {
-    const containerBlock = workspace.newBlock('concurrently_root');
-    containerBlock.initSvg();
-
-    let connection = containerBlock.nextConnection;
-    for (let i = 1; i <= this.additionalDoCount_; i++) {
-      const doBlock = workspace.newBlock('concurrently_do');
-      doBlock.initSvg();
-      connection.connect(doBlock.previousConnection);
-      connection = doBlock.nextConnection;
-    }
-    return containerBlock;
-  },
-  /**
-   * Reconfigure this block based on the mutator dialog's components.
-   * @param {!Blockly.Block} containerBlock Root block in mutator.
-   * @this Blockly.Block
-   */
-  compose: function(containerBlock) {
-    let clauseBlock = containerBlock.nextConnection.targetBlock();
-
-    // Count number of inputs.
-    this.additionalDoCount_ = 0;
-
-    const statementConnections = [null];
-
-    while (clauseBlock) {
-      switch (clauseBlock.type) {
-        case 'concurrently_do': {
-          this.additionalDoCount_++;
-          statementConnections.push(clauseBlock.statementConnection_);
-          break;
-        }
-        default:
-          throw 'Unknown block type.';
-      }
-      clauseBlock = clauseBlock.nextConnection && clauseBlock.nextConnection.targetBlock();
-    }
-
-    this.updateShape_();
-
-    // Reconnect any child blocks.
-    for (let i = 1; i <= this.additionalDoCount_; i++) {
-      Blockly.Mutator.reconnect(statementConnections[i], this, 'DO' + i);
-    }
-  },
-
-  /**
-   * Store pointers to any connected child blocks.
-   * @param {!Blockly.Block} containerBlock Root block in mutator.
-   * @this Blockly.Block
-   */
-  saveConnections: function(containerBlock) {
-    let clauseBlock = containerBlock.nextConnection.targetBlock();
-    let i = 1;
-    while (clauseBlock) {
-      switch (clauseBlock.type) {
-        case 'concurrently_do': {
-          const inputDo = this.getInput('DO' + i);
-          clauseBlock.statementConnection_ = inputDo && inputDo.connection.targetConnection;
-          i++;
-          break;
-        }
-        default:
-          throw 'Unknown block type.';
-      }
-      clauseBlock = clauseBlock.nextConnection && clauseBlock.nextConnection.targetBlock();
-    }
-  },
-
-  /**
-   * Modify this block to have the correct number of inputs.
-   * @private
-   * @this Blockly.Block
-   */
-  updateShape_: function() {
-    // Delete everything.
-    for (let i = 1; this.getInput('DO' + i); ++i) {
-      this.removeInput('DO' + i);
-    }
-
-    // Rebuild block.
-    for (let i = 1; i <= this.additionalDoCount_; i++) {
-      this.appendStatementInput('DO' + i)
-          .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
-    }
-  }
-};
-
-Blockly.Blocks['concurrently_root'] = {
-  /**
-   * Mutator block for if container.
-   * @this Blockly.Block
-   */
-  init: function() {
-    this.setColour(Blockly.Blocks.logic.HUE);
-    this.appendDummyInput()
-        .appendField('concurrently' /* Blockly.Msg.CONTROLS_IF_IF_TITLE_IF */);
-    this.setNextStatement(true);
-    // this.setTooltip(Blockly.Msg.CONTROLS_IF_IF_TOOLTIP);
-    this.contextMenu = false;
-  }
-};
-
-Blockly.Blocks['concurrently_do'] = {
-  /**
-   * Mutator bolck for else-if condition.
-   * @this Blockly.Block
-   */
-  init: function() {
-    this.setColour(Blockly.Blocks.logic.HUE);
-    this.appendDummyInput()
-        .appendField('do' /* Blockly.Msg.CONTROLS_IF_ELSEIF_TITLE_ELSEIF */);
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    // this.setTooltip(Blockly.Msg.CONTROLS_IF_ELSEIF_TOOLTIP);
-    this.contextMenu = false;
-  }
-};
-
-Blockly.JavaScript['concurrently'] = function(block) {
-  const scripts = [
-    Blockly.JavaScript.statementToCode(block, 'DO_A'),
-    Blockly.JavaScript.statementToCode(block, 'DO_B'),
-  ];
-
-  for (let i = 1; i <= block.additionalDoCount_; ++i) {
-    scripts.push(Blockly.JavaScript.statementToCode(block, 'DO' + i));
-  }
-
-  const result = scripts.filter(text => text).map(text => JSON.stringify(text));
-  return `window.runConcurrently([${result.join(',')}]);\n`;
 };
