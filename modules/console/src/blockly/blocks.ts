@@ -11,6 +11,8 @@ function nonnegativeNumberValidator(text) {
   return n;
 }
 
+const METER_SCALE = 4;
+
 /* Styling */
 Blockly.Blocks.math.HUE = blueGrey200;
 Blockly.Blocks.loops.HUE = greenA700;
@@ -92,7 +94,7 @@ Blockly.JavaScript['move'] = block => {
     return '';
   }
 
-  return `window.moveLocal(${duration} * 1000, ${direction}, ${distance});\n`;
+  return `window.moveLocal(${duration} * 1000, ${direction}, ${distance} * ${METER_SCALE});\n`;
 };
 
 /**
@@ -132,7 +134,7 @@ Blockly.JavaScript['jump'] = block => {
     return '';
   }
 
-  return `window.jump(${duration} * 1000, ${height});\n`;
+  return `window.jump(${duration} * 1000, ${height} * ${METER_SCALE});\n`;
 };
 
 /**

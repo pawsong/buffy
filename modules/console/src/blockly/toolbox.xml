@@ -3,7 +3,7 @@
   <block type="move">
     <value name="DISTANCE">
       <block type="math_number">
-        <field name="NUM">5</field>
+        <field name="NUM">3</field>
       </block>
     </value>
     <value name="DURATION">
@@ -15,7 +15,7 @@
   <block type="jump">
     <value name="HEIGHT">
       <block type="math_number">
-        <field name="NUM">5</field>
+        <field name="NUM">1</field>
       </block>
     </value>
     <value name="DURATION">
