@@ -1,5 +1,5 @@
 import { EventEmitter } from 'fbemitter';
-import ModelCanvas from '../../../canvas/ModelCanvas';
+import ModelCanvas from '../canvas/ModelCanvas';
 import Interpreter from './Interpreter';
 
 class Animation {

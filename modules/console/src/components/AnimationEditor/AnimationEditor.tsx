@@ -2,15 +2,10 @@ import React from 'react';
 import { findDOMNode } from 'react-dom';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 
-import IconButton from 'material-ui/IconButton';
-import ActionHome from 'material-ui/svg-icons/action/home';
-import PlayArrow from 'material-ui/svg-icons/av/play-arrow';
-import Stop from 'material-ui/svg-icons/av/stop';
-import Pause from 'material-ui/svg-icons/av/pause';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 
-import Sandbox, {SandboxProcess, estimateTime} from './Sandbox';
+import Sandbox, {SandboxProcess, estimateTime} from '../../Sandbox';
 
 let _TWEEN: typeof TWEEN;
 
