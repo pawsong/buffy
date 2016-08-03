@@ -1,4 +1,4 @@
-import {cyanA700, blueGrey200, pink300} from 'material-ui/styles/colors';
+import {cyanA700, blueGrey200, pink300, greenA700} from 'material-ui/styles/colors';
 
 import Blockly from './';
 import { Keys } from './constants';
@@ -13,6 +13,7 @@ function nonnegativeNumberValidator(text) {
 
 /* Styling */
 Blockly.Blocks.math.HUE = blueGrey200;
+Blockly.Blocks.loops.HUE = greenA700;
 
 /**
  * whenRun block
@@ -92,6 +93,46 @@ Blockly.JavaScript['move'] = block => {
   }
 
   return `window.moveLocal(${duration} * 1000, ${direction}, ${distance});\n`;
+};
+
+/**
+ * jump block
+ */
+
+Blockly.Blocks['jump'] = {
+  init: function() {
+    this.setColour(cyanA700);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setInputsInline(false);
+
+    this.appendValueInput('HEIGHT')
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField('jump by (meters)')
+
+    this.appendValueInput('DURATION')
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField('for (seconds)');
+
+    this.setTooltip('jump');
+    // this.setHelpUrl('http://www.example.com');
+  }
+};
+
+Blockly.JavaScript['jump'] = block => {
+  let height: string;
+  if (!(height = Blockly.JavaScript.valueToCode(block, 'HEIGHT', Blockly.JavaScript.ORDER_ADDITION))) {
+    return '';
+  }
+
+  let duration: string;
+  if (!(duration = Blockly.JavaScript.valueToCode(block, 'DURATION', Blockly.JavaScript.ORDER_ADDITION))) {
+    return '';
+  }
+
+  return `window.jump(${duration} * 1000, ${height});\n`;
 };
 
 /**
@@ -289,38 +330,6 @@ Blockly.JavaScript['rotate'] = block => {
   const value = block.getFieldValue('VALUE');
 
   return `window.rotateLeft(${duration}, ${value});\n`;
-};
-
-/**
- * jump block
- */
-
-Blockly.Blocks['jump'] = {
-  init: function() {
-    this.setColour(160);
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setInputsInline(false);
-
-    this.appendDummyInput()
-      .appendField('jump by')
-      .appendField(new Blockly.FieldTextInput('3', nonnegativeNumberValidator), 'VALUE')
-      .appendField('meter(s)')
-    this.appendDummyInput()
-      .appendField('for')
-      .appendField(new Blockly.FieldTextInput('1', nonnegativeNumberValidator), 'DURATION')
-      .appendField('sec(s)');
-
-    this.setTooltip('jump');
-    this.setHelpUrl('http://www.example.com');
-  }
-};
-
-Blockly.JavaScript['jump'] = block => {
-  const duration = block.getFieldValue('DURATION') * 1000;
-  const value = block.getFieldValue('VALUE');
-
-  return `window.jump(${duration}, ${value});\n`;
 };
 
 /**

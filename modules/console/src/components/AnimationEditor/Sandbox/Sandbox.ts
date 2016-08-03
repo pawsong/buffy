@@ -83,14 +83,17 @@ class SandboxProcess {
       }));
 
       interpreter.setProperty(scope, 'jump', interpreter.createAsyncFunction((duration, height, callback) => {
-        const origin = this.sandbox.canvas.component.mesh.position.y;
-        const dest = origin + height;
-
         let elapsed = 0;
+        let prevPosition = 0;
+
         this.requestAnimation(duration, (dt: number) => {
           elapsed += dt;
-          const value = (height / (duration * duration / 4)) * (- elapsed * elapsed + duration * elapsed) + origin;
-          this.sandbox.canvas.moveY(value);
+
+          const nextPosition = (height / (duration * duration / 4)) * (- elapsed * elapsed + duration * elapsed);
+          const delta = nextPosition - prevPosition;
+          prevPosition = nextPosition;
+
+          this.sandbox.canvas.moveY(delta);
         }, () => callback.call(interpreter));
       }));
 

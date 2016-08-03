@@ -1,3 +1,27 @@
 <xml>
-  <block type="when_run" x="20" y="20"></block>
+  <block type="when_run" x="20" y="20">
+    <next>
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <block type="math_number">
+            <field name="NUM">2</field>
+          </block>
+        </value>
+        <statement name="DO">
+          <block type="jump">
+            <value name="HEIGHT">
+              <block type="math_number">
+                <field name="NUM">5</field>
+              </block>
+            </value>
+            <value name="DURATION">
+              <block type="math_number">
+                <field name="NUM">0.5</field>
+              </block>
+            </value>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
 </xml>

@@ -12,4 +12,23 @@
       </block>
     </value>
   </block>
+  <block type="jump">
+    <value name="HEIGHT">
+      <block type="math_number">
+        <field name="NUM">5</field>
+      </block>
+    </value>
+    <value name="DURATION">
+      <block type="math_number">
+        <field name="NUM">1</field>
+      </block>
+    </value>
+  </block>
+  <block type="controls_repeat_ext">
+    <value name="TIMES">
+      <block type="math_number">
+        <field name="NUM">5</field>
+      </block>
+    </value>
+  </block>
 </xml>

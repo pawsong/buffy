@@ -241,7 +241,7 @@ class ModelViewerCanvas extends Canvas {
   }
 
   moveY(value: number) {
-    this.component.mesh.position.setY(value);
+    this.component.mesh.position.setY(value + this.component.mesh.position.y);
   }
 
   moveForward = (() => {

@@ -160,6 +160,11 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     if (event.type === Blockly.Events.UI) return;
     this.updateEstimatedTime(this.props.extraData.workspace);
 
+    // // For debugging
+    // const dom = Blockly.Xml.workspaceToDom(this.props.extraData.workspace);
+    // const xml = Blockly.Xml.domToText(dom);
+    // console.log(xml);
+
     this.props.onUpdate();
   };
 
