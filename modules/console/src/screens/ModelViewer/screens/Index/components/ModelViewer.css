@@ -22,3 +22,19 @@
   right: 0;
   left: 0;
 }
+
+.modelViewerCont {
+  position: relative;
+}
+
+.animationControls {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.progressBar {
+  flex-grow: 1;
+}

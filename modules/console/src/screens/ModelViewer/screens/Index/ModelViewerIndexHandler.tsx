@@ -21,12 +21,17 @@ interface RouteParams {
   modelId: string;
 }
 
+interface ModelData {
+  model: ModelFileState;
+  blockly: string;
+}
+
 interface HandlerProps extends RouteComponentProps<RouteParams, RouteParams>, SagaProps {
   addComment?: ImmutableTask<any>;
   updateComment?: ImmutableTask<any>;
   deleteComment?: ImmutableTask<any>;
   loadComments?: ImmutableTask<any>;
-  loadModel?: ImmutableTask<ModelFileState>;
+  loadModel?: ImmutableTask<ModelData>;
   user?: User;
 }
 
@@ -86,9 +91,7 @@ interface HandlerState {
       return null;
     }
 
-    const { model: fileState } = deserialize(new Uint8Array(response.data));
-
-    return fileState;
+    return deserialize(new Uint8Array(response.data));
   },
 })
 @withStyles(styles)
@@ -188,10 +191,13 @@ class ModelViewerIndexHandler extends React.Component<HandlerProps, HandlerState
   render() {
     if (!isDone(this.props.loadModel)) return this.renderLoading();
 
+    const { model, blockly } = this.props.loadModel.result;
+
     return (
       <div>
         <ModelViewer
-          fileState={this.props.loadModel.result}
+          fileState={model}
+          blockly={blockly}
         />
         <Comments
           commentFormState={this.state.commentFormState}
