@@ -33,6 +33,7 @@ export function estimateTime(code: string): number {
     interpreter.setProperty(scope, 'moveLocal', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'jump', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'rotate', interpreter.createNativeFunction((duration) => time += duration));
+    interpreter.setProperty(scope, 'wait', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'scaleX', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'scaleY', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'scaleZ', interpreter.createNativeFunction((duration) => time += duration));
@@ -111,6 +112,10 @@ class SandboxProcess {
 
           this.sandbox.canvas.moveY(delta);
         }, () => callback.call(interpreter));
+      }));
+
+      interpreter.setProperty(scope, 'wait', interpreter.createAsyncFunction((duration, callback) => {
+        this.requestAnimation(duration, (dt: number) => {}, () => callback.call(interpreter));
       }));
 
       interpreter.setProperty(scope, 'scaleX', interpreter.createAsyncFunction((duration, value, callback) => {

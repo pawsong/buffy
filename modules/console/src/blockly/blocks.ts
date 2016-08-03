@@ -115,7 +115,6 @@ Blockly.Blocks['jump'] = {
 
     this.appendValueInput('HEIGHT')
         .setCheck('Number')
-        .setAlign(Blockly.ALIGN_RIGHT)
         .appendField('jump by (meters)')
 
     this.appendValueInput('DURATION')
@@ -189,6 +188,35 @@ Blockly.JavaScript['rotate'] = block => {
   }
 
   return `window.rotate(${duration} * 1000, ${direction}, ${degree});\n`;
+};
+
+/**
+ * jump block
+ */
+
+Blockly.Blocks['wait'] = {
+  init: function() {
+    this.setColour(cyanA700);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setInputsInline(false);
+
+    this.appendValueInput('DURATION')
+        .setCheck('Number')
+        .appendField('wait for (seconds)');
+
+    this.setTooltip('wait');
+    // this.setHelpUrl('http://www.example.com');
+  }
+};
+
+Blockly.JavaScript['wait'] = block => {
+  let duration: string;
+  if (!(duration = Blockly.JavaScript.valueToCode(block, 'DURATION', Blockly.JavaScript.ORDER_ADDITION))) {
+    return '';
+  }
+
+  return `window.wait(${duration} * 1000);\n`;
 };
 
 /**
@@ -433,28 +461,6 @@ Blockly.Blocks['boom'] = {
 
 Blockly.JavaScript['boom'] = block => {
   return 'window.boom();\n';
-};
-
-/**
- * wait block
- */
-
-Blockly.Blocks['wait'] = {
-  init: function() {
-    this.setColour(160);
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.appendDummyInput()
-      .appendField('wait for')
-      .appendField(new Blockly.FieldTextInput('10', nonnegativeNumberValidator), 'SECS')
-      .appendField('seconds')
-    this.setTooltip('wait for seconds');
-    this.setHelpUrl('http://www.example.com');
-  }
-};
-
-Blockly.JavaScript['wait'] = block => {
-  return `window.wait(${block.getFieldValue('SECS')});\n`;
 };
 
 /**
