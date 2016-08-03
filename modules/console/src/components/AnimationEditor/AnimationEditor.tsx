@@ -94,6 +94,7 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
     Blockly.svgResize(this.props.extraData.workspace);
     Blockly.JavaScript.init(this.props.extraData.workspace);
     this.props.extraData.workspace.markFocused();
+    this.props.extraData.workspaceHasMount = true;
 
     // Ignore events fired during initialization.
     setTimeout(() => this.props.extraData.workspace.addChangeListener(this.handleBlocklyChange), 0);
@@ -116,6 +117,7 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
       Blockly.svgResize(nextProps.extraData.workspace);
       Blockly.JavaScript.init(nextProps.extraData.workspace);
       nextProps.extraData.workspace.markFocused();
+      nextProps.extraData.workspaceHasMount = true;
       nextProps.extraData.workspace.addChangeListener(this.handleBlocklyChange);
 
       this.updateEstimatedTime(nextProps.extraData.workspace);
@@ -275,6 +277,7 @@ AnimationEditor.createExtraData = (xml?: string) => {
   return {
     container,
     workspace,
+    workspaceHasMount: !!xml,
   };
 };
 

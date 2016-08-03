@@ -25,8 +25,14 @@ function serialize(fileState: FileState, workspace: any): Uint8Array {
     maps[MaterialMapType[key]] = pako.deflate(map.data.buffer);
   });
 
-  const dom = Blockly.Xml.workspaceToDom(workspace);
-  const xml = Blockly.Xml.domToText(dom);
+  let blockly;
+
+  if (workspace) {
+    const dom = Blockly.Xml.workspaceToDom(workspace);
+    blockly = Blockly.Xml.domToText(dom);
+  } else {
+    blockly = '';
+  }
 
   return msgpack.encode({
     version: VERSION_1_1,
@@ -36,7 +42,7 @@ function serialize(fileState: FileState, workspace: any): Uint8Array {
     trove: {
       itemType: TroveItemType[fileState.present.data.trove.itemType],
     },
-    blockly: xml,
+    blockly,
   });
 }
 

@@ -21,6 +21,7 @@ interface UpdateFileParams {
   body: ModelFileState;
   animation: {
     workspace: any;
+    workspaceHasMount: boolean;
   };
 }
 
@@ -41,7 +42,8 @@ export function* updateFiles(thumbnailFactory: ThumbnailFactory, paramsList: Upd
       thumbnailSignedUrl, thumbnailContentType, thumbnailCacheControl,
     } = response.data;
 
-    const data = ModelEditor.serialize(params.body, params.animation.workspace).buffer;
+    const data = ModelEditor.serialize(
+      params.body, params.animation.workspaceHasMount ? params.animation.workspace : null).buffer;
 
     response = yield call(request.put, signedUrl, data, {
       headers: {

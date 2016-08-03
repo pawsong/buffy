@@ -5,6 +5,7 @@ export interface AnimationEditorState {
 export interface ExtraData {
   container: HTMLElement;
   workspace: any;
+  workspaceHasMount: boolean;
 }
 
 export interface SerializedData {
