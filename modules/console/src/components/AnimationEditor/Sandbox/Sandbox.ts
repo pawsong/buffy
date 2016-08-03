@@ -32,7 +32,7 @@ export function estimateTime(code: string): number {
   const interpreter = new Interpreter(code, (interpreter, scope) => {
     interpreter.setProperty(scope, 'moveLocal', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'jump', interpreter.createNativeFunction((duration) => time += duration));
-    interpreter.setProperty(scope, 'rotateLeft', interpreter.createNativeFunction((duration) => time += duration));
+    interpreter.setProperty(scope, 'rotate', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'scaleX', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'scaleY', interpreter.createNativeFunction((duration) => time += duration));
     interpreter.setProperty(scope, 'scaleZ', interpreter.createNativeFunction((duration) => time += duration));
@@ -73,12 +73,28 @@ class SandboxProcess {
 
     this.interpreter = new Interpreter(code, (interpreter, scope) => {
       interpreter.setProperty(scope, 'moveLocal', interpreter.createAsyncFunction((duration, direction, distance, callback) => {
+        const dir: [number, number, number] = [
+          direction.properties[0].toNumber(),
+          direction.properties[1].toNumber(),
+          direction.properties[2].toNumber(),
+        ];
+
         this.requestAnimation(duration, (dt: number) => {
-          this.sandbox.canvas.moveLocal([
-            direction.properties[0].toNumber(),
-            direction.properties[1].toNumber(),
-            direction.properties[2].toNumber(),
-          ], distance * dt / duration);
+          this.sandbox.canvas.moveLocal(dir, distance * dt / duration);
+        }, () => callback.call(interpreter));
+      }));
+
+      interpreter.setProperty(scope, 'rotate', interpreter.createAsyncFunction((duration, direction, degree, callback) => {
+        const dir: [number, number, number] = [
+          direction.properties[0].toNumber(),
+          direction.properties[1].toNumber(),
+          direction.properties[2].toNumber(),
+        ];
+
+        const angle = degree * Math.PI / 180;
+
+        this.requestAnimation(duration, (dt: number) => {
+          this.sandbox.canvas.rotate(dir, angle * dt / duration);
         }, () => callback.call(interpreter));
       }));
 
@@ -94,14 +110,6 @@ class SandboxProcess {
           prevPosition = nextPosition;
 
           this.sandbox.canvas.moveY(delta);
-        }, () => callback.call(interpreter));
-      }));
-
-      interpreter.setProperty(scope, 'rotateLeft', interpreter.createAsyncFunction((duration, degree, callback) => {
-        const angle = degree * Math.PI / 180;
-
-        this.requestAnimation(duration, (dt: number) => {
-          this.sandbox.canvas.rotateLeft(angle * dt / duration);
         }, () => callback.call(interpreter));
       }));
 

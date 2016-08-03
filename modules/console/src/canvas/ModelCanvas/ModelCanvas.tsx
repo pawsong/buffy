@@ -216,9 +216,16 @@ class ModelViewerCanvas extends Canvas {
   }
 
   /* Custom APIs for handling 3D model */
-  rotate(angle: number) {
-    this.component.mesh.rotateY(angle);
-  }
+
+  rotate = (() => {
+    const matrix = new THREE.Matrix4();
+    const direction = new THREE.Vector3();
+
+    return (dir: [number, number, number], angle: number) => {
+      direction.set(dir[0], dir[1], dir[2]);
+      this.component.mesh.rotateOnAxis(direction, angle);
+    };
+  })();
 
   rotateLeft(angle: number) {
     this.component.mesh.rotateY(angle);

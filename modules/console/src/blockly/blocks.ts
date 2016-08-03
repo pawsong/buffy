@@ -11,9 +11,21 @@ function nonnegativeNumberValidator(text) {
   return n;
 }
 
+/* Constants */
+
 const METER_SCALE = 4;
 
+const DIRECTIONS = {
+  'FORWARD': '[0, 0, 1]',
+  'BACK': '[0, 0, -1]',
+  'UP': '[0, 1, 0]',
+  'DOWN': '[0, -1, 0]',
+  'LEFT': '[1, 0, 0]',
+  'RIGHT': '[-1, 0, 0]',
+};
+
 /* Styling */
+
 Blockly.Blocks.math.HUE = blueGrey200;
 Blockly.Blocks.loops.HUE = greenA700;
 
@@ -72,15 +84,6 @@ Blockly.Blocks['move'] = {
   }
 };
 
-const DIRECTIONS = {
-  'FORWARD': '[0, 0, 1]',
-  'BACK': '[0, 0, -1]',
-  'UP': '[0, 1, 0]',
-  'DOWN': '[0, -1, 0]',
-  'LEFT': '[1, 0, 0]',
-  'RIGHT': '[-1, 0, 0]',
-};
-
 Blockly.JavaScript['move'] = block => {
   const direction = DIRECTIONS[block.getFieldValue('DIRECTION')];
 
@@ -135,6 +138,55 @@ Blockly.JavaScript['jump'] = block => {
   }
 
   return `window.jump(${duration} * 1000, ${height} * ${METER_SCALE});\n`;
+};
+
+/**
+ * rotate block
+ */
+
+Blockly.Blocks['rotate'] = {
+  init: function() {
+    this.setColour(cyanA700);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setInputsInline(false);
+
+    this.appendDummyInput()
+        .appendField('rotate')
+        .appendField(new Blockly.FieldDropdown([
+          ['left', 'UP'],
+          ['right', 'DOWN'],
+        ]), 'DIRECTION');
+
+    this.appendValueInput('DEGREE')
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField('by (degrees)')
+
+    this.appendValueInput('DURATION')
+        .setCheck('Number')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField('for (seconds)');
+
+    this.setTooltip('rotate');
+    // this.setHelpUrl('http://www.example.com');
+  }
+};
+
+Blockly.JavaScript['rotate'] = block => {
+  const direction = DIRECTIONS[block.getFieldValue('DIRECTION')];
+
+  let degree: string;
+  if (!(degree = Blockly.JavaScript.valueToCode(block, 'DEGREE', Blockly.JavaScript.ORDER_ADDITION))) {
+    return '';
+  }
+
+  let duration: string;
+  if (!(duration = Blockly.JavaScript.valueToCode(block, 'DURATION', Blockly.JavaScript.ORDER_ADDITION))) {
+    return '';
+  }
+
+  return `window.rotate(${duration} * 1000, ${direction}, ${degree});\n`;
 };
 
 /**
@@ -300,38 +352,6 @@ Blockly.JavaScript['scaleZ'] = block => {
   const value = block.getFieldValue('VALUE');
 
   return `window.scaleZ(${duration}, ${value});\n`;
-};
-
-/**
- * rotate block
- */
-
-Blockly.Blocks['rotate'] = {
-  init: function() {
-    this.setColour(160);
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
-    this.setInputsInline(false);
-
-    this.appendDummyInput()
-      .appendField('rotate by')
-      .appendField(new Blockly.FieldTextInput('3', nonnegativeNumberValidator), 'VALUE')
-      .appendField('degree(s)')
-    this.appendDummyInput()
-      .appendField('for')
-      .appendField(new Blockly.FieldTextInput('1', nonnegativeNumberValidator), 'DURATION')
-      .appendField('sec(s)');
-
-    this.setTooltip('move');
-    this.setHelpUrl('http://www.example.com');
-  }
-};
-
-Blockly.JavaScript['rotate'] = block => {
-  const duration = block.getFieldValue('DURATION') * 1000;
-  const value = block.getFieldValue('VALUE');
-
-  return `window.rotateLeft(${duration}, ${value});\n`;
 };
 
 /**
