@@ -4,13 +4,15 @@ import { defineMessages, FormattedMessage, injectIntl, InjectedIntlProps } from 
 import { RouteComponentProps, Link } from 'react-router';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import RaisedButton from 'material-ui/RaisedButton';
+import IconButton from 'material-ui/IconButton';
 // import FlatButton from 'material-ui/FlatButton';
 const FlatButton = require('material-ui/FlatButton').default;
-import { cyan500, cyan200, fullWhite } from 'material-ui/styles/colors';
+import { cyan500, cyan200, fullWhite, yellow800 } from 'material-ui/styles/colors';
 import { preloadApi, connectApi, ApiCall, get, ApiDispatchProps } from '../../api';
 import { call } from 'redux-saga/effects';
 import ModeEdit from 'material-ui/svg-icons/editor/mode-edit';
 import Settings from 'material-ui/svg-icons/action/settings';
+import LockOutline from 'material-ui/svg-icons/action/lock-outline';
 import { saga, SagaProps, ImmutableTask, isDone, request } from '../../saga';
 import { deserialize } from '../../components/ModelEditor/utils/serdez';
 import { FileState as ModelFileState } from '../../components/ModelEditor/types';
@@ -225,13 +227,37 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
             {edit}
             {settings}
           </div>
-          <Link to={`/model/${model.id}`} >
-            <h1 style={{ display: 'inline-block' }}>
-              {this.props.model.result.name}
-            </h1>
-          </Link>
-          {user}
-          {fork}
+          <div className={styles.titleCont}>
+            {!this.props.model.result.isPublic && (
+              <IconButton
+                style={{
+                  width: 54,
+                  height: 54,
+                  padding: 12,
+                }}
+                iconStyle={{
+                  width: 30,
+                  height: 30,
+                }}
+                containerElement={<Link to={`/model/${model.id}/settings`} />}
+                tooltip={'Private Model'}
+                tooltipStyles={{
+                  left: -11.5,
+                }}
+              >
+                <LockOutline color={yellow800}/>
+              </IconButton>
+            )}
+            <div>
+              <Link to={`/model/${model.id}`} >
+                <h1 style={{ display: 'inline-block' }}>
+                  {this.props.model.result.name}
+                </h1>
+              </Link>
+              {user}
+              {fork}
+            </div>
+          </div>
         </div>
         <div className={styles.body}>{this.props.children}</div>
       </div>

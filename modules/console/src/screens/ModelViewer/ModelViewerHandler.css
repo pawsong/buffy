@@ -1,3 +1,8 @@
+.titleCont {
+  display: flex;
+  align-items: center;
+}
+
 .title {
   margin-top: 15px;
 
@@ -10,7 +15,6 @@
   font-size: 14px;
   color: rgba(0, 0, 0, 0.541176);
   display: block;
-  padding-bottom: 16px;
 }
 
 .dualButton + .dualButton {
