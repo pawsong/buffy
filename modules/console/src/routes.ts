@@ -1,6 +1,8 @@
 import { Store } from 'redux';
 import { State } from './reducers';
 
+import axios from 'axios';
+
 import RootHandler from './screens/Root';
 import JoinHandler from './screens/Join';
 import LoginHandler from './screens/Login';
@@ -27,6 +29,7 @@ import ModelHandler from './screens/Model';
 import ModelViewerHandler from './screens/ModelViewer';
 import ModelViewerIndexHandler from './screens/ModelViewer/screens/Index';
 import ModelViewerLikesHandler from './screens/ModelViewer/screens/Likes';
+import ModelVeiwerSettingsHandler from './screens/ModelViewer/screens/Settings';
 import BlogHandler from './screens/Blog';
 import BlogIndexHandler from './screens/Blog/screens/BlogIndex';
 import BlogPostHandler from './screens/Blog/screens/BlogPost';
@@ -137,6 +140,23 @@ export default function getRoutes(store: Store, isMobile: boolean) {
                 path: 'likes',
                 getComponent: (location, cb) => require.ensure([], require => {
                   cb(null, require<{ default: ModelViewerLikesHandler }>('./screens/ModelViewer/screens/Likes').default);
+                }),
+              },
+              {
+                onEnter: (nextState, replace, callback) => {
+                  // TODO: Use redux store for cache
+                  const { modelId } = nextState.params;
+
+                  axios.get(`${CONFIG_API_SERVER_URL}/files/${modelId}/check-ownership`, { withCredentials: true })
+                    .then(response => callback())
+                    .catch(response => {
+                      replace(`/model/${modelId}`)
+                      callback();
+                    });
+                },
+                path: 'settings',
+                getComponent: (location, cb) => require.ensure([], require => {
+                  cb(null, require<{ default: ModelVeiwerSettingsHandler }>('./screens/ModelViewer/screens/Settings').default);
                 }),
               },
             ],

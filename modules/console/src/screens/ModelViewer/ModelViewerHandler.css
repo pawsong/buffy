@@ -16,3 +16,7 @@
 .dualButton + .dualButton {
   margin-left: 10px;
 }
+
+.body {
+  margin-top: 30px;
+}

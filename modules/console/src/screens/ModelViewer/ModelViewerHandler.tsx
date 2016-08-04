@@ -10,6 +10,7 @@ import { cyan500, cyan200, fullWhite } from 'material-ui/styles/colors';
 import { preloadApi, connectApi, ApiCall, get, ApiDispatchProps } from '../../api';
 import { call } from 'redux-saga/effects';
 import ModeEdit from 'material-ui/svg-icons/editor/mode-edit';
+import Settings from 'material-ui/svg-icons/action/settings';
 import { saga, SagaProps, ImmutableTask, isDone, request } from '../../saga';
 import { deserialize } from '../../components/ModelEditor/utils/serdez';
 import { FileState as ModelFileState } from '../../components/ModelEditor/types';
@@ -162,6 +163,7 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
     }
 
     let edit = null;
+    let settings = null;
     if (this.props.user && model.owner && this.props.user.id === model.owner.id) {
       edit = (
         <div className={styles.dualButton} style={{ display: 'inline-block' }}>
@@ -177,6 +179,24 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
             }
             label={'Edit'}
             containerElement={<Link to={`/model/edit?files=${model.id}`} />}
+          />
+        </div>
+      );
+
+      settings = (
+        <div className={styles.dualButton} style={{ display: 'inline-block' }}>
+          <FlatButton
+            backgroundColor={cyan500}
+            hoverColor={cyan200}
+            style={{color: fullWhite}}
+            icon={
+              <Settings
+                color={fullWhite}
+                style={{ width: 18, height: 18 }}
+              />
+            }
+            label={'Settings'}
+            containerElement={<Link to={`/model/${model.id}/settings`} />}
           />
         </div>
       );
@@ -203,6 +223,7 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
               rightOnTouchTap={() => alert('Sorry, this feature is under construction')}
             />
             {edit}
+            {settings}
           </div>
           <Link to={`/model/${model.id}`} >
             <h1 style={{ display: 'inline-block' }}>
@@ -212,7 +233,7 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
           {user}
           {fork}
         </div>
-        {this.props.children}
+        <div className={styles.body}>{this.props.children}</div>
       </div>
     );
   }

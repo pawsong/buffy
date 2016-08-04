@@ -291,6 +291,17 @@ export const reportUpdate = compose(checkLogin, wrap(async (req, res) => {
   // }
 }));
 
+export const checkOwnership = compose(requiresLogin, wrap(async (req, res) => {
+  const { fileId } = req.params;
+
+  const doc = await FileModel.findOne({
+    _id: fileId,
+    owner: req.user.id,
+  }).exec();
+
+  res.sendStatus(doc ? 200 : 400);
+}));
+
 export const changeLikeStatus = compose(requiresLogin, wrap(async (req, res) => {
   const { fileId } = req.params;
   const { liked } = req.body;
