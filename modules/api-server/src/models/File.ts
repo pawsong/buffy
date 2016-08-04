@@ -45,6 +45,10 @@ const FileSchema = new Schema({
   format: String,
   bucket: String,
 });
+FileSchema.index({ isPublic: 1, modifiedAt: 1 });
+FileSchema.index({ isPublic: 1, likeCount: 1 });
+FileSchema.index({ isPublic: 1, forked: 1 });
+FileSchema.index({ owner: 1, modifiedAt: 1 });
 
 // Duplicate the ID field.
 FileSchema.virtual('id').get(function(){

@@ -25,7 +25,7 @@ export default function comment(schema: mongoose.Schema) {
       modifiedAt: { type: Date, default: Date.now },
       body: { type: String, default: '' },
     });
-    CommentSchema.index({ parent: true, createdAt: true });
+    CommentSchema.index({ parent: 1, createdAt: 1 });
 
     // Duplicate the ID field.
     CommentSchema.virtual('id').get(function(){
