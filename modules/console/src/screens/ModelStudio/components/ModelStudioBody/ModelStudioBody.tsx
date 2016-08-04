@@ -235,6 +235,7 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
       <div style={inlineStyles.root}>
         <FileBrowser
           userId={this.props.userId}
+          activeFile={activeFile}
           onFileClick={this.props.onFileClick}
           onRequestRename={this.handleRequestFileRename}
           onFileRename={this.handleFileRename}

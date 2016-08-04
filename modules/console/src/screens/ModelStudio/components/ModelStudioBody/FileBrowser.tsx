@@ -1,6 +1,7 @@
 import * as React from 'react';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
+import Badge from 'material-ui/Badge';
 import * as Colors from 'material-ui/styles/colors';
 import * as update from 'react-addons-update';
 
@@ -19,6 +20,7 @@ import FileList from './FileList';
 
 interface FileBrowserProps extends React.Props<FileBrowser> {
   userId: string;
+  activeFile: ModelFile;
   initialWidth: number;
   onWidthResize: (size: number) => any;
   files: ModelFileMap;
@@ -34,33 +36,54 @@ interface FileBrowserProps extends React.Props<FileBrowser> {
   renameFileId: string;
 }
 
-class FileBrowser extends React.Component<FileBrowserProps, void> {
+interface FileBrowserState {
+  haveUsedAnimationEditor: boolean;
+}
+
+class FileBrowser extends React.Component<FileBrowserProps, FileBrowserState> {
+  constructor(props: FileBrowserProps) {
+    super(props);
+    this.state = {
+      haveUsedAnimationEditor: !!localStorage.getItem('noti.have.used.animation.editor'),
+    };
+  }
+
   toggleFileBrowser = () => this.props.onRequestOpen(!this.props.open);
 
   handleSelectDrawMode = () => this.props.onChangeEditorMode(EditorMode.DRAW);
 
-  handleSelectAnimateMode = () => this.props.onChangeEditorMode(EditorMode.ANIMATE);
+  handleSelectAnimateMode = () => {
+    if (!this.state.haveUsedAnimationEditor) {
+      this.setState({ haveUsedAnimationEditor: true }, () => {
+        localStorage.setItem('noti.have.used.animation.editor', 'true');
+      });
+    }
+    this.props.onChangeEditorMode(EditorMode.ANIMATE);
+  }
 
   renderFileBrowserButtons() {
     return (
       <div className={styles.fileCategoryButtonContainer}>
         <div className={styles.fileCategoryButtons}>
-          <IconButton
-            tooltip={'Animate'}
-            onTouchTap={this.handleSelectAnimateMode}
-            className={styles.fileCategoryButton}
-            iconStyle={{
-              transform: 'scale(1.32)',
-            }}
-          >
-            <PlayArrow
-              color={this.props.editorMode === EditorMode.ANIMATE ? Colors.black : Colors.grey500}
-            />
-          </IconButton>
+          {this.state.haveUsedAnimationEditor ? this.renderAnimationButton() : (
+            <Badge
+              badgeContent={'new'}
+              primary={true}
+              style={{padding: 0}}
+              badgeStyle={{
+                fontSize: '9px',
+                width: 20,
+                height: 20,
+              }}
+            >
+              {this.renderAnimationButton()}
+            </Badge>
+          )}
           <IconButton
             tooltip={'Draw'}
             onTouchTap={this.handleSelectDrawMode}
             className={styles.fileCategoryButton}
+            disabled={!this.props.activeFile}
           >
             <Palette
               color={this.props.editorMode === EditorMode.DRAW ? Colors.black : Colors.grey500}
@@ -77,6 +100,24 @@ class FileBrowser extends React.Component<FileBrowserProps, void> {
           </IconButton>
         </div>
       </div>
+    );
+  }
+
+  renderAnimationButton() {
+    return (
+      <IconButton
+        tooltip={'Animate'}
+        onTouchTap={this.handleSelectAnimateMode}
+        className={styles.fileCategoryButton}
+        iconStyle={{
+          transform: `scale(1.32) ${this.state.haveUsedAnimationEditor ? '' : 'translateX(-2px)'}`,
+        }}
+        disabled={!this.props.activeFile}
+      >
+        <PlayArrow
+          color={this.props.editorMode === EditorMode.ANIMATE ? Colors.black : Colors.grey500}
+        />
+      </IconButton>
     );
   }
 
