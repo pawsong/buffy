@@ -256,6 +256,7 @@ AnimationEditor.createExtraData = (xml?: string) => {
         colour: '#ccc',
       },
       trashcan: true,
+      scrollbars: true,
     });
 
     const dom = Blockly.Xml.textToDom(xml || initBlock);
