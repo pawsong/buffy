@@ -94,6 +94,8 @@ class ModelList extends React.Component<ModelListProps, {}> {
               <IconButton
                 className={styles.itemAnimated}
                 containerElement={<Link to={`${modelUrl}?animate=1`} />}
+                tooltip={'Play Animation'}
+                tooltipPosition="top-center"
               >
                 <PlayArrow />
               </IconButton>
