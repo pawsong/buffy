@@ -40,6 +40,7 @@ export interface ModelFileDocument {
   forked: number;
   likeCount: number;
   commentCount: number;
+  animated: boolean;
 }
 
 /*

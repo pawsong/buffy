@@ -3,12 +3,14 @@ import { Link } from 'react-router';
 import Paper from 'material-ui/Paper';
 import { grey200 } from 'material-ui/styles/colors';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
+import IconButton from 'material-ui/IconButton';
 
 import * as Colors from 'material-ui/styles/colors';
 import {grey700} from 'material-ui/styles/colors';
 import List from 'material-ui/List/List';
 import ListItem from 'material-ui/List/ListItem';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
+import PlayArrow from 'material-ui/svg-icons/av/play-arrow';
 
 import Heart from '../icons/Heart';
 import Fork from '../icons/Fork';
@@ -86,9 +88,17 @@ class ModelList extends React.Component<ModelListProps, {}> {
     return (
       <Paper key={file.id} className={styles.item}>
         <div>
-          <Link to={modelUrl}>
-            <img src={`${__CDN_BASE__}/${file.thumbnail}`} />
-          </Link>
+          <div className={styles.itemThumbnailCont}>
+            <Link to={modelUrl}><img src={`${__CDN_BASE__}/${file.thumbnail}`} /></Link>
+            {file.animated && (
+              <IconButton
+                className={styles.itemAnimated}
+                containerElement={<Link to={`${modelUrl}?animate=1`} />}
+              >
+                <PlayArrow />
+              </IconButton>
+            )}
+          </div>
           <div className={styles.itemTitleContainer}>
             <Link to={modelUrl}>
               <div className={styles.itemTitle}>{file.name}</div>

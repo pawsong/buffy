@@ -256,7 +256,7 @@ export const issueFileUpdateUrl = compose(checkLogin, wrap(async (req, res) => {
 
 export const reportUpdate = compose(checkLogin, wrap(async (req, res) => {
   const { fileId } = req.params;
-  const { thumbnailId } = req.body;
+  const { thumbnailId, animated } = req.body;
 
   if (!thumbnailId) return res.sendStatus(400);
 
@@ -273,6 +273,7 @@ export const reportUpdate = compose(checkLogin, wrap(async (req, res) => {
   await FileModel.findByIdAndUpdate(fileId, {
     modifiedAt: Date.now(),
     thumbnail: `thumbs/${fileId}/${thumbnailId}.jpeg`,
+    animated,
   }).exec();
 
   res.sendStatus(200);

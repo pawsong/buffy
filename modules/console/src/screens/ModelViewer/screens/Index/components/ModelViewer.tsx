@@ -38,6 +38,7 @@ const inlineStyles = {
 interface ModelViewerProps {
   fileState: FileState;
   blockly: string;
+  animateImmediately: boolean;
 }
 
 interface ModelVeiwerState {
@@ -108,6 +109,8 @@ class ModelViewer extends React.Component<ModelViewerProps, ModelVeiwerState> {
     this.canvas.init();
 
     this.sandbox = new Sandbox(this.canvas);
+
+    if (this.props.animateImmediately) this.run();
   }
 
   componentWillUnmount() {

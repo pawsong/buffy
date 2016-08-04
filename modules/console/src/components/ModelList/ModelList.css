@@ -16,7 +16,18 @@
   width: 220px;
   & img {
     width: 220px;
+    vertical-align: bottom;
   }
+}
+
+.itemThumbnailCont {
+  position: relative;
+}
+
+.itemAnimated {
+  position: absolute !important;
+  bottom: 0;
+  right: 0;
 }
 
 .itemTitleContainer {

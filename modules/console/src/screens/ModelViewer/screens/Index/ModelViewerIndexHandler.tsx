@@ -193,11 +193,14 @@ class ModelViewerIndexHandler extends React.Component<HandlerProps, HandlerState
 
     const { model, blockly } = this.props.loadModel.result;
 
+    const animateImmediately = !!this.props.location.query['animate'];
+
     return (
       <div>
         <ModelViewer
           fileState={model}
           blockly={blockly}
+          animateImmediately={animateImmediately}
         />
         <Comments
           commentFormState={this.state.commentFormState}

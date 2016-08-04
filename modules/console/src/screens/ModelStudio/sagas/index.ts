@@ -63,7 +63,10 @@ export function* updateFiles(thumbnailFactory: ThumbnailFactory, paramsList: Upd
       withCredentials: false,
     });
 
-    response = yield call(request.post, `${CONFIG_API_SERVER_URL}/files/${params.id}/report-update`, { thumbnailId });
+    response = yield call(request.post, `${CONFIG_API_SERVER_URL}/files/${params.id}/report-update`, {
+      thumbnailId,
+      animated: params.animation.workspaceHasMount,
+    });
     if (response.status !== 200) {
       // TODO: Error handling
       return;
