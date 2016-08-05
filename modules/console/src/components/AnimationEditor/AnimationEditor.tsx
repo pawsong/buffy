@@ -238,6 +238,11 @@ class AnimationEditor extends React.Component<AnimationEditorProps, AnimationEdi
 }
 
 AnimationEditor.createExtraData = (xml?: string) => {
+  const mainWorkspace = Blockly.mainWorkspace;
+  function resetMarkedWorkspace() {
+    if (mainWorkspace !== Blockly.mainWorkspace) mainWorkspace.markFocused();
+  }
+
   const container = document.createElement('div');
   container.style.position = 'absolute';
   container.style.height = '100%';
@@ -262,11 +267,15 @@ AnimationEditor.createExtraData = (xml?: string) => {
     const dom = Blockly.Xml.textToDom(xml || initBlock);
     Blockly.Xml.domToWorkspace(dom, workspace);
   } catch(error) {
+    resetMarkedWorkspace();
+
     if (typeof error !== 'string') throw error;
 
     // Blockly throws string :(
     throw new Error(error);
   }
+
+  resetMarkedWorkspace();
 
   // Blockly requires parent element until next frame.
   // If parent element is disconnected in this frame,
