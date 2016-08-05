@@ -23,7 +23,6 @@ import {
 
 import {
   voxelMaginWand,
-  voxelClearSelection,
   voxelMergeFragment,
   moveMode2dPlane,
 } from '../../actions';

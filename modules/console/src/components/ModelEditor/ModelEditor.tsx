@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import { grey600 } from 'material-ui/styles/colors';
+import Paper from 'material-ui/Paper';
+import Menu from 'material-ui/Menu';
+import MenuItem from 'material-ui/MenuItem';
+import Divider from 'material-ui/Divider';
 const pure = require('recompose/pure').default;
 
 import THREE from 'three';
@@ -154,7 +158,6 @@ interface ModelEditorProps extends React.Props<ModelEditor> {
 interface ContainerStates {
   fullscreen?: boolean;
   size?: Position;
-  focused?: boolean;
 }
 
 interface ImportFileResult {
@@ -167,6 +170,23 @@ interface ExportFileResult {
   data: Uint8Array;
 }
 
+enum MouseState {
+  IDLE,
+  DOWN,
+  MOVE,
+}
+
+const inlineStyles = {
+  contextmenu: {
+    position: 'absolute',
+    transition: null,
+    zIndex: 1000,
+  },
+  contextmenuItem: {
+    transition: null,
+  },
+};
+
 @pure
 @injectIntl
 @connectTarget({
@@ -176,6 +196,10 @@ interface ExportFileResult {
 })
 @withStyles(styles)
 class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
+  static contextTypes = {
+    isMac: React.PropTypes.bool.isRequired,
+  };
+
   static createFileState = createFileState;
 
   static editAsTrove: (fileState: FileState) => FileState;
@@ -197,18 +221,27 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
   canvas: ModelEditorCanvas;
 
-  private keyboard: Keyboard;
+  isMac: boolean;
 
-  constructor(props) {
-    super(props);
+  private keyboard: Keyboard;
+  private mouseState: MouseState;
+  private contextmenu: HTMLElement;
+  private focused: boolean;
+
+  constructor(props, context) {
+    super(props, context);
 
     this.keyboard = new Keyboard();
 
     this.state = {
       fullscreen: screenfull.enabled && screenfull.isFullscreen,
       size: null,
-      focused: false,
     };
+
+    this.mouseState = MouseState.IDLE;
+    this.isMac = context.isMac;
+
+    this.focused = false;
   }
 
   dispatchAction = (action: Action<any>, callback?: () => any) => {
@@ -250,7 +283,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 
   private handleKeyDown = (e: KeyboardEvent) => {
-    if (!this.state.focused) return;
+    if (!this.focused) return;
 
     e.preventDefault();
 
@@ -258,22 +291,12 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       case 8: // Backspace
       case 46: // delete
       {
-        if (this.props.fileState.present.data.selection) {
-          if (this.props.fileState.present.data.mode2d.enabled) {
-            this.dispatchAction(voxelRemoveSelected2d());
-          } else {
-            this.dispatchAction(voxelRemoveSelected());
-          }
-        }
+        this.deleteSelectedBlocks();
         break;
       }
       case 27: // ESC
       {
-        if (this.props.fileState.present.data.fragment) {
-          this.dispatchAction(voxelMergeFragment());
-        } else if (this.props.fileState.present.data.selection) {
-          this.dispatchAction(voxelClearSelection());
-        }
+        this.clearSelection();
         break;
       }
     }
@@ -297,23 +320,12 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         switch(e.keyCode) {
           case 67: // C
           {
-            const { clipboard } = this.props.commonState;
-            const { selection } = this.props.fileState.present.data;
-            const { maps} = this.props.fileState.present.data;
-
-            if (selection) {
-              if (!clipboard || clipboard.maps !== maps || clipboard.selection !== selection) {
-                this.dispatchAction(voxelCopy(maps, selection));
-              }
-            }
+            this.copy();
             break;
           }
           case 86: // V
           {
-            const { clipboard } = this.props.commonState;
-            if (clipboard) {
-              this.dispatchAction(voxelPaste(clipboard.maps, clipboard.selection));
-            }
+            this.paste();
             break;
           }
           case 90: // Z
@@ -402,6 +414,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
     document.addEventListener('keydown', this.handleKeyDown, false);
     document.addEventListener(screenfull.raw.fullscreenchange, this.handleFullscreenChange, false);
+
+    this.contextmenu = findDOMNode<HTMLElement>(this.refs['contextmenu']);
+    this.contextmenu.style.visibility = `hidden`;
   }
 
   componentWillReceiveProps() {
@@ -499,19 +514,102 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.dispatchAction(voxelResize(width, height, depth, 0, 0, 0));
   }
 
-  handleFocus = () => {
-    if (!this.state.focused) this.setState({ focused: true });
+  handleFocus = () => this.focused = true;
+
+  handleBlur = () => this.focused = false;
+
+  handleMouseDown = (e: React.MouseEvent) => {
+    if (!this.focused) findDOMNode<HTMLElement>(this.refs['editor']).focus();
+    this.contextmenu.style.visibility = `hidden`;
+    this.mouseState = MouseState.DOWN;;
   }
 
-  handleBlur = () => {
-    if (this.state.focused) this.setState({ focused: false });
+  handleMouseMove = () => this.mouseState = MouseState.MOVE;
+
+  handleMouseUp = (e: React.MouseEvent) => {
+    const event = e.nativeEvent as MouseEvent;
+
+    if (event.which === 3) {
+      if (this.mouseState === MouseState.DOWN) {
+        const canvas = event.target as HTMLElement;
+
+        const left = this.contextmenu.clientWidth + event.offsetX < canvas.clientWidth
+          ? event.offsetX : event.offsetX - this.contextmenu.clientWidth;
+
+        const top = this.contextmenu.clientHeight + event.offsetY < canvas.clientHeight
+          ? event.offsetY : event.offsetY - this.contextmenu.clientHeight;
+
+        this.contextmenu.style.visibility = `visible`;
+        this.contextmenu.style.top = `${top}px`;
+        this.contextmenu.style.left = `${left}px`;
+      }
+    }
+
+    this.mouseState = MouseState.IDLE;
   }
 
-  handleMouseDown = () => {
-    if (!this.state.focused) findDOMNode<HTMLElement>(this.refs['editor']).focus();
+  handleContextMenuCopy = () => {
+    this.copy();
+    this.contextmenu.style.visibility = `hidden`;
   }
+
+  handleContextMenuPaste = () => {
+    this.paste();
+    this.contextmenu.style.visibility = `hidden`;
+  }
+
+  handleContextMenuClearSelection = () => {
+    this.clearSelection();
+    this.contextmenu.style.visibility = `hidden`;
+  }
+
+  handleContextMenuRemoveSelectedBlocks = () => {
+    this.deleteSelectedBlocks();
+    this.contextmenu.style.visibility = `hidden`;
+  }
+
+  copy() {
+    const { selection } = this.props.fileState.present.data;
+
+    if (selection) {
+      const { clipboard } = this.props.commonState;
+      const { maps } = this.props.fileState.present.data;
+
+      if (!clipboard || clipboard.maps !== maps || clipboard.selection !== selection) {
+        this.dispatchAction(voxelCopy(maps, selection));
+      }
+    }
+  }
+
+  paste() {
+    const { clipboard } = this.props.commonState;
+
+    if (clipboard) {
+      this.dispatchAction(voxelPaste(clipboard.maps, clipboard.selection));
+    }
+  }
+
+  clearSelection() {
+    this.dispatchAction(voxelClearSelection());
+  }
+
+  deleteSelectedBlocks() {
+    if (this.props.fileState.present.data.selection) {
+      if (this.props.fileState.present.data.mode2d.enabled) {
+        this.dispatchAction(voxelRemoveSelected2d());
+      } else {
+        this.dispatchAction(voxelRemoveSelected());
+      }
+    }
+  }
+
+  stopMouseEventPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
   render() {
+    const shorcutKey = this.isMac ? '⌘' : 'Ctrl+';
+    const esc = this.isMac ? 'esc' : 'Esc';
+    const backspace = this.isMac ? 'delete' : 'Backspace';
+
     return (
       <div ref="root" className={styles.root}>
         <div
@@ -521,6 +619,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
           onMouseDown={this.handleMouseDown}
+          onMouseMove={this.handleMouseMove}
+          onMouseUp={this.handleMouseUp}
         >
           <div className={styles.canvas} ref="canvas"></div>
           <Tips />
@@ -534,6 +634,43 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
             onTouchTap={this.props.onApply}
           /> : null}
           {this.renderPanels()}
+          <Paper
+            style={inlineStyles.contextmenu}
+            ref="contextmenu"
+            onMouseDown={this.stopMouseEventPropagation}
+          >
+            <Menu desktop={true} width={280}>
+              <MenuItem
+                primaryText="Copy"
+                secondaryText={`${shorcutKey}C`}
+                style={inlineStyles.contextmenuItem}
+                disabled={!this.props.fileState.present.data.selection}
+                onTouchTap={this.handleContextMenuCopy}
+              />
+              <MenuItem
+                primaryText="Paste"
+                secondaryText={`${shorcutKey}V`}
+                style={inlineStyles.contextmenuItem}
+                disabled={!this.props.commonState.clipboard}
+                onTouchTap={this.handleContextMenuPaste}
+              />
+              <Divider />
+              <MenuItem
+                primaryText="Clear selection"
+                secondaryText={esc}
+                style={inlineStyles.contextmenuItem}
+                disabled={!this.props.fileState.present.data.selection}
+                onTouchTap={this.handleContextMenuClearSelection}
+              />
+              <MenuItem
+                primaryText="Remove selected blocks"
+                secondaryText={backspace}
+                style={inlineStyles.contextmenuItem}
+                disabled={!this.props.fileState.present.data.selection}
+                onTouchTap={this.handleContextMenuRemoveSelectedBlocks}
+              />
+            </Menu>
+          </Paper>
         </div>
         <Sidebar
           fileType={this.props.fileState.present.data.type}
