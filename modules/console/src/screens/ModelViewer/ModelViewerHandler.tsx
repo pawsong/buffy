@@ -180,7 +180,7 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
               />
             }
             label={'Edit'}
-            containerElement={<Link to={`/model/edit?files=${model.id}`} />}
+            containerElement={<Link to={`/studio?files=${model.id}`} />}
           />
         </div>
       );
@@ -220,7 +220,7 @@ class ModelViewerHandler extends React.Component<HandlerProps, HandlerState> {
               className={styles.dualButton}
               icon={<Fork />}
               leftLabel={'fork'}
-              leftHref={`/model/edit?files=${model.id}`}
+              leftHref={`/studio?files=${model.id}`}
               rightLabel={`${model.forked}`}
               rightOnTouchTap={() => alert('Sorry, this feature is under construction')}
             />

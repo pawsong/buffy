@@ -76,7 +76,7 @@ class ModelHandler extends React.Component<HandlerProps, {}> {
           </Card>
           <div style={{ textAlign: 'center', marginTop: 60, marginBottom: 60 }}>
             <RaisedButton
-              containerElement={<Link to="/model/edit" />}
+              containerElement={<Link to="/studio" />}
               label="Create a New Model"
               secondary={true}
             />

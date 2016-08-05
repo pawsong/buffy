@@ -63,7 +63,7 @@ class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
     this.props.push(value);
   }
 
-  handleCreateClick = () => this.props.push('/model/edit');
+  handleCreateClick = () => this.props.push('/studio');
 
   handleExploreClick = () => this.props.push('/explore');
 
@@ -83,7 +83,7 @@ class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
       >
         <Tab
           style={{ height: '100%' }}
-          value="/model/edit"
+          value="/studio"
           onActive={this.handleCreateClick}
           icon={<FontIcon className="material-icons">brush</FontIcon>}
           label={this.props.intl.formatMessage(messages.create)}

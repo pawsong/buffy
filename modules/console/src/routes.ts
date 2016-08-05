@@ -79,10 +79,14 @@ export default function getRoutes(store: Store, isMobile: boolean) {
         ],
       },
       {
-        onEnter: (nextState, replace) => {
-          if (isMobile) replace('/model/edit/unsupported');
-        },
         path: '/model/edit',
+        onEnter: (nextState, replace) => replace(Object.assign({}, nextState.location, { pathname: '/studio' })),
+      },
+      {
+        path: '/studio',
+        onEnter: (nextState, replace) => {
+          if (isMobile) replace('/studio/unsupported');
+        },
         getComponent: (location, cb) => require.ensure([], require => {
           cb(null, require<{ default: ModelStudioHandler }>('./screens/ModelStudio').default);
         }),
@@ -230,6 +234,10 @@ export default function getRoutes(store: Store, isMobile: boolean) {
           },
           {
             path: '/model/edit/unsupported',
+            onEnter: (nextState, replace) => replace('/studio/unsupported'),
+          },
+          {
+            path: '/studio/unsupported',
             getComponent: (location, cb) => require.ensure([], require => {
               cb(null, require<{ default: UnsupportedOnMobileHandler }>('./screens/UnsupportedOnMobile').default);
             }),
