@@ -1,4 +1,5 @@
 import THREE from 'three';
+import Immutable from 'immutable';
 import { Ndarray } from 'ndarray';
 import { UndoableState } from '@pasta/helper/lib/undoable';
 import { SimpleStore } from '../../libs';
@@ -42,6 +43,7 @@ export enum ToolType {
 
   // Tools that are always running
   MODE2D,
+  COLOR_PICKER,
 }
 
 export enum UniqueToolType {
@@ -70,6 +72,8 @@ export enum UniqueToolType {
   TRANSFORM,
   RESIZE,
 }
+
+export type ToolFilter = Immutable.Set<ToolType>;
 
 export enum SupportFileType {
   MAGICA_VOXEL,

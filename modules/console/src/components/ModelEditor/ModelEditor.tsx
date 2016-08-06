@@ -81,6 +81,7 @@ import {
   VoxelData,
   Action,
   ToolType,
+  ToolFilter,
   Color,
   ModelEditorState,
   ActionListener,
@@ -152,6 +153,8 @@ interface ModelEditorProps extends React.Props<ModelEditor> {
   onApply?: () => any;
   sizeVersion: number;
   extraData: ExtraData;
+  useSidebar: boolean;
+  toolFilter?: ToolFilter;
   intl?: InjectedIntlProps;
 }
 
@@ -487,6 +490,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           dispatchAction={this.dispatchAction}
         />
         <ToolsPanel
+          toolFilter={this.props.toolFilter}
           fileType={this.props.fileState.present.data.type}
           activeMap={this.props.fileState.present.data.activeMap}
           colorPicker={this.props.commonState.colorPicker}
@@ -613,7 +617,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     return (
       <div ref="root" className={styles.root}>
         <div
-          className={styles.main}
+          className={this.props.useSidebar ? styles.main : styles.mainWithoutSidebar}
           ref="editor"
           tabIndex="-1"
           onFocus={this.handleFocus}
@@ -672,13 +676,15 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
             </Menu>
           </Paper>
         </div>
-        <Sidebar
-          fileType={this.props.fileState.present.data.type}
-          trove={this.props.fileState.present.data.trove}
-          size={this.state.size || this.props.fileState.present.data.size}
-          onTroveItemTypeChange={this.handleTroveItemTypeChange}
-          onSizeChange={this.handleSizeChange}
-        />
+        {this.props.useSidebar && (
+          <Sidebar
+            fileType={this.props.fileState.present.data.type}
+            trove={this.props.fileState.present.data.trove}
+            size={this.state.size || this.props.fileState.present.data.size}
+            onTroveItemTypeChange={this.handleTroveItemTypeChange}
+            onSizeChange={this.handleSizeChange}
+          />
+        )}
       </div>
     );
   }

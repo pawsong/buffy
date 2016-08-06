@@ -9,3 +9,5 @@ export {
   ExtraData as ModelExtraData,
   SupportFileType as ModelSupportFileType,
 }
+
+export { ToolType, ToolFilter } from './types';
