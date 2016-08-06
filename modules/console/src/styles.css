@@ -8,6 +8,11 @@ html, body {
   padding: 0;
 }
 
+body {
+  font-size: 15px;
+  line-height: 24px;
+}
+
 a {
   color: #4078c0;
   text-decoration: none;
