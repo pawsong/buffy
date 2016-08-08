@@ -251,7 +251,7 @@ class Mode2dTool extends ModelEditorTool<Mode2dToolProps, void, Mode2dToolTree> 
   }
 
   private getScaleForCamera() {
-    return 30 / this.canvas.camera.zoom;
+    return 30 / this.canvas.getCameraZoom();
   }
 
   createStates(): ToolStates {

@@ -67,7 +67,8 @@ interface CanvasOptions {
   container: HTMLElement;
   geometryFactory: GeometryFactory;
   troveGeometryFactory: TroveGeometryFactory;
-  camera: THREE.OrthographicCamera;
+  cameraO: THREE.OrthographicCamera;
+  cameraP: THREE.PerspectiveCamera;
   keyboard: Keyboard;
   dispatchAction: DispatchAction;
   state: ModelEditorState;
@@ -1077,9 +1078,8 @@ class ModelEditorCanvas extends Canvas {
   cachedTools: { [index: string]: ModelEditorTool<any, any, any> };
   tool: ModelEditorTool<any, any, any>;
 
-  camera: THREE.OrthographicCamera;
-
-  // plane: THREE.Mesh;
+  private cameraO: THREE.OrthographicCamera;
+  private cameraP: THREE.PerspectiveCamera;
 
   private state: ModelEditorState;
   private keyboard: Keyboard;
@@ -1092,17 +1092,22 @@ class ModelEditorCanvas extends Canvas {
 
   onTemporarySizeUpdate: (size: Position) => any;
 
+  private temp1: THREE.Vector3;
+
   constructor({
     container,
     geometryFactory,
     troveGeometryFactory,
     dispatchAction,
     state,
-    camera,
+    cameraO,
+    cameraP,
     keyboard,
     onTemporarySizeUpdate,
   }: CanvasOptions) {
     super(container);
+    this.temp1 = new THREE.Vector3();
+
     this.boundingBoxScene = new THREE.Scene();
 
     this.geometryFactory = geometryFactory;
@@ -1111,7 +1116,9 @@ class ModelEditorCanvas extends Canvas {
     this.dispatchAction = dispatchAction;
     this.state = state;
 
-    this.camera = camera;
+    this.cameraO = cameraO;
+    this.cameraP = cameraP;
+    this.camera = this.state.common.perspective ? this.cameraP : this.cameraO;
     this.keyboard = keyboard;
 
     this.cachedTools = {};
@@ -1247,11 +1254,24 @@ class ModelEditorCanvas extends Canvas {
   }
 
   updateCameraOptions() {
-    this.viewCubeCamera.left = this.camera.left = this.container.clientWidth / - 2;
-    this.viewCubeCamera.right = this.camera.right = this.container.clientWidth / 2;
-    this.viewCubeCamera.top = this.camera.top = this.container.clientHeight / 2;
-    this.viewCubeCamera.bottom = this.camera.bottom = this.container.clientHeight / - 2;
-    this.camera.updateProjectionMatrix();
+    const {clientWidth, clientHeight} = this.container;
+
+    if (this.camera === this.cameraP) {
+      this.cameraP.aspect = clientWidth / clientHeight;
+      this.cameraP.updateProjectionMatrix();
+    }  else if (this.camera === this.cameraO) {
+      const cameraO = <THREE.OrthographicCamera>this.camera;
+      this.cameraO.left = clientWidth / - 2;
+      this.cameraO.right = clientWidth / 2;
+      this.cameraO.top = clientHeight / 2;
+      this.cameraO.bottom = clientHeight / - 2;
+      this.cameraO.updateProjectionMatrix();
+    }
+
+    this.viewCubeCamera.left = clientWidth / - 2;
+    this.viewCubeCamera.right = clientWidth / 2;
+    this.viewCubeCamera.top = clientHeight/ 2;
+    this.viewCubeCamera.bottom = clientHeight / - 2;
     this.viewCubeCamera.updateProjectionMatrix();
 
     this.viewCube.position.set(
@@ -1274,12 +1294,26 @@ class ModelEditorCanvas extends Canvas {
     );
   }
 
-  onChangeCamera(camera: THREE.OrthographicCamera, size: Position) {
+  onChangeCamera(cameraO: THREE.OrthographicCamera, cameraP: THREE.PerspectiveCamera, size: Position) {
+    this.cameraO = cameraO;
+    this.cameraP = cameraP;
+    this.handleChangeCamera(this.state.common.perspective ? this.cameraP : this.cameraO, size);
+  }
+
+  private handleChangeCamera(camera: THREE.Camera, size: Position) {
     this.camera = camera;
     this.controls.object = this.camera;
     this.updateCameraOptions();
     this.updateControlsTarget(size);
     this.controls.update();
+  }
+
+  getCameraZoom() {
+    if (this.state.common.perspective) {
+      return 500 / this.temp1.subVectors(this.camera.position, this.controls.target).length();
+    } else {
+      return this.cameraO.zoom;
+    }
   }
 
   // Lazy getter
@@ -1332,6 +1366,16 @@ class ModelEditorCanvas extends Canvas {
       if (this.state.file.present.data.mode2d.enabled) {
         const props = this.Mode2dTool.mapParamsToProps(nextState);
         if (props) this.Mode2dTool.updateProps(props);
+      }
+    }
+
+    if (this.state.common.perspective !== nextState.common.perspective) {
+      if (nextState.common.perspective) {
+        this.cameraP.position.copy(this.cameraO.position);
+        this.handleChangeCamera(this.cameraP, nextState.file.present.data.size);
+      } else {
+        this.cameraO.position.copy(this.cameraP.position);
+        this.handleChangeCamera(this.cameraO, nextState.file.present.data.size);
       }
     }
 

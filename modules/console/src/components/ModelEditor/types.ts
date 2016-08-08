@@ -160,7 +160,8 @@ export interface VoxelData {
 }
 
 export interface ExtraData {
-  camera: THREE.OrthographicCamera;
+  cameraO: THREE.OrthographicCamera;
+  cameraP: THREE.PerspectiveCamera;
 }
 
 export type FileState = UndoableState<VoxelData>;
@@ -182,6 +183,7 @@ export interface CommonState {
   };
   colorPicker: ColorPickerType;
   clipboard: Clipboard;
+  perspective: boolean;
 }
 
 export interface ModelEditorState {

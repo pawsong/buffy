@@ -4,4 +4,5 @@ export const Panels = {
   history: 'history',
   tools: 'tools',
   maps: 'maps',
+  settings: 'settings',
 };

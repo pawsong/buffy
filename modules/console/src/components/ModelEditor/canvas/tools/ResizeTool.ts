@@ -162,7 +162,7 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
   }
 
   onCameraMove() {
-    const scale = 100 / this.canvas.camera.zoom;
+    const scale = 100 / this.canvas.getCameraZoom();
 
     this.nxHandle.scale.set(scale, scale, scale);
     this.pxHandle.scale.set(scale, scale, scale);

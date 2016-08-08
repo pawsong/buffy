@@ -672,6 +672,13 @@ export default {
 /* translate */ 'voxel-editor.panels.mode2d.movePlane': '',
 
   /**
+   * path: src/components/ModelEditor/components/panels/SettingsPanel.json
+   * description: Voxel editor settings panel title
+   * defaultMessage: Settings
+   */
+/* translate */ 'voxel-editor.panels.settings.title': '',
+
+  /**
    * path: src/components/ModelEditor/components/panels/ToolsPanel.json
    * description: Voxel editor tools panel title
    * defaultMessage: Tools

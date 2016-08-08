@@ -120,11 +120,13 @@ import {
   changeColorPicker,
   troveItemTypeChange,
   voxelResize,
+  changePerspective,
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
 import ToolsPanel from './components/panels/ToolsPanel';
 import MapPanel from './components/panels/MapPanel';
+import SettingsPanel from './components/panels/SettingsPanel';
 import Sidebar from './components/Sidebar';
 
 import FullscreenButton from './components/FullscreenButton';
@@ -405,7 +407,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   componentDidMount() {
     this.canvas = new ModelEditorCanvas({
       container: findDOMNode<HTMLElement>(this.refs['canvas']),
-      camera: this.props.extraData.camera,
+      cameraO: this.props.extraData.cameraO,
+      cameraP: this.props.extraData.cameraP,
       dispatchAction: this.dispatchAction,
       state: this.getEditorState(),
       keyboard: this.keyboard,
@@ -443,7 +446,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     }
 
     if (prevProps.extraData !== this.props.extraData) {
-      this.canvas.onChangeCamera(this.props.extraData.camera, this.props.fileState.present.data.size);
+      this.canvas.onChangeCamera(
+        this.props.extraData.cameraO, this.props.extraData.cameraP, this.props.fileState.present.data.size
+      );
     }
 
     if (this.props.fileState !== prevProps.fileState) {
@@ -482,6 +487,10 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.dispatchAction(changeColorPicker(colorPicker));
   }
 
+  handleChangePerspective = (perspective: boolean) => {
+    this.dispatchAction(changePerspective(perspective));
+  }
+
   renderPanels() {
     return (
       <div>
@@ -501,6 +510,10 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           changePaletteColor={this.changePaletteColor}
           selectTool={this.selectTool}
           onChangeColorPicker={this.handleChangeColorPicker}
+        />
+        <SettingsPanel
+          perspective={this.props.commonState.perspective}
+          onSetPerspective={this.handleChangePerspective}
         />
         {this.props.fileState.present.data.type === ModelFileType.TROVE ? (
           <MapPanel
@@ -694,12 +707,12 @@ ModelEditor.createCommonState = () => {
   return commonReducer(undefined, { type: '' });
 };
 
-const radius = PIXEL_SCALE * 500, theta = 135, phi = 30;
+const radius = PIXEL_SCALE * 30, theta = 135, phi = 30;
 
 ModelEditor.createExtraData = (size: Position) => {
-  const camera = new THREE.OrthographicCamera(0, 0, 0, 0, -100000, 100000);
+  const cameraO = new THREE.OrthographicCamera(0, 0, 0, 0, -100000, 100000);
 
-  camera.position.set(
+  cameraO.position.set(
     radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
       + size[0] * PIXEL_SCALE / 2,
     radius * Math.sin(phi * Math.PI / 360)
@@ -707,11 +720,13 @@ ModelEditor.createExtraData = (size: Position) => {
     radius * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360)
       + size[2] * PIXEL_SCALE / 2
   );
+  cameraO.zoom = 0.3;
 
-  camera.zoom = 0.3;
+  const cameraP = new THREE.PerspectiveCamera(70, 1, 1, 1000000);
+  cameraP.position.copy(cameraO.position);
 
   return {
-    camera,
+    cameraO, cameraP,
   };
 };
 

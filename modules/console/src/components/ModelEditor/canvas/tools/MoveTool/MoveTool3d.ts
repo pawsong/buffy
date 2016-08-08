@@ -225,7 +225,7 @@ class MoveTool3d extends ModelEditorTool<MoveTool3dProps, void, MoveTool3dTree> 
   }
 
   private getScaleForCamera() {
-    return 100 / this.canvas.camera.zoom;
+    return 100 / this.canvas.getCameraZoom();
   }
 
   private updateArrowScale(scale: number) {

@@ -3,6 +3,7 @@ import {
   CHANGE_PALETTE_COLOR, ChangePaletteColorAction,
   CHANGE_COLOR_PICKER, ChangeColorPickerAction,
   VOXEL_COPY, VoxelCopyAction,
+  CHANGE_PERSPECTIVE, ChangePerspectiveAction,
 } from '../actions';
 
 import {
@@ -38,6 +39,7 @@ const initialState: CommonState = {
     [MaterialMapType.TROVE_SPECULAR]: rgb(mapinfo[MaterialMapType.TROVE_SPECULAR].defaultColor),
   },
   clipboard: null,
+  perspective: false,
 }
 
 export default function common(state = initialState, action: Action<any>) {
@@ -76,6 +78,12 @@ export default function common(state = initialState, action: Action<any>) {
       const { maps, selection } = <VoxelCopyAction>action;
       return Object.assign({}, state, <CommonState>{
         clipboard: { maps, selection },
+      });
+    }
+    case CHANGE_PERSPECTIVE: {
+      const { perspective } = <ChangePerspectiveAction>action;
+      return Object.assign({}, state, <CommonState>{
+        perspective,
       });
     }
   }

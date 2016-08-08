@@ -460,3 +460,14 @@ export function troveItemTypeChange(itemType: TroveItemType): TroveItemTypeChang
     itemType,
   };
 }
+
+export const CHANGE_PERSPECTIVE: 'CHANGE_PERSPECTIVE' = 'CHANGE_PERSPECTIVE';
+export interface ChangePerspectiveAction extends Action<typeof CHANGE_PERSPECTIVE> {
+  perspective: boolean;
+}
+export function changePerspective(perspective: boolean): ChangePerspectiveAction {
+  return {
+    type: CHANGE_PERSPECTIVE,
+    perspective,
+  };
+}
