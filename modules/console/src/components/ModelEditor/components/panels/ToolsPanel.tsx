@@ -48,6 +48,7 @@ import CursorMoveIcon from '../../../CursorMoveIcon';
 import SelectIcon from '../../../SelectIcon';
 import ArrowExpandIcon from '../../../icons/ArrowExpandIcon';
 import FormatColorFill from '../../../icons/FormatColorFill';
+import Eraser from '../../../icons/Eraser';
 
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 const styles = require('./ToolsPanel.css');
@@ -219,15 +220,11 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.ERASE)}
               style={getToolStyle(tool === UniqueToolType.ERASE_2D || tool === UniqueToolType.ERASE_3D)}
-              iconStyle={{
-                transform: 'rotate(45deg)',
-              }}
               tooltipStyles={inlineStyles.tooltips}
-              iconClassName="material-icons"
               tooltipPosition="bottom-center"
               tooltip={'Erase (E)'}
             >
-              crop_portrait
+              <Eraser />
             </IconButton>
           )}
         </div>
