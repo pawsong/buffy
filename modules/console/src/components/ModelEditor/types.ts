@@ -184,6 +184,7 @@ export interface CommonState {
   colorPicker: ColorPickerType;
   clipboard: Clipboard;
   perspective: boolean;
+  showWireframe: boolean;
 }
 
 export interface ModelEditorState {

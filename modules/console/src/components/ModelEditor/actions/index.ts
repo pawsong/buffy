@@ -471,3 +471,14 @@ export function changePerspective(perspective: boolean): ChangePerspectiveAction
     perspective,
   };
 }
+
+export const CHANGE_SHOW_WIREFRAME: 'CHANGE_SHOW_WIREFRAME' = 'CHANGE_SHOW_WIREFRAME';
+export interface ChangeShowWireframeAction extends Action<typeof CHANGE_SHOW_WIREFRAME> {
+  showWireframe: boolean;
+}
+export function changeShowWireframe(showWireframe: boolean): ChangeShowWireframeAction {
+  return {
+    type: CHANGE_SHOW_WIREFRAME,
+    showWireframe,
+  };
+}

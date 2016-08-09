@@ -52,6 +52,7 @@ import {
   ToolType,
   DispatchAction,
   ModelEditorState,
+  CommonState,
   GetEditorState,
   VoxelData,
   Position,
@@ -89,7 +90,10 @@ import MaskSliceCache from './MaskSliceCache';
 import OutlineSliceCache from './OutlineSliceCache';
 import TroveSliceCache from './TroveSliceCache';
 
-type ComponentProps = VoxelData;
+interface ComponentProps {
+  model: VoxelData;
+  common: CommonState;
+}
 
 interface ComponentState {
   fragment?: MaterialMaps;
@@ -112,6 +116,7 @@ interface ComponentTree {
     axis: Axis;
     position: number;
   }
+  showWireframe: boolean;
 }
 
 const PLANE_GRID_STEP = 4;
@@ -224,7 +229,8 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
             axis: { type: SchemaType.NUMBER },
             position: { type: SchemaType.NUMBER },
           },
-        }
+        },
+        showWireframe: { type: SchemaType.ANY },
       },
     };
   }
@@ -261,7 +267,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     this.planeMaterial.extensions.derivatives = true;
 
     this.fragmentedModelSelector = createSelector(
-      (props: ComponentProps, state: ComponentState) => props.maps[MaterialMapType.DEFAULT],
+      (props: ComponentProps, state: ComponentState) => props.model.maps[MaterialMapType.DEFAULT],
       (props: ComponentProps, state: ComponentState) => state.fragment[MaterialMapType.DEFAULT],
       (model, fragment) => {
         const fragmentedModel = ndarray(model.data.slice(), model.shape);
@@ -271,7 +277,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     );
 
     this.fragmentedSelectionSelector = createSelector(
-      (props: ComponentProps, state: ComponentState) => props.selection,
+      (props: ComponentProps, state: ComponentState) => props.model.selection,
       (props: ComponentProps, state: ComponentState) => state.fragment[MaterialMapType.DEFAULT],
       (selection, fragment) => {
         const fragmentedSelection = ndarray(selection.data.slice(), selection.shape);
@@ -425,14 +431,14 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   }
 
   setTemporaryFragment() {
-    if (!this.props.selection) return;
+    if (!this.props.model.selection) return;
 
-    const shape = this.props.size;
+    const shape = this.props.model.size;
     const fragment = <MaterialMaps>{};
 
-    Object.keys(this.props.maps).forEach(key => {
+    Object.keys(this.props.model.maps).forEach(key => {
       const result = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), shape);
-      ndCopyWithFilter(result, this.props.maps[key], this.props.selection);
+      ndCopyWithFilter(result, this.props.model.maps[key], this.props.model.selection);
       fragment[key] = result;
     });
 
@@ -440,18 +446,20 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   }
 
   setTemporaryFragmentSlice() {
-    if (!this.props.selection) return;
+    if (!this.props.model.selection) return;
 
-    const shape = this.props.size;
+    const shape = this.props.model.size;
     const fragment = <MaterialMaps>{};
 
-    const selectionSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, this.props.selection);
+    const { mode2d } = this.props.model;
 
-    Object.keys(this.props.maps).forEach(key => {
+    const selectionSlice = getSlice(mode2d.axis, mode2d.position, this.props.model.selection);
+
+    Object.keys(this.props.model.maps).forEach(key => {
       const result = ndarray(new Int32Array(shape[0] * shape[1] * shape[2]), shape);
 
-      const modelSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, this.props.maps[key]);
-      const fragmentSlice = getSlice(this.props.mode2d.axis, this.props.mode2d.position, result);
+      const modelSlice = getSlice(mode2d.axis, mode2d.position, this.props.model.maps[key]);
+      const fragmentSlice = getSlice(mode2d.axis, mode2d.position, result);
 
       ndCopyWithFilter(fragmentSlice, modelSlice, selectionSlice);
       fragment[key] = result;
@@ -515,9 +523,9 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
     const u = (axis + 1) % 3;
     const v = (axis + 2) % 3;
 
-    this.mode2dPlaneMesh.scale.set(this.props.size[u], this.props.size[v], 1);
-    this.mode2dPlaneMesh.position.setComponent(u, this.props.size[u] / 2 * PIXEL_SCALE);
-    this.mode2dPlaneMesh.position.setComponent(v, this.props.size[v] / 2 * PIXEL_SCALE);
+    this.mode2dPlaneMesh.scale.set(this.props.model.size[u], this.props.model.size[v], 1);
+    this.mode2dPlaneMesh.position.setComponent(u, this.props.model.size[u] / 2 * PIXEL_SCALE);
+    this.mode2dPlaneMesh.position.setComponent(v, this.props.model.size[v] / 2 * PIXEL_SCALE);
 
     if (this.temp1.getComponent(axis) > 0) {
       const i = 2 * axis;
@@ -552,24 +560,25 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
   render() {
     const model = this.state.fragment
       ? this.fragmentedModelSelector(this.props, this.state)
-      : this.props.maps[MaterialMapType.DEFAULT];
+      : this.props.model.maps[MaterialMapType.DEFAULT];
 
     // Hide selection when temporary fragment exists.
-    const selection = this.state.fragment && this.props.selection
+    const selection = this.state.fragment && this.props.model.selection
       ? this.fragmentedSelectionSelector(this.props, this.state)
-      : this.props.selection;
+      : this.props.model.selection;
 
-    const fragment = this.state.fragment || this.props.fragment;
+    const fragment = this.state.fragment || this.props.model.fragment;
 
     return {
-      activeMap: this.props.activeMap,
-      maps: this.props.maps,
+      activeMap: this.props.model.activeMap,
+      maps: this.props.model.maps,
       model,
       selection,
       fragment,
-      fragmentOffset: this.props.fragmentOffset,
-      size: this.props.size,
-      mode2d: Object.assign({}, this.props.mode2d, this.state.mode2d),
+      fragmentOffset: this.props.model.fragmentOffset,
+      size: this.props.model.size,
+      mode2d: Object.assign({}, this.props.model.mode2d, this.state.mode2d),
+      showWireframe: this.props.common.showWireframe,
     };
   }
 
@@ -626,6 +635,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
          diff.hasOwnProperty('model')
       || diff.hasOwnProperty('activeMap')
       || (diff.maps && (this.tree.activeMap === MaterialMapType.ALL || diff.maps.hasOwnProperty(this.tree.activeMap)))
+      || diff.hasOwnProperty('showWireframe')
     ) {
       if (this.modelMesh.visible) {
         this.canvas.scene.remove(this.modelMesh);
@@ -684,7 +694,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
         this.modelMesh.renderOrder = - 3;
         this.canvas.scene.add(this.modelMesh);
 
-        if (this.tree.activeMap !== MaterialMapType.ALL) {
+        if (this.tree.showWireframe && this.tree.activeMap !== MaterialMapType.ALL) {
           this.modelGridMesh = new THREE.Mesh(geometry, this.modelGridMaterial);
           this.modelGridMesh.scale.set(PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
           this.modelGridMesh.renderOrder = - 2;
@@ -943,7 +953,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       this.model2DSliceMesh = meshes[0];
       this.canvas.scene.add(this.model2DSliceMesh);
 
-      if (meshes[1] && this.tree.activeMap !== MaterialMapType.ALL) {
+      if (this.tree.showWireframe && meshes[1] && this.tree.activeMap !== MaterialMapType.ALL) {
         this.modelGrid2DSliceMesh = meshes[1];
         this.canvas.scene.add(this.modelGrid2DSliceMesh);
       }
@@ -1234,7 +1244,10 @@ class ModelEditorCanvas extends Canvas {
     this.updateControlsTarget(this.state.file.present.data.size);
 
     this.component = new ModelEditorCanvasComponent(this);
-    this.component.start(this.state.file.present.data);
+    this.component.start({
+      model: this.state.file.present.data,
+      common: this.state.common,
+    });
 
     this.controls.update();
     this.syncLightToCamera();
@@ -1336,7 +1349,10 @@ class ModelEditorCanvas extends Canvas {
   }
 
   onStateChange(nextState: ModelEditorState) {
-    this.component.updateProps(nextState.file.present.data);
+    this.component.updateProps({
+      model: nextState.file.present.data,
+      common: nextState.common,
+    });
 
     if (
          this.state.file.present.data.mode2d.enabled !== nextState.file.present.data.mode2d.enabled

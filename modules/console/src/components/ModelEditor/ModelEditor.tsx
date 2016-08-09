@@ -121,6 +121,7 @@ import {
   troveItemTypeChange,
   voxelResize,
   changePerspective,
+  changeShowWireframe,
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
@@ -491,6 +492,10 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.dispatchAction(changePerspective(perspective));
   }
 
+  handleChangeShowWireframe = (showWireframe: boolean) => {
+    this.dispatchAction(changeShowWireframe(showWireframe));
+  }
+
   renderPanels() {
     return (
       <div>
@@ -512,6 +517,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
           onChangeColorPicker={this.handleChangeColorPicker}
         />
         <SettingsPanel
+          showWireframe={this.props.commonState.showWireframe}
+          onChangeShowWireframe={this.handleChangeShowWireframe}
           perspective={this.props.commonState.perspective}
           onSetPerspective={this.handleChangePerspective}
         />

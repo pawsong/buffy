@@ -27,6 +27,8 @@ const messages = defineMessages({
  */
 
 interface SettingsPanelProps extends React.Props<SettingsPanel> {
+  showWireframe: boolean;
+  onChangeShowWireframe: (enabled: boolean) => any;
   perspective: boolean;
   onSetPerspective: (enabled: boolean) => any;
 }
@@ -37,16 +39,27 @@ interface SettingsPanelProps extends React.Props<SettingsPanel> {
   title: messages.title,
 })
 class SettingsPanel extends React.Component<SettingsPanelProps, {}> {
+  handleToggleShowWireframe = (e: any, value) => this.props.onChangeShowWireframe(value);
+
   handleTogglePerspective = (e: any, value) => this.props.onSetPerspective(value);
 
   render() {
     return (
       <div>
         <List>
+          <Subheader>General</Subheader>
+          <ListItem primaryText="Show wireframe" rightToggle={
+            <Toggle
+              toggled={this.props.showWireframe}
+              onToggle={this.handleToggleShowWireframe}
+            />
+          } />
+        </List>
+        <List>
           <Subheader>Camera</Subheader>
           <ListItem primaryText="Perspective" rightToggle={
             <Toggle
-              value={this.props.perspective}
+              toggled={this.props.perspective}
               onToggle={this.handleTogglePerspective}
             />
           } />

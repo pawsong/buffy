@@ -4,6 +4,7 @@ import {
   CHANGE_COLOR_PICKER, ChangeColorPickerAction,
   VOXEL_COPY, VoxelCopyAction,
   CHANGE_PERSPECTIVE, ChangePerspectiveAction,
+  CHANGE_SHOW_WIREFRAME, ChangeShowWireframeAction,
 } from '../actions';
 
 import {
@@ -40,6 +41,7 @@ const initialState: CommonState = {
   },
   clipboard: null,
   perspective: false,
+  showWireframe: true,
 }
 
 export default function common(state = initialState, action: Action<any>) {
@@ -84,6 +86,12 @@ export default function common(state = initialState, action: Action<any>) {
       const { perspective } = <ChangePerspectiveAction>action;
       return Object.assign({}, state, <CommonState>{
         perspective,
+      });
+    }
+    case CHANGE_SHOW_WIREFRAME: {
+      const { showWireframe } = <ChangeShowWireframeAction>action;
+      return Object.assign({}, state, <CommonState>{
+        showWireframe,
       });
     }
   }
