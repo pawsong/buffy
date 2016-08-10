@@ -6,3 +6,10 @@ export const Panels = {
   maps: 'maps',
   settings: 'settings',
 };
+
+export enum PanelType {
+  HISTORY,
+  TOOLS,
+  MAPS,
+  SETTINGS,
+}

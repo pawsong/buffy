@@ -12,7 +12,9 @@ import LoggedInHandler from './screens/LoggedIn';
 // import LoggedInIndexHandler from './screens/LoggedIn/screens/Index';
 import AboutHandler from './screens/About';
 import ContactHandler from './screens/Contact';
-// import GetStartedHandler from './screens/GetStarted';
+import DesignTutorial from './screens/Tutorial/screens/DesignTutorial';
+import DesignTutorialIndex from './screens/Tutorial/screens/DesignTutorialIndex';
+import DesignTutorialSlugs from './screens/Tutorial/screens/DesignTutorial/slugs';
 // import OnlineStudioHandler from './screens/OnlineStudio';
 // import OnlineCardboardHandler from './screens/OnlineCardboard';
 // import OnlineGameHandler from './screens/OnlineGame';
@@ -79,6 +81,41 @@ export default function getRoutes(store: Store, isMobile: boolean) {
         ],
       },
       {
+        path: '/tutorial/designer/:step',
+        indexRoute: {
+          onEnter: (nextState, replace) => replace('/tutorial/designer/make-your-first-model/pencil'),
+        },
+        childRoutes: [
+          {
+            path: ':substep',
+            onEnter: (nextState, replace, callback) => {
+              if (isMobile) {
+                replace('/tutorial/unsupported');
+                return callback();
+              }
+
+              require.ensure([], require => {
+                const slugs: typeof DesignTutorialSlugs = require<any>(
+                  './screens/Tutorial/screens/DesignTutorial/slugs').default;
+
+                const { step, substep } = nextState.params;
+
+                if (!slugs[step]) {
+                  replace('/tutorial/designer');
+                } else if (!slugs[step][substep]) {
+                  replace(`/tutorial/designer/${step}`);
+                }
+
+                return callback();
+              });
+            },
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<any>('./screens/Tutorial/screens/DesignTutorial').default);
+            }),
+          },
+        ],
+      },
+      {
         path: '/model/edit',
         onEnter: (nextState, replace) => replace(Object.assign({}, nextState.location, { pathname: '/studio' })),
       },
@@ -119,6 +156,22 @@ export default function getRoutes(store: Store, isMobile: boolean) {
           // }
         },
         childRoutes: [
+          {
+            path: '/tutorial',
+            onEnter: (nextState, replace) => replace('/tutorial/designer'),
+          },
+          {
+            path: '/tutorial/designer',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<any>('./screens/Tutorial/screens/DesignTutorialIndex').default);
+            }),
+          },
+          {
+            path: '/tutorial/unsupported',
+            getComponent: (location, cb) => require.ensure([], require => {
+              cb(null, require<{ default: UnsupportedOnMobileHandler }>('./screens/UnsupportedOnMobile').default);
+            }),
+          },
           {
             path: '/model',
             getComponent: (location, cb) => {

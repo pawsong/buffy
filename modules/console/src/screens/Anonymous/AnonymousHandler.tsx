@@ -1,13 +1,15 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps, Link } from 'react-router';
 import { push } from 'react-router-redux';
 import FontIcon from 'material-ui/FontIcon';
 import Tabs from 'material-ui/Tabs/Tabs';
 import Tab from 'material-ui/Tabs/Tab';
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { defineMessages, injectIntl, InjectedIntlProps } from 'react-intl';
 import Messages from '../../constants/Messages';
 
+import HumanGreeting from '../../components/icons/HumanGreeting';
 import { State } from '../../reducers';
 
 import {
@@ -23,6 +25,8 @@ import Footer from '../../components/Footer';
 
 import { preloadApi, connectApi, ApiCall, get } from '../../api';
 
+const styles = require('./AnonymousHandler.css');
+
 const messages = defineMessages({
   featuresLabel: {
     id: 'anon.navbar.features',
@@ -33,16 +37,6 @@ const messages = defineMessages({
     id: 'anon.navbar.featuresForTeachers',
     description: 'Features for teachers page link button label',
     defaultMessage: 'Teachers',
-  },
-  getStarted: {
-    id: 'anon.navbar.getStarted',
-    description: 'Label for get started button',
-    defaultMessage: 'Get Started',
-  },
-  create: {
-    id: 'anon.navbar.create',
-    description: 'Label for create button',
-    defaultMessage: 'Create',
   },
 });
 
@@ -57,6 +51,7 @@ interface AnonymousHandlerProps extends RouteComponentProps<{}, {}> {
 }))
 @connectApi()
 @(connect(null, { push }) as any)
+@withStyles(styles)
 @injectIntl
 class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
   handleTabChange(value) {
@@ -78,29 +73,36 @@ class AnonymousHandler extends React.Component<AnonymousHandlerProps, {}> {
     return (
       <Tabs
         value={rootpath}
-        style={{ width: 300, display: 'inline-block', marginLeft: 30 }}
+        className={styles.tabs}
         tabItemContainerStyle={{ height: '100%' }}
       >
         <Tab
-          style={{ height: '100%' }}
+          value="/tutorial"
+          containerElement={<Link to="/tutorial" />}
+          className={styles.tab}
+          label={this.props.intl.formatMessage(Messages.tutorial)}
+          icon={<HumanGreeting />}
+        />
+        <Tab
           value="/studio"
-          onActive={this.handleCreateClick}
+          containerElement={<Link to="/studio" />}
+          className={styles.tab}
+          label={this.props.intl.formatMessage(Messages.create)}
           icon={<FontIcon className="material-icons">brush</FontIcon>}
-          label={this.props.intl.formatMessage(messages.create)}
         />
         <Tab
-          style={{ height: '100%' }}
           value="/explore"
-          onActive={this.handleExploreClick}
-          icon={<FontIcon className="material-icons">explore</FontIcon>}
+          containerElement={<Link to="/explore" />}
+          className={styles.tab}
           label={this.props.intl.formatMessage(Messages.explore)}
+          icon={<FontIcon className="material-icons">explore</FontIcon>}
         />
         <Tab
-          style={{ height: '100%' }}
           value="/blog"
-          onActive={this.handleBlogClick}
-          icon={<FontIcon className="material-icons">chat_bubble</FontIcon>}
+          containerElement={<Link to="/blog" />}
+          className={styles.tab}
           label={this.props.intl.formatMessage(Messages.blog)}
+          icon={<FontIcon className="material-icons">chat_bubble</FontIcon>}
         />
       </Tabs>
     );

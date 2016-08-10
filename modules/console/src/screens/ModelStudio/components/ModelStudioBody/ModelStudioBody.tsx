@@ -171,6 +171,7 @@ class ModelStudioBody extends React.Component<ModelStudioBodyProps, HandlerState
             onCommonStateChange={this.handleCommonStateChange}
             onFileStateChange={this.props.onFileChange}
             useSidebar={true}
+            useContextMenu={true}
           />
         );
       }

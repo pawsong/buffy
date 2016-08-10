@@ -1,0 +1,43 @@
+.root {
+  font-size: 21px;
+  font-weight: 300;
+  line-height: 1.58;
+
+  & b {
+    font-weight: 500;
+  }
+
+  & strong {
+    font-weight: 500;
+  }
+
+  & h2 {
+    font-size: 32px;
+    margin-top: 52px;
+    line-height: 1.15;
+  }
+
+  & h3 {
+    font-size: 28px;
+    margin-top: 48px;
+    line-height: 1.15;
+  }
+}
+
+.banner {
+  text-align: center;
+  margin: 20px 0;
+
+  & img {
+    width: 70%;
+  }
+}
+
+.startButtonWrapper {
+  text-align: center;
+  margin: 50px 0 100px;
+}
+
+.startButton {
+  transform: scale(1.75);
+}

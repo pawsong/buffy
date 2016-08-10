@@ -8,6 +8,12 @@ import {
   MaterialMapType,
 } from '../../types';
 
+import {
+  PanelType
+} from './panel';
+
+export { PanelType };
+
 /**
  * Flux
  */
@@ -74,6 +80,8 @@ export enum UniqueToolType {
 }
 
 export type ToolFilter = Immutable.Set<ToolType>;
+
+export type PanelFilter = Immutable.Set<PanelType>;
 
 export enum SupportFileType {
   MAGICA_VOXEL,

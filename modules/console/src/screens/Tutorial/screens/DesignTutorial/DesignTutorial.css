@@ -1,0 +1,44 @@
+.root b {
+  font-weight: 500;
+}
+
+.body {
+  position: fixed;
+  top: 56px; /* Navbar height */
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+}
+
+.sidebar {
+  width: 350px;
+  overflow-y: scroll;
+}
+
+.editor {
+  flex-grow: 1;
+  position: relative;
+}
+
+.done {
+  margin-left: 3px;
+  margin-top: -1px;
+}
+
+.swatch {
+  margin: 2px 2px 0;
+  padding: 5px;
+  background: #ffffff;
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.1);
+  display: inline-block;
+}
+
+.dialogBody b {
+  font-weight: 500;
+}
+
+.p + .p {
+  margin-top: 15px;
+}

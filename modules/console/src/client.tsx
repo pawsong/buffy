@@ -1,5 +1,5 @@
 import 'babel-polyfill';
-import * as Promise from 'bluebird';
+import Promise from 'bluebird';
 Promise.config({ warnings: false });
 
 require('react-tap-event-plugin')();

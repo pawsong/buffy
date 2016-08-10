@@ -1,13 +1,6 @@
 export default {
   /**
    * path: src/screens/Anonymous/AnonymousHandler.json
-   * description: Label for create button
-   * defaultMessage: Create
-   */
-/* translate */ 'anon.navbar.create': '',
-
-  /**
-   * path: src/screens/Anonymous/AnonymousHandler.json
    * description: Simple question to ask why this service is good
    * defaultMessage: Why?
    */
@@ -19,13 +12,6 @@ export default {
    * defaultMessage: Teachers
    */
   'anon.navbar.featuresForTeachers': '선생님',
-
-  /**
-   * path: src/screens/Anonymous/AnonymousHandler.json
-   * description: Label for get started button
-   * defaultMessage: Get Started
-   */
-  'anon.navbar.getStarted': '시작하기',
 
   /**
    * path: src/screens/Login/LoginHandler.json
@@ -484,6 +470,13 @@ export default {
 
   /**
    * path: src/constants/Messages.json
+   * description: Tutorial button label
+   * defaultMessage: Tutorial
+   */
+/* translate */ 'tutorial': '',
+
+  /**
+   * path: src/constants/Messages.json
    * description: Username
    * defaultMessage: Username
    */
@@ -692,6 +685,9 @@ export default {
    */
   'vrMode': 'VR 모드',
 
+/* [Warning] Message not in use */ 'anon.navbar.create': '',
+/* [Warning] Message not in use */ 'anon.navbar.tutorial': '',
+/* [Warning] Message not in use */ 'anon.navbar.getStarted': '시작하기',
 /* [Warning] Message not in use */ 'anon.navbar.blog': '',
 /* [Warning] Message not in use */ 'modelstudio.navbar.download': '다운로드',
 }

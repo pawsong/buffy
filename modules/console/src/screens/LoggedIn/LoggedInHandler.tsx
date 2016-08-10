@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import { RouteComponentProps, Link } from 'react-router';
 import { push } from 'react-router-redux';
 import ToolbarGroup from 'material-ui/Toolbar/ToolbarGroup';
-// import FlatButton from 'material-ui/FlatButton';
-const FlatButton = require('material-ui/FlatButton').default;
+import FlatButton from 'material-ui/FlatButton';
 import * as Colors from 'material-ui/styles/colors';
 
 import { State } from '../../reducers';
@@ -47,10 +46,16 @@ class LoggedInHandler extends React.Component<LoggedInHandlerProps, {}> {
     return (
       <div style={{ marginLeft: 25, marginTop: 10 }}>
         <FlatButton
-          label={this.props.intl.formatMessage(Messages.create)}
+          label={this.props.intl.formatMessage(Messages.tutorial)}
           style={styles.button}
           backgroundColor={Colors.pinkA200}
           hoverColor={Colors.pinkA100}
+          containerElement={<Link to="/tutorial" />}
+        />
+        <FlatButton
+          label={this.props.intl.formatMessage(Messages.create)}
+          style={styles.button}
+          hoverColor={Colors.cyan700}
           containerElement={<Link to="/studio" />}
         />
         <FlatButton

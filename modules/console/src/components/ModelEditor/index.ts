@@ -10,4 +10,9 @@ export {
   SupportFileType as ModelSupportFileType,
 }
 
-export { ToolType, ToolFilter } from './types';
+export {
+  ToolType,
+  ToolFilter,
+  PanelType,
+  PanelFilter,
+} from './types';

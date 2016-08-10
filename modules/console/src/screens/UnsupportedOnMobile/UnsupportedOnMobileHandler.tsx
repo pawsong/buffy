@@ -16,7 +16,7 @@ class UnsupportedOnMobileHandler extends React.Component<{}, {}> {
         <p>This page is not supported for mobile browsers just yet :(</p>
         <div style={{ textAlign: 'center', marginTop: 30 }}>
           <RaisedButton
-            label={'Go explore'}
+            label={'Go to main page'}
             primary={true}
             containerElement={<Link to="/" />}
           />

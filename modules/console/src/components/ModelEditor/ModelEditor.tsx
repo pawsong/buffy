@@ -82,6 +82,8 @@ import {
   Action,
   ToolType,
   ToolFilter,
+  PanelType,
+  PanelFilter,
   Color,
   ModelEditorState,
   ActionListener,
@@ -157,7 +159,10 @@ interface ModelEditorProps extends React.Props<ModelEditor> {
   sizeVersion: number;
   extraData: ExtraData;
   useSidebar: boolean;
+  useContextMenu: boolean;
   toolFilter?: ToolFilter;
+  panelFilter?: PanelFilter;
+  dispatchActionPreHook?: (action: Action<any>) => Action<any>;
   intl?: InjectedIntlProps;
 }
 
@@ -174,6 +179,10 @@ interface ImportFileResult {
 interface ExportFileResult {
   extension: string;
   data: Uint8Array;
+}
+
+interface CreateCommonStateParams {
+  tool: ToolType;
 }
 
 enum MouseState {
@@ -210,7 +219,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
   static editAsTrove: (fileState: FileState) => FileState;
 
-  static createCommonState: () => CommonState;
+  static createCommonState: (params?: CreateCommonStateParams) => CommonState;
   static createExtraData: (size: Position) => ExtraData;
   static isModified: (lhs: ModelEditorState, rhs: ModelEditorState) => boolean;
   static serialize = serialize;
@@ -250,18 +259,21 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.focused = false;
   }
 
-  dispatchAction = (action: Action<any>, callback?: () => any) => {
-    let prevCommonState = this.props.commonState;
-    let prevFileState = this.props.fileState;
+  dispatchAction = (action: Action<any>) => {
+    const finalAction = this.props.dispatchActionPreHook ? this.props.dispatchActionPreHook(action) : action;
+    if (!finalAction) return;
 
-    const nextCommonState = commonReducer(this.props.commonState, action);
+    const prevCommonState = this.props.commonState;
+    const prevFileState = this.props.fileState;
+
+    const nextCommonState = commonReducer(this.props.commonState, finalAction);
     if (this.props.commonState !== nextCommonState) this.props.onCommonStateChange(nextCommonState);
 
-    const nextFileState = fileReducer(this.props.fileState, action);
+    const nextFileState = fileReducer(this.props.fileState, finalAction);
     if (this.props.fileState !== nextFileState) this.props.onFileStateChange(nextFileState);
 
     if (__DEV__) {
-      console.log('[VoxelEditor] Dispatch action:', action);
+      console.log('[VoxelEditor] Dispatch action:', finalAction);
 
       if (prevCommonState !== nextCommonState) {
         console.log('[VoxelEditor] Common state change', prevCommonState, '->', nextCommonState);
@@ -348,7 +360,7 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
       switch(e.keyCode) {
         case 66: // B
         {
-          this.dispatchAction(changeTool(ToolType.PENCIL));
+          this.changeTool(ToolType.PENCIL);
           break;
         }
         case 68: // D
@@ -362,37 +374,37 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
         }
         case 69: // E
         {
-          this.dispatchAction(changeTool(ToolType.ERASE));
+          this.changeTool(ToolType.ERASE);
           break;
         }
         case 71: // G
         {
-          this.dispatchAction(changeTool(ToolType.COLOR_FILL));
+          this.changeTool(ToolType.COLOR_FILL);
           break;
         }
         case 73: // I
         {
-          this.dispatchAction(changeTool(ToolType.COLORIZE));
+          this.changeTool(ToolType.COLORIZE);
           break;
         }
         case 77: // M
         {
-          this.dispatchAction(changeTool(ToolType.RECTANGLE_SELECT));
+          this.changeTool(ToolType.RECTANGLE_SELECT);
           break;
         }
         case 82: // R
         {
-          this.dispatchAction(changeTool(ToolType.RECTANGLE));
+          this.changeTool(ToolType.RECTANGLE);
           break;
         }
         case 86: // V
         {
-          this.dispatchAction(changeTool(ToolType.MOVE));
+          this.changeTool(ToolType.MOVE);
           break;
         }
         case 87: // W
         {
-          this.dispatchAction(changeTool(ToolType.MAGIC_WAND));
+          this.changeTool(ToolType.MAGIC_WAND);
           break;
         }
       }
@@ -466,7 +478,12 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     this.keyboard.dispose();
   }
 
-  selectTool = (selectedTool: ToolType) => this.dispatchAction(changeTool(selectedTool));
+  changeTool(tool: ToolType) {
+    if (this.props.toolFilter && !this.props.toolFilter.has(tool)) return;
+    this.dispatchAction(changeTool(tool));
+  }
+
+  selectTool = (selectedTool: ToolType) => this.changeTool(selectedTool);
 
   changePaletteColor = (paletteColor: Color) => this.dispatchAction(
     changePaletteColor(this.props.fileState.present.data.activeMap, paletteColor)
@@ -499,35 +516,43 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   renderPanels() {
     return (
       <div>
-        <HistoryPanel
-          voxel={this.props.fileState}
-          dispatchAction={this.dispatchAction}
-        />
-        <ToolsPanel
-          toolFilter={this.props.toolFilter}
-          fileType={this.props.fileState.present.data.type}
-          activeMap={this.props.fileState.present.data.activeMap}
-          colorPicker={this.props.commonState.colorPicker}
-          mode2d={this.props.fileState.present.data.mode2d.enabled}
-          onEnableMode2D={this.handleEnableMode2D}
-          paletteColor={this.props.commonState.paletteColors[this.props.fileState.present.data.activeMap]}
-          selectedTool={this.props.commonState.tool}
-          changePaletteColor={this.changePaletteColor}
-          selectTool={this.selectTool}
-          onChangeColorPicker={this.handleChangeColorPicker}
-        />
-        <SettingsPanel
-          showWireframe={this.props.commonState.showWireframe}
-          onChangeShowWireframe={this.handleChangeShowWireframe}
-          perspective={this.props.commonState.perspective}
-          onSetPerspective={this.handleChangePerspective}
-        />
-        {this.props.fileState.present.data.type === ModelFileType.TROVE ? (
-          <MapPanel
+        {(!this.props.panelFilter || this.props.panelFilter.has(PanelType.TOOLS)) && (
+          <ToolsPanel
+            toolFilter={this.props.toolFilter}
+            fileType={this.props.fileState.present.data.type}
             activeMap={this.props.fileState.present.data.activeMap}
-            onActivateMap={this.handleActivateMap}
+            colorPicker={this.props.commonState.colorPicker}
+            mode2d={this.props.fileState.present.data.mode2d.enabled}
+            onEnableMode2D={this.handleEnableMode2D}
+            paletteColor={this.props.commonState.paletteColors[this.props.fileState.present.data.activeMap]}
+            selectedTool={this.props.commonState.tool}
+            changePaletteColor={this.changePaletteColor}
+            selectTool={this.selectTool}
+            onChangeColorPicker={this.handleChangeColorPicker}
           />
-        ) : null}
+        )}
+        {(!this.props.panelFilter || this.props.panelFilter.has(PanelType.HISTORY)) && (
+          <HistoryPanel
+            voxel={this.props.fileState}
+            dispatchAction={this.dispatchAction}
+          />
+        )}
+        {(!this.props.panelFilter || this.props.panelFilter.has(PanelType.SETTINGS)) && (
+          <SettingsPanel
+            showWireframe={this.props.commonState.showWireframe}
+            onChangeShowWireframe={this.handleChangeShowWireframe}
+            perspective={this.props.commonState.perspective}
+            onSetPerspective={this.handleChangePerspective}
+          />
+        )}
+        {(!this.props.panelFilter || this.props.panelFilter.has(PanelType.MAPS)) && (
+          this.props.fileState.present.data.type === ModelFileType.TROVE && (
+            <MapPanel
+              activeMap={this.props.fileState.present.data.activeMap}
+              onActivateMap={this.handleActivateMap}
+            />
+          )
+        )}
       </div>
     );
   }
@@ -555,17 +580,19 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
     if (event.which === 3) {
       if (this.mouseState === MouseState.DOWN) {
-        const canvas = event.target as HTMLElement;
+        if (this.props.useContextMenu) {
+          const canvas = event.target as HTMLElement;
 
-        const left = this.contextmenu.clientWidth + event.offsetX < canvas.clientWidth
-          ? event.offsetX : event.offsetX - this.contextmenu.clientWidth;
+          const left = this.contextmenu.clientWidth + event.offsetX < canvas.clientWidth
+            ? event.offsetX : event.offsetX - this.contextmenu.clientWidth;
 
-        const top = this.contextmenu.clientHeight + event.offsetY < canvas.clientHeight
-          ? event.offsetY : event.offsetY - this.contextmenu.clientHeight;
+          const top = this.contextmenu.clientHeight + event.offsetY < canvas.clientHeight
+            ? event.offsetY : event.offsetY - this.contextmenu.clientHeight;
 
-        this.contextmenu.style.visibility = `visible`;
-        this.contextmenu.style.top = `${top}px`;
-        this.contextmenu.style.left = `${left}px`;
+          this.contextmenu.style.visibility = `visible`;
+          this.contextmenu.style.top = `${top}px`;
+          this.contextmenu.style.left = `${left}px`;
+        }
       }
     }
 
@@ -710,8 +737,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
   }
 }
 
-ModelEditor.createCommonState = () => {
-  return commonReducer(undefined, { type: '' });
+ModelEditor.createCommonState = (params?: CreateCommonStateParams) => {
+  const state = commonReducer(undefined, { type: '' });
+  return Object.assign({}, state, params);
 };
 
 const radius = PIXEL_SCALE * 30, theta = 135, phi = 30;

@@ -1,5 +1,5 @@
 import THREE from 'three';
-import * as Promise from 'bluebird';
+import Promise from 'bluebird';
 const invariant = require('fbjs/lib/invariant');
 import { Mesh } from '@pasta/core/lib/types';
 import * as Immutable from 'immutable';

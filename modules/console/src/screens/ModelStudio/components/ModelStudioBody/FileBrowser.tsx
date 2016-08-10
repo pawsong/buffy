@@ -3,7 +3,6 @@ import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import Badge from 'material-ui/Badge';
 import * as Colors from 'material-ui/styles/colors';
-import * as update from 'react-addons-update';
 
 import PlayArrow from 'material-ui/svg-icons/av/play-arrow';
 import Palette from 'material-ui/svg-icons/image/palette';

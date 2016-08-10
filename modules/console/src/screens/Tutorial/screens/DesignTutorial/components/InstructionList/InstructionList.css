@@ -1,0 +1,28 @@
+.header {
+  margin-top: 24px;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.tasks {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.task {
+  display: flex;
+}
+
+.taskLabel {
+  flex-grow: 1;
+}
+
+.task + .task {
+  margin-top: 10px;
+}
+
+.taskIcon {
+  flex-shrink: 0;
+  margin-right: 6px;
+}

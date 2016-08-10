@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {findDOMNode} from 'react-dom';
 const pure = require('recompose/pure').default;
 
 import RaisedButton from 'material-ui/RaisedButton';
@@ -99,12 +100,15 @@ interface ToolsPanelProps extends React.Props<ToolsPanel> {
 }
 
 interface ToolsPanelState {
-  displayColorPicker: boolean;
+  displayColorPicker?: boolean;
+  colorpickerStyle?: React.CSSProperties;
 }
 
 function getToolStyle(active: boolean) {
   return active && inlineStyles.toolActive || inlineStyles.toolInactive;
 }
+
+const COLOR_PICKER_MAX_HEIGHT = 471;
 
 @connectSource({
   panelTypes: PanelTypes,
@@ -120,6 +124,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
     super(props);
     this.state = {
       displayColorPicker: false,
+      colorpickerStyle: { bottom: 0 },
     };
     this.readyToOpenColorPicker = false;
   }
@@ -154,7 +159,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
     return (
       <div>
         <div className={styles.iconRow}>
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.MOVE)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.MOVE)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.MOVE)}
               style={getToolStyle(tool === UniqueToolType.MOVE_2D || tool === UniqueToolType.MOVE_3D)}
@@ -165,7 +170,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
               <CursorMoveIcon />
             </IconButton>
           )}
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.RECTANGLE_SELECT)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.RECTANGLE_SELECT)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE_SELECT)}
               style={getToolStyle(tool === UniqueToolType.RECTANGLE_SELECT_2D || tool === UniqueToolType.RECTANGLE_SELECT_3D )}
@@ -178,7 +183,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           )}
         </div>
         <div className={styles.iconRow}>
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.BOX_SELECT)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.BOX_SELECT)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.BOX_SELECT)}
               style={getToolStyle(tool === UniqueToolType.BOX_SELECT)}
@@ -190,7 +195,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
               <CubeOutlineIcon />
             </IconButton>
           )}
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.MAGIC_WAND)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.MAGIC_WAND)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.MAGIC_WAND)}
               style={getToolStyle(tool === UniqueToolType.MAGIC_WAND_2D || tool ===UniqueToolType.MAGIC_WAND_3D)}
@@ -203,7 +208,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           )}
         </div>
         <div className={styles.iconRow}>
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.PENCIL)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.PENCIL)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.PENCIL)}
               style={getToolStyle(tool === UniqueToolType.PENCIL_2D || tool ===UniqueToolType.PENCIL_3D)}
@@ -216,20 +221,20 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
               mode_edit
             </IconButton>
           )}
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.ERASE)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.ERASE)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.ERASE)}
               style={getToolStyle(tool === UniqueToolType.ERASE_2D || tool === UniqueToolType.ERASE_3D)}
               tooltipStyles={inlineStyles.tooltips}
               tooltipPosition="bottom-center"
-              tooltip={'Erase (E)'}
+              tooltip={'Eraser (E)'}
             >
               <Eraser />
             </IconButton>
           )}
         </div>
         <div className={styles.iconRow}>
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.PAINT)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.PAINT)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.PAINT)}
               style={getToolStyle(tool === UniqueToolType.PAINT_2D || tool === UniqueToolType.PAINT_3D)}
@@ -241,7 +246,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
               brush
             </IconButton>
           )}
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.COLOR_FILL)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.COLOR_FILL)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.COLOR_FILL)}
               style={getToolStyle(tool === UniqueToolType.COLOR_FILL_2D || tool === UniqueToolType.COLOR_FILL_3D)}
@@ -258,7 +263,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           )}
         </div>
         <div className={styles.iconRow}>
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.LINE)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.LINE)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.LINE)}
               style={getToolStyle(tool === UniqueToolType.LINE_2D || tool === UniqueToolType.LINE_3D)}
@@ -273,7 +278,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
               remove
             </IconButton>
           )}
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.RECTANGLE)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.RECTANGLE)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.RECTANGLE)}
               style={getToolStyle(tool === UniqueToolType.RECTANGLE_2D || tool === UniqueToolType.RECTANGLE_3D)}
@@ -290,7 +295,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           )}
         </div>
         <div className={styles.iconRow}>
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.BOX)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.BOX)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.BOX)}
               style={getToolStyle(tool === UniqueToolType.BOX)}
@@ -304,7 +309,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           )}
         </div>
         <div className={styles.iconRow}>
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.TRANSFORM)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.TRANSFORM)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.TRANSFORM)}
               style={getToolStyle(tool === UniqueToolType.TRANSFORM)}
@@ -316,7 +321,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
               rotate_90_degrees_ccw
             </IconButton>
           )}
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.RESIZE)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.RESIZE)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.RESIZE)}
               style={getToolStyle(tool === UniqueToolType.RESIZE)}
@@ -329,7 +334,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
           )}
         </div>
         <div className={styles.iconRow}>
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.COLORIZE)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.COLORIZE)) && (
             <IconButton
               onTouchTap={() => this.props.selectTool(ToolType.COLORIZE)}
               style={getToolStyle(tool === UniqueToolType.COLORIZE_2D || tool === UniqueToolType.COLORIZE_3D)}
@@ -341,7 +346,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
               colorize
             </IconButton>
           )}
-          {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.COLOR_PICKER)) && (
+          {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.COLOR_PICKER)) && (
             this.renderColorPicker()
           )}
         </div>
@@ -370,7 +375,7 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
             }, inlineStyles.color)} />
           </div>
         </ClickAwayListener>
-        <div className={styles.colorPickerContainer}>
+        <div className={styles.colorPickerContainer} style={this.state.colorpickerStyle}>
           {this.state.displayColorPicker ? (
             <ClickAwayListener
               className={this.props.activeMap === MaterialMapType.TROVE_TYPE ? styles.colorPickerTypeMap : ''}
@@ -445,10 +450,29 @@ class ToolsPanel extends React.Component<ToolsPanelProps, ToolsPanelState> {
     );
   }
 
+  componentDidMount() {
+    this.recalculateColorpickerStyle();
+  }
+
+  componentDidUpdate(prevProps: ToolsPanelProps) {
+    if (this.props.toolFilter !== prevProps.toolFilter) this.recalculateColorpickerStyle();
+  }
+
+  recalculateColorpickerStyle() {
+    const root = findDOMNode<HTMLElement>(this.refs['root']);
+    const panelHeight = root.parentElement.clientHeight;
+
+    if (panelHeight > COLOR_PICKER_MAX_HEIGHT) {
+      this.setState({ colorpickerStyle: { bottom: 0 } });
+    } else {
+      this.setState({ colorpickerStyle: { top: 0 } });
+    }
+  }
+
   render() {
     return (
-      <div>
-        {!(this.props.toolFilter && this.props.toolFilter.has(ToolType.MODE2D)) && (
+      <div ref={'root'}>
+        {(!this.props.toolFilter || this.props.toolFilter.has(ToolType.MODE2D)) && (
           <div>
             <div className={styles.iconRow}>
               <Mode2dToggle

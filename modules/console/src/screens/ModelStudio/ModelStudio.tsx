@@ -8,7 +8,7 @@ import { RouteComponentProps } from 'react-router';
 const withRouter = require('react-router/lib/withRouter');
 import { DragDropContext } from 'react-dnd';
 const HTML5Backend = require('react-dnd-html5-backend');
-import * as update from 'react-addons-update';
+import update from 'react-addons-update';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import snakeCase from 'snake-case';
 

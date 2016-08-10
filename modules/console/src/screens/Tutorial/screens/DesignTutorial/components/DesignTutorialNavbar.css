@@ -1,0 +1,15 @@
+.navbar {
+  position: fixed;
+  z-index: 1000;
+  width: 100%;
+}
+
+.progress {
+  position: absolute !important;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center !important;
+  align-items: center;
+  overflow: hidden;
+}

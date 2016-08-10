@@ -208,6 +208,7 @@ class LoggedInNavbar extends React.Component<LoggedInNavbarProps, LoggedInNavbar
           <Link to="/"><BuffyIcon style={inlineStyles.logo} color={Colors.darkWhite} /></Link>
           {leftToolbarGroup}
         </ToolbarGroup>
+        {this.props.children}
         <ToolbarGroup>
           <a className={styles.bugReport} target="_blank" href="https://github.com/buffylab/buffy-issues">
             <IconButton tooltip="Report Issue">

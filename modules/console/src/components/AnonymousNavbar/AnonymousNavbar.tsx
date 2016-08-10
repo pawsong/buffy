@@ -92,6 +92,7 @@ class AnonymousNavbar extends React.Component<AnonymousNavbarProps, {}> {
           <Link to="/"><BuffyIcon style={this.logoStyle} color={Colors.darkWhite} /></Link>
           {leftToolbarGroup}
         </ToolbarGroup>
+        {this.props.children}
         <ToolbarGroup>
           <FlatButton
             label={this.props.intl.formatMessage(Messages.login)}

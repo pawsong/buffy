@@ -1,11 +1,10 @@
 {
   "dependencies": {
     "lodash": "registry:npm/lodash#4.0.0+20160416211519",
-    "react-addons-update": "registry:npm/react-addons-update#0.14.0+20160324044346",
     "source-map": "registry:npm/source-map#0.4.0+20160211003958"
   },
   "globalDependencies": {
-    "bluebird": "registry:dt/bluebird#2.0.0+20160319051630",
+    "bluebird": "registry:dt/bluebird#2.0.0+20160701023356",
     "classnames": "registry:dt/classnames#0.0.0+20160316155526",
     "clean-css": "registry:dt/clean-css#3.4.9+20160316155526",
     "compression": "registry:dt/compression#0.0.0+20160317120654",
@@ -19,12 +18,13 @@
     "html-minifier": "registry:dt/html-minifier#1.1.1+20160316155526",
     "invariant": "registry:dt/invariant#2.2.0+20160317120654",
     "jszip": "registry:dt/jszip#0.0.0+20160709055933",
-    "material-ui": "registry:dt/material-ui#0.15.0+20160602140214",
+    "material-ui": "registry:dt/material-ui#0.15.1+20160720000941",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
     "node": "registry:dt/node#4.0.0+20160423143914",
     "pako": "registry:dt/pako#0.0.0+20160317120654",
     "pascal-case": "registry:dt/pascal-case#0.0.0+20160316155526",
     "react": "registry:dt/react#0.14.0+20160602151522",
+    "react-addons-update": "registry:dt/react-addons-update#0.14.0+20160316155526",
     "react-dnd": "registry:dt/react-dnd#1.1.4+20160316155526",
     "react-dom": "registry:dt/react-dom#0.14.0+20160412154040",
     "react-dropzone": "registry:dt/react-dropzone#0.0.0+20160316171810",
