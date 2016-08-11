@@ -49,11 +49,13 @@ interface MaterialToRestore {
 
 interface ResizeToolProps {
   size: Position;
+  perspective: boolean;
   fragment: MaterialMaps;
 }
 
 interface ResizeToolTree {
   size: Position;
+  perspective: boolean;
 }
 
 class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> {
@@ -78,6 +80,7 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
 
     return {
       size,
+      perspective: params.common.perspective,
       fragment: params.file.present.data.fragment,
     };
   }
@@ -87,6 +90,7 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
       type: SchemaType.OBJECT,
       properties: {
         size: { type: SchemaType.ANY },
+        perspective: { type: SchemaType.ANY },
       },
     };
   }
@@ -94,6 +98,7 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
   render() {
     return {
       size: this.props.size,
+      perspective: this.props.perspective,
     };
   }
 
@@ -113,6 +118,10 @@ class ResizeTool extends ModelEditorTool<ResizeToolProps, void, ResizeToolTree> 
         .set(size[0], size[1], size[2])
         .multiplyScalar(PIXEL_SCALE);
       this.boundingBox.updateMatrixWorld(false);
+    }
+
+    if (diff.hasOwnProperty('perspective')) {
+      this.onCameraMove();
     }
   }
 
@@ -304,7 +313,7 @@ class DragState extends ToolState {
     const material = new THREE.MeshBasicMaterial();
     this.drawGuide = new THREE.Mesh(geometry, material);
 
-    // For debugging
+    // // For debugging
     // material.transparent = true;
     // material.opacity = 0.5;
     // material.color.setHex(0xff0000);

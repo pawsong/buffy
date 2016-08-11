@@ -1322,7 +1322,7 @@ class ModelEditorCanvas extends Canvas {
   }
 
   getCameraZoom() {
-    if (this.state.common.perspective) {
+    if (this.camera === this.cameraP) {
       return 500 / this.temp1.subVectors(this.camera.position, this.controls.target).length();
     } else {
       return this.cameraO.zoom;
@@ -1349,6 +1349,24 @@ class ModelEditorCanvas extends Canvas {
   }
 
   onStateChange(nextState: ModelEditorState) {
+    if (this.state.common.perspective !== nextState.common.perspective) {
+      let dest: THREE.Camera;
+      let src: THREE.Camera;
+
+      if (nextState.common.perspective) {
+        dest = this.cameraP;
+        src = this.cameraO;
+      } else {
+        dest = this.cameraO;
+        src = this.cameraP;
+      }
+
+      const length = this.temp1.subVectors(dest.position, this.controls.target).length();
+      const direction = this.temp1.subVectors(src.position, this.controls.target).normalize();
+      dest.position.copy(direction).multiplyScalar(length).add(this.controls.target);
+      this.handleChangeCamera(dest, nextState.file.present.data.size);
+    }
+
     this.component.updateProps({
       model: nextState.file.present.data,
       common: nextState.common,
@@ -1382,16 +1400,6 @@ class ModelEditorCanvas extends Canvas {
       if (this.state.file.present.data.mode2d.enabled) {
         const props = this.Mode2dTool.mapParamsToProps(nextState);
         if (props) this.Mode2dTool.updateProps(props);
-      }
-    }
-
-    if (this.state.common.perspective !== nextState.common.perspective) {
-      if (nextState.common.perspective) {
-        this.cameraP.position.copy(this.cameraO.position);
-        this.handleChangeCamera(this.cameraP, nextState.file.present.data.size);
-      } else {
-        this.cameraO.position.copy(this.cameraP.position);
-        this.handleChangeCamera(this.cameraO, nextState.file.present.data.size);
       }
     }
 

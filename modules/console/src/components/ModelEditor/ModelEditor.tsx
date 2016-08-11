@@ -742,7 +742,7 @@ ModelEditor.createCommonState = (params?: CreateCommonStateParams) => {
   return Object.assign({}, state, params);
 };
 
-const radius = PIXEL_SCALE * 30, theta = 135, phi = 30;
+const radius = PIXEL_SCALE * 500, theta = 135, phi = 30;
 
 ModelEditor.createExtraData = (size: Position) => {
   const cameraO = new THREE.OrthographicCamera(0, 0, 0, 0, -100000, 100000);
@@ -758,7 +758,7 @@ ModelEditor.createExtraData = (size: Position) => {
   cameraO.zoom = 0.3;
 
   const cameraP = new THREE.PerspectiveCamera(70, 1, 1, 1000000);
-  cameraP.position.copy(cameraO.position);
+  cameraP.position.copy(cameraO.position).multiplyScalar(cameraO.zoom / 4);
 
   return {
     cameraO, cameraP,
