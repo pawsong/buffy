@@ -28,9 +28,9 @@ class CurvedArrowGeometry extends THREE.ExtrudeGeometry {
       oRadius,
       oRadius, oRadius
     );
-    shape.moveTo(oRadius, radius + lineWidth * headSize);
-    shape.moveTo(size, radius);
-    shape.moveTo(oRadius, radius - lineWidth * headSize);
+    shape.lineTo(oRadius, radius + lineWidth * headSize);
+    shape.lineTo(size, radius);
+    shape.lineTo(oRadius, radius - lineWidth * headSize);
     shape.moveTo(oRadius, iRadius);
     shape.quadraticCurveTo(
       oRadius - iRadius * Math.tan(angle / 2),
@@ -55,18 +55,18 @@ const bidirectionalArrowExtrudeSettings = {
 };
 
 const lineShape = new THREE.Shape();
-lineShape.moveTo(0,   1 / 2);
-lineShape.moveTo(1,   1 / 2);
-lineShape.moveTo(1, - 1 / 2);
-lineShape.moveTo(0, - 1 / 2);
+lineShape.lineTo(0,   1 / 2);
+lineShape.lineTo(1,   1 / 2);
+lineShape.lineTo(1, - 1 / 2);
+lineShape.lineTo(0, - 1 / 2);
 
 const lineGeometry = lineShape.extrude(bidirectionalArrowExtrudeSettings);
 lineGeometry.translate(- 1 / 2, 0, - bidirectionalArrowExtrudeSettings.amount / 2);
 
 const arrowShape = new THREE.Shape();
-arrowShape.moveTo(0,   0);
-arrowShape.moveTo(1,   1);
-arrowShape.moveTo(1, - 1);
+arrowShape.lineTo(0,   0);
+arrowShape.lineTo(1,   1);
+arrowShape.lineTo(1, - 1);
 
 const arrowGeometry = arrowShape.extrude(bidirectionalArrowExtrudeSettings);
 arrowGeometry.translate(0, 0, - bidirectionalArrowExtrudeSettings.amount / 2);
