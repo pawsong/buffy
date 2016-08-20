@@ -86,6 +86,7 @@ export type PanelFilter = Immutable.Set<PanelType>;
 export enum SupportFileType {
   MAGICA_VOXEL,
   QUBICLE,
+  MESH,
 }
 
 export type Transformation = [

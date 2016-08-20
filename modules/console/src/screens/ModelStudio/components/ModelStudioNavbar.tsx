@@ -133,6 +133,12 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
             onTouchTap={this.handleExportAsQubicleClick}
             disabled={!this.props.file}
           />
+          <MenuItem
+            className={styles.menuItem}
+            primaryText={'Mesh (.msgpack)'}
+            onTouchTap={this.handleExportAsMeshClick}
+            disabled={!this.props.file}
+          />
         </Menu>
       </Paper>
     );
@@ -162,6 +168,11 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
 
   handleExportAsQubicleClick = () => {
     this.props.onDownload(ModelSupportFileType.QUBICLE);
+    this.closeExportMenu();
+  }
+
+  handleExportAsMeshClick = () => {
+    this.props.onDownload(ModelSupportFileType.MESH);
     this.closeExportMenu();
   }
 
