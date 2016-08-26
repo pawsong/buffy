@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 
 import Cursor, { CursorEventParams } from '../../../../canvas/Cursor';

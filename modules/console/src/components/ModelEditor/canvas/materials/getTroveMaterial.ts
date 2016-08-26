@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 
 const tiledGlassVertexShader = require('raw!../shaders/tiledGlass.vert');
 const tiledGlassFragmentShader = require('raw!../shaders/tiledGlass.frag');

@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 
 import { ToolState } from '../../../../../libs/Tool';
 import Cursor, { CursorEventParams } from '../../../../../canvas/Cursor';

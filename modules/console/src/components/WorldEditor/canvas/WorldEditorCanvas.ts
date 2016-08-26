@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import ModelManager from '../../../canvas/ModelManager';
 import ZoneCanvas from '../../../canvas/ZoneCanvas';

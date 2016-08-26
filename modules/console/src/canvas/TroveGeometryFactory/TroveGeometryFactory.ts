@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import ndarray from 'ndarray';
 import mesher from '../meshers/trove';
 import { createGeometryFromMesh } from '../utils';

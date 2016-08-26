@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import GameObject from '@pasta/core/lib/classes/GameObject';
 
 // TODO Support dynamic grid size

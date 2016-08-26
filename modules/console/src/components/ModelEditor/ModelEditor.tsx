@@ -7,7 +7,7 @@ import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 const pure = require('recompose/pure').default;
 
-import THREE from 'three';
+import * as THREE from 'three';
 
 import JSZip from 'jszip';
 import * as pako from 'pako';

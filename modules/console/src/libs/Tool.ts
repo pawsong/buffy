@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 const invariant = require('fbjs/lib/invariant');
 import mapValues from 'lodash/mapValues';
 import { Differ, Schema } from '@pasta/helper/lib/diff';

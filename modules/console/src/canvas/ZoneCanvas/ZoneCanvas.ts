@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import StateStore from '@pasta/core/lib/StateStore';
 import GameObject from '@pasta/core/lib/classes/GameObject';

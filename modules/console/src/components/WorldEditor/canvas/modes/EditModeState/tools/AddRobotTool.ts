@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import * as shortid from 'shortid';
 import StateLayer from '@pasta/core/lib/StateLayer';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';

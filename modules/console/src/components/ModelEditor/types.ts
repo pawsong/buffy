@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import Immutable from 'immutable';
 import { Ndarray } from 'ndarray';
 import { UndoableState } from '@pasta/helper/lib/undoable';

@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 
 export interface Position {
   x: number; y: number; z: number;

@@ -1,5 +1,5 @@
 import { grey200, grey900 } from 'material-ui/styles/colors';
-import THREE from 'three';
+import * as THREE from 'three';
 import * as ndarray from 'ndarray';
 const mapValues = require('lodash/mapValues');
 const findLastIndex = require('lodash/findLastIndex');
@@ -833,12 +833,20 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
           const clippingPlanes = [this.mode2dClippingPlane];
 
-          this.modelMaterial['clippingPlanes'] =
-          this.modelGridMaterial['clippingPlanes'] =
-          this.selectionMaterial['clippingPlanes'] =
-          this.fragmentGridMaterial['clippingPlanes'] = clippingPlanes;
+          this.modelMaterial.clippingPlanes =
+          this.modelGridMaterial.clippingPlanes =
+          this.selectionMaterial.clippingPlanes =
+          this.fragmentGridMaterial.clippingPlanes = clippingPlanes;
 
-          this.modelMultiMaterial.materials.forEach(material => material['clippingPlanes'] = clippingPlanes);
+          this.modelMultiMaterial.materials.forEach(material => material.clippingPlanes = clippingPlanes);
+
+          // Force update until https://github.com/mrdoob/three.js/pull/9585 is merged
+          [
+            this.modelMaterial,
+            this.modelGridMaterial,
+            this.selectionMaterial,
+            this.fragmentGridMaterial,
+          ].concat(this.modelMultiMaterial.materials).forEach(material => material.needsUpdate = true);
 
           this.patchSlices();
           this.updateClippingPlane(this.tree.mode2d.axis, this.tree.mode2d.position);
@@ -851,12 +859,20 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
 
           this.modelMaterial.transparent = false;
 
-          this.modelMaterial['clippingPlanes'] =
-          this.modelGridMaterial['clippingPlanes'] =
-          this.selectionMaterial['clippingPlanes'] =
-          this.fragmentGridMaterial['clippingPlanes'] = [];
+          this.modelMaterial.clippingPlanes =
+          this.modelGridMaterial.clippingPlanes =
+          this.selectionMaterial.clippingPlanes =
+          this.fragmentGridMaterial.clippingPlanes = [];
 
-          this.modelMultiMaterial.materials.forEach(material => material['clippingPlanes'] = []);
+          this.modelMultiMaterial.materials.forEach(material => material.clippingPlanes = []);
+
+          // Force update until https://github.com/mrdoob/three.js/pull/9585 is merged
+          [
+            this.modelMaterial,
+            this.modelGridMaterial,
+            this.selectionMaterial,
+            this.fragmentGridMaterial,
+          ].concat(this.modelMultiMaterial.materials).forEach(material => material.needsUpdate = true);
         }
       } else {
         this.patchSlices();
@@ -1160,7 +1176,7 @@ class ModelEditorCanvas extends Canvas {
 
     super.init();
 
-    this.renderer['localClippingEnabled'] = true;
+    this.renderer.localClippingEnabled = true;
     this.renderer.setClearColor(0x333333);
     this.renderer.autoClear = false;
 

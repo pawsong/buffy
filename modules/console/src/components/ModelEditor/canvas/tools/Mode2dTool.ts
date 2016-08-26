@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import Immutable from 'immutable';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 

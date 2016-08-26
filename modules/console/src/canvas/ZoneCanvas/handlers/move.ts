@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import { StoreEvents, StoreListen } from '@pasta/core/lib/store/Events';
 import { StoreHandler } from '../interface';
 import ZoneCanvas from '../ZoneCanvas';

@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import { Position } from '@pasta/core/lib/types';
 import { Schema, SchemaType } from '@pasta/helper/lib/diff';
 

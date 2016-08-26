@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 
 const lineGeometry = new THREE.BufferGeometry();
 lineGeometry.addAttribute( 'position', new THREE.Float32Attribute([ 0, 0, 0, 0, 1, 0 ], 3 ));

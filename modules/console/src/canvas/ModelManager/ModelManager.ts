@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 const invariant = require('fbjs/lib/invariant');
 import { Mesh } from '@pasta/core/lib/types';
 import * as Immutable from 'immutable';
