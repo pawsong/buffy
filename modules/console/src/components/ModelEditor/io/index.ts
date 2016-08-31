@@ -1,6 +1,6 @@
 import { importVoxFile, exportVoxFile } from './vox';
 import { importQbFile, exportQbFile } from './qb';
-import { exportMeshFile } from './mesh';
+import { exportMeshFile, exportRawMeshFile } from './mesh';
 
 export {
   importVoxFile,
@@ -8,4 +8,5 @@ export {
   importQbFile,
   exportQbFile,
   exportMeshFile,
+  exportRawMeshFile,
 }

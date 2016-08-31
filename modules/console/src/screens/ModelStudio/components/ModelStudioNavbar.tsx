@@ -139,6 +139,12 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
             onTouchTap={this.handleExportAsMeshClick}
             disabled={!this.props.file}
           />
+          <MenuItem
+            className={styles.menuItem}
+            primaryText={'Raw Mesh (.msgpack)'}
+            onTouchTap={this.handleExportAsRawMeshClick}
+            disabled={!this.props.file}
+          />
         </Menu>
       </Paper>
     );
@@ -173,6 +179,11 @@ class ModelStudioNavbar extends React.Component<ModelStudioNavbarProps, ModelStu
 
   handleExportAsMeshClick = () => {
     this.props.onDownload(ModelSupportFileType.MESH);
+    this.closeExportMenu();
+  }
+
+  handleExportAsRawMeshClick = () => {
+    this.props.onDownload(ModelSupportFileType.RAW_MESH);
     this.closeExportMenu();
   }
 

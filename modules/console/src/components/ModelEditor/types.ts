@@ -87,6 +87,7 @@ export enum SupportFileType {
   MAGICA_VOXEL,
   QUBICLE,
   MESH,
+  RAW_MESH,
 }
 
 export type Transformation = [

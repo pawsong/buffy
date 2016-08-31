@@ -62,6 +62,7 @@ import {
   importQbFile,
   exportQbFile,
   exportMeshFile,
+  exportRawMeshFile,
 } from './io';
 
 import {
@@ -235,6 +236,9 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
     thumbnailFactory: ThumbnailFactory, fileState: FileState, filename: string, username: string
   ) => Promise<ExportFileResult>;
   static exportMeshFile: (
+    thumbnailFactory: ThumbnailFactory, fileState: FileState, filename: string, username: string
+  ) => Promise<ExportFileResult>;
+  static exportRawMeshFile: (
     thumbnailFactory: ThumbnailFactory, fileState: FileState, filename: string, username: string
   ) => Promise<ExportFileResult>;
 
@@ -883,6 +887,10 @@ ModelEditor.exportQbFile = (thumbnailFactory, fileState, filename, username) => 
 
 ModelEditor.exportMeshFile = (thumbnailFactory, fileState, filename, username) => {
   return exportFile(thumbnailFactory, fileState, filename, username, 'msgpack', exportMeshFile);
+};
+
+ModelEditor.exportRawMeshFile = (thumbnailFactory, fileState, filename, username) => {
+  return exportFile(thumbnailFactory, fileState, filename, username, 'msgpack', exportRawMeshFile);
 };
 
 ModelEditor.createFileState = createFileState;

@@ -542,6 +542,12 @@ class ModelStudioHandler extends React.Component<HandlerProps, HandlerState> {
           .catch(error => this.props.pushSnackbar({ message: `Export file failed: ${error}` }));
         return;
       }
+      case ModelSupportFileType.RAW_MESH: {
+        ModelEditor.exportRawMeshFile(this.thumbnailFactory, file.body, filename, username)
+          .then(({ extension, data }) => saveAs(new Blob([data]), `${file.name || 'untitled'}.${extension}`, true))
+          .catch(error => this.props.pushSnackbar({ message: `Export file failed: ${error}` }));
+        return;
+      }
     }
   }
 
