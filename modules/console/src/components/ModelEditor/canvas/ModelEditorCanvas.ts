@@ -58,6 +58,7 @@ import {
   Position,
   Axis,
   MaterialMaps,
+  Color,
 } from '../types';
 
 import {
@@ -117,6 +118,7 @@ interface ComponentTree {
     position: number;
   }
   showWireframe: boolean;
+  backgroundColor: Color;
 }
 
 const PLANE_GRID_STEP = 4;
@@ -143,6 +145,10 @@ const rotations = [
 const CLIPPING_OFFSET = 1;
 
 const VIEW_CUBE_SIZE = 70;
+
+function isBright(r: number, g: number, b: number) {
+  return (r * 0.299 + g * 0.587 + b * 0.114) > 186;
+}
 
 class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, ComponentState, ComponentTree> {
   private emptyMesh: THREE.Mesh;
@@ -231,6 +237,7 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
           },
         },
         showWireframe: { type: SchemaType.ANY },
+        backgroundColor: { type: SchemaType.ANY },
       },
     };
   }
@@ -579,10 +586,18 @@ class ModelEditorCanvasComponent extends SimpleComponent<ComponentProps, Compone
       size: this.props.model.size,
       mode2d: Object.assign({}, this.props.model.mode2d, this.state.mode2d),
       showWireframe: this.props.common.showWireframe,
+      backgroundColor: this.props.common.backgroundColor,
     };
   }
 
   patch(diff: ComponentTree) {
+    if (diff.hasOwnProperty('backgroundColor')) {
+      const color = this.tree.backgroundColor;
+      const bright = isBright(color.r, color.g, color.b);
+      const c = bright ? 0x33 / 0xff : 1;
+      this.planeMaterial.uniforms.gridColor.value.set(c, c, c);
+    }
+
     if (diff.hasOwnProperty('size')) {
       if (this.plane.visible) {
         this.canvas.scene.remove(this.plane);
@@ -1177,7 +1192,7 @@ class ModelEditorCanvas extends Canvas {
     super.init();
 
     this.renderer.localClippingEnabled = true;
-    this.renderer.setClearColor(0x333333);
+    this.updateBackgroundColor(this.state.common.backgroundColor);
     this.renderer.autoClear = false;
 
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
@@ -1275,6 +1290,10 @@ class ModelEditorCanvas extends Canvas {
     });
 
     this.render();
+  }
+
+  updateBackgroundColor(color: Color) {
+    this.renderer.setClearColor(new THREE.Color(color.r / 0xff, color.g / 0xff, color.b / 0xff));
   }
 
   syncLightToCamera() {
@@ -1417,6 +1436,10 @@ class ModelEditorCanvas extends Canvas {
         const props = this.Mode2dTool.mapParamsToProps(nextState);
         if (props) this.Mode2dTool.updateProps(props);
       }
+    }
+
+    if (this.state.common.backgroundColor !== nextState.common.backgroundColor) {
+      this.updateBackgroundColor(nextState.common.backgroundColor);
     }
 
     this.state = nextState;

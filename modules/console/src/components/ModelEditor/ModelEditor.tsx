@@ -126,6 +126,7 @@ import {
   voxelResize,
   changePerspective,
   changeShowWireframe,
+  changeBackgroundColor,
 } from './actions';
 
 import HistoryPanel from './components/panels/HistoryPanel';
@@ -673,6 +674,10 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
 
   stopMouseEventPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
+  handleChangeBackgroundColor = (color: Color) => {
+    this.dispatchAction(changeBackgroundColor(color));
+  }
+
   render() {
     const shorcutKey = this.isMac ? '⌘' : 'Ctrl+';
     const esc = this.isMac ? 'esc' : 'Esc';
@@ -747,6 +752,8 @@ class ModelEditor extends React.Component<ModelEditorProps, ContainerStates> {
             size={this.state.size || this.props.fileState.present.data.size}
             onTroveItemTypeChange={this.handleTroveItemTypeChange}
             onSizeChange={this.handleSizeChange}
+            backgroundColor={this.props.commonState.backgroundColor}
+            changeBackgroundColor={this.handleChangeBackgroundColor}
           />
         )}
       </div>

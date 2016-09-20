@@ -60,3 +60,23 @@
 .itemBody {
   font-weight: bold;
 }
+
+.bgColorPicker {
+  & > div {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  & > div > div:nth-child(1) {
+    display: none;
+  }
+
+  & > div > div:nth-child(2) {
+    display: none;
+  }
+
+  & > div > div:nth-child(3) {
+    padding: 0 !important;
+  }
+}

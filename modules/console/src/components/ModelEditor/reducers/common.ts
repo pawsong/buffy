@@ -5,6 +5,7 @@ import {
   VOXEL_COPY, VoxelCopyAction,
   CHANGE_PERSPECTIVE, ChangePerspectiveAction,
   CHANGE_SHOW_WIREFRAME, ChangeShowWireframeAction,
+  CHANGE_BACKGROUND_COLOR, ChangeBackgroundColorAction,
 } from '../actions';
 
 import {
@@ -42,6 +43,7 @@ const initialState: CommonState = {
   clipboard: null,
   perspective: false,
   showWireframe: true,
+  backgroundColor: { r: 51, g: 51, b: 51 }, // 0x333333
 }
 
 export default function common(state = initialState, action: Action<any>) {
@@ -92,6 +94,12 @@ export default function common(state = initialState, action: Action<any>) {
       const { showWireframe } = <ChangeShowWireframeAction>action;
       return Object.assign({}, state, <CommonState>{
         showWireframe,
+      });
+    }
+    case CHANGE_BACKGROUND_COLOR: {
+      const { backgroundColor } = <ChangeBackgroundColorAction> action;
+      return Object.assign({}, state, <CommonState> {
+        backgroundColor,
       });
     }
   }

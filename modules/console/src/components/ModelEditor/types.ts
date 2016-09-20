@@ -195,6 +195,7 @@ export interface CommonState {
   clipboard: Clipboard;
   perspective: boolean;
   showWireframe: boolean;
+  backgroundColor: Color;
 }
 
 export interface ModelEditorState {

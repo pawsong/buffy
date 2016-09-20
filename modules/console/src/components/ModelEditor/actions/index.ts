@@ -482,3 +482,14 @@ export function changeShowWireframe(showWireframe: boolean): ChangeShowWireframe
     showWireframe,
   };
 }
+
+export const CHANGE_BACKGROUND_COLOR: 'CHANGE_BACKGROUND_COLOR' = 'CHANGE_BACKGROUND_COLOR';
+export interface ChangeBackgroundColorAction extends Action<typeof CHANGE_BACKGROUND_COLOR> {
+  backgroundColor: Color;
+}
+export function changeBackgroundColor(backgroundColor: Color): ChangeBackgroundColorAction {
+  return {
+    type: CHANGE_BACKGROUND_COLOR,
+    backgroundColor,
+  };
+}

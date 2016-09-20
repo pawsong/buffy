@@ -9,7 +9,7 @@ import * as Colors from 'material-ui/styles/colors';
 import Toggle from 'material-ui/Toggle';
 import * as ReactDnd from 'react-dnd';
 const { default: Swatches } = require('react-color/lib/components/swatches/Swatches');
-const { default: Sketch } = require('react-color/lib/components/sketched/Sketch');
+const { default: Sketch } = require('react-color/lib/components/sketch/Sketch');
 import { defineMessages, injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
 import getUniqueToolType from '../../utils/getUniqueToolType';
 

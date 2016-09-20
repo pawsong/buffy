@@ -1,9 +1,13 @@
 import React from 'react';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import classNames from 'classnames';
+
+const { default: Twitter } = require('react-color/lib/components/twitter/Twitter');
 
 import {
   Position,
+  Color,
   SupportFileType,
   TroveMetaData,
   TroveItemType,
@@ -25,6 +29,8 @@ interface SidebarProps extends React.Props<Sidebar> {
   trove: TroveMetaData;
   onTroveItemTypeChange: (itemType: TroveItemType) => any;
   onSizeChange: (x: number, y: number, z: number) => any;
+  backgroundColor: Color;
+  changeBackgroundColor: (color: Color) => any;
 }
 
 const troveItemTypes = [];
@@ -42,6 +48,11 @@ interface SidebarState {
 }
 
 const patt = /^[0-9]{0,3}$/;
+
+const BG_COLORS = [
+  '#FF6900', '#FCB900', '#7BDCB5', '#00D084', '#8ED1FC',
+  '#0693E3', '#FFFFFF', '#EB144C', '#F78DA7', '#333333',
+];
 
 function handleChangeSize(callback: (val: string) => any) {
   return (event: React.FormEvent) => {
@@ -99,7 +110,13 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     }
   }
 
+  handleBackgroundColorChange = (value) => {
+    this.props.changeBackgroundColor(value.rgb);
+  }
+
   render() {
+    const { backgroundColor } = this.props;
+
     return (
       <div className={styles.sidebar}>
         <div className={styles.sidebarInner}>
@@ -131,6 +148,17 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
                 onChange={this.handleChangeSizeZ}
                 onBlur={this.handleSizeInputBlur}
                 onKeyDown={this.handleChangeSizeKeydown}
+              />
+            </div>
+          </div>
+          <div className={styles.item}>
+            <div className={styles.itemLabel}>Background Color</div>
+            <div className={classNames(styles.itemBody, styles.bgColorPicker)}>
+              <Twitter
+                width={180}
+                color={backgroundColor}
+                onChange={this.handleBackgroundColorChange}
+                colors={BG_COLORS}
               />
             </div>
           </div>
