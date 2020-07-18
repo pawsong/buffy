@@ -44,7 +44,7 @@
     "http-errors": "^1.4.0",
     "jsonwebtoken": "^5.5.4",
     "kerberos": "0.0.17",
-    "lodash": "^3.10.1",
+    "lodash": "^4.17.19",
     "mongoose": "^4.4.12",
     "request": "^2.67.0",
     "shortid": "^2.2.4",
