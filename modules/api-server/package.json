@@ -43,7 +43,7 @@
     "express-jwt": "^3.3.0",
     "http-errors": "^1.4.0",
     "jsonwebtoken": "^5.5.4",
-    "kerberos": "0.0.17",
+    "kerberos": "1.1.3",
     "lodash": "^3.10.1",
     "mongoose": "^4.4.12",
     "request": "^2.67.0",
